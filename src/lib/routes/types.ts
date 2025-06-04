@@ -54,6 +54,7 @@ export type CommonNavigatorParams = {
   ContentAndMediaSettings: undefined
   SettingsInterests: undefined
   AboutSettings: undefined
+  BlackskySettings: undefined
   AppIconSettings: undefined
   Search: {q?: string}
   Hashtag: {tag: string; author?: string}

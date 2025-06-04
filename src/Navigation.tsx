@@ -79,29 +79,16 @@ import {ProfileFeedScreen} from '#/screens/Profile/ProfileFeed'
 import {ProfileFollowersScreen} from '#/screens/Profile/ProfileFollowers'
 import {ProfileFollowsScreen} from '#/screens/Profile/ProfileFollows'
 import {ProfileLabelerLikedByScreen} from '#/screens/Profile/ProfileLabelerLikedBy'
-import {ProfileSearchScreen} from '#/screens/Profile/ProfileSearch'
 import {SearchScreen} from '#/screens/Search'
-import {AboutSettingsScreen} from '#/screens/Settings/AboutSettings'
-import {AccessibilitySettingsScreen} from '#/screens/Settings/AccessibilitySettings'
-import {AccountSettingsScreen} from '#/screens/Settings/AccountSettings'
 import {AppearanceSettingsScreen} from '#/screens/Settings/AppearanceSettings'
 import {AppIconSettingsScreen} from '#/screens/Settings/AppIconSettings'
-import {AppPasswordsScreen} from '#/screens/Settings/AppPasswords'
-import {ContentAndMediaSettingsScreen} from '#/screens/Settings/ContentAndMediaSettings'
-import {ExternalMediaPreferencesScreen} from '#/screens/Settings/ExternalMediaPreferences'
-import {FollowingFeedPreferencesScreen} from '#/screens/Settings/FollowingFeedPreferences'
-import {LanguageSettingsScreen} from '#/screens/Settings/LanguageSettings'
 import {NotificationSettingsScreen} from '#/screens/Settings/NotificationSettings'
-import {PrivacyAndSecuritySettingsScreen} from '#/screens/Settings/PrivacyAndSecuritySettings'
-import {SettingsScreen} from '#/screens/Settings/Settings'
 import {SettingsInterests} from '#/screens/Settings/SettingsInterests'
-import {ThreadPreferencesScreen} from '#/screens/Settings/ThreadPreferences'
 import {
   StarterPackScreen,
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
-import TopicScreen from '#/screens/Topic'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {useTheme} from '#/alf'
 import {
@@ -110,6 +97,20 @@ import {
 } from '#/components/dialogs/EmailDialog'
 import {router} from '#/routes'
 import {Referrer} from '../modules/expo-bluesky-swiss-army'
+import {ProfileSearchScreen} from './screens/Profile/ProfileSearch'
+import {AboutSettingsScreen} from './screens/Settings/AboutSettings'
+import {AccessibilitySettingsScreen} from './screens/Settings/AccessibilitySettings'
+import {AccountSettingsScreen} from './screens/Settings/AccountSettings'
+import {AppPasswordsScreen} from './screens/Settings/AppPasswords'
+import {BlackskySettingsScreen} from './screens/Settings/BlackskySettings'
+import {ContentAndMediaSettingsScreen} from './screens/Settings/ContentAndMediaSettings'
+import {ExternalMediaPreferencesScreen} from './screens/Settings/ExternalMediaPreferences'
+import {FollowingFeedPreferencesScreen} from './screens/Settings/FollowingFeedPreferences'
+import {LanguageSettingsScreen} from './screens/Settings/LanguageSettings'
+import {PrivacyAndSecuritySettingsScreen} from './screens/Settings/PrivacyAndSecuritySettings'
+import {SettingsScreen} from './screens/Settings/Settings'
+import {ThreadPreferencesScreen} from './screens/Settings/ThreadPreferences'
+import TopicScreen from './screens/Topic'
 
 const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 
@@ -131,6 +132,7 @@ function commonScreens(Stack: typeof HomeTab, unreadCountLabel?: string) {
   const title = (page: MessageDescriptor) =>
     bskyTitle(i18n._(page), unreadCountLabel)
 
+  // @ts-ignore
   return (
     <>
       <Stack.Screen
@@ -353,6 +355,14 @@ function commonScreens(Stack: typeof HomeTab, unreadCountLabel?: string) {
         getComponent={() => AccessibilitySettingsScreen}
         options={{
           title: title(msg`Accessibility Settings`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="BlackskySettings"
+        getComponent={() => BlackskySettingsScreen}
+        options={{
+          title: title(msg`Blacksky Settings`),
           requireAuth: true,
         }}
       />

@@ -18,20 +18,21 @@
 
 import {useCallback, useEffect, useMemo, useRef} from 'react'
 import {
-  AppBskyActorDefs,
+  type AppBskyActorDefs,
   AppBskyFeedDefs,
   AppBskyFeedPost,
   AtUri,
   moderatePost,
 } from '@atproto/api'
 import {
-  InfiniteData,
-  QueryClient,
-  QueryKey,
+  type InfiniteData,
+  type QueryClient,
+  type QueryKey,
   useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {useHideFollowNotifications} from '#/state/preferences/hide-follow-notifications'
 import {useAgent} from '#/state/session'
 import {useThreadgateHiddenReplyUris} from '#/state/threadgate-hidden-replies'
 import {useModerationOpts} from '../../preferences/moderation-opts'
@@ -41,7 +42,7 @@ import {
   embedViewRecordToPostView,
   getEmbeddedPost,
 } from '../util'
-import {FeedPage} from './types'
+import {type FeedPage} from './types'
 import {useUnreadNotificationsApi} from './unread'
 import {fetchPage} from './util'
 
@@ -63,6 +64,7 @@ export function useNotificationFeedQuery(opts: {
   const agent = useAgent()
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
+  const hideFollowNotifications = useHideFollowNotifications()
   const unreads = useUnreadNotificationsApi()
   const enabled = opts.enabled !== false
   const filter = opts.filter
@@ -111,6 +113,7 @@ export function useNotificationFeedQuery(opts: {
           cursor: pageParam,
           queryClient,
           moderationOpts,
+          hideFollowNotifications,
           fetchAdditionalData: true,
           reasons,
         })

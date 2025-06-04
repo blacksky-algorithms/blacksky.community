@@ -11,6 +11,9 @@ export type Device = {
   trendingBetaEnabled: boolean
   devMode: boolean
   demoMode: boolean
+
+  // blacksky
+  blackskyGateCache: string
 }
 
 export type Account = {

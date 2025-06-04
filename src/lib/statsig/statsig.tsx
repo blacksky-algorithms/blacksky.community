@@ -1,19 +1,19 @@
 import React from 'react'
 import {Platform} from 'react-native'
-import {AppState, AppStateStatus} from 'react-native'
-import {Statsig, StatsigProvider} from 'statsig-react-native-expo'
+import {AppState, type AppStateStatus} from 'react-native'
+import {Statsig} from 'statsig-react-native-expo'
 
-import {BUNDLE_DATE, BUNDLE_IDENTIFIER, IS_TESTFLIGHT} from '#/lib/app-info'
+import {BUNDLE_DATE, BUNDLE_IDENTIFIER} from '#/lib/app-info'
 import {logger} from '#/logger'
-import {MetricEvents} from '#/logger/metrics'
+import {type MetricEvents} from '#/logger/metrics'
 import {isWeb} from '#/platform/detection'
 import * as persisted from '#/state/persisted'
-import {useSession} from '../../state/session'
+import {device} from '#/storage'
 import {timeout} from '../async/timeout'
-import {useNonReactiveCallback} from '../hooks/useNonReactiveCallback'
-import {Gate} from './gates'
+// import {useNonReactiveCallback} from '../hooks/useNonReactiveCallback'
+import {type Gate} from './gates'
 
-const SDK_KEY = 'client-SXJakO39w9vIhl3D44u8UupyzFl4oZ2qPIkjwcvuPsV'
+// const SDK_KEY = 'client-SXJakO39w9vIhl3D44u8UupyzFl4oZ2qPIkjwcvuPsV'
 
 export const initPromise = initialize()
 
@@ -44,25 +44,25 @@ if (isWeb && typeof window !== 'undefined') {
 
 export type {MetricEvents as LogEvents}
 
-function createStatsigOptions(prefetchUsers: StatsigUser[]) {
-  return {
-    environment: {
-      tier:
-        process.env.NODE_ENV === 'development'
-          ? 'development'
-          : IS_TESTFLIGHT
-          ? 'staging'
-          : 'production',
-    },
-    // Don't block on waiting for network. The fetched config will kick in on next load.
-    // This ensures the UI is always consistent and doesn't update mid-session.
-    // Note this makes cold load (no local storage) and private mode return `false` for all gates.
-    initTimeoutMs: 1,
-    // Get fresh flags for other accounts as well, if any.
-    prefetchUsers,
-    api: 'https://events.bsky.app/v2',
-  }
-}
+// function createStatsigOptions(prefetchUsers: StatsigUser[]) {
+//   return {
+//     environment: {
+//       tier:
+//         process.env.NODE_ENV === 'development'
+//           ? 'development'
+//           : IS_TESTFLIGHT
+//           ? 'staging'
+//           : 'production',
+//     },
+//     // Don't block on waiting for network. The fetched config will kick in on next load.
+//     // This ensures the UI is always consistent and doesn't update mid-session.
+//     // Note this makes cold load (no local storage) and private mode return `false` for all gates.
+//     initTimeoutMs: 1,
+//     // Get fresh flags for other accounts as well, if any.
+//     prefetchUsers,
+//     api: 'https://events.bsky.app/v2',
+//   }
+// }
 
 type FlatJSONRecord = Record<
   string,
@@ -152,6 +152,22 @@ type GateOptions = {
   dangerouslyDisableExposureLogging?: boolean
 }
 
+export function useGatesCache(): Map<string, boolean> {
+  const cache = React.useContext(GateCache)
+  if (!cache) {
+    throw Error('useGate() cannot be called outside StatsigProvider.')
+  }
+  return cache
+}
+
+function writeBlackskyGateCache(cache: Map<string, boolean>) {
+  device.set(['blackskyGateCache'], JSON.stringify(Object.fromEntries(cache)))
+}
+
+export function resetBlackskyGateCache() {
+  writeBlackskyGateCache(new Map())
+}
+
 export function useGate(): (gateName: Gate, options?: GateOptions) => boolean {
   const cache = React.useContext(GateCache)
   if (!cache) {
@@ -172,6 +188,7 @@ export function useGate(): (gateName: Gate, options?: GateOptions) => boolean {
         }
       }
       cache.set(gateName, value)
+      writeBlackskyGateCache(cache)
       return value
     },
     [cache],
@@ -195,6 +212,7 @@ export function useDangerousSetGate(): (
   const dangerousSetGate = React.useCallback(
     (gateName: Gate, value: boolean) => {
       cache.set(gateName, value)
+      writeBlackskyGateCache(cache)
     },
     [cache],
   )
@@ -263,63 +281,14 @@ export async function tryFetchGates(
 }
 
 export function initialize() {
-  return Statsig.initialize(SDK_KEY, null, createStatsigOptions([]))
+  // return Statsig.initialize(SDK_KEY, null, createStatsigOptions([]))
+  return new Promise(() => {})
 }
 
 export function Provider({children}: {children: React.ReactNode}) {
-  const {currentAccount, accounts} = useSession()
-  const did = currentAccount?.did
-  const currentStatsigUser = React.useMemo(() => toStatsigUser(did), [did])
-
-  const otherDidsConcatenated = accounts
-    .map(account => account.did)
-    .filter(accountDid => accountDid !== did)
-    .join(' ') // We're only interested in DID changes.
-  const otherStatsigUsers = React.useMemo(
-    () => otherDidsConcatenated.split(' ').map(toStatsigUser),
-    [otherDidsConcatenated],
-  )
-  const statsigOptions = React.useMemo(
-    () => createStatsigOptions(otherStatsigUsers),
-    [otherStatsigUsers],
+  const gateCache = new Map<string, boolean>(
+    Object.entries(JSON.parse(device.get(['blackskyGateCache']) ?? '{}')),
   )
 
-  // Have our own cache in front of Statsig.
-  // This ensures the results remain stable until the active DID changes.
-  const [gateCache, setGateCache] = React.useState(() => new Map())
-  const [prevDid, setPrevDid] = React.useState(did)
-  if (did !== prevDid) {
-    setPrevDid(did)
-    setGateCache(new Map())
-  }
-
-  // Periodically poll Statsig to get the current rule evaluations for all stored accounts.
-  // These changes are prefetched and stored, but don't get applied until the active DID changes.
-  // This ensures that when you switch an account, it already has fresh results by then.
-  const handleIntervalTick = useNonReactiveCallback(() => {
-    if (Statsig.initializeCalled()) {
-      // Note: Only first five will be taken into account by Statsig.
-      Statsig.prefetchUsers([currentStatsigUser, ...otherStatsigUsers])
-    }
-  })
-  React.useEffect(() => {
-    const id = setInterval(handleIntervalTick, 60e3 /* 1 min */)
-    return () => clearInterval(id)
-  }, [handleIntervalTick])
-
-  return (
-    <GateCache.Provider value={gateCache}>
-      <StatsigProvider
-        key={did}
-        sdkKey={SDK_KEY}
-        mountKey={currentStatsigUser.userID}
-        user={currentStatsigUser}
-        // This isn't really blocking due to short initTimeoutMs above.
-        // However, it ensures `isLoading` is always `false`.
-        waitForInitialization={true}
-        options={statsigOptions}>
-        {children}
-      </StatsigProvider>
-    </GateCache.Provider>
-  )
+  return <GateCache.Provider value={gateCache}>{children}</GateCache.Provider>
 }

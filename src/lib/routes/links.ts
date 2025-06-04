@@ -1,6 +1,4 @@
-import {AppBskyGraphDefs, AtUri} from '@atproto/api'
-
-import {isInvalidHandle} from '#/lib/strings/handles'
+import {type AppBskyGraphDefs, AtUri} from '@atproto/api'
 
 export function makeProfileLink(
   info: {
@@ -9,11 +7,7 @@ export function makeProfileLink(
   },
   ...segments: string[]
 ) {
-  let handleSegment = info.did
-  if (info.handle && !isInvalidHandle(info.handle)) {
-    handleSegment = info.handle
-  }
-  return [`/profile`, handleSegment, ...segments].join('/')
+  return [`/profile`, info.did, ...segments].join('/')
 }
 
 export function makeCustomFeedLink(

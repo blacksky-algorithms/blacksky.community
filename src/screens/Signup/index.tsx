@@ -28,7 +28,13 @@ import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
 
-export function Signup({onPressBack}: {onPressBack: () => void}) {
+export function Signup({
+  onPressBack,
+  onPressSignIn,
+}: {
+  onPressBack: () => void
+  onPressSignIn: () => void
+}) {
   const {_} = useLingui()
   const t = useTheme()
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -106,7 +112,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
       <LoggedOutLayout
         leadin=""
         title={_(msg`Create Account`)}
-        description={_(msg`We're so excited to have you join us!`)}
+        description={_(msg`Welcome to the ATmosphere!`)}
         scrollable>
         <View testID="createAccount" style={a.flex_1}>
           {showStarterPackCard &&
@@ -155,7 +161,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
               </Text>
               <Text style={[a.text_3xl, a.font_bold]}>
                 {state.activeStep === SignupStep.INFO ? (
-                  <Trans>Your account</Trans>
+                  <Trans>The ATmosphere ✨</Trans>
                 ) : state.activeStep === SignupStep.HANDLE ? (
                   <Trans>Choose your username</Trans>
                 ) : (
@@ -168,6 +174,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
               {state.activeStep === SignupStep.INFO ? (
                 <StepInfo
                   onPressBack={onPressBack}
+                  onPressSignIn={onPressSignIn}
                   isLoadingStarterPack={
                     isFetchingStarterPack && !isErrorStarterPack
                   }
@@ -197,7 +204,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                   label={_(msg`Contact support`)}
                   to={FEEDBACK_FORM_URL({email: state.email})}
                   style={[!gtMobile && a.text_md]}>
-                  <Trans>Contact support</Trans>
+                  <Trans>Open a Github Issue</Trans>
                 </InlineLinkText>
               </Text>
             </View>

@@ -22,6 +22,7 @@ import {findAllProfilesInQueryData as findAllProfilesInProfileFollowsQueryData} 
 import {findAllProfilesInQueryData as findAllProfilesInSuggestedFollowsQueryData} from '#/state/queries/suggested-follows'
 import {findAllProfilesInQueryData as findAllProfilesInSuggestedUsersQueryData} from '#/state/queries/trending/useGetSuggestedUsersQuery'
 import type * as bsky from '#/types/bsky'
+import {useBlackskyVerificationProfileOverlay} from '../queries/blacksky-verification'
 import {castAsShadow, type Shadow} from './types'
 
 export type {Shadow} from './types'
@@ -60,13 +61,14 @@ export function useProfileShadow<
     }
   }, [profile])
 
-  return useMemo(() => {
+  const shadowed = useMemo(() => {
     if (shadow) {
       return mergeShadow(profile, shadow)
     } else {
       return castAsShadow(profile)
     }
   }, [profile, shadow])
+  return useBlackskyVerificationProfileOverlay(shadowed)
 }
 
 /**

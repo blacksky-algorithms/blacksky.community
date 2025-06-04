@@ -1,10 +1,10 @@
 import React from 'react'
 import {
-  StyleProp,
+  type StyleProp,
   StyleSheet,
   TouchableOpacity,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from 'react-native'
 import {
   AppBskyEmbedExternal,
@@ -12,10 +12,10 @@ import {
   AppBskyEmbedRecord,
   AppBskyEmbedRecordWithMedia,
   AppBskyEmbedVideo,
-  AppBskyFeedDefs,
+  type AppBskyFeedDefs,
   AppBskyFeedPost,
   moderatePost,
-  ModerationDecision,
+  type ModerationDecision,
   RichText as RichTextAPI,
 } from '@atproto/api'
 import {AtUri} from '@atproto/api'
@@ -29,11 +29,15 @@ import {usePalette} from '#/lib/hooks/usePalette'
 import {InfoCircleIcon} from '#/lib/icons'
 import {makeProfileLink} from '#/lib/routes/links'
 import {s} from '#/lib/styles'
+import {useDirectFetchRecords} from '#/state/preferences/direct-fetch-records'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
+import {useDirectFetchEmbedRecord} from '#/state/queries/direct-fetch-record'
 import {precacheProfile} from '#/state/queries/profile'
 import {useResolveLinkQuery} from '#/state/queries/resolve-link'
 import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
+import {EyeSlash_Stroke2_Corner0_Rounded as EyeSlashIcon} from '#/components/icons/EyeSlash'
+import {Loader} from '#/components/Loader'
 import {RichText} from '#/components/RichText'
 import {SubtleWebHover} from '#/components/SubtleWebHover'
 import * as bsky from '#/types/bsky'
@@ -43,7 +47,7 @@ import {Link} from '../Link'
 import {PostMeta} from '../PostMeta'
 import {Text} from '../text/Text'
 import {PostEmbeds} from '.'
-import {QuoteEmbedViewContext} from './types'
+import {type QuoteEmbedViewContext} from './types'
 
 export function MaybeQuoteEmbed({
   embed,
@@ -58,9 +62,25 @@ export function MaybeQuoteEmbed({
   allowNestedQuotes?: boolean
   viewContext?: QuoteEmbedViewContext
 }) {
+  const {_} = useLingui()
   const t = useTheme()
   const pal = usePalette('default')
   const {currentAccount} = useSession()
+
+  const directFetchEnabled = useDirectFetchRecords()
+  const shouldDirectFetch =
+    (AppBskyEmbedRecord.isViewBlocked(embed.record) ||
+      AppBskyEmbedRecord.isViewDetached(embed.record)) &&
+    directFetchEnabled
+
+  const directRecord = useDirectFetchEmbedRecord({
+    uri:
+      AppBskyEmbedRecord.isViewBlocked(embed.record) ||
+      AppBskyEmbedRecord.isViewDetached(embed.record)
+        ? embed.record.uri
+        : '',
+    enabled: shouldDirectFetch,
+  })
   if (
     AppBskyEmbedRecord.isViewRecord(embed.record) &&
     AppBskyFeedPost.isRecord(embed.record.value) &&
@@ -76,10 +96,30 @@ export function MaybeQuoteEmbed({
       />
     )
   } else if (AppBskyEmbedRecord.isViewBlocked(embed.record)) {
+    const record = directRecord.data
+    if (record !== undefined) {
+      return (
+        <View>
+          <QuoteEmbedModerated
+            viewRecord={record}
+            onOpen={onOpen}
+            style={style}
+            allowNestedQuotes={allowNestedQuotes}
+            viewContext={viewContext}
+            visibilityLabel={_(msg`Blocked`)}
+          />
+        </View>
+      )
+    }
+
     return (
       <View
         style={[styles.errorContainer, a.border, t.atoms.border_contrast_low]}>
-        <InfoCircleIcon size={18} style={pal.text} />
+        {directFetchEnabled ? (
+          <Loader size={'md'} style={pal.text} />
+        ) : (
+          <InfoCircleIcon size={18} style={pal.text} />
+        )}
         <Text type="lg" style={pal.text}>
           <Trans>Blocked</Trans>
         </Text>
@@ -99,10 +139,33 @@ export function MaybeQuoteEmbed({
     const isViewerOwner = currentAccount?.did
       ? embed.record.uri.includes(currentAccount.did)
       : false
+
+    const record = directRecord.data
+    if (record !== undefined) {
+      return (
+        <View>
+          <QuoteEmbedModerated
+            viewRecord={record}
+            onOpen={onOpen}
+            style={style}
+            allowNestedQuotes={allowNestedQuotes}
+            viewContext={viewContext}
+            visibilityLabel={
+              isViewerOwner ? _(`Removed by you`) : _(msg`Removed by author`)
+            }
+          />
+        </View>
+      )
+    }
+
     return (
       <View
         style={[styles.errorContainer, a.border, t.atoms.border_contrast_low]}>
-        <InfoCircleIcon size={18} style={pal.text} />
+        {directFetchEnabled ? (
+          <Loader size={'md'} style={pal.text} />
+        ) : (
+          <InfoCircleIcon size={18} style={pal.text} />
+        )}
         <Text type="lg" style={pal.text}>
           {isViewerOwner ? (
             <Trans>Removed by you</Trans>
@@ -122,12 +185,14 @@ function QuoteEmbedModerated({
   style,
   allowNestedQuotes,
   viewContext,
+  visibilityLabel,
 }: {
   viewRecord: AppBskyEmbedRecord.ViewRecord
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
   allowNestedQuotes?: boolean
   viewContext?: QuoteEmbedViewContext
+  visibilityLabel?: string
 }) {
   const moderationOpts = useModerationOpts()
   const postView = React.useMemo(
@@ -146,6 +211,7 @@ function QuoteEmbedModerated({
       style={style}
       allowNestedQuotes={allowNestedQuotes}
       viewContext={viewContext}
+      visibilityLabel={visibilityLabel}
     />
   )
 }
@@ -156,6 +222,7 @@ export function QuoteEmbed({
   onOpen,
   style,
   allowNestedQuotes,
+  visibilityLabel,
 }: {
   quote: AppBskyFeedDefs.PostView
   moderation?: ModerationDecision
@@ -163,6 +230,7 @@ export function QuoteEmbed({
   style?: StyleProp<ViewStyle>
   allowNestedQuotes?: boolean
   viewContext?: QuoteEmbedViewContext
+  visibilityLabel?: string
 }) {
   const t = useTheme()
   const queryClient = useQueryClient()
@@ -240,6 +308,14 @@ export function QuoteEmbed({
           title={itemTitle}
           onBeforePress={onBeforePress}>
           <View pointerEvents="none">
+            {visibilityLabel !== undefined ? (
+              <View style={[styles.blockHeader, t.atoms.border_contrast_low]}>
+                <EyeSlashIcon size="sm" style={pal.text} />
+                <Text type="lg" style={pal.text}>
+                  {visibilityLabel}
+                </Text>
+              </View>
+            ) : undefined}
             <PostMeta
               author={quote.author}
               moderation={moderation}
@@ -333,5 +409,11 @@ const styles = StyleSheet.create({
   },
   alert: {
     marginBottom: 6,
+  },
+  blockHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 8,
   },
 })

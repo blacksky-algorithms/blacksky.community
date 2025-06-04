@@ -1,12 +1,12 @@
 import React from 'react'
 import * as Notifications from 'expo-notifications'
 import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
-import {BskyAgent} from '@atproto/api'
+import {type BskyAgent} from '@atproto/api'
 
 import {logEvent} from '#/lib/statsig/statsig'
 import {Logger} from '#/logger'
 import {devicePlatform, isAndroid, isNative} from '#/platform/detection'
-import {SessionAccount, useAgent, useSession} from '#/state/session'
+import {type SessionAccount, useAgent, useSession} from '#/state/session'
 import BackgroundNotificationHandler from '../../../modules/expo-background-notification-handler'
 
 const SERVICE_DID = (serviceUrl?: string) =>
@@ -26,7 +26,7 @@ async function registerPushToken(
       serviceDid: SERVICE_DID(account.service),
       platform: devicePlatform,
       token: token.data,
-      appId: 'xyz.blueskyweb.app',
+      appId: 'community.blacksky',
     })
     logger.debug('Notifications: Sent push token (init)', {
       tokenType: token.type,
