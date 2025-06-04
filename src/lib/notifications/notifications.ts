@@ -36,7 +36,7 @@ async function _registerPushToken({
         : PUBLIC_APPVIEW_DID,
       platform: Platform.OS,
       token: token.data,
-      appId: 'xyz.blueskyweb.app',
+        appId: 'community.blacksky',
       ageRestricted: extra.ageRestricted ?? false,
     }
 
