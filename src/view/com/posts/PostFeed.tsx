@@ -350,11 +350,16 @@ let PostFeed = ({
       }
     }
 
-    let feedKind: 'following' | 'discover' | 'profile' | 'thevids' | undefined
+    let feedKind:
+      | 'following'
+      | 'blacksky-trend'
+      | 'profile'
+      | 'blacksky-videos'
+      | undefined
     if (feedType === 'following') {
       feedKind = 'following'
     } else if (feedUriOrActorDid === DISCOVER_FEED_URI) {
-      feedKind = 'discover'
+      feedKind = 'blacksky-trend'
     } else if (
       feedType === 'author' &&
       (feedTab === 'posts_and_author_threads' ||
@@ -444,7 +449,7 @@ let PostFeed = ({
               sliceIndex++
 
               if (hasSession) {
-                if (feedKind === 'discover') {
+                if (feedKind === 'blacksky-trend') {
                   if (sliceIndex === 0) {
                     if (showProgressIntersitial) {
                       arr.push({

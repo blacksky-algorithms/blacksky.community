@@ -1,9 +1,9 @@
-import {AppBskyFeedDefs, BskyAgent} from '@atproto/api'
+import {type AppBskyFeedDefs, type BskyAgent} from '@atproto/api'
 
 import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {CustomFeedAPI} from './custom'
 import {FollowingFeedAPI} from './following'
-import {FeedAPI, FeedAPIResponse} from './types'
+import {type FeedAPI, type FeedAPIResponse} from './types'
 
 // HACK
 // the feed API does not include any facilities for passing down
@@ -45,7 +45,7 @@ export class HomeFeedAPI implements FeedAPI {
     this.following = new FollowingFeedAPI({agent})
     this.discover = new CustomFeedAPI({
       agent,
-      feedParams: {feed: PROD_DEFAULT_FEED('whats-hot')},
+      feedParams: {feed: PROD_DEFAULT_FEED('blacksky-trend')},
     })
     this.userInterests = userInterests
   }
@@ -54,7 +54,7 @@ export class HomeFeedAPI implements FeedAPI {
     this.following = new FollowingFeedAPI({agent: this.agent})
     this.discover = new CustomFeedAPI({
       agent: this.agent,
-      feedParams: {feed: PROD_DEFAULT_FEED('whats-hot')},
+      feedParams: {feed: PROD_DEFAULT_FEED('blacksky-trend')},
       userInterests: this.userInterests,
     })
     this.usingDiscover = false

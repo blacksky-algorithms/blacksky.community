@@ -387,7 +387,7 @@ export type SavedFeedSourceInfo = FeedSourceInfo & {
 
 const PWI_DISCOVER_FEED_STUB: SavedFeedSourceInfo = {
   type: 'feed',
-  displayName: 'Discover',
+  displayName: 'Blacksky: Trending',
   uri: DISCOVER_FEED_URI,
   feedDescriptor: `feedgen|${DISCOVER_FEED_URI}`,
   route: {
@@ -404,7 +404,7 @@ const PWI_DISCOVER_FEED_STUB: SavedFeedSourceInfo = {
   likeUri: '',
   // ---
   savedFeed: {
-    id: 'pwi-discover',
+    id: 'pwi-blacksky',
     ...DISCOVER_SAVED_FEED,
   },
   contentMode: undefined,
