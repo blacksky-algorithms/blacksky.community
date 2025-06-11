@@ -90,7 +90,7 @@ import {
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
 import {VideoFeed} from '#/screens/VideoFeed'
-import {useTheme} from '#/alf'
+import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
   useEmailDialogControl,
@@ -128,7 +128,7 @@ const Tab = createBottomTabNavigator<BottomTabNavigatorParams>()
 /**
  * These "common screens" are reused across stacks.
  */
-function commonScreens(Stack: typeof HomeTab, unreadCountLabel?: string) {
+function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
   const title = (page: MessageDescriptor) =>
     bskyTitle(i18n._(page), unreadCountLabel)
 
@@ -510,6 +510,10 @@ function TabsNavigator() {
       <Tab.Screen name="HomeTab" getComponent={() => HomeTabNavigator} />
       <Tab.Screen name="SearchTab" getComponent={() => SearchTabNavigator} />
       <Tab.Screen
+        name="MessagesTab"
+        getComponent={() => MessagesTabNavigator}
+      />
+      <Tab.Screen
         name="NotificationsTab"
         getComponent={() => NotificationsTabNavigator}
       />
@@ -517,29 +521,26 @@ function TabsNavigator() {
         name="MyProfileTab"
         getComponent={() => MyProfileTabNavigator}
       />
-      <Tab.Screen
-        name="MessagesTab"
-        getComponent={() => MessagesTabNavigator}
-      />
     </Tab.Navigator>
   )
+}
+
+function screenOptions(t: Theme) {
+  return {
+    fullScreenGestureEnabled: true,
+    headerShown: false,
+    contentStyle: t.atoms.bg,
+  } as const
 }
 
 function HomeTabNavigator() {
   const t = useTheme()
 
   return (
-    <HomeTab.Navigator
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+    <HomeTab.Navigator screenOptions={screenOptions(t)} initialRouteName="Home">
       <HomeTab.Screen name="Home" getComponent={() => HomeScreen} />
       <HomeTab.Screen name="Start" getComponent={() => HomeScreen} />
-      {commonScreens(HomeTab)}
+      {commonScreens(HomeTab as typeof Flat)}
     </HomeTab.Navigator>
   )
 }
@@ -548,15 +549,10 @@ function SearchTabNavigator() {
   const t = useTheme()
   return (
     <SearchTab.Navigator
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+      screenOptions={screenOptions(t)}
+      initialRouteName="Search">
       <SearchTab.Screen name="Search" getComponent={() => SearchScreen} />
-      {commonScreens(SearchTab as typeof HomeTab)}
+      {commonScreens(SearchTab as typeof Flat)}
     </SearchTab.Navigator>
   )
 }
@@ -565,19 +561,14 @@ function NotificationsTabNavigator() {
   const t = useTheme()
   return (
     <NotificationsTab.Navigator
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+      screenOptions={screenOptions(t)}
+      initialRouteName="Notifications">
       <NotificationsTab.Screen
         name="Notifications"
         getComponent={() => NotificationsScreen}
         options={{requireAuth: true}}
       />
-      {commonScreens(NotificationsTab as typeof HomeTab)}
+      {commonScreens(NotificationsTab as typeof Flat)}
     </NotificationsTab.Navigator>
   )
 }
@@ -586,23 +577,16 @@ function MyProfileTabNavigator() {
   const t = useTheme()
   return (
     <MyProfileTab.Navigator
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+      screenOptions={screenOptions(t)}
+      initialRouteName="MyProfile">
       <MyProfileTab.Screen
-        // @ts-ignore // TODO: fix this broken type in ProfileScreen
-        name="MyProfile"
+        // MyProfile is not in AllNavigationParams - asserting as Profile at least
+        // gives us typechecking for initialParams -sfn
+        name={'MyProfile' as 'Profile'}
         getComponent={() => ProfileScreen}
-        initialParams={{
-          name: 'me',
-          hideBackButton: true,
-        }}
+        initialParams={{name: 'me', hideBackButton: true}}
       />
-      {commonScreens(MyProfileTab as typeof HomeTab)}
+      {commonScreens(MyProfileTab as unknown as typeof Flat)}
     </MyProfileTab.Navigator>
   )
 }
@@ -611,13 +595,8 @@ function MessagesTabNavigator() {
   const t = useTheme()
   return (
     <MessagesTab.Navigator
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+      screenOptions={screenOptions(t)}
+      initialRouteName="Messages">
       <MessagesTab.Screen
         name="Messages"
         getComponent={() => MessagesScreen}
@@ -626,7 +605,7 @@ function MessagesTabNavigator() {
           animationTypeForReplace: route.params?.animation ?? 'push',
         })}
       />
-      {commonScreens(MessagesTab as typeof HomeTab)}
+      {commonScreens(MessagesTab as typeof Flat)}
     </MessagesTab.Navigator>
   )
 }
@@ -644,13 +623,7 @@ const FlatNavigator = () => {
   return (
     <Flat.Navigator
       screenListeners={screenListeners}
-      screenOptions={{
-        animationDuration: 285,
-        gestureEnabled: true,
-        fullScreenGestureEnabled: true,
-        headerShown: false,
-        contentStyle: t.atoms.bg,
-      }}>
+      screenOptions={screenOptions(t)}>
       <Flat.Screen
         name="Home"
         getComponent={() => HomeScreen}
@@ -676,7 +649,7 @@ const FlatNavigator = () => {
         getComponent={() => HomeScreen}
         options={{title: title(msg`Home`)}}
       />
-      {commonScreens(Flat as typeof HomeTab, numUnread)}
+      {commonScreens(Flat, numUnread)}
     </Flat.Navigator>
   )
 }
@@ -783,7 +756,14 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
           logModuleInitTime()
           onReady()
           logger.metric('router:navigate', {}, {statsig: false})
-        }}>
+        }}
+        // WARNING: Implicit navigation to nested navigators is depreciated in React Navigation 7.x
+        // However, there's a fair amount of places we do that, especially in when popping to the top of stacks.
+        // See BottomBar.tsx for an example of how to handle nested navigators in the tabs correctly.
+        // I'm scared of missing a spot (esp. with push notifications etc) so let's enable this legacy behaviour for now.
+        // We will need to confirm we handle nested navigators correctly by the time we migrate to React Navigation 8.x
+        // -sfn
+        navigationInChildEnabled>
         {children}
       </NavigationContainer>
     </>
