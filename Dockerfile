@@ -1,6 +1,6 @@
 FROM golang:1.23-bullseye AS build-env
 
-WORKDIR /usr/src/social-app
+WORKDIR /usr/src/blacksky.community
 
 ENV DEBIAN_FRONTEND=noninteractive
 
