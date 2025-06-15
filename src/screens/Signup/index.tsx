@@ -28,13 +28,7 @@ import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
 
-export function Signup({
-  onPressBack,
-  onPressSignIn,
-}: {
-  onPressBack: () => void
-  onPressSignIn: () => void
-}) {
+export function Signup({onPressBack}: {onPressBack: () => void}) {
   const {_} = useLingui()
   const t = useTheme()
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -112,7 +106,7 @@ export function Signup({
       <LoggedOutLayout
         leadin=""
         title={_(msg`Create Account`)}
-        description={_(msg`Welcome to the ATmosphere!`)}
+        description={_(msg`Welcome to the cookout!`)}
         scrollable>
         <View testID="createAccount" style={a.flex_1}>
           {showStarterPackCard &&
@@ -161,7 +155,7 @@ export function Signup({
               </Text>
               <Text style={[a.text_3xl, a.font_bold]}>
                 {state.activeStep === SignupStep.INFO ? (
-                  <Trans>The ATmosphere ✨</Trans>
+                  <Trans>Your account</Trans>
                 ) : state.activeStep === SignupStep.HANDLE ? (
                   <Trans>Choose your username</Trans>
                 ) : (
@@ -174,7 +168,6 @@ export function Signup({
               {state.activeStep === SignupStep.INFO ? (
                 <StepInfo
                   onPressBack={onPressBack}
-                  onPressSignIn={onPressSignIn}
                   isLoadingStarterPack={
                     isFetchingStarterPack && !isErrorStarterPack
                   }
@@ -204,7 +197,7 @@ export function Signup({
                   label={_(msg`Contact support`)}
                   to={FEEDBACK_FORM_URL({email: state.email})}
                   style={[!gtMobile && a.text_md]}>
-                  <Trans>Open a Github Issue</Trans>
+                  <Trans>Contact support</Trans>
                 </InlineLinkText>
               </Text>
             </View>
