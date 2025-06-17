@@ -52,7 +52,18 @@ export type CommonNavigatorParams = {
   AccountSettings: undefined
   PrivacyAndSecuritySettings: undefined
   ContentAndMediaSettings: undefined
-  SettingsInterests: undefined
+  NotificationSettings: undefined
+  ReplyNotificationSettings: undefined
+  MentionNotificationSettings: undefined
+  QuoteNotificationSettings: undefined
+  LikeNotificationSettings: undefined
+  RepostNotificationSettings: undefined
+  NewFollowerNotificationSettings: undefined
+  LikesOnRepostsNotificationSettings: undefined
+  RepostsOnRepostsNotificationSettings: undefined
+  ActivityNotificationSettings: undefined
+  MiscellaneousNotificationSettings: undefined
+  InterestsSettings: undefined
   AboutSettings: undefined
   BlackskySettings: undefined
   AppIconSettings: undefined
@@ -62,7 +73,7 @@ export type CommonNavigatorParams = {
   MessagesConversation: {conversation: string; embed?: string; accept?: true}
   MessagesSettings: undefined
   MessagesInbox: undefined
-  NotificationSettings: undefined
+  LegacyNotificationSettings: undefined
   Feeds: undefined
   Start: {name: string; rkey: string}
   StarterPack: {name: string; rkey: string; new?: boolean}
@@ -105,8 +116,6 @@ export type FlatNavigatorParams = CommonNavigatorParams & {
   Search: {q?: string}
   Feeds: undefined
   Notifications: undefined
-  Hashtag: {tag: string; author?: string}
-  Topic: {topic: string}
   Messages: {pushToConversation?: string; animation?: 'push' | 'pop'}
 }
 
@@ -119,15 +128,8 @@ export type AllNavigatorParams = CommonNavigatorParams & {
   NotificationsTab: undefined
   Notifications: undefined
   MyProfileTab: undefined
-  Hashtag: {tag: string; author?: string}
-  Topic: {topic: string}
   MessagesTab: undefined
   Messages: {animation?: 'push' | 'pop'}
-  Start: {name: string; rkey: string}
-  StarterPack: {name: string; rkey: string; new?: boolean}
-  StarterPackShort: {code: string}
-  StarterPackWizard: undefined
-  StarterPackEdit: {rkey?: string}
 }
 
 // NOTE
