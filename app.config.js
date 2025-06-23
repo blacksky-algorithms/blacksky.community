@@ -45,7 +45,7 @@ module.exports = function (_config) {
       },
       icon: './assets/app-icons/ios_icon_default_light.png',
       userInterfaceStyle: 'automatic',
-      primaryColor: '#4b9b6c',
+      primaryColor: '#6060E9',
       ios: {
         supportsTablet: false,
         bundleIdentifier: 'community.blacksky',
@@ -149,7 +149,7 @@ module.exports = function (_config) {
           foregroundImage: './assets/icon-android-foreground.png',
           monochromeImage: './assets/icon-android-foreground.png',
           backgroundImage: './assets/icon-android-background.png',
-          backgroundColor: '#4b9b6c',
+          backgroundColor: '#6060E9',
         },
         googleServicesFile: './google-services.json',
         package: 'community.blacksky',
@@ -229,7 +229,7 @@ module.exports = function (_config) {
           'expo-notifications',
           {
             icon: './assets/icon-android-notification.png',
-            color: '#4b9b6c',
+            color: '#6060E9',
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
@@ -275,17 +275,17 @@ module.exports = function (_config) {
               resizeMode: 'cover',
               dark: {
                 enableFullScreenImage_legacy: true,
-                backgroundColor: '#03180c',
+                backgroundColor: '#001429',
                 image: './assets/splash-dark.png',
                 resizeMode: 'cover',
               },
             },
             android: {
-              backgroundColor: '#4b9b6c',
+              backgroundColor: '#6060E9',
               image: './assets/splash-android-icon.png',
               imageWidth: 150,
               dark: {
-                backgroundColor: '#01331a',
+                backgroundColor: '#0c2a49',
                 image: './assets/splash-android-icon-dark.png',
                 imageWidth: 150,
               },
