@@ -1,12 +1,17 @@
-import {Dimensions, type StyleProp, StyleSheet, type TextStyle} from 'react-native'
+import {
+  Dimensions,
+  type StyleProp,
+  StyleSheet,
+  type TextStyle,
+} from 'react-native'
 
 import {isWeb} from '#/platform/detection'
 import {type Theme, type TypographyVariant} from './ThemeContext'
 
 // 1 is lightest, 2 is light, 3 is mid, 4 is dark, 5 is darkest
 export const colors = {
-  white: '#ffffff',
-  black: '#000000',
+  white: '#F8FAF9',
+  black: '#070C0C',
 
   gray1: '#F3F3F8',
   gray2: '#E2E2E4',

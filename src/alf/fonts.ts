@@ -1,7 +1,7 @@
-import {TextStyle} from 'react-native'
+import {type TextStyle} from 'react-native'
 
 import {isAndroid, isWeb} from '#/platform/detection'
-import {Device, device} from '#/storage'
+import {type Device, device} from '#/storage'
 
 const WEB_FONT_FAMILIES = `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
 
@@ -42,17 +42,17 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
     if (isAndroid) {
       style.fontFamily =
         {
-          400: 'Inter-Regular',
-          500: 'Inter-Regular',
-          600: 'Inter-SemiBold',
-          700: 'Inter-SemiBold',
-          800: 'Inter-ExtraBold',
-          900: 'Inter-ExtraBold',
-        }[String(style.fontWeight || '400')] || 'Inter-Regular'
+          400: 'Rubik-Regular',
+          500: 'Rubik-Regular',
+          600: 'Rubik-SemiBold',
+          700: 'Rubik-SemiBold',
+          800: 'Rubik-ExtraBold',
+          900: 'Rubik-ExtraBold',
+        }[String(style.fontWeight || '400')] || 'Rubik-Regular'
 
       if (style.fontStyle === 'italic') {
-        if (style.fontFamily === 'Inter-Regular') {
-          style.fontFamily = 'Inter-Italic'
+        if (style.fontFamily === 'Rubik-Regular') {
+          style.fontFamily = 'Rubik-Italic'
         } else {
           style.fontFamily += 'Italic'
         }
@@ -64,7 +64,7 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
       delete style.fontWeight
       delete style.fontStyle
     } else {
-      style.fontFamily = 'InterVariable'
+      style.fontFamily = 'RubikVariable'
 
       if (style.fontStyle === 'italic') {
         style.fontFamily += 'Italic'
@@ -77,7 +77,7 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
     }
 
     /**
-     * Disable contextual alternates in Inter
+     * Disable contextual alternates in Rubik
      * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant}
      */
     style.fontVariant = (style.fontVariant || []).concat('no-contextual')
