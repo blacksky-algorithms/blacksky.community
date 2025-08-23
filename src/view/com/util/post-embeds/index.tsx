@@ -7,6 +7,8 @@ import {
   type ViewStyle,
 } from 'react-native'
 import {
+  type AnimatedRef,
+  measure,
   type MeasuredDimensions,
   runOnJS,
   runOnUI,
@@ -25,7 +27,6 @@ import {
   type ModerationDecision,
 } from '@atproto/api'
 
-import {type HandleRef, measureHandle} from '#/lib/hooks/useHandleRef'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {useLightboxControls} from '#/state/lightbox'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
@@ -162,13 +163,15 @@ export function PostEmbeds({
       }
       const onPress = (
         index: number,
-        refs: HandleRef[],
+        refs: AnimatedRef<any>[],
         fetchedDims: (Dimensions | null)[],
       ) => {
-        const handles = refs.map(r => r.current)
         runOnUI(() => {
           'worklet'
-          const rects = handles.map(measureHandle)
+          const rects: (MeasuredDimensions | null)[] = []
+          for (const r of refs) {
+            rects.push(measure(r))
+          }
           runOnJS(_openLightbox)(index, rects, fetchedDims)
         })()
       }
@@ -188,9 +191,9 @@ export function PostEmbeds({
                   viewContext === PostEmbedViewContext.ThreadHighlighted
                     ? 'none'
                     : viewContext ===
-                      PostEmbedViewContext.FeedEmbedRecordWithMedia
-                    ? 'square'
-                    : 'constrained'
+                        PostEmbedViewContext.FeedEmbedRecordWithMedia
+                      ? 'square'
+                      : 'constrained'
                 }
                 image={image}
                 onPress={(containerRef, dims) =>
@@ -247,8 +250,8 @@ export function PostEmbeds({
             viewContext === PostEmbedViewContext.ThreadHighlighted
               ? 'none'
               : viewContext === PostEmbedViewContext.FeedEmbedRecordWithMedia
-              ? 'square'
-              : 'constrained'
+                ? 'square'
+                : 'constrained'
           }
         />
       </ContentHider>
