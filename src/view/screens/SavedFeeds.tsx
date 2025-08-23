@@ -208,7 +208,7 @@ function SavedFeedsInner({
               <TextLink
                 type="sm"
                 style={pal.link}
-                href="https://github.com/bluesky-social/feed-generator"
+                href="https://github.com/blacksky-algorithms/rsky/tree/main/rsky-feedgen"
                 text={_(msg`See this guide`)}
               />{' '}
               for more information.
