@@ -762,7 +762,12 @@ const FlatNavigator = () => {
 
 const LINKING = {
   // TODO figure out what we are going to use
-  prefixes: ['bsky://', 'bluesky://', 'https://bsky.app'],
+  prefixes: [
+    'bsky://',
+    'blacksky://',
+    'https://bsky.app',
+    'https://blacksky.community',
+  ],
 
   getPathFromState(state: State) {
     // find the current node in the navigation tree
@@ -990,7 +995,7 @@ function logModuleInitTime() {
 
   if (isWeb) {
     const referrerInfo = Referrer.getReferrerInfo()
-    if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+    if (referrerInfo && referrerInfo.hostname !== 'blacksky.community') {
       logEvent('deepLink:referrerReceived', {
         to: window.location.href,
         referrer: referrerInfo?.referrer,
