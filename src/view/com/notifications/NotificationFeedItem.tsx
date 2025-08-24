@@ -58,8 +58,10 @@ import {
   ChevronTop_Stroke2_Corner0_Rounded as ChevronUpIcon,
 } from '#/components/icons/Chevron'
 import {Heart2_Filled_Stroke2_Corner0_Rounded as HeartIconFilled} from '#/components/icons/Heart2'
+import {LikeRepost_Stroke2_Corner2_Rounded as RepostHeartIcon} from '#/components/icons/Heart2'
 import {PersonPlus_Filled_Stroke2_Corner0_Rounded as PersonPlusIcon} from '#/components/icons/Person'
 import {Repost_Stroke2_Corner2_Rounded as RepostIcon} from '#/components/icons/Repost'
+import {RepostRepost_Stroke2_Corner2_Rounded as RepostRepostIcon} from '#/components/icons/Repost'
 import {StarterPack} from '#/components/icons/StarterPack'
 import {VerifiedCheck} from '#/components/icons/VerifiedCheck'
 import {InlineLinkText, Link} from '#/components/Link'
@@ -491,6 +493,7 @@ let NotificationFeedItem = ({
     ) : (
       <Trans>{firstAuthorLink} liked your repost</Trans>
     )
+    icon = <RepostHeartIcon size="xl" style={[s.likeColor]} />
   } else if (item.type === 'repost-via-repost') {
     a11yLabel = hasMultipleAuthors
       ? _(
