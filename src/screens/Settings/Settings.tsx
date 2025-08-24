@@ -36,7 +36,6 @@ import {AvatarStackWithFetch} from '#/components/AvatarStack'
 import {useDialogControl} from '#/components/Dialog'
 import {SwitchAccountDialog} from '#/components/dialogs/SwitchAccount'
 import {Accessibility_Stroke2_Corner2_Rounded as AccessibilityIcon} from '#/components/icons/Accessibility'
-import {Atom_Stroke2_Corner0_Rounded as BlackskyIcon} from '#/components/icons/Atom'
 import {BubbleInfo_Stroke2_Corner2_Rounded as BubbleInfoIcon} from '#/components/icons/BubbleInfo'
 import {ChevronTop_Stroke2_Corner0_Rounded as ChevronUpIcon} from '#/components/icons/Chevron'
 import {CircleQuestion_Stroke2_Corner2_Rounded as CircleQuestionIcon} from '#/components/icons/CircleQuestion'
@@ -195,14 +194,6 @@ export function SettingsScreen({}: Props) {
             <SettingsList.ItemIcon icon={PaintRollerIcon} />
             <SettingsList.ItemText>
               <Trans>Appearance</Trans>
-            </SettingsList.ItemText>
-          </SettingsList.LinkItem>
-          <SettingsList.LinkItem
-            to="/settings/blacksky"
-            label={_(msg`Blacksky`)}>
-            <SettingsList.ItemIcon icon={BlackskyIcon} />
-            <SettingsList.ItemText>
-              <Trans>Blacksky</Trans>
             </SettingsList.ItemText>
           </SettingsList.LinkItem>
           <SettingsList.LinkItem

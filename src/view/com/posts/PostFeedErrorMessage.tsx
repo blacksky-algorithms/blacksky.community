@@ -1,15 +1,19 @@
 import React from 'react'
 import {View} from 'react-native'
-import {AppBskyActorDefs, AppBskyFeedGetAuthorFeed, AtUri} from '@atproto/api'
+import {
+  type AppBskyActorDefs,
+  AppBskyFeedGetAuthorFeed,
+  AtUri,
+} from '@atproto/api'
 import {msg as msgLingui, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
 import {usePalette} from '#/lib/hooks/usePalette'
-import {NavigationProp} from '#/lib/routes/types'
+import {type NavigationProp} from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {FeedDescriptor} from '#/state/queries/post-feed'
+import {type FeedDescriptor} from '#/state/queries/post-feed'
 import {useRemoveFeedMutation} from '#/state/queries/preferences'
 import * as Prompt from '#/components/Prompt'
 import {EmptyState} from '../util/EmptyState'
@@ -111,7 +115,7 @@ function FeedgenErrorMessage({
           msgLingui`Hmm, the feed server appears to be offline. Please let the feed owner know about this issue.`,
         ),
         [KnownError.FeedSignedInOnly]: _l(
-          msgLingui`This content is not viewable without a Bluesky account.`,
+          msgLingui`This content is not viewable without a Blacksky account.`,
         ),
         [KnownError.FeedgenUnknown]: _l(
           msgLingui`Hmm, some kind of issue occurred when contacting the feed server. Please let the feed owner know about this issue.`,
@@ -119,7 +123,7 @@ function FeedgenErrorMessage({
         [KnownError.FeedTooManyRequests]: _l(
           msgLingui`This feed is currently receiving high traffic and is temporarily unavailable. Please try again later.`,
         ),
-      }[knownError]),
+      })[knownError],
     [_l, knownError],
   )
   const [_, uri] = feedDesc.split('|')

@@ -64,13 +64,13 @@ function Inner({
       ? _(msg`You are verified`)
       : _(msg`Your verifications`)
     : state.profile.isVerified
-    ? _(msg`${userName} is verified`)
-    : _(
-        msg({
-          message: `${userName}'s verifications`,
-          comment: `Possessive, meaning "the verifications of {userName}"`,
-        }),
-      )
+      ? _(msg`${userName} is verified`)
+      : _(
+          msg({
+            message: `${userName}'s verifications`,
+            comment: `Possessive, meaning "the verifications of {userName}"`,
+          }),
+        )
 
   return (
     <Dialog.ScrollableInner
@@ -147,7 +147,7 @@ function Inner({
         <Link
           overridePresentation
           to={urls.website.blog.initialVerificationAnnouncement}
-          label={_(msg`Learn more about verification on Bluesky`)}
+          label={_(msg`Learn more about verification on Blacksky`)}
           size="small"
           variant="solid"
           color="secondary"

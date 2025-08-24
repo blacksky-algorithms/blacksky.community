@@ -3,7 +3,7 @@ import {Modal, View} from 'react-native'
 import {SystemBars} from 'react-native-edge-to-edge'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {ComAtprotoAdminDefs, ComAtprotoModerationDefs} from '@atproto/api'
+import {type ComAtprotoAdminDefs, ComAtprotoModerationDefs} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
@@ -220,9 +220,9 @@ export function Takendown() {
                     overridePresentation>
                     Bluesky Social Terms of Service
                   </InlineLinkText>
-                  . You have been sent an email outlining the specific violation
-                  and suspension period, if applicable. You can appeal this
-                  decision if you believe it was made in error.
+                  . You should have been sent an email outlining the specific
+                  violation and suspension period, if applicable. You can appeal
+                  this decision if you believe it was made in error.
                 </Trans>
               </P>
             )}

@@ -10,7 +10,7 @@ export const DEFAULT_SERVICE = BSKY_SERVICE
 export const HELP_DESK_URL = `https://github.com/blacksky-algorithms/blacksky.community/issues/new/choose`
 export const EMBED_SERVICE = 'https://embed.bsky.app'
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
-export const BSKY_DOWNLOAD_URL = 'https://bsky.app/download'
+export const BSKY_DOWNLOAD_URL = 'https://blacksky.community/download'
 export const STARTER_PACK_MAX_SIZE = 150
 
 // HACK
@@ -190,3 +190,6 @@ export const urls = {
     },
   },
 }
+
+export const PUBLIC_APPVIEW_DID = 'did:web:api.bsky.app'
+export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'

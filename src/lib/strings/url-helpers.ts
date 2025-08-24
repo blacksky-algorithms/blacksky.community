@@ -12,6 +12,9 @@ const BSKY_TRUSTED_HOSTS = [
   'blacksky\\.community',
   'blacksky\\.app',
   'blackskyweb\\.xyz',
+  'rsky\\.dev',
+  'opencollective\\.com',
+  'github\\.com',
   'bsky\\.app',
   'bsky\\.social',
   'blueskyweb\\.xyz',
@@ -96,8 +99,8 @@ export function toBskyAppUrl(url: string): string {
 export function isBskyAppUrl(url: string): boolean {
   return (
     url.startsWith('https://bsky.app/') ||
-    (url.startsWith('https://blacksky.community/') &&
-      !url.startsWith('https://blacksky.community/about'))
+    url.startsWith('https://blacksky.community/') ||
+    url.startsWith('https://assembly.blacksky.community/')
   )
 }
 
@@ -107,7 +110,9 @@ export function isRelativeUrl(url: string): boolean {
 
 export function isBskyRSSUrl(url: string): boolean {
   return (
-    (url.startsWith('https://bsky.app/') || isRelativeUrl(url)) &&
+    (url.startsWith('https://bsky.app/') ||
+      url.startsWith('https://blacksky.community/') ||
+      isRelativeUrl(url)) &&
     /\/rss\/?$/.test(url)
   )
 }
@@ -198,6 +203,11 @@ export function convertBskyAppUrlIfNeeded(url: string): string {
 
       if (isBskyStartUrl(url)) {
         return startUriToStarterPackUri(urlp.pathname)
+      }
+
+      // special-case search links
+      if (urlp.pathname === '/search') {
+        return `/search?q=${urlp.searchParams.get('q')}`
       }
 
       return urlp.pathname

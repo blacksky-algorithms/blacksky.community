@@ -79,16 +79,29 @@ import {ProfileFeedScreen} from '#/screens/Profile/ProfileFeed'
 import {ProfileFollowersScreen} from '#/screens/Profile/ProfileFollowers'
 import {ProfileFollowsScreen} from '#/screens/Profile/ProfileFollows'
 import {ProfileLabelerLikedByScreen} from '#/screens/Profile/ProfileLabelerLikedBy'
+import {ProfileSearchScreen} from '#/screens/Profile/ProfileSearch'
 import {SearchScreen} from '#/screens/Search'
+import {AboutSettingsScreen} from '#/screens/Settings/AboutSettings'
+import {AccessibilitySettingsScreen} from '#/screens/Settings/AccessibilitySettings'
+import {AccountSettingsScreen} from '#/screens/Settings/AccountSettings'
+import {ActivityPrivacySettingsScreen} from '#/screens/Settings/ActivityPrivacySettings'
 import {AppearanceSettingsScreen} from '#/screens/Settings/AppearanceSettings'
 import {AppIconSettingsScreen} from '#/screens/Settings/AppIconSettings'
-import {NotificationSettingsScreen} from '#/screens/Settings/NotificationSettings'
-import {SettingsInterests} from '#/screens/Settings/SettingsInterests'
+import {AppPasswordsScreen} from '#/screens/Settings/AppPasswords'
+import {ContentAndMediaSettingsScreen} from '#/screens/Settings/ContentAndMediaSettings'
+import {ExternalMediaPreferencesScreen} from '#/screens/Settings/ExternalMediaPreferences'
+import {FollowingFeedPreferencesScreen} from '#/screens/Settings/FollowingFeedPreferences'
+import {InterestsSettingsScreen} from '#/screens/Settings/InterestsSettings'
+import {LanguageSettingsScreen} from '#/screens/Settings/LanguageSettings'
+import {PrivacyAndSecuritySettingsScreen} from '#/screens/Settings/PrivacyAndSecuritySettings'
+import {SettingsScreen} from '#/screens/Settings/Settings'
+import {ThreadPreferencesScreen} from '#/screens/Settings/ThreadPreferences'
 import {
   StarterPackScreen,
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import TopicScreen from '#/screens/Topic'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {type Theme, useTheme} from '#/alf'
 import {
@@ -97,20 +110,19 @@ import {
 } from '#/components/dialogs/EmailDialog'
 import {router} from '#/routes'
 import {Referrer} from '../modules/expo-bluesky-swiss-army'
-import {ProfileSearchScreen} from './screens/Profile/ProfileSearch'
-import {AboutSettingsScreen} from './screens/Settings/AboutSettings'
-import {AccessibilitySettingsScreen} from './screens/Settings/AccessibilitySettings'
-import {AccountSettingsScreen} from './screens/Settings/AccountSettings'
-import {AppPasswordsScreen} from './screens/Settings/AppPasswords'
-import {BlackskySettingsScreen} from './screens/Settings/BlackskySettings'
-import {ContentAndMediaSettingsScreen} from './screens/Settings/ContentAndMediaSettings'
-import {ExternalMediaPreferencesScreen} from './screens/Settings/ExternalMediaPreferences'
-import {FollowingFeedPreferencesScreen} from './screens/Settings/FollowingFeedPreferences'
-import {LanguageSettingsScreen} from './screens/Settings/LanguageSettings'
-import {PrivacyAndSecuritySettingsScreen} from './screens/Settings/PrivacyAndSecuritySettings'
-import {SettingsScreen} from './screens/Settings/Settings'
-import {ThreadPreferencesScreen} from './screens/Settings/ThreadPreferences'
-import TopicScreen from './screens/Topic'
+import {NotificationsActivityListScreen} from './screens/Notifications/ActivityList'
+import {LegacyNotificationSettingsScreen} from './screens/Settings/LegacyNotificationSettings'
+import {NotificationSettingsScreen} from './screens/Settings/NotificationSettings'
+import {ActivityNotificationSettingsScreen} from './screens/Settings/NotificationSettings/ActivityNotificationSettings'
+import {LikeNotificationSettingsScreen} from './screens/Settings/NotificationSettings/LikeNotificationSettings'
+import {LikesOnRepostsNotificationSettingsScreen} from './screens/Settings/NotificationSettings/LikesOnRepostsNotificationSettings'
+import {MentionNotificationSettingsScreen} from './screens/Settings/NotificationSettings/MentionNotificationSettings'
+import {MiscellaneousNotificationSettingsScreen} from './screens/Settings/NotificationSettings/MiscellaneousNotificationSettings'
+import {NewFollowerNotificationSettingsScreen} from './screens/Settings/NotificationSettings/NewFollowerNotificationSettings'
+import {QuoteNotificationSettingsScreen} from './screens/Settings/NotificationSettings/QuoteNotificationSettings'
+import {ReplyNotificationSettingsScreen} from './screens/Settings/NotificationSettings/ReplyNotificationSettings'
+import {RepostNotificationSettingsScreen} from './screens/Settings/NotificationSettings/RepostNotificationSettings'
+import {RepostsOnRepostsNotificationSettingsScreen} from './screens/Settings/NotificationSettings/RepostsOnRepostsNotificationSettings'
 
 const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 
@@ -132,7 +144,6 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
   const title = (page: MessageDescriptor) =>
     bskyTitle(i18n._(page), unreadCountLabel)
 
-  // @ts-ignore
   return (
     <>
       <Stack.Screen
@@ -359,14 +370,6 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         }}
       />
       <Stack.Screen
-        name="BlackskySettings"
-        getComponent={() => BlackskySettingsScreen}
-        options={{
-          title: title(msg`Blacksky Settings`),
-          requireAuth: true,
-        }}
-      />
-      <Stack.Screen
         name="AppearanceSettings"
         getComponent={() => AppearanceSettingsScreen}
         options={{
@@ -391,6 +394,99 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         }}
       />
       <Stack.Screen
+        name="ActivityPrivacySettings"
+        getComponent={() => ActivityPrivacySettingsScreen}
+        options={{
+          title: title(msg`Privacy and Security`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        getComponent={() => NotificationSettingsScreen}
+        options={{title: title(msg`Notification settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ReplyNotificationSettings"
+        getComponent={() => ReplyNotificationSettingsScreen}
+        options={{
+          title: title(msg`Reply notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="MentionNotificationSettings"
+        getComponent={() => MentionNotificationSettingsScreen}
+        options={{
+          title: title(msg`Mention notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="QuoteNotificationSettings"
+        getComponent={() => QuoteNotificationSettingsScreen}
+        options={{
+          title: title(msg`Quote notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="LikeNotificationSettings"
+        getComponent={() => LikeNotificationSettingsScreen}
+        options={{
+          title: title(msg`Like notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="RepostNotificationSettings"
+        getComponent={() => RepostNotificationSettingsScreen}
+        options={{
+          title: title(msg`Repost notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="NewFollowerNotificationSettings"
+        getComponent={() => NewFollowerNotificationSettingsScreen}
+        options={{
+          title: title(msg`New follower notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="LikesOnRepostsNotificationSettings"
+        getComponent={() => LikesOnRepostsNotificationSettingsScreen}
+        options={{
+          title: title(msg`Likes of your reposts notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="RepostsOnRepostsNotificationSettings"
+        getComponent={() => RepostsOnRepostsNotificationSettingsScreen}
+        options={{
+          title: title(msg`Reposts of your reposts notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="ActivityNotificationSettings"
+        getComponent={() => ActivityNotificationSettingsScreen}
+        options={{
+          title: title(msg`Activity notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="MiscellaneousNotificationSettings"
+        getComponent={() => MiscellaneousNotificationSettingsScreen}
+        options={{
+          title: title(msg`Miscellaneous notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
         name="ContentAndMediaSettings"
         getComponent={() => ContentAndMediaSettingsScreen}
         options={{
@@ -399,8 +495,8 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         }}
       />
       <Stack.Screen
-        name="SettingsInterests"
-        getComponent={() => SettingsInterests}
+        name="InterestsSettings"
+        getComponent={() => InterestsSettingsScreen}
         options={{
           title: title(msg`Your interests`),
           requireAuth: true,
@@ -448,8 +544,13 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: title(msg`Chat request inbox`), requireAuth: true}}
       />
       <Stack.Screen
-        name="NotificationSettings"
-        getComponent={() => NotificationSettingsScreen}
+        name="NotificationsActivityList"
+        getComponent={() => NotificationsActivityListScreen}
+        options={{title: title(msg`Notifications`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LegacyNotificationSettings"
+        getComponent={() => LegacyNotificationSettingsScreen}
         options={{title: title(msg`Notification settings`), requireAuth: true}}
       />
       <Stack.Screen
@@ -661,7 +762,12 @@ const FlatNavigator = () => {
 
 const LINKING = {
   // TODO figure out what we are going to use
-  prefixes: ['bsky://', 'bluesky://', 'https://bsky.app'],
+  prefixes: [
+    'bsky://',
+    'blacksky://',
+    'https://bsky.app',
+    'https://blacksky.community',
+  ],
 
   getPathFromState(state: State) {
     // find the current node in the navigation tree
@@ -889,7 +995,7 @@ function logModuleInitTime() {
 
   if (isWeb) {
     const referrerInfo = Referrer.getReferrerInfo()
-    if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+    if (referrerInfo && referrerInfo.hostname !== 'blacksky.community') {
       logEvent('deepLink:referrerReceived', {
         to: window.location.href,
         referrer: referrerInfo?.referrer,

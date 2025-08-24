@@ -17,7 +17,6 @@ import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
-import {s} from '#/lib/styles'
 import {getTranslatorLink, isPostInLanguage} from '#/locale/helpers'
 import {logger} from '#/logger'
 import {
@@ -34,9 +33,7 @@ import {type OnPostSuccessData} from '#/state/shell/composer'
 import {useMergedThreadgateHiddenReplies} from '#/state/threadgate-hidden-replies'
 import {type PostSource} from '#/state/unstable-post-source'
 import {PostThreadFollowBtn} from '#/view/com/post-thread/PostThreadFollowBtn'
-import {Link} from '#/view/com/util/Link'
 import {formatCount} from '#/view/com/util/numeric/format'
-import {PostEmbeds, PostEmbedViewContext} from '#/view/com/util/post-embeds'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {
   LINEAR_AVI_WIDTH,
@@ -48,12 +45,14 @@ import {colors} from '#/components/Admonition'
 import {Button} from '#/components/Button'
 import {CalendarClock_Stroke2_Corner0_Rounded as CalendarClockIcon} from '#/components/icons/CalendarClock'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
-import {InlineLinkText} from '#/components/Link'
+import {InlineLinkText, Link} from '#/components/Link'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {LabelsOnMyPost} from '#/components/moderation/LabelsOnMe'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
 import {type AppModerationCause} from '#/components/Pills'
+import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
 import {PostControls} from '#/components/PostControls'
+import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import * as Prompt from '#/components/Prompt'
 import {RichText} from '#/components/RichText'
 import * as Skele from '#/components/Skeleton'
@@ -181,7 +180,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   const {currentAccount, hasSession} = useSession()
   const feedFeedback = useFeedFeedback(postSource?.feed, hasSession)
 
-  const post = item.value.post
+  const post = postShadow
   const record = item.value.post.record
   const moderation = item.moderation
   const authorShadow = useProfileShadow(post.author)
@@ -197,7 +196,6 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
 
   const threadRootUri = record.reply?.root?.uri || post.uri
   const authorHref = makeProfileLink(post.author)
-  const authorTitle = post.author.handle
   const isThreadAuthor = getThreadAuthor(post, record) === currentAccount?.did
 
   const likesHref = useMemo(() => {
@@ -313,52 +311,61 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
           isRoot && [a.pt_lg],
         ]}>
         <View style={[a.flex_row, a.gap_md, a.pb_md]}>
-          <PreviewableUserAvatar
-            size={42}
-            profile={post.author}
-            moderation={moderation.ui('avatar')}
-            type={post.author.associated?.labeler ? 'labeler' : 'user'}
-            live={live}
-            onBeforePress={onOpenAuthor}
-          />
-          <View style={[a.flex_1]}>
-            <View style={[a.flex_row, a.align_center]}>
-              <Link
-                style={[a.flex_shrink]}
-                href={authorHref}
-                title={authorTitle}
-                onBeforePress={onOpenAuthor}>
-                <Text
-                  emoji
-                  style={[a.text_lg, a.font_bold, a.leading_snug, a.self_start]}
-                  numberOfLines={1}>
-                  {sanitizeDisplayName(
-                    post.author.displayName ||
-                      sanitizeHandle(post.author.handle),
-                    moderation.ui('displayName'),
-                  )}
-                </Text>
-              </Link>
-
-              <View style={[{paddingLeft: 3, top: -1}]}>
-                <VerificationCheckButton profile={authorShadow} size="md" />
-              </View>
-            </View>
-            <Link style={s.flex1} href={authorHref} title={authorTitle}>
-              <Text
-                emoji
-                style={[
-                  a.text_md,
-                  a.leading_snug,
-                  t.atoms.text_contrast_medium,
-                ]}
-                numberOfLines={1}>
-                {sanitizeHandle(post.author.handle, '@')}
-              </Text>
-            </Link>
+          <View collapsable={false}>
+            <PreviewableUserAvatar
+              size={42}
+              profile={post.author}
+              moderation={moderation.ui('avatar')}
+              type={post.author.associated?.labeler ? 'labeler' : 'user'}
+              live={live}
+              onBeforePress={onOpenAuthor}
+            />
           </View>
+          <Link
+            to={authorHref}
+            style={[a.flex_1]}
+            label={sanitizeDisplayName(
+              post.author.displayName || sanitizeHandle(post.author.handle),
+              moderation.ui('displayName'),
+            )}
+            onPress={onOpenAuthor}>
+            <View style={[a.flex_1, a.align_start]}>
+              <ProfileHoverCard did={post.author.did} style={[a.w_full]}>
+                <View style={[a.flex_row, a.align_center]}>
+                  <Text
+                    emoji
+                    style={[
+                      a.flex_shrink,
+                      a.text_lg,
+                      a.font_bold,
+                      a.leading_snug,
+                    ]}
+                    numberOfLines={1}>
+                    {sanitizeDisplayName(
+                      post.author.displayName ||
+                        sanitizeHandle(post.author.handle),
+                      moderation.ui('displayName'),
+                    )}
+                  </Text>
+
+                  <View style={[{paddingLeft: 3, top: -1}]}>
+                    <VerificationCheckButton profile={authorShadow} size="md" />
+                  </View>
+                </View>
+                <Text
+                  style={[
+                    a.text_md,
+                    a.leading_snug,
+                    t.atoms.text_contrast_medium,
+                  ]}
+                  numberOfLines={1}>
+                  {sanitizeHandle(post.author.handle, '@')}
+                </Text>
+              </ProfileHoverCard>
+            </View>
+          </Link>
           {showFollowButton && (
-            <View>
+            <View collapsable={false}>
               <PostThreadFollowBtn did={post.author.did} />
             </View>
           )}
@@ -388,7 +395,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
             ) : undefined}
             {post.embed && (
               <View style={[a.py_xs]}>
-                <PostEmbeds
+                <Embed
                   embed={post.embed}
                   moderation={moderation}
                   viewContext={PostEmbedViewContext.ThreadHighlighted}
@@ -417,7 +424,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                 t.atoms.border_contrast_low,
               ]}>
               {post.repostCount != null && post.repostCount !== 0 ? (
-                <Link href={repostsHref} title={_(msg`Reposts of this post`)}>
+                <Link to={repostsHref} label={_(msg`Reposts of this post`)}>
                   <Text
                     testID="repostCount-expanded"
                     style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -435,7 +442,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
               {post.quoteCount != null &&
               post.quoteCount !== 0 &&
               !post.viewer?.embeddingDisabled ? (
-                <Link href={quotesHref} title={_(msg`Quotes of this post`)}>
+                <Link to={quotesHref} label={_(msg`Quotes of this post`)}>
                   <Text
                     testID="quoteCount-expanded"
                     style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -451,7 +458,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                 </Link>
               ) : null}
               {post.likeCount != null && post.likeCount !== 0 ? (
-                <Link href={likesHref} title={_(msg`Likes on this post`)}>
+                <Link to={likesHref} label={_(msg`Likes on this post`)}>
                   <Text
                     testID="likeCount-expanded"
                     style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -638,7 +645,7 @@ function BackdatedPostIndicator({post}: {post: AppBskyFeedDefs.PostView}) {
           <Trans>
             This post claims to have been created on{' '}
             <RNText style={[a.font_bold]}>{niceDate(i18n, createdAt)}</RNText>,
-            but was first seen by Bluesky on{' '}
+            but was first seen by Blacksky on{' '}
             <RNText style={[a.font_bold]}>{niceDate(i18n, indexedAt)}</RNText>.
           </Trans>
         </Prompt.DescriptionText>
@@ -650,7 +657,7 @@ function BackdatedPostIndicator({post}: {post: AppBskyFeedDefs.PostView}) {
             a.pb_xl,
           ]}>
           <Trans>
-            Bluesky cannot confirm the authenticity of the claimed date.
+            Blacksky cannot confirm the authenticity of the claimed date.
           </Trans>
         </Text>
         <Prompt.Actions>

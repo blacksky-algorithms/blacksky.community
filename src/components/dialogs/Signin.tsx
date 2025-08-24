@@ -43,7 +43,7 @@ function SigninDialogInner({}: {control: Dialog.DialogOuterProps['control']}) {
 
   return (
     <Dialog.ScrollableInner
-      label={_(msg`Sign in to Bluesky or create a new account`)}
+      label={_(msg`Sign in to Blacksky or create a new account`)}
       style={[gtMobile ? {width: 'auto', maxWidth: 420} : a.w_full]}>
       <View style={[!isNative && a.p_2xl]}>
         <View
@@ -72,9 +72,7 @@ function SigninDialogInner({}: {control: Dialog.DialogOuterProps['control']}) {
               maxWidth: 300,
             },
           ]}>
-          <Trans>
-            Sign in or create your account to join the conversation!
-          </Trans>
+          <Trans>Sign in or create your account to join the cookout!</Trans>
         </Text>
 
         <View style={[a.flex_col, a.gap_md]}>

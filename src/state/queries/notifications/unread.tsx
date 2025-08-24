@@ -96,8 +96,8 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
           data.event === '30+'
             ? 30
             : data.event === ''
-            ? 0
-            : parseInt(data.event, 10) || 1,
+              ? 0
+              : parseInt(data.event, 10) || 1,
       }
       setNumUnread(data.event)
     }
@@ -167,8 +167,8 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             unreadCount >= 30
               ? '30+'
               : unreadCount === 0
-              ? ''
-              : String(unreadCount)
+                ? ''
+                : String(unreadCount)
 
           // track last sync
           const now = new Date()

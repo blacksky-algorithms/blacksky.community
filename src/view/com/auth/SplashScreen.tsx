@@ -27,15 +27,16 @@ export const SplashScreen = ({
   return (
     <CenteredView style={[a.h_full, a.flex_1]}>
       <ErrorBoundary>
-        <View style={[{flex: 1}, a.justify_center, a.align_center]}>
-          <Logo width={92} fill="sky" />
+        <View
+          style={[{flex: 1}, a.justify_center, a.align_center, a.pb_0, a.mb_0]}>
+          <Logo width={120} fill={t.atoms.text.color} />
 
-          <View style={[a.pb_sm, a.pt_5xl]}>
-            <Logotype width={161} fill={t.atoms.text.color} />
+          <View style={[a.pb_sm, a.pt_5xl, a.mt_lg, a.mb_lg]}>
+            <Logotype width={280} fill={t.atoms.text.color} />
           </View>
 
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_medium]}>
-            <Trans>What's up?</Trans>
+            <Trans>What's poppin'?</Trans>
           </Text>
         </View>
         <View
@@ -46,7 +47,7 @@ export const SplashScreen = ({
             onPress={onPressCreateAccount}
             label={_(msg`Create new account`)}
             accessibilityHint={_(
-              msg`Opens flow to create a new Bluesky account`,
+              msg`Opens flow to create a new Blacksky account`,
             )}
             size="large"
             variant="solid"
@@ -60,7 +61,7 @@ export const SplashScreen = ({
             onPress={onPressSignin}
             label={_(msg`Sign in`)}
             accessibilityHint={_(
-              msg`Opens flow to sign in to your existing Bluesky account`,
+              msg`Opens flow to sign in to your existing Blacksky account`,
             )}
             size="large"
             variant="solid"

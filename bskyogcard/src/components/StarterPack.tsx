@@ -1,17 +1,16 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text */
-import React from 'react'
-import {AppBskyGraphDefs, AppBskyGraphStarterpack} from '@atproto/api'
+import {type AppBskyGraphDefs, AppBskyGraphStarterpack} from '@atproto/api'
 
-import {Butterfly} from './Butterfly.js'
+import {Cluster} from './Cluster.js'
 import {Img} from './Img.js'
 
 export const STARTERPACK_HEIGHT = 630
 export const STARTERPACK_WIDTH = 1200
 export const TILE_SIZE = STARTERPACK_HEIGHT / 3
 
-const GRADIENT_TOP = '#0A7AFF'
-const GRADIENT_BOTTOM = '#59B9FF'
-const IMAGE_STROKE = '#359CFF'
+const GRADIENT_TOP = '#464985'
+const GRADIENT_BOTTOM = '#8686FF'
+const IMAGE_STROKE = '#6060E9'
 
 export function StarterPack(props: {
   starterPack: AppBskyGraphDefs.StarterPackView
@@ -53,7 +52,7 @@ export function StarterPack(props: {
         height: STARTERPACK_HEIGHT,
         backgroundColor: 'black',
         color: 'white',
-        fontFamily: 'Inter',
+        fontFamily: 'Rubik',
       }}>
       {/* image tiles */}
       <div
@@ -107,7 +106,7 @@ export function StarterPack(props: {
             padding: 60,
             fontSize: 40,
           }}>
-          JOIN THE CONVERSATION
+          JOIN THE COOKOUT
         </div>
         <div style={{display: 'flex'}}>
           {imagesAcross.map((image, i) => {
@@ -144,7 +143,7 @@ export function StarterPack(props: {
             justifyContent: 'center',
             padding: '30px 30px 10px',
           }}>
-          on <Butterfly width="65" style={{margin: '-7px 10px 0'}} /> Bluesky
+          on <Cluster width="65" style={{margin: '-7px 10px 0'}} /> Blacksky
         </div>
       </div>
     </div>

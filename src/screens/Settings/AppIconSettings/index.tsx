@@ -3,15 +3,15 @@ import {Alert, View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import * as DynamicAppIcon from '@mozzius/expo-dynamic-app-icon'
-import {NativeStackScreenProps} from '@react-navigation/native-stack'
+import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
 import {IS_INTERNAL} from '#/lib/app-info'
 import {PressableScale} from '#/lib/custom-animations/PressableScale'
-import {CommonNavigatorParams} from '#/lib/routes/types'
+import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {useGate} from '#/lib/statsig/statsig'
 import {isAndroid} from '#/platform/detection'
 import {AppIconImage} from '#/screens/Settings/AppIconSettings/AppIconImage'
-import {AppIconSet} from '#/screens/Settings/AppIconSettings/types'
+import {type AppIconSet} from '#/screens/Settings/AppIconSettings/types'
 import {useAppIconSets} from '#/screens/Settings/AppIconSettings/useAppIconSets'
 import {atoms as a, useTheme} from '#/alf'
 import * as Toggle from '#/components/forms/Toggle'
@@ -96,10 +96,10 @@ export function AppIconSettingsScreen({}: Props) {
                 a.font_bold,
                 t.atoms.text_contrast_medium,
               ]}>
-              <Trans>Bluesky+</Trans>
+              <Trans>Blacksky+</Trans>
             </Text>
             <Group
-              label={_(msg`Bluesky+ icons`)}
+              label={_(msg`Blacksky+ icons`)}
               value={currentAppIcon}
               onChange={onSetAppIcon}>
               {sets.core.map((icon, i) => (

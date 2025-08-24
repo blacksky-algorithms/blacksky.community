@@ -2,16 +2,16 @@ import React from 'react'
 import {StyleSheet, type TextProps} from 'react-native'
 import Svg, {
   Defs,
-  LinearGradient,
+  G,
   Path,
   type PathProps,
-  Stop,
+  Rect,
   type SvgProps,
 } from 'react-native-svg'
 
-import {colors} from '#/lib/styles'
+import {useTheme} from '#/alf'
 
-const ratio = 512 / 512
+const ratio = 243 / 285
 
 type Props = {
   fill?: PathProps['fill']
@@ -20,54 +20,43 @@ type Props = {
 
 export const Logo = React.forwardRef(function LogoImpl(props: Props, ref) {
   const {fill, ...rest} = props
-  const gradient = fill === 'sky'
   const styles = StyleSheet.flatten(props.style)
-  const _fill = gradient ? 'url(#sky)' : fill || styles?.color || colors.blue3
+  const t = useTheme()
+  const _fill = fill || styles?.color || t.atoms.text.color
   // @ts-ignore it's fiiiiine
   const size = parseInt(rest.width || 32)
-
-  // const isKawaii = useKawaiiMode()
-
-  // if (isKawaii) {
-  //   return (
-  //     <Image
-  //       source={
-  //         size > 100
-  //           ? require('../../../assets/kawaii.png')
-  //           : require('../../../assets/kawaii_smol.png')
-  //       }
-  //       accessibilityLabel="Bluesky"
-  //       accessibilityHint=""
-  //       accessibilityIgnoresInvertColors
-  //       style={[{height: size, aspectRatio: 1.4}]}
-  //     />
-  //   )
-  // }
 
   return (
     <Svg
       fill="none"
       // @ts-ignore it's fiiiiine
       ref={ref}
-      viewBox="0 0 512 512"
+      viewBox="0 0 285 243"
       {...rest}
       style={[{width: size, height: size * ratio}, styles]}>
-      {gradient && (
-        <Defs>
-          <LinearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#00007F" stopOpacity="1" />
-            <Stop offset="1" stopColor="#E5E5FF" stopOpacity="1" />
-          </LinearGradient>
-        </Defs>
-      )}
-
-      {/* Blacksky emblem */}
-      <Path
-        fill={gradient ? 'url(#sky)' : _fill /* fallback to solid colour */}
-        /* 512 / 98.999 ≈ 5.17177 ; translate 9.90625 units to centre vertically */
-        transform="translate(0 9.90625) scale(5.17177)"
-        d="M32.5654 9.96191C32.5654 19.5056 40.0604 27.2986 49.4854 27.7764H49.5137C58.9386 27.2986 66.4336 19.5056 66.4336 9.96191V0H71.2002V9.96191C71.2002 19.8135 79.1865 27.7998 89.0381 27.7998H98.999V32.5654H89.0381C79.1865 32.5654 71.2002 40.5518 71.2002 50.4033V60.3652H66.4336V50.4033C66.4336 40.8547 58.9308 33.0583 49.499 32.5879C40.0677 33.0588 32.5655 40.8551 32.5654 50.4033V60.3652H60.3652V60.3662H0V60.3652H27.7998V50.4033C27.7997 40.5519 19.8134 32.5654 9.96191 32.5654H0V27.7998H9.96191C19.8135 27.7998 27.7998 19.8135 27.7998 9.96191V0H32.5654V9.96191Z"
-      />
+      <G clipPath="url(#clip0_1011_989)">
+        <Path
+          d="M148.846 144.562C148.846 159.75 161.158 172.062 176.346 172.062H207.012V185.865H176.346C161.158 185.865 148.846 198.177 148.846 213.365V243.045H136.029V213.365C136.029 198.177 123.717 185.865 108.529 185.865H77.8633V172.062H108.529C123.717 172.062 136.029 159.75 136.029 144.562V113.896H148.846V144.562Z"
+          fill={_fill}
+        />
+        <Path
+          d="M170.946 31.8766C160.207 42.616 160.207 60.0281 170.946 70.7675L192.631 92.4516L182.871 102.212L161.186 80.5275C150.447 69.7881 133.035 69.7881 122.296 80.5275L101.309 101.514L92.2456 92.4509L113.232 71.4642C123.972 60.7248 123.972 43.3128 113.232 32.5733L91.5488 10.8899L101.309 1.12988L122.993 22.814C133.732 33.5533 151.144 33.5534 161.884 22.814L183.568 1.12988L192.631 10.1925L170.946 31.8766Z"
+          fill={_fill}
+        />
+        <Path
+          d="M79.0525 75.3259C75.1216 89.9962 83.8276 105.076 98.498 109.006L128.119 116.943L124.547 130.275L94.9267 122.338C80.2564 118.407 65.1772 127.113 61.2463 141.784L53.5643 170.453L41.1837 167.136L48.8654 138.467C52.7963 123.797 44.0902 108.718 29.4199 104.787L-0.201172 96.8497L3.37124 83.5173L32.9923 91.4542C47.6626 95.3851 62.7419 86.679 66.6728 72.0088L74.6098 42.3877L86.9895 45.7048L79.0525 75.3259Z"
+          fill={_fill}
+        />
+        <Path
+          d="M218.413 71.4229C222.344 86.093 237.423 94.7992 252.094 90.8683L281.715 82.9313L285.287 96.2628L255.666 104.2C240.995 108.131 232.29 123.21 236.22 137.88L243.902 166.55L231.522 169.867L223.841 141.198C219.91 126.528 204.831 117.822 190.16 121.753L160.539 129.69L156.967 116.357L186.588 108.42C201.258 104.49 209.964 89.4103 206.033 74.74L198.096 45.1189L210.476 41.8018L218.413 71.4229Z"
+          fill={_fill}
+        />
+      </G>
+      <Defs>
+        <clipPath id="clip0_1011_989">
+          <Rect width="285" height="243" fill={_fill} />
+        </clipPath>
+      </Defs>
     </Svg>
   )
 })
