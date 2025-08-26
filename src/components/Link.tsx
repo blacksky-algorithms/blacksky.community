@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react'
-import {type GestureResponderEvent} from 'react-native'
+import {type GestureResponderEvent, Linking} from 'react-native'
 import {sanitizeUrl} from '@braintree/sanitize-url'
 import {
   type LinkProps as RNLinkProps,
@@ -13,18 +13,19 @@ import {type AllNavigatorParams, type RouteParams} from '#/lib/routes/types'
 import {shareUrl} from '#/lib/sharing'
 import {
   convertBskyAppUrlIfNeeded,
+  createProxiedUrl,
   isBskyDownloadUrl,
   isExternalUrl,
   linkRequiresWarning,
 } from '#/lib/strings/url-helpers'
 import {isNative, isWeb} from '#/platform/detection'
 import {useModalControls} from '#/state/modals'
-import {useGoLinksEnabled} from '#/state/preferences'
 import {atoms as a, flatten, type TextStyleProp, useTheme, web} from '#/alf'
 import {Button, type ButtonProps} from '#/components/Button'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {Text, type TextProps} from '#/components/Typography'
 import {router} from '#/routes'
+import {useGlobalDialogsControlContext} from './dialogs/Context'
 
 /**
  * Only available within a `Link`, since that inherits from `Button`.
@@ -112,10 +113,9 @@ export function useLink({
   }
 
   const isExternal = isExternalUrl(href)
-  const {openModal, closeModal} = useModalControls()
+  const {closeModal} = useModalControls()
+  const {linkWarningDialogControl} = useGlobalDialogsControlContext()
   const openLink = useOpenLink()
-
-  const goLinksEnabled = useGoLinksEnabled()
 
   const onPress = React.useCallback(
     (e: GestureResponderEvent) => {
@@ -135,15 +135,13 @@ export function useLink({
       }
 
       if (requiresWarning) {
-        openModal({
-          name: 'link-warning',
-          text: displayText,
-          href: href,
+        linkWarningDialogControl.open({
+          displayText,
+          href,
         })
       } else {
         if (isExternal) {
-          // openLink(href, overridePresentation, shouldProxy)
-          openLink(href, overridePresentation, goLinksEnabled && shouldProxy)
+          openLink(href, overridePresentation, shouldProxy)
         } else {
           const shouldOpenInNewTab = shouldClickOpenNewTab(e)
 
@@ -195,7 +193,7 @@ export function useLink({
               navigation.dispatch(StackActions.replace(screen, params))
             } else if (action === 'navigate') {
               // @ts-expect-error not typed
-              navigation.navigate(screen, params)
+              navigation.navigate(screen, params, {pop: true})
             } else {
               throw Error('Unsupported navigator action.')
             }
@@ -209,14 +207,13 @@ export function useLink({
       displayText,
       isExternal,
       href,
-      openModal,
       openLink,
       closeModal,
       action,
       navigation,
       overridePresentation,
       shouldProxy,
-      goLinksEnabled,
+      linkWarningDialogControl,
     ],
   )
 
@@ -229,16 +226,21 @@ export function useLink({
     )
 
     if (requiresWarning) {
-      openModal({
-        name: 'link-warning',
-        text: displayText,
-        href: href,
+      linkWarningDialogControl.open({
+        displayText,
+        href,
         share: true,
       })
     } else {
       shareUrl(href)
     }
-  }, [disableMismatchWarning, displayText, href, isExternal, openModal])
+  }, [
+    disableMismatchWarning,
+    displayText,
+    href,
+    isExternal,
+    linkWarningDialogControl,
+  ])
 
   const onLongPress = React.useCallback(
     (e: GestureResponderEvent) => {
@@ -386,6 +388,91 @@ export function InlineLinkText({
       role="link"
       onPress={download ? undefined : onPress}
       onLongPress={onLongPress}
+      onMouseEnter={onHoverIn}
+      onMouseLeave={onHoverOut}
+      accessibilityRole="link"
+      href={href}
+      {...web({
+        hrefAttrs: {
+          target: download ? undefined : isExternal ? 'blank' : undefined,
+          rel: isExternal ? 'noopener noreferrer' : undefined,
+          download,
+        },
+        dataSet: {
+          // default to no underline, apply this ourselves
+          noUnderline: '1',
+        },
+      })}>
+      {children}
+    </Text>
+  )
+}
+
+/**
+ * A barebones version of `InlineLinkText`, for use outside a
+ * `react-navigation` context.
+ */
+export function SimpleInlineLinkText({
+  children,
+  to,
+  style,
+  download,
+  selectable,
+  label,
+  disableUnderline,
+  shouldProxy,
+  ...rest
+}: Omit<
+  InlineLinkProps,
+  | 'to'
+  | 'action'
+  | 'disableMismatchWarning'
+  | 'overridePresentation'
+  | 'onPress'
+  | 'onLongPress'
+  | 'shareOnLongPress'
+> & {
+  to: string
+}) {
+  const t = useTheme()
+  const {
+    state: hovered,
+    onIn: onHoverIn,
+    onOut: onHoverOut,
+  } = useInteractionState()
+  const flattenedStyle = flatten(style) || {}
+  const isExternal = isExternalUrl(to)
+
+  let href = to
+  if (shouldProxy) {
+    href = createProxiedUrl(href)
+  }
+
+  const onPress = () => {
+    Linking.openURL(href)
+  }
+
+  return (
+    <Text
+      selectable={selectable}
+      accessibilityHint=""
+      accessibilityLabel={label}
+      {...rest}
+      style={[
+        {color: t.palette.primary_500},
+        hovered &&
+          !disableUnderline && {
+            ...web({
+              outline: 0,
+              textDecorationLine: 'underline',
+              textDecorationColor:
+                flattenedStyle.color ?? t.palette.primary_500,
+            }),
+          },
+        flattenedStyle,
+      ]}
+      role="link"
+      onPress={onPress}
       onMouseEnter={onHoverIn}
       onMouseLeave={onHoverOut}
       accessibilityRole="link"
