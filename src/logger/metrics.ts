@@ -1,5 +1,6 @@
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
+import {type SignupStep} from '#/screens/Signup/state.ts'
 
 export type MetricEvents = {
   // App events
@@ -51,6 +52,8 @@ export type MetricEvents = {
   'signup:nextPressed': {
     activeStep: number
     phoneVerificationRequired?: boolean
+    selectedDomain?: string
+    isDefaultDomain?: boolean
   }
   'signup:backPressed': {
     activeStep: number
@@ -66,6 +69,16 @@ export type MetricEvents = {
   'signup:backgrounded': {
     activeStep: number
     backgroundCount: number
+  }
+  'signup:submit': {
+    selectedDomain: string
+    isDefaultDomain: boolean
+    signupDuration: number
+  }
+  'signup:domainChanged': {
+    fromDomain: string
+    toDomain: string
+    activeStep: SignupStep
   }
   'signup:handleTaken': {typeahead?: boolean}
   'signup:handleAvailable': {typeahead?: boolean}
@@ -195,6 +208,7 @@ export type MetricEvents = {
     signupDuration: number
     fieldErrorsTotal: number
     backgroundCount: number
+    selectedDomain: string
   }
   'post:create': {
     imageCount: number
