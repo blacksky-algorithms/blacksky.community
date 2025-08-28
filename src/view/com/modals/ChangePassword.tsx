@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 32,
     padding: 14,
-    backgroundColor: colors.blue3,
+    backgroundColor: colors.brand3,
   },
   btnContainer: {
     paddingTop: 20,
