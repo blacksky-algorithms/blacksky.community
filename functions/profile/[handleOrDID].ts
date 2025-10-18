@@ -81,8 +81,8 @@ class HeadHandler {
           <meta name="twitter:card" content="summary_large_image" />
         `
       : view.avatar
-      ? html`<meta name="twitter:card" content="summary" />`
-      : ''
+        ? html`<meta name="twitter:card" content="summary" />`
+        : ''
     element.append(
       html`
         <meta property="og:site_name" content="blacksky.community" />
@@ -136,7 +136,7 @@ class NoscriptHandler {
 }
 
 export async function onRequest(context) {
-  const agent = new AtpAgent({service: 'https://public.api.bsky.app/'})
+  const agent = new AtpAgent({service: 'https://api.blacksky.community/'})
   const {request, env} = context
   const origin = new URL(request.url).origin
 

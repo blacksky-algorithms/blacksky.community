@@ -130,17 +130,17 @@ class HeadHandler {
     const embedElems = !embed
       ? ''
       : AppBskyEmbedImages.isView(embed)
-      ? html`${embed.images.map(
-            i => html`<meta property="og:image" content="${i.thumb}" />`,
-          )}
-          <meta name="twitter:card" content="summary_large_image" /> `
-      : // TODO: in the future, embed videos
-      'thumbnail' in embed && embed.thumbnail
-      ? html`
-          <meta property="og:image" content="${embed.thumbnail}" />
-          <meta name="twitter:card" content="summary_large_image" />
-        `
-      : html`<meta name="twitter:card" content="summary" />`
+        ? html`${embed.images.map(
+              i => html`<meta property="og:image" content="${i.thumb}" />`,
+            )}
+            <meta name="twitter:card" content="summary_large_image" /> `
+        : // TODO: in the future, embed videos
+          'thumbnail' in embed && embed.thumbnail
+          ? html`
+              <meta property="og:image" content="${embed.thumbnail}" />
+              <meta name="twitter:card" content="summary_large_image" />
+            `
+          : html`<meta name="twitter:card" content="summary" />`
 
     element.append(
       html`
@@ -198,7 +198,7 @@ class NoscriptHandler {
 }
 
 export async function onRequest(context) {
-  const agent = new AtpAgent({service: 'https://public.api.bsky.app/'})
+  const agent = new AtpAgent({service: 'https://api.blacksky.community/'})
   const {request, env} = context
   const origin = new URL(request.url).origin
   const {handleOrDID, rkey}: {handleOrDID: string; rkey: string} =

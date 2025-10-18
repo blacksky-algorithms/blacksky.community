@@ -133,7 +133,7 @@ yarn && yarn build-web
 cd bskyweb/
 go mod tidy
 go build -v -tags timetzdata -o bskyweb ./cmd/bskyweb
-./bskyweb serve --appview-host=https://public.api.bsky.app
+./bskyweb serve --appview-host=https://api.blacksky.community
 ```
 
 On build success, access the application at [http://localhost:8100/](http://localhost:8100/). Subsequent changes require re-running the above steps in order to be reflected.
