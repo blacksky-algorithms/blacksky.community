@@ -5,6 +5,7 @@ import {useQuery} from '@tanstack/react-query'
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useAgent} from '#/state/session'
+import {ALT_PROXY_DID} from '#/env'
 
 export type TrendingTopic = AppBskyUnspeccedDefs.TrendingTopic
 
@@ -16,6 +17,9 @@ type Response = {
 export const DEFAULT_LIMIT = 14
 
 export const trendingTopicsQueryKey = ['trending-topics']
+
+// Proxy configuration
+const PROXY_TO_BLUESKY = `${ALT_PROXY_DID}#bsky_appview`
 
 export function useTrendingTopics() {
   const agent = useAgent()
@@ -29,9 +33,16 @@ export function useTrendingTopics() {
     staleTime: STALE.MINUTES.THREE,
     queryKey: trendingTopicsQueryKey,
     async queryFn() {
-      const {data} = await agent.api.app.bsky.unspecced.getTrendingTopics({
-        limit: DEFAULT_LIMIT,
-      })
+      const {data} = await agent.api.app.bsky.unspecced.getTrendingTopics(
+        {
+          limit: DEFAULT_LIMIT,
+        },
+        {
+          headers: {
+            'atproto-proxy': PROXY_TO_BLUESKY,
+          },
+        },
+      )
       return {
         topics: data.topics ?? [],
         suggested: data.suggested ?? [],

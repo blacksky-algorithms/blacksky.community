@@ -104,7 +104,7 @@ ENTRYPOINT ["dumb-init", "--"]
 WORKDIR /bskyweb
 COPY --from=build-env /bskyweb /usr/bin/bskyweb
 
-CMD ["/usr/bin/bskyweb"]
+CMD ["/usr/bin/bskyweb", "serve"]
 
 LABEL org.opencontainers.image.source=https://github.com/blacksky-algorithms/blacksky.community
 LABEL org.opencontainers.image.description="blacksky.community Web App"
