@@ -791,6 +791,7 @@ const LINKING = {
     'blacksky://',
     'https://bsky.app',
     'https://blacksky.community',
+    'https://staging.blacksky.community',
   ],
 
   getPathFromState(state: State) {

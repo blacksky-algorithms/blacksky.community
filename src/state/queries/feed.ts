@@ -27,6 +27,7 @@ import {STALE} from '#/state/queries'
 import {RQKEY as listQueryKey} from '#/state/queries/list'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useAgent, useSession} from '#/state/session'
+import {ALT_PROXY_DID} from '#/env'
 import {router} from '#/routes'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {type FeedDescriptor} from './post-feed'
@@ -170,9 +171,15 @@ export function getAvatarTypeFromUri(uri: string) {
   return getFeedTypeFromUri(uri) === 'feed' ? 'algo' : 'list'
 }
 
+const PROXY_TO_BLUESKY = `${ALT_PROXY_DID}#bsky_appview`
+
 export function useFeedSourceInfoQuery({uri}: {uri: string}) {
   const type = getFeedTypeFromUri(uri)
   const agent = useAgent()
+
+  // Check if this is a trending feed that needs proxying
+  const needsProxy = uri.includes('did:plc:qrz3lhbyuxbeilrc6nekdqme')
+  const headers = needsProxy ? {'atproto-proxy': PROXY_TO_BLUESKY} : {}
 
   return useQuery({
     staleTime: STALE.INFINITY,
@@ -181,13 +188,19 @@ export function useFeedSourceInfoQuery({uri}: {uri: string}) {
       let view: FeedSourceInfo
 
       if (type === 'feed') {
-        const res = await agent.app.bsky.feed.getFeedGenerator({feed: uri})
+        const res = await agent.app.bsky.feed.getFeedGenerator(
+          {feed: uri},
+          {headers},
+        )
         view = hydrateFeedGenerator(res.data.view)
       } else {
-        const res = await agent.app.bsky.graph.getList({
-          list: uri,
-          limit: 1,
-        })
+        const res = await agent.app.bsky.graph.getList(
+          {
+            list: uri,
+            limit: 1,
+          },
+          {headers},
+        )
         view = hydrateList(res.data.list)
       }
 
