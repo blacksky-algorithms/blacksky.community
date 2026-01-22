@@ -1,12 +1,12 @@
-import {AppBskyVideoDefs} from '@atproto/api'
-import {BskyAgent} from '@atproto/api'
-import {I18n} from '@lingui/core'
+import {type AppBskyVideoDefs} from '@atproto/api'
+import {type BskyAgent} from '@atproto/api'
+import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/macro'
 import {nanoid} from 'nanoid/non-secure'
 
 import {AbortError} from '#/lib/async/cancelable'
 import {ServerError} from '#/lib/media/video/errors'
-import {CompressedVideo} from '#/lib/media/video/types'
+import {type CompressedVideo} from '#/lib/media/video/types'
 import {getServiceAuthToken, getVideoUploadLimits} from './upload.shared'
 import {createVideoEndpointUrl, mimeToExt} from './util'
 
@@ -46,6 +46,8 @@ export async function uploadVideo({
   if (signal.aborted) {
     throw new AbortError()
   }
+  // Token audience should be user's PDS DID since we forward it to the PDS
+  // for blob upload. Don't pass aud to let it default to pdsAud.
   const token = await getServiceAuthToken({
     agent,
     lxm: 'com.atproto.repo.uploadBlob',
