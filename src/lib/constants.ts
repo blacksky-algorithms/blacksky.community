@@ -166,7 +166,7 @@ export const MAX_LABELERS = 20
 export const VIDEO_SERVICE = 'https://video.blacksky.community'
 export const VIDEO_SERVICE_DID = 'did:web:video.blacksky.community'
 
-export const VIDEO_MAX_DURATION_MS = 10 * 60 * 1000 // 10 minutes in milliseconds
+export const VIDEO_MAX_DURATION_MS = 60 * 60 * 1000 // 60 minutes in milliseconds
 /**
  * Maximum size of a video in megabytes, _not_ mebibytes. Backend uses
  * ISO megabytes.
