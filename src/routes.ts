@@ -8,6 +8,7 @@ type AllNavigatableRoutes = Omit<
 
 export const router = new Router<AllNavigatableRoutes>({
   Home: '/',
+  AuthCallback: '/auth/web/callback',
   Search: '/search',
   Feeds: '/feeds',
   Notifications: '/notifications',

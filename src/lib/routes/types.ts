@@ -7,6 +7,7 @@ export type {NativeStackScreenProps} from '@react-navigation/native-stack'
 
 export type CommonNavigatorParams = {
   NotFound: undefined
+  AuthCallback: undefined
   Lists: undefined
   Moderation: undefined
   ModerationModlists: undefined
