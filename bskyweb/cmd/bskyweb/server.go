@@ -223,6 +223,12 @@ func serve(cctx *cli.Context) error {
 		e.GET("/robots.txt", echo.WrapHandler(staticHandler))
 	}
 
+	// OAuth client metadata (generated dynamically from request host)
+	e.GET("/oauth-client-metadata.json", server.OAuthClientMetadata)
+
+	// OAuth callback (serves SPA so React handles it client-side)
+	e.GET("/auth/web/callback", server.WebGeneric)
+
 	e.GET("/iframe/youtube.html", echo.WrapHandler(staticHandler))
 	e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", staticHandler)), func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -447,6 +453,29 @@ func (srv *Server) LinkProxyMiddleware(url *url.URL) echo.MiddlewareFunc {
 }
 
 // handler for endpoint that have no specific server-side handling
+func (srv *Server) OAuthClientMetadata(c echo.Context) error {
+	scheme := "https"
+	if c.Request().TLS == nil && strings.HasPrefix(c.Request().Host, "localhost") {
+		scheme = "http"
+	}
+	baseURL := fmt.Sprintf("%s://%s", scheme, c.Request().Host)
+
+	metadata := map[string]interface{}{
+		"client_id":                    baseURL + "/oauth-client-metadata.json",
+		"client_name":                  "Blacksky Community",
+		"client_uri":                   baseURL,
+		"redirect_uris":               []string{baseURL + "/auth/web/callback"},
+		"scope":                        "atproto transition:generic transition:email transition:chat.bsky",
+		"token_endpoint_auth_method":   "none",
+		"response_types":              []string{"code"},
+		"grant_types":                 []string{"authorization_code", "refresh_token"},
+		"application_type":            "web",
+		"dpop_bound_access_tokens":    true,
+	}
+
+	return c.JSON(http.StatusOK, metadata)
+}
+
 func (srv *Server) WebGeneric(c echo.Context) error {
 	data := srv.NewTemplateContext()
 	return c.Render(http.StatusOK, "base.html", data)

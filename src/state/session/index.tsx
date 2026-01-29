@@ -14,6 +14,11 @@ import {
   createAgentAndResume,
   sessionAccountToSession,
 } from './agent'
+import {
+  type OauthBskyAppAgent,
+  oauthCreateAgent,
+  oauthResumeSession,
+} from './oauth-agent'
 import {getInitialState, reducer} from './reducer'
 
 export {isSignupQueued} from './util'
@@ -21,6 +26,7 @@ import {addSessionDebugLog} from './logging'
 export type {SessionAccount} from '#/state/session/types'
 import {logger} from '#/logger'
 import {
+  type SessionAccount,
   type SessionApiContext,
   type SessionStateContext,
 } from '#/state/session/types'
@@ -99,14 +105,22 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     async (params, logContext) => {
       addSessionDebugLog({type: 'method:start', method: 'login'})
       const signal = cancelPendingTask()
-      const {agent, account} = await createAgentAndLogin(
-        params,
-        onAgentSessionChange,
-      )
+
+      let agentAccount: {
+        agent: OauthBskyAppAgent | BskyAppAgent
+        account: SessionAccount
+      }
+
+      if (params.oauthSession) {
+        agentAccount = await oauthCreateAgent(params.oauthSession)
+      } else {
+        agentAccount = await createAgentAndLogin(params, onAgentSessionChange)
+      }
 
       if (signal.aborted) {
         return
       }
+      const {agent, account} = agentAccount
       dispatch({
         type: 'switched-to-account',
         newAgent: agent,
@@ -114,7 +128,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       })
       logger.metric(
         'account:loggedIn',
-        {logContext, withPassword: true},
+        {logContext, withPassword: !params.oauthSession},
         {statsig: true},
       )
       addSessionDebugLog({type: 'method:end', method: 'login', account})
@@ -168,10 +182,22 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         account: storedAccount,
       })
       const signal = cancelPendingTask()
-      const {agent, account} = await createAgentAndResume(
-        storedAccount,
-        onAgentSessionChange,
-      )
+
+      let agentAccount: {
+        agent: OauthBskyAppAgent | BskyAppAgent
+        account: SessionAccount
+      }
+
+      if (storedAccount.isOauthSession) {
+        agentAccount = await oauthResumeSession(storedAccount)
+      } else {
+        agentAccount = await createAgentAndResume(
+          storedAccount,
+          onAgentSessionChange,
+        )
+      }
+
+      const {agent, account} = agentAccount
 
       if (signal.aborted) {
         return
@@ -246,10 +272,13 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       const syncedAccount = synced.accounts.find(
         a => a.did === synced.currentAccount?.did,
       )
-      if (syncedAccount && syncedAccount.refreshJwt) {
+      if (
+        syncedAccount &&
+        (syncedAccount.isOauthSession || syncedAccount.refreshJwt)
+      ) {
         if (syncedAccount.did !== state.currentAgentState.did) {
           resumeSession(syncedAccount)
-        } else {
+        } else if (!syncedAccount.isOauthSession) {
           const agent = state.currentAgentState.agent as BskyAgent
           const prevSession = agent.session
           agent.sessionManager.session = sessionAccountToSession(syncedAccount)
@@ -309,7 +338,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       addSessionDebugLog({type: 'agent:switch', prevAgent, nextAgent: agent})
       // We never reuse agents so let's fully neutralize the previous one.
       // This ensures it won't try to consume any refresh tokens.
-      prevAgent.dispose()
+      prevAgent.dispose?.()
     }
   }, [agent])
 

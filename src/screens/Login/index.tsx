@@ -1,20 +1,14 @@
-import React, {useRef} from 'react'
+import React from 'react'
 import {KeyboardAvoidingView} from 'react-native'
 import {LayoutAnimationConfig} from 'react-native-reanimated'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {DEFAULT_SERVICE} from '#/lib/constants'
 import {logEvent} from '#/lib/statsig/statsig'
-import {logger} from '#/logger'
-import {useServiceQuery} from '#/state/queries/service'
 import {type SessionAccount, useSession} from '#/state/session'
 import {useLoggedOutView} from '#/state/shell/logged-out'
 import {LoggedOutLayout} from '#/view/com/util/layouts/LoggedOutLayout'
-import {ForgotPasswordForm} from '#/screens/Login/ForgotPasswordForm'
 import {LoginForm} from '#/screens/Login/LoginForm'
-import {PasswordUpdatedForm} from '#/screens/Login/PasswordUpdatedForm'
-import {SetNewPasswordForm} from '#/screens/Login/SetNewPasswordForm'
 import {atoms as a} from '#/alf'
 import {ChooseAccountForm} from './ChooseAccountForm'
 import {ScreenTransition} from './ScreenTransition'
@@ -22,15 +16,10 @@ import {ScreenTransition} from './ScreenTransition'
 enum Forms {
   Login,
   ChooseAccount,
-  ForgotPassword,
-  SetNewPassword,
-  PasswordUpdated,
 }
 
 export const Login = ({onPressBack}: {onPressBack: () => void}) => {
   const {_} = useLingui()
-  const failedAttemptCountRef = useRef(0)
-  const startTimeRef = useRef(Date.now())
 
   const {accounts} = useSession()
   const {requestedAccountSwitchTo} = useLoggedOutView()
@@ -39,9 +28,6 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
   )
 
   const [error, setError] = React.useState<string>('')
-  const [serviceUrl, setServiceUrl] = React.useState<string>(
-    requestedAccount?.service || DEFAULT_SERVICE,
-  )
   const [initialHandle, setInitialHandle] = React.useState<string>(
     requestedAccount?.handle || '',
   )
@@ -53,16 +39,7 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
         : Forms.Login,
   )
 
-  const {
-    data: serviceDescription,
-    error: serviceError,
-    refetch: refetchService,
-  } = useServiceQuery(serviceUrl)
-
   const onSelectAccount = (account?: SessionAccount) => {
-    if (account?.service) {
-      setServiceUrl(account.service)
-    }
     setInitialHandle(account?.handle || '')
     setCurrentForm(Forms.Login)
   }
@@ -72,45 +49,9 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
     setCurrentForm(form)
   }
 
-  React.useEffect(() => {
-    if (serviceError) {
-      setError(
-        _(
-          msg`Unable to contact your service. Please check your Internet connection.`,
-        ),
-      )
-      logger.warn(`Failed to fetch service description for ${serviceUrl}`, {
-        error: String(serviceError),
-      })
-      logEvent('signin:hostingProviderFailedResolution', {})
-    } else {
-      setError('')
-    }
-  }, [serviceError, serviceUrl, _])
-
-  const onPressForgotPassword = () => {
-    setCurrentForm(Forms.ForgotPassword)
-    logEvent('signin:forgotPasswordPressed', {})
-  }
-
   const handlePressBack = () => {
     onPressBack()
-    logEvent('signin:backPressed', {
-      failedAttemptsCount: failedAttemptCountRef.current,
-    })
-  }
-
-  const onAttemptSuccess = () => {
-    logEvent('signin:success', {
-      isUsingCustomProvider: serviceUrl !== DEFAULT_SERVICE,
-      timeTakenSeconds: Math.round((Date.now() - startTimeRef.current) / 1000),
-      failedAttemptsCount: failedAttemptCountRef.current,
-    })
-    setCurrentForm(Forms.Login)
-  }
-
-  const onAttemptFailed = () => {
-    failedAttemptCountRef.current += 1
+    logEvent('signin:backPressed', {failedAttemptsCount: 0})
   }
 
   let content = null
@@ -120,22 +61,15 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
   switch (currentForm) {
     case Forms.Login:
       title = _(msg`Sign in`)
-      description = _(msg`Enter your username and password`)
+      description = _(msg`Enter your handle to sign in`)
       content = (
         <LoginForm
           error={error}
-          serviceUrl={serviceUrl}
-          serviceDescription={serviceDescription}
           initialHandle={initialHandle}
           setError={setError}
-          onAttemptFailed={onAttemptFailed}
-          onAttemptSuccess={onAttemptSuccess}
-          setServiceUrl={setServiceUrl}
           onPressBack={() =>
             accounts.length ? gotoForm(Forms.ChooseAccount) : handlePressBack()
           }
-          onPressForgotPassword={onPressForgotPassword}
-          onPressRetryConnect={refetchService}
         />
       )
       break
@@ -147,41 +81,6 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
           onSelectAccount={onSelectAccount}
           onPressBack={handlePressBack}
         />
-      )
-      break
-    case Forms.ForgotPassword:
-      title = _(msg`Forgot Password`)
-      description = _(msg`Let's get your password reset!`)
-      content = (
-        <ForgotPasswordForm
-          error={error}
-          serviceUrl={serviceUrl}
-          serviceDescription={serviceDescription}
-          setError={setError}
-          setServiceUrl={setServiceUrl}
-          onPressBack={() => gotoForm(Forms.Login)}
-          onEmailSent={() => gotoForm(Forms.SetNewPassword)}
-        />
-      )
-      break
-    case Forms.SetNewPassword:
-      title = _(msg`Forgot Password`)
-      description = _(msg`Let's get your password reset!`)
-      content = (
-        <SetNewPasswordForm
-          error={error}
-          serviceUrl={serviceUrl}
-          setError={setError}
-          onPressBack={() => gotoForm(Forms.ForgotPassword)}
-          onPasswordSet={() => gotoForm(Forms.PasswordUpdated)}
-        />
-      )
-      break
-    case Forms.PasswordUpdated:
-      title = _(msg`Password updated`)
-      description = _(msg`You can now sign in with your new password.`)
-      content = (
-        <PasswordUpdatedForm onPressNext={() => gotoForm(Forms.Login)} />
       )
       break
   }

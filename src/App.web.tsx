@@ -36,6 +36,7 @@ import {
   useSession,
   useSessionApi,
 } from '#/state/session'
+import {getWebOAuthClient} from '#/state/session/oauth-web-client'
 import {readLastActiveAccount} from '#/state/session/util'
 import {Provider as ShellStateProvider} from '#/state/shell'
 import {Provider as ComposerProvider} from '#/state/shell/composer'
@@ -59,10 +60,30 @@ import {ToastOutlet} from '#/components/Toast'
 import {BackgroundNotificationPreferencesProvider} from '../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 import {Provider as HideBottomBarBorderProvider} from './lib/hooks/useHideBottomBarBorder'
 
+// For local development: the OAuth loopback spec requires IP-based origins
+// (127.0.0.1), not "localhost". The auth server redirects to 127.0.0.1, but
+// IndexedDB is per-origin, so PKCE state stored on "localhost" is unreachable
+// from "127.0.0.1". Redirect immediately so both signIn() and the callback
+// use the same origin.
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  const url = new URL(window.location.href)
+  url.hostname = '127.0.0.1'
+  window.location.replace(url.href)
+}
+
+function hasOAuthCallbackParams(): boolean {
+  // OAuth callback params come in the hash fragment (response_mode=fragment)
+  // or query string. Check both for "state" + ("code" or "error").
+  const hash = new URLSearchParams(window.location.hash.slice(1))
+  const query = new URLSearchParams(window.location.search)
+  const params = hash.has('state') ? hash : query
+  return params.has('state') && (params.has('code') || params.has('error'))
+}
+
 function InnerApp() {
   const [isReady, setIsReady] = React.useState(false)
   const {currentAccount} = useSession()
-  const {resumeSession} = useSessionApi()
+  const {resumeSession, login} = useSessionApi()
   const theme = useColorModeTheme()
   const {_} = useLingui()
   const hasCheckedReferrer = useStarterPackEntry()
@@ -71,18 +92,37 @@ function InnerApp() {
   useEffect(() => {
     async function onLaunch(account?: SessionAccount) {
       try {
+        // Check for OAuth callback params in the URL (hash fragment or query).
+        // The authorization server redirects here after the user approves.
+        if (hasOAuthCallbackParams()) {
+          const client = getWebOAuthClient()
+          const result = await client.initCallback()
+          if (result?.session) {
+            await login(
+              {
+                service: '',
+                identifier: '',
+                password: '',
+                oauthSession: result.session,
+              },
+              'LoginForm',
+            )
+            return
+          }
+        }
+
         if (account) {
           await resumeSession(account)
         }
       } catch (e) {
-        logger.error(`session: resumeSession failed`, {message: e})
+        logger.error(`session: onLaunch failed`, {message: e})
       } finally {
         setIsReady(true)
       }
     }
     const account = readLastActiveAccount()
     onLaunch(account)
-  }, [resumeSession])
+  }, [resumeSession, login])
 
   useEffect(() => {
     return listenSessionDropped(() => {
