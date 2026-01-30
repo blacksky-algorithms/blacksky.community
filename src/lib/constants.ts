@@ -190,13 +190,14 @@ export const urls = {
   website: {
     blog: {
       findFriendsAnnouncement:
-        'https://bsky.social/about/blog/12-16-2025-find-friends',
-      initialVerificationAnnouncement: `https://bsky.social/about/blog/04-21-2025-verification`,
-      searchTipsAndTricks: 'https://bsky.social/about/blog/05-31-2024-search',
+        'https://www.blackskyweb.xyz/about/blog/12-16-2025-find-friends',
+      initialVerificationAnnouncement: `https://www.blackskyweb.xyz/about/blog/04-21-2025-verification`,
+      searchTipsAndTricks:
+        'https://www.blackskyweb.xyz/about/blog/05-31-2024-search',
     },
     support: {
       findFriendsPrivacyPolicy:
-        'https://bsky.social/about/support/find-friends-privacy-policy',
+        'https://www.blackskyweb.xyz/about/support/find-friends-privacy-policy',
     },
   },
 }
@@ -232,8 +233,8 @@ export const BLUESKY_NOTIF_SERVICE_HEADERS = {
 }
 
 export const webLinks = {
-  tos: `https://bsky.social/about/support/tos`,
-  privacy: `https://bsky.social/about/support/privacy-policy`,
-  community: `https://bsky.social/about/support/community-guidelines`,
-  communityDeprecated: `https://bsky.social/about/support/community-guidelines-deprecated`,
+  tos: `https://www.blackskyweb.xyz/about/support/tos`,
+  privacy: `https://www.blackskyweb.xyz/about/support/privacy-policy`,
+  community: `https://www.blackskyweb.xyz/about/support/community-guidelines`,
+  communityDeprecated: `https://www.blackskyweb.xyz/about/support/community-guidelines-deprecated`,
 }
