@@ -9,7 +9,6 @@ import Animated, {
 import {msg, Plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {useGate} from '#/lib/statsig/statsig'
 import {
   createFullHandle,
   MAX_SERVICE_HANDLE_LENGTH,
@@ -20,7 +19,6 @@ import {
   checkHandleAvailability,
   useHandleAvailabilityQuery,
 } from '#/state/queries/handle-availability'
-import {ScreenTransition} from '#/screens/Login/ScreenTransition'
 import {useSignupContext} from '#/screens/Signup/state'
 import {atoms as a, native, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -30,15 +28,16 @@ import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Check_Stroke2_Corner0_Rounded as Check} from '#/components/icons/Check'
 import {ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown} from '#/components/icons/Chevron'
 import * as Menu from '#/components/Menu'
+import {ScreenTransition} from '#/components/ScreenTransition'
 import {Text} from '#/components/Typography'
-import {IS_INTERNAL} from '#/env'
+import {useAnalytics} from '#/analytics'
 import {BackNextButtons} from '../BackNextButtons'
 import {HandleSuggestions} from './HandleSuggestions'
 
 export function StepHandle() {
   const {_} = useLingui()
+  const ax = useAnalytics()
   const t = useTheme()
-  const gate = useGate()
   const {state, dispatch} = useSignupContext()
   const [draftValue, setDraftValue] = useState(state.handle)
   const [selectedDomain, setSelectedDomain] = useState(
@@ -135,17 +134,11 @@ export function StepHandle() {
       dispatch({type: 'setIsLoading', value: false})
     }
 
-    logger.metric(
-      'signup:nextPressed',
-      {
-        activeStep: state.activeStep,
-        phoneVerificationRequired:
-          state.serviceDescription?.phoneVerificationRequired,
-        selectedDomain,
-        isDefaultDomain: selectedDomain === availableDomains[0],
-      },
-      {statsig: true},
-    )
+    ax.metric('signup:nextPressed', {
+      activeStep: state.activeStep,
+      phoneVerificationRequired:
+        state.serviceDescription?.phoneVerificationRequired,
+    })
 
     // phoneVerificationRequired is actually whether a captcha is required
     if (!state.serviceDescription?.phoneVerificationRequired) {
@@ -169,10 +162,7 @@ export function StepHandle() {
       value: selectedDomain,
     })
     dispatch({type: 'prev'})
-    logger.metric(
-      'signup:backPressed',
-      {activeStep: state.activeStep},
-      {statsig: true},
+    ax.metric('signup:backPressed', {activeStep: state.activeStep}
     )
   }
 
@@ -298,7 +288,7 @@ export function StepHandle() {
                 </Requirement>
                 {isHandleAvailable?.suggestions &&
                   isHandleAvailable.suggestions.length > 0 &&
-                  (gate('handle_suggestions') || IS_INTERNAL) && (
+                  (
                     <HandleSuggestions
                       suggestions={isHandleAvailable.suggestions}
                       onSelect={suggestion => {
@@ -310,7 +300,7 @@ export function StepHandle() {
                               selectedDomain.length * -1,
                             )
                         setDraftValue(handlePart)
-                        logger.metric('signup:handleSuggestionSelected', {
+                        ax.metric('signup:handleSuggestionSelected', {
                           method: suggestion.method,
                         })
                       }}

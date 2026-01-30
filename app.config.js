@@ -1,5 +1,10 @@
+// @ts-check
 const pkg = require('./package.json')
 
+/**
+ * @param {import('@expo/config-types').ExpoConfig} _config
+ * @returns {{ expo: import('@expo/config-types').ExpoConfig }}
+ */
 module.exports = function (_config) {
   /**
    * App version number. Should be incremented as part of a release cycle.
@@ -11,46 +16,49 @@ module.exports = function (_config) {
    *
    * @see https://docs.expo.dev/build-reference/variables/#built-in-environment-variables
    */
-  const PLATFORM = process.env.EAS_BUILD_PLATFORM
+  const PLATFORM = process.env.EAS_BUILD_PLATFORM ?? 'web'
 
   const IS_TESTFLIGHT = process.env.EXPO_PUBLIC_ENV === 'testflight'
   const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === 'production'
-  const IS_DEV = !IS_TESTFLIGHT || !IS_PRODUCTION
+  const IS_DEV = !IS_TESTFLIGHT && !IS_PRODUCTION
 
   const ASSOCIATED_DOMAINS = [
-    'applinks:blacksky.community',
+    'applinks:bsky.app',
+    'applinks:staging.bsky.app',
+    'appclips:bsky.app',
+    'appclips:go.bsky.app', // Allows App Clip to work when scanning QR codes
     // When testing local services, enter an ngrok (et al) domain here. It must use a standard HTTP/HTTPS port.
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
-  // const UPDATES_CHANNEL = IS_TESTFLIGHT
-  //   ? 'testflight'
-  //   : IS_PRODUCTION
-  //   ? 'production'
-  //   : undefined
-  // const UPDATES_ENABLED = !!UPDATES_CHANNEL
+  const UPDATES_ENABLED = IS_TESTFLIGHT || IS_PRODUCTION
 
   const USE_SENTRY = Boolean(process.env.SENTRY_AUTH_TOKEN)
 
   return {
     expo: {
       version: VERSION,
-      name: 'blacksky.community',
-      slug: 'blacksky',
-      scheme: ['bluesky', 'blacksky'],
-      owner: 'blackskyalgorithms',
+      name: 'Bluesky',
+      slug: 'bluesky',
+      scheme: 'bluesky',
+      owner: 'blueskysocial',
       runtimeVersion: {
         policy: 'appVersion',
       },
-      icon: './assets/app-icons/ios_icon_default_light.png',
+      icon: './assets/app-icons/ios_icon_default_next.png',
       userInterfaceStyle: 'automatic',
-      primaryColor: '#6060E9',
+      primaryColor: '#1083fe',
+      newArchEnabled: false,
       ios: {
         supportsTablet: false,
-        bundleIdentifier: 'community.blacksky',
+        bundleIdentifier: 'xyz.blueskyweb.app',
         config: {
           usesNonExemptEncryption: false,
         },
+        icon:
+          PLATFORM === 'web' // web build doesn't like .icon files
+            ? './assets/app-icons/ios_icon_default_next.png'
+            : './assets/app-icons/ios_icon_default.icon',
         infoPlist: {
           UIBackgroundModes: ['remote-notification'],
           NSCameraUsageDescription:
@@ -61,7 +69,7 @@ module.exports = function (_config) {
             'Used to save images to your library.',
           NSPhotoLibraryUsageDescription:
             'Used for profile pictures, posts, and other kinds of content',
-          CFBundleSpokenName: 'Black Sky',
+          CFBundleSpokenName: 'Blue Sky',
           CFBundleLocalizations: [
             'en',
             'an',
@@ -104,14 +112,43 @@ module.exports = function (_config) {
             'zh-Hans',
             'zh-Hant',
           ],
+          UIDesignRequiresCompatibility: true,
         },
         associatedDomains: ASSOCIATED_DOMAINS,
         entitlements: {
           'com.apple.developer.kernel.increased-memory-limit': true,
           'com.apple.developer.kernel.extended-virtual-addressing': true,
-          'com.apple.security.application-groups': 'group.community.blacksky',
+          'com.apple.security.application-groups': 'group.app.bsky',
         },
         privacyManifests: {
+          NSPrivacyCollectedDataTypes: [
+            {
+              NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeCrashData',
+              NSPrivacyCollectedDataTypeLinked: false,
+              NSPrivacyCollectedDataTypeTracking: false,
+              NSPrivacyCollectedDataTypePurposes: [
+                'NSPrivacyCollectedDataTypePurposeAppFunctionality',
+              ],
+            },
+            {
+              NSPrivacyCollectedDataType:
+                'NSPrivacyCollectedDataTypePerformanceData',
+              NSPrivacyCollectedDataTypeLinked: false,
+              NSPrivacyCollectedDataTypeTracking: false,
+              NSPrivacyCollectedDataTypePurposes: [
+                'NSPrivacyCollectedDataTypePurposeAppFunctionality',
+              ],
+            },
+            {
+              NSPrivacyCollectedDataType:
+                'NSPrivacyCollectedDataTypeOtherDiagnosticData',
+              NSPrivacyCollectedDataTypeLinked: false,
+              NSPrivacyCollectedDataTypeTracking: false,
+              NSPrivacyCollectedDataTypePurposes: [
+                'NSPrivacyCollectedDataTypePurposeAppFunctionality',
+              ],
+            },
+          ],
           NSPrivacyAccessedAPITypes: [
             {
               NSPrivacyAccessedAPIType:
@@ -143,15 +180,14 @@ module.exports = function (_config) {
         barStyle: 'light-content',
       },
       android: {
-        icon: './assets/app-icons/android_icon_default_light.png',
+        icon: './assets/app-icons/android_icon_default_next.png',
         adaptiveIcon: {
           foregroundImage: './assets/icon-android-foreground.png',
-          monochromeImage: './assets/icon-android-foreground.png',
-          backgroundImage: './assets/icon-android-background.png',
-          backgroundColor: '#6060E9',
+          monochromeImage: './assets/icon-android-monochrome.png',
+          backgroundColor: '#006AFF',
         },
         googleServicesFile: './google-services.json',
-        package: 'community.blacksky',
+        package: 'xyz.blueskyweb.app',
         intentFilters: [
           {
             action: 'VIEW',
@@ -159,16 +195,16 @@ module.exports = function (_config) {
             data: [
               {
                 scheme: 'https',
-                host: 'community.blacksky',
-              },
-              {
-                scheme: 'https',
                 host: 'bsky.app',
               },
-              IS_DEV && {
-                scheme: 'http',
-                host: 'localhost:19006',
-              },
+              ...(IS_DEV
+                ? [
+                    {
+                      scheme: 'http',
+                      host: 'localhost:19006',
+                    },
+                  ]
+                : []),
             ],
             category: ['BROWSABLE', 'DEFAULT'],
           },
@@ -177,22 +213,21 @@ module.exports = function (_config) {
       web: {
         favicon: './assets/favicon.png',
       },
-      // updates: {
-      //   url: 'https://updates.bsky.app/manifest',
-      //   enabled: UPDATES_ENABLED,
-      //   fallbackToCacheTimeout: 30000,
-      //   codeSigningCertificate: UPDATES_ENABLED
-      //     ? './code-signing/certificate.pem'
-      //     : undefined,
-      //   codeSigningMetadata: UPDATES_ENABLED
-      //     ? {
-      //         keyid: 'main',
-      //         alg: 'rsa-v1_5-sha256',
-      //       }
-      //     : undefined,
-      //   checkAutomatically: 'NEVER',
-      //   channel: UPDATES_CHANNEL,
-      // },
+      updates: {
+        url: 'https://updates.bsky.app/manifest',
+        enabled: UPDATES_ENABLED,
+        fallbackToCacheTimeout: 30000,
+        codeSigningCertificate: UPDATES_ENABLED
+          ? './code-signing/certificate.pem'
+          : undefined,
+        codeSigningMetadata: UPDATES_ENABLED
+          ? {
+              keyid: 'main',
+              alg: 'rsa-v1_5-sha256',
+            }
+          : undefined,
+        checkAutomatically: 'NEVER',
+      },
       plugins: [
         'expo-video',
         'expo-localization',
@@ -201,26 +236,31 @@ module.exports = function (_config) {
           'react-native-edge-to-edge',
           {android: {enforceNavigationBarContrast: false}},
         ],
-        USE_SENTRY && [
-          '@sentry/react-native/expo',
-          {
-            organization: 'blueskyweb',
-            project: 'app',
-            url: 'https://sentry.io',
-          },
-        ],
+        ...(USE_SENTRY
+          ? [
+              /** @type {[string, any]} */ ([
+                '@sentry/react-native/expo',
+                {
+                  organization: 'blueskyweb',
+                  project: 'app',
+                  url: 'https://sentry.io',
+                },
+              ]),
+            ]
+          : []),
         [
           'expo-build-properties',
           {
             ios: {
               deploymentTarget: '15.1',
-              newArchEnabled: false,
+              buildReactNativeFromSource: true,
+              ccacheEnabled: IS_DEV,
             },
             android: {
               compileSdkVersion: 35,
               targetSdkVersion: 35,
               buildToolsVersion: '35.0.0',
-              newArchEnabled: true,
+              buildReactNativeFromSource: IS_PRODUCTION,
             },
           },
         ],
@@ -228,7 +268,7 @@ module.exports = function (_config) {
           'expo-notifications',
           {
             icon: './assets/icon-android-notification.png',
-            color: '#6060E9',
+            color: '#1185fe',
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
@@ -271,25 +311,25 @@ module.exports = function (_config) {
           'expo-splash-screen',
           {
             ios: {
-              enableFullScreenImage_legacy: true,
-              backgroundColor: '#ffffff',
-              image: './assets/splash.png',
+              enableFullScreenImage_legacy: true, // iOS only
+              backgroundColor: '#A8CCFF', // primary_200
+              image: './assets/splash/splash.png',
               resizeMode: 'cover',
               dark: {
-                enableFullScreenImage_legacy: true,
-                backgroundColor: '#001429',
-                image: './assets/splash-dark.png',
+                enableFullScreenImage_legacy: true, // iOS only
+                backgroundColor: '#00398A', // primary_800
+                image: './assets/splash/splash-dark.png',
                 resizeMode: 'cover',
               },
             },
             android: {
-              backgroundColor: '#6060E9',
-              image: './assets/splash-android-icon.png',
-              imageWidth: 150,
+              backgroundColor: '#A8CCFF', // primary_200
+              image: './assets/splash/android-splash-logo-white.png',
+              imageWidth: 102, // even division of 306px
               dark: {
-                backgroundColor: '#0c2a49',
-                image: './assets/splash-android-icon-dark.png',
-                imageWidth: 150,
+                backgroundColor: '#00398A', // primary_800
+                image: './assets/splash/android-splash-logo-white.png',
+                imageWidth: 102,
               },
             },
           },
@@ -301,107 +341,109 @@ module.exports = function (_config) {
              * Default set
              */
             default_light: {
-              ios: './assets/app-icons/ios_icon_default_light.png',
-              android: './assets/app-icons/android_icon_default_light.png',
+              ios: './assets/app-icons/ios_icon_legacy_light.png',
+              android: './assets/app-icons/android_icon_legacy_light.png',
               prerendered: true,
             },
             default_dark: {
-              ios: './assets/app-icons/ios_icon_default_dark.png',
-              android: './assets/app-icons/android_icon_default_dark.png',
-              prerendered: true,
-            },
-            next: {
-              ios: './assets/app-icons/icon_default_next.png',
-              android: './assets/app-icons/icon_default_next.png',
+              ios: './assets/app-icons/ios_icon_legacy_dark.png',
+              android: './assets/app-icons/android_icon_legacy_dark.png',
               prerendered: true,
             },
 
             /**
              * Bluesky+ core set
              */
-            // core_aurora: {
-            //   ios: './assets/app-icons/ios_icon_core_aurora.png',
-            //   android: './assets/app-icons/android_icon_core_aurora.png',
-            //   prerendered: true,
-            // },
-            // core_bonfire: {
-            //   ios: './assets/app-icons/ios_icon_core_bonfire.png',
-            //   android: './assets/app-icons/android_icon_core_bonfire.png',
-            //   prerendered: true,
-            // },
-            // core_sunrise: {
-            //   ios: './assets/app-icons/ios_icon_core_sunrise.png',
-            //   android: './assets/app-icons/android_icon_core_sunrise.png',
-            //   prerendered: true,
-            // },
-            // core_sunset: {
-            //   ios: './assets/app-icons/ios_icon_core_sunset.png',
-            //   android: './assets/app-icons/android_icon_core_sunset.png',
-            //   prerendered: true,
-            // },
-            // core_midnight: {
-            //   ios: './assets/app-icons/ios_icon_core_midnight.png',
-            //   android: './assets/app-icons/android_icon_core_midnight.png',
-            //   prerendered: true,
-            // },
-            // core_flat_blue: {
-            //   ios: './assets/app-icons/ios_icon_core_flat_blue.png',
-            //   android: './assets/app-icons/android_icon_core_flat_blue.png',
-            //   prerendered: true,
-            // },
-            // core_flat_white: {
-            //   ios: './assets/app-icons/ios_icon_core_flat_white.png',
-            //   android: './assets/app-icons/android_icon_core_flat_white.png',
-            //   prerendered: true,
-            // },
-            // core_flat_black: {
-            //   ios: './assets/app-icons/ios_icon_core_flat_black.png',
-            //   android: './assets/app-icons/android_icon_core_flat_black.png',
-            //   prerendered: true,
-            // },
-            // core_classic: {
-            //   ios: './assets/app-icons/ios_icon_core_classic.png',
-            //   android: './assets/app-icons/android_icon_core_classic.png',
-            //   prerendered: true,
-            // },
+            core_aurora: {
+              ios: './assets/app-icons/ios_icon_core_aurora.png',
+              android: './assets/app-icons/android_icon_core_aurora.png',
+              prerendered: true,
+            },
+            core_bonfire: {
+              ios: './assets/app-icons/ios_icon_core_bonfire.png',
+              android: './assets/app-icons/android_icon_core_bonfire.png',
+              prerendered: true,
+            },
+            core_sunrise: {
+              ios: './assets/app-icons/ios_icon_core_sunrise.png',
+              android: './assets/app-icons/android_icon_core_sunrise.png',
+              prerendered: true,
+            },
+            core_sunset: {
+              ios: './assets/app-icons/ios_icon_core_sunset.png',
+              android: './assets/app-icons/android_icon_core_sunset.png',
+              prerendered: true,
+            },
+            core_midnight: {
+              ios: './assets/app-icons/ios_icon_core_midnight.png',
+              android: './assets/app-icons/android_icon_core_midnight.png',
+              prerendered: true,
+            },
+            core_flat_blue: {
+              ios: './assets/app-icons/ios_icon_core_flat_blue.png',
+              android: './assets/app-icons/android_icon_core_flat_blue.png',
+              prerendered: true,
+            },
+            core_flat_white: {
+              ios: './assets/app-icons/ios_icon_core_flat_white.png',
+              android: './assets/app-icons/android_icon_core_flat_white.png',
+              prerendered: true,
+            },
+            core_flat_black: {
+              ios: './assets/app-icons/ios_icon_core_flat_black.png',
+              android: './assets/app-icons/android_icon_core_flat_black.png',
+              prerendered: true,
+            },
+            core_classic: {
+              ios: './assets/app-icons/ios_icon_core_classic.png',
+              android: './assets/app-icons/android_icon_core_classic.png',
+              prerendered: true,
+            },
           },
         ],
         ['expo-screen-orientation', {initialOrientation: 'PORTRAIT_UP'}],
-      ].filter(Boolean),
+        ['expo-location'],
+        [
+          'expo-contacts',
+          {
+            contactsPermission:
+              'I agree to allow Bluesky to use my contacts for friend discovery until I opt out.',
+          },
+        ],
+      ],
       extra: {
         eas: {
           build: {
             experimental: {
               ios: {
-                // appExtensions: [
-                //   {
-                //     targetName: 'Share-with-Bluesky',
-                //     bundleIdentifier: 'xyz.blueskyweb.app.Share-with-Bluesky',
-                //     entitlements: {
-                //       'com.apple.security.application-groups': [
-                //         'group.app.bsky',
-                //       ],
-                //     },
-                //   },
-                //   {
-                //     targetName: 'BlueskyNSE',
-                //     bundleIdentifier: 'xyz.blueskyweb.app.BlueskyNSE',
-                //     entitlements: {
-                //       'com.apple.security.application-groups': [
-                //         'group.app.bsky',
-                //       ],
-                //     },
-                //   },
-                //   {
-                //     targetName: 'BlueskyClip',
-                //     bundleIdentifier: 'xyz.blueskyweb.app.AppClip',
-                //   },
-                // ],
+                appExtensions: [
+                  {
+                    targetName: 'Share-with-Bluesky',
+                    bundleIdentifier: 'xyz.blueskyweb.app.Share-with-Bluesky',
+                    entitlements: {
+                      'com.apple.security.application-groups': [
+                        'group.app.bsky',
+                      ],
+                    },
+                  },
+                  {
+                    targetName: 'BlueskyNSE',
+                    bundleIdentifier: 'xyz.blueskyweb.app.BlueskyNSE',
+                    entitlements: {
+                      'com.apple.security.application-groups': [
+                        'group.app.bsky',
+                      ],
+                    },
+                  },
+                  {
+                    targetName: 'BlueskyClip',
+                    bundleIdentifier: 'xyz.blueskyweb.app.AppClip',
+                  },
+                ],
               },
             },
           },
-          //projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
-          projectId: '86ff94e3-dce0-4f7c-99f4-1651a2f1bc2a',
+          projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
         },
       },
     },

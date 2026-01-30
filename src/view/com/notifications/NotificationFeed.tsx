@@ -1,9 +1,15 @@
 import React from 'react'
-import {type ListRenderItemInfo, StyleSheet, View} from 'react-native'
+import {
+  ActivityIndicator,
+  type ListRenderItemInfo,
+  StyleSheet,
+  View,
+} from 'react-native'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
+import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
 import {cleanError} from '#/lib/strings/errors'
 import {s} from '#/lib/styles'
 import {logger} from '#/logger'
@@ -14,7 +20,7 @@ import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListProps, type ListRef} from '#/view/com/util/List'
 import {NotificationFeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {LoadMoreRetryBtn} from '#/view/com/util/LoadMoreRetryBtn'
-import {CustomActivityIndicator} from '#/components/CustomActivityIndicator.tsx'
+import {Bell_Stroke2_Corner0_Rounded as BellIcon} from '#/components/icons/Bell'
 import {NotificationFeedItem} from './NotificationFeedItem'
 
 const EMPTY_FEED_ITEM = {_reactKey: '__empty__'}
@@ -42,6 +48,7 @@ export function NotificationFeed({
   const [isPTRing, setIsPTRing] = React.useState(false)
   const {_} = useLingui()
   const moderationOpts = useModerationOpts()
+  const trackPostView = usePostViewTracking('Notifications')
   const {
     data,
     isFetching,
@@ -114,7 +121,7 @@ export function NotificationFeed({
       if (item === EMPTY_FEED_ITEM) {
         return (
           <EmptyState
-            icon="bell"
+            icon={BellIcon}
             message={_(msg`No notifications yet!`)}
             style={styles.emptyState}
           />
@@ -147,7 +154,7 @@ export function NotificationFeed({
     () =>
       isFetchingNextPage ? (
         <View style={styles.feedFooter}>
-          <CustomActivityIndicator />
+          <ActivityIndicator />
         </View>
       ) : (
         <View />
@@ -176,6 +183,16 @@ export function NotificationFeed({
         onEndReached={onEndReached}
         onEndReachedThreshold={2}
         onScrolledDownChange={onScrolledDownChange}
+        onItemSeen={item => {
+          if (
+            (item.type === 'reply' ||
+              item.type === 'mention' ||
+              item.type === 'quote') &&
+            item.subject
+          ) {
+            trackPostView(item.subject)
+          }
+        }}
         contentContainerStyle={s.contentContainer}
         desktopFixedHeight
         initialNumToRender={initialNumToRender}

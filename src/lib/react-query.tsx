@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {AppState, type AppStateStatus} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {createAsyncStoragePersister} from '@tanstack/query-async-storage-persister'
@@ -9,8 +9,14 @@ import {
 } from '@tanstack/react-query-persist-client'
 import type React from 'react'
 
-import {isNative} from '#/platform/detection'
 import {listenNetworkConfirmed, listenNetworkLost} from '#/state/events'
+import {IS_NATIVE, IS_WEB} from '#/env'
+
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import('@tanstack/query-core').QueryClient
+  }
+}
 
 // any query keys in this array will be persisted to AsyncStorage
 export const labelersDetailedInfoQueryKeyRoot = 'labelers-detailed-info'
@@ -22,7 +28,7 @@ async function checkIsOnline(): Promise<boolean> {
     setTimeout(() => {
       controller.abort()
     }, 15e3)
-    const res = await fetch('https://api.blacksky.community/xrpc/_health', {
+    const res = await fetch('https://public.api.bsky.app/xrpc/_health', {
       cache: 'no-store',
       signal: controller.signal,
     })
@@ -81,7 +87,7 @@ setInterval(() => {
 }, 2000)
 
 focusManager.setEventListener(onFocus => {
-  if (isNative) {
+  if (IS_NATIVE) {
     const subscription = AppState.addEventListener(
       'change',
       (status: AppStateStatus) => {
@@ -180,6 +186,11 @@ function QueryProviderInner({
       dehydrateOptions,
     }
   })
+  useEffect(() => {
+    if (IS_WEB) {
+      window.__TANSTACK_QUERY_CLIENT__ = queryClient
+    }
+  }, [queryClient])
   return (
     <PersistQueryClientProvider
       client={queryClient}

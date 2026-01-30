@@ -7,7 +7,7 @@
  */
 
 import React, {useState} from 'react'
-import {StyleSheet} from 'react-native'
+import {ActivityIndicator, StyleSheet} from 'react-native'
 import {
   Gesture,
   GestureDetector,
@@ -19,14 +19,13 @@ import Animated, {
   useAnimatedProps,
   useAnimatedReaction,
   useAnimatedRef,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated'
 import {useSafeAreaFrame} from 'react-native-safe-area-context'
 import {Image} from 'expo-image'
 
-import {useAnimatedScrollHandler} from '#/lib/hooks/useAnimatedScrollHandler_FIXED'
-import {CustomActivityIndicator} from '#/components/CustomActivityIndicator.tsx'
 import {
   type Dimensions as ImageDimensions,
   type ImageSource,
@@ -231,11 +230,7 @@ const ImageItem = ({
         animatedProps={scrollViewProps}
         centerContent>
         {showLoader && (
-          <CustomActivityIndicator
-            size="small"
-            color="#FFF"
-            style={styles.loading}
-          />
+          <ActivityIndicator size="small" color="#FFF" style={styles.loading} />
         )}
         <Animated.View style={imageCropStyle}>
           <Animated.View style={imageStyle}>
@@ -257,6 +252,7 @@ const ImageItem = ({
                       onLoad({width: e.source.width, height: e.source.height})
                     }
               }
+              cachePolicy="memory"
             />
           </Animated.View>
         </Animated.View>

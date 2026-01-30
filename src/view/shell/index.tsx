@@ -11,7 +11,6 @@ import {useIntentHandler} from '#/lib/hooks/useIntentHandler'
 import {useNotificationsHandler} from '#/lib/hooks/useNotificationHandler'
 import {useNotificationsRegistration} from '#/lib/notifications/notifications'
 import {isStateAtTabRoot} from '#/lib/routes/helpers'
-import {isAndroid, isIOS} from '#/platform/detection'
 import {useDialogFullyExpandedCountContext} from '#/state/dialogs'
 import {useSession} from '#/state/session'
 import {
@@ -23,14 +22,28 @@ import {useCloseAnyActiveElement} from '#/state/util'
 import {Lightbox} from '#/view/com/lightbox/Lightbox'
 import {ModalsContainer} from '#/view/com/modals/Modal'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
+import {Deactivated} from '#/screens/Deactivated'
+import {Takendown} from '#/screens/Takendown'
 import {atoms as a, select, useTheme} from '#/alf'
 import {setSystemUITheme} from '#/alf/util/systemUI'
+import {AgeAssuranceRedirectDialog} from '#/components/ageAssurance/AgeAssuranceRedirectDialog'
 import {EmailDialog} from '#/components/dialogs/EmailDialog'
 import {InAppBrowserConsentDialog} from '#/components/dialogs/InAppBrowserConsent'
 import {LinkWarningDialog} from '#/components/dialogs/LinkWarning'
 import {MutedWordsDialog} from '#/components/dialogs/MutedWords'
+import {NuxDialogs} from '#/components/dialogs/nuxs'
 import {SigninDialog} from '#/components/dialogs/Signin'
+import {GlobalReportDialog} from '#/components/moderation/ReportDialog'
+import {
+  Outlet as PolicyUpdateOverlayPortalOutlet,
+  usePolicyUpdateContext,
+} from '#/components/PolicyUpdateOverlay'
 import {Outlet as PortalOutlet} from '#/components/Portal'
+import {useAgeAssurance} from '#/ageAssurance'
+import {NoAccessScreen} from '#/ageAssurance/components/NoAccessScreen'
+import {RedirectOverlay} from '#/ageAssurance/components/RedirectOverlay'
+import {PassiveAnalytics} from '#/analytics/PassiveAnalytics'
+import {IS_ANDROID, IS_IOS} from '#/env'
 import {RoutesContainer, TabsNavigator} from '#/Navigation'
 import {BottomSheetOutlet} from '../../../modules/bottom-sheet'
 import {updateActiveViewAsync} from '../../../modules/expo-bluesky-swiss-army/src/VisibilityView'
@@ -40,6 +53,7 @@ import {DrawerContent} from './Drawer'
 function ShellInner() {
   const winDim = useWindowDimensions()
   const insets = useSafeAreaInsets()
+  const {state: policyUpdateState} = usePolicyUpdateContext()
 
   const closeAnyActiveElement = useCloseAnyActiveElement()
 
@@ -47,7 +61,7 @@ function ShellInner() {
   useNotificationsHandler()
 
   useEffect(() => {
-    if (isAndroid) {
+    if (IS_ANDROID) {
       const listener = BackHandler.addEventListener('hardwareBackPress', () => {
         return closeAnyActiveElement()
       })
@@ -67,7 +81,7 @@ function ShellInner() {
   const navigation = useNavigation()
   const dedupe = useDedupe(1000)
   useEffect(() => {
-    if (!isAndroid) return
+    if (!IS_ANDROID) return
     const onFocusOrBlur = () => {
       setTimeout(() => {
         dedupe(updateActiveViewAsync)
@@ -79,14 +93,19 @@ function ShellInner() {
     }
   }, [dedupe, navigation])
 
+  const drawerLayout = useCallback(
+    ({children}: {children: React.ReactNode}) => (
+      <DrawerLayout>{children}</DrawerLayout>
+    ),
+    [],
+  )
+
   return (
     <>
       <View style={[a.h_full]}>
         <ErrorBoundary
           style={{paddingTop: insets.top, paddingBottom: insets.bottom}}>
-          <DrawerLayout>
-            <TabsNavigator />
-          </DrawerLayout>
+          <TabsNavigator layout={drawerLayout} />
         </ErrorBoundary>
       </View>
 
@@ -95,14 +114,22 @@ function ShellInner() {
       <MutedWordsDialog />
       <SigninDialog />
       <EmailDialog />
+      <AgeAssuranceRedirectDialog />
       <InAppBrowserConsentDialog />
       <LinkWarningDialog />
       <Lightbox />
-      <>
-        <PortalOutlet />
-        <BottomSheetOutlet />
-      </>
+      <NuxDialogs />
+      <GlobalReportDialog />
 
+      {/* Until policy update has been completed by the user, don't render anything that is portaled */}
+      {policyUpdateState.completed && (
+        <>
+          <PortalOutlet />
+          <BottomSheetOutlet />
+        </>
+      )}
+
+      <PolicyUpdateOverlayPortalOutlet />
     </>
   )
 }
@@ -164,11 +191,13 @@ function DrawerLayout({children}: {children: React.ReactNode}) {
       swipeEdgeWidth={winDim.width}
       swipeMinVelocity={100}
       swipeMinDistance={10}
-      drawerType={isIOS ? 'slide' : 'front'}
+      drawerType={IS_IOS ? 'slide' : 'front'}
       overlayStyle={{
         backgroundColor: select(t.name, {
           light: 'rgba(0, 57, 117, 0.1)',
-          dark: isAndroid ? 'rgba(16, 133, 254, 0.1)' : 'rgba(1, 82, 168, 0.1)',
+          dark: IS_ANDROID
+            ? 'rgba(16, 133, 254, 0.1)'
+            : 'rgba(1, 82, 168, 0.1)',
           dim: 'rgba(10, 13, 16, 0.8)',
         }),
       }}>
@@ -179,6 +208,8 @@ function DrawerLayout({children}: {children: React.ReactNode}) {
 
 export function Shell() {
   const t = useTheme()
+  const aa = useAgeAssurance()
+  const {currentAccount} = useSession()
   const fullyExpandedCount = useDialogFullyExpandedCountContext()
 
   useIntentHandler()
@@ -192,15 +223,31 @@ export function Shell() {
       <SystemBars
         style={{
           statusBar:
-            t.name !== 'light' || (isIOS && fullyExpandedCount > 0)
+            t.name !== 'light' || (IS_IOS && fullyExpandedCount > 0)
               ? 'light'
               : 'dark',
           navigationBar: t.name !== 'light' ? 'light' : 'dark',
         }}
       />
-      <RoutesContainer>
-        <ShellInner />
-      </RoutesContainer>
+      {currentAccount?.status === 'takendown' ? (
+        <Takendown />
+      ) : currentAccount?.status === 'deactivated' ? (
+        <Deactivated />
+      ) : (
+        <>
+          {aa.state.access === aa.Access.None ? (
+            <NoAccessScreen />
+          ) : (
+            <RoutesContainer>
+              <ShellInner />
+            </RoutesContainer>
+          )}
+
+          <RedirectOverlay />
+        </>
+      )}
+
+      <PassiveAnalytics />
     </View>
   )
 }
