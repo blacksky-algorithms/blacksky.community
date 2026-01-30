@@ -154,6 +154,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             limit: 40,
             queryClient,
             moderationOpts,
+            hideFollowNotifications: undefined,
             reasons: [],
 
             // only fetch subjects when the page is going to be used

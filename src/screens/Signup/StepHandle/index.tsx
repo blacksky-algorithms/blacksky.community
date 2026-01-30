@@ -114,7 +114,7 @@ export function StepHandle() {
       const {available: handleAvailable} = await checkHandleAvailability(
         createFullHandle(handle, selectedDomain),
         state.serviceDescription?.did ?? 'UNKNOWN',
-        {typeahead: false},
+        {},
       )
 
       if (!handleAvailable) {
@@ -167,7 +167,7 @@ export function StepHandle() {
   }
 
   return (
-    <ScreenTransition>
+    <ScreenTransition direction={state.screenTransitionDirection ?? 'Forward'}>
       <View style={[a.gap_sm, a.pt_lg, a.z_10]}>
         <View>
           <TextField.Root isInvalid={textFieldInvalid}>

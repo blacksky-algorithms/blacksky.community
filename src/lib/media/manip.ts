@@ -171,23 +171,16 @@ export async function saveImageToMediaLibrary({uri}: {uri: string}) {
 }
 
 export async function saveVideoToMediaLibrary({uri}: {uri: string}) {
-  // download the file to cache
-  const downloadResponse = await RNFetchBlob.config({
-    fileCache: true,
-  })
-    .fetch('GET', uri)
-    .catch(() => null)
-  if (downloadResponse == null) return false
-  let videoPath = downloadResponse.path()
-  let extension = mimeToExt(downloadResponse.respInfo.headers['content-type'])
-  videoPath = normalizePath(
-    await moveToPermanentPath(videoPath, '.' + extension),
+  const videoPath = normalizePath(
+    joinPath(cacheDirectory!, `video_${uuid.v4()}.mp4`),
     true,
   )
+  const download = createDownloadResumable(uri, videoPath)
+  const result = await download.downloadAsync().catch(() => null)
+  if (!result?.uri) return false
 
-  // save
-  await MediaLibrary.createAssetAsync(videoPath)
-  safeDeleteAsync(videoPath)
+  await MediaLibrary.createAssetAsync(result.uri)
+  safeDeleteAsync(result.uri)
   return true
 }
 

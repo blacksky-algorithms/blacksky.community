@@ -14,7 +14,7 @@ import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {precacheProfile} from '#/state/queries/profile'
-import {atoms as a, platform, useTheme, web} from '#/alf'
+import {android, atoms as a, platform, useTheme, web} from '#/alf'
 import {WebOnlyInlineLinkText} from '#/components/Link'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {Text} from '#/components/Typography'
@@ -60,7 +60,7 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
   return (
     <View
       style={[
-        isAndroid ? a.flex_1 : a.flex_shrink,
+        android(a.flex_1) ?? a.flex_shrink,
         a.flex_row,
         a.align_center,
         a.pb_xs,
