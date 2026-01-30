@@ -1,4 +1,4 @@
-import {useCallback} from 'react'
+import {type JSX, useCallback} from 'react'
 import {type GestureResponderEvent, View} from 'react-native'
 import Animated from 'react-native-reanimated'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
@@ -18,9 +18,7 @@ import {useNavigationTabState} from '#/lib/hooks/useNavigationTabState'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {clamp} from '#/lib/numbers'
 import {getTabState, TabState} from '#/lib/routes/helpers'
-import {useGate} from '#/lib/statsig/statsig'
 import {emitSoftReset} from '#/state/events'
-import {useHomeBadge} from '#/state/home-badge'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfileQuery} from '#/state/queries/profile'
@@ -28,11 +26,10 @@ import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useShellLayout} from '#/state/shell/shell-layout'
 import {useCloseAllActiveElements} from '#/state/util'
-import {Text} from '#/view/com/util/text/Text'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
-import {atoms as a} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {SwitchAccountDialog} from '#/components/dialogs/SwitchAccount'
@@ -44,12 +41,15 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
+import {
+  MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled,
+  MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlass,
+} from '#/components/icons/MagnifyingGlass'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+import {Text} from '#/components/Typography'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 import {styles} from './BottomBarStyles'
 
@@ -72,8 +72,6 @@ export function BottomBar({navigation}: BottomTabBarProps) {
   const dedupe = useDedupe()
   const accountSwitchControl = useDialogControl()
   const playHaptic = useHaptics()
-  const hasHomeBadge = useHomeBadge()
-  const gate = useGate()
   const hideBorder = useHideBottomBarBorder()
   const iconWidth = 28
 
@@ -172,7 +170,6 @@ export function BottomBar({navigation}: BottomTabBarProps) {
                   />
                 )
               }
-              hasNew={hasHomeBadge && gate('remove_show_latest_button')}
               onPress={onPressHome}
               accessibilityRole="tab"
               accessibilityLabel={_(msg`Home`)}
@@ -222,10 +219,10 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               accessibilityHint={
                 numUnreadMessages.count > 0
                   ? _(
-                      msg`${plural(numUnreadMessages.numUnread ?? 0, {
+                      plural(numUnreadMessages.numUnread ?? 0, {
                         one: '# unread item',
                         other: '# unread items',
-                      })}` || '',
+                      }),
                     )
                   : ''
               }
@@ -254,10 +251,10 @@ export function BottomBar({navigation}: BottomTabBarProps) {
                 numUnreadNotifications === ''
                   ? ''
                   : _(
-                      msg`${plural(numUnreadNotifications ?? 0, {
+                      plural(numUnreadNotifications ?? 0, {
                         one: '# unread item',
                         other: '# unread items',
-                      })}` || '',
+                      }),
                     )
               }
             />
@@ -396,6 +393,8 @@ function Btn({
   accessibilityHint,
   accessibilityLabel,
 }: BtnProps) {
+  const t = useTheme()
+
   return (
     <PressableScale
       testID={testID}
@@ -405,10 +404,17 @@ function Btn({
       accessible={accessible}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
-      targetScale={0.8}>
+      targetScale={0.8}
+      accessibilityLargeContentTitle={accessibilityLabel}
+      accessibilityShowsLargeContentViewer>
       {icon}
       {notificationCount ? (
-        <View style={[styles.notificationCount, a.rounded_full]}>
+        <View
+          style={[
+            styles.notificationCount,
+            a.rounded_full,
+            {backgroundColor: t.palette.primary_500},
+          ]}>
           <Text style={styles.notificationCountLabel}>{notificationCount}</Text>
         </View>
       ) : hasNew ? (

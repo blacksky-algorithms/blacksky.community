@@ -1,17 +1,19 @@
 import React from 'react'
 import {Alert} from 'react-native'
 import * as Linking from 'expo-linking'
+import * as WebBrowser from 'expo-web-browser'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {logger} from '#/logger'
-import {isNative} from '#/platform/detection'
+import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
 import {useSession} from '#/state/session'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useIntentDialogs} from '#/components/intents/IntentDialogs'
+import {useAnalytics} from '#/analytics'
+import {IS_IOS, IS_NATIVE} from '#/env'
 import {Referrer} from '../../../modules/expo-bluesky-swiss-army'
 import {useApplyPullRequestOTAUpdate} from './useOTAUpdates'
 
-type IntentType = 'compose' | 'verify-email' | 'apply-ota'
+type IntentType = 'compose' | 'verify-email' | 'age-assurance' | 'apply-ota'
 
 const VALID_IMAGE_REGEX = /^[\w.:\-_/]+\|\d+(\.\d+)?\|\d+(\.\d+)?$/
 
@@ -19,35 +21,32 @@ const VALID_IMAGE_REGEX = /^[\w.:\-_/]+\|\d+(\.\d+)?\|\d+(\.\d+)?$/
 let previousIntentUrl = ''
 
 export function useIntentHandler() {
-  const incomingUrl = Linking.useURL()
+  const incomingUrl = Linking.useLinkingURL()
+  const ax = useAnalytics()
   const composeIntent = useComposeIntent()
   const verifyEmailIntent = useVerifyEmailIntent()
   const {currentAccount} = useSession()
   const {tryApplyUpdate} = useApplyPullRequestOTAUpdate()
 
   React.useEffect(() => {
-    const handleIncomingURL = (url: string) => {
+    const handleIncomingURL = async (url: string) => {
+      if (IS_IOS) {
+        // Close in-app browser if it's open (iOS only)
+        await WebBrowser.dismissBrowser().catch(() => {})
+      }
+
       const referrerInfo = Referrer.getReferrerInfo()
-      if (referrerInfo && referrerInfo.hostname !== 'blacksky.community') {
-          logger.metric('deepLink:referrerReceived', {
+      if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+        ax.metric('deepLink:referrerReceived', {
           to: url,
           referrer: referrerInfo?.referrer,
           hostname: referrerInfo?.hostname,
         })
       }
+      const urlp = parseLinkingUrl(url)
+      const [, intent, intentType] = urlp.pathname.split('/')
 
-      // We want to be able to support blacksky:// deeplinks. It's unnatural for someone to use a deeplink with three
-      // slashes, like blacksky:///intent/follow. However, supporting just two slashes causes us to have to take care
-      // of two cases when parsing the url. If we ensure there is a third slash, we can always ensure the first
-      // path parameter is in pathname rather than in hostname.
-      if (url.startsWith('blacksky://') && !url.startsWith('blacksky:///')) {
-        url = url.replace('blacksky://', 'blacksky:///')
-      }
-
-      const urlp = new URL(url)
-      const [_, intent, intentType] = urlp.pathname.split('/')
-
-      // On native, our links look like blacksky://intent/SomeIntent, so we have to check the hostname for the
+      // On native, our links look like bluesky://intent/SomeIntent, so we have to check the hostname for the
       // intent check. On web, we have to check the first part of the path since we have an actual hostname
       const isIntent = intent === 'intent'
       const params = urlp.searchParams
@@ -69,13 +68,18 @@ export function useIntentHandler() {
           verifyEmailIntent(code)
           return
         }
+        case 'age-assurance': {
+          // Handled in `#/ageAssurance/components/RedirectOverlay.tsx`
+          return
+        }
         case 'apply-ota': {
           const channel = params.get('channel')
           if (!channel) {
-              Alert.alert('Error', 'No channel provided to look for.')
+            Alert.alert('Error', 'No channel provided to look for.')
           } else {
-              tryApplyUpdate(channel)
+            tryApplyUpdate(channel)
           }
+          return
         }
         default: {
           return
@@ -92,6 +96,7 @@ export function useIntentHandler() {
     }
   }, [
     incomingUrl,
+    ax,
     composeIntent,
     verifyEmailIntent,
     currentAccount,
@@ -123,6 +128,7 @@ export function useComposeIntent() {
         openComposer({
           text: text ?? undefined,
           videoUri: {uri, width: Number(width), height: Number(height)},
+          logContext: 'Deeplink',
         })
         return
       }
@@ -131,7 +137,7 @@ export function useComposeIntent() {
         ?.split(',')
         .filter(part => {
           // For some security, we're going to filter out any image uri that is external. We don't want someone to
-          // be able to provide some link like "blacksky://intent/compose?imageUris=https://IHaveYourIpNow.com/image.jpeg
+          // be able to provide some link like "bluesky://intent/compose?imageUris=https://IHaveYourIpNow.com/image.jpeg
           // and we load that image
           if (part.includes('https://') || part.includes('http://')) {
             return false
@@ -147,7 +153,8 @@ export function useComposeIntent() {
       setTimeout(() => {
         openComposer({
           text: text ?? undefined,
-          imageUris: isNative ? imageUris : undefined,
+          imageUris: IS_NATIVE ? imageUris : undefined,
+          logContext: 'Deeplink',
         })
       }, 500)
     },

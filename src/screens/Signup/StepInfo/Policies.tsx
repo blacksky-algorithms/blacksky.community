@@ -11,12 +11,8 @@ import {Text} from '#/components/Typography'
 
 export const Policies = ({
   serviceDescription,
-  needsGuardian,
-  under13,
 }: {
   serviceDescription: ComAtprotoServerDescribeServer.OutputSchema
-  needsGuardian: boolean
-  under13: boolean
 }) => {
   const t = useTheme()
   const {_} = useLingui()
@@ -40,20 +36,20 @@ export const Policies = ({
     )
   }
 
-  let els: ReactElement
+  let els: ReactElement<any>
   if (tos && pp) {
     els = (
       <Trans>
         By creating an account you agree to the{' '}
         <InlineLinkText
-          label={_(msg`Read the Blacksky Terms of Service`)}
+          label={_(msg`Read the Bluesky Terms of Service`)}
           key="tos"
           to={tos}>
           Terms of Service
         </InlineLinkText>{' '}
         and{' '}
         <InlineLinkText
-          label={_(msg`Read the Blacksky Privacy Policy`)}
+          label={_(msg`Read the Bluesky Privacy Policy`)}
           key="pp"
           to={pp}>
           Privacy Policy
@@ -66,7 +62,7 @@ export const Policies = ({
       <Trans>
         By creating an account you agree to the{' '}
         <InlineLinkText
-          label={_(msg`Read the Blacksky Terms of Service`)}
+          label={_(msg`Read the Bluesky Terms of Service`)}
           key="tos"
           to={tos}>
           Terms of Service
@@ -79,7 +75,7 @@ export const Policies = ({
       <Trans>
         By creating an account you agree to the{' '}
         <InlineLinkText
-          label={_(msg`Read the Blacksky Privacy Policy`)}
+          label={_(msg`Read the Bluesky Privacy Policy`)}
           key="pp"
           to={pp}>
           Privacy Policy
@@ -91,30 +87,9 @@ export const Policies = ({
     return null
   }
 
-  return (
-    <View style={[a.gap_sm]}>
-      {els ? (
-        <Text style={[a.leading_snug, t.atoms.text_contrast_medium]}>
-          {els}
-        </Text>
-      ) : null}
-
-      {under13 ? (
-        <Admonition type="error">
-          <Trans>
-            You must be 13 years of age or older to create an account.
-          </Trans>
-        </Admonition>
-      ) : needsGuardian ? (
-        <Admonition type="warning">
-          <Trans>
-            If you are not yet an adult according to the laws of your country,
-            your parent or legal guardian must read these Terms on your behalf.
-          </Trans>
-        </Admonition>
-      ) : undefined}
-    </View>
-  )
+  return els ? (
+    <Text style={[a.leading_snug, t.atoms.text_contrast_medium]}>{els}</Text>
+  ) : null
 }
 
 function validWebLink(url?: string): string | undefined {

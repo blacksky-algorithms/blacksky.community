@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {StyleSheet} from 'react-native'
+import {ActivityIndicator, StyleSheet} from 'react-native'
 import {
   Gesture,
   GestureDetector,
@@ -16,7 +16,6 @@ import Animated, {
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
 
-import {CustomActivityIndicator} from '#/components/CustomActivityIndicator.tsx'
 import {
   type Dimensions as ImageDimensions,
   type ImageSource,
@@ -384,7 +383,7 @@ const ImageItem = ({
         renderToHardwareTextureAndroid>
         <Animated.View style={containerStyle}>
           {showLoader && (
-            <CustomActivityIndicator
+            <ActivityIndicator
               size="small"
               color="#FFF"
               style={styles.loading}

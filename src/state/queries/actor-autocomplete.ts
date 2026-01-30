@@ -1,6 +1,10 @@
 import React from 'react'
-import {AppBskyActorDefs, moderateProfile, ModerationOpts} from '@atproto/api'
-import {fetchQueryWithFallback, keepPreviousData, useQuery, useQueryClient} from './useQueryWithFallback'
+import {
+  type AppBskyActorDefs,
+  moderateProfile,
+  type ModerationOpts,
+} from '@atproto/api'
+import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {logger} from '#/logger'
@@ -69,16 +73,14 @@ export function useActorAutocompleteFn() {
       let res
       if (query) {
         try {
-          res = await fetchQueryWithFallback(queryClient, {
+          res = await queryClient.fetchQuery({
+            staleTime: STALE.MINUTES.ONE,
             queryKey: RQKEY(query || ''),
             queryFn: () =>
               agent.searchActorsTypeahead({
                 q: query,
                 limit,
               }),
-            enableFallback: true,
-            fallbackType: 'profile',
-            fallbackIdentifier: query,
           })
         } catch (e) {
           logger.error('useActorSearch: searchActorsTypeahead failed', {

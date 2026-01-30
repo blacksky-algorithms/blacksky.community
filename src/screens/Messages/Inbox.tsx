@@ -12,7 +12,7 @@ import {
   type UseInfiniteQueryResult,
 } from '@tanstack/react-query'
 
-import {useAppState} from '#/lib/hooks/useAppState'
+import {useAppState} from '#/lib/appState'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {
   type CommonNavigatorParams,
@@ -21,7 +21,6 @@ import {
 } from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {isNative} from '#/platform/detection'
 import {MESSAGE_SCREEN_POLL_INTERVAL} from '#/state/messages/convo/const'
 import {useMessagesEventBus} from '#/state/messages/events'
 import {useLeftConvos} from '#/state/queries/messages/leave-conversation'
@@ -35,13 +34,14 @@ import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {useRefreshOnFocus} from '#/components/hooks/useRefreshOnFocus'
 import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeftIcon} from '#/components/icons/Arrow'
-import {ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded as RetryIcon} from '#/components/icons/ArrowRotateCounterClockwise'
+import {ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded as RetryIcon} from '#/components/icons/ArrowRotate'
 import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfoIcon} from '#/components/icons/CircleInfo'
 import {Message_Stroke2_Corner0_Rounded as MessageIcon} from '#/components/icons/Message'
 import * as Layout from '#/components/Layout'
 import {ListFooter} from '#/components/Lists'
 import {Text} from '#/components/Typography'
+import {IS_NATIVE} from '#/env'
 import {RequestListItem} from './components/RequestListItem'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'MessagesInbox'>
@@ -179,7 +179,8 @@ function RequestList({
                     width={48}
                     fill={t.atoms.text_contrast_low.color}
                   />
-                  <Text style={[a.pt_md, a.pb_sm, a.text_2xl, a.font_bold]}>
+                  <Text
+                    style={[a.pt_md, a.pb_sm, a.text_2xl, a.font_semi_bold]}>
                     <Trans>Whoops!</Trans>
                   </Text>
                   <Text
@@ -211,7 +212,8 @@ function RequestList({
               <>
                 <View style={[a.pt_3xl, a.align_center]}>
                   <MessageIcon width={48} fill={t.palette.primary_500} />
-                  <Text style={[a.pt_md, a.pb_sm, a.text_2xl, a.font_bold]}>
+                  <Text
+                    style={[a.pt_md, a.pb_sm, a.text_2xl, a.font_semi_bold]}>
                     <Trans comment="Title message shown in chat requests inbox when it's empty">
                       Inbox zero!
                     </Trans>
@@ -272,7 +274,7 @@ function RequestList({
             hasNextPage={hasNextPage}
           />
         }
-        onEndReachedThreshold={isNative ? 1.5 : 0}
+        onEndReachedThreshold={IS_NATIVE ? 1.5 : 0}
         initialNumToRender={initialNumToRender}
         windowSize={11}
         desktopFixedHeight

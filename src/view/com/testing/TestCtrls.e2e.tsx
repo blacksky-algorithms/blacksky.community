@@ -1,10 +1,9 @@
 import {useState} from 'react'
-import {LogBox, Pressable, View, TextInput} from 'react-native'
+import {LogBox, Pressable, TextInput, View} from 'react-native'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {BLUESKY_PROXY_HEADER} from '#/lib/constants'
-import {useModalControls} from '#/state/modals'
-import {useSessionApi, useAgent} from '#/state/session'
+import {useAgent, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useOnboardingDispatch} from '#/state/shell/onboarding'
 import {navigate} from '../../../Navigation'
@@ -23,7 +22,6 @@ export function TestCtrls() {
   const agent = useAgent()
   const queryClient = useQueryClient()
   const {logoutEveryAccount, login} = useSessionApi()
-  const {openModal} = useModalControls()
   const onboardingDispatch = useOnboardingDispatch()
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const onPressSignInAlice = async () => {
@@ -52,6 +50,8 @@ export function TestCtrls() {
   return (
     <View style={{position: 'absolute', top: 100, right: 0, zIndex: 100}}>
       <TextInput
+        accessibilityLabel="Text input field"
+        accessibilityHint="Enter proxy header"
         testID="e2eProxyHeaderInput"
         onChangeText={val => setProxyHeader(val as any)}
         onSubmitEditing={() => {
@@ -118,12 +118,6 @@ export function TestCtrls() {
       <Pressable
         testID="e2eRefreshHome"
         onPress={() => queryClient.invalidateQueries({queryKey: ['post-feed']})}
-        accessibilityRole="button"
-        style={BTN}
-      />
-      <Pressable
-        testID="e2eOpenInviteCodesModal"
-        onPress={() => openModal({name: 'invite-codes'})}
         accessibilityRole="button"
         style={BTN}
       />

@@ -1,7 +1,10 @@
-import {fetchQueryWithFallback, type QueryClient, useQuery} from './useQueryWithFallback'
+import {type BskyAgent} from '@atproto/api'
+import {type QueryClient, useQuery} from '@tanstack/react-query'
 
+import {type ResolvedLink, resolveGif, resolveLink} from '#/lib/api/resolve'
 import {STALE} from '#/state/queries/index'
-import {useAgent} from '../session'
+import {useAgent} from '#/state/session'
+import {type Gif} from './tenor'
 
 const RQKEY_LINK_ROOT = 'resolve-link'
 export const RQKEY_LINK = (url: string) => [RQKEY_LINK_ROOT, url]
@@ -9,13 +12,9 @@ export const RQKEY_LINK = (url: string) => [RQKEY_LINK_ROOT, url]
 const RQKEY_GIF_ROOT = 'resolve-gif'
 export const RQKEY_GIF = (url: string) => [RQKEY_GIF_ROOT, url]
 
-import {BskyAgent} from '@atproto/api'
-
-import {ResolvedLink, resolveGif, resolveLink} from '#/lib/api/resolve'
-import {Gif} from './tenor'
-
 export function useResolveLinkQuery(url: string) {
   const agent = useAgent()
+
   return useQuery({
     staleTime: STALE.HOURS.ONE,
     queryKey: RQKEY_LINK(url),
@@ -29,14 +28,12 @@ export function fetchResolveLinkQuery(
   agent: BskyAgent,
   url: string,
 ) {
-  return fetchQueryWithFallback(queryClient, {
+  return queryClient.fetchQuery({
+    staleTime: STALE.HOURS.ONE,
     queryKey: RQKEY_LINK(url),
     queryFn: async () => {
       return await resolveLink(agent, url)
     },
-    enableFallback: true,
-    fallbackType: 'generic',
-    fallbackIdentifier: url,
   })
 }
 export function precacheResolveLinkQuery(
@@ -62,13 +59,11 @@ export function fetchResolveGifQuery(
   agent: BskyAgent,
   gif: Gif,
 ) {
-  return fetchQueryWithFallback(queryClient, {
+  return queryClient.fetchQuery({
+    staleTime: STALE.HOURS.ONE,
     queryKey: RQKEY_GIF(gif.url),
     queryFn: async () => {
       return await resolveGif(agent, gif)
     },
-    enableFallback: true,
-    fallbackType: 'generic',
-    fallbackIdentifier: gif.url,
   })
 }
