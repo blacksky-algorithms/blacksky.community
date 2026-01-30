@@ -162,7 +162,7 @@ export function useGetAndRegisterPushToken() {
 
       return token
     },
-    [registerPushToken, aa],
+    [registerPushToken],
   )
 }
 

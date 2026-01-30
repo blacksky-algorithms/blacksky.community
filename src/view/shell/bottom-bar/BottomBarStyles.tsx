@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     top: 10,
     width: 8,
     height: 8,
-    backgroundColor: colors.blue3,
+    backgroundColor: colors.brand3,
     borderRadius: 6,
     zIndex: 1,
   },

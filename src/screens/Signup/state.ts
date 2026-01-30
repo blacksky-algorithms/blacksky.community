@@ -173,21 +173,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       break
     }
     case 'setUserDomain': {
-      // ADD THIS NEW CASE
       next.userDomain = a.value
-
-      // Log domain selection for analytics if different from default
-      if (s.userDomain && s.userDomain !== a.value) {
-        logger.metric(
-          'signup:domainChanged',
-          {
-            fromDomain: s.userDomain,
-            toDomain: a.value,
-            activeStep: s.activeStep,
-          },
-          {statsig: true},
-        )
-      }
       break
     }
     case 'setEmail': {
@@ -332,19 +318,6 @@ export function useSubmitSignup() {
       dispatch({type: 'setIsLoading', value: true})
 
       try {
-        // Log the selected domain for analytics
-        logger.metric(
-          'signup:submit',
-          {
-            selectedDomain: state.userDomain,
-            isDefaultDomain:
-              state.userDomain ===
-              state.serviceDescription?.availableUserDomains?.[0],
-            signupDuration: Date.now() - state.signupStartTime,
-          },
-          {statsig: true},
-        )
-
         await createAccount(
           {
             service: state.serviceUrl,
@@ -362,7 +335,6 @@ export function useSubmitSignup() {
               0,
             ),
             backgroundCount: state.backgroundCount,
-            selectedDomain: state.userDomain, // Include domain in metrics
           },
         )
 

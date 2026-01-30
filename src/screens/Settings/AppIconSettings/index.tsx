@@ -27,9 +27,7 @@ export function AppIconSettingsScreen({}: Props) {
 
   const onSetAppIcon = (icon: DynamicAppIcon.IconName) => {
     if (IS_ANDROID) {
-      const next =
-        sets.defaults.find(i => i.id === icon) ??
-        sets.core.find(i => i.id === icon)
+      const next = sets.defaults.find(i => i.id === icon)
       Alert.alert(
         next
           ? _(msg`Change app icon to "${next.name}"`)
@@ -83,34 +81,7 @@ export function AppIconSettingsScreen({}: Props) {
           ))}
         </Group>
 
-        {IS_INTERNAL && (
-          <>
-            <Text
-              style={[
-                a.text_md,
-                a.mt_xl,
-                a.mb_sm,
-                a.font_semi_bold,
-                t.atoms.text_contrast_medium,
-              ]}>
-              <Trans>Blacksky+</Trans>
-            </Text>
-            <Group
-              label={_(msg`Blacksky+ icons`)}
-              value={currentAppIcon}
-              onChange={onSetAppIcon}>
-              {sets.core.map((icon, i) => (
-                <Row
-                  key={icon.id}
-                  icon={icon}
-                  isEnd={i === sets.core.length - 1}>
-                  <AppIcon icon={icon} key={icon.id} size={40} />
-                  <RowText>{icon.name}</RowText>
-                </Row>
-              ))}
-            </Group>
-          </>
-        )}
+        {/* Blacksky+ icons - coming soon */}
       </Layout.Content>
     </Layout.Screen>
   )

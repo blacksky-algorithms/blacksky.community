@@ -139,18 +139,11 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
       content = (
         <LoginForm
           error={error}
-          serviceUrl={serviceUrl}
-          serviceDescription={serviceDescription}
           initialHandle={initialHandle}
           setError={setError}
-          onAttemptFailed={onAttemptFailed}
-          onAttemptSuccess={onAttemptSuccess}
-          setServiceUrl={setServiceUrl}
           onPressBack={() =>
             accounts.length ? gotoForm(Forms.ChooseAccount) : handlePressBack()
           }
-          onPressForgotPassword={onPressForgotPassword}
-          onPressRetryConnect={refetchService}
         />
       )
       break
