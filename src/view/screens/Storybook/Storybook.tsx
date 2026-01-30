@@ -7,10 +7,6 @@ import {useSetThemePrefs} from '#/state/shell'
 import {ListContained} from '#/view/screens/Storybook/ListContained'
 import {atoms as a, ThemeProvider} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
-import {
-  useDeviceGeolocationApi,
-  useRequestDeviceGeolocation,
-} from '#/geolocation'
 import {Admonitions} from './Admonitions'
 import {Breakpoints} from './Breakpoints'
 import {Buttons} from './Buttons'
@@ -30,9 +26,6 @@ export default function Storybook() {
   const {setColorMode, setDarkTheme} = useSetThemePrefs()
   const [showContainedList, setShowContainedList] = React.useState(false)
   const navigation = useNavigation<NavigationProp>()
-  const requestDeviceGeolocation = useRequestDeviceGeolocation()
-  const {setDeviceGeolocation} = useDeviceGeolocationApi()
-
   return (
     <>
       <View style={[a.p_xl, a.gap_5xl, {paddingBottom: 100}]}>
@@ -83,20 +76,6 @@ export default function Storybook() {
               testID="sharedPrefsTestOpenBtn">
               <ButtonText>Open Shared Prefs Tester</ButtonText>
             </Button>
-            <Button
-              color="primary_subtle"
-              size="large"
-              onPress={() =>
-                requestDeviceGeolocation().then(req => {
-                  if (req.granted && req.location) {
-                    setDeviceGeolocation(req.location)
-                  }
-                })
-              }
-              label="crash">
-              <ButtonText>Get GPS Location</ButtonText>
-            </Button>
-
             <ThemeProvider theme="light">
               <Theming />
             </ThemeProvider>

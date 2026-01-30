@@ -24,13 +24,7 @@ import {
 } from '#/lib/constants'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
-import {snoozeBirthdateUpdateAllowedForDid} from '#/state/birthdate'
 import {snoozeEmailConfirmationPrompt} from '#/state/shell/reminders'
-import {
-  prefetchAgeAssuranceData,
-  setBirthdateForDid,
-  setCreatedAtForDid,
-} from '#/ageAssurance/data'
 import {features} from '#/analytics'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
@@ -87,13 +81,10 @@ export async function createAgentAndResume(
     }
   }
 
-  // after session is attached
-  const aa = prefetchAgeAssuranceData({agent})
-
   agent.configureProxy(BLUESKY_PROXY_HEADER.get())
 
   return agent.prepare({
-    resolvers: [gates, moderation, aa],
+    resolvers: [gates, moderation],
     onSessionChange,
   })
 }
@@ -127,12 +118,11 @@ export async function createAgentAndLogin(
   const account = agentToSessionAccountOrThrow(agent)
   const gates = features.refresh({strategy: 'prefer-fresh-gates'})
   const moderation = configureModerationForAccount(agent, account)
-  const aa = prefetchAgeAssuranceData({agent})
 
   agent.configureProxy(BLUESKY_PROXY_HEADER.get())
 
   return agent.prepare({
-    resolvers: [gates, moderation, aa],
+    resolvers: [gates, moderation],
     onSessionChange,
   })
 }
@@ -178,18 +168,6 @@ export async function createAgentAndCreateAccount(
 
   const createdAt = new Date().toISOString()
   const birthdate = birthDate.toISOString()
-
-  /*
-   * Since we have a race with account creation, profile creation, and AA
-   * state, set these values locally to ensure sync reads. Values are written
-   * to the server in the next step, so on subsequent reloads, the server will
-   * be the source of truth.
-   */
-  setCreatedAtForDid({did: account.did, createdAt})
-  setBirthdateForDid({did: account.did, birthdate})
-  snoozeBirthdateUpdateAllowedForDid(account.did)
-  // do this last
-  const aa = prefetchAgeAssuranceData({agent})
 
   // Not awaited so that we can still get into onboarding.
   // This is OK because we won't let you toggle adult stuff until you set the date.
@@ -304,7 +282,7 @@ export async function createAgentAndCreateAccount(
   agent.configureProxy(BLUESKY_PROXY_HEADER.get())
 
   return agent.prepare({
-    resolvers: [gates, moderation, aa],
+    resolvers: [gates, moderation],
     onSessionChange,
   })
 }

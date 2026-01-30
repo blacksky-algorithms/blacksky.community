@@ -69,7 +69,7 @@ export function useIntentHandler() {
           return
         }
         case 'age-assurance': {
-          // Handled in `#/ageAssurance/components/RedirectOverlay.tsx`
+          // No-op: age assurance system has been removed
           return
         }
         case 'apply-ota': {

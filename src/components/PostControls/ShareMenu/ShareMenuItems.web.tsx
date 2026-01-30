@@ -19,7 +19,6 @@ import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/i
 import {CodeBrackets_Stroke2_Corner0_Rounded as CodeBracketsIcon} from '#/components/icons/CodeBrackets'
 import {PaperPlane_Stroke2_Corner0_Rounded as Send} from '#/components/icons/PaperPlane'
 import * as Menu from '#/components/Menu'
-import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
 import {useDevMode} from '#/storage/hooks/dev-mode'
@@ -39,7 +38,6 @@ let ShareMenuItems = ({
   const embedPostControl = useDialogControl()
   const sendViaChatControl = useDialogControl()
   const [devModeEnabled] = useDevMode()
-  const aa = useAgeAssurance()
 
   const postUri = post.uri
   const postCid = post.cid
@@ -98,7 +96,7 @@ let ShareMenuItems = ({
       <Menu.Outer>
         {!hideInPWI && copyLinkItem}
 
-        {hasSession && aa.state.access === aa.Access.Full && (
+        {hasSession && (
           <Menu.Item
             testID="postDropdownSendViaDMBtn"
             label={_(msg`Send via direct message`)}

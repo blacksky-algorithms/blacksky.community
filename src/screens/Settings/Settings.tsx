@@ -32,7 +32,6 @@ import * as Toast from '#/view/com/util/Toast'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
 import {atoms as a, platform, tokens, useBreakpoints, useTheme} from '#/alf'
-import {AgeAssuranceDismissibleNotice} from '#/components/ageAssurance/AgeAssuranceDismissibleNotice'
 import {AvatarStackWithFetch} from '#/components/AvatarStack'
 import {Button, ButtonText} from '#/components/Button'
 import {useIsFindContactsFeatureEnabledBasedOnGeolocation} from '#/components/contacts/country-allowlist'
@@ -60,7 +59,6 @@ import {Window_Stroke2_Corner2_Rounded as WindowIcon} from '#/components/icons/W
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Menu from '#/components/Menu'
-import {ID as PolicyUpdate202508} from '#/components/PolicyUpdateOverlay/updates/202508/config'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
 import {useFullVerificationState} from '#/components/verification'
@@ -107,8 +105,6 @@ export function SettingsScreen({}: Props) {
       </Layout.Header.Outer>
       <Layout.Content>
         <SettingsList.Container>
-          <AgeAssuranceDismissibleNotice style={[a.px_lg, a.pt_xs, a.pb_xl]} />
-
           <View
             style={[
               a.px_xl,
@@ -384,9 +380,6 @@ function ProfilePreview({
 function DevOptions() {
   const {_} = useLingui()
   const agent = useAgent()
-  const [override, setOverride] = useStorage(device, [
-    'policyUpdateDebugOverride',
-  ])
   const onboardingDispatch = useOnboardingDispatch()
   const navigation = useNavigation<NavigationProp>()
   const {mutate: deleteChatDeclarationRecord} = useDeleteActorDeclaration()
@@ -527,40 +520,6 @@ function DevOptions() {
         </SettingsList.PressableItem>
       ) : null}
 
-      <SettingsList.Divider />
-      <View style={[a.p_xl, a.gap_md]}>
-        <Text style={[a.text_lg, a.font_semi_bold]}>
-          PolicyUpdate202508 Debug
-        </Text>
-
-        <View style={[a.flex_row, a.align_center, a.justify_between, a.gap_md]}>
-          <Button
-            onPress={() => {
-              setOverride(!override)
-            }}
-            label="Toggle"
-            color={override ? 'primary' : 'secondary'}
-            size="small"
-            style={[a.flex_1]}>
-            <ButtonText>
-              {override ? 'Disable debug mode' : 'Enable debug mode'}
-            </ButtonText>
-          </Button>
-
-          <Button
-            onPress={() => {
-              device.set([PolicyUpdate202508], false)
-              agent.bskyAppRemoveNuxs([PolicyUpdate202508])
-              Toast.show(`Done`, 'info')
-            }}
-            label="Reset policy update nux"
-            color="secondary"
-            size="small"
-            disabled={!override}>
-            <ButtonText>Reset state</ButtonText>
-          </Button>
-        </View>
-      </View>
       <SettingsList.Divider />
     </>
   )

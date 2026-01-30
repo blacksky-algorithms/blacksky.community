@@ -66,8 +66,6 @@ import {VerificationCreatePrompt} from '#/components/verification/VerificationCr
 import {VerificationRemovePrompt} from '#/components/verification/VerificationRemovePrompt'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
-import {Dot} from '#/features/nuxs/components/Dot'
-import {Gradient} from '#/features/nuxs/components/Gradient'
 import {useDevMode} from '#/storage/hooks/dev-mode'
 
 let ProfileMenu = ({
@@ -263,11 +261,8 @@ let ProfileMenu = ({
                   color="secondary"
                   size="small"
                   shape="round">
-                  {statusNudgeActive && <Gradient style={[a.rounded_full]} />}
                   <ButtonIcon icon={Ellipsis} size="sm" />
                 </Button>
-
-                {statusNudgeActive && <Dot top={1} right={1} />}
               </>
             )
           }}
@@ -380,7 +375,6 @@ let ProfileMenu = ({
                         completed: true,
                       })
                     }}>
-                    {statusNudgeActive && <Gradient />}
                     <Menu.ItemText>
                       {status.isDisabled ? (
                         <Trans>Go live (disabled)</Trans>

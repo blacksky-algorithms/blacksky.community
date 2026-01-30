@@ -60,14 +60,9 @@ import {useColorModeTheme} from '#/alf/util/useColorModeTheme'
 import {Provider as ContextMenuProvider} from '#/components/ContextMenu'
 import {useStarterPackEntry} from '#/components/hooks/useStarterPackEntry'
 import {Provider as IntentDialogProvider} from '#/components/intents/IntentDialogs'
-import {Provider as PolicyUpdateOverlayProvider} from '#/components/PolicyUpdateOverlay'
 import {Provider as PortalProvider} from '#/components/Portal'
 import {Provider as VideoVolumeProvider} from '#/components/Post/Embed/VideoEmbed/VideoVolumeContext'
 import {ToastOutlet} from '#/components/Toast'
-import {
-  prefetchAgeAssuranceConfig,
-  Provider as AgeAssuranceV2Provider,
-} from '#/ageAssurance'
 import {
   AnalyticsContext,
   AnalyticsFeaturesContext,
@@ -79,7 +74,6 @@ import {
   prefetchLiveEvents,
   Provider as LiveEventsProvider,
 } from '#/features/liveEvents/context'
-import * as Geo from '#/geolocation'
 import {Splash} from '#/Splash'
 import {BottomSheetProvider} from '../modules/bottom-sheet'
 import {BackgroundNotificationPreferencesProvider} from '../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
@@ -97,11 +91,6 @@ if (IS_ANDROID) {
   )
 }
 
-/**
- * Begin geolocation ASAP
- */
-Geo.resolve()
-prefetchAgeAssuranceConfig()
 prefetchLiveEvents()
 
 function InnerApp() {
@@ -151,10 +140,8 @@ function InnerApp() {
                 key={currentAccount?.did}>
                 <AnalyticsFeaturesContext>
                   <QueryProvider currentDid={currentAccount?.did}>
-                    <PolicyUpdateOverlayProvider>
-                      <LiveEventsProvider>
-                        <AgeAssuranceV2Provider>
-                          <ComposerProvider>
+                    <LiveEventsProvider>
+                      <ComposerProvider>
                             <MessagesProvider>
                               {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
                               <LabelDefsProvider>
@@ -194,10 +181,8 @@ function InnerApp() {
                                 </ModerationOptsProvider>
                               </LabelDefsProvider>
                             </MessagesProvider>
-                          </ComposerProvider>
-                        </AgeAssuranceV2Provider>
-                      </LiveEventsProvider>
-                    </PolicyUpdateOverlayProvider>
+                      </ComposerProvider>
+                    </LiveEventsProvider>
                   </QueryProvider>
                 </AnalyticsFeaturesContext>
               </React.Fragment>
@@ -213,7 +198,7 @@ function App() {
   const [isReady, setReady] = useState(false)
 
   React.useEffect(() => {
-    Promise.all([initPersistedState(), Geo.resolve(), setupDeviceId]).then(() =>
+    Promise.all([initPersistedState(), setupDeviceId]).then(() =>
       setReady(true),
     )
   }, [])
@@ -227,40 +212,38 @@ function App() {
    * that is set up in the InnerApp component above.
    */
   return (
-    <Geo.Provider>
-      <A11yProvider>
-        <KeyboardControllerProvider>
-          <OnboardingProvider>
-            <AnalyticsContext>
-              <SessionProvider>
-                <PrefsStateProvider>
-                  <I18nProvider>
-                    <ShellStateProvider>
-                      <ModalStateProvider>
-                        <DialogStateProvider>
-                          <LightboxStateProvider>
-                            <PortalProvider>
-                              <BottomSheetProvider>
-                                <StarterPackProvider>
-                                  <SafeAreaProvider
-                                    initialMetrics={initialWindowMetrics}>
-                                    <InnerApp />
-                                  </SafeAreaProvider>
-                                </StarterPackProvider>
-                              </BottomSheetProvider>
-                            </PortalProvider>
-                          </LightboxStateProvider>
-                        </DialogStateProvider>
-                      </ModalStateProvider>
-                    </ShellStateProvider>
-                  </I18nProvider>
-                </PrefsStateProvider>
-              </SessionProvider>
-            </AnalyticsContext>
-          </OnboardingProvider>
-        </KeyboardControllerProvider>
-      </A11yProvider>
-    </Geo.Provider>
+    <A11yProvider>
+      <KeyboardControllerProvider>
+        <OnboardingProvider>
+          <AnalyticsContext>
+            <SessionProvider>
+              <PrefsStateProvider>
+                <I18nProvider>
+                  <ShellStateProvider>
+                    <ModalStateProvider>
+                      <DialogStateProvider>
+                        <LightboxStateProvider>
+                          <PortalProvider>
+                            <BottomSheetProvider>
+                              <StarterPackProvider>
+                                <SafeAreaProvider
+                                  initialMetrics={initialWindowMetrics}>
+                                  <InnerApp />
+                                </SafeAreaProvider>
+                              </StarterPackProvider>
+                            </BottomSheetProvider>
+                          </PortalProvider>
+                        </LightboxStateProvider>
+                      </DialogStateProvider>
+                    </ModalStateProvider>
+                  </ShellStateProvider>
+                </I18nProvider>
+              </PrefsStateProvider>
+            </SessionProvider>
+          </AnalyticsContext>
+        </OnboardingProvider>
+      </KeyboardControllerProvider>
+    </A11yProvider>
   )
 }
 

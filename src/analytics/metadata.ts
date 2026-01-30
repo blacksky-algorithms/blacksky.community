@@ -1,5 +1,3 @@
-import {type Geolocation} from '#/geolocation'
-
 export type BaseMetadata = {
   deviceId: string
   sessionId: string
@@ -11,7 +9,10 @@ export type BaseMetadata = {
   referrerUrl: string
 }
 
-export type GeolocationMetadata = Geolocation
+export type GeolocationMetadata = {
+  countryCode: string
+  regionCode: string
+}
 
 export type SessionMetadata = {
   did: string
