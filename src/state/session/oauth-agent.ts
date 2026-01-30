@@ -2,7 +2,7 @@ import {Agent, type AtpSessionData} from '@atproto/api'
 import {type OutputSchema} from '@atproto/api/dist/client/types/com/atproto/server/getSession'
 import {type OAuthSession} from '@atproto/oauth-client-browser'
 
-import {BSKY_SERVICE} from '#/lib/constants'
+import {BLUESKY_PROXY_HEADER, BSKY_SERVICE} from '#/lib/constants'
 import {tryFetchGates} from '#/lib/statsig/statsig'
 import {logger} from '#/logger'
 import {sessionAccountToSession} from './agent'
@@ -86,6 +86,7 @@ export class OauthBskyAppAgent extends Agent {
     this.#account = account
     this.session = sessionAccountToSession(account)
     this.dispatchUrl = account.pdsUrl
+    this.configureProxy(BLUESKY_PROXY_HEADER.get())
 
     await Promise.all([gates, moderation])
 
