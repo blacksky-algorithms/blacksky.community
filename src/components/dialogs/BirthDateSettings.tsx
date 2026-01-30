@@ -3,24 +3,25 @@ import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {cleanError} from '#/lib/strings/errors'
+import {useCleanError} from '#/lib/hooks/useCleanError'
+import {isAppPassword} from '#/lib/jwt'
 import {getAge, getDateAgo} from '#/lib/strings/time'
 import {logger} from '#/logger'
-import {isIOS, isWeb} from '#/platform/detection'
 import {
   usePreferencesQuery,
   type UsePreferencesQueryResponse,
-  usePreferencesSetBirthDateMutation,
 } from '#/state/queries/preferences'
+import {useAgent, useSession} from '#/state/session'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {DateField} from '#/components/forms/DateField'
-import {InlineLinkText} from '#/components/Link'
+import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
-import {Text} from '#/components/Typography'
+import {Span, Text} from '#/components/Typography'
+import {IS_IOS, IS_WEB} from '#/env'
 
 export function BirthDateSettingsDialog({
   control,
@@ -30,42 +31,56 @@ export function BirthDateSettingsDialog({
   const t = useTheme()
   const {_} = useLingui()
   const {isLoading, error, data: preferences} = usePreferencesQuery()
+  const {currentAccount} = useSession()
+  const isUsingAppPassword = isAppPassword(currentAccount?.accessJwt || '')
 
   return (
     <Dialog.Outer control={control} nativeOptions={{preventExpansion: true}}>
       <Dialog.Handle />
-      <Dialog.ScrollableInner
-        label={_(msg`My Birthday`)}
-        style={web({maxWidth: 400})}>
-        <View style={[a.gap_sm]}>
-          <Text style={[a.text_xl, a.font_bold]}>
-            <Trans>My Birthday</Trans>
-          </Text>
-          <Text style={[a.leading_snug, t.atoms.text_contrast_medium]}>
-            <Trans>
-              This information is private and not shared with other users.
-            </Trans>
-          </Text>
+      {(
+        <Dialog.ScrollableInner
+          label={_(msg`My Birthdate`)}
+          style={web({maxWidth: 400})}>
+          <View style={[a.gap_md]}>
+            <Text style={[a.text_xl, a.font_semi_bold]}>
+              <Trans>My Birthdate</Trans>
+            </Text>
+            <Text
+              style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+              <Trans>
+                This information is private and not shared with other users.
+              </Trans>
+            </Text>
 
-          {isLoading ? (
-            <Loader size="xl" />
-          ) : error || !preferences ? (
-            <ErrorMessage
-              message={
-                error?.toString() ||
-                _(
-                  msg`We were unable to load your birth date preferences. Please try again.`,
-                )
-              }
-              style={[a.rounded_sm]}
-            />
-          ) : (
-            <BirthdayInner control={control} preferences={preferences} />
-          )}
-        </View>
+            {isLoading ? (
+              <Loader size="xl" />
+            ) : error || !preferences ? (
+              <ErrorMessage
+                message={
+                  error?.toString() ||
+                  _(
+                    msg`We were unable to load your birthdate preferences. Please try again.`,
+                  )
+                }
+                style={[a.rounded_sm]}
+              />
+            ) : isUsingAppPassword ? (
+              <Admonition type="info">
+                <Trans>
+                  Hmm, it looks like you're logged in with an{' '}
+                  <Span style={[a.italic]}>App Password</Span>. To set your
+                  birthdate, you'll need to log in with your main account
+                  password, or ask whomever controls this account to do so.
+                </Trans>
+              </Admonition>
+            ) : (
+              <BirthdayInner control={control} preferences={preferences} />
+            )}
+          </View>
 
-        <Dialog.Close />
-      </Dialog.ScrollableInner>
+          <Dialog.Close />
+        </Dialog.ScrollableInner>
+      )}
     </Dialog.Outer>
   )
 }
@@ -78,16 +93,35 @@ function BirthdayInner({
   preferences: UsePreferencesQueryResponse
 }) {
   const {_} = useLingui()
+  const cleanError = useCleanError()
   const [date, setDate] = React.useState(
     preferences.birthDate || getDateAgo(18),
   )
-  const {
-    isPending,
-    isError,
-    error,
-    mutateAsync: setBirthDate,
-  } = usePreferencesSetBirthDateMutation()
+  const agent = useAgent()
+  const [isPending, setIsPending] = React.useState(false)
+  const [error, setError] = React.useState<Error | null>(null)
+  const setBirthDate = React.useCallback(
+    async ({birthDate}: {birthDate: Date}) => {
+      setIsPending(true)
+      setError(null)
+      try {
+        await agent.setPersonalDetails({birthDate: birthDate.toISOString()})
+      } catch (e: any) {
+        setError(e)
+        throw e
+      } finally {
+        setIsPending(false)
+      }
+    },
+    [agent],
+  )
   const hasChanged = date !== preferences.birthDate
+  const errorMessage = React.useMemo(() => {
+    if (error) {
+      const {raw, clean} = cleanError(error)
+      return clean || raw || error.toString()
+    }
+  }, [error, cleanError])
 
   const age = getAge(new Date(date))
   const isUnder13 = age < 13
@@ -107,13 +141,13 @@ function BirthdayInner({
 
   return (
     <View style={a.gap_lg} testID="birthDateSettingsDialog">
-      <View style={isIOS && [a.w_full, a.align_center]}>
+      <View style={IS_IOS && [a.w_full, a.align_center]}>
         <DateField
           testID="birthdayInput"
           value={date}
           onChangeDate={newDate => setDate(new Date(newDate))}
-          label={_(msg`Birthday`)}
-          accessibilityHint={_(msg`Enter your birth date`)}
+          label={_(msg`Birthdate`)}
+          accessibilityHint={_(msg`Enter your birthdate`)}
         />
       </View>
 
@@ -130,23 +164,23 @@ function BirthdayInner({
         <Admonition type="error">
           <Trans>
             You must be at least 13 years old to use Bluesky. Read our{' '}
-            <InlineLinkText
+            <SimpleInlineLinkText
               to="https://bsky.social/about/support/tos"
               label={_(msg`Terms of Service`)}>
               Terms of Service
-            </InlineLinkText>{' '}
+            </SimpleInlineLinkText>{' '}
             for more information.
           </Trans>
         </Admonition>
       )}
 
-      {isError ? (
-        <ErrorMessage message={cleanError(error)} style={[a.rounded_sm]} />
+      {errorMessage ? (
+        <ErrorMessage message={errorMessage} style={[a.rounded_sm]} />
       ) : undefined}
 
-      <View style={isWeb && [a.flex_row, a.justify_end]}>
+      <View style={IS_WEB && [a.flex_row, a.justify_end]}>
         <Button
-          label={hasChanged ? _(msg`Save birthday`) : _(msg`Done`)}
+          label={hasChanged ? _(msg`Save birthdate`) : _(msg`Done`)}
           size="large"
           onPress={onSave}
           variant="solid"

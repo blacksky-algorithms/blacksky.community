@@ -7,10 +7,10 @@ import type tldts from 'tldts'
 
 import {isEmailMaybeInvalid} from '#/lib/strings/email'
 import {logger} from '#/logger'
-import {ScreenTransition} from '#/screens/Login/ScreenTransition'
-import {is13, is18, useSignupContext} from '#/screens/Signup/state'
+import {useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
 import {atoms as a, native} from '#/alf'
+import * as Admonition from '#/components/Admonition'
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
 import {FormError} from '#/components/forms/FormError'
@@ -19,9 +19,9 @@ import * as TextField from '#/components/forms/TextField'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
-import {InlineLinkText} from '#/components/Link.tsx'
 import {Loader} from '#/components/Loader'
-import {Text} from '#/components/Typography'
+import {getAge} from '#/lib/strings/time'
+import {useAnalytics} from '#/analytics'
 import {BackNextButtons} from '../BackNextButtons'
 
 function sanitizeDate(date: Date): Date {
@@ -46,8 +46,8 @@ export function StepInfo({
   isLoadingStarterPack: boolean
 }) {
   const {_} = useLingui()
+  const ax = useAnalytics()
   const {state, dispatch} = useSignupContext()
-
   const inviteCodeValueRef = useRef<string>(state.inviteCode)
   const emailValueRef = useRef<string>(state.email)
   const prevEmailValueRef = useRef<string>(state.email)
@@ -57,9 +57,16 @@ export function StepInfo({
   const passwordInputRef = useRef<TextInput>(null)
   const birthdateInputRef = useRef<DateFieldRef>(null)
 
+  const isOverAppMinAccessAge = state.dateOfBirth
+    ? getAge(state.dateOfBirth) >= 13
+    : true
+  const isOverMinAdultAge = state.dateOfBirth
+    ? getAge(state.dateOfBirth) >= 18
+    : true
+
   const [hasWarnedEmail, setHasWarnedEmail] = React.useState<boolean>(false)
 
-  const tldtsRef = React.useRef<typeof tldts>()
+  const tldtsRef = React.useRef<typeof tldts>(undefined)
   React.useEffect(() => {
     // @ts-expect-error - valid path
     import('tldts/dist/index.cjs.min.js').then(tldts => {
@@ -76,7 +83,7 @@ export function StepInfo({
     const emailChanged = prevEmailValueRef.current !== email
     const password = passwordValueRef.current
 
-    if (!is13(state.dateOfBirth)) {
+    if (!isOverAppMinAccessAge) {
       return
     }
 
@@ -135,18 +142,14 @@ export function StepInfo({
     dispatch({type: 'setEmail', value: email})
     dispatch({type: 'setPassword', value: password})
     dispatch({type: 'next'})
-    logger.metric(
-      'signup:nextPressed',
-      {
-        activeStep: state.activeStep,
-      },
-      {statsig: true},
-    )
+    ax.metric('signup:nextPressed', {
+      activeStep: state.activeStep,
+    })
   }
 
   return (
-    <ScreenTransition>
-      <View style={[a.gap_md]}>
+    <>
+      <View style={[a.gap_md, a.pt_lg]}>
         <FormError error={state.error} />
         <HostingProvider
           minimal
@@ -188,21 +191,6 @@ export function StepInfo({
                     )}
                   />
                 </TextField.Root>
-                {state.serviceUrl?.includes('blacksky.app') && (
-                  <Text style={[a.pb_sm, a.leading_snug, a.text_sm]}>
-                    <Trans>
-                      Email{' '}
-                      <InlineLinkText
-                        to="mailto:support@blacksky.app?subject=Invite Code Request"
-                        label={_(msg`support@blacksky.app`)}
-                        style={[a.text_sm, a.leading_snug]}
-                        numberOfLines={1}>
-                        {_(msg`support@blacksky.app`)}
-                      </InlineLinkText>{' '}
-                      for an invite code
-                    </Trans>
-                  </Text>
-                )}
               </View>
             )}
             <View>
@@ -288,16 +276,40 @@ export function StepInfo({
                 maximumDate={new Date()}
               />
             </View>
-            <Policies
-              serviceDescription={state.serviceDescription}
-              needsGuardian={!is18(state.dateOfBirth)}
-              under13={!is13(state.dateOfBirth)}
-            />
+
+            <View style={[a.gap_sm]}>
+              <Policies serviceDescription={state.serviceDescription} />
+
+              {!isOverAppMinAccessAge ? (
+                <Admonition.Outer type="error">
+                  <Admonition.Row>
+                    <Admonition.Icon />
+                    <Admonition.Content>
+                      <Admonition.Text>
+                        <Trans>
+                          You must be 13 years of age or older to create an
+                          account.
+                        </Trans>
+                      </Admonition.Text>
+                    </Admonition.Content>
+                  </Admonition.Row>
+                </Admonition.Outer>
+              ) : !isOverMinAdultAge ? (
+                <Admonition.Admonition type="warning">
+                  <Trans>
+                    If you are not yet an adult according to the laws of your
+                    country, your parent or legal guardian must read these Terms
+                    on your behalf.
+                  </Trans>
+                </Admonition.Admonition>
+              ) : undefined}
+            </View>
+
           </>
         ) : undefined}
       </View>
       <BackNextButtons
-        hideNext={!is13(state.dateOfBirth)}
+        hideNext={!isOverAppMinAccessAge}
         showRetry={isServerError}
         isLoading={state.isLoading}
         onBackPress={onPressBack}
@@ -305,6 +317,6 @@ export function StepInfo({
         onRetryPress={refetchServer}
         overrideNextText={hasWarnedEmail ? _(msg`It's correct`) : undefined}
       />
-    </ScreenTransition>
+    </>
   )
 }

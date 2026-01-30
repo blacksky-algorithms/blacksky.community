@@ -12,9 +12,9 @@ import {DEFAULT_SERVICE} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
 import {createFullHandle} from '#/lib/strings/handles'
 import {getAge} from '#/lib/strings/time'
-import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
+import {type AnalyticsContextType, useAnalytics} from '#/analytics'
 
 export type ServiceDescription = ComAtprotoServerDescribeServer.OutputSchema
 
@@ -39,8 +39,11 @@ type ErrorField =
   | 'date-of-birth'
 
 export type SignupState = {
+  analytics?: AnalyticsContextType
+
   hasPrev: boolean
   activeStep: SignupStep
+  screenTransitionDirection: 'Forward' | 'Backward'
 
   serviceUrl: string
   serviceDescription?: ServiceDescription
@@ -64,6 +67,7 @@ export type SignupState = {
 }
 
 export type SignupAction =
+  | {type: 'setAnalytics'; value: AnalyticsContextType}
   | {type: 'prev'}
   | {type: 'next'}
   | {type: 'finish'}
@@ -83,8 +87,11 @@ export type SignupAction =
   | {type: 'incrementBackgroundCount'}
 
 export const initialState: SignupState = {
+  analytics: undefined,
+
   hasPrev: false,
   activeStep: SignupStep.INFO,
+  screenTransitionDirection: 'Forward',
 
   serviceUrl: DEFAULT_SERVICE,
   serviceDescription: undefined,
@@ -125,9 +132,13 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
   let next = {...s}
 
   switch (a.type) {
+    case 'setAnalytics': {
+      next.analytics = a.value
+      break
+    }
     case 'prev': {
       if (s.activeStep !== SignupStep.INFO) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+        next.screenTransitionDirection = 'Backward'
         next.activeStep--
         next.error = ''
         next.errorField = undefined
@@ -136,7 +147,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
     }
     case 'next': {
       if (s.activeStep !== SignupStep.CAPTCHA) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+        next.screenTransitionDirection = 'Forward'
         next.activeStep++
         next.error = ''
         next.errorField = undefined
@@ -162,21 +173,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       break
     }
     case 'setUserDomain': {
-      // ADD THIS NEW CASE
       next.userDomain = a.value
-
-      // Log domain selection for analytics if different from default
-      if (s.userDomain && s.userDomain !== a.value) {
-        logger.metric(
-          'signup:domainChanged',
-          {
-            fromDomain: s.userDomain,
-            toDomain: a.value,
-            activeStep: s.activeStep,
-          },
-          {statsig: true},
-        )
-      }
       break
     }
     case 'setEmail': {
@@ -212,16 +209,12 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
         next.fieldErrors[a.field] = (next.fieldErrors[a.field] || 0) + 1
 
         // Log the field error
-        logger.metric(
-          'signup:fieldError',
-          {
-            field: a.field,
-            errorCount: next.fieldErrors[a.field],
-            errorMessage: a.value,
-            activeStep: next.activeStep,
-          },
-          {statsig: true},
-        )
+        s.analytics?.metric('signup:fieldError', {
+          field: a.field,
+          errorCount: next.fieldErrors[a.field],
+          errorMessage: a.value,
+          activeStep: next.activeStep,
+        })
       }
       break
     }
@@ -238,24 +231,22 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       next.backgroundCount = s.backgroundCount + 1
 
       // Log background/foreground event during signup
-      logger.metric(
-        'signup:backgrounded',
-        {
-          activeStep: next.activeStep,
-          backgroundCount: next.backgroundCount,
-        },
-        {statsig: true},
-      )
+      s.analytics?.metric('signup:backgrounded', {
+        activeStep: next.activeStep,
+        backgroundCount: next.backgroundCount,
+      })
       break
     }
   }
 
   next.hasPrev = next.activeStep !== SignupStep.INFO
 
-  logger.debug('signup', next)
+  s.analytics?.logger.debug('signup', next)
 
   if (s.activeStep !== next.activeStep) {
-    logger.debug('signup: step changed', {activeStep: next.activeStep})
+    s.analytics?.logger.debug('signup: step changed', {
+      activeStep: next.activeStep,
+    })
   }
 
   return next
@@ -270,6 +261,7 @@ SignupContext.displayName = 'SignupContext'
 export const useSignupContext = () => React.useContext(SignupContext)
 
 export function useSubmitSignup() {
+  const ax = useAnalytics()
   const {_} = useLingui()
   const {createAccount} = useSessionApi()
   const onboardingDispatch = useOnboardingDispatch()
@@ -313,7 +305,7 @@ export function useSubmitSignup() {
         !state.pendingSubmit?.verificationCode
       ) {
         dispatch({type: 'setStep', value: SignupStep.CAPTCHA})
-        logger.error('Signup Flow Error', {
+        ax.logger.error('Signup Flow Error', {
           errorMessage: 'Verification captcha code was not set.',
           registrationHandle: state.handle,
         })
@@ -326,19 +318,6 @@ export function useSubmitSignup() {
       dispatch({type: 'setIsLoading', value: true})
 
       try {
-        // Log the selected domain for analytics
-        logger.metric(
-          'signup:submit',
-          {
-            selectedDomain: state.userDomain,
-            isDefaultDomain:
-              state.userDomain ===
-              state.serviceDescription?.availableUserDomains?.[0],
-            signupDuration: Date.now() - state.signupStartTime,
-          },
-          {statsig: true},
-        )
-
         await createAccount(
           {
             service: state.serviceUrl,
@@ -356,7 +335,6 @@ export function useSubmitSignup() {
               0,
             ),
             backgroundCount: state.backgroundCount,
-            selectedDomain: state.userDomain, // Include domain in metrics
           },
         )
 
@@ -390,7 +368,7 @@ export function useSubmitSignup() {
         })
         dispatch({type: 'setStep', value: isHandleError ? 2 : 1})
 
-        logger.error('Signup Flow Error', {
+        ax.logger.error('Signup Flow Error', {
           errorMessage: error,
           registrationHandle: state.handle,
           selectedDomain: state.userDomain, // Include domain in error logs

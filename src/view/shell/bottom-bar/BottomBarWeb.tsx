@@ -10,8 +10,6 @@ import {useMinimalShellFooterTransform} from '#/lib/hooks/useMinimalShellTransfo
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
-import {useGate} from '#/lib/statsig/statsig'
-import {useHomeBadge} from '#/state/home-badge'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
@@ -31,8 +29,10 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
+import {
+  MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled,
+  MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlass,
+} from '#/components/icons/MagnifyingGlass'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
@@ -57,8 +57,6 @@ export function BottomBarWeb() {
 
   const unreadMessageCount = useUnreadMessageCount()
   const notificationCountStr = useUnreadNotifications()
-  const hasHomeBadge = useHomeBadge()
-  const gate = useGate()
 
   const showSignIn = React.useCallback(() => {
     closeAllActiveElements()
@@ -86,10 +84,7 @@ export function BottomBarWeb() {
       onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
       {hasSession ? (
         <>
-          <NavItem
-            routeName="Home"
-            href="/"
-            hasNew={hasHomeBadge && gate('remove_show_latest_button')}>
+          <NavItem routeName="Home" href="/">
             {({isActive}) => {
               const Icon = isActive ? HomeFilled : Home
               return (
@@ -230,12 +225,13 @@ export function BottomBarWeb() {
 }
 
 const NavItem: React.FC<{
-  children: (props: {isActive: boolean}) => React.ReactChild
+  children: (props: {isActive: boolean}) => React.ReactNode
   href: string
   routeName: string
   hasNew?: boolean
   notificationCount?: string
 }> = ({children, href, routeName, hasNew, notificationCount}) => {
+  const t = useTheme()
   const {_} = useLingui()
   const {currentAccount} = useSession()
   const currentRoute = useNavigationState(state => {
@@ -272,7 +268,11 @@ const NavItem: React.FC<{
       {children({isActive})}
       {notificationCount ? (
         <View
-          style={[styles.notificationCount, styles.notificationCountWeb]}
+          style={[
+            styles.notificationCount,
+            styles.notificationCountWeb,
+            {backgroundColor: t.palette.primary_500},
+          ]}
           aria-label={_(
             msg`${plural(notificationCount, {
               one: '# unread item',

@@ -1,5 +1,5 @@
 import React from 'react'
-import {type TextStyle} from 'react-native'
+import {type StyleProp, type TextStyle} from 'react-native'
 import {AppBskyRichtextFacet, RichText as RichTextAPI} from '@atproto/api'
 
 import {toShortUrl} from '#/lib/strings/url-helpers'
@@ -11,6 +11,9 @@ import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
 
 const WORD_WRAP = {wordWrap: 1}
+// lifted from facet detection in `RichText` impl, _without_ `gm` flags
+const URL_REGEX =
+  /(^|\s|\()((https?:\/\/[\S]+)|((?<domain>[a-z][a-z0-9]*(\.[a-z0-9]+)+)[\S]*))/i
 
 export type RichTextProps = TextStyleProp &
   Pick<TextProps, 'selectable' | 'onLayout' | 'onTextLayout'> & {
@@ -21,7 +24,7 @@ export type RichTextProps = TextStyleProp &
     enableTags?: boolean
     authorHandle?: string
     onLinkPress?: LinkProps['onPress']
-    interactiveStyle?: TextStyle
+    interactiveStyle?: StyleProp<TextStyle>
     emojiMultiplier?: number
     shouldProxyLinks?: boolean
   }
@@ -48,18 +51,14 @@ export function RichText({
     [value],
   )
 
-  const flattenedStyle = flatten(style)
-  const plainStyles = [a.leading_snug, flattenedStyle]
-  const interactiveStyles = [
-    a.leading_snug,
-    flatten(interactiveStyle),
-    flattenedStyle,
-  ]
+  const plainStyles = [a.leading_snug, style]
+  const interactiveStyles = [plainStyles, interactiveStyle]
 
   const {text, facets} = richText
 
   if (!facets?.length) {
     if (isOnlyEmoji(text)) {
+      const flattenedStyle = flatten(style) ?? {}
       const fontSize =
         (flattenedStyle.fontSize ?? a.text_sm.fontSize) * emojiMultiplier
       return (
@@ -119,7 +118,8 @@ export function RichText({
         </ProfileHoverCard>,
       )
     } else if (link && AppBskyRichtextFacet.validateLink(link).success) {
-      if (disableLinks) {
+      const isValidLink = URL_REGEX.test(link.uri)
+      if (!isValidLink || disableLinks) {
         els.push(toShortUrl(segment.text))
       } else {
         els.push(

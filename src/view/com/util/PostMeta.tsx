@@ -4,7 +4,6 @@ import {type AppBskyActorDefs, type ModerationDecision} from '@atproto/api'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useQueryClient} from '@tanstack/react-query'
-import type React from 'react'
 
 import {useActorStatus} from '#/lib/actor-status'
 import {makeProfileLink} from '#/lib/routes/links'
@@ -13,15 +12,15 @@ import {NON_BREAKING_SPACE} from '#/lib/strings/constants'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
-import {isAndroid} from '#/platform/detection'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {precacheProfile} from '#/state/queries/profile'
-import {atoms as a, platform, useTheme, web} from '#/alf'
+import {android, atoms as a, platform, useTheme, web} from '#/alf'
 import {WebOnlyInlineLinkText} from '#/components/Link'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
+import {IS_ANDROID} from '#/env'
 import {TimeElapsed} from './TimeElapsed'
 import {PreviewableUserAvatar} from './UserAvatar'
 
@@ -61,7 +60,7 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
   return (
     <View
       style={[
-        isAndroid ? a.flex_1 : a.flex_shrink,
+        android(a.flex_1) ?? a.flex_shrink,
         a.flex_row,
         a.align_center,
         a.pb_xs,
@@ -93,7 +92,7 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
               onPress={onBeforePressAuthor}
               style={[
                 a.text_md,
-                a.font_bold,
+                a.font_semi_bold,
                 t.atoms.text,
                 a.leading_tight,
                 a.flex_shrink_0,
@@ -153,14 +152,14 @@ let PostMeta = (opts: PostMetaOpts): React.ReactNode => {
                 a.pl_xs,
                 a.text_md,
                 a.leading_tight,
-                isAndroid && a.flex_grow,
+                IS_ANDROID && a.flex_grow,
                 a.text_right,
                 t.atoms.text_contrast_medium,
                 web({
                   whiteSpace: 'nowrap',
                 }),
               ]}>
-              {!isAndroid && (
+              {!IS_ANDROID && (
                 <Text
                   style={[
                     a.text_md,

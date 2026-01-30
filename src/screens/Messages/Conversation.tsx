@@ -21,7 +21,6 @@ import {
   type CommonNavigatorParams,
   type NavigationProp,
 } from '#/lib/routes/types'
-import {isWeb} from '#/platform/detection'
 import {type Shadow, useMaybeProfileShadow} from '#/state/cache/profile-shadow'
 import {useEmail} from '#/state/email-verification'
 import {ConvoProvider, isConvoActive, useConvo} from '#/state/messages/convo'
@@ -41,6 +40,7 @@ import {MessagesListHeader} from '#/components/dms/MessagesListHeader'
 import {Error} from '#/components/Error'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
+import {IS_WEB} from '#/env'
 
 type Props = NativeStackScreenProps<
   CommonNavigatorParams,
@@ -60,7 +60,7 @@ export function MessagesConversationScreen({route}: Props) {
     useCallback(() => {
       setCurrentConvoId(convoId)
 
-      if (isWeb && !gtMobile) {
+      if (IS_WEB && !gtMobile) {
         setMinimalShellMode(true)
       } else {
         setMinimalShellMode(false)

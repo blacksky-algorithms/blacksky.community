@@ -5,6 +5,7 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
+import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
@@ -30,7 +31,7 @@ export const SplashScreen = ({
 }) => {
   const {_} = useLingui()
   const t = useTheme()
-  const {isTabletOrMobile: isMobileWeb} = useWebMediaQueries()
+  const {isTabletOrMobile: IS_WEB_MOBILE} = useWebMediaQueries()
   const [showClipOverlay, setShowClipOverlay] = React.useState(false)
 
   React.useEffect(() => {
@@ -43,6 +44,8 @@ export const SplashScreen = ({
       })
     }
   }, [])
+
+  const kawaii = useKawaiiMode()
 
   return (
     <>
@@ -75,23 +78,29 @@ export const SplashScreen = ({
             a.justify_center,
             // @ts-expect-error web only
             {paddingBottom: '20vh'},
-            isMobileWeb && a.pb_5xl,
+            IS_WEB_MOBILE && a.pb_5xl,
             t.atoms.border_contrast_medium,
             a.align_center,
             a.gap_5xl,
             a.flex_1,
           ]}>
           <ErrorBoundary>
-            <View style={[a.justify_center, a.align_center, a.pb_0, a.mb_0]}>
-              <Logo width={120} fill={t.atoms.text.color} />
+            <View style={[a.justify_center, a.align_center]}>
+              <Logo width={kawaii ? 300 : 92} fill="sky" />
 
-              <View style={[a.pb_sm, a.pt_5xl, a.pt_0, a.mt_lg, a.mb_lg]}>
-                <Logotype width={280} fill={t.atoms.text.color} />
-              </View>
+              {!kawaii && (
+                <View style={[a.pb_sm, a.pt_5xl]}>
+                  <Logotype width={161} fill={t.atoms.text.color} />
+                </View>
+              )}
 
               <Text
-                style={[a.text_md, a.font_bold, t.atoms.text_contrast_medium]}>
-                <Trans>What's poppin'?</Trans>
+                style={[
+                  a.text_md,
+                  a.font_semi_bold,
+                  t.atoms.text_contrast_medium,
+                ]}>
+                <Trans>What's up?</Trans>
               </Text>
             </View>
 
@@ -103,7 +112,7 @@ export const SplashScreen = ({
                 onPress={onPressCreateAccount}
                 label={_(msg`Create new account`)}
                 accessibilityHint={_(
-                  msg`Opens flow to create a new Blacksky account`,
+                  msg`Opens flow to create a new Bluesky account`,
                 )}
                 size="large"
                 variant="solid"
@@ -117,7 +126,7 @@ export const SplashScreen = ({
                 onPress={onPressSignin}
                 label={_(msg`Sign in`)}
                 accessibilityHint={_(
-                  msg`Opens flow to sign in to your existing Blacksky account`,
+                  msg`Opens flow to sign in to your existing Bluesky account`,
                 )}
                 size="large"
                 variant="solid"
@@ -126,24 +135,6 @@ export const SplashScreen = ({
                   <Trans>Sign in</Trans>
                 </ButtonText>
               </Button>
-              <Text
-                style={[
-                  t.atoms.text_contrast_medium,
-                  a.text_sm,
-                  a.leading_snug,
-                  a.flex_1,
-                ]}>
-                <Trans>
-                  Migrating from Bluesky? Use{' '}
-                  <InlineLinkText
-                    label={_(msg`Migrate your account with tektite.cc`)}
-                    to="https://tektite.cc"
-                    style={[a.text_sm]}>
-                    Tektite.cc{' '}
-                  </InlineLinkText>
-                  to move your followers, posts, and media to Blacksky.
-                </Trans>
-              </Text>
             </View>
           </ErrorBoundary>
         </View>
@@ -178,9 +169,21 @@ function Footer() {
         t.atoms.border_contrast_medium,
       ]}>
       <InlineLinkText
-        label={_(msg`Read the patches and contribute`)}
-        to="https://github.com/blacksky-algorithms/blacksky.community">
-        <Trans>Github</Trans>
+        label={_(msg`Learn more about Bluesky`)}
+        to="https://bsky.social">
+        <Trans>Business</Trans>
+      </InlineLinkText>
+      <InlineLinkText
+        label={_(msg`Read the Bluesky blog`)}
+        to="https://bsky.social/about/blog">
+        <Trans>Blog</Trans>
+      </InlineLinkText>
+      <InlineLinkText
+        label={_(msg`See jobs at Bluesky`)}
+        to="https://bsky.social/about/join">
+        <Trans comment="Link to a page with job openings at Bluesky">
+          Jobs
+        </Trans>
       </InlineLinkText>
 
       <View style={a.flex_1} />

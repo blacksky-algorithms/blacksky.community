@@ -1,3 +1,4 @@
+import {useCallback} from 'react'
 import {
   type AppBskyActorDefs,
   type BskyFeedViewPreference,
@@ -8,7 +9,6 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {replaceEqualDeep} from '#/lib/functions'
 import {getAge} from '#/lib/strings/time'
-import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {
   DEFAULT_HOME_FEED_PREFS,
@@ -21,6 +21,7 @@ import {
 } from '#/state/queries/preferences/types'
 import {useAgent} from '#/state/session'
 import {saveLabelers} from '#/state/session/agent-config'
+import {useAnalytics} from '#/analytics'
 
 export * from '#/state/queries/preferences/const'
 export * from '#/state/queries/preferences/moderation'
@@ -69,6 +70,9 @@ export function usePreferencesQuery() {
         return preferences
       }
     },
+    select: useCallback((data: UsePreferencesQueryResponse) => {
+      return data
+    }, []),
   })
 }
 
@@ -88,6 +92,7 @@ export function useClearPreferencesMutation() {
 }
 
 export function usePreferencesSetContentLabelMutation() {
+  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
 
@@ -98,11 +103,7 @@ export function usePreferencesSetContentLabelMutation() {
   >({
     mutationFn: async ({label, visibility, labelerDid}) => {
       await agent.setContentLabelPref(label, visibility, labelerDid)
-      logger.metric(
-        'moderation:changeLabelPreference',
-        {preference: visibility},
-        {statsig: true},
-      )
+      ax.metric('moderation:changeLabelPreference', {preference: visibility})
       // triggers a refetch
       await queryClient.invalidateQueries({
         queryKey: preferencesQueryKey,
@@ -141,21 +142,6 @@ export function usePreferencesSetAdultContentMutation() {
   return useMutation<void, unknown, {enabled: boolean}>({
     mutationFn: async ({enabled}) => {
       await agent.setAdultContentEnabled(enabled)
-      // triggers a refetch
-      await queryClient.invalidateQueries({
-        queryKey: preferencesQueryKey,
-      })
-    },
-  })
-}
-
-export function usePreferencesSetBirthDateMutation() {
-  const queryClient = useQueryClient()
-  const agent = useAgent()
-
-  return useMutation<void, unknown, {birthDate: Date}>({
-    mutationFn: async ({birthDate}: {birthDate: Date}) => {
-      await agent.setPersonalDetails({birthDate: birthDate.toISOString()})
       // triggers a refetch
       await queryClient.invalidateQueries({
         queryKey: preferencesQueryKey,
@@ -266,7 +252,7 @@ export function useReplaceForYouWithDiscoverFeedMutation() {
         await agent.addSavedFeeds([
           {
             type: 'feed',
-            value: PROD_DEFAULT_FEED('blacksky-trend'),
+            value: PROD_DEFAULT_FEED('whats-hot'),
             pinned: true,
           },
         ])
@@ -410,6 +396,7 @@ export function useSetActiveProgressGuideMutation() {
 }
 
 export function useSetVerificationPrefsMutation() {
+  const ax = useAnalytics()
   const queryClient = useQueryClient()
   const agent = useAgent()
 
@@ -417,9 +404,9 @@ export function useSetVerificationPrefsMutation() {
     mutationFn: async prefs => {
       await agent.setVerificationPrefs(prefs)
       if (prefs.hideBadges) {
-        logger.metric('verification:settings:hideBadges', {}, {statsig: true})
+        ax.metric('verification:settings:hideBadges', {})
       } else {
-        logger.metric('verification:settings:unHideBadges', {}, {statsig: true})
+        ax.metric('verification:settings:unHideBadges', {})
       }
       // triggers a refetch
       await queryClient.invalidateQueries({

@@ -111,12 +111,12 @@ export function useQuery<TData = unknown, TError = Error>(
   const queryClient = useQueryClient()
 
   // Wrap the original queryFn with fallback logic
-  const wrappedQueryFn: typeof queryFn = async context => {
-    if (!queryFn) return undefined as TData
+  const wrappedQueryFn = async (context: QueryFunctionContext) => {
+    if (!queryFn || typeof queryFn !== 'function') return undefined as TData
 
     try {
       // Try the original query function (AppView)
-      return await queryFn(context)
+      return await (queryFn as Function)(context) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -215,11 +215,11 @@ export function useInfiniteQuery<
   const wrappedQueryFn = async (
     context: QueryFunctionContext<any, TPageParam>,
   ) => {
-    if (!queryFn) return undefined as TData
+    if (!queryFn || typeof queryFn !== 'function') return undefined as TData
 
     try {
       // Try the original query function (AppView)
-      return await queryFn(context)
+      return await (queryFn as Function)(context) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -432,11 +432,11 @@ export async function fetchQueryWithFallback<TData = unknown, TError = Error>(
 
   // Wrap the original queryFn with fallback logic
   const wrappedQueryFn = async (context: QueryFunctionContext) => {
-    if (!queryFn) return undefined as TData
+    if (!queryFn || typeof queryFn !== 'function') return undefined as TData
 
     try {
       // Try the original query function (AppView)
-      return await queryFn(context)
+      return await (queryFn as Function)(context) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -539,11 +539,11 @@ export async function prefetchQueryWithFallback<
 
   // Wrap the original queryFn with fallback logic
   const wrappedQueryFn = async (context: QueryFunctionContext) => {
-    if (!queryFn) return undefined as TData
+    if (!queryFn || typeof queryFn !== 'function') return undefined as TData
 
     try {
       // Try the original query function (AppView)
-      return await queryFn(context)
+      return await (queryFn as Function)(context) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
