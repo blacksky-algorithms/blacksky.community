@@ -7,9 +7,9 @@
   <!--
     Preconnect to essential domains
   -->
-  <link rel="preconnect" href="https://bsky.social">
-  <link rel="preconnect" href="https://go.bsky.app">
-  <title>{%- block head_title -%}Bluesky{%- endblock -%}</title>
+  <link rel="preconnect" href="https://blacksky.community">
+  <link rel="preconnect" href="https://go.blacksky.community">
+  <title>{%- block head_title -%}Blacksky{%- endblock -%}</title>
 
   <!-- Hello Humans! API docs at https://atproto.com -->
 
@@ -37,6 +37,16 @@
       font-style: italic;
       font-display: swap;
     }
+    html {
+      background-color: #F8FAF9;
+      color: #000000;
+    }
+    @media (prefers-color-scheme: dark) {
+      html {
+        background-color: #070C0C;
+        color: #FFFFFF;
+      }
+    }
     html,
     body {
       margin: 0px;
@@ -51,19 +61,6 @@
       -ms-overflow-style: scrollbar;
       font-synthesis-weight: none;
     }
-    :root {
-      --text: black;
-      --background: white;
-      --backgroundLight: #e2e7ee;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        color-scheme: dark;
-        --text: white;
-        --background: black;
-        --backgroundLight: #232e3e;
-      }
-    }
     html,
     body,
     #root {
@@ -72,46 +69,12 @@
       min-height: 100%;
       width: 100%;
     }
-    html.theme--light,
-    html.theme--light body,
-    html.theme--light #root {
-      background-color: white;
-      --text: black;
-      --background: white;
-      --backgroundLight: #DCE2EA;
-    }
-    html.theme--dark,
-    html.theme--dark body,
-    html.theme--dark #root {
-      color-scheme: dark;
-      background-color: black;
-      --text: white;
-      --background: black;
-      --backgroundLight: #232E3E;
-    }
-    html.theme--dim,
-    html.theme--dim body,
-    html.theme--dim #root {
-      color-scheme: dark;
-      background-color: #151D28;
-      --text: white;
-      --background: #151D28;
-      --backgroundLight: #2C3A4E;
-    }
     #splash {
-      display: flex;
       position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      align-items: center;
-      justify-content: center;
-    }
-    #splash svg {
-      position: relative;
-      top: -50px;
       width: 100px;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%) translateY(-50px);
     }
     /**
      * We need these styles to prevent shifting due to scrollbar show/hide on
@@ -124,24 +87,18 @@
       overflow-y: scroll;
     }
   </style>
-  <script>
-    const theme = localStorage.getItem('ALF_THEME')
-    if (theme) {
-      document.documentElement.classList.add(`theme--${theme}`)
-    }
-  </script>
 
   {% include "scripts.html" %}
   <link rel="apple-touch-icon" sizes="180x180" href="{{ staticCDNHost }}/static/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ staticCDNHost }}/static/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ staticCDNHost }}/static/favicon-16x16.png">
-  <link rel="mask-icon" href="{{ staticCDNHost }}/static/safari-pinned-tab.svg" color="#1185fe">
+  <link rel="mask-icon" href="{{ staticCDNHost }}/static/safari-pinned-tab.svg" color="#6060E9">
   <meta name="theme-color">
-  <meta name="application-name" content="Bluesky">
+  <meta name="application-name" content="Blacksky">
   <meta name="generator" content="bskyweb">
-  <meta property="og:site_name" content="Bluesky Social">
+  <meta property="og:site_name" content="Blacksky">
   <meta property="og:logo" content="{{ favicon }}">
-  <meta name="twitter:site" content="@bluesky" />
+  <meta name="twitter:site" content="@blacksky" />
   <link type="application/activity+json" href="" />
 
   {% block html_head_extra -%}{%- endblock %}
@@ -150,15 +107,32 @@
 {%- block body_all %}
   <div id="root">
     <div id="splash">
-      <!-- Bluesky SVG -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 57"><path fill="#006AFF" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805ZM50.127 3.805C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745Z"/></svg>
+      <!-- Blacksky SVG scaled by parent width (100 px) -->
+      <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 285 243"
+              preserveAspectRatio="xMidYMid meet"
+              style="width:100%;height:auto;display:block"
+      >
+        <g clip-path="url(#clip0_1011_989)">
+          <path d="M148.846 144.562C148.846 159.75 161.158 172.062 176.346 172.062H207.012V185.865H176.346C161.158 185.865 148.846 198.177 148.846 213.365V243.045H136.029V213.365C136.029 198.177 123.717 185.865 108.529 185.865H77.8633V172.062H108.529C123.717 172.062 136.029 159.75 136.029 144.562V113.896H148.846V144.562Z" fill="currentColor"/>
+          <path d="M170.946 31.8766C160.207 42.616 160.207 60.0281 170.946 70.7675L192.631 92.4516L182.871 102.212L161.186 80.5275C150.447 69.7881 133.035 69.7881 122.296 80.5275L101.309 101.514L92.2456 92.4509L113.232 71.4642C123.972 60.7248 123.972 43.3128 113.232 32.5733L91.5488 10.8899L101.309 1.12988L122.993 22.814C133.732 33.5533 151.144 33.5534 161.884 22.814L183.568 1.12988L192.631 10.1925L170.946 31.8766Z" fill="currentColor"/>
+          <path d="M79.0525 75.3259C75.1216 89.9962 83.8276 105.076 98.498 109.006L128.119 116.943L124.547 130.275L94.9267 122.338C80.2564 118.407 65.1772 127.113 61.2463 141.784L53.5643 170.453L41.1837 167.136L48.8654 138.467C52.7963 123.797 44.0902 108.718 29.4199 104.787L-0.201172 96.8497L3.37124 83.5173L32.9923 91.4542C47.6626 95.3851 62.7419 86.679 66.6728 72.0088L74.6098 42.3877L86.9895 45.7048L79.0525 75.3259Z" fill="currentColor"/>
+          <path d="M218.413 71.4229C222.344 86.093 237.423 94.7992 252.094 90.8683L281.715 82.9313L285.287 96.2628L255.666 104.2C240.995 108.131 232.29 123.21 236.22 137.88L243.902 166.55L231.522 169.867L223.841 141.198C219.91 126.528 204.831 117.822 190.16 121.753L160.539 129.69L156.967 116.357L186.588 108.42C201.258 104.49 209.964 89.4103 206.033 74.74L198.096 45.1189L210.476 41.8018L218.413 71.4229Z" fill="currentColor"/>
+        </g>
+        <defs>
+          <clipPath id="clip0_1011_989">
+            <rect width="285" height="243" fill="white"/>
+          </clipPath>
+        </defs>
+      </svg>
     </div>
   </div>
 
   <noscript>
     <h1 lang="en">JavaScript Required</h1>
     <p lang="en">This is a heavily interactive web application, and JavaScript is required. Simple HTML interfaces are possible, but that is not what this is.
-    <p lang="en">Learn more about Bluesky at <a href="https://bsky.social">bsky.social</a> and <a href="https://atproto.com">atproto.com</a>.
+    <p lang="en">Learn more about Blacksky at <a href="https://blackskyweb.xyz">blackskyweb.xyz</a> and <a href="https://atproto.com">atproto.com</a>, or this fork at <a href="https://github.com/blacksky-algorithms/blacksky.community">github.com/blacksky-algorithms/blacksky.community</a>.</p>
     {% block noscript_extra %}{% endblock %}
   </noscript>
 {% endblock -%}

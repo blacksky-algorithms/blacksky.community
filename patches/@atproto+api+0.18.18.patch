@@ -1,9 +1,9 @@
 diff --git a/node_modules/@atproto/api/dist/agent.js b/node_modules/@atproto/api/dist/agent.js
-index 8d2744e..dc9f39b 100644
+index 634e463..57b5c74 100644
 --- a/node_modules/@atproto/api/dist/agent.js
 +++ b/node_modules/@atproto/api/dist/agent.js
-@@ -590,7 +590,7 @@ class Agent extends xrpc_1.XrpcClient {
-                 hideBadges: false,
+@@ -593,7 +593,7 @@ class Agent extends xrpc_1.XrpcClient {
+                 hideAllFeeds: false,
              },
          };
 -        const res = await this.app.bsky.actor.getPreferences({});
@@ -11,7 +11,7 @@ index 8d2744e..dc9f39b 100644
          const labelPrefs = [];
          for (const pref of res.data.preferences) {
              if (predicate.isValidAdultContentPref(pref)) {
-@@ -1237,14 +1237,14 @@ class Agent extends xrpc_1.XrpcClient {
+@@ -1275,14 +1275,14 @@ class Agent extends xrpc_1.XrpcClient {
      async updatePreferences(cb) {
          try {
              await __classPrivateFieldGet(this, _Agent_prefsLock, "f").acquireAsync();

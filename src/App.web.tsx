@@ -33,6 +33,7 @@ import {
   useSession,
   useSessionApi,
 } from '#/state/session'
+import {getWebOAuthClient} from '#/state/session/oauth-web-client'
 import {readLastActiveAccount} from '#/state/session/util'
 import {Provider as ShellStateProvider} from '#/state/shell'
 import {Provider as ComposerProvider} from '#/state/shell/composer'
@@ -92,7 +93,7 @@ prefetchLiveEvents()
 function InnerApp() {
   const [isReady, setIsReady] = React.useState(false)
   const {currentAccount} = useSession()
-  const {resumeSession} = useSessionApi()
+  const {resumeSession, login} = useSessionApi()
   const theme = useColorModeTheme()
   const {_} = useLingui()
   const hasCheckedReferrer = useStarterPackEntry()
@@ -101,6 +102,26 @@ function InnerApp() {
   useEffect(() => {
     async function onLaunch(account?: SessionAccount) {
       try {
+        // Check for OAuth callback params first (loopback redirects to /)
+        if (hasOAuthCallbackParams()) {
+          const client = getWebOAuthClient()
+          const result = await client.init()
+          if (result?.session) {
+            await login(
+              {
+                service: '',
+                identifier: '',
+                password: '',
+                oauthSession: result.session,
+              },
+              'LoginForm',
+            )
+            // Clear hash fragment after processing
+            window.history.replaceState(null, '', window.location.pathname)
+            return
+          }
+        }
+
         if (account) {
           await resumeSession(account)
         } else {
@@ -114,7 +135,7 @@ function InnerApp() {
     }
     const account = readLastActiveAccount()
     onLaunch(account)
-  }, [resumeSession])
+  }, [resumeSession, login])
 
   useEffect(() => {
     return listenSessionDropped(() => {
