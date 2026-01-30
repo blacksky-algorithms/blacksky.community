@@ -49,6 +49,24 @@
   dependencies:
     "@atproto-labs/pipe" "0.1.1"
 
+"@atproto-labs/handle-resolver@0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@atproto-labs/handle-resolver/-/handle-resolver-0.3.6.tgz#bb2a5435995c4c4ddf75065a47417975c4b4a003"
+  integrity sha512-qnSTXvOBNj1EHhp2qTWSX8MS5q3AwYU5LKlt5fBvSbCjgmTr2j0URHCv+ydrwO55KvsojIkTMgeMOh4YuY4fCA==
+  dependencies:
+    "@atproto-labs/simple-store" "0.3.0"
+    "@atproto-labs/simple-store-memory" "0.1.4"
+    "@atproto/did" "0.3.0"
+    zod "^3.23.8"
+
+"@atproto-labs/identity-resolver@0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@atproto-labs/identity-resolver/-/identity-resolver-0.3.6.tgz#bdb33099bda7c2eed64a8b1f92b8e493f960965b"
+  integrity sha512-qoWqBDRobln0NR8L8dQjSp79E0chGkBhibEgxQa2f9WD+JbJdjQ0YvwwO5yeQn05pJoJmAwmI2wyJ45zjU7aWg==
+  dependencies:
+    "@atproto-labs/did-resolver" "0.2.6"
+    "@atproto-labs/handle-resolver" "0.3.6"
+
 "@atproto-labs/pipe@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@atproto-labs/pipe/-/pipe-0.1.1.tgz#1c4232d16bf95f251e993cb6ee440f9aa4e87ce6"
@@ -291,6 +309,15 @@
     "@atproto/jwk" "0.6.0"
     jose "^5.2.0"
 
+"@atproto/jwk-webcrypto@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@atproto/jwk-webcrypto/-/jwk-webcrypto-0.2.0.tgz#31c88f350843b1a8e8d0cb422c1cb02f5dd59137"
+  integrity sha512-UmgRrrEAkWvxwhlwe30UmDOdTEFidlIzBC7C3cCbeJMcBN1x8B3KH+crXrsTqfWQBG58mXgt8wgSK3Kxs2LhFg==
+  dependencies:
+    "@atproto/jwk" "0.6.0"
+    "@atproto/jwk-jose" "0.1.11"
+    zod "^3.23.8"
+
 "@atproto/jwk@0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@atproto/jwk/-/jwk-0.6.0.tgz#e813f77d9c89c025d4074340777fafaa2fba08a5"
@@ -376,6 +403,40 @@
     "@atproto/common-web" "^0.4.13"
     "@atproto/syntax" "^0.4.3"
     iso-datestring-validator "^2.2.2"
+    multiformats "^9.9.0"
+    zod "^3.23.8"
+
+"@atproto/oauth-client-browser@^0.3.11":
+  version "0.3.40"
+  resolved "https://registry.yarnpkg.com/@atproto/oauth-client-browser/-/oauth-client-browser-0.3.40.tgz#57cb43d092a9f5a93e75066b1a4aea24e888b463"
+  integrity sha512-AlvHf1DYFRHw+J8uALUMhpclTbUTTkvLqzQeGBdAXxSGP8OefsOXXaSiY5Mh6zAYxek95/ypxYzNYncasgnMWg==
+  dependencies:
+    "@atproto-labs/did-resolver" "0.2.6"
+    "@atproto-labs/handle-resolver" "0.3.6"
+    "@atproto-labs/simple-store" "0.3.0"
+    "@atproto/did" "0.3.0"
+    "@atproto/jwk" "0.6.0"
+    "@atproto/jwk-webcrypto" "0.2.0"
+    "@atproto/oauth-client" "0.5.14"
+    "@atproto/oauth-types" "0.6.2"
+    core-js "^3"
+
+"@atproto/oauth-client@0.5.14":
+  version "0.5.14"
+  resolved "https://registry.yarnpkg.com/@atproto/oauth-client/-/oauth-client-0.5.14.tgz#e94780111c4c83eb0f5e9c74de5bc527685c2016"
+  integrity sha512-sPH+vcdq9maTEAhJI0HzmFcFAMrkCS19np+RUssNkX6kS8Xr3OYr57tvYRCbkcnIyYTfYcxKQgpwHKx3RVEaYw==
+  dependencies:
+    "@atproto-labs/did-resolver" "0.2.6"
+    "@atproto-labs/fetch" "0.2.3"
+    "@atproto-labs/handle-resolver" "0.3.6"
+    "@atproto-labs/identity-resolver" "0.3.6"
+    "@atproto-labs/simple-store" "0.3.0"
+    "@atproto-labs/simple-store-memory" "0.1.4"
+    "@atproto/did" "0.3.0"
+    "@atproto/jwk" "0.6.0"
+    "@atproto/oauth-types" "0.6.2"
+    "@atproto/xrpc" "0.7.7"
+    core-js "^3"
     multiformats "^9.9.0"
     zod "^3.23.8"
 
@@ -599,7 +660,7 @@
     ws "^8.12.0"
     zod "^3.23.8"
 
-"@atproto/xrpc@^0.7.6", "@atproto/xrpc@^0.7.7":
+"@atproto/xrpc@0.7.7", "@atproto/xrpc@^0.7.6", "@atproto/xrpc@^0.7.7":
   version "0.7.7"
   resolved "https://registry.yarnpkg.com/@atproto/xrpc/-/xrpc-0.7.7.tgz#c0e3106c854cb9bc7d3129de2f31b8256eb0ed11"
   integrity sha512-K1ZyO/BU8JNtXX5dmPp7b5UrkLMMqpsIa/Lrj5D3Su+j1Xwq1m6QJ2XJ1AgjEjkI1v4Muzm7klianLE6XGxtmA==
@@ -3277,7 +3338,7 @@
     "@babel/parser" "^7.27.2"
     "@babel/types" "^7.27.1"
 
-"@babel/traverse--for-generate-function-map@npm:@babel/traverse@^7.25.3":
+"@babel/traverse--for-generate-function-map@npm:@babel/traverse@^7.25.3", "@babel/traverse@^7.25.3", "@babel/traverse@^7.25.9":
   version "7.25.9"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.25.9.tgz#a50f8fe49e7f69f53de5bea7e413cd35c5e13c84"
   integrity sha512-ZCuvfwOwlz/bawvAuvcj8rrithP2/N55Tzz342AkTvq4qaWbGfmCk/tKhNaV2cthijKrPAA8SRJV5WWe7IBMJw==
@@ -3335,19 +3396,6 @@
     "@babel/helper-split-export-declaration" "^7.24.5"
     "@babel/parser" "^7.24.5"
     "@babel/types" "^7.24.5"
-    debug "^4.3.1"
-    globals "^11.1.0"
-
-"@babel/traverse@^7.25.3", "@babel/traverse@^7.25.9":
-  version "7.25.9"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.25.9.tgz#a50f8fe49e7f69f53de5bea7e413cd35c5e13c84"
-  integrity sha512-ZCuvfwOwlz/bawvAuvcj8rrithP2/N55Tzz342AkTvq4qaWbGfmCk/tKhNaV2cthijKrPAA8SRJV5WWe7IBMJw==
-  dependencies:
-    "@babel/code-frame" "^7.25.9"
-    "@babel/generator" "^7.25.9"
-    "@babel/parser" "^7.25.9"
-    "@babel/template" "^7.25.9"
-    "@babel/types" "^7.25.9"
     debug "^4.3.1"
     globals "^11.1.0"
 
@@ -18576,16 +18624,7 @@ string-natural-compare@^3.0.1:
   resolved "https://registry.yarnpkg.com/string-natural-compare/-/string-natural-compare-3.0.1.tgz#7a42d58474454963759e8e8b7ae63d71c1e7fdf4"
   integrity sha512-n3sPwynL1nwKi3WJ6AIsClwBMa0zTi54fn2oLU6ndfTSIO05xaznjSf15PcBZU6FNWbmN5Q6cxT4V5hGvB4taw==
 
-"string-width-cjs@npm:string-width@^4.2.0":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
-  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
-  dependencies:
-    emoji-regex "^8.0.0"
-    is-fullwidth-code-point "^3.0.0"
-    strip-ansi "^6.0.1"
-
-string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -18744,7 +18783,7 @@ string_decoder@~1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -18757,13 +18796,6 @@ strip-ansi@^5.2.0:
   integrity sha512-DuRs1gKbBqsMKIZlrffwlug8MHkcnpjs5VPmL1PAh+mA30U0DTotfDZ0d2UUsXpPmPmMMJ6W773MaA3J+lbiWA==
   dependencies:
     ansi-regex "^4.1.0"
-
-strip-ansi@^6.0.0, strip-ansi@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
-  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
-  dependencies:
-    ansi-regex "^5.0.1"
 
 strip-ansi@^7.0.1:
   version "7.1.0"
@@ -20161,7 +20193,7 @@ wordwrap@^1.0.0:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -20174,15 +20206,6 @@ wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
   integrity sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==
-  dependencies:
-    ansi-styles "^4.0.0"
-    string-width "^4.1.0"
-    strip-ansi "^6.0.0"
-
-wrap-ansi@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
-  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
   dependencies:
     ansi-styles "^4.0.0"
     string-width "^4.1.0"

@@ -8,14 +8,10 @@ import {isAppPassword} from '#/lib/jwt'
 import {getAge, getDateAgo} from '#/lib/strings/time'
 import {logger} from '#/logger'
 import {
-  useBirthdateMutation,
-  useIsBirthdateUpdateAllowed,
-} from '#/state/birthdate'
-import {
   usePreferencesQuery,
   type UsePreferencesQueryResponse,
 } from '#/state/queries/preferences'
-import {useSession} from '#/state/session'
+import {useAgent, useSession} from '#/state/session'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Admonition} from '#/components/Admonition'
@@ -35,14 +31,13 @@ export function BirthDateSettingsDialog({
   const t = useTheme()
   const {_} = useLingui()
   const {isLoading, error, data: preferences} = usePreferencesQuery()
-  const isBirthdateUpdateAllowed = useIsBirthdateUpdateAllowed()
   const {currentAccount} = useSession()
   const isUsingAppPassword = isAppPassword(currentAccount?.accessJwt || '')
 
   return (
     <Dialog.Outer control={control} nativeOptions={{preventExpansion: true}}>
       <Dialog.Handle />
-      {isBirthdateUpdateAllowed ? (
+      {(
         <Dialog.ScrollableInner
           label={_(msg`My Birthdate`)}
           style={web({maxWidth: 400})}>
@@ -85,31 +80,6 @@ export function BirthDateSettingsDialog({
 
           <Dialog.Close />
         </Dialog.ScrollableInner>
-      ) : (
-        <Dialog.ScrollableInner
-          label={_(msg`You recently changed your birthdate`)}
-          style={web({maxWidth: 400})}>
-          <View style={[a.gap_sm]}>
-            <Text
-              style={[
-                a.text_xl,
-                a.font_semi_bold,
-                a.leading_snug,
-                {paddingRight: 32},
-              ]}>
-              <Trans>You recently changed your birthdate</Trans>
-            </Text>
-            <Text
-              style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
-              <Trans>
-                There is a limit to how often you can change your birthdate. You
-                may need to wait a day or two before updating it again.
-              </Trans>
-            </Text>
-          </View>
-
-          <Dialog.Close />
-        </Dialog.ScrollableInner>
       )}
     </Dialog.Outer>
   )
@@ -127,7 +97,24 @@ function BirthdayInner({
   const [date, setDate] = React.useState(
     preferences.birthDate || getDateAgo(18),
   )
-  const {isPending, error, mutateAsync: setBirthDate} = useBirthdateMutation()
+  const agent = useAgent()
+  const [isPending, setIsPending] = React.useState(false)
+  const [error, setError] = React.useState<Error | null>(null)
+  const setBirthDate = React.useCallback(
+    async ({birthDate}: {birthDate: Date}) => {
+      setIsPending(true)
+      setError(null)
+      try {
+        await agent.setPersonalDetails({birthDate: birthDate.toISOString()})
+      } catch (e: any) {
+        setError(e)
+        throw e
+      } finally {
+        setIsPending(false)
+      }
+    },
+    [agent],
+  )
   const hasChanged = date !== preferences.birthDate
   const errorMessage = React.useMemo(() => {
     if (error) {

@@ -11,7 +11,6 @@ import {
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {logger} from '#/logger'
-import {useIsBirthdateUpdateAllowed} from '#/state/birthdate'
 import {
   useMyLabelersQuery,
   usePreferencesQuery,
@@ -21,9 +20,6 @@ import {
 import {isNonConfigurableModerationAuthority} from '#/state/session/additional-moderation-authorities'
 import {useSetMinimalShellMode} from '#/state/shell'
 import {atoms as a, useBreakpoints, useTheme, type ViewStyleProp} from '#/alf'
-import {Admonition} from '#/components/Admonition'
-import {AgeAssuranceAdmonition} from '#/components/ageAssurance/AgeAssuranceAdmonition'
-import {useAgeAssuranceCopy} from '#/components/ageAssurance/useAgeAssuranceCopy'
 import {Button} from '#/components/Button'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
 import {Divider} from '#/components/Divider'
@@ -43,7 +39,6 @@ import {ListMaybePlaceholder} from '#/components/Lists'
 import {Loader} from '#/components/Loader'
 import {GlobalLabelPreference} from '#/components/moderation/LabelPreference'
 import {Text} from '#/components/Typography'
-import {useAgeAssurance} from '#/ageAssurance'
 import {IS_IOS} from '#/env'
 
 function ErrorState({error}: {error: string}) {
@@ -166,10 +161,6 @@ export function ModerationScreenInner({
     data: labelers,
     error: labelersError,
   } = useMyLabelersQuery()
-  const aa = useAgeAssurance()
-  const isBirthdateUpdateAllowed = useIsBirthdateUpdateAllowed()
-  const aaCopy = useAgeAssuranceCopy()
-
   useFocusEffect(
     useCallback(() => {
       setMinimalShellMode(false)
@@ -184,11 +175,6 @@ export function ModerationScreenInner({
   )
   const adultContentUIDisabledOnIOS = IS_IOS && !adultContentEnabled
   let adultContentUIDisabled = adultContentUIDisabledOnIOS
-
-  if (aa.flags.adultContentDisabled) {
-    adultContentEnabled = false
-    adultContentUIDisabled = true
-  }
 
   const onToggleAdultContentEnabled = useCallback(
     async (selected: boolean) => {
@@ -207,24 +193,6 @@ export function ModerationScreenInner({
 
   return (
     <View style={[a.pt_2xl, a.px_lg, gtMobile && a.px_2xl]}>
-      {aa.flags.adultContentDisabled && isBirthdateUpdateAllowed && (
-        <View style={[a.pb_2xl]}>
-          <Admonition type="tip" style={[a.pb_md]}>
-            <Trans>
-              Your declared age is under 18. Some settings below may be
-              disabled. If this was a mistake, you may edit your birthdate in
-              your{' '}
-              <InlineLinkText
-                to="/settings/account"
-                label={_(msg`Go to account settings`)}>
-                account settings
-              </InlineLinkText>
-              .
-            </Trans>
-          </Admonition>
-        </View>
-      )}
-
       <Text
         style={[
           a.text_md,
@@ -344,10 +312,6 @@ export function ModerationScreenInner({
         <Trans>Content filters</Trans>
       </Text>
 
-      <AgeAssuranceAdmonition style={[a.pb_md]}>
-        {aaCopy.notice}
-      </AgeAssuranceAdmonition>
-
       <View style={[a.gap_md]}>
         <View
           style={[
@@ -356,9 +320,7 @@ export function ModerationScreenInner({
             a.overflow_hidden,
             t.atoms.bg_contrast_25,
           ]}>
-          {aa.state.access === aa.Access.Full && (
-            <>
-              <View
+          <View
                 style={[
                   a.py_lg,
                   a.px_lg,
@@ -423,8 +385,6 @@ export function ModerationScreenInner({
                   <GlobalLabelPreference labelDefinition={LABELS.nudity} />
                 </>
               )}
-            </>
-          )}
         </View>
       </View>
 

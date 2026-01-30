@@ -14,7 +14,6 @@ import {logger as notyLogger} from '#/lib/notifications/util'
 import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, useAgent, useSession} from '#/state/session'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
-import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {IS_DEV, IS_NATIVE} from '#/env'
 
@@ -131,7 +130,6 @@ async function getPushToken() {
  * @see https://github.com/bluesky-social/social-app/pull/4467
  */
 export function useGetAndRegisterPushToken() {
-  const aa = useAgeAssurance()
   const registerPushToken = useRegisterPushToken()
   return useCallback(
     async ({
@@ -158,8 +156,7 @@ export function useGetAndRegisterPushToken() {
          */
         registerPushToken({
           token,
-          isAgeRestricted:
-            isAgeRestrictedOverride ?? aa.state.access !== aa.Access.Full,
+          isAgeRestricted: isAgeRestrictedOverride ?? false,
         })
       }
 
@@ -180,7 +177,6 @@ export function useNotificationsRegistration() {
   const {currentAccount} = useSession()
   const registerPushToken = useRegisterPushToken()
   const getAndRegisterPushToken = useGetAndRegisterPushToken()
-  const aa = useAgeAssurance()
 
   useEffect(() => {
     /**
@@ -214,7 +210,7 @@ export function useNotificationsRegistration() {
     const subscription = Notifications.addPushTokenListener(async token => {
       registerPushToken({
         token,
-        isAgeRestricted: aa.state.access !== aa.Access.Full,
+        isAgeRestricted: false,
       })
       notyLogger.debug(`addPushTokenListener callback`, {token})
     })
@@ -222,7 +218,7 @@ export function useNotificationsRegistration() {
     return () => {
       subscription.remove()
     }
-  }, [currentAccount, getAndRegisterPushToken, registerPushToken, aa])
+  }, [currentAccount, getAndRegisterPushToken, registerPushToken])
 }
 
 export function useRequestNotificationsPermission() {

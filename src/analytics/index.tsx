@@ -24,7 +24,6 @@ import {
 import {type Metrics, metrics} from '#/analytics/metrics'
 import * as refParams from '#/analytics/misc/refParams'
 import * as env from '#/env'
-import {useGeolocation} from '#/geolocation'
 import {device} from '#/storage'
 
 export * as utils from '#/analytics/utils'
@@ -104,7 +103,7 @@ const Context = createContext<AnalyticsBaseContextType>({
       referrerSrc: refParams.src,
       referrerUrl: refParams.url,
     },
-    geolocation: device.get(['mergedGeolocation']) || {
+    geolocation: {
       countryCode: '',
       regionCode: '',
     },
@@ -137,7 +136,6 @@ export function AnalyticsContext({
     }
   }
   const sessionId = useSessionId()
-  const geolocation = useGeolocation()
   const parentContext = useContext(Context)
   const childContext = useMemo(() => {
     const combinedMetadata = {
@@ -147,7 +145,6 @@ export function AnalyticsContext({
         ...parentContext.metadata.base,
         sessionId,
       },
-      geolocation,
     }
     const context: AnalyticsBaseContextType = {
       ...parentContext,
@@ -164,7 +161,7 @@ export function AnalyticsContext({
       },
     }
     return context
-  }, [sessionId, geolocation, parentContext, metadata])
+  }, [sessionId, parentContext, metadata])
   return <Context.Provider value={childContext}>{children}</Context.Provider>
 }
 

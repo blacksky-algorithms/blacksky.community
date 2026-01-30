@@ -18,14 +18,9 @@ import {
 import {useProfileQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession} from '#/state/session'
 import {useOnboardingState} from '#/state/shell'
-import {
-  enabled as isLiveNowBetaDialogEnabled,
-  LiveNowBetaDialog,
-} from '#/components/dialogs/nuxs/LiveNowBetaDialog'
 import {isSnoozed, snooze, unsnooze} from '#/components/dialogs/nuxs/snoozing'
 import {type EnabledCheckProps} from '#/components/dialogs/nuxs/utils'
 import {useAnalytics} from '#/analytics'
-import {useGeolocation} from '#/geolocation'
 
 type Context = {
   activeNux: Nux | undefined
@@ -35,12 +30,7 @@ type Context = {
 const queuedNuxs: {
   id: Nux
   enabled?: (props: EnabledCheckProps) => boolean
-}[] = [
-  {
-    id: Nux.LiveNowBetaDialog,
-    enabled: isLiveNowBetaDialogEnabled,
-  },
-]
+}[] = []
 
 const Context = createContext<Context>({
   activeNux: undefined,
@@ -89,7 +79,6 @@ function Inner({
   preferences: UsePreferencesQueryResponse
 }) {
   const ax = useAnalytics()
-  const geolocation = useGeolocation()
   const {nuxs} = useNuxs()
   const [snoozed, setSnoozed] = useState(() => {
     return isSnoozed()
@@ -137,7 +126,6 @@ function Inner({
           currentAccount,
           currentProfile,
           preferences,
-          geolocation,
         })
       ) {
         continue
@@ -173,7 +161,6 @@ function Inner({
     currentAccount,
     currentProfile,
     preferences,
-    geolocation,
   ])
 
   const ctx = useMemo(() => {
@@ -186,7 +173,6 @@ function Inner({
   return (
     <Context.Provider value={ctx}>
       {/*For example, activeNux === Nux.NeueTypography && <NeueTypography />*/}
-      {activeNux === Nux.LiveNowBetaDialog && <LiveNowBetaDialog />}
     </Context.Provider>
   )
 }

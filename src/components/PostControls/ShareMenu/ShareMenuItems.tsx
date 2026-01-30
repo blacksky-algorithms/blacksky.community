@@ -21,7 +21,6 @@ import {ChainLink_Stroke2_Corner0_Rounded as ChainLinkIcon} from '#/components/i
 import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/icons/Clipboard'
 import {PaperPlane_Stroke2_Corner0_Rounded as PaperPlaneIcon} from '#/components/icons/PaperPlane'
 import * as Menu from '#/components/Menu'
-import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {IS_IOS} from '#/env'
 import {useDevMode} from '#/storage/hooks/dev-mode'
@@ -38,7 +37,6 @@ let ShareMenuItems = ({
   const navigation = useNavigation<NavigationProp>()
   const sendViaChatControl = useDialogControl()
   const [devModeEnabled] = useDevMode()
-  const aa = useAgeAssurance()
 
   const postUri = post.uri
   const postAuthor = useProfileShadow(post.author)
@@ -92,7 +90,7 @@ let ShareMenuItems = ({
   return (
     <>
       <Menu.Outer>
-        {hasSession && aa.state.access === aa.Access.Full && (
+        {hasSession && (
           <Menu.Group>
             <Menu.ContainerItem>
               <RecentChats postUri={postUri} />

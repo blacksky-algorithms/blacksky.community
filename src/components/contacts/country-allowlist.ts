@@ -1,6 +1,5 @@
 import {type CountryCode} from '#/lib/international-telephone-codes'
 import {IS_DEV} from '#/env'
-import {useGeolocation} from '#/geolocation'
 
 const FIND_CONTACTS_FEATURE_COUNTRY_ALLOWLIST = [
   'US',
@@ -34,6 +33,5 @@ export function isFindContactsFeatureEnabled(countryCode?: string): boolean {
 }
 
 export function useIsFindContactsFeatureEnabledBasedOnGeolocation() {
-  const location = useGeolocation()
-  return isFindContactsFeatureEnabled(location.countryCode)
+  return isFindContactsFeatureEnabled(undefined)
 }

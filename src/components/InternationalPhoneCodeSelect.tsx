@@ -13,7 +13,6 @@ import {regionName} from '#/locale/helpers'
 import {atoms as a, web} from '#/alf'
 import * as Select from '#/components/Select'
 import {IS_WEB} from '#/env'
-import {useGeolocation} from '#/geolocation'
 
 /**
  * Country picker for a phone number input
@@ -29,11 +28,9 @@ export function InternationalPhoneCodeSelect({
   onChange: (value: CountryCode) => void
 }) {
   const {_, i18n} = useLingui()
-  const location = useGeolocation()
-
   const defaultCountry = useMemo(() => {
-    return getDefaultCountry(location)
-  }, [location])
+    return getDefaultCountry()
+  }, [])
 
   const items = useMemo(() => {
     return (

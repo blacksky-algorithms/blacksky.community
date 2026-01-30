@@ -36,7 +36,6 @@ import {LoggedOut} from '#/view/com/auth/LoggedOut'
 import {Onboarding} from '#/screens/Onboarding'
 import {SignupQueued} from '#/screens/SignupQueued'
 import {atoms as a, useLayoutBreakpoints} from '#/alf'
-import {PolicyUpdateOverlay} from '#/components/PolicyUpdateOverlay'
 import {IS_NATIVE, IS_WEB} from '#/env'
 import {BottomBarWeb} from './bottom-bar/BottomBarWeb'
 import {DesktopLeftNav} from './desktop/LeftNav'
@@ -164,8 +163,6 @@ function NativeStackNavigator({
         </>
       )}
 
-      {/* Only shown after logged in and onboaring etc are complete */}
-      {hasSession && <PolicyUpdateOverlay />}
     </NavigationContent>
   )
 }

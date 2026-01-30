@@ -11,8 +11,6 @@ import {useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
 import {atoms as a, native} from '#/alf'
 import * as Admonition from '#/components/Admonition'
-import * as Dialog from '#/components/Dialog'
-import {DeviceLocationRequestDialog} from '#/components/dialogs/DeviceLocationRequestDialog'
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
 import {FormError} from '#/components/forms/FormError'
@@ -21,21 +19,9 @@ import * as TextField from '#/components/forms/TextField'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
-import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
-import {usePreemptivelyCompleteActivePolicyUpdate} from '#/components/PolicyUpdateOverlay/usePreemptivelyCompleteActivePolicyUpdate'
-import * as Toast from '#/components/Toast'
-import {
-  isUnderAge,
-  MIN_ACCESS_AGE,
-  useAgeAssuranceRegionConfigWithFallback,
-} from '#/ageAssurance/util'
+import {getAge} from '#/lib/strings/time'
 import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
-import {
-  useDeviceGeolocationApi,
-  useIsDeviceGeolocationGranted,
-} from '#/geolocation'
 import {BackNextButtons} from '../BackNextButtons'
 
 function sanitizeDate(date: Date): Date {
@@ -62,9 +48,6 @@ export function StepInfo({
   const {_} = useLingui()
   const ax = useAnalytics()
   const {state, dispatch} = useSignupContext()
-  const preemptivelyCompleteActivePolicyUpdate =
-    usePreemptivelyCompleteActivePolicyUpdate()
-
   const inviteCodeValueRef = useRef<string>(state.inviteCode)
   const emailValueRef = useRef<string>(state.email)
   const prevEmailValueRef = useRef<string>(state.email)
@@ -74,19 +57,12 @@ export function StepInfo({
   const passwordInputRef = useRef<TextInput>(null)
   const birthdateInputRef = useRef<DateFieldRef>(null)
 
-  const aaRegionConfig = useAgeAssuranceRegionConfigWithFallback()
-  const {setDeviceGeolocation} = useDeviceGeolocationApi()
-  const locationControl = Dialog.useDialogControl()
-  const isOverRegionMinAccessAge = state.dateOfBirth
-    ? !isUnderAge(state.dateOfBirth.toISOString(), aaRegionConfig.minAccessAge)
-    : true
   const isOverAppMinAccessAge = state.dateOfBirth
-    ? !isUnderAge(state.dateOfBirth.toISOString(), MIN_ACCESS_AGE)
+    ? getAge(state.dateOfBirth) >= 13
     : true
   const isOverMinAdultAge = state.dateOfBirth
-    ? !isUnderAge(state.dateOfBirth.toISOString(), 18)
+    ? getAge(state.dateOfBirth) >= 18
     : true
-  const isDeviceGeolocationGranted = useIsDeviceGeolocationGranted()
 
   const [hasWarnedEmail, setHasWarnedEmail] = React.useState<boolean>(false)
 
@@ -107,7 +83,7 @@ export function StepInfo({
     const emailChanged = prevEmailValueRef.current !== email
     const password = passwordValueRef.current
 
-    if (!isOverRegionMinAccessAge) {
+    if (!isOverAppMinAccessAge) {
       return
     }
 
@@ -162,7 +138,6 @@ export function StepInfo({
       })
     }
 
-    preemptivelyCompleteActivePolicyUpdate()
     dispatch({type: 'setInviteCode', value: inviteCode})
     dispatch({type: 'setEmail', value: email})
     dispatch({type: 'setPassword', value: password})
@@ -305,42 +280,17 @@ export function StepInfo({
             <View style={[a.gap_sm]}>
               <Policies serviceDescription={state.serviceDescription} />
 
-              {!isOverRegionMinAccessAge || !isOverAppMinAccessAge ? (
+              {!isOverAppMinAccessAge ? (
                 <Admonition.Outer type="error">
                   <Admonition.Row>
                     <Admonition.Icon />
                     <Admonition.Content>
                       <Admonition.Text>
-                        {!isOverAppMinAccessAge ? (
-                          <Trans>
-                            You must be {MIN_ACCESS_AGE} years of age or older
-                            to create an account.
-                          </Trans>
-                        ) : (
-                          <Trans>
-                            You must be {aaRegionConfig.minAccessAge} years of
-                            age or older to create an account in your region.
-                          </Trans>
-                        )}
+                        <Trans>
+                          You must be 13 years of age or older to create an
+                          account.
+                        </Trans>
                       </Admonition.Text>
-                      {IS_NATIVE &&
-                        !isDeviceGeolocationGranted &&
-                        isOverAppMinAccessAge && (
-                          <Admonition.Text>
-                            <Trans>
-                              Have we got your location wrong?{' '}
-                              <SimpleInlineLinkText
-                                label={_(
-                                  msg`Tap here to confirm your location with GPS.`,
-                                )}
-                                {...createStaticClick(() => {
-                                  locationControl.open()
-                                })}>
-                                Tap here to confirm your location with GPS.
-                              </SimpleInlineLinkText>
-                            </Trans>
-                          </Admonition.Text>
-                        )}
                     </Admonition.Content>
                   </Admonition.Row>
                 </Admonition.Outer>
@@ -355,25 +305,11 @@ export function StepInfo({
               ) : undefined}
             </View>
 
-            {IS_NATIVE && (
-              <DeviceLocationRequestDialog
-                control={locationControl}
-                onLocationAcquired={props => {
-                  props.closeDialog(() => {
-                    // set this after close!
-                    setDeviceGeolocation(props.geolocation)
-                    Toast.show(_(msg`Your location has been updated.`), {
-                      type: 'success',
-                    })
-                  })
-                }}
-              />
-            )}
           </>
         ) : undefined}
       </View>
       <BackNextButtons
-        hideNext={!isOverRegionMinAccessAge}
+        hideNext={!isOverAppMinAccessAge}
         showRetry={isServerError}
         isLoading={state.isLoading}
         onBackPress={onPressBack}

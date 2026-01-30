@@ -3,7 +3,6 @@ import {type OutputSchema} from '@atproto/api/dist/client/types/com/atproto/serv
 import {type OAuthSession} from '@atproto/oauth-client-browser'
 
 import {BLUESKY_PROXY_HEADER, BSKY_SERVICE} from '#/lib/constants'
-import {tryFetchGates} from '#/lib/statsig/statsig'
 import {logger} from '#/logger'
 import {sessionAccountToSession} from './agent'
 import {configureModerationForAccount} from './moderation'
@@ -16,7 +15,7 @@ export async function oauthCreateAgent(session: OAuthSession) {
     agent,
     session,
   )
-  const gates = tryFetchGates(session.did, 'prefer-fresh-gates')
+  const gates = Promise.resolve()
   const moderation = configureModerationForAccount(agent, account)
   return agent.prepare(account, gates, moderation)
 }

@@ -32,7 +32,6 @@ import {InlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {useGeolocation} from '#/geolocation'
 import {isFindContactsFeatureEnabled} from '../country-allowlist'
 import {
   constructFullPhoneNumber,
@@ -56,9 +55,8 @@ export function PhoneInput({
   const ax = useAnalytics()
   const t = useTheme()
   const agent = useAgent()
-  const location = useGeolocation()
   const [countryCode, setCountryCode] = useState(
-    () => state.phoneCountryCode ?? getDefaultCountry(location),
+    () => state.phoneCountryCode ?? getDefaultCountry(),
   )
   const [phoneNumber, setPhoneNumber] = useState(state.phoneNumber ?? '')
   const gutters = useGutters([0, 'wide'])
