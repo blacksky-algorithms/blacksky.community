@@ -5,8 +5,6 @@ import {useLingui} from '@lingui/react'
 
 import {urls} from '#/lib/constants'
 import {getUserDisplayName} from '#/lib/getUserDisplayName'
-import {logger} from '#/logger'
-import {useBlackskyVerificationEnabled} from '#/state/preferences/blacksky-verification'
 import {useSession} from '#/state/session'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -15,6 +13,7 @@ import {VerifierCheck} from '#/components/icons/VerifierCheck'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {type FullVerificationState} from '#/components/verification'
+import {useAnalytics} from '#/analytics'
 import type * as bsky from '#/types/bsky'
 
 export {useDialogControl} from '#/components/Dialog'
@@ -50,6 +49,7 @@ function Inner({
   verificationState: FullVerificationState
 }) {
   const t = useTheme()
+  const ax = useAnalytics()
   const {_} = useLingui()
   const {gtMobile} = useBreakpoints()
   const {currentAccount} = useSession()
@@ -60,8 +60,6 @@ function Inner({
     ? _(msg`You are a trusted verifier`)
     : _(msg`${userName} is a trusted verifier`)
 
-  const blackskyVerificationEnabled = useBlackskyVerificationEnabled()
-
   return (
     <Dialog.ScrollableInner
       label={label}
@@ -69,32 +67,31 @@ function Inner({
         gtMobile ? {width: 'auto', maxWidth: 400, minWidth: 200} : a.w_full,
       ]}>
       <View style={[a.gap_lg]}>
-        {!blackskyVerificationEnabled && (
-          <View
+        <View
+          style={[
+            a.w_full,
+            a.rounded_md,
+            a.overflow_hidden,
+            t.atoms.bg_contrast_25,
+            {minHeight: 100},
+          ]}>
+          <Image
+            accessibilityIgnoresInvertColors
+            source={require('../../../assets/images/initial_verification_announcement_1.png')}
             style={[
-              a.w_full,
-              a.rounded_md,
-              a.overflow_hidden,
-              t.atoms.bg_contrast_25,
-              {minHeight: 100},
-            ]}>
-            <Image
-              accessibilityIgnoresInvertColors
-              source={require('../../../assets/images/initial_verification_announcement_1.png')}
-              style={[
-                {
-                  aspectRatio: 353 / 160,
-                },
-              ]}
-              alt={_(
-                msg`An illustration showing that Blacksky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
-              )}
-            />
-          </View>
-        )}
+              {
+                aspectRatio: 353 / 160,
+              },
+            ]}
+            alt={_(
+              msg`An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
+            )}
+          />
+        </View>
 
         <View style={[a.gap_sm]}>
-          <Text style={[a.text_2xl, a.font_bold, a.pr_4xl, a.leading_tight]}>
+          <Text
+            style={[a.text_2xl, a.font_semi_bold, a.pr_4xl, a.leading_tight]}>
             {label}
           </Text>
           <Text style={[a.text_md, a.leading_snug]}>
@@ -103,8 +100,8 @@ function Inner({
               <RNText>
                 <VerifierCheck width={14} />
               </RNText>{' '}
-              can verify others. These trusted verifiers are selected by{' '}
-              {blackskyVerificationEnabled ? 'you' : 'Bluesky'}.
+              can verify others. These trusted verifiers are selected by
+              Bluesky.
             </Trans>
           </Text>
         </View>
@@ -121,7 +118,7 @@ function Inner({
             to={urls.website.blog.initialVerificationAnnouncement}
             label={_(
               msg({
-                message: `Learn more about verification on Blacksky`,
+                message: `Learn more about verification on Bluesky`,
                 context: `english-only-resource`,
               }),
             )}
@@ -130,13 +127,9 @@ function Inner({
             color="primary"
             style={[a.justify_center]}
             onPress={() => {
-              logger.metric(
-                'verification:learn-more',
-                {
-                  location: 'verifierDialog',
-                },
-                {statsig: true},
-              )
+              ax.metric('verification:learn-more', {
+                location: 'verifierDialog',
+              })
             }}>
             <ButtonText>
               <Trans context="english-only-resource">Learn more</Trans>

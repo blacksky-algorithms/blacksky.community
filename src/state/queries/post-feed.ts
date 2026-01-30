@@ -15,7 +15,7 @@ import {
   type QueryClient,
   type QueryKey,
   useInfiniteQuery,
-} from './useQueryWithFallback'
+} from '@tanstack/react-query'
 
 import {AuthorFeedAPI} from '#/lib/api/feed/author'
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
@@ -30,7 +30,6 @@ import {type FeedAPI, type ReasonFeedSource} from '#/lib/api/feed/types'
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
 import {FeedTuner, type FeedTunerFn} from '#/lib/api/feed-manip'
 import {DISCOVER_FEED_URI} from '#/lib/constants'
-import {BSKY_FEED_OWNER_DIDS} from '#/lib/constants'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences/const'
@@ -39,7 +38,6 @@ import * as userActionHistory from '#/state/userActionHistory'
 import {KnownError} from '#/view/com/posts/PostFeedErrorMessage'
 import {useFeedTuners} from '../preferences/feed-tuners'
 import {useModerationOpts} from '../preferences/moderation-opts'
-import {useNoDiscoverFallback} from '../preferences/no-discover-fallback'
 import {usePreferencesQuery} from './preferences'
 import {
   didOrHandleUriMatches,
@@ -149,9 +147,7 @@ export function usePostFeedQuery(
     preferences?.savedFeeds?.findIndex(
       f => f.pinned && f.value === 'following',
     ) ?? -1
-  const noDiscoverFallback = useNoDiscoverFallback()
-  const enableFollowingToDiscoverFallback =
-    followingPinnedIndex === 0 && !noDiscoverFallback
+  const enableFollowingToDiscoverFallback = followingPinnedIndex === 0
   const agent = useAgent()
   const lastRun = useRef<{
     data: InfiniteData<FeedPageUnselected>
@@ -206,44 +202,27 @@ export function usePostFeedQuery(
             cursor: undefined,
           }
 
-      try {
-        const res = await api.fetch({cursor, limit: fetchLimit})
+      const res = await api.fetch({cursor, limit: fetchLimit})
 
-        /*
-         * If this is a public view, we need to check if posts fail moderation.
-         * If all fail, we throw an error. If only some fail, we continue and let
-         * moderations happen later, which results in some posts being shown and
-         * some not.
-         */
-        if (!agent.session) {
-          assertSomePostsPassModeration(
-            res.feed,
-            preferences?.moderationPrefs ||
-              DEFAULT_LOGGED_OUT_PREFERENCES.moderationPrefs,
-          )
-        }
+      /*
+       * If this is a public view, we need to check if posts fail moderation.
+       * If all fail, we throw an error. If only some fail, we continue and let
+       * moderations happen later, which results in some posts being shown and
+       * some not.
+       */
+      if (!agent.session) {
+        assertSomePostsPassModeration(
+          res.feed,
+          preferences?.moderationPrefs ||
+            DEFAULT_LOGGED_OUT_PREFERENCES.moderationPrefs,
+        )
+      }
 
-        return {
-          api,
-          cursor: res.cursor,
-          feed: res.feed,
-          fetchedAt: Date.now(),
-        }
-      } catch (e) {
-        const feedDescParts = feedDesc.split('|')
-        const feedOwnerDid = new AtUri(feedDescParts[1]).hostname
-
-        if (
-          feedDescParts[0] === 'feedgen' &&
-          BSKY_FEED_OWNER_DIDS.includes(feedOwnerDid)
-        ) {
-          logger.error(`Blacksky feed may be offline: ${feedOwnerDid}`, {
-            feedDesc,
-            jsError: e,
-          })
-        }
-
-        throw e
+      return {
+        api,
+        cursor: res.cursor,
+        feed: res.feed,
+        fetchedAt: Date.now(),
       }
     },
     initialPageParam: undefined,
@@ -381,11 +360,6 @@ export function usePostFeedQuery(
       },
       [selectArgs /* Don't change. Everything needs to go into selectArgs. */],
     ),
-    enableFallback: feedDesc.startsWith('author'),
-    fallbackType: 'feed',
-    fallbackIdentifier: feedDesc.startsWith('author|')
-      ? feedDesc.split('|')[1]
-      : undefined,
   })
 
   // The server may end up returning an empty page, a page with too few items,
@@ -495,23 +469,23 @@ function createApi({
       }
     }
   } else if (feedDesc.startsWith('author')) {
-    const [_, actor, filter] = feedDesc.split('|')
+    const [__, actor, filter] = feedDesc.split('|')
     return new AuthorFeedAPI({agent, feedParams: {actor, filter}})
   } else if (feedDesc.startsWith('likes')) {
-    const [_, actor] = feedDesc.split('|')
+    const [__, actor] = feedDesc.split('|')
     return new LikesFeedAPI({agent, feedParams: {actor}})
   } else if (feedDesc.startsWith('feedgen')) {
-    const [_, feed] = feedDesc.split('|')
+    const [__, feed] = feedDesc.split('|')
     return new CustomFeedAPI({
       agent,
       feedParams: {feed},
       userInterests,
     })
   } else if (feedDesc.startsWith('list')) {
-    const [_, list] = feedDesc.split('|')
+    const [__, list] = feedDesc.split('|')
     return new ListFeedAPI({agent, feedParams: {list}})
   } else if (feedDesc.startsWith('posts')) {
-    const [_, uriList] = feedDesc.split('|')
+    const [__, uriList] = feedDesc.split('|')
     return new PostListFeedAPI({agent, feedParams: {uris: uriList.split(',')}})
   } else if (feedDesc === 'demo') {
     return new DemoFeedAPI({agent})

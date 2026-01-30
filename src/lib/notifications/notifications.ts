@@ -5,12 +5,17 @@ import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
 import {type AppBskyNotificationRegisterPush, type AtpAgent} from '@atproto/api'
 import debounce from 'lodash.debounce'
 
-import {PUBLIC_APPVIEW_DID, PUBLIC_STAGING_APPVIEW_DID} from '#/lib/constants'
+import {
+  BLUESKY_NOTIF_SERVICE_HEADERS,
+  PUBLIC_APPVIEW_DID,
+  PUBLIC_STAGING_APPVIEW_DID,
+} from '#/lib/constants'
 import {logger as notyLogger} from '#/lib/notifications/util'
-import {isNative} from '#/platform/detection'
+import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, useAgent, useSession} from '#/state/session'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
-import {IS_DEV} from '#/env'
+import {useAnalytics} from '#/analytics'
+import {IS_DEV, IS_NATIVE} from '#/env'
 
 /**
  * @private
@@ -36,17 +41,21 @@ async function _registerPushToken({
         : PUBLIC_APPVIEW_DID,
       platform: Platform.OS,
       token: token.data,
-      appId: 'community.blacksky',
+      appId: 'xyz.blueskyweb.app',
       ageRestricted: extra.ageRestricted ?? false,
     }
 
     notyLogger.debug(`registerPushToken: registering`, {...payload})
 
-    await agent.app.bsky.notification.registerPush(payload)
+    await agent.app.bsky.notification.registerPush(payload, {
+      headers: BLUESKY_NOTIF_SERVICE_HEADERS,
+    })
 
     notyLogger.debug(`registerPushToken: success`)
   } catch (error) {
-    notyLogger.error(`registerPushToken: failed`, {safeMessage: error})
+    if (!isNetworkError(error)) {
+      notyLogger.error(`registerPushToken: failed`, {safeMessage: error})
+    }
   }
 }
 
@@ -68,12 +77,21 @@ export function useRegisterPushToken() {
   const {currentAccount} = useSession()
 
   return useCallback(
-    ({token}: {token: Notifications.DevicePushToken}) => {
+    ({
+      token,
+      isAgeRestricted,
+    }: {
+      token: Notifications.DevicePushToken
+      isAgeRestricted: boolean
+    }) => {
       if (!currentAccount) return
       return _registerPushTokenDebounced({
         agent,
         currentAccount,
         token,
+        extra: {
+          ageRestricted: isAgeRestricted,
+        },
       })
     },
     [agent, currentAccount],
@@ -113,29 +131,39 @@ async function getPushToken() {
  */
 export function useGetAndRegisterPushToken() {
   const registerPushToken = useRegisterPushToken()
-  return useCallback(async () => {
-    if (!isNative || IS_DEV) return
+  return useCallback(
+    async ({
+      isAgeRestricted: isAgeRestrictedOverride,
+    }: {
+      isAgeRestricted?: boolean
+    } = {}) => {
+      if (!IS_NATIVE || IS_DEV) return
 
-    /**
-     * This will also fire the listener added via `addPushTokenListener`. That
-     * listener also handles registration.
-     */
-    const token = await getPushToken()
-
-    notyLogger.debug(`useGetAndRegisterPushToken`, {
-      token: token ?? 'undefined',
-    })
-
-    if (token) {
       /**
-       * The listener should have registered the token already, but just in
-       * case, call the debounced function again.
+       * This will also fire the listener added via `addPushTokenListener`. That
+       * listener also handles registration.
        */
-      registerPushToken({token})
-    }
+      const token = await getPushToken()
 
-    return token
-  }, [registerPushToken])
+      notyLogger.debug(`useGetAndRegisterPushToken`, {
+        token: token ?? 'undefined',
+      })
+
+      if (token) {
+        /**
+         * The listener should have registered the token already, but just in
+         * case, call the debounced function again.
+         */
+        registerPushToken({
+          token,
+          isAgeRestricted: isAgeRestrictedOverride ?? false,
+        })
+      }
+
+      return token
+    },
+    [registerPushToken],
+  )
 }
 
 /**
@@ -180,7 +208,10 @@ export function useNotificationsRegistration() {
      * @see https://docs.expo.dev/versions/latest/sdk/notifications/#addpushtokenlistenerlistener
      */
     const subscription = Notifications.addPushTokenListener(async token => {
-      registerPushToken({token})
+      registerPushToken({
+        token,
+        isAgeRestricted: false,
+      })
       notyLogger.debug(`addPushTokenListener callback`, {token})
     })
 
@@ -191,6 +222,7 @@ export function useNotificationsRegistration() {
 }
 
 export function useRequestNotificationsPermission() {
+  const ax = useAnalytics()
   const {currentAccount} = useSession()
   const getAndRegisterPushToken = useGetAndRegisterPushToken()
 
@@ -200,7 +232,7 @@ export function useRequestNotificationsPermission() {
     const permissions = await Notifications.getPermissionsAsync()
 
     if (
-      !isNative ||
+      !IS_NATIVE ||
       permissions?.status === 'granted' ||
       (permissions?.status === 'denied' && !permissions.canAskAgain)
     ) {
@@ -215,7 +247,7 @@ export function useRequestNotificationsPermission() {
 
     const res = await Notifications.requestPermissionsAsync()
 
-    notyLogger.metric(`notifications:request`, {
+    ax.metric(`notifications:request`, {
       context: context,
       status: res.status,
     })
@@ -241,7 +273,7 @@ export function useRequestNotificationsPermission() {
 }
 
 export async function decrementBadgeCount(by: number) {
-  if (!isNative) return
+  if (!IS_NATIVE) return
 
   let count = await getBadgeCountAsync()
   count -= by
@@ -256,4 +288,34 @@ export async function decrementBadgeCount(by: number) {
 export async function resetBadgeCount() {
   await BackgroundNotificationHandler.setBadgeCountAsync(0)
   await setBadgeCountAsync(0)
+}
+
+export async function unregisterPushToken(agents: AtpAgent[]) {
+  if (!IS_NATIVE) return
+
+  try {
+    const token = await getPushToken()
+    if (token) {
+      for (const agent of agents) {
+        await agent.app.bsky.notification.unregisterPush(
+          {
+            serviceDid: agent.serviceUrl.hostname.includes('staging')
+              ? PUBLIC_STAGING_APPVIEW_DID
+              : PUBLIC_APPVIEW_DID,
+            platform: Platform.OS,
+            token: token.data,
+            appId: 'xyz.blueskyweb.app',
+          },
+          {
+            headers: BLUESKY_NOTIF_SERVICE_HEADERS,
+          },
+        )
+        notyLogger.debug(`Push token unregistered for ${agent.session?.handle}`)
+      }
+    } else {
+      notyLogger.debug('Tried to unregister push token, but could not find one')
+    }
+  } catch (error) {
+    notyLogger.debug('Failed to unregister push token', {message: error})
+  }
 }

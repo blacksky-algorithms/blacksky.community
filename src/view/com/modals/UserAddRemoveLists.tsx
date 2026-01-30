@@ -1,5 +1,10 @@
 import React, {useCallback} from 'react'
-import {StyleSheet, useWindowDimensions, View} from 'react-native'
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import {type AppBskyGraphDefs as GraphDefs} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -9,7 +14,6 @@ import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {cleanError} from '#/lib/strings/errors'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {s} from '#/lib/styles'
-import {isAndroid, isMobileWeb, isWeb} from '#/platform/detection'
 import {useModalControls} from '#/state/modals'
 import {
   getMembership,
@@ -19,7 +23,7 @@ import {
   useListMembershipRemoveMutation,
 } from '#/state/queries/list-memberships'
 import {useSession} from '#/state/session'
-import {CustomActivityIndicator} from '#/components/CustomActivityIndicator.tsx'
+import {IS_ANDROID, IS_WEB, IS_WEB_MOBILE} from '#/env'
 import {MyLists} from '../lists/MyLists'
 import {Button} from '../util/forms/Button'
 import {Text} from '../util/text/Text'
@@ -52,9 +56,9 @@ export function Component({
   }, [closeModal])
 
   const listStyle = React.useMemo(() => {
-    if (isMobileWeb) {
+    if (IS_WEB_MOBILE) {
       return [pal.border, {height: screenHeight / 2}]
-    } else if (isWeb) {
+    } else if (IS_WEB) {
       return [pal.border, {height: screenHeight / 1.5}]
     }
 
@@ -223,7 +227,7 @@ function ListItem({
       </View>
       <View>
         {isProcessing || typeof membership === 'undefined' ? (
-          <CustomActivityIndicator />
+          <ActivityIndicator />
         ) : (
           <Button
             testID={`user-${handle}-addBtn`}
@@ -239,7 +243,7 @@ function ListItem({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: isWeb ? 0 : 16,
+    paddingHorizontal: IS_WEB ? 0 : 16,
   },
   btns: {
     position: 'relative',
@@ -248,7 +252,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     paddingTop: 10,
-    paddingBottom: isAndroid ? 10 : 0,
+    paddingBottom: IS_ANDROID ? 10 : 0,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   footerBtn: {

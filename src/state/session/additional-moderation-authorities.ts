@@ -1,7 +1,6 @@
 import {BskyAgent} from '@atproto/api'
 
 import {logger} from '#/logger'
-import {device} from '#/storage'
 
 export const BR_LABELER = 'did:plc:ekitcvx7uwnauoqy5oest3hm' // Brazil
 export const DE_LABELER = 'did:plc:r55ow3tocux5kafs5dq445fy' // Germany
@@ -72,16 +71,8 @@ export function isNonConfigurableModerationAuthority(did: string) {
 }
 
 export function configureAdditionalModerationAuthorities() {
-  const geolocation = device.get(['geolocation'])
-  // default to all
+  // Without geolocation, default to all moderation authorities
   let additionalLabelers: string[] = MODERATION_AUTHORITIES_DIDS
-
-  if (geolocation?.countryCode) {
-    // overwrite with only those necessary
-    additionalLabelers = MODERATION_AUTHORITIES[geolocation.countryCode] ?? []
-  } else {
-    logger.info(`no geolocation, cannot apply mod authorities`)
-  }
 
   if (__DEV__) {
     additionalLabelers = []

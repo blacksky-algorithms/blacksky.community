@@ -9,11 +9,8 @@ import {
   getAppLanguageAsContentLanguage,
   getContentLanguages,
 } from '#/state/preferences/languages'
-import {ALT_PROXY_DID} from '#/env'
 import {type FeedAPI, type FeedAPIResponse} from './types'
 import {createBskyTopicsHeader, isBlueskyOwnedFeed} from './utils'
-
-const PROXY_TO_BLUESKY = `${ALT_PROXY_DID}#bsky_appview`
 
 export class CustomFeedAPI implements FeedAPI {
   agent: BskyAgent
@@ -36,21 +33,12 @@ export class CustomFeedAPI implements FeedAPI {
 
   async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
     const contentLangs = getContentLanguages().join(',')
-    const needsProxy = this.params.feed.includes(
-      'did:plc:qrz3lhbyuxbeilrc6nekdqme',
-    )
-
     const res = await this.agent.app.bsky.feed.getFeed(
       {
         ...this.params,
         limit: 1,
       },
-      {
-        headers: {
-          'Accept-Language': contentLangs,
-          ...(needsProxy ? {'atproto-proxy': PROXY_TO_BLUESKY} : {}),
-        },
-      },
+      {headers: {'Accept-Language': contentLangs}},
     )
     return res.data.feed[0]
   }
@@ -65,9 +53,6 @@ export class CustomFeedAPI implements FeedAPI {
     const contentLangs = getContentLanguages().join(',')
     const agent = this.agent
     const isBlueskyOwned = isBlueskyOwnedFeed(this.params.feed)
-    const needsProxy = this.params.feed.includes(
-      'did:plc:qrz3lhbyuxbeilrc6nekdqme',
-    )
 
     const res = agent.did
       ? await this.agent.app.bsky.feed.getFeed(
@@ -82,7 +67,6 @@ export class CustomFeedAPI implements FeedAPI {
                 ? createBskyTopicsHeader(this.userInterests)
                 : {}),
               'Accept-Language': contentLangs,
-              ...(needsProxy ? {'atproto-proxy': PROXY_TO_BLUESKY} : {}),
             },
           },
         )
@@ -136,7 +120,7 @@ async function loggedOutFetch({
 
   // manually construct fetch call so we can add the `lang` cache-busting param
   let res = await fetch(
-    `https://api.blacksky.community/xrpc/app.bsky.feed.getFeed?feed=${feed}${
+    `https://api.bsky.app/xrpc/app.bsky.feed.getFeed?feed=${feed}${
       cursor ? `&cursor=${cursor}` : ''
     }&limit=${limit}&lang=${contentLangs}`,
     {
@@ -156,7 +140,7 @@ async function loggedOutFetch({
 
   // no data, try again with language headers removed
   res = await fetch(
-    `https://api.blacksky.community/xrpc/app.bsky.feed.getFeed?feed=${feed}${
+    `https://api.bsky.app/xrpc/app.bsky.feed.getFeed?feed=${feed}${
       cursor ? `&cursor=${cursor}` : ''
     }&limit=${limit}`,
     {method: 'GET', headers: {'Accept-Language': '', ...labelersHeader}},

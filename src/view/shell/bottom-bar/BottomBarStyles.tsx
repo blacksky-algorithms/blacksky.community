@@ -2,7 +2,6 @@ import {StyleSheet} from 'react-native'
 
 import {colors} from '#/lib/styles'
 import {atoms as a} from '#/alf'
-import {BRAND} from '#/alf/themes.ts'
 
 export const styles = StyleSheet.create({
   bottomBar: {
@@ -25,7 +24,6 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     left: '52%',
     top: 8,
-    backgroundColor: BRAND.primaryLight,
     paddingHorizontal: 4,
     paddingBottom: 1,
     borderRadius: 6,
@@ -35,12 +33,6 @@ export const styles = StyleSheet.create({
     paddingTop: 3,
     paddingBottom: 3,
     borderRadius: 12,
-  },
-  notificationCountLight: {
-    borderColor: colors.white,
-  },
-  notificationCountDark: {
-    borderColor: colors.gray8,
   },
   notificationCountLabel: {
     fontSize: 12,

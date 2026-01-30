@@ -7,8 +7,6 @@ import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
 import {PressableScale} from '#/lib/custom-animations/PressableScale'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
-import {useGate} from '#/lib/statsig/statsig'
-import {isAndroid} from '#/platform/detection'
 import {AppIconImage} from '#/screens/Settings/AppIconSettings/AppIconImage'
 import {type AppIconSet} from '#/screens/Settings/AppIconSettings/types'
 import {useAppIconSets} from '#/screens/Settings/AppIconSettings/useAppIconSets'
@@ -16,23 +14,20 @@ import {atoms as a, useTheme} from '#/alf'
 import * as Toggle from '#/components/forms/Toggle'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
-import {IS_INTERNAL} from '#/env'
+import {IS_ANDROID, IS_INTERNAL} from '#/env'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'AppIconSettings'>
 export function AppIconSettingsScreen({}: Props) {
   const t = useTheme()
   const {_} = useLingui()
   const sets = useAppIconSets()
-  const gate = useGate()
   const [currentAppIcon, setCurrentAppIcon] = useState(() =>
     getAppIconName(DynamicAppIcon.getAppIcon()),
   )
 
   const onSetAppIcon = (icon: DynamicAppIcon.IconName) => {
-    if (isAndroid) {
-      const next =
-        sets.defaults.find(i => i.id === icon) ??
-        sets.core.find(i => i.id === icon)
+    if (IS_ANDROID) {
+      const next = sets.defaults.find(i => i.id === icon)
       Alert.alert(
         next
           ? _(msg`Change app icon to "${next.name}"`)
@@ -86,34 +81,7 @@ export function AppIconSettingsScreen({}: Props) {
           ))}
         </Group>
 
-        {IS_INTERNAL && gate('debug_subscriptions') && (
-          <>
-            <Text
-              style={[
-                a.text_md,
-                a.mt_xl,
-                a.mb_sm,
-                a.font_bold,
-                t.atoms.text_contrast_medium,
-              ]}>
-              <Trans>Blacksky+</Trans>
-            </Text>
-            <Group
-              label={_(msg`Blacksky+ icons`)}
-              value={currentAppIcon}
-              onChange={onSetAppIcon}>
-              {sets.core.map((icon, i) => (
-                <Row
-                  key={icon.id}
-                  icon={icon}
-                  isEnd={i === sets.core.length - 1}>
-                  <AppIcon icon={icon} key={icon.id} size={40} />
-                  <RowText>{icon.name}</RowText>
-                </Row>
-              ))}
-            </Group>
-          </>
-        )}
+        {/* Blacksky+ icons - coming soon */}
       </Layout.Content>
     </Layout.Screen>
   )
@@ -201,7 +169,12 @@ function RowText({children}: {children: React.ReactNode}) {
   const t = useTheme()
   return (
     <Text
-      style={[a.text_md, a.font_bold, a.flex_1, t.atoms.text_contrast_medium]}
+      style={[
+        a.text_md,
+        a.font_semi_bold,
+        a.flex_1,
+        t.atoms.text_contrast_medium,
+      ]}
       emoji>
       {children}
     </Text>
@@ -216,7 +189,7 @@ function AppIcon({icon, size = 50}: {icon: AppIconSet; size: number}) {
       accessibilityHint={_(msg`Changes app icon`)}
       targetScale={0.95}
       onPress={() => {
-        if (isAndroid) {
+        if (IS_ANDROID) {
           Alert.alert(
             _(msg`Change app icon to "${icon.name}"`),
             _(msg`The app will be restarted`),

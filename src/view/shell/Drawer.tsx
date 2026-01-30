@@ -1,4 +1,4 @@
-import React, {type ComponentProps} from 'react'
+import React, {type ComponentProps, type JSX} from 'react'
 import {Linking, ScrollView, TouchableOpacity, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg, Plural, plural, Trans} from '@lingui/macro'
@@ -13,7 +13,6 @@ import {getTabState, TabState} from '#/lib/routes/helpers'
 import {type NavigationProp} from '#/lib/routes/types'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {colors} from '#/lib/styles'
-import {isWeb} from '#/platform/detection'
 import {emitSoftReset} from '#/state/events'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
@@ -40,8 +39,10 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
+import {
+  MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled,
+  MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlass,
+} from '#/components/icons/MagnifyingGlass'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
@@ -55,6 +56,7 @@ import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
+import {IS_WEB} from '#/env'
 
 const iconWidth = 26
 
@@ -90,7 +92,7 @@ let DrawerProfileCard = ({
         <View style={[a.flex_row, a.align_center, a.gap_xs, a.flex_1]}>
           <Text
             emoji
-            style={[a.font_heavy, a.text_xl, a.mt_2xs, a.leading_tight]}
+            style={[a.font_bold, a.text_xl, a.mt_2xs, a.leading_tight]}
             numberOfLines={1}>
             {profile?.displayName || account.handle}
           </Text>
@@ -115,7 +117,7 @@ let DrawerProfileCard = ({
       </View>
       <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
         <Trans>
-          <Text style={[a.text_md, a.font_bold]}>
+          <Text style={[a.text_md, a.font_semi_bold]}>
             {formatCount(i18n, profile?.followersCount ?? 0)}
           </Text>{' '}
           <Plural
@@ -126,7 +128,7 @@ let DrawerProfileCard = ({
         </Trans>{' '}
         &middot;{' '}
         <Trans>
-          <Text style={[a.text_md, a.font_bold]}>
+          <Text style={[a.text_md, a.font_semi_bold]}>
             {formatCount(i18n, profile?.followsCount ?? 0)}
           </Text>{' '}
           <Plural
@@ -165,7 +167,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     (tab: 'Home' | 'Search' | 'Messages' | 'Notifications' | 'MyProfile') => {
       const state = navigation.getState()
       setDrawerOpen(false)
-      if (isWeb) {
+      if (IS_WEB) {
         // hack because we have flat navigator for web and MyProfile does not exist on the web navigator -ansh
         if (tab === 'MyProfile') {
           navigation.navigate('Profile', {name: currentAccount!.handle})
@@ -512,10 +514,10 @@ let NotificationsMenuItem = ({
         numUnreadNotifications === ''
           ? ''
           : _(
-              msg`${plural(numUnreadNotifications ?? 0, {
+              plural(numUnreadNotifications ?? 0, {
                 one: '# unread item',
                 other: '# unread items',
-              })}` || '',
+              }),
             )
       }
       count={numUnreadNotifications}
@@ -673,7 +675,7 @@ function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
                     style={[
                       a.text_xs,
                       a.leading_tight,
-                      a.font_bold,
+                      a.font_semi_bold,
                       {
                         fontVariant: ['tabular-nums'],
                         color: colors.white,
@@ -690,7 +692,7 @@ function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
             style={[
               a.flex_1,
               a.text_2xl,
-              bold && a.font_heavy,
+              bold && a.font_bold,
               web(a.leading_snug),
             ]}
             numberOfLines={1}>

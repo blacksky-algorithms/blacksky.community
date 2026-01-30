@@ -3,14 +3,11 @@ import {AtUri} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
-import type React from 'react'
 
 import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {shareText, shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
-import {logger} from '#/logger'
-import {isWeb} from '#/platform/detection'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useSession} from '#/state/session'
 import {useBreakpoints} from '#/alf'
@@ -22,6 +19,8 @@ import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/i
 import {CodeBrackets_Stroke2_Corner0_Rounded as CodeBracketsIcon} from '#/components/icons/CodeBrackets'
 import {PaperPlane_Stroke2_Corner0_Rounded as Send} from '#/components/icons/PaperPlane'
 import * as Menu from '#/components/Menu'
+import {useAnalytics} from '#/analytics'
+import {IS_WEB} from '#/env'
 import {useDevMode} from '#/storage/hooks/dev-mode'
 import {type ShareMenuItemsProps} from './ShareMenuItems.types'
 
@@ -31,6 +30,7 @@ let ShareMenuItems = ({
   timestamp,
   onShare: onShareProp,
 }: ShareMenuItemsProps): React.ReactNode => {
+  const ax = useAnalytics()
   const {hasSession} = useSession()
   const {gtMobile} = useBreakpoints()
   const {_} = useLingui()
@@ -55,21 +55,21 @@ let ShareMenuItems = ({
   }, [postAuthor])
 
   const onCopyLink = () => {
-    logger.metric('share:press:copyLink', {}, {statsig: true})
+    ax.metric('share:press:copyLink', {})
     const url = toShareUrl(href)
     shareUrl(url)
     onShareProp()
   }
 
   const onSelectChatToShareTo = (conversation: string) => {
-    logger.metric('share:press:dmSelected', {}, {statsig: true})
+    ax.metric('share:press:dmSelected', {})
     navigation.navigate('MessagesConversation', {
       conversation,
       embed: postUri,
     })
   }
 
-  const canEmbed = isWeb && gtMobile && !hideInPWI
+  const canEmbed = IS_WEB && gtMobile && !hideInPWI
 
   const onShareATURI = () => {
     shareText(postUri)
@@ -101,7 +101,7 @@ let ShareMenuItems = ({
             testID="postDropdownSendViaDMBtn"
             label={_(msg`Send via direct message`)}
             onPress={() => {
-              logger.metric('share:press:openDmSearch', {}, {statsig: true})
+              ax.metric('share:press:openDmSearch', {})
               sendViaChatControl.open()
             }}>
             <Menu.ItemText>
@@ -116,7 +116,7 @@ let ShareMenuItems = ({
             testID="postDropdownEmbedBtn"
             label={_(msg`Embed post`)}
             onPress={() => {
-              logger.metric('share:press:embed', {}, {statsig: true})
+              ax.metric('share:press:embed', {})
               embedPostControl.open()
             }}>
             <Menu.ItemText>{_(msg`Embed post`)}</Menu.ItemText>

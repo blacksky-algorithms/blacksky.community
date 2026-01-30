@@ -5,7 +5,6 @@ import {useLingui} from '@lingui/react'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
 import {type CommonNavigatorParams} from '#/lib/routes/types'
-import {isNative} from '#/platform/detection'
 import {useUpdateActorDeclaration} from '#/state/queries/messages/actor-declaration'
 import {useProfileQuery} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
@@ -16,6 +15,7 @@ import {Divider} from '#/components/Divider'
 import * as Toggle from '#/components/forms/Toggle'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+import {IS_NATIVE} from '#/env'
 import {useBackgroundNotificationPreferences} from '../../../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 
 type AllowIncoming = 'all' | 'none' | 'following'
@@ -67,7 +67,7 @@ export function MessagesSettingsScreen({}: Props) {
       </Layout.Header.Outer>
       <Layout.Content>
         <View style={[a.p_lg, a.gap_md]}>
-          <Text style={[a.text_lg, a.font_bold]}>
+          <Text style={[a.text_lg, a.font_semi_bold]}>
             <Trans>Allow new messages from</Trans>
           </Text>
           <Toggle.Group
@@ -114,10 +114,10 @@ export function MessagesSettingsScreen({}: Props) {
               you choose.
             </Trans>
           </Admonition>
-          {isNative && (
+          {IS_NATIVE && (
             <>
               <Divider style={a.my_md} />
-              <Text style={[a.text_lg, a.font_bold]}>
+              <Text style={[a.text_lg, a.font_semi_bold]}>
                 <Trans>Notification Sounds</Trans>
               </Text>
               <Toggle.Group
