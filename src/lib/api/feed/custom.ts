@@ -10,7 +10,11 @@ import {
   getContentLanguages,
 } from '#/state/preferences/languages'
 import {type FeedAPI, type FeedAPIResponse} from './types'
-import {createBskyTopicsHeader, isBlueskyOwnedFeed} from './utils'
+import {
+  createBskyTopicsHeader,
+  getProxyHeadersForFeed,
+  isBlueskyOwnedFeed,
+} from './utils'
 
 export class CustomFeedAPI implements FeedAPI {
   agent: BskyAgent
@@ -38,7 +42,12 @@ export class CustomFeedAPI implements FeedAPI {
         ...this.params,
         limit: 1,
       },
-      {headers: {'Accept-Language': contentLangs}},
+      {
+        headers: {
+          ...getProxyHeadersForFeed(this.params.feed),
+          'Accept-Language': contentLangs,
+        },
+      },
     )
     return res.data.feed[0]
   }
@@ -63,6 +72,7 @@ export class CustomFeedAPI implements FeedAPI {
           },
           {
             headers: {
+              ...getProxyHeadersForFeed(this.params.feed),
               ...(isBlueskyOwned
                 ? createBskyTopicsHeader(this.userInterests)
                 : {}),

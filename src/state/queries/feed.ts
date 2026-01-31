@@ -20,6 +20,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {getProxyHeadersForFeed} from '#/lib/api/feed/utils'
 import {DISCOVER_FEED_URI, DISCOVER_SAVED_FEED} from '#/lib/constants'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
@@ -27,7 +28,6 @@ import {STALE} from '#/state/queries'
 import {RQKEY as listQueryKey} from '#/state/queries/list'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useAgent, useSession} from '#/state/session'
-import {ALT_PROXY_DID} from '#/env'
 import {router} from '#/routes'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {type FeedDescriptor} from './post-feed'
@@ -171,15 +171,11 @@ export function getAvatarTypeFromUri(uri: string) {
   return getFeedTypeFromUri(uri) === 'feed' ? 'algo' : 'list'
 }
 
-const PROXY_TO_BLUESKY = `${ALT_PROXY_DID}#bsky_appview`
-
 export function useFeedSourceInfoQuery({uri}: {uri: string}) {
   const type = getFeedTypeFromUri(uri)
   const agent = useAgent()
 
-  // Check if this is a trending feed that needs proxying
-  const needsProxy = uri.includes('did:plc:qrz3lhbyuxbeilrc6nekdqme')
-  const headers = needsProxy ? {'atproto-proxy': PROXY_TO_BLUESKY} : {}
+  const headers = getProxyHeadersForFeed(uri)
 
   return useQuery({
     staleTime: STALE.INFINITY,
