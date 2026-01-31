@@ -32,7 +32,7 @@ export interface DownloadAndResizeOpts {
 export async function downloadAndResize(opts: DownloadAndResizeOpts) {
   const controller = new AbortController()
   const to = setTimeout(() => controller.abort(), opts.timeout || 5e3)
-  const res = await fetch(opts.uri)
+  const res = await fetch(opts.uri, {signal: controller.signal})
   const resBody = await res.blob()
   clearTimeout(to)
 
