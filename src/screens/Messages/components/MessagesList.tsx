@@ -2,10 +2,12 @@ import {useCallback, useEffect, useRef, useState} from 'react'
 import {type LayoutChangeEvent, View} from 'react-native'
 import {useKeyboardHandler} from 'react-native-keyboard-controller'
 import Animated, {
+  interpolate,
   runOnJS,
   scrollTo,
   useAnimatedRef,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated'
 import {type ReanimatedScrollEvent} from 'react-native-reanimated/lib/typescript/hook/commonTypes'
@@ -36,6 +38,7 @@ import {
 } from '#/state/messages/convo/types'
 import {useGetPost} from '#/state/queries/post'
 import {useAgent} from '#/state/session'
+import {useMinimalShellMode} from '#/state/shell/minimal-mode'
 import {useShellLayout} from '#/state/shell/shell-layout'
 import {
   EmojiPicker,
@@ -50,8 +53,7 @@ import {MessageItem} from '#/components/dms/MessageItem'
 import {NewMessagesPill} from '#/components/dms/NewMessagesPill'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
-import {IS_NATIVE} from '#/env'
-import {IS_WEB} from '#/env'
+import {IS_NATIVE, IS_WEB} from '#/env'
 import {ChatStatusInfo} from './ChatStatusInfo'
 import {MessageInputEmbed, useMessageEmbed} from './MessageInputEmbed'
 
@@ -255,6 +257,14 @@ export function MessagesList({
 
   // -- Keyboard animation handling
   const {footerHeight} = useShellLayout()
+  const {footerMode} = useMinimalShellMode()
+
+  // When the bottom bar is hidden (minimal shell mode on mobile web), don't
+  // reserve space for it. Without this, the input translateY pulls it into
+  // the list area while the list marginBottom may not compensate on web.
+  const effectiveFooterHeight = useDerivedValue(() => {
+    return interpolate(footerMode.get(), [0, 1], [footerHeight.get(), 0])
+  })
 
   const keyboardHeight = useSharedValue(0)
   const keyboardIsOpening = useSharedValue(false)
@@ -279,29 +289,34 @@ export function MessagesList({
       onMove: e => {
         'worklet'
         keyboardHeight.set(e.height)
-        if (e.height > footerHeight.get()) {
+        if (e.height > effectiveFooterHeight.get()) {
           scrollTo(flatListRef, 0, 1e7, false)
         }
       },
       onEnd: e => {
         'worklet'
         keyboardHeight.set(e.height)
-        if (e.height > footerHeight.get()) {
+        if (e.height > effectiveFooterHeight.get()) {
           scrollTo(flatListRef, 0, 1e7, false)
         }
         keyboardIsOpening.set(false)
       },
     },
-    [footerHeight],
+    [effectiveFooterHeight],
   )
 
   const animatedListStyle = useAnimatedStyle(() => ({
-    marginBottom: Math.max(keyboardHeight.get(), footerHeight.get()),
+    marginBottom: Math.max(keyboardHeight.get(), effectiveFooterHeight.get()),
   }))
 
   const animatedStickyViewStyle = useAnimatedStyle(() => ({
     transform: [
-      {translateY: -Math.max(keyboardHeight.get(), footerHeight.get())},
+      {
+        translateY: -Math.max(
+          keyboardHeight.get(),
+          effectiveFooterHeight.get(),
+        ),
+      },
     ],
   }))
 
