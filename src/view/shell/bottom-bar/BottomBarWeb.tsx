@@ -55,6 +55,15 @@ export function BottomBarWeb() {
   const hideBorder = useHideBottomBarBorder()
   const iconWidth = 26
 
+  // Reset footerHeight when the bottom bar unmounts (e.g. window expands past
+  // mobile breakpoint). Without this, stale footerHeight causes the message
+  // input translateY to pull it over the message list on wider screens.
+  React.useEffect(() => {
+    return () => {
+      footerHeight.set(0)
+    }
+  }, [footerHeight])
+
   const unreadMessageCount = useUnreadMessageCount()
   const notificationCountStr = useUnreadNotifications()
 
