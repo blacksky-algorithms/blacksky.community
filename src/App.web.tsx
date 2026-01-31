@@ -100,6 +100,15 @@ function InnerApp() {
 
   // init
   useEffect(() => {
+    // Safety valve: if onLaunch hangs (e.g. stale IndexedDB blocking an
+    // upgrade, or a never-settling promise), the app will still load after
+    // this timeout fires. Without this, a hanging `await` prevents the
+    // `finally` block from ever executing.
+    const safetyTimeout = setTimeout(() => {
+      logger.warn('session: onLaunch safety timeout fired, forcing ready state')
+      setIsReady(true)
+    }, 15_000)
+
     async function onLaunch(account?: SessionAccount) {
       try {
         // Check for OAuth callback params first (loopback redirects to /)
@@ -130,6 +139,7 @@ function InnerApp() {
       } catch (e) {
         logger.error(`session: resumeSession failed`, {message: e})
       } finally {
+        clearTimeout(safetyTimeout)
         setIsReady(true)
       }
     }
@@ -214,9 +224,9 @@ function App() {
   const [isReady, setReady] = useState(false)
 
   React.useEffect(() => {
-    Promise.all([initPersistedState(), setupDeviceId]).then(() =>
-      setReady(true),
-    )
+    Promise.all([initPersistedState(), setupDeviceId])
+      .then(() => setReady(true))
+      .catch(() => setReady(true))
   }, [])
 
   if (!isReady) {
