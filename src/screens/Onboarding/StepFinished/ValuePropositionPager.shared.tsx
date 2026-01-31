@@ -29,10 +29,10 @@ export function useValuePropText(step: 0 | 1 | 2) {
     {
       title: _(msg`Forget the noise`),
       description: _(
-        msg`No ads, no invasive tracking, no engagement traps. Bluesky respects your time and attention.`,
+        msg`No ads, no invasive tracking, no engagement traps. Blacksky respects your time and attention.`,
       ),
       alt: _(
-        msg`An illustration of several Bluesky posts alongside repost, like, and comment icons`,
+        msg`An illustration of several Blacksky posts alongside repost, like, and comment icons`,
       ),
     },
   ][step]
