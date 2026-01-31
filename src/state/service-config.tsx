@@ -52,13 +52,13 @@ export function Provider({children}: {children: React.ReactNode}) {
       return {enabled: Boolean(cachedEnabled)}
     }
 
-    const enabled = Boolean(config?.topicsEnabled)
+    const enabled = true
 
     // update cache
     device.set(['trendingBetaEnabled'], enabled)
 
     return {enabled}
-  }, [isInitialLoad, config, langPrefs.contentLanguages])
+  }, [isInitialLoad, langPrefs.contentLanguages])
 
   const liveNow = useMemo<LiveNowContext>(() => config?.liveNow ?? [], [config])
 

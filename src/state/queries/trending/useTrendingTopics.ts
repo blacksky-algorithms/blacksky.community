@@ -1,11 +1,9 @@
-import React from 'react'
+import {useMemo} from 'react'
 import {type AppBskyUnspeccedDefs, hasMutedWord} from '@atproto/api'
 import {useQuery} from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
-import {useAgent} from '#/state/session'
-import {ALT_PROXY_DID} from '#/env'
 
 export type TrendingTopic = AppBskyUnspeccedDefs.TrendingTopic
 
@@ -18,13 +16,11 @@ export const DEFAULT_LIMIT = 14
 
 export const trendingTopicsQueryKey = ['trending-topics']
 
-// Proxy configuration
-const PROXY_TO_BLUESKY = `${ALT_PROXY_DID}#bsky_appview`
+const PUBLIC_API = 'https://public.api.bsky.app'
 
 export function useTrendingTopics() {
-  const agent = useAgent()
   const {data: preferences} = usePreferencesQuery()
-  const mutedWords = React.useMemo(() => {
+  const mutedWords = useMemo(() => {
     return preferences?.moderationPrefs?.mutedWords || []
   }, [preferences?.moderationPrefs])
 
@@ -33,39 +29,33 @@ export function useTrendingTopics() {
     staleTime: STALE.MINUTES.THREE,
     queryKey: trendingTopicsQueryKey,
     async queryFn() {
-      const {data} = await agent.api.app.bsky.unspecced.getTrendingTopics(
-        {
-          limit: DEFAULT_LIMIT,
-        },
-        {
-          headers: {
-            'atproto-proxy': PROXY_TO_BLUESKY,
-          },
-        },
+      const res = await fetch(
+        `${PUBLIC_API}/xrpc/app.bsky.unspecced.getTrendingTopics?limit=${DEFAULT_LIMIT}`,
       )
+      if (!res.ok) {
+        throw new Error(`getTrendingTopics failed: ${res.status}`)
+      }
+      const data = (await res.json()) as Response
       return {
         topics: data.topics ?? [],
         suggested: data.suggested ?? [],
       }
     },
-    select: React.useCallback(
-      (data: Response) => {
-        return {
-          topics: data.topics.filter(t => {
-            return !hasMutedWord({
-              mutedWords,
-              text: t.topic + ' ' + t.displayName + ' ' + t.description,
-            })
-          }),
-          suggested: data.suggested.filter(t => {
-            return !hasMutedWord({
-              mutedWords,
-              text: t.topic + ' ' + t.displayName + ' ' + t.description,
-            })
-          }),
-        }
-      },
-      [mutedWords],
-    ),
+    select(data: Response) {
+      return {
+        topics: data.topics.filter(t => {
+          return !hasMutedWord({
+            mutedWords,
+            text: t.topic + ' ' + t.displayName + ' ' + t.description,
+          })
+        }),
+        suggested: data.suggested.filter(t => {
+          return !hasMutedWord({
+            mutedWords,
+            text: t.topic + ' ' + t.displayName + ' ' + t.description,
+          })
+        }),
+      }
+    },
   })
 }
