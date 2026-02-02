@@ -231,14 +231,18 @@ async function fetchSubjects(
   const packUriChunks = chunk(Array.from(packUris), 25)
   const postsChunks = await Promise.all(
     postUriChunks.map(uris =>
-      agent.app.bsky.feed.getPosts({uris}).then(res => res.data.posts),
+      agent.app.bsky.feed
+        .getPosts({uris})
+        .then(res => res.data.posts)
+        .catch(_e => [] as AppBskyFeedDefs.PostView[]),
     ),
   )
   const packsChunks = await Promise.all(
     packUriChunks.map(uris =>
       agent.app.bsky.graph
         .getStarterPacks({uris})
-        .then(res => res.data.starterPacks),
+        .then(res => res.data.starterPacks)
+        .catch(_e => [] as AppBskyGraphDefs.StarterPackViewBasic[]),
     ),
   )
   const postsMap = new Map<string, AppBskyFeedDefs.PostView>()
