@@ -391,6 +391,41 @@ async function resolveRT(agent: BskyAgent, richtext: RichText) {
 
 async function resolveReply(agent: BskyAgent, replyTo: string) {
   const replyToUrip = new AtUri(replyTo)
+
+  // Handle community posts differently - they need to be fetched from appview
+  if (replyToUrip.collection === COMMUNITY_POST_COLLECTION) {
+    const res = await communityXrpc(
+      agent,
+      'community.blacksky.feed.getCommunityPost',
+      {
+        params: {uri: replyTo},
+      },
+    )
+    if (!res.ok) {
+      logger.error('Failed to fetch parent community post for reply', {
+        uri: replyTo,
+      })
+      return undefined
+    }
+    const data = await res.json()
+    if (data.post) {
+      const parentRef = {
+        uri: data.post.uri,
+        cid: data.post.cid,
+      }
+      // Community posts store reply info differently
+      const rootRef = data.post.replyRoot
+        ? {uri: data.post.replyRoot, cid: data.post.replyRootCid}
+        : parentRef
+      return {
+        root: rootRef,
+        parent: parentRef,
+      }
+    }
+    return undefined
+  }
+
+  // Standard Bluesky post
   const parentPost = await agent.getPost({
     repo: replyToUrip.host,
     rkey: replyToUrip.rkey,
