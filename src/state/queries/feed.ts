@@ -524,6 +524,32 @@ const PWI_DISCOVER_FEED_STUB: SavedFeedSourceInfo = {
   contentMode: undefined,
 }
 
+const COMMUNITY_FEED_STUB: SavedFeedSourceInfo = {
+  type: 'feed',
+  displayName: 'Community',
+  uri: 'community',
+  feedDescriptor: 'community',
+  route: {
+    href: '/',
+    name: 'Home',
+    params: {},
+  },
+  cid: '',
+  avatar: '',
+  description: new RichText({text: ''}),
+  creatorDid: '',
+  creatorHandle: '',
+  likeCount: 0,
+  likeUri: '',
+  savedFeed: {
+    id: 'community',
+    type: 'feed',
+    value: 'community',
+    pinned: true,
+  },
+  contentMode: undefined,
+}
+
 const pinnedFeedInfosQueryKeyRoot = 'pinnedFeedsInfos'
 
 export function usePinnedFeedsInfos() {
@@ -612,6 +638,9 @@ export function usePinnedFeedsInfos() {
           })
         }
       }
+      // Inject Community feed after the first item (Following)
+      const insertIndex = Math.min(1, result.length)
+      result.splice(insertIndex, 0, COMMUNITY_FEED_STUB)
       return result
     },
   })

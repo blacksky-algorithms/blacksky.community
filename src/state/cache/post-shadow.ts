@@ -9,6 +9,7 @@ import EventEmitter from 'eventemitter3'
 
 import {batchedUpdates} from '#/lib/batchedUpdates'
 import {findAllPostsInQueryData as findAllPostsInBookmarksQueryData} from '#/state/queries/bookmarks/useBookmarksQuery'
+import {findAllPostsInQueryData as findAllPostsInCommunityFeedQueryData} from '#/state/queries/community-feed'
 import {findAllPostsInQueryData as findAllPostsInExploreFeedPreviewsQueryData} from '#/state/queries/explore-feed-previews'
 import {findAllPostsInQueryData as findAllPostsInNotifsQueryData} from '#/state/queries/notifications/feed'
 import {findAllPostsInQueryData as findAllPostsInFeedQueryData} from '#/state/queries/post-feed'
@@ -192,6 +193,9 @@ function* findPostsInCache(
     yield post
   }
   for (let post of findAllPostsInBookmarksQueryData(queryClient, uri)) {
+    yield post
+  }
+  for (let post of findAllPostsInCommunityFeedQueryData(queryClient, uri)) {
     yield post
   }
 }

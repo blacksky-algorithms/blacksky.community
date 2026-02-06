@@ -21,7 +21,13 @@ export function ViewFullThread({uri}: {uri: string}) {
   const pal = usePalette('default')
   const itemHref = React.useMemo(() => {
     const urip = new AtUri(uri)
-    return makeProfileLink({did: urip.hostname, handle: ''}, 'post', urip.rkey)
+    const link = makeProfileLink(
+      {did: urip.hostname, handle: ''},
+      'post',
+      urip.rkey,
+    )
+    const isCommunity = urip.collection === 'community.blacksky.feed.post'
+    return isCommunity ? `${link}?collection=${urip.collection}` : link
   }, [uri])
   const {_} = useLingui()
 
