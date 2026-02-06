@@ -108,14 +108,14 @@ export function useSubmitReportMutation() {
           },
           report,
         })
-      } else {
-        await agent.createModerationReport(report, {
-          encoding: 'application/json',
-          headers: {
-            'atproto-proxy': `${labeler.creator.did}#atproto_labeler`,
-          },
-        })
       }
+
+      await agent.createModerationReport(report, {
+        encoding: 'application/json',
+        headers: {
+          'atproto-proxy': `${labeler.creator.did}#atproto_labeler`,
+        },
+      })
     },
   })
 }
