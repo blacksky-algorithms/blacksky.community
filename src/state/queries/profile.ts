@@ -181,6 +181,9 @@ export function useProfileUpdateMutation() {
         } else {
           next.displayName = updates.displayName
           next.description = updates.description
+          if ('pronouns' in updates) {
+            next.pronouns = updates.pronouns
+          }
           if ('pinnedPost' in updates) {
             next.pinnedPost = updates.pinnedPost
           }
@@ -227,7 +230,8 @@ export function useProfileUpdateMutation() {
             }
             return (
               res.data.displayName === updates.displayName &&
-              res.data.description === updates.description
+              res.data.description === updates.description &&
+              res.data.pronouns === updates.pronouns
             )
           }),
       )
