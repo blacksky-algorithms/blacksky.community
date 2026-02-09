@@ -65,14 +65,14 @@ export function ProfileHeaderHandle({
                 isNative,
               )}
         </Text>
-        {pronouns && (
+        {sanitizePronouns(pronouns ?? '', isNative) && (
           <Text
             style={[
               t.atoms.text_contrast_low,
               a.text_md,
               a.leading_snug,
             ]}>
-            {sanitizePronouns(pronouns, isNative)}
+            {sanitizePronouns(pronouns ?? '', isNative)}
           </Text>
         )}
       </View>

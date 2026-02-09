@@ -118,7 +118,7 @@ export function ComposerReplyTo({replyTo}: {replyTo: ComposerOptsPostRef}) {
               />
             </View>
           )}
-          {typeof replyTo.author.pronouns === 'string' && (
+          {sanitizePronouns(replyTo.author.pronouns ?? '') && (
             <Text
               style={[
                 a.pl_xs,
@@ -127,7 +127,7 @@ export function ComposerReplyTo({replyTo}: {replyTo: ComposerOptsPostRef}) {
                 t.atoms.text_contrast_medium,
               ]}
               numberOfLines={1}>
-              ({sanitizePronouns(replyTo.author.pronouns)})
+              ({sanitizePronouns(replyTo.author.pronouns ?? '')})
             </Text>
           )}
         </View>
