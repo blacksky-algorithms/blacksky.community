@@ -54,6 +54,7 @@ import {faCircleExclamation} from '@fortawesome/free-solid-svg-icons/faCircleExc
 import {faClipboardCheck} from '@fortawesome/free-solid-svg-icons/faClipboardCheck'
 import {faClone} from '@fortawesome/free-solid-svg-icons/faClone'
 import {faCommentSlash} from '@fortawesome/free-solid-svg-icons/faCommentSlash'
+import {faDollarSign} from '@fortawesome/free-solid-svg-icons/faDollarSign'
 import {faDownload} from '@fortawesome/free-solid-svg-icons/faDownload'
 import {faEllipsis} from '@fortawesome/free-solid-svg-icons/faEllipsis'
 import {faEnvelope} from '@fortawesome/free-solid-svg-icons/faEnvelope'
@@ -65,6 +66,7 @@ import {faFlask} from '@fortawesome/free-solid-svg-icons/faFlask'
 import {faGear} from '@fortawesome/free-solid-svg-icons/faGear'
 import {faGlobe} from '@fortawesome/free-solid-svg-icons/faGlobe'
 import {faHand} from '@fortawesome/free-solid-svg-icons/faHand'
+import {faHandHoldingDollar} from '@fortawesome/free-solid-svg-icons/faHandHoldingDollar'
 import {faHashtag} from '@fortawesome/free-solid-svg-icons/faHashtag'
 import {faHeart as fasHeart} from '@fortawesome/free-solid-svg-icons/faHeart'
 import {faHouse} from '@fortawesome/free-solid-svg-icons/faHouse'
@@ -150,6 +152,7 @@ library.add(
   faCommentSlash,
   faComments,
   faCompass,
+  faDollarSign,
   faDownload,
   faEllipsis,
   faEnvelope,
@@ -163,6 +166,7 @@ library.add(
   faGear,
   faGlobe,
   faHand,
+  faHandHoldingDollar,
   farHand,
   faHashtag,
   faHeart,

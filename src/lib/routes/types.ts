@@ -66,6 +66,7 @@ export type CommonNavigatorParams = {
   MiscellaneousNotificationSettings: undefined
   InterestsSettings: undefined
   AboutSettings: undefined
+  OpenCollectiveSettings: undefined
   AppIconSettings: undefined
   Search: {q?: string; tab?: 'user' | 'profile' | 'feed'}
   Hashtag: {tag: string; author?: string}

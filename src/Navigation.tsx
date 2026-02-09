@@ -117,6 +117,7 @@ import {QuoteNotificationSettingsScreen} from '#/screens/Settings/NotificationSe
 import {ReplyNotificationSettingsScreen} from '#/screens/Settings/NotificationSettings/ReplyNotificationSettings'
 import {RepostNotificationSettingsScreen} from '#/screens/Settings/NotificationSettings/RepostNotificationSettings'
 import {RepostsOnRepostsNotificationSettingsScreen} from '#/screens/Settings/NotificationSettings/RepostsOnRepostsNotificationSettings'
+import {OpenCollectiveSettingsScreen} from '#/screens/Settings/OpenCollectiveSettings'
 import {PrivacyAndSecuritySettingsScreen} from '#/screens/Settings/PrivacyAndSecuritySettings'
 import {SettingsScreen} from '#/screens/Settings/Settings'
 import {ThreadPreferencesScreen} from '#/screens/Settings/ThreadPreferences'
@@ -522,6 +523,14 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         getComponent={() => AboutSettingsScreen}
         options={{
           title: title(msg`About`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="OpenCollectiveSettings"
+        getComponent={() => OpenCollectiveSettingsScreen}
+        options={{
+          title: title(msg`Support BlackSky`),
           requireAuth: true,
         }}
       />
