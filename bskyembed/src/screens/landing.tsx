@@ -31,7 +31,7 @@ if (!root) throw new Error('No root element')
 initSystemColorMode()
 
 const agent = new AtpAgent({
-  service: 'https://api.blacksky.community',
+  service: 'https://api.bsky.app',
 })
 
 render(<LandingPage />, root)
