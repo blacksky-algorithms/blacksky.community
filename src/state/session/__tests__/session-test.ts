@@ -26,7 +26,7 @@ describe('session', () => {
         "accounts": [],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -115,7 +115,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -453,7 +453,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -515,7 +515,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -608,7 +608,7 @@ describe('session', () => {
         "accounts": [],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -788,7 +788,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -1437,7 +1437,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -1503,7 +1503,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
@@ -1666,7 +1666,7 @@ describe('session', () => {
         ],
         "currentAgentState": {
           "agent": {
-            "service": "https://api.blacksky.community/",
+            "service": "https://api.bsky.app/",
           },
           "did": undefined,
         },
