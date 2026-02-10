@@ -185,7 +185,7 @@ function DialogInner({
         updates: {
           displayName: displayName.trimEnd(),
           description: description.trimEnd(),
-          pronouns: pronouns.trimEnd().toLowerCase(),
+          pronouns: pronouns.trim().toLowerCase(),
         },
         newUserAvatar,
         newUserBanner,
