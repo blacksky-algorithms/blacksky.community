@@ -35,7 +35,7 @@ export const envToCfg = (env: Environment): Config => {
     port: env.port ?? 3000,
     metricsPort: env.metricsPort ?? 3001,
     version: env.version,
-    appviewUrl: env.appviewUrl ?? 'https://api.blacksky.community',
+    appviewUrl: env.appviewUrl ?? 'https://api.bsky.app',
     originVerify: env.originVerify,
   }
   return {
