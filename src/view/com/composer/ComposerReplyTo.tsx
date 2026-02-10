@@ -12,6 +12,7 @@ import {useLingui} from '@lingui/react'
 
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {sanitizePronouns} from '#/lib/strings/pronouns'
 import {type ComposerOptsPostRef} from '#/state/shell/composer'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme, web} from '#/alf'
@@ -116,6 +117,18 @@ export function ComposerReplyTo({replyTo}: {replyTo: ComposerOptsPostRef}) {
                 verifier={verification.role === 'verifier'}
               />
             </View>
+          )}
+          {typeof replyTo.author.pronouns === 'string' && (
+            <Text
+              style={[
+                a.pl_xs,
+                a.font_normal,
+                a.flex_shrink,
+                t.atoms.text_contrast_medium,
+              ]}
+              numberOfLines={1}>
+              ({sanitizePronouns(replyTo.author.pronouns)})
+            </Text>
           )}
         </View>
         <View style={[a.flex_row, a.gap_md]}>
