@@ -135,7 +135,7 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
   switch (currentForm) {
     case Forms.Login:
       title = _(msg`Sign in`)
-      description = _(msg`Enter your username and password`)
+      description = _(msg`Enter your handle to sign in`)
       content = (
         <LoginForm
           error={error}
