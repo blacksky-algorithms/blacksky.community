@@ -147,14 +147,14 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       addSessionDebugLog({type: 'method:start', method: 'login'})
       const signal = cancelPendingTask()
 
-      let agentAccount: {agent: BskyAppAgent | OauthBskyAppAgent; account: persisted.PersistedAccount}
+      let agentAccount: {
+        agent: BskyAppAgent | OauthBskyAppAgent
+        account: persisted.PersistedAccount
+      }
       if (params.oauthSession) {
         agentAccount = await oauthCreateAgent(params.oauthSession)
       } else {
-        agentAccount = await createAgentAndLogin(
-          params,
-          onAgentSessionChange,
-        )
+        agentAccount = await createAgentAndLogin(params, onAgentSessionChange)
       }
       const {agent, account} = agentAccount
 
@@ -241,7 +241,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       })
       const signal = cancelPendingTask()
 
-      let agentAccount: {agent: BskyAppAgent | OauthBskyAppAgent; account: persisted.PersistedAccount}
+      let agentAccount: {
+        agent: BskyAppAgent | OauthBskyAppAgent
+        account: persisted.PersistedAccount
+      }
       if (storedAccount.isOauthSession) {
         agentAccount = await oauthResumeSession(storedAccount)
       } else {
@@ -425,7 +428,7 @@ export function useRequireAuth() {
   const {signinDialogControl} = useGlobalDialogsControlContext()
 
   return React.useCallback(
-    (fn: () => void) => {
+    (fn: () => unknown) => {
       if (hasSession) {
         fn()
       } else {
