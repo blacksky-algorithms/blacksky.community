@@ -160,13 +160,14 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
     }
     case 'setServiceUrl': {
       next.serviceUrl = a.value
+      next.userDomain = ''
       break
     }
     case 'setServiceDescription': {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
 
       next.serviceDescription = a.value
-      if (!next.userDomain && a.value?.availableUserDomains?.[0]) {
+      if (a.value?.availableUserDomains?.[0]) {
         next.userDomain = a.value.availableUserDomains[0]
       }
       next.isLoading = false
