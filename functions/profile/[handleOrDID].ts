@@ -136,7 +136,7 @@ class NoscriptHandler {
 }
 
 export async function onRequest(context) {
-  const agent = new AtpAgent({service: 'https://api.bsky.app/'})
+  const agent = new AtpAgent({service: 'https://api.blacksky.community/'})
   const {request, env} = context
   const origin = new URL(request.url).origin
 

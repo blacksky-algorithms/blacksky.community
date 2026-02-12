@@ -9,12 +9,12 @@ export const LOCAL_DEV_SERVICE =
 export const STAGING_SERVICE = 'https://staging.bsky.dev'
 export const BSKY_SERVICE = 'https://blacksky.app'
 export const BSKY_SERVICE_DID = 'did:web:bsky.social'
-export const PUBLIC_BSKY_SERVICE = 'https://public.api.bsky.app'
+export const PUBLIC_BSKY_SERVICE = 'https://api.blacksky.community'
 export const DEFAULT_SERVICE = BSKY_SERVICE
 export const HELP_DESK_URL = `https://github.com/blacksky-algorithms/blacksky.community/issues/new/choose`
 export const EMBED_SERVICE = 'https://embed.bsky.app'
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
-export const BSKY_DOWNLOAD_URL = 'https://blacksky.community/download'
+export const BSKY_DOWNLOAD_URL = 'https://staging.blacksky.community/download'
 export const STARTER_PACK_MAX_SIZE = 150
 export const CARD_ASPECT_RATIO = 1200 / 630
 
@@ -164,15 +164,15 @@ export const GIF_FEATURED = (params: string) =>
 
 export const MAX_LABELERS = 20
 
-export const VIDEO_SERVICE = 'https://video.bsky.app'
-export const VIDEO_SERVICE_DID = 'did:web:video.bsky.app'
+export const VIDEO_SERVICE = 'https://video.blacksky.community'
+export const VIDEO_SERVICE_DID = 'did:web:video.blacksky.community'
 
-export const VIDEO_MAX_DURATION_MS = 3 * 60 * 1000 // 3 minutes in milliseconds
+export const VIDEO_MAX_DURATION_MS = 60 * 60 * 1000 // 60 minutes in milliseconds
 /**
  * Maximum size of a video in megabytes, _not_ mebibytes. Backend uses
  * ISO megabytes.
  */
-export const VIDEO_MAX_SIZE = 1000 * 1000 * 100 // 100mb
+export const VIDEO_MAX_SIZE = 1000 * 1000 * 1000 * 5 // 5gb
 
 export const SUPPORTED_MIME_TYPES = [
   'video/mp4',
@@ -202,11 +202,12 @@ export const urls = {
   },
 }
 
-export const PUBLIC_APPVIEW = 'https://api.bsky.app'
-export const PUBLIC_APPVIEW_DID = 'did:web:api.bsky.app'
+export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
+export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
+export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always the same
 
 // temp hack for e2e - esb
 export const BLUESKY_PROXY_HEADER = {
