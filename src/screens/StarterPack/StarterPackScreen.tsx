@@ -372,7 +372,10 @@ function Header({
 
     let followUris: Map<string, string>
     try {
-      followUris = await bulkWriteFollows(agent, dids)
+      followUris = await bulkWriteFollows(agent, dids, {
+        uri: starterPack.uri,
+        cid: starterPack.cid,
+      })
     } catch (e) {
       setIsProcessing(false)
       Toast.show(_(msg`An error occurred while trying to follow all`), 'xmark')
@@ -465,7 +468,7 @@ function Header({
           {richText ? <RichText value={richText} style={[a.text_md]} /> : null}
           {!hasSession ? (
             <Button
-              label={_(msg`Join Bluesky`)}
+              label={_(msg`Join Blacksky`)}
               onPress={() => {
                 setActiveStarterPack({
                   uri: starterPack.uri,
@@ -476,7 +479,7 @@ function Header({
               color="primary"
               size="large">
               <ButtonText style={[a.text_lg]}>
-                <Trans>Join Bluesky</Trans>
+                <Trans>Join Blacksky</Trans>
               </ButtonText>
             </Button>
           ) : null}
@@ -493,12 +496,12 @@ function Header({
                   a.text_sm,
                   t.atoms.text_contrast_medium,
                 ]}>
-                <Trans comment="Number of users (always at least 25) who have joined Bluesky using a specific starter pack">
+                <Trans comment="Number of users (always at least 25) who have joined Blacksky using a specific starter pack">
                   <Plural
                     value={starterPack.joinedAllTimeCount || 0}
                     other="# people have"
                   />{' '}
-                  used this starter pack!
+                  joined Blacksky via this starter pack!
                 </Trans>
               </Text>
             </View>

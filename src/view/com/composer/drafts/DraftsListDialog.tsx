@@ -1,16 +1,17 @@
 import {useCallback, useEffect, useMemo} from 'react'
-import {View} from 'react-native'
+import {Keyboard, View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {useCallOnce} from '#/lib/once'
 import {EmptyState} from '#/view/com/util/EmptyState'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, select, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {PageX_Stroke2_Corner0_Rounded_Large as PageXIcon} from '#/components/icons/PageX'
 import {ListFooter} from '#/components/Lists'
 import {Loader} from '#/components/Loader'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
 import {DraftItem} from './DraftItem'
@@ -26,6 +27,7 @@ export function DraftsListDialog({
 }) {
   const {_} = useLingui()
   const t = useTheme()
+  const {gtPhone} = useBreakpoints()
   const ax = useAnalytics()
   const {data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage} =
     useDraftsQuery()
@@ -52,6 +54,12 @@ export function DraftsListDialog({
 
   const handleSelectDraft = useCallback(
     (summary: DraftSummary) => {
+      // Dismiss keyboard immediately to prevent flicker. Without this,
+      // the text input regains focus (showing the keyboard) after the
+      // drafts sheet closes, then loses it again when the post component
+      // remounts with the draft content, causing a show-hide-show cycle -sfn
+      Keyboard.dismiss()
+
       control.close(() => {
         onSelectDraft(summary)
       })
@@ -91,7 +99,7 @@ export function DraftsListDialog({
   const renderItem = useCallback(
     ({item}: {item: DraftSummary}) => {
       return (
-        <View style={[a.px_lg, a.mt_lg]}>
+        <View style={[gtPhone ? [a.px_md, a.pt_md] : [a.px_sm, a.pt_sm]]}>
           <DraftItem
             draft={item}
             onSelect={handleSelectDraft}
@@ -100,7 +108,7 @@ export function DraftsListDialog({
         </View>
       )
     },
-    [handleSelectDraft, handleDeleteDraft],
+    [handleSelectDraft, handleDeleteDraft, gtPhone],
   )
 
   const header = useMemo(
@@ -139,13 +147,22 @@ export function DraftsListDialog({
 
   const footerComponent = useMemo(
     () => (
-      <ListFooter
-        isFetchingNextPage={isFetchingNextPage}
-        hasNextPage={hasNextPage}
-        style={[a.border_transparent]}
-      />
+      <>
+        {drafts.length > 5 && (
+          <View style={[a.align_center, a.py_2xl]}>
+            <Text style={[a.text_center, t.atoms.text_contrast_medium]}>
+              <Trans>So many thoughts, you should post one</Trans>
+            </Text>
+          </View>
+        )}
+        <ListFooter
+          isFetchingNextPage={isFetchingNextPage}
+          hasNextPage={hasNextPage}
+          style={[a.border_transparent]}
+        />
+      </>
     ),
-    [isFetchingNextPage, hasNextPage],
+    [isFetchingNextPage, hasNextPage, drafts.length, t],
   )
 
   return (
@@ -162,7 +179,17 @@ export function DraftsListDialog({
         ListFooterComponent={footerComponent}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}
-        style={[t.atoms.bg_contrast_50, a.px_0, web({minHeight: 500})]}
+        style={[
+          a.px_0,
+          web({minHeight: 500}),
+          {
+            backgroundColor: select(t.name, {
+              light: t.palette.contrast_50,
+              dark: t.palette.contrast_0,
+              dim: '#000000',
+            }),
+          },
+        ]}
         webInnerContentContainerStyle={[a.py_0]}
         contentContainerStyle={[a.pb_xl]}
       />

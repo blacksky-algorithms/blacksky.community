@@ -13,12 +13,12 @@ import {shareText, shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
 import {type Shadow} from '#/state/cache/types'
 import {useModalControls} from '#/state/modals'
-import {Nux, useNux, useSaveNux} from '#/state/queries/nuxs'
 import {
   useBlackskyVerificationEnabled,
   useBlackskyVerificationTrusted,
   useSetBlackskyVerificationTrust,
 } from '#/state/preferences/blacksky-verification'
+import {Nux, useNux, useSaveNux} from '#/state/queries/nuxs'
 import {
   RQKEY as profileQueryKey,
   useProfileBlockMutationQueue,
@@ -335,15 +335,17 @@ let ProfileMenu = ({
                     )}
                   </>
                 )}
-                <Menu.Item
-                  testID="profileHeaderDropdownStarterPackAddRemoveBtn"
-                  label={_(msg`Add to starter packs`)}
-                  onPress={onPressAddToStarterPacks}>
-                  <Menu.ItemText>
-                    <Trans>Add to starter packs</Trans>
-                  </Menu.ItemText>
-                  <Menu.ItemIcon icon={StarterPack} />
-                </Menu.Item>
+                {!isSelf && (
+                  <Menu.Item
+                    testID="profileHeaderDropdownStarterPackAddRemoveBtn"
+                    label={_(msg`Add to starter packs`)}
+                    onPress={onPressAddToStarterPacks}>
+                    <Menu.ItemText>
+                      <Trans>Add to starter packs</Trans>
+                    </Menu.ItemText>
+                    <Menu.ItemIcon icon={StarterPack} />
+                  </Menu.Item>
+                )}
                 <Menu.Item
                   testID="profileHeaderDropdownListAddRemoveBtn"
                   label={_(msg`Add to lists`)}

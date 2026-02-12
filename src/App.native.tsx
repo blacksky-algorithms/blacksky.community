@@ -3,6 +3,7 @@ import '#/view/icons'
 
 import React, {useEffect, useState} from 'react'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
+import {KeyboardProvider as KeyboardControllerProvider} from 'react-native-keyboard-controller'
 import {
   initialWindowMetrics,
   SafeAreaProvider,
@@ -14,7 +15,6 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import * as Sentry from '@sentry/react-native'
 
-import {KeyboardControllerProvider} from '#/lib/hooks/useEnableKeyboardController'
 import {Provider as HideBottomBarBorderProvider} from '#/lib/hooks/useHideBottomBarBorder'
 import {QueryProvider} from '#/lib/react-query'
 import {s} from '#/lib/styles'
@@ -142,45 +142,45 @@ function InnerApp() {
                   <QueryProvider currentDid={currentAccount?.did}>
                     <LiveEventsProvider>
                       <ComposerProvider>
-                            <MessagesProvider>
-                              {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
-                              <LabelDefsProvider>
-                                <ModerationOptsProvider>
-                                  <LoggedOutViewProvider>
-                                    <SelectedFeedProvider>
-                                      <HiddenRepliesProvider>
-                                        <HomeBadgeProvider>
-                                          <UnreadNotifsProvider>
-                                            <BackgroundNotificationPreferencesProvider>
-                                              <MutedThreadsProvider>
-                                                <ProgressGuideProvider>
-                                                  <ServiceAccountManager>
-                                                    <EmailVerificationProvider>
-                                                      <HideBottomBarBorderProvider>
-                                                        <GestureHandlerRootView
-                                                          style={s.h100pct}>
-                                                          <GlobalGestureEventsProvider>
-                                                            <IntentDialogProvider>
-                                                              <TestCtrls />
-                                                              <Shell />
-                                                              <ToastOutlet />
-                                                            </IntentDialogProvider>
-                                                          </GlobalGestureEventsProvider>
-                                                        </GestureHandlerRootView>
-                                                      </HideBottomBarBorderProvider>
-                                                    </EmailVerificationProvider>
-                                                  </ServiceAccountManager>
-                                                </ProgressGuideProvider>
-                                              </MutedThreadsProvider>
-                                            </BackgroundNotificationPreferencesProvider>
-                                          </UnreadNotifsProvider>
-                                        </HomeBadgeProvider>
-                                      </HiddenRepliesProvider>
-                                    </SelectedFeedProvider>
-                                  </LoggedOutViewProvider>
-                                </ModerationOptsProvider>
-                              </LabelDefsProvider>
-                            </MessagesProvider>
+                        <MessagesProvider>
+                          {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
+                          <LabelDefsProvider>
+                            <ModerationOptsProvider>
+                              <LoggedOutViewProvider>
+                                <SelectedFeedProvider>
+                                  <HiddenRepliesProvider>
+                                    <HomeBadgeProvider>
+                                      <UnreadNotifsProvider>
+                                        <BackgroundNotificationPreferencesProvider>
+                                          <MutedThreadsProvider>
+                                            <ProgressGuideProvider>
+                                              <ServiceAccountManager>
+                                                <EmailVerificationProvider>
+                                                  <HideBottomBarBorderProvider>
+                                                    <GestureHandlerRootView
+                                                      style={s.h100pct}>
+                                                      <GlobalGestureEventsProvider>
+                                                        <IntentDialogProvider>
+                                                          <TestCtrls />
+                                                          <Shell />
+                                                          <ToastOutlet />
+                                                        </IntentDialogProvider>
+                                                      </GlobalGestureEventsProvider>
+                                                    </GestureHandlerRootView>
+                                                  </HideBottomBarBorderProvider>
+                                                </EmailVerificationProvider>
+                                              </ServiceAccountManager>
+                                            </ProgressGuideProvider>
+                                          </MutedThreadsProvider>
+                                        </BackgroundNotificationPreferencesProvider>
+                                      </UnreadNotifsProvider>
+                                    </HomeBadgeProvider>
+                                  </HiddenRepliesProvider>
+                                </SelectedFeedProvider>
+                              </LoggedOutViewProvider>
+                            </ModerationOptsProvider>
+                          </LabelDefsProvider>
+                        </MessagesProvider>
                       </ComposerProvider>
                     </LiveEventsProvider>
                   </QueryProvider>

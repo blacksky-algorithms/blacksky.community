@@ -44,6 +44,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import * as FileSystem from 'expo-file-system'
 import {type ImagePickerAsset} from 'expo-image-picker'
 import {
+  AppBskyDraftCreateDraft,
   AppBskyUnspeccedDefs,
   type AppBskyUnspeccedGetPostThreadV2,
   AtUri,
@@ -61,6 +62,7 @@ import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
 import {until} from '#/lib/async/until'
 import {
+  MAX_DRAFT_GRAPHEME_LENGTH,
   MAX_GRAPHEME_LENGTH,
   SUPPORTED_MIME_TYPES,
   type SupportedMimeTypes,
@@ -138,7 +140,7 @@ import {
   type RestoredVideo,
 } from './drafts/state/api'
 import {
-  loadDraft,
+  loadDraftMedia,
   useCleanupPublishedDraftMutation,
   useSaveDraftMutation,
 } from './drafts/state/queries'
@@ -275,6 +277,13 @@ export const ComposePost = ({
   )
 
   const thread = composerState.thread
+
+  // Clear error when composer content changes, but only if all posts are
+  // back within the character limit.
+  const allPostsWithinLimit = thread.posts.every(
+    post => post.richtext.graphemeLength <= MAX_DRAFT_GRAPHEME_LENGTH,
+  )
+
   const activePost = thread.posts[composerState.activePostIndex]
   const nextPost: PostDraft | undefined =
     thread.posts[composerState.activePostIndex + 1]
@@ -482,7 +491,7 @@ export const ComposePost = ({
       })
 
       // Load local media files for the draft
-      const {loadedMedia} = await loadDraft(draftSummary.draft)
+      const {loadedMedia} = await loadDraftMedia(draftSummary.draft)
 
       // Extract original localRefs for orphan detection on save
       const originalLocalRefs = extractLocalRefs(draftSummary.draft)
@@ -543,7 +552,36 @@ export const ComposePost = ({
     revokeAllMediaUrls()
   }, [closeComposer, queryClient])
 
+  const getDraftSaveError = React.useCallback(
+    (e: unknown): string => {
+      if (e instanceof AppBskyDraftCreateDraft.DraftLimitReachedError) {
+        return _(msg`You've reached the maximum number of drafts`)
+      }
+      return _(msg`Failed to save draft`)
+    },
+    [_],
+  )
+
+  const validateDraftTextOrError = React.useCallback((): boolean => {
+    const tooLong = composerState.thread.posts.some(
+      post => post.richtext.graphemeLength > MAX_DRAFT_GRAPHEME_LENGTH,
+    )
+    if (tooLong) {
+      setError(
+        _(
+          msg`One or more posts are too long to save as a draft. ${plural(MAX_DRAFT_GRAPHEME_LENGTH, {one: 'The maximum number of characters is # character.', other: 'The maximum number of characters is # characters.'})}`,
+        ),
+      )
+      return false
+    }
+    return true
+  }, [composerState.thread.posts, _])
+
   const handleSaveDraft = React.useCallback(async () => {
+    setError('')
+    if (!validateDraftTextOrError()) {
+      return
+    }
     const isNewDraft = !composerState.draftId
     try {
       const result = await saveDraft({
@@ -569,18 +607,44 @@ export const ComposePost = ({
       onClose()
     } catch (e) {
       logger.error('Failed to save draft', {error: e})
-      setError(_(msg`Failed to save draft`))
+      setError(getDraftSaveError(e))
     }
-  }, [saveDraft, composerState, composerDispatch, onClose, _, ax])
+  }, [
+    saveDraft,
+    composerState,
+    composerDispatch,
+    onClose,
+    ax,
+    validateDraftTextOrError,
+    getDraftSaveError,
+  ])
 
   // Save without closing - for use by DraftsButton
-  const saveCurrentDraft = React.useCallback(async () => {
-    const result = await saveDraft({
-      composerState,
-      existingDraftId: composerState.draftId,
-    })
-    composerDispatch({type: 'mark_saved', draftId: result.draftId})
-  }, [saveDraft, composerState, composerDispatch])
+  const saveCurrentDraft = React.useCallback(async (): Promise<{
+    success: boolean
+  }> => {
+    setError('')
+    if (!validateDraftTextOrError()) {
+      return {success: false}
+    }
+    try {
+      const result = await saveDraft({
+        composerState,
+        existingDraftId: composerState.draftId,
+      })
+      composerDispatch({type: 'mark_saved', draftId: result.draftId})
+      return {success: true}
+    } catch (e) {
+      setError(getDraftSaveError(e))
+      return {success: false}
+    }
+  }, [
+    saveDraft,
+    composerState,
+    composerDispatch,
+    validateDraftTextOrError,
+    getDraftSaveError,
+  ])
 
   // Handle discard action - fires metric and closes composer
   const handleDiscard = React.useCallback(() => {
@@ -1090,6 +1154,7 @@ export const ComposePost = ({
             isEmpty={isComposerEmpty}
             isDirty={composerState.isDirty}
             isEditingDraft={!!composerState.draftId}
+            canSaveDraft={allPostsWithinLimit}
             textLength={thread.posts[0].richtext.text.length}>
             {missingAltError && <AltTextReminder error={missingAltError} />}
             <ErrorBanner
@@ -1115,7 +1180,7 @@ export const ComposePost = ({
             onLayout={onScrollViewLayout}>
             {replyTo ? <ComposerReplyTo replyTo={replyTo} /> : undefined}
             {thread.posts.map((post, index) => (
-              <React.Fragment key={post.id}>
+              <React.Fragment key={post.id + (composerState.draftId ?? '')}>
                 <ComposerPost
                   post={post}
                   dispatch={composerDispatch}
@@ -1141,41 +1206,67 @@ export const ComposePost = ({
           {!IS_WEBFooterSticky && footer}
         </View>
 
-        <Prompt.Outer control={discardPromptControl}>
-          <Prompt.Content>
-            <Prompt.TitleText>
-              {composerState.draftId ? (
-                <Trans>Save changes?</Trans>
-              ) : (
-                <Trans>Save draft?</Trans>
-              )}
-            </Prompt.TitleText>
-            <Prompt.DescriptionText>
-              {composerState.draftId
-                ? _(
-                    msg`You have unsaved changes to this draft, would you like to save them?`,
+        {replyTo ? (
+          <Prompt.Basic
+            control={discardPromptControl}
+            title={_(msg`Discard draft?`)}
+            description=""
+            confirmButtonCta={_(msg`Discard`)}
+            confirmButtonColor="negative"
+            onConfirm={handleDiscard}
+          />
+        ) : (
+          <Prompt.Outer control={discardPromptControl}>
+            <Prompt.Content>
+              <Prompt.TitleText>
+                {allPostsWithinLimit ? (
+                  composerState.draftId ? (
+                    <Trans>Save changes?</Trans>
+                  ) : (
+                    <Trans>Save draft?</Trans>
                   )
-                : _(msg`Would you like to save this as a draft to edit later?`)}
-            </Prompt.DescriptionText>
-          </Prompt.Content>
-          <Prompt.Actions>
-            <Prompt.Action
-              cta={
-                composerState.draftId
-                  ? _(msg`Save changes`)
-                  : _(msg`Save draft`)
-              }
-              onPress={handleSaveDraft}
-              color="primary"
-            />
-            <Prompt.Action
-              cta={_(msg`Discard`)}
-              onPress={handleDiscard}
-              color="negative_subtle"
-            />
-            <Prompt.Cancel />
-          </Prompt.Actions>
-        </Prompt.Outer>
+                ) : (
+                  <Trans>Discard post?</Trans>
+                )}
+              </Prompt.TitleText>
+              <Prompt.DescriptionText>
+                {allPostsWithinLimit ? (
+                  composerState.draftId ? (
+                    <Trans>
+                      You have unsaved changes to this draft, would you like to
+                      save them?
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Would you like to save this as a draft to edit later?
+                    </Trans>
+                  )
+                ) : (
+                  <Trans>You can only save drafts up to 1000 characters.</Trans>
+                )}
+              </Prompt.DescriptionText>
+            </Prompt.Content>
+            <Prompt.Actions>
+              {allPostsWithinLimit && (
+                <Prompt.Action
+                  cta={
+                    composerState.draftId
+                      ? _(msg`Save changes`)
+                      : _(msg`Save draft`)
+                  }
+                  onPress={handleSaveDraft}
+                  color="primary"
+                />
+              )}
+              <Prompt.Action
+                cta={_(msg`Discard`)}
+                onPress={handleDiscard}
+                color="negative_subtle"
+              />
+              <Prompt.Cancel cta={_(msg`Keep editing`)} />
+            </Prompt.Actions>
+          </Prompt.Outer>
+        )}
       </KeyboardAvoidingView>
     </BottomSheetPortalProvider>
   )
@@ -1304,7 +1395,7 @@ let ComposerPost = React.memo(function ComposerPost({
           style={[a.pt_xs]}
           richtext={richtext}
           placeholder={selectTextInputPlaceholder}
-          autoFocus
+          autoFocus={isLastPost}
           webForceMinHeight={forceMinHeight}
           // To avoid overlap with the close button:
           hasRightPadding={isPartOfThread}
@@ -1400,6 +1491,7 @@ function ComposerTopBar({
   isEmpty,
   isDirty,
   isEditingDraft,
+  canSaveDraft,
   textLength,
   topBarAnimatedStyle,
   children,
@@ -1413,11 +1505,12 @@ function ComposerTopBar({
   onCancel: () => void
   onPublish: () => void
   onSelectDraft: (draft: DraftSummary) => void
-  onSaveDraft: () => Promise<void>
+  onSaveDraft: () => Promise<{success: boolean}>
   onDiscard: () => void
   isEmpty: boolean
   isDirty: boolean
   isEditingDraft: boolean
+  canSaveDraft: boolean
   textLength: number
   topBarAnimatedStyle: StyleProp<ViewStyle>
   children?: React.ReactNode
@@ -1465,6 +1558,7 @@ function ComposerTopBar({
                 isEmpty={isEmpty}
                 isDirty={isDirty}
                 isEditingDraft={isEditingDraft}
+                canSaveDraft={canSaveDraft}
                 textLength={textLength}
               />
             )}
@@ -2274,22 +2368,40 @@ function VideoUploadToolbar({state}: {state: VideoState}) {
 
   let text = ''
 
+  const isGif = state.video?.mimeType === 'image/gif'
+
   switch (state.status) {
     case 'compressing':
-      text = _(msg`Compressing video...`)
+      if (isGif) {
+        text = _(msg`Compressing GIF...`)
+      } else {
+        text = _(msg`Compressing video...`)
+      }
       break
     case 'uploading':
-      text = _(msg`Uploading video...`)
+      if (isGif) {
+        text = _(msg`Uploading GIF...`)
+      } else {
+        text = _(msg`Uploading video...`)
+      }
       break
     case 'processing':
-      text = _(msg`Processing video...`)
+      if (isGif) {
+        text = _(msg`Processing GIF...`)
+      } else {
+        text = _(msg`Processing video...`)
+      }
       break
     case 'error':
       text = _(msg`Error`)
       wheelProgress = 100
       break
     case 'done':
-      text = _(msg`Video uploaded`)
+      if (isGif) {
+        text = _(msg`GIF uploaded`)
+      } else {
+        text = _(msg`Video uploaded`)
+      }
       break
   }
 

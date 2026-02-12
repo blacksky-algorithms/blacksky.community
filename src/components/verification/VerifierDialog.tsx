@@ -28,7 +28,7 @@ export function VerifierDialog({
   verificationState: FullVerificationState
 }) {
   return (
-    <Dialog.Outer control={control}>
+    <Dialog.Outer control={control} nativeOptions={{preventExpansion: true}}>
       <Dialog.Handle />
       <Inner
         control={control}
@@ -84,7 +84,7 @@ function Inner({
               },
             ]}
             alt={_(
-              msg`An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
+              msg`An illustration showing that Blacksky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
             )}
           />
         </View>
@@ -101,7 +101,7 @@ function Inner({
                 <VerifierCheck width={14} />
               </RNText>{' '}
               can verify others. These trusted verifiers are selected by
-              Bluesky.
+              Blacksky.
             </Trans>
           </Text>
         </View>
@@ -118,12 +118,11 @@ function Inner({
             to={urls.website.blog.initialVerificationAnnouncement}
             label={_(
               msg({
-                message: `Learn more about verification on Bluesky`,
+                message: `Learn more about verification on Blacksky`,
                 context: `english-only-resource`,
               }),
             )}
             size="small"
-            variant="solid"
             color="primary"
             style={[a.justify_center]}
             onPress={() => {
@@ -138,7 +137,6 @@ function Inner({
           <Button
             label={_(msg`Close dialog`)}
             size="small"
-            variant="solid"
             color="secondary"
             onPress={() => {
               control.close()

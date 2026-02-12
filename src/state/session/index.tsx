@@ -1,4 +1,13 @@
-import React from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import {type AtpSessionEvent, type BskyAgent} from '@atproto/api'
 
 import * as persisted from '#/state/persisted'
@@ -24,27 +33,29 @@ import {type Action, getInitialState, reducer, type State} from './reducer'
 export {isSignupQueued} from './util'
 import {addSessionDebugLog} from './logging'
 export type {SessionAccount} from '#/state/session/types'
+
+import {clearPersistedQueryStorage} from '#/lib/persisted-query-storage'
 import {
   type SessionApiContext,
   type SessionStateContext,
 } from '#/state/session/types'
 import {useOnboardingDispatch} from '#/state/shell/onboarding'
 
-const StateContext = React.createContext<SessionStateContext>({
+const StateContext = createContext<SessionStateContext>({
   accounts: [],
   currentAccount: undefined,
   hasSession: false,
 })
 StateContext.displayName = 'SessionStateContext'
 
-const AgentContext = React.createContext<BskyAgent | null>(null)
+const AgentContext = createContext<BskyAgent | null>(null)
 AgentContext.displayName = 'SessionAgentContext'
 
-const ApiContext = React.createContext<SessionApiContext>({
+const ApiContext = createContext<SessionApiContext>({
   createAccount: async () => {},
   login: async () => {},
-  logoutCurrentAccount: async () => {},
-  logoutEveryAccount: async () => {},
+  logoutCurrentAccount: () => {},
+  logoutEveryAccount: () => {},
   resumeSession: async () => {},
   removeAccount: () => {},
   partialRefreshSession: async () => {},
@@ -95,11 +106,11 @@ class SessionStore {
 export function Provider({children}: React.PropsWithChildren<{}>) {
   const ax = useAnalyticsBase()
   const cancelPendingTask = useOneTaskAtATime()
-  const [store] = React.useState(() => new SessionStore())
-  const state = React.useSyncExternalStore(store.subscribe, store.getState)
+  const [store] = useState(() => new SessionStore())
+  const state = useSyncExternalStore(store.subscribe, store.getState)
   const onboardingDispatch = useOnboardingDispatch()
 
-  const onAgentSessionChange = React.useCallback(
+  const onAgentSessionChange = useCallback(
     (agent: BskyAgent, accountDid: string, sessionEvent: AtpSessionEvent) => {
       const refreshedAccount = agentToSessionAccount(agent) // Mutable, so snapshot it right away.
       if (sessionEvent === 'expired' || sessionEvent === 'create-failed') {
@@ -116,7 +127,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [store],
   )
 
-  const createAccount = React.useCallback<SessionApiContext['createAccount']>(
+  const createAccount = useCallback<SessionApiContext['createAccount']>(
     async (params, metrics) => {
       addSessionDebugLog({type: 'method:start', method: 'createAccount'})
       const signal = cancelPendingTask()
@@ -142,19 +153,19 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [ax, store, onAgentSessionChange, cancelPendingTask],
   )
 
-  const login = React.useCallback<SessionApiContext['login']>(
+  const login = useCallback<SessionApiContext['login']>(
     async (params, logContext) => {
       addSessionDebugLog({type: 'method:start', method: 'login'})
       const signal = cancelPendingTask()
 
-      let agentAccount: {agent: BskyAppAgent | OauthBskyAppAgent; account: persisted.PersistedAccount}
+      let agentAccount: {
+        agent: BskyAppAgent | OauthBskyAppAgent
+        account: persisted.PersistedAccount
+      }
       if (params.oauthSession) {
         agentAccount = await oauthCreateAgent(params.oauthSession)
       } else {
-        agentAccount = await createAgentAndLogin(
-          params,
-          onAgentSessionChange,
-        )
+        agentAccount = await createAgentAndLogin(params, onAgentSessionChange)
       }
       const {agent, account} = agentAccount
 
@@ -176,7 +187,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [ax, store, onAgentSessionChange, cancelPendingTask],
   )
 
-  const logoutCurrentAccount = React.useCallback<
+  const logoutCurrentAccount = useCallback<
     SessionApiContext['logoutCurrentAccount']
   >(
     logContext => {
@@ -198,13 +209,16 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         },
       )
       addSessionDebugLog({type: 'method:end', method: 'logout'})
+      if (prevState.currentAgentState.did) {
+        void clearPersistedQueryStorage(prevState.currentAgentState.did)
+      }
       // reset onboarding flow on logout
       onboardingDispatch({type: 'skip'})
     },
     [ax, store, cancelPendingTask, onboardingDispatch],
   )
 
-  const logoutEveryAccount = React.useCallback<
+  const logoutEveryAccount = useCallback<
     SessionApiContext['logoutEveryAccount']
   >(
     logContext => {
@@ -226,13 +240,16 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         },
       )
       addSessionDebugLog({type: 'method:end', method: 'logout'})
+      for (const account of prevState.accounts) {
+        void clearPersistedQueryStorage(account.did)
+      }
       // reset onboarding flow on logout
       onboardingDispatch({type: 'skip'})
     },
-    [store, cancelPendingTask, onboardingDispatch],
+    [store, cancelPendingTask, onboardingDispatch, ax],
   )
 
-  const resumeSession = React.useCallback<SessionApiContext['resumeSession']>(
+  const resumeSession = useCallback<SessionApiContext['resumeSession']>(
     async (storedAccount, isSwitchingAccounts = false) => {
       addSessionDebugLog({
         type: 'method:start',
@@ -241,7 +258,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       })
       const signal = cancelPendingTask()
 
-      let agentAccount: {agent: BskyAppAgent | OauthBskyAppAgent; account: persisted.PersistedAccount}
+      let agentAccount: {
+        agent: BskyAppAgent | OauthBskyAppAgent
+        account: persisted.PersistedAccount
+      }
       if (storedAccount.isOauthSession) {
         agentAccount = await oauthResumeSession(storedAccount)
       } else {
@@ -269,7 +289,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [store, onAgentSessionChange, cancelPendingTask, onboardingDispatch],
   )
 
-  const partialRefreshSession = React.useCallback<
+  const partialRefreshSession = useCallback<
     SessionApiContext['partialRefreshSession']
   >(async () => {
     const agent = state.currentAgentState.agent as BskyAppAgent
@@ -286,7 +306,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     })
   }, [store, state, cancelPendingTask])
 
-  const removeAccount = React.useCallback<SessionApiContext['removeAccount']>(
+  const removeAccount = useCallback<SessionApiContext['removeAccount']>(
     account => {
       addSessionDebugLog({
         type: 'method:start',
@@ -302,7 +322,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     },
     [store, cancelPendingTask],
   )
-  React.useEffect(() => {
+  useEffect(() => {
     return persisted.onUpdate('session', nextSession => {
       const synced = nextSession
       addSessionDebugLog({type: 'persisted:receive', data: synced})
@@ -332,7 +352,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     })
   }, [store, state, resumeSession])
 
-  const stateContext = React.useMemo(
+  const stateContext = useMemo(
     () => ({
       accounts: state.accounts,
       currentAccount: state.accounts.find(
@@ -343,7 +363,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [state],
   )
 
-  const api = React.useMemo(
+  const api = useMemo(
     () => ({
       createAccount,
       login,
@@ -368,8 +388,8 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   if (__DEV__ && IS_WEB) window.agent = state.currentAgentState.agent
 
   const agent = state.currentAgentState.agent as BskyAppAgent
-  const currentAgentRef = React.useRef(agent)
-  React.useEffect(() => {
+  const currentAgentRef = useRef(agent)
+  useEffect(() => {
     if (currentAgentRef.current !== agent) {
       // Read the previous value and immediately advance the pointer.
       const prevAgent = currentAgentRef.current
@@ -400,8 +420,8 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
 }
 
 function useOneTaskAtATime() {
-  const abortController = React.useRef<AbortController | null>(null)
-  const cancelPendingTask = React.useCallback(() => {
+  const abortController = useRef<AbortController | null>(null)
+  const cancelPendingTask = useCallback(() => {
     if (abortController.current) {
       abortController.current.abort()
     }
@@ -412,11 +432,11 @@ function useOneTaskAtATime() {
 }
 
 export function useSession() {
-  return React.useContext(StateContext)
+  return useContext(StateContext)
 }
 
 export function useSessionApi() {
-  return React.useContext(ApiContext)
+  return useContext(ApiContext)
 }
 
 export function useRequireAuth() {
@@ -424,8 +444,8 @@ export function useRequireAuth() {
   const closeAll = useCloseAllActiveElements()
   const {signinDialogControl} = useGlobalDialogsControlContext()
 
-  return React.useCallback(
-    (fn: () => void) => {
+  return useCallback(
+    (fn: () => unknown) => {
       if (hasSession) {
         fn()
       } else {
@@ -438,7 +458,7 @@ export function useRequireAuth() {
 }
 
 export function useAgent(): BskyAgent {
-  const agent = React.useContext(AgentContext)
+  const agent = useContext(AgentContext)
   if (!agent) {
     throw Error('useAgent() must be below <SessionProvider>.')
   }
