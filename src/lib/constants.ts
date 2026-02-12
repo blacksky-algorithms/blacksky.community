@@ -121,6 +121,7 @@ export const BACK_HITSLOP = HITSLOP_30
 export const MAX_POST_LINES = 25
 
 export const BSKY_APP_ACCOUNT_DID = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
+export const BLACKSKY_COMMUNITY_DID = 'did:plc:kta7dqcqoamo5ixlajxbtjps'
 export const FOUNDER_DID = 'did:plc:w4xbfzo7kqfes5zb7r6qv3rw'
 
 export const BSKY_FEED_OWNER_DIDS = [BSKY_APP_ACCOUNT_DID, FOUNDER_DID]
