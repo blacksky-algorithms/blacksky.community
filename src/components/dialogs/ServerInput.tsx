@@ -144,9 +144,9 @@ function DialogInner({
           <SegmentedControl.Item
             testID="bskyServiceSelectBtn"
             value={BSKY_SERVICE}
-            label={_(msg`Bluesky`)}>
+            label={_(msg`Blacksky`)}>
             <SegmentedControl.ItemText>
-              {_(msg`Bluesky`)}
+              {_(msg`Blacksky`)}
             </SegmentedControl.ItemText>
           </SegmentedControl.Item>
           <SegmentedControl.Item
@@ -163,9 +163,9 @@ function DialogInner({
           <View role="tabpanel">
             <Admonition type="tip">
               <Trans>
-                Bluesky is an open network where you can choose your own
+                Blacksky is an open network where you can choose your own
                 provider. If you're new here, we recommend sticking with the
-                default Bluesky Social option.
+                default Blacksky option.
               </Trans>
             </Admonition>
           </View>
@@ -215,7 +215,7 @@ function DialogInner({
               </Trans>
             ) : (
               <Trans>
-                Bluesky is an open network where you can choose your hosting
+                Blacksky is an open network where you can choose your hosting
                 provider. If you're a developer, you can host your own server.
               </Trans>
             )}{' '}
