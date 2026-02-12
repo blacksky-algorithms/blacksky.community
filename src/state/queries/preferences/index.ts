@@ -9,7 +9,11 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {replaceEqualDeep} from '#/lib/functions'
 import {getAge} from '#/lib/strings/time'
-import {STALE} from '#/state/queries'
+import {
+  PERSISTED_QUERY_GCTIME,
+  PERSISTED_QUERY_ROOT,
+  STALE,
+} from '#/state/queries'
 import {
   DEFAULT_HOME_FEED_PREFS,
   DEFAULT_LOGGED_OUT_PREFERENCES,
@@ -27,17 +31,17 @@ export * from '#/state/queries/preferences/const'
 export * from '#/state/queries/preferences/moderation'
 export * from '#/state/queries/preferences/types'
 
-const preferencesQueryKeyRoot = 'getPreferences'
-export const preferencesQueryKey = [preferencesQueryKeyRoot]
+export const preferencesQueryKey = [PERSISTED_QUERY_ROOT, 'getPreferences']
 
 export function usePreferencesQuery() {
   const agent = useAgent()
 
-  return useQuery({
+  const query = useQuery({
     staleTime: STALE.SECONDS.FIFTEEN,
     structuralSharing: replaceEqualDeep,
     refetchOnWindowFocus: true,
     queryKey: preferencesQueryKey,
+    gcTime: PERSISTED_QUERY_GCTIME,
     queryFn: async () => {
       if (!agent.did) {
         return DEFAULT_LOGGED_OUT_PREFERENCES
@@ -74,6 +78,15 @@ export function usePreferencesQuery() {
       return data
     }, []),
   })
+
+  if (query.data?.birthDate) {
+    /**
+     * The persisted query cache stores dates as strings, but our code expects a `Date`.
+     */
+    query.data.birthDate = new Date(query.data.birthDate)
+  }
+
+  return query
 }
 
 export function useClearPreferencesMutation() {
@@ -169,7 +182,13 @@ export function useSetFeedViewPreferencesMutation() {
   })
 }
 
-export function useSetThreadViewPreferencesMutation() {
+export function useSetThreadViewPreferencesMutation({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: void, variables: Partial<ThreadViewPreferences>) => void
+  onError?: (error: unknown) => void
+}) {
   const queryClient = useQueryClient()
   const agent = useAgent()
 
@@ -181,6 +200,8 @@ export function useSetThreadViewPreferencesMutation() {
         queryKey: preferencesQueryKey,
       })
     },
+    onSuccess,
+    onError,
   })
 }
 

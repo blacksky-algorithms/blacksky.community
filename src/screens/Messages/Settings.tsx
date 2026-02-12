@@ -99,10 +99,12 @@ export function MessagesSettingsScreen({}: Props) {
               </Toggle.Item>
               <Toggle.Item
                 name="none"
-                label={_(msg`No one`)}
+                label={_(
+                  msg({context: 'allow messages from', message: `No one`}),
+                )}
                 style={[a.justify_between, a.py_sm]}>
                 <Toggle.LabelText>
-                  <Trans>No one</Trans>
+                  <Trans context="allow messages from">No one</Trans>
                 </Toggle.LabelText>
                 <Toggle.Radio />
               </Toggle.Item>

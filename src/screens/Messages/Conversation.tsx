@@ -15,7 +15,6 @@ import {
 } from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
-import {useEnableKeyboardControllerScreen} from '#/lib/hooks/useEnableKeyboardController'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {
   type CommonNavigatorParams,
@@ -53,8 +52,6 @@ export function MessagesConversationScreen({route}: Props) {
 
   const convoId = route.params.conversation
   const {setCurrentConvoId} = useCurrentConvoId()
-
-  useEnableKeyboardControllerScreen(true)
 
   useFocusEffect(
     useCallback(() => {

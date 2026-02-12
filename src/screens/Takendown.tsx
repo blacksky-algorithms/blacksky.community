@@ -12,7 +12,6 @@ import {
   BLUESKY_MOD_SERVICE_HEADERS,
   MAX_REPORT_REASON_GRAPHEME_LENGTH,
 } from '#/lib/constants'
-import {useEnableKeyboardController} from '#/lib/hooks/useEnableKeyboardController'
 import {cleanError} from '#/lib/strings/errors'
 import {useAgent, useSession, useSessionApi} from '#/state/session'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
@@ -121,8 +120,6 @@ export function Takendown() {
 
   const webLayout = IS_WEB && gtMobile
 
-  useEnableKeyboardController(true)
-
   return (
     <View style={[a.util_screen_outer, a.flex_1]}>
       <KeyboardAwareScrollView style={[a.flex_1, t.atoms.bg]} centerContent>
@@ -212,10 +209,10 @@ export function Takendown() {
                 <Trans>
                   Your account was found to be in violation of the{' '}
                   <SimpleInlineLinkText
-                    label={_(msg`Bluesky Social Terms of Service`)}
+                    label={_(msg`Blacksky Terms of Service`)}
                     to="https://bsky.social/about/support/tos"
                     style={[a.text_md, a.leading_snug]}>
-                    Bluesky Social Terms of Service
+                    Blacksky Terms of Service
                   </SimpleInlineLinkText>
                   . You have been sent an email outlining the specific violation
                   and suspension period, if applicable. You can appeal this
