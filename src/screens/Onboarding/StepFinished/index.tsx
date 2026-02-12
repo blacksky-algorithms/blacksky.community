@@ -14,6 +14,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
 import {
+  BLACKSKY_COMMUNITY_DID,
   BSKY_APP_ACCOUNT_DID,
   DISCOVER_SAVED_FEED,
   TIMELINE_SAVED_FEED,
@@ -98,6 +99,7 @@ export function StepFinished() {
       await Promise.all([
         bulkWriteFollows(agent, [
           BSKY_APP_ACCOUNT_DID,
+          BLACKSKY_COMMUNITY_DID,
           ...(listItems?.map(i => i.subject.did) ?? []),
         ]),
         (async () => {
