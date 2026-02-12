@@ -242,8 +242,8 @@ function GermSelfButton({did}: {did: string}) {
             <Trans>
               This button lets others open the Germ DM app to send you a
               message. You can manage its visibility from the Germ DM app, or
-              you can disconnect your Bluesky account from Germ DM altogether by
-              clicking the button below.
+              you can disconnect your Blacksky account from Germ DM altogether
+              by clicking the button below.
             </Trans>
           </Text>
           <View style={[a.mt_2xl, a.gap_md]}>
