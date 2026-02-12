@@ -4,7 +4,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {useOnboardingDispatch} from '#/state/shell'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {
   atoms as a,
@@ -15,13 +14,12 @@ import {
   useTheme,
   web,
 } from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon} from '#/components/Button'
 import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeft} from '#/components/icons/Arrow'
 import {HEADER_SLOT_SIZE} from '#/components/Layout'
 import {createPortalGroup} from '#/components/Portal'
 import {P, Text} from '#/components/Typography'
 import {IS_ANDROID, IS_WEB} from '#/env'
-import {IS_INTERNAL} from '#/env'
 
 const ONBOARDING_COL_WIDTH = 420
 
@@ -33,7 +31,6 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
   const t = useTheme()
   const insets = useSafeAreaInsets()
   const {gtMobile} = useBreakpoints()
-  const onboardDispatch = useOnboardingDispatch()
   const {state, dispatch} = useOnboardingInternalState()
   const scrollview = useRef<ScrollView>(null)
   const prevActiveStep = useRef<string>(state.activeStep)
@@ -101,45 +98,13 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
               )}
             </HeaderSlot>
 
-            {IS_INTERNAL && (
-              <Button
-                variant="ghost"
-                color="negative"
-                size="tiny"
-                onPress={() => onboardDispatch({type: 'skip'})}
-                // DEV ONLY
-                label="Clear onboarding state">
-                <ButtonText>[DEV] Clear</ButtonText>
-              </Button>
-            )}
-
             <HeaderSlot>
               <OnboardingHeaderSlot.Outlet />
             </HeaderSlot>
           </View>
         </View>
       ) : (
-        <>
-          {IS_INTERNAL && (
-            <View
-              style={[
-                a.absolute,
-                a.align_center,
-                a.z_10,
-                {top: 0, left: 0, right: 0},
-              ]}>
-              <Button
-                variant="ghost"
-                color="negative"
-                size="tiny"
-                onPress={() => onboardDispatch({type: 'skip'})}
-                // DEV ONLY
-                label="Clear onboarding state">
-                <ButtonText>[DEV] Clear</ButtonText>
-              </Button>
-            </View>
-          )}
-        </>
+        <></>
       )}
 
       <ScrollView
