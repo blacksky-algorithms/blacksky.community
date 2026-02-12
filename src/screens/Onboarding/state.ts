@@ -74,17 +74,19 @@ export type OnboardingAction =
 
 export function createInitialOnboardingState(
   {
+    suggestedAccountsStepEnabled,
     starterPacksStepEnabled,
     findContactsStepEnabled,
   }: {
+    suggestedAccountsStepEnabled: boolean
     starterPacksStepEnabled: boolean
     findContactsStepEnabled: boolean
-  } = {starterPacksStepEnabled: true, findContactsStepEnabled: false},
+  } = {suggestedAccountsStepEnabled: false, starterPacksStepEnabled: false, findContactsStepEnabled: false},
 ): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
     interests: true,
-    'suggested-accounts': true,
+    'suggested-accounts': suggestedAccountsStepEnabled,
     'suggested-starterpacks': starterPacksStepEnabled,
     'find-contacts-intro': findContactsStepEnabled,
     'find-contacts': findContactsStepEnabled,
@@ -149,6 +151,7 @@ export function reducer(
     }
     case 'finish': {
       next = createInitialOnboardingState({
+        suggestedAccountsStepEnabled: s.screens['suggested-accounts'],
         starterPacksStepEnabled: s.screens['suggested-starterpacks'],
         findContactsStepEnabled: s.screens['find-contacts'],
       })

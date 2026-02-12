@@ -1,9 +1,7 @@
 import {useMemo, useReducer} from 'react'
 import {View} from 'react-native'
-import * as bcp47Match from 'bcp-47-match'
 
 import {useEnableKeyboardControllerScreen} from '#/lib/hooks/useEnableKeyboardController'
-import {useLanguagePrefs} from '#/state/preferences'
 import {
   Layout,
   OnboardingControls,
@@ -33,15 +31,6 @@ export function Onboarding() {
   const t = useTheme()
   const ax = useAnalytics()
 
-  const {contentLanguages} = useLanguagePrefs()
-  const probablySpeaksEnglish = useMemo(() => {
-    if (contentLanguages.length === 0) return true
-    return bcp47Match.basicFilter('en', contentLanguages).length > 0
-  }, [contentLanguages])
-
-  // starter packs screen is currently geared towards english-speaking accounts
-  const showSuggestedStarterpacks = ENV !== 'e2e' && probablySpeaksEnglish
-
   const findContactsEnabled =
     useIsFindContactsFeatureEnabledBasedOnGeolocation()
   const showFindContacts =
@@ -53,7 +42,8 @@ export function Onboarding() {
   const [state, dispatch] = useReducer(
     reducer,
     {
-      starterPacksStepEnabled: showSuggestedStarterpacks,
+      suggestedAccountsStepEnabled: false,
+      starterPacksStepEnabled: false,
       findContactsStepEnabled: showFindContacts,
     },
     createInitialOnboardingState,
