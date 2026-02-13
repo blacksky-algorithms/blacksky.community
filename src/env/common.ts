@@ -46,7 +46,7 @@ export const IS_INTERNAL = IS_DEV || IS_TESTFLIGHT
  * Useful for debugging/reporting.
  */
 export const BUNDLE_IDENTIFIER: string =
-  process.env.EXPO_PUBLIC_BUNDLE_IDENTIFIER || 'dev'
+  process.env.EXPO_PUBLIC_BUNDLE_IDENTIFIER || ENV || 'dev'
 
 /**
  * This will always be in the format of YYMMDDHH, so that it always increases

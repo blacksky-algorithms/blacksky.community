@@ -27,7 +27,7 @@ export function accountToSessionMetadata(
   } else {
     return {
       did: account.did,
-      isBskyPds: account.service.startsWith(BSKY_SERVICE),
+      isBlackskyPds: account.service.startsWith(BSKY_SERVICE),
     }
   }
 }

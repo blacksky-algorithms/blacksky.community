@@ -16,7 +16,7 @@ export type GeolocationMetadata = {
 
 export type SessionMetadata = {
   did: string
-  isBskyPds: boolean
+  isBlackskyPds: boolean
 }
 
 export type PreferencesMetadata = {
@@ -75,6 +75,6 @@ export function getMetadataForLogger({
     appVersion: base.appVersion,
     countryCode: geolocation.countryCode,
     regionCode: geolocation.regionCode,
-    isBskyPds: session?.isBskyPds || 'anonymous',
+    isBlackskyPds: session?.isBlackskyPds || 'anonymous',
   }
 }
