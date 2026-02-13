@@ -43,7 +43,7 @@ export const features = new GrowthBook({
  * that case, we may see a flash of uncustomized content until the
  * initialization completes.
  */
-export const init = features.init({timeout: TIMEOUT_INIT}).catch(() => {
+export const init = features.init({timeout: TIMEOUT_INIT, streaming: true}).catch(() => {
   // Swallow errors from GrowthBook init (e.g. CORS failures, cache
   // corruption). The app should still load without feature gates.
 })
