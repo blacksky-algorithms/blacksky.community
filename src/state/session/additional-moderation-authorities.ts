@@ -72,7 +72,7 @@ export function isNonConfigurableModerationAuthority(did: string) {
 
 export function configureAdditionalModerationAuthorities() {
   // Without geolocation, default to all moderation authorities
-  let additionalLabelers: string[] = MODERATION_AUTHORITIES_DIDS
+  let additionalLabelers: string[] = [...MODERATION_AUTHORITIES_DIDS]
 
   if (__DEV__) {
     additionalLabelers = []
