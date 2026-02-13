@@ -3,7 +3,10 @@ import {BSKY_LABELER_DID, BskyAgent} from '@atproto/api'
 
 import {IS_TEST_USER} from '#/lib/constants'
 import {getNoAppLabelers} from '../preferences/no-app-labelers'
-import {configureAdditionalModerationAuthorities} from './additional-moderation-authorities'
+import {
+  BLACKSKY_LABELER,
+  configureAdditionalModerationAuthorities,
+} from './additional-moderation-authorities'
 import {readLabelers} from './agent-config'
 import {type SessionAccount} from './types'
 
@@ -29,7 +32,9 @@ export async function configureModerationForAccount(
   const labelerDids = await readLabelers(account.did).catch(_ => {})
   if (labelerDids) {
     agent.configureLabelersHeader(
-      labelerDids.filter(did => did !== BSKY_LABELER_DID),
+      labelerDids.filter(
+        did => did !== BSKY_LABELER_DID && did !== BLACKSKY_LABELER,
+      ),
     )
   } else {
     // If there are no headers in the storage, we'll not send them on the initial requests.
