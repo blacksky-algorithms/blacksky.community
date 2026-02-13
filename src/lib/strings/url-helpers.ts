@@ -7,7 +7,7 @@ import {isInvalidHandle} from '#/lib/strings/handles'
 import {startUriToStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
 
-export const BSKY_APP_HOST = 'https://staging.blacksky.community'
+export const BSKY_APP_HOST = 'https://blacksky.community'
 const BSKY_TRUSTED_HOSTS = [
   'blacksky\\.community',
   'staging\\.blacksky\\.community',
@@ -88,7 +88,7 @@ export function toShortUrl(url: string): string {
 
 export function toShareUrl(url: string): string {
   if (!url.startsWith('https')) {
-    const urlp = new URL('https://staging.blacksky.community')
+    const urlp = new URL('https://blacksky.community')
     urlp.pathname = url
     url = urlp.toString()
   }
