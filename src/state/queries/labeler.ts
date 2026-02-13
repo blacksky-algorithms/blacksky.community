@@ -3,6 +3,7 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {z} from 'zod'
 
 import {MAX_LABELERS} from '#/lib/constants'
+import {isAppLabeler} from '#/lib/moderation'
 import {
   PERSISTED_QUERY_GCTIME,
   PERSISTED_QUERY_ROOT,
@@ -136,6 +137,9 @@ export function useLabelerSubscriptionMutation() {
         }
         await agent.addLabeler(did)
       } else {
+        if (isAppLabeler(did)) {
+          return
+        }
         await agent.removeLabeler(did)
       }
     },
