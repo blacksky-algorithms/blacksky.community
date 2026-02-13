@@ -81,7 +81,7 @@ export function setAttributes({
     countryCode: geolocation.countryCode,
     regionCode: geolocation.regionCode,
     did: session?.did,
-    isBskyPds: session?.isBskyPds,
+    isBlackskyPds: session?.isBlackskyPds,
     appLanguage: preferences?.appLanguage,
     contentLanguages: preferences?.contentLanguages,
     currentScreen: getNavigationMetadata()?.currentScreen,
