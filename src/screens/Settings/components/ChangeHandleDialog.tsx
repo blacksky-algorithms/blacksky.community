@@ -62,12 +62,12 @@ export function ChangeHandleDialog({
 function ChangeHandleDialogInner() {
   const control = Dialog.useDialogContext()
   const {_} = useLingui()
-  const agent = useAgent()
+  const {currentAccount} = useSession()
   const {
     data: serviceInfo,
     error: serviceInfoError,
     refetch,
-  } = useServiceQuery(agent.serviceUrl.toString())
+  } = useServiceQuery(currentAccount!.service)
 
   const [page, setPage] = useState<'provided-handle' | 'own-handle'>(
     'provided-handle',
