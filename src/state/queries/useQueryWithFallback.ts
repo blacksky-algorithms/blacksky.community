@@ -16,14 +16,19 @@ import {
   buildSyntheticPostView,
   buildSyntheticProfileView,
   isAppViewError,
+  isAuthorModerated,
+  isPostModerated,
   resolveIdentityViaSlingshot,
 } from './microcosm-fallback'
+import {postViewToThreadPlaceholder} from './usePostThread/views'
 
 /**
  * Extended query options that include fallback configuration
  */
-export interface UseQueryWithFallbackOptions<TData, TError>
-  extends UseQueryOptions<TData, TError> {
+export interface UseQueryWithFallbackOptions<
+  TData,
+  TError,
+> extends UseQueryOptions<TData, TError> {
   /**
    * Enable automatic fallback to PDS + Microcosm on AppView errors
    * @default true for profile/post queries, false otherwise
@@ -45,15 +50,18 @@ export interface UseQueryWithFallbackOptions<TData, TError>
 /**
  * Extended infinite query options that include fallback configuration
  */
-export interface UseInfiniteQueryWithFallbackOptions<TData, TError, TPageParam>
-  extends UseInfiniteQueryOptions<
-    TData,
-    TError,
-    TData,
-    TData,
-    any,
-    TPageParam
-  > {
+export interface UseInfiniteQueryWithFallbackOptions<
+  TData,
+  TError,
+  TPageParam,
+> extends UseInfiniteQueryOptions<
+  TData,
+  TError,
+  TData,
+  TData,
+  any,
+  TPageParam
+> {
   /**
    * Enable automatic fallback to PDS + Microcosm on AppView errors
    * @default false
@@ -116,7 +124,7 @@ export function useQuery<TData = unknown, TError = Error>(
 
     try {
       // Try the original query function (AppView)
-      return await (queryFn as Function)(context) as Awaited<TData>
+      return (await (queryFn as Function)(context)) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -219,7 +227,7 @@ export function useInfiniteQuery<
 
     try {
       // Try the original query function (AppView)
-      return await (queryFn as Function)(context) as Awaited<TData>
+      return (await (queryFn as Function)(context)) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -329,10 +337,20 @@ async function attemptFallback(
     }
 
     case 'thread': {
-      // For threads, fetch the root post and build thread structure
       const urip = new AtUri(identifier)
       const identity = await resolveIdentityViaSlingshot(urip.host)
       if (!identity) return null
+
+      // Check moderation before allowing thread fallback
+      const [authorModerated, postModerated] = await Promise.all([
+        isAuthorModerated(identity.did),
+        isPostModerated(identifier),
+      ])
+
+      if (authorModerated || postModerated) {
+        console.log('[Fallback] Thread blocked by moderation for', identifier)
+        return null
+      }
 
       const post = await buildSyntheticPostView(
         queryClient,
@@ -340,13 +358,13 @@ async function attemptFallback(
         identity.did,
         identity.handle,
       )
+      if (!post) return null
 
-      // Return thread structure with single post
+      // Return V2 thread format expected by usePostThread
       return {
-        type: 'post',
-        post,
-        parent: undefined,
-        replies: [],
+        thread: [postViewToThreadPlaceholder(post)],
+        threadgate: undefined,
+        hasOtherReplies: false,
       }
     }
 
@@ -436,7 +454,7 @@ export async function fetchQueryWithFallback<TData = unknown, TError = Error>(
 
     try {
       // Try the original query function (AppView)
-      return await (queryFn as Function)(context) as Awaited<TData>
+      return (await (queryFn as Function)(context)) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
@@ -543,7 +561,7 @@ export async function prefetchQueryWithFallback<
 
     try {
       // Try the original query function (AppView)
-      return await (queryFn as Function)(context) as Awaited<TData>
+      return (await (queryFn as Function)(context)) as Awaited<TData>
     } catch (error: any) {
       // If fallback is disabled or this isn't an AppView error, re-throw
       if (!enableFallback || !isAppViewError(error)) {
