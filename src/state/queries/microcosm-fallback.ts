@@ -1,6 +1,7 @@
 import {AtUri} from '@atproto/api'
 import {type QueryClient} from '@tanstack/react-query'
 
+import {PUBLIC_APPVIEW} from '#/lib/constants'
 import {isDidBlocked} from './my-blocked-accounts'
 import {isDidMuted} from './my-muted-accounts'
 
@@ -17,8 +18,7 @@ export interface ConstellationCounts {
   likeCount: number
   repostCount: number
   replyCount: number
-  // might need a saves/bookmark counter
-  // bookmarkCount: number
+  quoteCount: number
 }
 
 /**
@@ -106,10 +106,13 @@ export async function fetchConstellationCounts(
         links?.['app.bsky.feed.repost']?.['.subject.uri']?.distinct_dids ?? 0,
       replyCount:
         links?.['app.bsky.feed.post']?.['.reply.parent.uri']?.records ?? 0,
+      quoteCount:
+        links?.['app.bsky.feed.post']?.['.embed.record.uri']?.distinct_dids ??
+        0,
     }
   } catch (e) {
     console.error('Constellation fetch failed:', e)
-    return {likeCount: 0, repostCount: 0, replyCount: 0}
+    return {likeCount: 0, repostCount: 0, replyCount: 0, quoteCount: 0}
   }
 }
 
@@ -302,19 +305,279 @@ export async function buildSyntheticPostView(
   // For now we just use empty viewer as we can't determine these from PDS
   const postViewer = {}
 
+  const embeds = resolveRecordEmbeds(authorDid, record.value)
+
   return {
     $type: 'app.bsky.feed.defs#postView',
     uri: atUri,
     cid: record.cid,
     author: profileView,
     record: record.value,
-    indexedAt: new Date().toISOString(),
+    embed: embeds.length > 0 ? embeds[0] : undefined,
+    indexedAt: record.value?.createdAt || new Date().toISOString(),
     likeCount: counts.likeCount,
     repostCount: counts.repostCount,
     replyCount: counts.replyCount,
+    quoteCount: counts.quoteCount,
     viewer: postViewer, // Post-level viewer state (likes, reposts, etc)
     labels: [],
     __fallbackMode: true, // Mark as fallback data
+  }
+}
+
+// Blacksky moderation account DID - labels from this account are authoritative
+const BLACKSKY_MOD_DID = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
+
+// Label values that indicate content should not be shown
+const MODERATION_LABEL_VALUES = ['!takedown', '!suspend', '!hide']
+
+/**
+ * Check if an author is under active moderation action by our AppView.
+ *
+ * Queries the AppView's public getProfile endpoint. If the AppView returns
+ * AccountTakedown, suspended, or deactivated, the author is under moderation
+ * and fallback MUST NOT bypass it.
+ *
+ * Returns true if the author is moderated (do NOT fallback).
+ * Returns false if the author is simply not synced yet (safe to fallback).
+ */
+export async function isAuthorModerated(did: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `${PUBLIC_APPVIEW}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`,
+    )
+
+    if (res.ok) {
+      // AppView has this author and returned a profile. Check for
+      // takedown/suspend labels on the profile itself.
+      const profile = await res.json()
+      const labels: Array<{val: string}> = profile.labels || []
+      return labels.some(l => MODERATION_LABEL_VALUES.includes(l.val))
+    }
+
+    // Check error response for moderation signals
+    const errorBody = await res.json().catch(() => null)
+    const errorName = errorBody?.error || ''
+    const errorMsg = (errorBody?.message || '').toLowerCase()
+
+    // AppView explicitly says account is taken down or suspended
+    if (
+      errorName === 'AccountTakedown' ||
+      errorMsg.includes('suspended') ||
+      errorMsg.includes('taken down') ||
+      errorMsg.includes('deactivated')
+    ) {
+      return true
+    }
+
+    // 404 / generic not found = author not synced, safe to fallback
+    return false
+  } catch {
+    // Network error querying AppView -- err on the side of caution
+    // and allow fallback (the AppView being down is exactly when
+    // fallback is most needed)
+    return false
+  }
+}
+
+/**
+ * Check if a specific post has moderation labels applied by Blacksky.
+ *
+ * Uses com.atproto.label.queryLabels to check if the Blacksky moderation
+ * account has applied takedown/suspend labels to this specific post URI.
+ * This catches per-post takedowns that wouldn't be caught by the author check.
+ */
+export async function isPostModerated(atUri: string): Promise<boolean> {
+  try {
+    const params = new URLSearchParams()
+    params.append('uriPatterns', atUri)
+    params.append('sources', BLACKSKY_MOD_DID)
+    const res = await fetch(
+      `${PUBLIC_APPVIEW}/xrpc/com.atproto.label.queryLabels?${params}`,
+    )
+    if (!res.ok) return false
+
+    const data = await res.json()
+    const labels: Array<{val: string; neg?: boolean}> = data.labels || []
+
+    // Check for active (non-negated) moderation labels
+    return labels.some(l => !l.neg && MODERATION_LABEL_VALUES.includes(l.val))
+  } catch {
+    // If label query fails, don't block fallback -- the author-level
+    // check is the primary guard
+    return false
+  }
+}
+
+/**
+ * Resolve raw embed declaration from a post record into a resolved embed view.
+ *
+ * Converts blob references into CDN URLs so the UI can render link cards,
+ * images, and video thumbnails for fallback posts.
+ *
+ * CDN pattern: https://cdn.bsky.app/img/{preset}/plain/{did}/{cid}@jpeg
+ *
+ * Does NOT recursively resolve nested app.bsky.embed.record (quoted posts)
+ * to avoid infinite recursion and extra round-trips.
+ */
+function resolveRecordEmbeds(authorDid: string, recordValue: any): any[] {
+  if (!recordValue?.embed) return []
+
+  const embed = recordValue.embed
+  const resolved = resolveSingleEmbed(authorDid, embed)
+  return resolved ? [resolved] : []
+}
+
+function resolveSingleEmbed(authorDid: string, embed: any): any | null {
+  if (!embed?.$type) return null
+
+  switch (embed.$type) {
+    case 'app.bsky.embed.external': {
+      const ext = embed.external
+      if (!ext) return null
+
+      let thumbUrl: string | undefined
+      if (ext.thumb?.ref?.$link) {
+        thumbUrl = `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorDid}/${ext.thumb.ref.$link}@jpeg`
+      }
+
+      return {
+        $type: 'app.bsky.embed.external#view',
+        external: {
+          uri: ext.uri,
+          title: ext.title || '',
+          description: ext.description || '',
+          thumb: thumbUrl,
+        },
+      }
+    }
+
+    case 'app.bsky.embed.images': {
+      const images = embed.images
+      if (!Array.isArray(images)) return null
+
+      return {
+        $type: 'app.bsky.embed.images#view',
+        images: images.map((img: any) => {
+          const cid = img.image?.ref?.$link
+          return {
+            thumb: cid
+              ? `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorDid}/${cid}@jpeg`
+              : '',
+            fullsize: cid
+              ? `https://cdn.bsky.app/img/feed_fullsize/plain/${authorDid}/${cid}@jpeg`
+              : '',
+            alt: img.alt || '',
+            aspectRatio: img.aspectRatio,
+          }
+        }),
+      }
+    }
+
+    case 'app.bsky.embed.video': {
+      const cid = embed.video?.ref?.$link
+      if (!cid) return null
+
+      return {
+        $type: 'app.bsky.embed.video#view',
+        cid,
+        playlist: `https://video.bsky.app/watch/${authorDid}/${cid}/playlist.m3u8`,
+        thumbnail: `https://video.bsky.app/watch/${authorDid}/${cid}/thumbnail.jpg`,
+        alt: embed.alt || '',
+        aspectRatio: embed.aspectRatio,
+      }
+    }
+
+    case 'app.bsky.embed.recordWithMedia': {
+      // Resolve the media portion only; skip the nested record
+      const mediaView = resolveSingleEmbed(authorDid, embed.media)
+      if (!mediaView) return null
+
+      return {
+        $type: 'app.bsky.embed.recordWithMedia#view',
+        media: mediaView,
+        record: {
+          $type: 'app.bsky.embed.record#view',
+          record: {
+            $type: 'app.bsky.embed.record#viewNotFound',
+            uri: embed.record?.record?.uri || '',
+            notFound: true,
+          },
+        },
+      }
+    }
+
+    default:
+      return null
+  }
+}
+
+/**
+ * Build synthetic embed ViewRecord from Slingshot + Constellation data
+ *
+ * Returns an AppBskyEmbedRecord.ViewRecord-shaped object for use in
+ * embedded/quoted post fallback rendering when the appview returns ViewNotFound.
+ *
+ * SECURITY: Checks both author-level and post-level moderation before
+ * allowing fallback. Inherits block/mute checking from buildSyntheticProfileView.
+ */
+export async function buildSyntheticEmbedViewRecord(
+  queryClient: QueryClient,
+  atUri: string,
+): Promise<any | null> {
+  const urip = new AtUri(atUri)
+  const authorDid = urip.host
+
+  // SECURITY: Check author-level and post-level moderation in parallel.
+  // This prevents fallback from bypassing AppView takedowns/suspensions.
+  const [authorModerated, postModerated] = await Promise.all([
+    isAuthorModerated(authorDid),
+    isPostModerated(atUri),
+  ])
+
+  if (authorModerated) {
+    console.log(
+      '[Embed Fallback] Author is moderated, refusing fallback for',
+      atUri,
+    )
+    return null
+  }
+  if (postModerated) {
+    console.log(
+      '[Embed Fallback] Post is moderated, refusing fallback for',
+      atUri,
+    )
+    return null
+  }
+
+  const identity = await resolveIdentityViaSlingshot(authorDid)
+  if (!identity) return null
+
+  const record = await fetchRecordViaSlingshot(atUri)
+  if (!record) return null
+
+  const counts = await fetchConstellationCounts(atUri)
+
+  const profileView = await buildSyntheticProfileView(
+    queryClient,
+    authorDid,
+    identity.handle,
+  )
+
+  return {
+    $type: 'app.bsky.embed.record#viewRecord',
+    uri: atUri,
+    cid: record.cid,
+    author: profileView,
+    value: record.value,
+    embeds: resolveRecordEmbeds(authorDid, record.value),
+    indexedAt: record.value?.createdAt || new Date().toISOString(),
+    likeCount: counts.likeCount,
+    repostCount: counts.repostCount,
+    replyCount: counts.replyCount,
+    quoteCount: counts.quoteCount,
+    labels: [],
+    __fallbackMode: true,
   }
 }
 

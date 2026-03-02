@@ -13,6 +13,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {makeProfileLink} from '#/lib/routes/links'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
+import {useEmbedFallback} from '#/state/queries/embed-fallback'
 import {unstableCacheProfileView} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {Link} from '#/view/com/util/Link'
@@ -174,11 +175,7 @@ function RecordEmbed({
       )
     }
     case 'post_not_found': {
-      return (
-        <PostPlaceholderText>
-          <Trans>Deleted</Trans>
-        </PostPlaceholderText>
-      )
+      return <PostNotFoundEmbed embed={embed} {...rest} />
     }
     case 'post_blocked': {
       return (
@@ -213,6 +210,49 @@ export function PostDetachedEmbed({
       ) : (
         <Trans>Removed by author</Trans>
       )}
+    </PostPlaceholderText>
+  )
+}
+
+/*
+ * Attempts Slingshot fallback before showing "Deleted" for embedded posts
+ * that our appview hasn't synced yet.
+ */
+function PostNotFoundEmbed({
+  embed,
+  ...rest
+}: CommonProps & {embed: EmbedType<'post_not_found'>}) {
+  const {data: fallbackRecord, isLoading} = useEmbedFallback({
+    uri: embed.view.uri,
+  })
+
+  if (isLoading) {
+    return (
+      <PostPlaceholderText>
+        <Trans>Loading...</Trans>
+      </PostPlaceholderText>
+    )
+  }
+
+  if (fallbackRecord) {
+    return (
+      <QuoteEmbed
+        {...rest}
+        embed={{type: 'post', view: fallbackRecord}}
+        viewContext={
+          rest.viewContext === PostEmbedViewContext.Feed
+            ? QuoteEmbedViewContext.FeedEmbedRecordWithMedia
+            : undefined
+        }
+        isWithinQuote={rest.isWithinQuote}
+        allowNestedQuotes={rest.allowNestedQuotes}
+      />
+    )
+  }
+
+  return (
+    <PostPlaceholderText>
+      <Trans>Deleted</Trans>
     </PostPlaceholderText>
   )
 }
