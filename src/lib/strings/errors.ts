@@ -30,6 +30,15 @@ export function cleanError(str: any): string {
   if (str.includes('Bad token scope') || str.includes('Bad token method')) {
     return t`This feature is not available while using an App Password. Please sign in with your main password.`
   }
+  if (str.includes('OAuth credentials are not supported')) {
+    return t`This feature is not available when signed in with OAuth. Please manage your account through your hosting provider's website.`
+  }
+  if (
+    str.includes('ScopeMissingError') ||
+    str.includes('Missing required scope')
+  ) {
+    return t`This feature is not available with your current session. Please manage your account through your hosting provider's website, or sign out and sign back in to refresh your permissions.`
+  }
   if (str.includes('Account has been suspended')) {
     return t`Account has been suspended`
   }

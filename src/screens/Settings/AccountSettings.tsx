@@ -1,7 +1,9 @@
+import {Linking} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
+import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {useModalControls} from '#/state/modals'
 import {useSession} from '#/state/session'
@@ -40,6 +42,18 @@ export function AccountSettingsScreen({}: Props) {
   const changePasswordControl = useDialogControl()
   const exportCarControl = useDialogControl()
   const deactivateAccountControl = useDialogControl()
+
+  const isOauth = currentAccount?.isOauthSession === true
+  const isBskyPds = useIsBlackskyPds()
+  const pdsAccountUrl = currentAccount?.service
+    ? `${currentAccount.service}/account`
+    : undefined
+
+  const openPdsAccountPage = () => {
+    if (pdsAccountUrl) {
+      void Linking.openURL(pdsAccountUrl)
+    }
+  }
 
   return (
     <Layout.Screen>
@@ -105,9 +119,11 @@ export function AccountSettingsScreen({}: Props) {
           <SettingsList.PressableItem
             label={_(msg`Update email`)}
             onPress={() =>
-              emailDialogControl.open({
-                id: EmailDialogScreenID.Update,
-              })
+              isOauth && !isBskyPds
+                ? openPdsAccountPage()
+                : emailDialogControl.open({
+                    id: EmailDialogScreenID.Update,
+                  })
             }>
             <SettingsList.ItemIcon icon={PencilIcon} />
             <SettingsList.ItemText>
@@ -157,7 +173,11 @@ export function AccountSettingsScreen({}: Props) {
           </SettingsList.PressableItem>
           <SettingsList.PressableItem
             label={_(msg`Deactivate account`)}
-            onPress={() => deactivateAccountControl.open()}
+            onPress={() =>
+              isOauth && !isBskyPds
+                ? openPdsAccountPage()
+                : deactivateAccountControl.open()
+            }
             destructive>
             <SettingsList.ItemIcon icon={FreezeIcon} />
             <SettingsList.ItemText>
@@ -167,7 +187,11 @@ export function AccountSettingsScreen({}: Props) {
           </SettingsList.PressableItem>
           <SettingsList.PressableItem
             label={_(msg`Delete account`)}
-            onPress={() => openModal({name: 'delete-account'})}
+            onPress={() =>
+              isOauth && !isBskyPds
+                ? openPdsAccountPage()
+                : openModal({name: 'delete-account'})
+            }
             destructive>
             <SettingsList.ItemIcon icon={Trash_Stroke2_Corner2_Rounded} />
             <SettingsList.ItemText>

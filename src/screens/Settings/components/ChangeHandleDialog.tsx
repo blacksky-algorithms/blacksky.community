@@ -17,8 +17,11 @@ import {useMutation, useQueryClient} from '@tanstack/react-query'
 
 import {HITSLOP_10, urls} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
-import {createFullHandle, validateServiceHandle} from '#/lib/strings/handles'
-import {sanitizeHandle} from '#/lib/strings/handles'
+import {
+  createFullHandle,
+  sanitizeHandle,
+  validateServiceHandle,
+} from '#/lib/strings/handles'
 import {useFetchDid, useUpdateHandleMutation} from '#/state/queries/handle'
 import {RQKEY as RQKEY_PROFILE} from '#/state/queries/profile'
 import {useServiceQuery} from '#/state/queries/service'
@@ -173,7 +176,11 @@ function ProvidedHandlePage({
           queryKey: RQKEY_PROFILE(currentAccount.did),
         })
       }
-      agent.resumeSession(agent.session!).then(() => control.close())
+      if ('resumeSession' in agent && agent.session) {
+        agent.resumeSession(agent.session).then(() => control.close())
+      } else {
+        control.close()
+      }
     },
   })
 
@@ -401,7 +408,11 @@ function OwnHandlePage({goToServiceHandle}: {goToServiceHandle: () => void}) {
           queryKey: RQKEY_PROFILE(currentAccount.did),
         })
       }
-      agent.resumeSession(agent.session!).then(() => control.close())
+      if ('resumeSession' in agent && agent.session) {
+        agent.resumeSession(agent.session).then(() => control.close())
+      } else {
+        control.close()
+      }
     },
   })
 
