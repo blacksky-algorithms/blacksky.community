@@ -13,7 +13,10 @@ import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
 
-import {useAppPasswordCreateMutation} from '#/state/queries/app-passwords'
+import {
+  type GatekeeperConfig,
+  useAppPasswordCreateMutation,
+} from '#/state/queries/app-passwords'
 import {atoms as a, native, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -29,20 +32,28 @@ import {CopyButton} from './CopyButton'
 export function AddAppPasswordDialog({
   control,
   passwords,
+  gatekeeper,
 }: {
   control: Dialog.DialogControlProps
   passwords: string[]
+  gatekeeper?: GatekeeperConfig
 }) {
   const {height} = useWindowDimensions()
   return (
     <Dialog.Outer control={control} nativeOptions={{minHeight: height}}>
       <Dialog.Handle />
-      <CreateDialogInner passwords={passwords} />
+      <CreateDialogInner passwords={passwords} gatekeeper={gatekeeper} />
     </Dialog.Outer>
   )
 }
 
-function CreateDialogInner({passwords}: {passwords: string[]}) {
+function CreateDialogInner({
+  passwords,
+  gatekeeper,
+}: {
+  passwords: string[]
+  gatekeeper?: GatekeeperConfig
+}) {
   const control = Dialog.useDialogContext()
   const t = useTheme()
   const {_} = useLingui()
@@ -53,7 +64,7 @@ function CreateDialogInner({passwords}: {passwords: string[]}) {
     mutateAsync: actuallyCreateAppPassword,
     error: apiError,
     data,
-  } = useAppPasswordCreateMutation()
+  } = useAppPasswordCreateMutation(gatekeeper)
 
   const regexFailError = useMemo(
     () =>
