@@ -95,3 +95,49 @@ export async function gateDeactivateAccount(params: {
     password: params.password,
   })
 }
+
+export async function gateListAppPasswords(params: {
+  serviceUrl: string
+  did: string
+  password: string
+}): Promise<{
+  passwords: {name: string; createdAt: string; privileged?: boolean}[]
+}> {
+  return await gatekeeperPost(params.serviceUrl, '/gate/list-app-passwords', {
+    did: params.did,
+    password: params.password,
+  })
+}
+
+export async function gateCreateAppPassword(params: {
+  serviceUrl: string
+  did: string
+  password: string
+  name: string
+  privileged?: boolean
+}): Promise<{
+  name: string
+  password: string
+  createdAt: string
+  privileged?: boolean
+}> {
+  return await gatekeeperPost(params.serviceUrl, '/gate/create-app-password', {
+    did: params.did,
+    password: params.password,
+    name: params.name,
+    privileged: params.privileged,
+  })
+}
+
+export async function gateRevokeAppPassword(params: {
+  serviceUrl: string
+  did: string
+  password: string
+  name: string
+}): Promise<void> {
+  await gatekeeperPost(params.serviceUrl, '/gate/revoke-app-password', {
+    did: params.did,
+    password: params.password,
+    name: params.name,
+  })
+}
