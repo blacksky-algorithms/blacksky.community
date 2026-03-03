@@ -1,8 +1,10 @@
+import {Linking} from 'react-native'
 import {type AppBskyNotificationDeclaration} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
+import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {useNotificationDeclarationQuery} from '#/state/queries/activity-subscriptions'
 import {useAppPasswordsQuery} from '#/state/queries/app-passwords'
@@ -27,8 +29,10 @@ type Props = NativeStackScreenProps<
 export function PrivacyAndSecuritySettingsScreen({}: Props) {
   const {_} = useLingui()
   const t = useTheme()
-  const {data: appPasswords} = useAppPasswordsQuery()
   const {currentAccount} = useSession()
+  const isOauth = currentAccount?.isOauthSession === true
+  const isBskyPds = useIsBlackskyPds()
+  const {data: appPasswords} = useAppPasswordsQuery()
   const {
     data: notificationDeclaration,
     isPending,
@@ -66,19 +70,38 @@ export function PrivacyAndSecuritySettingsScreen({}: Props) {
             </SettingsList.ItemText>
             <Email2FAToggle />
           </SettingsList.Item>
-          <SettingsList.LinkItem
-            to="/settings/app-passwords"
-            label={_(msg`App passwords`)}>
-            <SettingsList.ItemIcon icon={KeyIcon} />
-            <SettingsList.ItemText>
-              <Trans>App passwords</Trans>
-            </SettingsList.ItemText>
-            {appPasswords && appPasswords.length > 0 && (
-              <SettingsList.BadgeText>
-                {appPasswords.length}
-              </SettingsList.BadgeText>
-            )}
-          </SettingsList.LinkItem>
+          {isOauth && !isBskyPds ? (
+            <SettingsList.PressableItem
+              label={_(msg`App passwords`)}
+              onPress={() => {
+                const pdsAccountUrl = currentAccount?.service
+                  ? `${currentAccount.service}/account`
+                  : undefined
+                if (pdsAccountUrl) {
+                  void Linking.openURL(pdsAccountUrl)
+                }
+              }}>
+              <SettingsList.ItemIcon icon={KeyIcon} />
+              <SettingsList.ItemText>
+                <Trans>App passwords</Trans>
+              </SettingsList.ItemText>
+              <SettingsList.Chevron />
+            </SettingsList.PressableItem>
+          ) : (
+            <SettingsList.LinkItem
+              to="/settings/app-passwords"
+              label={_(msg`App passwords`)}>
+              <SettingsList.ItemIcon icon={KeyIcon} />
+              <SettingsList.ItemText>
+                <Trans>App passwords</Trans>
+              </SettingsList.ItemText>
+              {appPasswords && appPasswords.length > 0 && (
+                <SettingsList.BadgeText>
+                  {appPasswords.length}
+                </SettingsList.BadgeText>
+              )}
+            </SettingsList.LinkItem>
+          )}
           <SettingsList.LinkItem
             label={_(
               msg`Settings for allowing others to be notified of your posts`,
