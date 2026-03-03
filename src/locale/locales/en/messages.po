@@ -1411,6 +1411,10 @@ msgstr ""
 msgid "Blacksky"
 msgstr ""
 
+#: src/screens/PostThread/components/ThreadItemAnchor.tsx:699
+msgid "Blacksky cannot confirm the authenticity of the claimed date."
+msgstr ""
+
 #: src/components/dialogs/ServerInput.tsx:217
 msgid "Blacksky is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
 msgstr ""
@@ -1496,7 +1500,7 @@ msgstr ""
 msgid "Block user and/or delete this conversation"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:186
+#: src/components/Post/Embed/index.tsx:183
 msgid "Blocked"
 msgstr ""
 
@@ -1528,10 +1532,6 @@ msgstr ""
 
 #: src/view/com/profile/ProfileMenu.tsx:577
 msgid "Blocking will not prevent labels from being applied on your account, but it will stop this account from replying in your threads or interacting with you."
-msgstr ""
-
-#: src/screens/PostThread/components/ThreadItemAnchor.tsx:699
-msgid "Bluesky cannot confirm the authenticity of the claimed date."
 msgstr ""
 
 #: src/components/contacts/screens/GetContacts.tsx:234
@@ -2727,7 +2727,7 @@ msgstr ""
 msgid "Delete this post?"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:179
+#: src/components/Post/Embed/index.tsx:255
 msgid "Deleted"
 msgstr ""
 
@@ -5297,6 +5297,7 @@ msgstr ""
 msgid "Loading post interaction settings..."
 msgstr ""
 
+#: src/components/Post/Embed/index.tsx:232
 #: src/view/com/composer/text-input/mobile/Autocomplete.tsx:61
 msgid "Loading..."
 msgstr ""
@@ -7402,11 +7403,11 @@ msgstr ""
 msgid "Remove your verification for this account?"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:214
+#: src/components/Post/Embed/index.tsx:211
 msgid "Removed by author"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:212
+#: src/components/Post/Embed/index.tsx:209
 msgid "Removed by you"
 msgstr ""
 
@@ -9517,7 +9518,7 @@ msgid "This moderation service is unavailable. See below for more details. If th
 msgstr ""
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:686
-msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
+msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Blacksky on <1>{1}</1>."
 msgstr ""
 
 #: src/components/WhoCanReply.tsx:273
