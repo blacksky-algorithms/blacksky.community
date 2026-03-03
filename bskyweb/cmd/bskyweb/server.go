@@ -486,7 +486,7 @@ func (srv *Server) OAuthClientMetadata(c echo.Context) error {
 		"client_name":                  "Blacksky Community",
 		"client_uri":                   baseURL,
 		"redirect_uris":               []string{baseURL + "/auth/web/callback"},
-		"scope":                        "atproto transition:generic transition:email transition:chat.bsky",
+		"scope":                        "atproto transition:generic transition:email transition:chat.bsky identity:handle account:email?action=manage account:status?action=manage",
 		"token_endpoint_auth_method":   "none",
 		"response_types":              []string{"code"},
 		"grant_types":                 []string{"authorization_code", "refresh_token"},
