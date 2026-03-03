@@ -1,10 +1,18 @@
 import React from 'react'
-import {SafeAreaView, StyleSheet, TouchableOpacity, View} from 'react-native'
+import {
+  Linking,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import {LinearGradient} from 'expo-linear-gradient'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {gateRequestAccountDelete} from '#/lib/api/gatekeeper'
 import {DM_SERVICE_HEADERS} from '#/lib/constants'
+import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {cleanError} from '#/lib/strings/errors'
@@ -40,11 +48,81 @@ export function Component({}: {}) {
   const [password, setPassword] = React.useState<string>('')
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
   const [error, setError] = React.useState<string>('')
+
+  const isOauth = currentAccount?.isOauthSession === true
+  const isBskyPds = useIsBlackskyPds()
+  const useGatekeeper = isOauth && isBskyPds
+
+  if (isOauth && !isBskyPds) {
+    const pdsAccountUrl = currentAccount?.service
+      ? `${currentAccount.service}/account`
+      : undefined
+
+    return (
+      <SafeAreaView style={[s.flex1]}>
+        <View style={[pal.view, styles.titleContainer]}>
+          <Text type="title-xl" style={[s.textCenter, pal.text]}>
+            <Trans>Delete Account</Trans>
+          </Text>
+        </View>
+        <Text type="lg" style={[styles.description, pal.text]}>
+          <Trans>
+            Account deletion is not available when signed in with OAuth. Please
+            manage your account through your hosting provider's website.
+          </Trans>
+        </Text>
+        {pdsAccountUrl && (
+          <TouchableOpacity
+            style={styles.mt20}
+            onPress={() => Linking.openURL(pdsAccountUrl)}
+            accessibilityRole="button"
+            accessibilityLabel={_(msg`Open account management`)}
+            accessibilityHint={_(
+              msg`Opens your hosting provider's account management page`,
+            )}>
+            <LinearGradient
+              colors={[gradients.blueLight.start, gradients.blueLight.end]}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 1}}
+              style={[styles.btn]}>
+              <Text type="button-lg" style={[s.white, s.bold]}>
+                <Trans>Open Account Settings</Trans>
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={[styles.btn, s.mt10]}
+          onPress={closeModal}
+          accessibilityRole="button"
+          accessibilityLabel={_(msg`Cancel`)}
+          accessibilityHint="">
+          <Text type="button-lg" style={pal.textLight}>
+            <Trans context="action">Cancel</Trans>
+          </Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    )
+  }
+
   const onPressSendEmail = async () => {
     setError('')
     setIsProcessing(true)
     try {
-      await agent.com.atproto.server.requestAccountDelete()
+      if (useGatekeeper) {
+        if (!password) {
+          setError('Please enter your password.')
+          setIsProcessing(false)
+          return
+        }
+        await gateRequestAccountDelete({
+          serviceUrl: currentAccount.service,
+          did: currentAccount.did,
+          password,
+        })
+      } else {
+        await agent.com.atproto.server.requestAccountDelete()
+      }
       setIsEmailSent(true)
     } catch (e: any) {
       setError(cleanError(e))
@@ -122,6 +200,35 @@ export function Component({}: {}) {
                 your email address.
               </Trans>
             </Text>
+            {useGatekeeper && (
+              <>
+                <Text
+                  type="lg"
+                  style={[pal.text, styles.description]}
+                  nativeID="gatePassword">
+                  <Trans>Please enter your password:</Trans>
+                </Text>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    pal.borderDark,
+                    pal.text,
+                    styles.mb20,
+                  ]}
+                  placeholder={_(msg`Password`)}
+                  placeholderTextColor={pal.textLight.color}
+                  keyboardAppearance={theme.colorScheme}
+                  secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
+                  accessibilityLabelledBy="gatePassword"
+                  accessibilityLabel={_(msg`Password`)}
+                  accessibilityHint={_(
+                    msg`Input password for account deletion`,
+                  )}
+                />
+              </>
+            )}
             {error ? (
               <View style={s.mt10}>
                 <ErrorMessage message={error} />

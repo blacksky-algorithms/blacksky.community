@@ -3,13 +3,17 @@ import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {gateDeactivateAccount} from '#/lib/api/gatekeeper'
+import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {logger} from '#/logger'
-import {useAgent, useSessionApi} from '#/state/session'
+import {useAgent, useSession, useSessionApi} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogOuterProps} from '#/components/Dialog'
 import {Divider} from '#/components/Divider'
+import * as TextField from '#/components/forms/TextField'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfo} from '#/components/icons/CircleInfo'
+import {Lock_Stroke2_Corner2_Rounded as Lock} from '#/components/icons/Lock'
 import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
@@ -34,14 +38,33 @@ function DeactivateAccountDialogInner({
   const t = useTheme()
   const {_} = useLingui()
   const agent = useAgent()
+  const {currentAccount} = useSession()
   const {logoutCurrentAccount} = useSessionApi()
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
+  const [password, setPassword] = React.useState('')
+
+  const isOauth = currentAccount?.isOauthSession === true
+  const isBskyPds = useIsBlackskyPds()
+  const useGatekeeper = isOauth && isBskyPds
 
   const handleDeactivate = React.useCallback(async () => {
     try {
       setPending(true)
-      await agent.com.atproto.server.deactivateAccount({})
+      if (useGatekeeper) {
+        if (!password) {
+          setError(_(msg`Please enter your password.`))
+          setPending(false)
+          return
+        }
+        await gateDeactivateAccount({
+          serviceUrl: currentAccount.service,
+          did: currentAccount.did,
+          password,
+        })
+      } else {
+        await agent.com.atproto.server.deactivateAccount({})
+      }
       control.close(() => {
         logoutCurrentAccount('Deactivated')
       })
@@ -54,6 +77,9 @@ function DeactivateAccountDialogInner({
             ),
           )
           break
+        case 'Invalid password':
+          setError(_(msg`Invalid password. Please try again.`))
+          break
         default:
           setError(_(msg`Something went wrong, please try again`))
           break
@@ -65,7 +91,16 @@ function DeactivateAccountDialogInner({
     } finally {
       setPending(false)
     }
-  }, [agent, control, logoutCurrentAccount, _, setPending])
+  }, [
+    agent,
+    control,
+    logoutCurrentAccount,
+    _,
+    setPending,
+    useGatekeeper,
+    password,
+    currentAccount,
+  ])
 
   return (
     <>
@@ -95,6 +130,27 @@ function DeactivateAccountDialogInner({
           </Text>
         </View>
 
+        {useGatekeeper && (
+          <View style={[a.pb_lg]}>
+            <Text
+              style={[a.pb_sm, a.leading_snug, t.atoms.text_contrast_medium]}>
+              <Trans>Please enter your password to continue.</Trans>
+            </Text>
+            <TextField.Root>
+              <TextField.Icon icon={Lock} />
+              <TextField.Input
+                label={_(msg`Password`)}
+                placeholder={_(msg`Password`)}
+                defaultValue={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password"
+                autoCapitalize="none"
+              />
+            </TextField.Root>
+          </View>
+        )}
+
         <Divider />
       </View>
       <Prompt.Actions>
@@ -102,7 +158,8 @@ function DeactivateAccountDialogInner({
           color="negative"
           size="large"
           label={_(msg`Yes, deactivate`)}
-          onPress={handleDeactivate}>
+          onPress={handleDeactivate}
+          disabled={useGatekeeper && !password}>
           <ButtonText>{_(msg`Yes, deactivate`)}</ButtonText>
           {pending && <ButtonIcon icon={Loader} position="right" />}
         </Button>

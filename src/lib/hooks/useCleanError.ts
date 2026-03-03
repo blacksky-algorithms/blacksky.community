@@ -66,6 +66,15 @@ export function useCleanError() {
         }
       }
 
+      if (raw.includes('OAuth credentials are not supported')) {
+        return {
+          raw,
+          clean: _(
+            msg`This feature is not available when signed in with OAuth. Please manage your account through your hosting provider's website.`,
+          ),
+        }
+      }
+
       if (raw.includes('Rate Limit Exceeded')) {
         return {
           raw,
