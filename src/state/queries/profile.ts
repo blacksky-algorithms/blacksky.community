@@ -10,18 +10,10 @@ import {
   type ComAtprotoRepoUploadBlob,
   type Un$Typed,
 } from '@atproto/api'
-import {
-  type InfiniteData,
-  keepPreviousData,
-  prefetchQueryWithFallback,
-  type QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from './useQueryWithFallback'
 
 import {uploadBlob} from '#/lib/api'
 import {until} from '#/lib/async/until'
+import {PUBLIC_BSKY_API} from '#/lib/constants'
 import {useToggleMutationQueue} from '#/lib/hooks/useToggleMutationQueue'
 import {updateProfileShadow} from '#/state/cache/profile-shadow'
 import {type Shadow} from '#/state/cache/types'
@@ -46,6 +38,15 @@ import {
 import {RQKEY_ROOT as RQKEY_LIST_CONVOS} from './messages/list-conversations'
 import {RQKEY as RQKEY_MY_BLOCKED} from './my-blocked-accounts'
 import {RQKEY as RQKEY_MY_MUTED} from './my-muted-accounts'
+import {
+  type InfiniteData,
+  keepPreviousData,
+  prefetchQueryWithFallback,
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from './useQueryWithFallback'
 
 export * from '#/state/queries/unstable-profile-cache'
 /**
@@ -91,6 +92,25 @@ export function useProfileQuery({
     enableFallback: true,
     fallbackType: 'profile',
     fallbackIdentifier: did,
+  })
+}
+
+export function usePublicProfileQuery({did}: {did: string | undefined}) {
+  return useQuery<{
+    followersCount?: number
+    followsCount?: number
+    postsCount?: number
+  } | null>({
+    staleTime: STALE.MINUTES.FIVE,
+    queryKey: ['public-profile', did ?? ''],
+    queryFn: async () => {
+      const res = await fetch(
+        `${PUBLIC_BSKY_API}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did ?? '')}`,
+      )
+      if (!res.ok) return null
+      return res.json()
+    },
+    enabled: !!did,
   })
 }
 

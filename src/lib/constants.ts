@@ -205,6 +205,7 @@ export const urls = {
   },
 }
 
+export const PUBLIC_BSKY_API = 'https://public.api.bsky.app'
 export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
 export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
