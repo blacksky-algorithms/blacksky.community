@@ -7,6 +7,7 @@ import {RemoveScrollBar} from 'react-remove-scroll-bar'
 
 import {useIntentHandler} from '#/lib/hooks/useIntentHandler'
 import {type NavigationProp} from '#/lib/routes/types'
+import {useProfileEnrichment} from '#/state/queries/profile-enrichment'
 import {useSession} from '#/state/session'
 import {useIsDrawerOpen, useSetDrawerOpen} from '#/state/shell'
 import {useComposerKeyboardShortcut} from '#/state/shell/composer/useComposerKeyboardShortcut'
@@ -33,6 +34,7 @@ function ShellInner() {
   const closeAllActiveElements = useCloseAllActiveElements()
   useComposerKeyboardShortcut()
   useIntentHandler()
+  useProfileEnrichment()
 
   useEffect(() => {
     const unsubscribe = navigator.addListener('state', () => {
