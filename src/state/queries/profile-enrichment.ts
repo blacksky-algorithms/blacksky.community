@@ -1,6 +1,7 @@
 import {useEffect, useRef} from 'react'
 import {type QueryClient, useQueryClient} from '@tanstack/react-query'
 
+import {PERSISTED_QUERY_ROOT} from '#/state/queries'
 import {fetchRecordViaSlingshot} from './microcosm-fallback'
 
 /**
@@ -113,6 +114,12 @@ function applyEnrichment(
     const data = query.state.data
     if (!data) continue
 
+    // Never mutate persisted queries -- corrupting their shape is catastrophic
+    // since persisted data survives across app restarts.
+    const queryKey = query.queryKey
+    if (Array.isArray(queryKey) && queryKey[0] === PERSISTED_QUERY_ROOT)
+      continue
+
     const mutated = mutateProfilesInData(
       data,
       did,
@@ -122,10 +129,9 @@ function applyEnrichment(
     )
     if (mutated) {
       // Suppress our own subscriber from re-scanning this update.
-      // Must preserve data type: arrays stay arrays, objects stay objects.
       isApplyingEnrichment = true
       queryClient.setQueryData(
-        query.queryKey,
+        queryKey,
         Array.isArray(data) ? [...data] : {...(data as any)},
       )
       isApplyingEnrichment = false
