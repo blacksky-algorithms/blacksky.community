@@ -12,6 +12,7 @@ import {useNotificationsHandler} from '#/lib/hooks/useNotificationHandler'
 import {useNotificationsRegistration} from '#/lib/notifications/notifications'
 import {isStateAtTabRoot} from '#/lib/routes/helpers'
 import {useDialogFullyExpandedCountContext} from '#/state/dialogs'
+import {useProfileEnrichment} from '#/state/queries/profile-enrichment'
 import {useSession} from '#/state/session'
 import {
   useIsDrawerOpen,
@@ -49,6 +50,7 @@ function ShellInner() {
 
   useNotificationsRegistration()
   useNotificationsHandler()
+  useProfileEnrichment()
 
   useEffect(() => {
     if (IS_ANDROID) {
