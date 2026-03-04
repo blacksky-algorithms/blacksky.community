@@ -121,9 +121,13 @@ function applyEnrichment(
       0,
     )
     if (mutated) {
-      // Suppress our own subscriber from re-scanning this update
+      // Suppress our own subscriber from re-scanning this update.
+      // Must preserve data type: arrays stay arrays, objects stay objects.
       isApplyingEnrichment = true
-      queryClient.setQueryData(query.queryKey, {...(data as any)})
+      queryClient.setQueryData(
+        query.queryKey,
+        Array.isArray(data) ? [...data] : {...(data as any)},
+      )
       isApplyingEnrichment = false
     }
   }
