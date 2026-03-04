@@ -10,29 +10,35 @@ import Animated, {
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {type AppBskyActorDefs, type ModerationDecision} from '@atproto/api'
 import {utils} from '@bsky.app/alf'
-import {msg} from '@lingui/macro'
+import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
 import {useActorStatus} from '#/lib/actor-status'
 import {BACK_HITSLOP} from '#/lib/constants'
 import {useHaptics} from '#/lib/haptics'
+import {getModerationCauseKey, unique} from '#/lib/moderation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {type Shadow} from '#/state/cache/types'
 import {useLightboxControls} from '#/state/lightbox'
+import {usePublicProfileQuery} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {UserBanner} from '#/view/com/util/UserBanner'
 import {atoms as a, platform, useTheme} from '#/alf'
+import {colors} from '#/components/Admonition'
 import {Button} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeftIcon} from '#/components/icons/Arrow'
+import {ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded as ArrowRotateIcon} from '#/components/icons/ArrowRotate'
 import {EditLiveDialog} from '#/components/live/EditLiveDialog'
 import {LiveIndicator} from '#/components/live/LiveIndicator'
 import {LiveStatusDialog} from '#/components/live/LiveStatusDialog'
 import {LabelsOnMe} from '#/components/moderation/LabelsOnMe'
-import {ProfileHeaderAlerts} from '#/components/moderation/ProfileHeaderAlerts'
+import * as Pills from '#/components/Pills'
+import * as Prompt from '#/components/Prompt'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_IOS} from '#/env'
 import {GrowableAvatar} from './GrowableAvatar'
@@ -243,15 +249,7 @@ let ProfileHeaderShell = ({
             ]}
           />
         ) : (
-          <ProfileHeaderAlerts
-            moderation={moderation}
-            style={[
-              a.px_lg,
-              a.pt_xs,
-              a.pb_sm,
-              IS_IOS ? a.pointer_events_auto : {pointerEvents: 'box-none'},
-            ]}
-          />
+          <ProfileHeaderPills profile={profile} moderation={moderation} />
         ))}
 
       <GrowableAvatar style={[a.absolute, {top: 104, left: 10}]}>
@@ -310,3 +308,125 @@ let ProfileHeaderShell = ({
 
 ProfileHeaderShell = memo(ProfileHeaderShell)
 export {ProfileHeaderShell}
+
+function ProfileHeaderPills({
+  profile,
+  moderation,
+}: {
+  profile: Shadow<AppBskyActorDefs.ProfileViewDetailed>
+  moderation: ModerationDecision
+}) {
+  const modui = moderation.ui('profileView')
+  const {data: publicProfile} = usePublicProfileQuery({did: profile.did})
+
+  const isPartiallyBackfilled = useMemo(() => {
+    if (!publicProfile) return false
+    const THRESHOLD_PCT = 0.05
+    const THRESHOLD_ABS = 10
+    const isLower = (local: number, canonical: number) => {
+      const diff = canonical - local
+      return diff > THRESHOLD_ABS && diff > canonical * THRESHOLD_PCT
+    }
+    return (
+      isLower(profile.followersCount ?? 0, publicProfile.followersCount ?? 0) ||
+      isLower(profile.followsCount ?? 0, publicProfile.followsCount ?? 0) ||
+      isLower(profile.postsCount ?? 0, publicProfile.postsCount ?? 0)
+    )
+  }, [profile, publicProfile])
+
+  const hasAlerts = modui.alert || modui.inform
+  if (!isPartiallyBackfilled && !hasAlerts) return null
+
+  return (
+    <Pills.Row
+      size="lg"
+      style={[
+        a.px_lg,
+        a.pt_xs,
+        a.pb_sm,
+        IS_IOS ? a.pointer_events_auto : {pointerEvents: 'box-none'},
+      ]}>
+      {isPartiallyBackfilled && <BackfillPill />}
+      {modui.alerts.filter(unique).map(cause => (
+        <Pills.Label
+          size="lg"
+          key={getModerationCauseKey(cause)}
+          cause={cause}
+        />
+      ))}
+      {modui.informs.filter(unique).map(cause => (
+        <Pills.Label
+          size="lg"
+          key={getModerationCauseKey(cause)}
+          cause={cause}
+        />
+      ))}
+    </Pills.Row>
+  )
+}
+
+function BackfillPill() {
+  const t = useTheme()
+  const {_} = useLingui()
+  const control = Prompt.usePromptControl()
+
+  return (
+    <>
+      <Button
+        label={_(msg`Backfill in progress`)}
+        onPress={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          control.open()
+        }}>
+        {({hovered, pressed}) => (
+          <View
+            style={[
+              a.flex_row,
+              a.align_center,
+              a.rounded_full,
+              t.atoms.bg_contrast_25,
+              (hovered || pressed) && t.atoms.bg_contrast_50,
+              {
+                gap: 5,
+                paddingHorizontal: 5,
+                paddingVertical: 5,
+              },
+            ]}>
+            <ArrowRotateIcon width={16} fill={colors.warning} />
+            <Text
+              style={[
+                a.text_sm,
+                a.font_semi_bold,
+                a.leading_tight,
+                t.atoms.text_contrast_medium,
+                {paddingRight: 3},
+              ]}>
+              <Trans>Backfill in progress</Trans>
+            </Text>
+          </View>
+        )}
+      </Button>
+
+      <Prompt.Outer control={control}>
+        <Prompt.Content>
+          <Prompt.TitleText>
+            <Trans>Backfill in progress</Trans>
+          </Prompt.TitleText>
+          <Prompt.DescriptionText>
+            <Trans>
+              Blacksky is still indexing this account's data from the AT
+              Protocol network. The follower, following, and post counts shown
+              may be lower than the actual totals. Relationship indicators (like
+              whether this account follows you) may also be incomplete until
+              backfill is finished.
+            </Trans>
+          </Prompt.DescriptionText>
+        </Prompt.Content>
+        <Prompt.Actions>
+          <Prompt.Action cta={_(msg`Okay`)} onPress={() => {}} />
+        </Prompt.Actions>
+      </Prompt.Outer>
+    </>
+  )
+}
