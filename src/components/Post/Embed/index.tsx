@@ -222,11 +222,16 @@ function PostNotFoundEmbed({
   embed,
   ...rest
 }: CommonProps & {embed: EmbedType<'post_not_found'>}) {
+  // Only attempt Slingshot fallback for top-level embeds.
+  // When already inside a quote, skip fallback to prevent recursive
+  // nesting (each resolved record can quote another not-found post,
+  // triggering yet another fallback indefinitely).
+  const shouldFallback = !rest.isWithinQuote
   const {data: fallbackRecord, isLoading} = useEmbedFallback({
-    uri: embed.view.uri,
+    uri: shouldFallback ? embed.view.uri : '',
   })
 
-  if (isLoading) {
+  if (shouldFallback && isLoading) {
     return (
       <PostPlaceholderText>
         <Trans>Loading...</Trans>
@@ -234,7 +239,7 @@ function PostNotFoundEmbed({
     )
   }
 
-  if (fallbackRecord) {
+  if (shouldFallback && fallbackRecord) {
     return (
       <QuoteEmbed
         {...rest}
@@ -245,9 +250,14 @@ function PostNotFoundEmbed({
             : undefined
         }
         isWithinQuote={rest.isWithinQuote}
-        allowNestedQuotes={rest.allowNestedQuotes}
+        allowNestedQuotes={false}
       />
     )
+  }
+
+  // Inside a quote, silently hide unresolved nested quotes
+  if (rest.isWithinQuote) {
+    return null
   }
 
   return (
