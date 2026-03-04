@@ -4,32 +4,29 @@ import {type QueryClient, useQueryClient} from '@tanstack/react-query'
 import {PERSISTED_QUERY_ROOT} from '#/state/queries'
 import {fetchRecordViaSlingshot} from './microcosm-fallback'
 
+type Enrichment = {
+  displayName: string
+  description: string
+  avatar: string | undefined
+  banner: string | undefined
+}
+
 /**
- * Determines if a profile object is "incomplete" -- present in the appview
- * response but missing key fields that indicate the profile record hasn't
- * been synced yet.
- *
- * A profile is considered incomplete when it has a DID but is missing BOTH
- * avatar and displayName. This distinguishes "not yet synced" from "user
- * intentionally has no avatar" (they'd still have a displayName).
+ * A profile is "incomplete" when the appview has the account but hasn't
+ * synced the profile record yet: the DID exists but there's no avatar
+ * AND no displayName.
  */
-function isIncompleteProfile(profile: any): boolean {
-  if (!profile || typeof profile !== 'object') return false
-  if (!profile.did || typeof profile.did !== 'string') return false
-  if (profile.__enriched) return false
-  if (profile.__fallbackMode) return false
-  if (profile.avatar) return false
-  if (profile.displayName) return false
-  if (!('handle' in profile)) return false
+function isIncompleteProfile(obj: any): boolean {
+  if (!obj || typeof obj !== 'object') return false
+  if (typeof obj.did !== 'string' || !obj.did.startsWith('did:')) return false
+  if (!('handle' in obj)) return false
+  if (obj.__enriched || obj.__fallbackMode) return false
+  if (obj.avatar || obj.displayName) return false
   return true
 }
 
 /**
- * Recursively find incomplete profile-like objects in any data structure.
- * Collects unique DIDs of incomplete profiles.
- *
- * Uses a depth limit and visited set to prevent infinite recursion on
- * circular references or excessively deep structures.
+ * Walk any data structure and collect DIDs of incomplete profiles.
  */
 function collectIncompleteProfileDids(
   data: any,
@@ -37,7 +34,7 @@ function collectIncompleteProfileDids(
   visited: WeakSet<object>,
   depth: number,
 ): void {
-  if (!data || typeof data !== 'object' || depth > 15) return
+  if (!data || typeof data !== 'object' || depth > 12) return
   if (visited.has(data)) return
   visited.add(data)
 
@@ -48,45 +45,34 @@ function collectIncompleteProfileDids(
     return
   }
 
-  // Check if this object looks like a profile
-  if (data.did && typeof data.did === 'string' && data.did.startsWith('did:')) {
-    if (isIncompleteProfile(data)) {
-      dids.add(data.did)
-    }
+  if (isIncompleteProfile(data)) {
+    dids.add(data.did)
   }
 
-  // Recurse into object values
   for (const key of Object.keys(data)) {
-    if (key === 'queryClient' || key === '_queryClient') continue
     collectIncompleteProfileDids(data[key], dids, visited, depth + 1)
   }
 }
 
 /**
- * Fetch a profile record from Slingshot and extract enrichment fields.
+ * Fetch profile record from PDS via Slingshot.
  */
-async function fetchProfileEnrichment(did: string): Promise<{
-  displayName: string
-  description: string
-  avatar: string | undefined
-  banner: string | undefined
-} | null> {
+async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
   try {
-    const profileUri = `at://${did}/app.bsky.actor.profile/self`
-    const record = await fetchRecordViaSlingshot(profileUri)
+    const record = await fetchRecordViaSlingshot(
+      `at://${did}/app.bsky.actor.profile/self`,
+    )
     if (!record?.value) return null
-
-    const value = record.value
-    if (!value.displayName && !value.avatar) return null
-
+    const v = record.value
+    if (!v.displayName && !v.avatar) return null
     return {
-      displayName: value.displayName || '',
-      description: value.description || '',
-      avatar: value.avatar?.ref?.$link
-        ? `https://cdn.bsky.app/img/avatar/plain/${did}/${value.avatar.ref.$link}@jpeg`
+      displayName: v.displayName || '',
+      description: v.description || '',
+      avatar: v.avatar?.ref?.$link
+        ? `https://cdn.bsky.app/img/avatar/plain/${did}/${v.avatar.ref.$link}@jpeg`
         : undefined,
-      banner: value.banner?.ref?.$link
-        ? `https://cdn.bsky.app/img/banner/plain/${did}/${value.banner.ref.$link}@jpeg`
+      banner: v.banner?.ref?.$link
+        ? `https://cdn.bsky.app/img/banner/plain/${did}/${v.banner.ref.$link}@jpeg`
         : undefined,
     }
   } catch {
@@ -95,18 +81,89 @@ async function fetchProfileEnrichment(did: string): Promise<{
 }
 
 /**
- * Walk all queries in the cache, find profile objects matching `did`,
- * apply enrichment fields, and notify React Query of the change.
+ * Immutably deep-clone a data structure, enriching any profile objects
+ * whose DID is in the enrichments map. Returns [cloned, changed].
  */
-function applyEnrichment(
+function deepEnrich(
+  data: any,
+  enrichments: Map<string, Enrichment>,
+  visited: WeakSet<object>,
+  depth: number,
+): [any, boolean] {
+  if (!data || typeof data !== 'object' || depth > 12) return [data, false]
+  if (visited.has(data)) return [data, false]
+  visited.add(data)
+
+  if (Array.isArray(data)) {
+    let changed = false
+    const out = data.map(item => {
+      const [next, c] = deepEnrich(item, enrichments, visited, depth + 1)
+      if (c) changed = true
+      return next
+    })
+    return changed ? [out, true] : [data, false]
+  }
+
+  // Check if this object is an enrichable profile
+  let selfChanged = false
+  let enriched = data
+  if (
+    typeof data.did === 'string' &&
+    data.did.startsWith('did:') &&
+    'handle' in data &&
+    !data.__enriched &&
+    enrichments.has(data.did)
+  ) {
+    const e = enrichments.get(data.did)!
+    const patch: any = {__enriched: true}
+    if (e.displayName && !data.displayName) patch.displayName = e.displayName
+    if (e.description && 'description' in data && !data.description)
+      patch.description = e.description
+    if (e.avatar && !data.avatar) patch.avatar = e.avatar
+    if (e.banner && 'banner' in data && !data.banner) patch.banner = e.banner
+
+    if (Object.keys(patch).length > 1) {
+      // More than just __enriched
+      enriched = {...data, ...patch}
+      selfChanged = true
+    } else {
+      enriched = data
+    }
+  }
+
+  // Recurse into children
+  let childChanged = false
+  const out: any = selfChanged ? {...enriched} : {}
+  for (const key of Object.keys(enriched)) {
+    const [next, c] = deepEnrich(enriched[key], enrichments, visited, depth + 1)
+    if (c) {
+      childChanged = true
+      if (!selfChanged) {
+        // Lazily copy all keys on first child change
+        Object.assign(out, enriched)
+      }
+      out[key] = next
+    } else if (selfChanged) {
+      out[key] = enriched[key]
+    }
+  }
+
+  if (childChanged && !selfChanged) {
+    return [out, true]
+  }
+  if (selfChanged) {
+    return [out, true]
+  }
+  return [data, false]
+}
+
+/**
+ * Apply enrichments to all non-persisted queries in the cache.
+ * Uses immutable updates so React detects the changes.
+ */
+function applyEnrichments(
   queryClient: QueryClient,
-  did: string,
-  enrichment: {
-    displayName: string
-    description: string
-    avatar: string | undefined
-    banner: string | undefined
-  },
+  enrichments: Map<string, Enrichment>,
 ): void {
   const queries = queryClient.getQueryCache().getAll()
 
@@ -114,110 +171,56 @@ function applyEnrichment(
     const data = query.state.data
     if (!data) continue
 
-    // Never mutate persisted queries -- corrupting their shape is catastrophic
-    // since persisted data survives across app restarts.
-    const queryKey = query.queryKey
-    if (Array.isArray(queryKey) && queryKey[0] === PERSISTED_QUERY_ROOT)
-      continue
+    // Never touch persisted queries
+    const qk = query.queryKey
+    if (Array.isArray(qk) && qk[0] === PERSISTED_QUERY_ROOT) continue
 
-    const mutated = mutateProfilesInData(
-      data,
-      did,
-      enrichment,
-      new WeakSet(),
-      0,
-    )
-    if (mutated) {
-      // Suppress our own subscriber from re-scanning this update.
-      isApplyingEnrichment = true
-      queryClient.setQueryData(
-        queryKey,
-        Array.isArray(data) ? [...data] : {...(data as any)},
-      )
-      isApplyingEnrichment = false
+    const [next, changed] = deepEnrich(data, enrichments, new WeakSet(), 0)
+    if (changed) {
+      suppressSubscriber = true
+      queryClient.setQueryData(qk, next)
+      suppressSubscriber = false
     }
   }
 }
 
 /**
- * Recursively find and mutate profile objects matching `did` in any data
- * structure. Returns true if any mutations were made.
+ * Repair corrupted persisted query data.
+ *
+ * A previous bug converted arrays to plain objects via {...array}.
+ * If we detect a persisted query whose data should be an array but
+ * isn't, remove it so it gets re-fetched cleanly.
  */
-function mutateProfilesInData(
-  data: any,
-  did: string,
-  enrichment: {
-    displayName: string
-    description: string
-    avatar: string | undefined
-    banner: string | undefined
-  },
-  visited: WeakSet<object>,
-  depth: number,
-): boolean {
-  if (!data || typeof data !== 'object' || depth > 15) return false
-  if (visited.has(data)) return false
-  visited.add(data)
+function repairPersistedCache(queryClient: QueryClient): void {
+  const queries = queryClient.getQueryCache().getAll()
+  for (const query of queries) {
+    const qk = query.queryKey
+    if (!Array.isArray(qk) || qk[0] !== PERSISTED_QUERY_ROOT) continue
 
-  let mutated = false
+    const data = query.state.data
+    if (!data) continue
 
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      if (mutateProfilesInData(item, did, enrichment, visited, depth + 1)) {
-        mutated = true
-      }
-    }
-    return mutated
-  }
-
-  // Check if this object is the target profile
-  if (
-    data.did === did &&
-    typeof data.did === 'string' &&
-    'handle' in data &&
-    !data.__enriched
-  ) {
-    if (enrichment.displayName && !data.displayName) {
-      data.displayName = enrichment.displayName
-    }
-    if (enrichment.description && 'description' in data && !data.description) {
-      data.description = enrichment.description
-    }
-    if (enrichment.avatar && !data.avatar) {
-      data.avatar = enrichment.avatar
-    }
-    if (enrichment.banner && 'banner' in data && !data.banner) {
-      data.banner = enrichment.banner
-    }
-    data.__enriched = true
-    mutated = true
-  }
-
-  // Recurse into nested objects
-  for (const key of Object.keys(data)) {
-    if (key === 'queryClient' || key === '_queryClient') continue
-    if (mutateProfilesInData(data[key], did, enrichment, visited, depth + 1)) {
-      mutated = true
+    // Pinned/saved feed info queries return arrays.
+    // If data is a plain object with numeric keys, it's corrupted.
+    if (
+      typeof data === 'object' &&
+      !Array.isArray(data) &&
+      '0' in (data as any)
+    ) {
+      console.warn('[ProfileEnrichment] Removing corrupted persisted query', qk)
+      queryClient.removeQueries({queryKey: qk, exact: true})
     }
   }
-
-  return mutated
 }
 
-// Guard flag to prevent re-scanning when we call setQueryData ourselves
-let isApplyingEnrichment = false
-
-// Track DIDs we've already attempted enrichment for (per session)
+// Module-level state
+let suppressSubscriber = false
 let enrichedDids = new Set<string>()
 let inFlightDids = new Set<string>()
 let pendingDids = new Set<string>()
 let flushTimer: ReturnType<typeof setTimeout> | null = null
 let currentQueryClient: QueryClient | null = null
 
-/**
- * Schedule enrichment with debouncing. Batches requests when many
- * incomplete profiles arrive at once (e.g., loading a followers page).
- */
 function scheduleEnrichment(queryClient: QueryClient): void {
   if (flushTimer) return
   flushTimer = setTimeout(() => {
@@ -233,15 +236,16 @@ async function processBatch(
   queryClient: QueryClient,
   dids: Set<string>,
 ): Promise<void> {
-  const didArray = [...dids]
   const CONCURRENCY = 8
+  const didArray = [...dids]
+  const enrichments = new Map<string, Enrichment>()
 
   for (let i = 0; i < didArray.length; i += CONCURRENCY) {
     const chunk = didArray.slice(i, i + CONCURRENCY)
     const results = await Promise.allSettled(
       chunk.map(async did => {
-        const enrichment = await fetchProfileEnrichment(did)
-        return {did, enrichment}
+        const e = await fetchProfileEnrichment(did)
+        return {did, enrichment: e}
       }),
     )
 
@@ -249,21 +253,18 @@ async function processBatch(
       if (result.status === 'fulfilled') {
         inFlightDids.delete(result.value.did)
         if (result.value.enrichment) {
-          applyEnrichment(
-            queryClient,
-            result.value.did,
-            result.value.enrichment,
-          )
+          enrichments.set(result.value.did, result.value.enrichment)
         }
       }
     }
   }
+
+  if (enrichments.size > 0) {
+    applyEnrichments(queryClient, enrichments)
+  }
 }
 
-function queueDidsForEnrichment(
-  queryClient: QueryClient,
-  dids: Set<string>,
-): void {
+function queueDids(queryClient: QueryClient, dids: Set<string>): void {
   let hasNew = false
   for (const did of dids) {
     if (!enrichedDids.has(did) && !inFlightDids.has(did)) {
@@ -279,25 +280,15 @@ function queueDidsForEnrichment(
 }
 
 /**
- * Global React hook that enriches incomplete profiles via Slingshot.
- *
- * Mount this ONCE at the app level (e.g., in ShellInner).
- * It subscribes to the TanStack Query cache and automatically detects
- * incomplete profiles across ALL query types: followers, follows,
- * notifications, DMs, search, post feeds, hover cards, etc.
- *
- * When an incomplete profile is detected (has DID but no avatar AND no
- * displayName), it fetches the profile record from the user's PDS via
- * Slingshot and enriches the cached data with avatar URL, displayName,
- * description, and banner.
+ * Global hook: enriches incomplete profiles via Slingshot.
+ * Mount once in ShellInner.
  */
 export function useProfileEnrichment(): void {
   const queryClient = useQueryClient()
-  const queryClientRef = useRef(queryClient)
-  queryClientRef.current = queryClient
+  const qcRef = useRef(queryClient)
+  qcRef.current = queryClient
 
   useEffect(() => {
-    // Reset state when query client changes (e.g., account switch)
     if (currentQueryClient !== queryClient) {
       enrichedDids = new Set()
       inFlightDids = new Set()
@@ -305,38 +296,30 @@ export function useProfileEnrichment(): void {
       currentQueryClient = queryClient
     }
 
+    // Fix corrupted persisted data from previous bug
+    repairPersistedCache(queryClient)
+
     const cache = queryClient.getQueryCache()
 
-    // Initial scan of existing cache
-    const allDids = new Set<string>()
+    // Initial scan
+    const dids = new Set<string>()
     for (const query of cache.getAll()) {
       if (query.state.data) {
-        collectIncompleteProfileDids(
-          query.state.data,
-          allDids,
-          new WeakSet(),
-          0,
-        )
+        collectIncompleteProfileDids(query.state.data, dids, new WeakSet(), 0)
       }
     }
-    if (allDids.size > 0) {
-      queueDidsForEnrichment(queryClient, allDids)
-    }
+    if (dids.size > 0) queueDids(queryClient, dids)
 
-    // Subscribe to new query data
+    // Subscribe to new data
     const unsubscribe = cache.subscribe(event => {
-      if (isApplyingEnrichment) return
-      if (event.type !== 'updated') return
-      if (event.action?.type !== 'success') return
-
+      if (suppressSubscriber) return
+      if (event.type !== 'updated' || event.action?.type !== 'success') return
       const data = event.query.state.data
       if (!data) return
 
-      const dids = new Set<string>()
-      collectIncompleteProfileDids(data, dids, new WeakSet(), 0)
-      if (dids.size > 0) {
-        queueDidsForEnrichment(queryClientRef.current, dids)
-      }
+      const newDids = new Set<string>()
+      collectIncompleteProfileDids(data, newDids, new WeakSet(), 0)
+      if (newDids.size > 0) queueDids(qcRef.current, newDids)
     })
 
     return () => {
