@@ -13,16 +13,24 @@ type Enrichment = {
 
 /**
  * A profile is "incomplete" when the appview has the account but hasn't
- * synced the profile record yet: the DID exists but there's no avatar
- * AND no displayName.
+ * synced the profile record yet. Detection heuristics:
+ * - No avatar at all, OR
+ * - displayName is missing/empty, OR
+ * - displayName equals the handle (appview echoes handle as displayName
+ *   when the profile record hasn't synced)
  */
 function isIncompleteProfile(obj: any): boolean {
   if (!obj || typeof obj !== 'object') return false
   if (typeof obj.did !== 'string' || !obj.did.startsWith('did:')) return false
   if (!('handle' in obj)) return false
   if (obj.__enriched || obj.__fallbackMode) return false
-  if (obj.avatar || obj.displayName) return false
-  return true
+
+  const hasAvatar = !!obj.avatar
+  const hasRealDisplayName = !!obj.displayName && obj.displayName !== obj.handle // appview echoes handle when unsynced
+
+  // Incomplete if missing avatar AND missing a real display name
+  if (!hasAvatar && !hasRealDisplayName) return true
+  return false
 }
 
 /**
@@ -64,7 +72,8 @@ async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
     )
     if (!record?.value) return null
     const v = record.value
-    if (!v.displayName && !v.avatar) return null
+    // Return enrichment if there's anything useful (displayName, avatar, or description)
+    if (!v.displayName && !v.avatar && !v.description) return null
     return {
       displayName: v.displayName || '',
       description: v.description || '',
@@ -116,7 +125,12 @@ function deepEnrich(
   ) {
     const e = enrichments.get(data.did)!
     const patch: any = {__enriched: true}
-    if (e.displayName && !data.displayName) patch.displayName = e.displayName
+    // Patch displayName if missing or if appview just echoed the handle
+    if (
+      e.displayName &&
+      (!data.displayName || data.displayName === data.handle)
+    )
+      patch.displayName = e.displayName
     if (e.description && 'description' in data && !data.description)
       patch.description = e.description
     if (e.avatar && !data.avatar) patch.avatar = e.avatar
@@ -229,7 +243,7 @@ function scheduleEnrichment(queryClient: QueryClient): void {
     pendingDids = new Set()
     if (batch.size === 0) return
     processBatch(queryClient, batch)
-  }, 200)
+  }, 50)
 }
 
 async function processBatch(
