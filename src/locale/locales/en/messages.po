@@ -22,7 +22,7 @@ msgstr ""
 msgid "(contains embedded content)"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:70
+#: src/screens/Settings/AccountSettings.tsx:84
 msgid "(no email)"
 msgstr ""
 
@@ -604,7 +604,7 @@ msgstr ""
 
 #: src/Navigation.tsx:408
 #: src/screens/Login/LoginForm.tsx:76
-#: src/screens/Settings/AccountSettings.tsx:50
+#: src/screens/Settings/AccountSettings.tsx:64
 #: src/screens/Settings/Settings.tsx:174
 #: src/screens/Settings/Settings.tsx:177
 msgid "Account"
@@ -617,16 +617,20 @@ msgctxt "toast"
 msgid "Account blocked"
 msgstr ""
 
+#: src/view/com/modals/DeleteAccount.tsx:69
+msgid "Account deletion is not available when signed in with OAuth. Please manage your account through your hosting provider's website."
+msgstr ""
+
 #: src/view/com/profile/ProfileMenu.tsx:204
 msgctxt "toast"
 msgid "Account followed"
 msgstr ""
 
-#: src/lib/strings/errors.ts:34
+#: src/lib/strings/errors.ts:43
 msgid "Account has been suspended"
 msgstr ""
 
-#: src/lib/strings/errors.ts:37
+#: src/lib/strings/errors.ts:46
 msgid "Account is deactivated"
 msgstr ""
 
@@ -753,13 +757,13 @@ msgstr ""
 msgid "Add another post to thread"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:102
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:113
 msgid "Add app password"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:74
-#: src/screens/Settings/AppPasswords.tsx:82
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:111
+#: src/screens/Settings/AppPasswords.tsx:164
+#: src/screens/Settings/AppPasswords.tsx:172
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:122
 msgid "Add App Password"
 msgstr ""
 
@@ -814,7 +818,7 @@ msgstr ""
 msgid "Add the default feed of only people you follow"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:492
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:503
 msgid "Add the following DNS record to your domain:"
 msgstr ""
 
@@ -890,7 +894,7 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:223
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:287
 msgid "alice@example.com"
 msgstr ""
 
@@ -920,8 +924,8 @@ msgstr ""
 msgid "All the feeds you've saved, right in one place."
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:146
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:153
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:157
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:164
 msgid "Allow access to your direct messages"
 msgstr ""
 
@@ -935,7 +939,7 @@ msgid "Allow new messages from"
 msgstr ""
 
 #: src/screens/Settings/ActivityPrivacySettings.tsx:52
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:91
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:114
 msgid "Allow others to be notified of your posts"
 msgstr ""
 
@@ -959,7 +963,7 @@ msgstr ""
 msgid "Allow your followers to reply"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:200
+#: src/screens/Settings/AppPasswords.tsx:296
 msgid "Allows access to direct messages"
 msgstr ""
 
@@ -1149,7 +1153,7 @@ msgstr ""
 
 #: src/screens/Settings/ActivityPrivacySettings.tsx:111
 #: src/screens/Settings/ActivityPrivacySettings.tsx:116
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:164
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:187
 msgid "Anyone who follows me"
 msgstr ""
 
@@ -1168,34 +1172,37 @@ msgstr ""
 msgid "App Language"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:122
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:133
 msgid "App Password"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:146
+#: src/screens/Settings/AppPasswords.tsx:242
 msgctxt "toast"
 msgid "App password deleted"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:84
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:95
 msgid "App password name must be unique"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:62
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:73
 msgid "App password names can only contain letters, numbers, spaces, dashes, and underscores"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:80
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:91
 msgid "App password names must be at least 4 characters long"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:71
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:74
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:75
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:86
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:93
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:96
 msgid "App passwords"
 msgstr ""
 
 #: src/Navigation.tsx:360
-#: src/screens/Settings/AppPasswords.tsx:50
+#: src/screens/Settings/AppPasswords.tsx:86
+#: src/screens/Settings/AppPasswords.tsx:140
 msgid "App Passwords"
 msgstr ""
 
@@ -1261,7 +1268,7 @@ msgstr ""
 msgid "Archived post"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:209
+#: src/screens/Settings/AppPasswords.tsx:305
 msgid "Are you sure you want to delete the app password \"{0}\"?"
 msgstr ""
 
@@ -1402,7 +1409,7 @@ msgstr ""
 msgid "Birthdate"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:141
+#: src/screens/Settings/AccountSettings.tsx:157
 msgid "Birthday"
 msgstr ""
 
@@ -1683,8 +1690,8 @@ msgstr ""
 #: src/screens/Search/Shell.tsx:370
 #: src/screens/Settings/AppIconSettings/index.tsx:39
 #: src/screens/Settings/AppIconSettings/index.tsx:198
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:79
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:86
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:82
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:89
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:247
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:253
 #: src/screens/Settings/Settings.tsx:301
@@ -1694,18 +1701,20 @@ msgstr ""
 #: src/view/com/composer/Composer.tsx:1538
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:43
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:52
+#: src/view/com/modals/DeleteAccount.tsx:98
 #: src/view/shell/desktop/LeftNav.tsx:213
 msgid "Cancel"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:165
-#: src/view/com/modals/DeleteAccount.tsx:273
+#: src/view/com/modals/DeleteAccount.tsx:101
+#: src/view/com/modals/DeleteAccount.tsx:272
+#: src/view/com/modals/DeleteAccount.tsx:380
 msgctxt "action"
 msgid "Cancel"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:161
-#: src/view/com/modals/DeleteAccount.tsx:269
+#: src/view/com/modals/DeleteAccount.tsx:268
+#: src/view/com/modals/DeleteAccount.tsx:376
 msgid "Cancel account deletion"
 msgstr ""
 
@@ -1758,8 +1767,8 @@ msgstr ""
 msgid "Change app language"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:95
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:99
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:98
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:102
 msgid "Change Handle"
 msgstr ""
 
@@ -1863,7 +1872,7 @@ msgstr ""
 msgid "Check my status"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:208
+#: src/view/com/modals/DeleteAccount.tsx:315
 msgid "Check your inbox for an email with the confirmation code to enter below:"
 msgstr ""
 
@@ -1875,7 +1884,7 @@ msgstr ""
 msgid "Child Sexual Abuse Material (CSAM)"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:474
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:485
 msgid "Choose domain verification method"
 msgstr ""
 
@@ -2150,7 +2159,7 @@ msgstr ""
 msgid "Confirm content language settings"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:259
+#: src/view/com/modals/DeleteAccount.tsx:366
 msgid "Confirm delete account"
 msgstr ""
 
@@ -2159,8 +2168,8 @@ msgstr ""
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:190
 #: src/screens/Settings/components/DisableEmail2FADialog.tsx:144
 #: src/screens/Settings/components/DisableEmail2FADialog.tsx:150
-#: src/view/com/modals/DeleteAccount.tsx:215
-#: src/view/com/modals/DeleteAccount.tsx:221
+#: src/view/com/modals/DeleteAccount.tsx:322
+#: src/view/com/modals/DeleteAccount.tsx:328
 msgid "Confirmation code"
 msgstr ""
 
@@ -2240,6 +2249,8 @@ msgstr ""
 #: src/screens/Onboarding/StepProfile/index.tsx:287
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:285
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:116
+#: src/screens/Settings/AppPasswords.tsx:116
+#: src/screens/Settings/AppPasswords.tsx:123
 msgid "Continue"
 msgstr ""
 
@@ -2299,7 +2310,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:196
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:207
 msgid "Copy App Password"
 msgstr ""
 
@@ -2318,13 +2329,13 @@ msgstr ""
 msgid "Copy code"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:577
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:588
 #: src/view/com/profile/ProfileMenu.tsx:537
 #: src/view/com/profile/ProfileMenu.tsx:540
 msgid "Copy DID"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:509
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:520
 msgid "Copy host"
 msgstr ""
 
@@ -2377,7 +2388,7 @@ msgstr ""
 msgid "Copy QR code"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:530
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:541
 msgid "Copy TXT record value"
 msgstr ""
 
@@ -2544,7 +2555,7 @@ msgstr ""
 msgid "Create user list"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:173
+#: src/screens/Settings/AppPasswords.tsx:269
 msgid "Created {0}"
 msgstr ""
 
@@ -2601,9 +2612,9 @@ msgstr ""
 msgid "Date of birth"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:159
-#: src/screens/Settings/AccountSettings.tsx:164
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:72
+#: src/screens/Settings/AccountSettings.tsx:175
+#: src/screens/Settings/AccountSettings.tsx:184
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:107
 msgid "Deactivate account"
 msgstr ""
 
@@ -2620,8 +2631,8 @@ msgid "Deepfake adult content"
 msgstr ""
 
 #: src/screens/Settings/AppearanceSettings.tsx:156
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:278
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:303
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:285
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:310
 #: src/screens/Signup/StepHandle/index.tsx:229
 #: src/screens/Signup/StepHandle/index.tsx:254
 msgid "Default"
@@ -2635,27 +2646,31 @@ msgstr ""
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:765
 #: src/screens/Messages/components/ChatStatusInfo.tsx:55
 #: src/screens/ProfileList/components/MoreOptionsMenu.tsx:274
-#: src/screens/Settings/AppPasswords.tsx:212
+#: src/screens/Settings/AppPasswords.tsx:308
 #: src/screens/StarterPack/StarterPackScreen.tsx:609
 #: src/screens/StarterPack/StarterPackScreen.tsx:698
 #: src/screens/StarterPack/StarterPackScreen.tsx:770
 msgid "Delete"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:169
-#: src/screens/Settings/AccountSettings.tsx:174
+#: src/screens/Settings/AccountSettings.tsx:189
+#: src/screens/Settings/AccountSettings.tsx:198
 msgid "Delete account"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:96
+#: src/view/com/modals/DeleteAccount.tsx:65
+msgid "Delete Account"
+msgstr ""
+
+#: src/view/com/modals/DeleteAccount.tsx:174
 msgid "Delete Account <0>\"</0><1>{0}</1><2>\"</2>"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:186
+#: src/screens/Settings/AppPasswords.tsx:282
 msgid "Delete app password"
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:207
+#: src/screens/Settings/AppPasswords.tsx:303
 msgid "Delete app password?"
 msgstr ""
 
@@ -2700,7 +2715,7 @@ msgstr ""
 msgid "Delete message for me"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:262
+#: src/view/com/modals/DeleteAccount.tsx:369
 msgid "Delete my account"
 msgstr ""
 
@@ -2927,8 +2942,8 @@ msgstr ""
 msgid "Ditch the trolls and clickbait. Find real people and conversations that matter to you."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:478
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:480
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:489
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:491
 msgid "DNS Panel"
 msgstr ""
 
@@ -2940,12 +2955,12 @@ msgstr ""
 msgid "Does not include nudity."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:254
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:261
 #: src/screens/Signup/StepHandle/index.tsx:205
 msgid "Domain"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:598
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:609
 msgid "Domain verified!"
 msgstr ""
 
@@ -2971,8 +2986,8 @@ msgstr ""
 #: src/lib/media/picker.tsx:37
 #: src/screens/Onboarding/StepProfile/index.tsx:337
 #: src/screens/Onboarding/StepProfile/index.tsx:340
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:214
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:221
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:225
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:232
 #: src/view/com/composer/labels/LabelsBtn.tsx:222
 #: src/view/com/composer/labels/LabelsBtn.tsx:229
 #: src/view/com/composer/select-language/PostLanguageSelectDialog.tsx:303
@@ -3031,7 +3046,7 @@ msgstr ""
 msgid "Duration:"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:242
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:249
 msgid "e.g. alice"
 msgstr ""
 
@@ -3039,7 +3054,7 @@ msgstr ""
 msgid "e.g. Alice Lastname"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:461
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:472
 msgid "e.g. alice.com"
 msgstr ""
 
@@ -3071,7 +3086,7 @@ msgstr ""
 msgid "Eating disorders"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:144
+#: src/screens/Settings/AccountSettings.tsx:160
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:252
 #: src/screens/StarterPack/StarterPackScreen.tsx:598
 #: src/screens/StarterPack/Wizard/index.tsx:337
@@ -3178,7 +3193,7 @@ msgstr ""
 msgid "Either the creator of this list has blocked you or you have blocked the creator."
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:65
+#: src/screens/Settings/AccountSettings.tsx:79
 #: src/screens/Signup/StepInfo/index.tsx:198
 msgid "Email"
 msgstr ""
@@ -3188,7 +3203,7 @@ msgctxt "toast"
 msgid "Email 2FA disabled"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:62
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:66
 msgid "Email 2FA enabled"
 msgstr ""
 
@@ -3202,6 +3217,10 @@ msgstr ""
 
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:208
 msgid "Email sent!"
+msgstr ""
+
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:155
+msgid "Email updates are not available when signed in with OAuth. Please manage your email through your hosting provider's website."
 msgstr ""
 
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:182
@@ -3331,7 +3350,7 @@ msgstr ""
 msgid "Enter the 6-digit code sent to {prettyNumber}"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:455
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:466
 msgid "Enter the domain you want to use"
 msgstr ""
 
@@ -3377,7 +3396,7 @@ msgstr ""
 msgid "Error loading post"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:155
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:178
 msgid "Error loading preference"
 msgstr ""
 
@@ -3389,7 +3408,7 @@ msgstr ""
 msgid "Error occurred while saving file"
 msgstr ""
 
-#: src/screens/Signup/StepCaptcha/index.tsx:127
+#: src/screens/Signup/StepCaptcha/index.tsx:132
 msgid "Error receiving captcha response."
 msgstr ""
 
@@ -3429,7 +3448,7 @@ msgstr ""
 msgid "Exit fullscreen"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:270
+#: src/view/com/modals/DeleteAccount.tsx:377
 msgid "Exits account deletion process"
 msgstr ""
 
@@ -3503,8 +3522,8 @@ msgstr ""
 msgid "Explore your data with rsky-satnav"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:150
-#: src/screens/Settings/AccountSettings.tsx:154
+#: src/screens/Settings/AccountSettings.tsx:166
+#: src/screens/Settings/AccountSettings.tsx:170
 msgid "Export my data"
 msgstr ""
 
@@ -3550,11 +3569,11 @@ msgstr ""
 msgid "Failed to add to starter pack"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:678
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:689
 msgid "Failed to change handle. Please try again."
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:173
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:184
 msgid "Failed to create app password. Please try again."
 msgstr ""
 
@@ -3716,7 +3735,7 @@ msgstr ""
 msgid "Failed to update email 2FA settings"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:195
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:259
 msgid "Failed to update email, please try again."
 msgstr ""
 
@@ -3743,7 +3762,7 @@ msgstr ""
 msgid "Failed to verify email, please try again."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:445
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:456
 msgid "Failed to verify handle. Please try again."
 msgstr ""
 
@@ -4069,11 +4088,11 @@ msgstr ""
 msgid "Food"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:120
+#: src/view/com/modals/DeleteAccount.tsx:198
 msgid "For security reasons, we'll need to send a confirmation code to your email address."
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:208
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:219
 msgid "For security reasons, you won't be able to view this again. If you lose this app password, you'll need to generate a new one."
 msgstr ""
 
@@ -4350,21 +4369,21 @@ msgstr ""
 msgid "Half way there!"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:129
-#: src/screens/Settings/AccountSettings.tsx:134
+#: src/screens/Settings/AccountSettings.tsx:145
+#: src/screens/Settings/AccountSettings.tsx:150
 msgid "Handle"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:682
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:693
 msgid "Handle already taken. Please try a different one."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:202
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:429
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:209
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:440
 msgid "Handle changed!"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:686
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:697
 msgid "Handle too long. Please try a shorter one."
 msgstr ""
 
@@ -4426,7 +4445,7 @@ msgstr ""
 msgid "Help people know you're not a bot by uploading a picture or creating an avatar."
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:187
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:198
 msgid "Here is your app password!"
 msgstr ""
 
@@ -4579,7 +4598,7 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:503
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:514
 msgid "Host:"
 msgstr ""
 
@@ -4617,8 +4636,8 @@ msgstr ""
 msgid "I have a code"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:365
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:371
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:372
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:378
 msgid "I have my own domain"
 msgstr ""
 
@@ -4647,7 +4666,7 @@ msgstr ""
 msgid "If you delete this list, you won't be able to recover it."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:347
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:354
 msgid "If you have your own domain, you can use that as your handle. This lets you self-verify your identity. <0>Learn more here.</0>"
 msgstr ""
 
@@ -4659,7 +4678,7 @@ msgstr ""
 msgid "If you remove this post, you won't be able to recover it."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:208
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:272
 msgid "If you update your email address, email 2FA will be disabled."
 msgstr ""
 
@@ -4676,7 +4695,7 @@ msgstr ""
 msgid "If you're a developer, you can host your own server."
 msgstr ""
 
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:91
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:126
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr ""
 
@@ -4759,7 +4778,7 @@ msgstr ""
 msgid "Input code sent to your email for password reset"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:223
+#: src/view/com/modals/DeleteAccount.tsx:330
 msgid "Input confirmation code for account deletion"
 msgstr ""
 
@@ -4767,7 +4786,8 @@ msgstr ""
 msgid "Input new password"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:242
+#: src/view/com/modals/DeleteAccount.tsx:227
+#: src/view/com/modals/DeleteAccount.tsx:349
 msgid "Input password for account deletion"
 msgstr ""
 
@@ -4787,13 +4807,17 @@ msgstr ""
 msgid "Invalid 2FA confirmation code."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:688
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:699
 msgid "Invalid handle. Please try a different one."
 msgstr ""
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:395
 msgctxt "toast"
 msgid "Invalid interaction settings."
+msgstr ""
+
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:81
+msgid "Invalid password. Please try again."
 msgstr ""
 
 #: src/components/contacts/phone-number.ts:33
@@ -4950,8 +4974,8 @@ msgstr ""
 #: src/components/verification/VerifierDialog.tsx:134
 #: src/screens/Moderation/VerificationSettings.tsx:49
 #: src/screens/Profile/Header/EditProfileDialog.tsx:361
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:220
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:352
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:227
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:359
 msgctxt "english-only-resource"
 msgid "Learn more"
 msgstr ""
@@ -4995,8 +5019,8 @@ msgctxt "english-only-resource"
 msgid "Learn more about verification on Blacksky"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:127
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:130
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:150
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:153
 msgid "Learn more about what is public on Blacksky."
 msgstr ""
 
@@ -5310,7 +5334,7 @@ msgstr ""
 msgid "Logged out"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:106
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:129
 msgid "Logged-out visibility"
 msgstr ""
 
@@ -5715,7 +5739,7 @@ msgstr ""
 msgid "Need to report a copyright violation, legal request, or regulatory compliance issue?"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:658
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:669
 msgid "Nevermind, create a handle for me"
 msgstr ""
 
@@ -5744,7 +5768,7 @@ msgstr ""
 msgid "New chat"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:222
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:286
 msgid "New email address"
 msgstr ""
 
@@ -5762,9 +5786,9 @@ msgstr ""
 msgid "New followers"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:233
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:241
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:460
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:240
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:248
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:471
 msgid "New handle"
 msgstr ""
 
@@ -5838,8 +5862,8 @@ msgstr ""
 #: src/screens/Login/SetNewPasswordForm.tsx:189
 #: src/screens/Onboarding/StepFinished/index.tsx:334
 #: src/screens/Onboarding/StepFinished/index.tsx:343
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:157
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:165
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:168
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:176
 #: src/screens/Signup/BackNextButtons.tsx:67
 #: src/screens/StarterPack/Wizard/index.tsx:208
 #: src/screens/StarterPack/Wizard/index.tsx:212
@@ -5856,7 +5880,7 @@ msgstr ""
 msgid "No ads, no invasive tracking, no engagement traps. Blacksky respects your time and attention."
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:107
+#: src/screens/Settings/AppPasswords.tsx:200
 msgid "No app passwords yet"
 msgstr ""
 
@@ -5872,8 +5896,8 @@ msgstr ""
 msgid "No custom feeds yet"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:483
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:485
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:494
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:496
 msgid "No DNS Panel"
 msgstr ""
 
@@ -5945,7 +5969,7 @@ msgstr ""
 
 #: src/screens/Settings/ActivityPrivacySettings.tsx:129
 #: src/screens/Settings/ActivityPrivacySettings.tsx:134
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:161
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:184
 msgctxt "enable for"
 msgid "No one"
 msgstr ""
@@ -6070,7 +6094,7 @@ msgstr ""
 msgid "Note about sharing"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:116
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:139
 msgid "Note: Blacksky is an open and public network. This setting only limits the visibility of your content on the Blacksky app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
 msgstr ""
 
@@ -6219,7 +6243,7 @@ msgstr ""
 
 #: src/screens/Settings/ActivityPrivacySettings.tsx:120
 #: src/screens/Settings/ActivityPrivacySettings.tsx:125
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:159
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:182
 msgid "Only followers who I follow"
 msgstr ""
 
@@ -6238,10 +6262,23 @@ msgstr ""
 #: src/components/Lists.tsx:183
 #: src/components/StarterPack/ProfileStarterPacks.tsx:362
 #: src/components/StarterPack/ProfileStarterPacks.tsx:371
-#: src/screens/Settings/AppPasswords.tsx:58
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:107
+#: src/screens/Settings/AppPasswords.tsx:148
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:110
 #: src/view/screens/Profile.tsx:132
 msgid "Oops!"
+msgstr ""
+
+#: src/view/com/modals/DeleteAccount.tsx:79
+msgid "Open account management"
+msgstr ""
+
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:163
+msgid "Open account settings"
+msgstr ""
+
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:169
+#: src/view/com/modals/DeleteAccount.tsx:89
+msgid "Open Account Settings"
 msgstr ""
 
 #: src/screens/Onboarding/StepProfile/index.tsx:294
@@ -6361,7 +6398,7 @@ msgstr ""
 msgid "Opens captions and alt text dialog"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:130
+#: src/screens/Settings/AccountSettings.tsx:146
 msgid "Opens change handle dialog"
 msgstr ""
 
@@ -6433,6 +6470,10 @@ msgstr ""
 #: src/view/com/notifications/NotificationFeedItem.tsx:1027
 #: src/view/com/util/UserAvatar.tsx:597
 msgid "Opens this profile"
+msgstr ""
+
+#: src/view/com/modals/DeleteAccount.tsx:81
+msgid "Opens your hosting provider's account management page"
 msgstr ""
 
 #: src/components/dialogs/MutedWords.tsx:304
@@ -6516,11 +6557,19 @@ msgstr ""
 msgid "Page Not Found"
 msgstr ""
 
-#: src/screens/Settings/AccountSettings.tsx:120
-#: src/screens/Settings/AccountSettings.tsx:124
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:311
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:312
+#: src/screens/Settings/AccountSettings.tsx:136
+#: src/screens/Settings/AccountSettings.tsx:140
+#: src/screens/Settings/AppPasswords.tsx:103
+#: src/screens/Settings/AppPasswords.tsx:104
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:142
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:143
 #: src/screens/Signup/StepInfo/index.tsx:233
-#: src/view/com/modals/DeleteAccount.tsx:234
-#: src/view/com/modals/DeleteAccount.tsx:241
+#: src/view/com/modals/DeleteAccount.tsx:218
+#: src/view/com/modals/DeleteAccount.tsx:225
+#: src/view/com/modals/DeleteAccount.tsx:341
+#: src/view/com/modals/DeleteAccount.tsx:348
 msgid "Password"
 msgstr ""
 
@@ -6705,7 +6754,7 @@ msgstr ""
 msgid "Please choose your password."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:290
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:379
 msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 msgstr ""
 
@@ -6725,17 +6774,17 @@ msgstr ""
 msgid "Please enter a password. It must be at least 8 characters long."
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:114
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:125
 msgid "Please enter a unique name for this app password or use our randomly generated one."
 msgstr ""
 
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Disable.tsx:131
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:135
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:188
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:145
 msgid "Please enter a valid code."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:148
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:201
 msgid "Please enter a valid email address."
 msgstr ""
 
@@ -6751,8 +6800,16 @@ msgstr ""
 msgid "Please enter the code you received and the new password you would like to use."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:247
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:336
 msgid "Please enter the security code we sent to your previous email address."
+msgstr ""
+
+#: src/screens/Settings/AppPasswords.tsx:96
+msgid "Please enter your account password to manage app passwords."
+msgstr ""
+
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:306
+msgid "Please enter your account password."
 msgstr ""
 
 #: src/screens/Signup/state.ts:276
@@ -6764,12 +6821,25 @@ msgstr ""
 msgid "Please enter your invite code."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:217
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:281
 msgid "Please enter your new email address."
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:230
+#: src/view/com/modals/DeleteAccount.tsx:337
 msgid "Please enter your password as well:"
+msgstr ""
+
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:137
+msgid "Please enter your password to continue."
+msgstr ""
+
+#: src/view/com/modals/DeleteAccount.tsx:209
+msgid "Please enter your password:"
+msgstr ""
+
+#: src/screens/Settings/AppPasswords.tsx:72
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:56
+msgid "Please enter your password."
 msgstr ""
 
 #: src/screens/Login/LoginForm.tsx:42
@@ -7000,7 +7070,7 @@ msgstr ""
 #: src/Navigation.tsx:416
 #: src/Navigation.tsx:424
 #: src/screens/Settings/ActivityPrivacySettings.tsx:40
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:44
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:48
 msgid "Privacy and Security"
 msgstr ""
 
@@ -7047,7 +7117,7 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-#: src/lib/strings/errors.ts:40
+#: src/lib/strings/errors.ts:49
 msgid "Profile not found"
 msgstr ""
 
@@ -7159,7 +7229,7 @@ msgstr ""
 msgid "Quotes of this post"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:691
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:702
 msgid "Rate limit exceeded – you've tried to change your handle too many times in a short period. Please wait a minute before trying again."
 msgstr ""
 
@@ -7786,7 +7856,7 @@ msgstr ""
 
 #: src/screens/Profile/ProfileFeed/index.tsx:96
 #: src/screens/ProfileList/components/ErrorScreen.tsx:35
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:650
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:661
 #: src/screens/VideoFeed/index.tsx:1180
 #: src/view/screens/NotFound.tsx:60
 msgid "Returns to previous page"
@@ -7807,7 +7877,7 @@ msgstr ""
 #: src/screens/Profile/Header/EditProfileDialog.tsx:246
 #: src/screens/Profile/Header/EditProfileDialog.tsx:261
 #: src/screens/SavedFeeds.tsx:120
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:342
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:349
 #: src/view/com/composer/GifAltText.tsx:193
 #: src/view/com/composer/GifAltText.tsx:202
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:62
@@ -7855,7 +7925,7 @@ msgstr ""
 msgid "Save image"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:328
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:335
 msgid "Save new handle"
 msgstr ""
 
@@ -8013,7 +8083,7 @@ msgstr ""
 msgid "Searches for profiles"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:243
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:332
 msgid "Security step required"
 msgstr ""
 
@@ -8113,8 +8183,8 @@ msgstr ""
 msgid "Select content languages"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:257
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:261
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:264
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:268
 #: src/screens/Signup/StepHandle/index.tsx:208
 #: src/screens/Signup/StepHandle/index.tsx:212
 msgid "Select domain"
@@ -8241,11 +8311,11 @@ msgstr ""
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Disable.tsx:174
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Disable.tsx:181
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:302
-#: src/view/com/modals/DeleteAccount.tsx:140
+#: src/view/com/modals/DeleteAccount.tsx:247
 msgid "Send email"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:153
+#: src/view/com/modals/DeleteAccount.tsx:260
 msgctxt "action"
 msgid "Send Email"
 msgstr ""
@@ -8284,7 +8354,7 @@ msgstr ""
 msgid "Send via direct message"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:142
+#: src/view/com/modals/DeleteAccount.tsx:249
 msgid "Sends email with confirmation code for account deletion"
 msgstr ""
 
@@ -8331,7 +8401,7 @@ msgstr ""
 msgid "Settings for activity from others"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:84
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:107
 msgid "Settings for allowing others to be notified of your posts"
 msgstr ""
 
@@ -8749,7 +8819,7 @@ msgstr ""
 
 #: src/components/moderation/ReportDialog/index.tsx:273
 #: src/screens/Deactivated.tsx:85
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:58
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:84
 #: src/view/screens/Storybook/Admonitions.tsx:55
 msgid "Something went wrong, please try again"
 msgstr ""
@@ -8944,7 +9014,7 @@ msgstr ""
 msgid "Subscribe to this list"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:286
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:375
 msgid "Success!"
 msgstr ""
 
@@ -9106,7 +9176,7 @@ msgstr ""
 msgid "Thanks, you have successfully verified your email address. You can close this dialog."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:573
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:584
 msgid "That contains the following:"
 msgstr ""
 
@@ -9243,7 +9313,7 @@ msgstr ""
 msgid "Theme"
 msgstr ""
 
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:85
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:120
 msgid "There is no time limit for account deactivation, come back any time."
 msgstr ""
 
@@ -9279,7 +9349,7 @@ msgstr ""
 msgid "There was an issue fetching the list. Tap here to try again."
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:59
+#: src/screens/Settings/AppPasswords.tsx:149
 msgid "There was an issue fetching your app passwords"
 msgstr ""
 
@@ -9288,7 +9358,7 @@ msgstr ""
 msgid "There was an issue fetching your lists. Tap here to try again."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:108
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:111
 msgid "There was an issue fetching your service info"
 msgstr ""
 
@@ -9434,12 +9504,17 @@ msgstr ""
 msgid "This draft will be permanently deleted."
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:156
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:209
 msgid "This email is already associated with your account."
 msgstr ""
 
 #: src/screens/Settings/ActivityPrivacySettings.tsx:55
 msgid "This feature allows users to receive notifications for your new posts and replies. Who do you want to enable this for?"
+msgstr ""
+
+#: src/lib/hooks/useCleanError.ts:73
+#: src/lib/strings/errors.ts:34
+msgid "This feature is not available when signed in with OAuth. Please manage your account through your hosting provider's website."
 msgstr ""
 
 #: src/lib/hooks/useCleanError.ts:64
@@ -9448,6 +9523,10 @@ msgstr ""
 
 #: src/lib/strings/errors.ts:31
 msgid "This feature is not available while using an App Password. Please sign in with your main password."
+msgstr ""
+
+#: src/lib/strings/errors.ts:40
+msgid "This feature is not available with your current session. Please manage your account through your hosting provider's website, or sign out and sign back in to refresh your permissions."
 msgstr ""
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:127
@@ -9468,7 +9547,7 @@ msgstr ""
 msgid "This feed is no longer online. We are showing <0>Discover</0> instead."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:684
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:695
 msgid "This handle is reserved. Please try a different one."
 msgstr ""
 
@@ -9557,7 +9636,7 @@ msgstr ""
 msgid "This service is not supported while the Live feature is in beta. Allowed services: {formatted}."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:542
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:553
 msgid "This should create a domain record at:"
 msgstr ""
 
@@ -9744,7 +9823,7 @@ msgstr ""
 msgid "TV"
 msgstr ""
 
-#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:64
+#: src/screens/Settings/PrivacyAndSecuritySettings.tsx:68
 msgid "Two-factor authentication (2FA)"
 msgstr ""
 
@@ -9752,7 +9831,7 @@ msgstr ""
 msgid "Type your message here"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:518
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:529
 msgid "Type:"
 msgstr ""
 
@@ -9778,7 +9857,7 @@ msgstr ""
 msgid "Unable to delete"
 msgstr ""
 
-#: src/lib/strings/errors.ts:43
+#: src/lib/strings/errors.ts:52
 msgid "Unable to resolve handle"
 msgstr ""
 
@@ -10012,19 +10091,20 @@ msgstr ""
 msgid "Update <0>{displayName}</0> in Lists"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:300
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:312
-#: src/screens/Settings/AccountSettings.tsx:106
-#: src/screens/Settings/AccountSettings.tsx:114
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:389
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:402
+#: src/screens/Settings/AccountSettings.tsx:120
+#: src/screens/Settings/AccountSettings.tsx:130
 msgid "Update email"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:617
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:638
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:628
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:649
 msgid "Update to {domain}"
 msgstr ""
 
-#: src/components/dialogs/EmailDialog/screens/Update.tsx:203
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:151
+#: src/components/dialogs/EmailDialog/screens/Update.tsx:267
 msgid "Update your email"
 msgstr ""
 
@@ -10046,7 +10126,7 @@ msgstr ""
 msgid "Upload a photo instead"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:558
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:569
 msgid "Upload a text file to:"
 msgstr ""
 
@@ -10086,11 +10166,11 @@ msgstr ""
 msgid "Uploading video..."
 msgstr ""
 
-#: src/screens/Settings/AppPasswords.tsx:66
+#: src/screens/Settings/AppPasswords.tsx:156
 msgid "Use app passwords to sign in to other Blacksky clients without giving full access to your account or password."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:649
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:660
 msgid "Use default provider"
 msgstr ""
 
@@ -10113,7 +10193,7 @@ msgstr ""
 msgid "Use recommended"
 msgstr ""
 
-#: src/screens/Settings/components/AddAppPasswordDialog.tsx:190
+#: src/screens/Settings/components/AddAppPasswordDialog.tsx:201
 msgid "Use this to sign in to the other app along with your handle."
 msgstr ""
 
@@ -10202,7 +10282,7 @@ msgstr ""
 msgid "Users I follow"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:524
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:535
 msgid "Value:"
 msgstr ""
 
@@ -10242,8 +10322,8 @@ msgctxt "action"
 msgid "Verify code"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:619
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:640
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:630
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:651
 msgid "Verify DNS Record"
 msgstr ""
 
@@ -10261,8 +10341,8 @@ msgstr ""
 msgid "Verify phone number"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:620
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:642
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:631
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:653
 msgid "Verify Text File"
 msgstr ""
 
@@ -10271,8 +10351,8 @@ msgid "Verify this account?"
 msgstr ""
 
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:211
-#: src/screens/Settings/AccountSettings.tsx:80
-#: src/screens/Settings/AccountSettings.tsx:100
+#: src/screens/Settings/AccountSettings.tsx:94
+#: src/screens/Settings/AccountSettings.tsx:114
 msgid "Verify your email"
 msgstr ""
 
@@ -10747,7 +10827,7 @@ msgstr ""
 msgid "Writers"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:441
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:452
 msgid "Wrong DID returned from server. Received: {0}"
 msgstr ""
 
@@ -10760,8 +10840,8 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:104
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:106
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:160
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:163
 msgid "Yes, deactivate"
 msgstr ""
 
@@ -10830,7 +10910,7 @@ msgstr ""
 msgid "You are verified. You will lose your verification status if you change your display name. <0>Learn more.</0>"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:215
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:222
 msgid "You are verified. You will lose your verification status if you change your handle. <0>Learn more.</0>"
 msgstr ""
 
@@ -10843,7 +10923,7 @@ msgstr ""
 msgid "You can also discover new Custom Feeds to follow."
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:193
+#: src/view/com/modals/DeleteAccount.tsx:300
 msgid "You can also temporarily deactivate your account instead, and reactivate it at any time."
 msgstr ""
 
@@ -11161,7 +11241,7 @@ msgid "You're in line"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:80
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:53
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:76
 msgid "You're signed in with an App Password. Please sign in with your main password to continue deactivating your account."
 msgstr ""
 
@@ -11194,7 +11274,7 @@ msgstr ""
 msgid "You've reached the maximum number of drafts"
 msgstr ""
 
-#: src/lib/hooks/useCleanError.ts:73
+#: src/lib/hooks/useCleanError.ts:82
 msgid "You've reached the maximum number of requests allowed. Please try again later."
 msgstr ""
 
@@ -11218,7 +11298,7 @@ msgstr ""
 msgid "Your account"
 msgstr ""
 
-#: src/view/com/modals/DeleteAccount.tsx:79
+#: src/view/com/modals/DeleteAccount.tsx:157
 msgid "Your account has been deleted"
 msgstr ""
 
@@ -11270,7 +11350,7 @@ msgstr ""
 msgid "Your contact {name}"
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:604
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:615
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr ""
 
@@ -11297,7 +11377,7 @@ msgstr ""
 msgid "Your following feed is empty! Follow more users to see what's happening."
 msgstr ""
 
-#: src/screens/Settings/components/ChangeHandleDialog.tsx:320
+#: src/screens/Settings/components/ChangeHandleDialog.tsx:327
 msgid "Your full handle will be <0>@{0}</0>"
 msgstr ""
 
@@ -11351,7 +11431,7 @@ msgstr ""
 msgid "Your profile picture surrounded by concentric circles of other users' profile pictures"
 msgstr ""
 
-#: src/screens/Settings/components/DeactivateAccountDialog.tsx:74
+#: src/screens/Settings/components/DeactivateAccountDialog.tsx:109
 msgid "Your profile, posts, feeds, and lists will no longer be visible to other Blacksky users. You can reactivate your account at any time by logging in."
 msgstr ""
 
