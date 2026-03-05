@@ -2024,7 +2024,7 @@ msgstr ""
 msgid "Close dialog"
 msgstr ""
 
-#: src/view/shell/index.web.tsx:104
+#: src/view/shell/index.web.tsx:106
 msgid "Close drawer menu"
 msgstr ""
 
@@ -2742,7 +2742,7 @@ msgstr ""
 msgid "Delete this post?"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:255
+#: src/components/Post/Embed/index.tsx:265
 msgid "Deleted"
 msgstr ""
 
@@ -5321,7 +5321,7 @@ msgstr ""
 msgid "Loading post interaction settings..."
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:232
+#: src/components/Post/Embed/index.tsx:237
 #: src/view/com/composer/text-input/mobile/Autocomplete.tsx:61
 msgid "Loading..."
 msgstr ""
