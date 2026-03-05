@@ -71,12 +71,11 @@ export function isNonConfigurableModerationAuthority(did: string) {
 }
 
 export function configureAdditionalModerationAuthorities() {
-  // Without geolocation, default to all moderation authorities
-  let additionalLabelers: string[] = [...MODERATION_AUTHORITIES_DIDS]
-
-  if (__DEV__) {
-    additionalLabelers = []
-  }
+  // Only subscribe to the Blacksky labeler. Country labelers require geolocation
+  // to apply correctly -- without it, subscribing to all of them causes labels
+  // from irrelevant jurisdictions to block content for all users (e.g. a Brazil
+  // labeler !hide on a US account would block that account for everyone).
+  let additionalLabelers: string[] = []
 
   additionalLabelers.push(BLACKSKY_LABELER)
   const appLabelers = Array.from(
