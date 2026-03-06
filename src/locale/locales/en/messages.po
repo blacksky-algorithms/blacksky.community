@@ -1348,7 +1348,7 @@ msgstr ""
 #: src/screens/Login/SetNewPasswordForm.tsx:175
 #: src/screens/Messages/components/ChatDisabled.tsx:145
 #: src/screens/Messages/components/ChatDisabled.tsx:146
-#: src/screens/Profile/Header/Shell.tsx:179
+#: src/screens/Profile/Header/Shell.tsx:185
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:272
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:281
 #: src/screens/Signup/BackNextButtons.tsx:41
@@ -1360,6 +1360,12 @@ msgstr ""
 
 #: src/screens/Messages/Inbox.tsx:247
 msgid "Back to Chats"
+msgstr ""
+
+#: src/screens/Profile/Header/Shell.tsx:376
+#: src/screens/Profile/Header/Shell.tsx:405
+#: src/screens/Profile/Header/Shell.tsx:414
+msgid "Backfill in progress"
 msgstr ""
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:216
@@ -1432,6 +1438,10 @@ msgstr ""
 
 #: src/components/ProgressGuide/List.tsx:108
 msgid "Blacksky is better with friends!"
+msgstr ""
+
+#: src/screens/Profile/Header/Shell.tsx:417
+msgid "Blacksky is still indexing this account's data from the AT Protocol network. The follower, following, and post counts shown may be lower than the actual totals. Relationship indicators (like whether this account follows you) may also be incomplete until backfill is finished."
 msgstr ""
 
 #: src/view/com/auth/SplashScreen.web.tsx:205
@@ -6191,6 +6201,7 @@ msgstr ""
 
 #: src/screens/Login/PasswordUpdatedForm.tsx:37
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:705
+#: src/screens/Profile/Header/Shell.tsx:427
 msgid "Okay"
 msgstr ""
 
@@ -10428,7 +10439,7 @@ msgctxt "Action to view the post the user just created"
 msgid "View"
 msgstr ""
 
-#: src/screens/Profile/Header/Shell.tsx:262
+#: src/screens/Profile/Header/Shell.tsx:260
 msgid "View {0}'s avatar"
 msgstr ""
 
