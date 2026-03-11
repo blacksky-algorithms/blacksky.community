@@ -213,6 +213,7 @@ export const defaults: Schema = {
       'did:plc:eclio37ymobqex2ncko63h4r',
       'did:plc:inz4fkbbp7ms3ixufw6xuvdi',
       'did:plc:b2kutgxqlltwc6lhs724cfwr',
+      'did:plc:kta7dqcqoamo5ixlajxbtjps',
     ],
   },
 }
