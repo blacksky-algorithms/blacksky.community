@@ -145,10 +145,10 @@ export const SplashScreen = ({
                 <Trans>
                   Migrating from Bluesky? Use{' '}
                   <InlineLinkText
-                    label={_(msg`Tektite.cc`)}
-                    to="https://tektite.cc"
+                    label={_(msg`move.blacksky.community`)}
+                    to="https://move.blacksky.community"
                     style={[a.text_sm]}>
-                    Tektite.cc
+                    move.blacksky.community
                   </InlineLinkText>{' '}
                   to move your followers, posts, and media to Blacksky.
                 </Trans>
