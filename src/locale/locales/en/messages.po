@@ -1959,10 +1959,6 @@ msgstr ""
 msgid "Click for information"
 msgstr ""
 
-#: src/view/screens/Support.tsx:44
-msgid "click here"
-msgstr ""
-
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:383
 msgid "Click here to restart the verification process."
 msgstr ""
@@ -4680,6 +4676,10 @@ msgstr ""
 msgid "If you have your own domain, you can use that as your handle. This lets you self-verify your identity. <0>Learn more here.</0>"
 msgstr ""
 
+#: src/view/screens/Support.tsx:40
+msgid "If you need help, please email us at <0/>."
+msgstr ""
+
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:272
 msgid "If you need to update your email, <0>click here</0>."
 msgstr ""
@@ -5498,7 +5498,7 @@ msgid "Messages"
 msgstr ""
 
 #: src/view/com/auth/SplashScreen.web.tsx:145
-msgid "Migrating from Bluesky? Use <0>Tektite.cc</0> to move your followers, posts, and media to Blacksky."
+msgid "Migrating from Bluesky? Use <0>move.blacksky.community</0> to move your followers, posts, and media to Blacksky."
 msgstr ""
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:177
@@ -5601,6 +5601,10 @@ msgstr ""
 
 #: src/screens/SavedFeeds.tsx:320
 msgid "Move feed up"
+msgstr ""
+
+#: src/view/com/auth/SplashScreen.web.tsx:148
+msgid "move.blacksky.community"
 msgstr ""
 
 #: src/lib/interests.ts:64
@@ -9056,6 +9060,10 @@ msgstr ""
 msgid "Support Us"
 msgstr ""
 
+#: src/view/screens/Support.tsx:44
+msgid "support@blacksky.app"
+msgstr ""
+
 #: src/screens/Settings/Settings.tsx:123
 #: src/screens/Settings/Settings.tsx:137
 #: src/screens/Settings/Settings.tsx:581
@@ -9130,10 +9138,6 @@ msgstr ""
 
 #: src/lib/interests.ts:73
 msgid "Tech"
-msgstr ""
-
-#: src/view/com/auth/SplashScreen.web.tsx:148
-msgid "Tektite.cc"
 msgstr ""
 
 #: src/components/dms/ChatEmptyPill.tsx:35
@@ -9295,10 +9299,6 @@ msgstr ""
 
 #: src/components/ContextMenu/index.tsx:434
 msgid "The subject of the context menu"
-msgstr ""
-
-#: src/view/screens/Support.tsx:40
-msgid "The support form has been moved. If you need help, please <0/> or visit {HELP_DESK_URL} to get in touch with us."
 msgstr ""
 
 #: src/view/screens/TermsOfService.tsx:38
