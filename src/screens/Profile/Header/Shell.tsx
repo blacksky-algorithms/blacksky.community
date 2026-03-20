@@ -16,6 +16,7 @@ import {useNavigation} from '@react-navigation/native'
 
 import {useActorStatus} from '#/lib/actor-status'
 import {BACK_HITSLOP} from '#/lib/constants'
+import {useActorFlair} from '#/lib/flair/useActorFlair'
 import {useHaptics} from '#/lib/haptics'
 import {getModerationCauseKey, unique} from '#/lib/moderation'
 import {type NavigationProp} from '#/lib/routes/types'
@@ -120,6 +121,7 @@ let ProfileHeaderShell = ({
   )
 
   const live = useActorStatus(profile)
+  const flair = useActorFlair(profile)
 
   useEffect(() => {
     if (live.isActive) {
@@ -266,7 +268,11 @@ let ProfileHeaderShell = ({
               {
                 width: 94,
                 height: 94,
-                borderWidth: live.isActive ? 3 : 2,
+                borderWidth: live.isActive
+                  ? 3
+                  : flair && !live.isActive
+                    ? 0
+                    : 2,
                 borderColor: live.isActive
                   ? t.palette.negative_500
                   : t.atoms.bg.backgroundColor,
@@ -276,10 +282,11 @@ let ProfileHeaderShell = ({
             <Animated.View ref={aviRef} collapsable={false}>
               <UserAvatar
                 type={profile.associated?.labeler ? 'labeler' : 'user'}
-                size={live.isActive ? 88 : 90}
+                size={live.isActive ? 88 : flair && !live.isActive ? 94 : 90}
                 avatar={profile.avatar}
                 moderation={moderation.ui('avatar')}
                 noBorder
+                flair={live.isActive ? null : flair}
               />
               {live.isActive && <LiveIndicator size="large" />}
             </Animated.View>

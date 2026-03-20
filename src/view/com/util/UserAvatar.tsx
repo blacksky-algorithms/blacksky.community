@@ -16,6 +16,8 @@ import {useLingui} from '@lingui/react'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useActorStatus} from '#/lib/actor-status'
+import {type FlairSpec} from '#/lib/flair/registry'
+import {useActorFlair} from '#/lib/flair/useActorFlair'
 import {useHaptics} from '#/lib/haptics'
 import {
   useCameraPermission,
@@ -40,6 +42,7 @@ import {atoms as a, tokens, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {useSheetWrapper} from '#/components/Dialog/sheet-wrapper'
+import {FlairRing} from '#/components/flair/FlairRing'
 import {
   Camera_Filled_Stroke2_Corner0_Rounded as CameraFilledIcon,
   Camera_Stroke2_Corner0_Rounded as CameraIcon,
@@ -65,6 +68,7 @@ interface BaseUserAvatarProps {
   avatar?: string | null
   live?: boolean
   hideLiveBadge?: boolean
+  flair?: FlairSpec | null
 }
 
 interface UserAvatarProps extends BaseUserAvatarProps {
@@ -222,6 +226,7 @@ let UserAvatar = ({
   live,
   hideLiveBadge,
   noBorder,
+  flair,
 }: UserAvatarProps): React.ReactNode => {
   const t = useTheme()
   const finalShape = overrideShape ?? (type === 'user' ? 'circle' : 'square')
@@ -285,6 +290,8 @@ let UserAvatar = ({
     ]
   }, [size, style])
 
+  const showFlair = !live && flair && size > 16
+
   return avatar &&
     !((moderation?.blur && IS_ANDROID) /* android crashes with blur */) ? (
     <View style={containerStyle}>
@@ -312,7 +319,8 @@ let UserAvatar = ({
           onLoad={onLoad}
         />
       )}
-      {!noBorder && <MediaInsetBorder style={borderStyle} />}
+      {showFlair && <FlairRing flair={flair} size={size} shape={finalShape} />}
+      {!noBorder && !showFlair && <MediaInsetBorder style={borderStyle} />}
       {live && size > 16 && !hideLiveBadge && (
         <LiveIndicator size={size > 32 ? 'small' : 'tiny'} />
       )}
@@ -321,7 +329,8 @@ let UserAvatar = ({
   ) : (
     <View style={containerStyle}>
       <DefaultAvatar type={type} shape={finalShape} size={size} />
-      {!noBorder && <MediaInsetBorder style={borderStyle} />}
+      {showFlair && <FlairRing flair={flair} size={size} shape={finalShape} />}
+      {!noBorder && !showFlair && <MediaInsetBorder style={borderStyle} />}
       {live && size > 16 && !hideLiveBadge && (
         <LiveIndicator size={size > 32 ? 'small' : 'tiny'} />
       )}
@@ -549,12 +558,15 @@ let PreviewableUserAvatar = ({
     liveControl.open()
   }, [liveControl, playHaptic, profile.did])
 
+  const flair = useActorFlair(profile)
+
   const avatarEl = (
     <UserAvatar
       avatar={profile.avatar}
       moderation={moderation}
       type={profile.associated?.labeler ? 'labeler' : 'user'}
       live={status.isActive || live}
+      flair={status.isActive ? null : flair}
       {...props}
     />
   )

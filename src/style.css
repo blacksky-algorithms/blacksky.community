@@ -382,6 +382,43 @@ input[type='range'][orient='vertical']::-moz-range-thumb {
 /*
  * #/components/Toast/index.web.tsx
  */
+/* Flair animations */
+@keyframes flairRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes flairGlowPulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+@keyframes flairCorePulse {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flair-ring-rotate,
+  .flair-tendrils-a,
+  .flair-tendrils-b,
+  .flair-glow,
+  .flair-core {
+    animation: none !important;
+  }
+}
+
 @keyframes toastFadeIn {
   from {
     opacity: 0;
