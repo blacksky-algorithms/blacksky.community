@@ -126,3 +126,8 @@ bskyweb/static/media/*.jpg
 bskyweb/static/media/*.png
 bskyweb/static/media/*.svg
 bskyweb/static/media/*.cjs
+
+# Claude
+CLAUDE.md
+.claude/
+.claudeignore
