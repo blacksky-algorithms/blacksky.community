@@ -5,6 +5,7 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useFocusEffect} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
+import {type QueryClient, useQuery} from '@tanstack/react-query'
 
 import {HITSLOP_10} from '#/lib/constants'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
@@ -14,6 +15,7 @@ import {shareUrl} from '#/lib/sharing'
 import {cleanError} from '#/lib/strings/errors'
 import {enforceLen} from '#/lib/strings/helpers'
 import {useSearchPostsQuery} from '#/state/queries/search-posts'
+import {useAgent} from '#/state/session'
 import {useSetMinimalShellMode} from '#/state/shell'
 import {Pager} from '#/view/com/pager/Pager'
 import {TabBar} from '#/view/com/pager/TabBar'
@@ -24,6 +26,8 @@ import {Button, ButtonIcon} from '#/components/Button'
 import {ArrowOutOfBoxModified_Stroke2_Corner2_Rounded as Share} from '#/components/icons/ArrowOutOfBox'
 import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
+
+const TOPICS_API = 'https://api.blacksky.community'
 
 const renderItem = ({item}: ListRenderItemInfo<AppBskyFeedDefs.PostView>) => {
   return <Post post={item} />
@@ -36,18 +40,25 @@ const keyExtractor = (item: AppBskyFeedDefs.PostView, index: number) => {
 export default function TopicScreen({
   route,
 }: NativeStackScreenProps<CommonNavigatorParams, 'Topic'>) {
-  const {topic} = route.params
+  const {topic: topicParam} = route.params
   const {_} = useLingui()
 
+  // topic param is either a numeric ID (from trending) or a search term (legacy)
+  const isTopicId = /^\d+$/.test(topicParam)
+
+  const [topicName, setTopicName] = React.useState(
+    isTopicId ? '' : decodeURIComponent(topicParam),
+  )
+
   const headerTitle = React.useMemo(() => {
-    return enforceLen(decodeURIComponent(topic), 24, true, 'middle')
-  }, [topic])
+    return topicName ? enforceLen(topicName, 24, true, 'middle') : _(msg`Topic`)
+  }, [topicName, _])
 
   const onShare = React.useCallback(() => {
     const url = new URL('https://blacksky.community')
-    url.pathname = `/topic/${topic}`
+    url.pathname = `/topic/${topicParam}`
     shareUrl(url.toString())
-  }, [topic])
+  }, [topicParam])
 
   const [activeTab, setActiveTab] = React.useState(0)
   const setMinimalShellMode = useSetMinimalShellMode()
@@ -67,25 +78,54 @@ export default function TopicScreen({
   )
 
   const sections = React.useMemo(() => {
+    if (isTopicId) {
+      // Curated topic feed from our API
+      return [
+        {
+          title: _(msg`Top`),
+          component: (
+            <CuratedTopicTab
+              topicId={topicParam}
+              active={activeTab === 0}
+              onTopicName={setTopicName}
+            />
+          ),
+        },
+        {
+          title: _(msg`Latest`),
+          component: (
+            <TopicScreenTab
+              topic={topicName || topicParam}
+              sort="latest"
+              active={activeTab === 1}
+            />
+          ),
+        },
+      ]
+    }
     return [
       {
         title: _(msg`Top`),
         component: (
-          <TopicScreenTab topic={topic} sort="top" active={activeTab === 0} />
+          <TopicScreenTab
+            topic={topicParam}
+            sort="top"
+            active={activeTab === 0}
+          />
         ),
       },
       {
         title: _(msg`Latest`),
         component: (
           <TopicScreenTab
-            topic={topic}
+            topic={topicParam}
             sort="latest"
             active={activeTab === 1}
           />
         ),
       },
     ]
-  }, [_, topic, activeTab])
+  }, [_, topicParam, topicName, isTopicId, activeTab])
 
   return (
     <Layout.Screen>
@@ -122,6 +162,109 @@ export default function TopicScreen({
       </Pager>
     </Layout.Screen>
   )
+}
+
+function CuratedTopicTab({
+  topicId,
+  active,
+  onTopicName,
+}: {
+  topicId: string
+  active: boolean
+  onTopicName?: (name: string) => void
+}) {
+  const {_} = useLingui()
+  const initialNumToRender = useInitialNumToRender()
+  const [isPTR, setIsPTR] = React.useState(false)
+  const trackPostView = usePostViewTracking('Topic')
+  const agent = useAgent()
+
+  const {data, isLoading, isFetched, isError, error, refetch} = useQuery({
+    enabled: active,
+    staleTime: 3 * 60 * 1000,
+    queryKey: ['topic-feed', topicId],
+    queryFn: async () => {
+      // Fetch curated post URIs from our API
+      const res = await fetch(
+        `${TOPICS_API}/xrpc/app.bsky.unspecced.getTopicFeed?topicId=${topicId}&limit=30`,
+      )
+      if (!res.ok) throw new Error(`getTopicFeed failed: ${res.status}`)
+      const json = (await res.json()) as {
+        posts: string[]
+        topic: {name: string}
+      }
+
+      if (json.topic?.name && onTopicName) {
+        onTopicName(json.topic.name)
+      }
+
+      if (!json.posts?.length) return []
+
+      // Hydrate post URIs through the appview (max 25 per call)
+      const uris = json.posts.slice(0, 25)
+      const hydrated = await agent.getPosts({uris})
+      return hydrated.data.posts
+    },
+  })
+
+  const posts = data || []
+
+  const onRefresh = React.useCallback(async () => {
+    setIsPTR(true)
+    await refetch()
+    setIsPTR(false)
+  }, [refetch])
+
+  return (
+    <>
+      {posts.length < 1 ? (
+        <ListMaybePlaceholder
+          isLoading={isLoading || !isFetched}
+          isError={isError}
+          onRetry={refetch}
+          emptyType="results"
+          emptyMessage={_(msg`We couldn't find any results for that topic.`)}
+        />
+      ) : (
+        <List
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshing={isPTR}
+          onRefresh={onRefresh}
+          onItemSeen={trackPostView}
+          // @ts-ignore web only -prf
+          desktopFixedHeight
+          ListFooterComponent={
+            <ListFooter
+              isFetchingNextPage={false}
+              error={cleanError(error)}
+              onRetry={refetch}
+            />
+          }
+          initialNumToRender={initialNumToRender}
+          windowSize={11}
+        />
+      )}
+    </>
+  )
+}
+
+export function* findAllPostsInTopicQueryData(
+  queryClient: QueryClient,
+  uri: string,
+): Generator<AppBskyFeedDefs.PostView, undefined> {
+  const queryDatas = queryClient.getQueriesData<AppBskyFeedDefs.PostView[]>({
+    queryKey: ['topic-feed'],
+  })
+  for (const [_queryKey, queryData] of queryDatas) {
+    if (!queryData) continue
+    for (const post of queryData) {
+      if (post.uri === uri) {
+        yield post
+      }
+    }
+  }
 }
 
 function TopicScreenTab({

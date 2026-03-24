@@ -16,7 +16,7 @@ export const DEFAULT_LIMIT = 14
 
 export const trendingTopicsQueryKey = ['trending-topics']
 
-const PUBLIC_API = 'https://public.api.bsky.app'
+const PUBLIC_API = 'https://api.blacksky.community'
 
 export function useTrendingTopics() {
   const {data: preferences} = usePreferencesQuery()

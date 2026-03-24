@@ -14,7 +14,7 @@ export const DEFAULT_LIMIT = 5
 
 export const createGetTrendsQueryKey = () => ['trends']
 
-const PUBLIC_API = 'https://public.api.bsky.app'
+const PUBLIC_API = 'https://api.blacksky.community'
 
 export function useGetTrendsQuery() {
   const {data: preferences} = usePreferencesQuery()
