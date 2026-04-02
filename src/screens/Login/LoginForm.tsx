@@ -3,8 +3,7 @@ import {Keyboard, LayoutAnimation, View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {isNetworkError} from '#/lib/strings/errors'
-import {cleanError} from '#/lib/strings/errors'
+import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
 import {getWebOAuthClient} from '#/state/session/oauth-web-client'
 import {atoms as a} from '#/alf'
@@ -36,11 +35,15 @@ export const LoginForm = ({
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setError('')
 
-    const identifier = identifierValueRef.current.trim()
+    let identifier = identifierValueRef.current.trim()
 
     if (!identifier) {
       setError(_(msg`Please enter your username or handle`))
       return
+    }
+
+    if (identifier.startsWith('@')) {
+      identifier = identifier.substring(1)
     }
 
     setIsProcessing(true)
