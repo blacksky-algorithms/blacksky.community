@@ -35,6 +35,7 @@ import {
   Hashtag_Filled_Corner0_Rounded as HashtagFilled,
   Hashtag_Stroke2_Corner0_Rounded as Hashtag,
 } from '#/components/icons/Hashtag'
+import {Heart2_Stroke2_Corner0_Rounded as Heart} from '#/components/icons/Heart2'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
@@ -253,11 +254,15 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     Linking.openURL(HELP_DESK_URL)
   }, [])
 
+  const onPressSupport = React.useCallback(() => {
+    navigation.navigate('Support')
+    setDrawerOpen(false)
+  }, [navigation, setDrawerOpen])
+
   const onPressContribute = React.useCallback(() => {
-    Linking.openURL(
-      'https://opencollective.com/blacksky/contribute/backer-59760/checkout',
-    )
-  }, [])
+    navigation.navigate('Support')
+    setDrawerOpen(false)
+  }, [navigation, setDrawerOpen])
 
   // rendering
   // =
@@ -311,6 +316,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               onPress={onPressProfile}
             />
             <SettingsMenuItem onPress={onPressSettings} />
+            <SupportMenuItem onPress={onPressSupport} />
           </>
         ) : (
           <>
@@ -631,6 +637,19 @@ let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   )
 }
 SettingsMenuItem = React.memo(SettingsMenuItem)
+
+let SupportMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
+  const {_} = useLingui()
+  const t = useTheme()
+  return (
+    <MenuItem
+      icon={<Heart style={[t.atoms.text]} width={iconWidth} />}
+      label={_(msg`Support`)}
+      onPress={onPress}
+    />
+  )
+}
+SupportMenuItem = React.memo(SupportMenuItem)
 
 function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
   const t = useTheme()

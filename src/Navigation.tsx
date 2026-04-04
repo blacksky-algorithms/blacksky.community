@@ -68,6 +68,7 @@ import {ProfileScreen} from '#/view/screens/Profile'
 import {ProfileFeedLikedByScreen} from '#/view/screens/ProfileFeedLikedBy'
 import {StorybookScreen} from '#/view/screens/Storybook'
 import {SupportScreen} from '#/view/screens/Support'
+import {SupportReturnScreen} from '#/view/screens/SupportReturn'
 import {TermsOfServiceScreen} from '#/view/screens/TermsOfService'
 import {BottomBar} from '#/view/shell/bottom-bar/BottomBar'
 import {createNativeStackNavigatorWithAuth} from '#/view/shell/createNativeStackNavigatorWithAuth'
@@ -332,6 +333,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="Support"
         getComponent={() => SupportScreen}
+        options={{title: title(msg`Support`)}}
+      />
+      <Stack.Screen
+        name="SupportReturn"
+        getComponent={() => SupportReturnScreen}
         options={{title: title(msg`Support`)}}
       />
       <Stack.Screen
