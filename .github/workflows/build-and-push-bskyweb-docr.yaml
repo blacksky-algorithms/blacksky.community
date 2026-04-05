@@ -35,6 +35,7 @@ jobs:
             registry.digitalocean.com/blacksky/blacksky-community
           tags: |
             type=sha,enable=true,priority=100,prefix=,suffix=,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Env
         id: env
