@@ -339,14 +339,19 @@ export function AssemblyEmbed({
                   style={[
                     a.text_xs,
                     {
-                      color: t.atoms.text_contrast_medium.color,
+                      color: '#666',
                       marginBottom: 4,
                     },
                   ]}>
                   {statement.author_name} wrote:
                 </Text>
               ) : null}
-              <Text style={[a.text_md, a.font_bold, {lineHeight: 22}]}>
+              <Text
+                style={[
+                  a.text_md,
+                  a.font_bold,
+                  {lineHeight: 22, color: '#000'},
+                ]}>
                 {statement.txt}
               </Text>
               {statement.remaining != null && statement.remaining > 0 && (
@@ -354,7 +359,7 @@ export function AssemblyEmbed({
                   style={[
                     a.text_xs,
                     {
-                      color: t.atoms.text_contrast_low.color,
+                      color: '#999',
                       marginTop: 6,
                       textAlign: 'right',
                     },
@@ -444,7 +449,8 @@ function AssemblyHeader({topic}: {topic: string}) {
     <View style={styles.header}>
       <View style={styles.logoContainer}>
         <BlackskyLogo width={20} fill={t.atoms.text.color} />
-        <Text style={{fontSize: 11, fontWeight: '600', color: '#8B8BFF'}}>
+        <Text
+          style={{fontSize: 11, fontWeight: '600', color: t.atoms.text.color}}>
           People's Assembly
         </Text>
       </View>
