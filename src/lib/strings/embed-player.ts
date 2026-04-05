@@ -10,8 +10,8 @@ const IFRAME_HOST = IS_WEB
     ? 'http://localhost:8100'
     : 'https://blacksky.community'
   : __DEV__ && !process.env.JEST_WORKER_ID
-  ? 'http://localhost:8100'
-  : 'https://blacksky.community'
+    ? 'http://localhost:8100'
+    : 'https://blacksky.community'
 
 export const embedPlayerSources = [
   'youtube',
@@ -24,6 +24,7 @@ export const embedPlayerSources = [
   'giphy',
   'tenor',
   'flickr',
+  'assembly',
 ] as const
 
 export type EmbedPlayerSource = (typeof embedPlayerSources)[number]
@@ -44,6 +45,7 @@ export type EmbedPlayerType =
   | 'giphy_gif'
   | 'tenor_gif'
   | 'flickr_album'
+  | 'assembly_conversation'
 
 export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   youtube: 'YouTube',
@@ -56,6 +58,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   appleMusic: 'Apple Music',
   soundcloud: 'SoundCloud',
   flickr: 'Flickr',
+  assembly: "Blacksky People's Assembly",
 }
 
 export interface EmbedPlayerParams {
@@ -459,6 +462,19 @@ export function parseEmbedPlayerFromUrl(
         return undefined
     }
   }
+
+  // Assembly conversations
+  if (urlp.hostname === 'assembly.blacksky.community') {
+    const match = urlp.pathname.match(/^\/([0-9A-Za-z]{5,})$/)
+    if (match) {
+      return {
+        type: 'assembly_conversation' as EmbedPlayerType,
+        source: 'assembly' as EmbedPlayerSource,
+        playerUri: `https://assembly.blacksky.community/${match[1]}`,
+        hideDetails: false,
+      }
+    }
+  }
 }
 
 export function getPlayerAspect({
@@ -498,6 +514,8 @@ export function getPlayerAspect({
       return {height: 165}
     case 'apple_music_song':
       return {height: 150}
+    case 'assembly_conversation':
+      return {height: 320}
     default:
       return {aspectRatio: 16 / 9}
   }
