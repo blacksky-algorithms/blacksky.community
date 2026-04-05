@@ -5,7 +5,11 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useFocusEffect} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
-import {type QueryClient, useQuery} from '@tanstack/react-query'
+import {
+  type InfiniteData,
+  type QueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 
 import {HITSLOP_10} from '#/lib/constants'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
@@ -28,6 +32,7 @@ import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
 
 const TOPICS_API = 'https://api.blacksky.community'
+const PAGE_SIZE = 25
 
 const renderItem = ({item}: ListRenderItemInfo<AppBskyFeedDefs.PostView>) => {
   return <Post post={item} />
@@ -43,7 +48,6 @@ export default function TopicScreen({
   const {topic: topicParam} = route.params
   const {_} = useLingui()
 
-  // topic param is either a numeric ID (from trending) or a search term (legacy)
   const isTopicId = /^\d+$/.test(topicParam)
 
   const [topicName, setTopicName] = React.useState(
@@ -51,7 +55,7 @@ export default function TopicScreen({
   )
 
   const headerTitle = React.useMemo(() => {
-    return topicName ? enforceLen(topicName, 24, true, 'middle') : _(msg`Topic`)
+    return topicName ? enforceLen(topicName, 30, true, 'middle') : _(msg`Topic`)
   }, [topicName, _])
 
   const onShare = React.useCallback(() => {
@@ -60,7 +64,6 @@ export default function TopicScreen({
     shareUrl(url.toString())
   }, [topicParam])
 
-  const [activeTab, setActiveTab] = React.useState(0)
   const setMinimalShellMode = useSetMinimalShellMode()
 
   useFocusEffect(
@@ -68,6 +71,183 @@ export default function TopicScreen({
       setMinimalShellMode(false)
     }, [setMinimalShellMode]),
   )
+
+  if (isTopicId) {
+    return (
+      <Layout.Screen>
+        <Layout.Center style={[a.z_10, web([a.sticky, {top: 0}])]}>
+          <Layout.Header.Outer>
+            <Layout.Header.BackButton />
+            <Layout.Header.Content>
+              <Layout.Header.TitleText>{headerTitle}</Layout.Header.TitleText>
+            </Layout.Header.Content>
+            <Layout.Header.Slot>
+              <Button
+                label={_(msg`Share`)}
+                size="small"
+                variant="ghost"
+                color="primary"
+                shape="round"
+                onPress={onShare}
+                hitSlop={HITSLOP_10}
+                style={[{right: -3}]}>
+                <ButtonIcon icon={Share} size="md" />
+              </Button>
+            </Layout.Header.Slot>
+          </Layout.Header.Outer>
+        </Layout.Center>
+        <CuratedTopicFeed topicId={topicParam} onTopicName={setTopicName} />
+      </Layout.Screen>
+    )
+  }
+
+  // Legacy: search-based topic view (non-numeric topic param)
+  return <LegacyTopicScreen topicParam={topicParam} headerTitle={headerTitle} onShare={onShare} />
+}
+
+function CuratedTopicFeed({
+  topicId,
+  onTopicName,
+}: {
+  topicId: string
+  onTopicName: (name: string) => void
+}) {
+  const {_} = useLingui()
+  const initialNumToRender = useInitialNumToRender()
+  const [isPTR, setIsPTR] = React.useState(false)
+  const trackPostView = usePostViewTracking('Topic')
+  const agent = useAgent()
+
+  const {
+    data,
+    isLoading,
+    isFetched,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['topic-feed', topicId],
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({pageParam}) => {
+      const params = new URLSearchParams({topicId, limit: String(PAGE_SIZE)})
+      if (pageParam) params.set('cursor', pageParam)
+
+      const res = await fetch(
+        `${TOPICS_API}/xrpc/app.bsky.unspecced.getTopicFeed?${params}`,
+      )
+      if (!res.ok) throw new Error(`getTopicFeed failed: ${res.status}`)
+      const json = (await res.json()) as {
+        posts: string[]
+        topic: {name: string}
+        cursor: string | null
+      }
+
+      if (json.topic?.name) {
+        onTopicName(json.topic.name)
+      }
+
+      if (!json.posts?.length) {
+        return {posts: [] as AppBskyFeedDefs.PostView[], cursor: null}
+      }
+
+      // Hydrate post URIs through the appview (max 25 per call)
+      const hydrated = await agent.getPosts({uris: json.posts.slice(0, 25)})
+      return {
+        posts: hydrated.data.posts,
+        cursor: json.cursor,
+      }
+    },
+    getNextPageParam: lastPage => lastPage?.cursor ?? undefined,
+  })
+
+  const posts = React.useMemo(() => {
+    return data?.pages.flatMap(page => page.posts) ?? []
+  }, [data])
+
+  const onRefresh = React.useCallback(async () => {
+    setIsPTR(true)
+    await refetch()
+    setIsPTR(false)
+  }, [refetch])
+
+  const onEndReached = React.useCallback(() => {
+    if (isFetchingNextPage || !hasNextPage || error) return
+    fetchNextPage()
+  }, [isFetchingNextPage, hasNextPage, error, fetchNextPage])
+
+  return (
+    <>
+      {posts.length < 1 ? (
+        <ListMaybePlaceholder
+          isLoading={isLoading || !isFetched}
+          isError={isError}
+          onRetry={refetch}
+          emptyType="results"
+          emptyMessage={_(msg`We couldn't find any results for that topic.`)}
+        />
+      ) : (
+        <List
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshing={isPTR}
+          onRefresh={onRefresh}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={4}
+          onItemSeen={trackPostView}
+          // @ts-ignore web only -prf
+          desktopFixedHeight
+          ListFooterComponent={
+            <ListFooter
+              isFetchingNextPage={isFetchingNextPage}
+              error={cleanError(error)}
+              onRetry={fetchNextPage}
+            />
+          }
+          initialNumToRender={initialNumToRender}
+          windowSize={11}
+        />
+      )}
+    </>
+  )
+}
+
+export function* findAllPostsInTopicQueryData(
+  queryClient: QueryClient,
+  uri: string,
+): Generator<AppBskyFeedDefs.PostView, undefined> {
+  type PageData = {posts: AppBskyFeedDefs.PostView[]; cursor: string | null}
+  const queryDatas = queryClient.getQueriesData<InfiniteData<PageData>>({
+    queryKey: ['topic-feed'],
+  })
+  for (const [_queryKey, queryData] of queryDatas) {
+    if (!queryData?.pages) continue
+    for (const page of queryData.pages) {
+      for (const post of page.posts) {
+        if (post.uri === uri) {
+          yield post
+        }
+      }
+    }
+  }
+}
+
+// Legacy search-based topic view for non-numeric topic params
+function LegacyTopicScreen({
+  topicParam,
+  headerTitle,
+  onShare,
+}: {
+  topicParam: string
+  headerTitle: string
+  onShare: () => void
+}) {
+  const {_} = useLingui()
+  const [activeTab, setActiveTab] = React.useState(0)
+  const setMinimalShellMode = useSetMinimalShellMode()
 
   const onPageSelected = React.useCallback(
     (index: number) => {
@@ -78,31 +258,6 @@ export default function TopicScreen({
   )
 
   const sections = React.useMemo(() => {
-    if (isTopicId) {
-      // Curated topic feed from our API
-      return [
-        {
-          title: _(msg`Top`),
-          component: (
-            <CuratedTopicTab
-              topicId={topicParam}
-              active={activeTab === 0}
-              onTopicName={setTopicName}
-            />
-          ),
-        },
-        {
-          title: _(msg`Latest`),
-          component: (
-            <TopicScreenTab
-              topic={topicName || topicParam}
-              sort="latest"
-              active={activeTab === 1}
-            />
-          ),
-        },
-      ]
-    }
     return [
       {
         title: _(msg`Top`),
@@ -125,7 +280,7 @@ export default function TopicScreen({
         ),
       },
     ]
-  }, [_, topicParam, topicName, isTopicId, activeTab])
+  }, [_, topicParam, activeTab])
 
   return (
     <Layout.Screen>
@@ -162,109 +317,6 @@ export default function TopicScreen({
       </Pager>
     </Layout.Screen>
   )
-}
-
-function CuratedTopicTab({
-  topicId,
-  active,
-  onTopicName,
-}: {
-  topicId: string
-  active: boolean
-  onTopicName?: (name: string) => void
-}) {
-  const {_} = useLingui()
-  const initialNumToRender = useInitialNumToRender()
-  const [isPTR, setIsPTR] = React.useState(false)
-  const trackPostView = usePostViewTracking('Topic')
-  const agent = useAgent()
-
-  const {data, isLoading, isFetched, isError, error, refetch} = useQuery({
-    enabled: active,
-    staleTime: 3 * 60 * 1000,
-    queryKey: ['topic-feed', topicId],
-    queryFn: async () => {
-      // Fetch curated post URIs from our API
-      const res = await fetch(
-        `${TOPICS_API}/xrpc/app.bsky.unspecced.getTopicFeed?topicId=${topicId}&limit=30`,
-      )
-      if (!res.ok) throw new Error(`getTopicFeed failed: ${res.status}`)
-      const json = (await res.json()) as {
-        posts: string[]
-        topic: {name: string}
-      }
-
-      if (json.topic?.name && onTopicName) {
-        onTopicName(json.topic.name)
-      }
-
-      if (!json.posts?.length) return []
-
-      // Hydrate post URIs through the appview (max 25 per call)
-      const uris = json.posts.slice(0, 25)
-      const hydrated = await agent.getPosts({uris})
-      return hydrated.data.posts
-    },
-  })
-
-  const posts = data || []
-
-  const onRefresh = React.useCallback(async () => {
-    setIsPTR(true)
-    await refetch()
-    setIsPTR(false)
-  }, [refetch])
-
-  return (
-    <>
-      {posts.length < 1 ? (
-        <ListMaybePlaceholder
-          isLoading={isLoading || !isFetched}
-          isError={isError}
-          onRetry={refetch}
-          emptyType="results"
-          emptyMessage={_(msg`We couldn't find any results for that topic.`)}
-        />
-      ) : (
-        <List
-          data={posts}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshing={isPTR}
-          onRefresh={onRefresh}
-          onItemSeen={trackPostView}
-          // @ts-ignore web only -prf
-          desktopFixedHeight
-          ListFooterComponent={
-            <ListFooter
-              isFetchingNextPage={false}
-              error={cleanError(error)}
-              onRetry={refetch}
-            />
-          }
-          initialNumToRender={initialNumToRender}
-          windowSize={11}
-        />
-      )}
-    </>
-  )
-}
-
-export function* findAllPostsInTopicQueryData(
-  queryClient: QueryClient,
-  uri: string,
-): Generator<AppBskyFeedDefs.PostView, undefined> {
-  const queryDatas = queryClient.getQueriesData<AppBskyFeedDefs.PostView[]>({
-    queryKey: ['topic-feed'],
-  })
-  for (const [_queryKey, queryData] of queryDatas) {
-    if (!queryData) continue
-    for (const post of queryData) {
-      if (post.uri === uri) {
-        yield post
-      }
-    }
-  }
 }
 
 function TopicScreenTab({
