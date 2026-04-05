@@ -546,12 +546,15 @@ const styles = StyleSheet.create({
   },
   agreeButton: {
     borderColor: '#61C554',
+    backgroundColor: 'rgba(97, 197, 84, 0.1)',
   },
   disagreeButton: {
     borderColor: '#F40B42',
+    backgroundColor: 'rgba(244, 11, 66, 0.08)',
   },
   passButton: {
-    borderColor: 'rgba(0,0,0,0.15)',
+    borderColor: 'rgba(150, 150, 150, 0.4)',
+    backgroundColor: 'rgba(150, 150, 150, 0.08)',
   },
   signInButton: {
     backgroundColor: '#8B8BFF',
