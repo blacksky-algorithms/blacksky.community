@@ -60,8 +60,8 @@ export const SupportScreen = (_props: Props) => {
             <View style={[a.pt_md]}>
               <InlineLinkText
                 to="https://opencollective.com/blacksky"
-                label={_(msg`Donate on OpenCollective`)}>
-                <Trans>Donate on OpenCollective</Trans>
+                label={_(msg`Support on OpenCollective`)}>
+                <Trans>Support on OpenCollective</Trans>
               </InlineLinkText>
             </View>
           </View>

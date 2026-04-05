@@ -91,7 +91,7 @@ export const SupportReturnScreen = (_props: Props) => {
                   t.atoms.text_contrast_medium,
                 ]}>
                 <Trans>
-                  Your donation helps us maintain and improve the Blacksky
+                  Your support helps us maintain and improve the Blacksky
                   community.
                 </Trans>
               </Text>

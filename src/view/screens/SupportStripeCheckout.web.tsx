@@ -40,8 +40,8 @@ export function SupportStripeCheckout() {
   const validationError = useMemo(() => {
     if (!amount) return null
     if (isNaN(parseFloat(amount))) return _(msg`Please enter a valid number`)
-    if (parsedAmount < 5) return _(msg`Minimum donation is $5`)
-    if (parsedAmount > 1000) return _(msg`Maximum donation is $1,000`)
+    if (parsedAmount < 5) return _(msg`Minimum support amount is $5`)
+    if (parsedAmount > 1000) return _(msg`Maximum support amount is $1,000`)
     return null
   }, [amount, parsedAmount, _])
 
@@ -96,8 +96,8 @@ export function SupportStripeCheckout() {
   }
 
   const buttonLabel = recurring
-    ? _(msg`Donate $${parsedAmount.toFixed(2)}/mo`)
-    : _(msg`Donate $${parsedAmount.toFixed(2)}`)
+    ? _(msg`Support $${parsedAmount.toFixed(2)}/mo`)
+    : _(msg`Support $${parsedAmount.toFixed(2)}`)
 
   return (
     <View
@@ -110,7 +110,7 @@ export function SupportStripeCheckout() {
         a.gap_lg,
       ]}>
       <Text style={[a.text_lg, a.font_bold]}>
-        <Trans>Donate with Card</Trans>
+        <Trans>Support with Card</Trans>
       </Text>
 
       <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
@@ -156,7 +156,7 @@ export function SupportStripeCheckout() {
       </View>
 
       <SegmentedControl.Root
-        label={_(msg`Donation frequency`)}
+        label={_(msg`Support frequency`)}
         type="radio"
         value={recurring ? 'monthly' : 'one-time'}
         onChange={handleFrequencyChange}>
