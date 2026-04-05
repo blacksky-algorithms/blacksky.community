@@ -15,6 +15,7 @@ import {findAllPostsInQueryData as findAllPostsInFeedQueryData} from '#/state/qu
 import {findAllPostsInQueryData as findAllPostsInQuoteQueryData} from '#/state/queries/post-quotes'
 import {findAllPostsInQueryData as findAllPostsInSearchQueryData} from '#/state/queries/search-posts'
 import {findAllPostsInQueryData as findAllPostsInThreadV2QueryData} from '#/state/queries/usePostThread/queryCache'
+import {findAllPostsInTopicQueryData} from '#/screens/Topic'
 import {castAsShadow, type Shadow} from './types'
 export type {Shadow} from './types'
 
@@ -192,6 +193,9 @@ function* findPostsInCache(
     yield post
   }
   for (let post of findAllPostsInBookmarksQueryData(queryClient, uri)) {
+    yield post
+  }
+  for (let post of findAllPostsInTopicQueryData(queryClient, uri)) {
     yield post
   }
 }

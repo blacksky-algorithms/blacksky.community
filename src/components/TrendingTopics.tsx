@@ -173,7 +173,15 @@ export function useTopic(raw: TrendingTopic): ParsedTrendingTopic {
   return React.useMemo(() => {
     const {topic: displayName, link} = raw
 
-    if (link.startsWith('/search')) {
+    if (link.startsWith('/topic/')) {
+      return {
+        type: 'topic',
+        label: _(msg`Browse posts about ${displayName}`),
+        displayName,
+        uri: undefined,
+        url: link,
+      }
+    } else if (link.startsWith('/search')) {
       return {
         type: 'topic',
         label: _(msg`Browse posts about ${displayName}`),

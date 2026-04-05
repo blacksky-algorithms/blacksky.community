@@ -17,7 +17,7 @@ import {TrendingTopicLink} from '#/components/TrendingTopics'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 
-const TRENDING_LIMIT = 5
+const TRENDING_LIMIT = 7
 
 export function SidebarTrendingTopics() {
   const {enabled} = useTrendingConfig()

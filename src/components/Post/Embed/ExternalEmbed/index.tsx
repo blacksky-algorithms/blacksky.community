@@ -17,6 +17,7 @@ import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
 import {GifEmbed} from './Gif'
@@ -58,6 +59,14 @@ export const ExternalEmbed = ({
       shareUrl(link.uri)
     }
   }, [link.uri, playHaptic])
+
+  if (embedPlayerParams?.type === 'assembly_conversation') {
+    return (
+      <View style={style}>
+        <AssemblyEmbed link={link} params={embedPlayerParams} />
+      </View>
+    )
+  }
 
   if (embedPlayerParams?.source === 'tenor') {
     const parsedAlt = parseAltFromGIFDescription(link.description)
