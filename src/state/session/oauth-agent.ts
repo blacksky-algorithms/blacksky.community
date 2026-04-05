@@ -120,7 +120,6 @@ export class OauthBskyAppAgent extends Agent {
     gates: Promise<void>,
     moderation: Promise<void>,
   ) {
-    this.#account = account
     this.session = sessionAccountToSession(account)
     this.dispatchUrl = account.pdsUrl
     this.configureProxy(BLUESKY_PROXY_HEADER.get())
