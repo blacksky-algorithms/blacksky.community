@@ -4,6 +4,7 @@ import {type AppBskyEmbedExternal} from '@atproto/api'
 
 import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
 import {useAgent, useSession} from '#/state/session'
+import {Logo as BlackskyLogo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 
@@ -78,6 +79,7 @@ export function AssemblyEmbed({
     if (!conversationId) return
 
     const init = async () => {
+      // 1. Fetch conversation data (public endpoint, CORS-safe)
       try {
         const convResp = await fetch(
           `${ASSEMBLY_API}/embed/conversation?conversation_id=${conversationId}`,
@@ -90,10 +92,17 @@ export function AssemblyEmbed({
         }
         const convData = (await convResp.json()) as EmbedConversationResponse
         setData(convData)
-
+        setStatement(convData.nextComment)
+        if (!convData.nextComment) setAllVoted(true)
         if (!convData.conversation.is_active) return
+      } catch {
+        setError('Failed to load conversation')
+        return
+      }
 
-        if (isAuthenticated && currentAccount?.did) {
+      // 2. If authenticated, try to get a participation JWT (separate try/catch — non-fatal)
+      if (isAuthenticated && currentAccount?.did) {
+        try {
           const xidParams = new URLSearchParams({
             conversation_id: conversationId,
             includePCA: 'false',
@@ -113,22 +122,14 @@ export function AssemblyEmbed({
               conversationJwt.current = initData.auth.token
             }
 
+            // Use personalized next comment if available (excludes already-voted)
             if (initData.nextComment) {
               setStatement(initData.nextComment)
-            } else {
-              setStatement(convData.nextComment)
-              if (!convData.nextComment) setAllVoted(true)
             }
-          } else {
-            setStatement(convData.nextComment)
-            if (!convData.nextComment) setAllVoted(true)
           }
-        } else {
-          setStatement(convData.nextComment)
-          if (!convData.nextComment) setAllVoted(true)
+        } catch {
+          // participationInit failed (likely CORS) — continue with public data
         }
-      } catch {
-        setError('Failed to load conversation')
       }
     }
 
@@ -248,7 +249,7 @@ export function AssemblyEmbed({
           {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
         ]}>
         <View style={styles.logoContainer}>
-          <View style={styles.logo} />
+          <BlackskyLogo width={20} fill={t.atoms.text.color} />
           <Text style={{fontSize: 11, fontWeight: '600', color: '#8B8BFF'}}>
             People's Assembly
           </Text>
@@ -415,10 +416,11 @@ export function AssemblyEmbed({
 }
 
 function AssemblyHeader({topic}: {topic: string}) {
+  const t = useTheme()
   return (
     <View style={styles.header}>
       <View style={styles.logoContainer}>
-        <View style={styles.logo} />
+        <BlackskyLogo width={20} fill={t.atoms.text.color} />
         <Text style={{fontSize: 11, fontWeight: '600', color: '#8B8BFF'}}>
           People's Assembly
         </Text>
@@ -464,12 +466,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  logo: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    backgroundColor: '#8B8BFF',
   },
   statementCard: {
     padding: 12,
