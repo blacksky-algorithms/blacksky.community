@@ -50,6 +50,10 @@ import {
   Hashtag_Stroke2_Corner0_Rounded as Hashtag,
 } from '#/components/icons/Hashtag'
 import {
+  Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
+  Heart2_Stroke2_Corner0_Rounded as Heart,
+} from '#/components/icons/Heart2'
+import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
@@ -803,6 +807,24 @@ export function DesktopLeftNav() {
               />
             }
             label={_(msg`Settings`)}
+          />
+          <NavItem
+            href="/support"
+            icon={
+              <Heart
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <HeartFilled
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label={_(msg`Support`)}
           />
 
           <ComposeBtn />

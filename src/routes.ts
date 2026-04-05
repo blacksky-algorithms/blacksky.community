@@ -73,6 +73,7 @@ export const router = new Router<AllNavigatableRoutes>({
   FindContactsSettings: '/settings/find-contacts',
   // support
   Support: '/support',
+  SupportReturn: '/return',
   PrivacyPolicy: '/support/privacy',
   TermsOfService: '/support/tos',
   CommunityGuidelines: '/support/community-guidelines',
