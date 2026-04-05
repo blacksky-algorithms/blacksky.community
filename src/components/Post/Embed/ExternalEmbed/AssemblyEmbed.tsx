@@ -115,7 +115,6 @@ export function AssemblyEmbed({
 
           const initResp = await fetch(
             `${ASSEMBLY_API}/participationInit?${xidParams.toString()}`,
-            {headers: {'X-Forwarded-Proto': 'https'}},
           )
 
           if (initResp.ok) {
@@ -168,7 +167,6 @@ export function AssemblyEmbed({
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${conversationJwt.current}`,
-            'X-Forwarded-Proto': 'https',
           },
           body: JSON.stringify({
             conversation_id: conversationId,
