@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {Image, Linking, Pressable, StyleSheet, View} from 'react-native'
 import {type AppBskyEmbedExternal} from '@atproto/api'
 
@@ -75,7 +75,6 @@ export function AssemblyEmbed({
   const [error, setError] = useState<string | null>(null)
   const [allVoted, setAllVoted] = useState(false)
   const [notFound, setNotFound] = useState(false)
-  const conversationJwt = useRef<string | null>(null)
 
   const isAuthenticated = !!currentAccount?.did
 
@@ -122,7 +121,7 @@ export function AssemblyEmbed({
               (await initResp.json()) as ParticipationInitResponse
 
             if (initData.auth?.token) {
-              conversationJwt.current = initData.auth.token
+              // JWT available but not needed — votes are verified via repo records
             }
 
             // Use personalized next comment if available (excludes already-voted)
@@ -141,39 +140,39 @@ export function AssemblyEmbed({
 
   const handleVote = useCallback(
     async (value: -1 | 0 | 1) => {
-      if (!statement || voting || !conversationJwt.current) return
+      if (!statement || voting || !agent.session) return
       setVoting(true)
       setError(null)
 
       try {
-        if (statement.at_uri && statement.at_cid && agent.session) {
-          await agent.com.atproto.repo.createRecord({
-            repo: agent.assertDid,
-            collection: 'community.blacksky.assembly.vote',
-            record: {
-              $type: 'community.blacksky.assembly.vote',
-              subject: {
-                uri: statement.at_uri,
-                cid: statement.at_cid,
-              },
-              value,
-              createdAt: new Date().toISOString(),
+        // 1. Create signed vote record in user's repo.
+        // This IS the authentication — only the DID owner can create
+        // records in their repo. The PDS validates the signing key.
+        const createResult = await agent.com.atproto.repo.createRecord({
+          repo: agent.assertDid,
+          collection: 'community.blacksky.assembly.vote',
+          record: {
+            $type: 'community.blacksky.assembly.vote',
+            subject: {
+              uri: statement.at_uri || '',
+              cid: statement.at_cid || '',
             },
-          })
-        }
-
-        const voteResp = await fetch(`${ASSEMBLY_API}/votes`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${conversationJwt.current}`,
+            value,
+            createdAt: new Date().toISOString(),
           },
+        })
+
+        // 2. Submit the AT URI to assembly's verified vote endpoint.
+        // The server fetches the record from the user's PDS to verify
+        // the DID owner actually created it — no impersonation possible.
+        const voteResp = await fetch(`${ASSEMBLY_API}/embed/vote`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             conversation_id: conversationId,
             tid: statement.tid,
             vote: value,
-            agid: 1,
-            xid: currentAccount?.did,
+            vote_at_uri: createResult.data.uri,
           }),
         })
 
@@ -182,10 +181,6 @@ export function AssemblyEmbed({
         }
 
         const voteResult = (await voteResp.json()) as VoteResponse
-
-        if (voteResult.auth?.token) {
-          conversationJwt.current = voteResult.auth.token
-        }
 
         if (voteResult.nextComment) {
           setStatement(voteResult.nextComment)
@@ -199,7 +194,7 @@ export function AssemblyEmbed({
         setVoting(false)
       }
     },
-    [agent, statement, conversationId, voting, currentAccount?.did],
+    [agent, statement, conversationId, voting],
   )
 
   const onVote = useCallback(
