@@ -142,3 +142,15 @@ export const LIVE_EVENTS_PROD_URL = `https://live-events.workers.bsky.app`
 export const LIVE_EVENTS_URL = IS_DEV
   ? (LIVE_EVENTS_DEV_URL ?? LIVE_EVENTS_PROD_URL)
   : LIVE_EVENTS_PROD_URL
+
+/**
+ * Stripe publishable key for embedded checkout
+ */
+export const STRIPE_PUBLISHABLE_KEY: string =
+  process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+
+/**
+ * Stripe API URL for creating checkout sessions
+ */
+export const STRIPE_API_URL: string =
+  process.env.EXPO_PUBLIC_STRIPE_API_URL || ''

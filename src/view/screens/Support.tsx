@@ -1,27 +1,25 @@
 import React from 'react'
+import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useFocusEffect} from '@react-navigation/native'
 
-import {HELP_DESK_URL} from '#/lib/constants'
-import {usePalette} from '#/lib/hooks/usePalette'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
-import {s} from '#/lib/styles'
 import {useSetMinimalShellMode} from '#/state/shell'
-import {TextLink} from '#/view/com/util/Link'
-import {Text} from '#/view/com/util/text/Text'
-import {ViewHeader} from '#/view/com/util/ViewHeader'
-import {CenteredView} from '#/view/com/util/Views'
+import {atoms as a, useTheme} from '#/alf'
 import * as Layout from '#/components/Layout'
+import {InlineLinkText} from '#/components/Link'
+import {Text} from '#/components/Typography'
+import {SupportStripeCheckout} from './SupportStripeCheckout'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Support'>
 export const SupportScreen = (_props: Props) => {
-  const pal = usePalette('default')
   const setMinimalShellMode = useSetMinimalShellMode()
   const {_} = useLingui()
+  const t = useTheme()
 
   useFocusEffect(
     React.useCallback(() => {
@@ -31,23 +29,46 @@ export const SupportScreen = (_props: Props) => {
 
   return (
     <Layout.Screen>
-      <ViewHeader title={_(msg`Support`)} />
-      <CenteredView>
-        <Text type="title-xl" style={[pal.text, s.p20, s.pb5]}>
-          <Trans>Support</Trans>
-        </Text>
-        <Text style={[pal.text, s.p20]}>
-          <Trans>
-            If you need help, please email us at{' '}
-            <TextLink
-              href={HELP_DESK_URL}
-              text={_(msg`support@blacksky.app`)}
-              style={pal.link}
-            />
-            .
-          </Trans>
-        </Text>
-      </CenteredView>
+      <Layout.Header.Outer>
+        <Layout.Header.BackButton />
+        <Layout.Header.Content>
+          <Layout.Header.TitleText>
+            <Trans>Support</Trans>
+          </Layout.Header.TitleText>
+        </Layout.Header.Content>
+        <Layout.Header.Slot />
+      </Layout.Header.Outer>
+      <Layout.Content>
+        <View style={[a.p_xl, a.gap_xl]}>
+          <View
+            style={[
+              a.p_lg,
+              a.rounded_md,
+              a.border,
+              t.atoms.border_contrast_low,
+              t.atoms.bg_contrast_25,
+            ]}>
+            <Text style={[a.text_lg, a.font_bold, a.pb_sm]}>
+              <Trans>OpenCollective</Trans>
+            </Text>
+            <Text style={[a.leading_snug, t.atoms.text_contrast_medium]}>
+              <Trans>
+                Support the Blacksky community through OpenCollective. Your
+                contributions help us maintain and improve the platform.
+              </Trans>
+            </Text>
+            <View style={[a.pt_md]}>
+              <InlineLinkText
+                to="https://opencollective.com/blacksky"
+                label={_(msg`Donate on OpenCollective`)}>
+                <Trans>Donate on OpenCollective</Trans>
+              </InlineLinkText>
+            </View>
+          </View>
+
+          <SupportStripeCheckout />
+        </View>
+      </Layout.Content>
     </Layout.Screen>
   )
 }

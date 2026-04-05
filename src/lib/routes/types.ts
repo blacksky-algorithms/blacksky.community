@@ -38,6 +38,7 @@ export type CommonNavigatorParams = {
   SharedPreferencesTester: undefined
   Log: undefined
   Support: undefined
+  SupportReturn: {session_id?: string}
   PrivacyPolicy: undefined
   TermsOfService: undefined
   CommunityGuidelines: undefined
