@@ -140,31 +140,36 @@ export function AssemblyEmbed({
 
   const handleVote = useCallback(
     async (value: -1 | 0 | 1) => {
-      if (!statement || voting || !agent.session) return
+      if (!statement || voting) return
       setVoting(true)
       setError(null)
 
       try {
-        // 1. Create signed vote record in user's repo.
+        let voteAtUri: string | undefined
+
+        // If authenticated, create a signed vote record in user's repo.
         // This IS the authentication — only the DID owner can create
         // records in their repo. The PDS validates the signing key.
-        const createResult = await agent.com.atproto.repo.createRecord({
-          repo: agent.assertDid,
-          collection: 'community.blacksky.assembly.vote',
-          record: {
-            $type: 'community.blacksky.assembly.vote',
-            subject: {
-              uri: statement.at_uri || '',
-              cid: statement.at_cid || '',
+        if (agent.session) {
+          const createResult = await agent.com.atproto.repo.createRecord({
+            repo: agent.assertDid,
+            collection: 'community.blacksky.assembly.vote',
+            record: {
+              $type: 'community.blacksky.assembly.vote',
+              subject: {
+                uri: statement.at_uri || '',
+                cid: statement.at_cid || '',
+              },
+              value,
+              createdAt: new Date().toISOString(),
             },
-            value,
-            createdAt: new Date().toISOString(),
-          },
-        })
+          })
+          voteAtUri = createResult.data.uri
+        }
 
-        // 2. Submit the AT URI to assembly's verified vote endpoint.
-        // The server fetches the record from the user's PDS to verify
-        // the DID owner actually created it — no impersonation possible.
+        // Submit to assembly's verified vote endpoint.
+        // If authenticated: server fetches the record from user's PDS to verify.
+        // If anonymous: server accepts the vote directly (conversation allows it).
         const voteResp = await fetch(`${ASSEMBLY_API}/embed/vote`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -172,12 +177,18 @@ export function AssemblyEmbed({
             conversation_id: conversationId,
             tid: statement.tid,
             vote: value,
-            vote_at_uri: createResult.data.uri,
+            ...(voteAtUri ? {vote_at_uri: voteAtUri} : {}),
           }),
         })
 
         if (!voteResp.ok) {
-          throw new Error('Vote submission failed')
+          const errBody = await voteResp.text()
+          if (errBody.includes('polis_err_post_votes_social_needed')) {
+            setError('Sign in required to vote.')
+          } else {
+            throw new Error('Vote submission failed')
+          }
+          return
         }
 
         const voteResult = (await voteResp.json()) as VoteResponse
@@ -296,13 +307,6 @@ export function AssemblyEmbed({
           topic={data.conversation.topic}
           description={data.conversation.description}
         />
-        {statement ? (
-          <View style={styles.statementCard}>
-            <Text style={[a.text_md, a.font_bold, {lineHeight: 22}]}>
-              {statement.txt}
-            </Text>
-          </View>
-        ) : null}
         <Pressable
           style={styles.signInButton}
           onPress={openAssembly}
