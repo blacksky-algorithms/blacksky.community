@@ -7,7 +7,7 @@ on:
 
 jobs:
   bskyweb-container-docr:
-    if: github.repository == 'blacksky-algorithms/blacksky.community'
+    if: github.repository == 'blacksky-algorithms/blacksky-community'
     runs-on: ubuntu-latest
     permissions:
       contents: read
