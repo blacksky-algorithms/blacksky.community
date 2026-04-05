@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import {Linking, Pressable, StyleSheet, View} from 'react-native'
+import {Image, Linking, Pressable, StyleSheet, View} from 'react-native'
 import {type AppBskyEmbedExternal} from '@atproto/api'
 
 import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
@@ -16,6 +16,10 @@ interface Statement {
   remaining?: number
   author_name?: string
   author_avatar?: string
+  author_is_blacksky_member?: boolean
+  author_is_funder?: boolean
+  author_is_team?: boolean
+  author_is_oss_supporter?: boolean
   at_uri?: string
   at_cid?: string
 }
@@ -272,7 +276,10 @@ export function AssemblyEmbed({
           styles.card,
           {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
         ]}>
-        <AssemblyHeader topic={data.conversation.topic} />
+        <AssemblyHeader
+          topic={data.conversation.topic}
+          description={data.conversation.description}
+        />
         <Text
           style={[
             a.text_sm,
@@ -292,7 +299,10 @@ export function AssemblyEmbed({
           styles.card,
           {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
         ]}>
-        <AssemblyHeader topic={data.conversation.topic} />
+        <AssemblyHeader
+          topic={data.conversation.topic}
+          description={data.conversation.description}
+        />
         {statement ? (
           <View style={styles.statementCard}>
             <Text style={[a.text_md, a.font_bold, {lineHeight: 22}]}>
@@ -321,7 +331,10 @@ export function AssemblyEmbed({
         styles.card,
         {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
       ]}>
-      <AssemblyHeader topic={data.conversation.topic} />
+      <AssemblyHeader
+        topic={data.conversation.topic}
+        description={data.conversation.description}
+      />
 
       {allVoted ? (
         <View style={{marginTop: 12}}>
@@ -334,18 +347,62 @@ export function AssemblyEmbed({
         <>
           <View style={styles.statementCardStack}>
             <View style={styles.statementCard}>
-              {statement.author_name ? (
-                <Text
-                  style={[
-                    a.text_xs,
-                    {
-                      color: '#666',
-                      marginBottom: 4,
-                    },
-                  ]}>
-                  {statement.author_name} wrote:
-                </Text>
-              ) : null}
+              <View style={styles.statementAuthorRow}>
+                {statement.author_avatar ? (
+                  <Image
+                    source={{uri: statement.author_avatar}}
+                    style={styles.authorAvatar}
+                    accessibilityIgnoresInvertColors
+                  />
+                ) : (
+                  <View
+                    style={[styles.authorAvatar, {backgroundColor: '#ddd'}]}
+                  />
+                )}
+                <View style={{flex: 1}}>
+                  <Text style={[a.text_xs, {color: '#666'}]}>
+                    {statement.author_name || 'Anonymous'} wrote:
+                  </Text>
+                  {(statement.author_is_team ||
+                    statement.author_is_blacksky_member ||
+                    statement.author_is_funder ||
+                    statement.author_is_oss_supporter) && (
+                    <View style={styles.badgeRow}>
+                      {statement.author_is_team && (
+                        <View style={[styles.badge, {backgroundColor: '#000'}]}>
+                          <Text style={[styles.badgeText, {color: '#fff'}]}>
+                            Admin
+                          </Text>
+                        </View>
+                      )}
+                      {statement.author_is_blacksky_member && (
+                        <View
+                          style={[styles.badge, {backgroundColor: '#8B8BFF'}]}>
+                          <Text style={[styles.badgeText, {color: '#fff'}]}>
+                            Member
+                          </Text>
+                        </View>
+                      )}
+                      {statement.author_is_funder && (
+                        <View
+                          style={[styles.badge, {backgroundColor: '#D2FC51'}]}>
+                          <Text style={[styles.badgeText, {color: '#000'}]}>
+                            Funder
+                          </Text>
+                        </View>
+                      )}
+                      {statement.author_is_oss_supporter && (
+                        <View
+                          style={[styles.badge, {backgroundColor: '#FF6B35'}]}>
+                          <Text style={[styles.badgeText, {color: '#fff'}]}>
+                            OSS
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+              </View>
               <Text
                 style={[
                   a.text_md,
@@ -437,7 +494,7 @@ export function AssemblyEmbed({
                   a.font_semibold,
                   {color: t.atoms.text_contrast_medium.color},
                 ]}>
-                {voting ? '...' : 'Pass'}
+                {voting ? '...' : 'Pass / Unsure'}
               </Text>
             </Pressable>
           </View>
@@ -455,7 +512,13 @@ export function AssemblyEmbed({
   )
 }
 
-function AssemblyHeader({topic}: {topic: string}) {
+function AssemblyHeader({
+  topic,
+  description,
+}: {
+  topic: string
+  description?: string
+}) {
   const t = useTheme()
   return (
     <View style={styles.header}>
@@ -471,6 +534,16 @@ function AssemblyHeader({topic}: {topic: string}) {
         numberOfLines={2}>
         {topic}
       </Text>
+      {description ? (
+        <Text
+          style={[
+            a.text_xs,
+            {color: t.atoms.text_contrast_medium.color, marginTop: 4},
+          ]}
+          numberOfLines={2}>
+          {description}
+        </Text>
+      ) : null}
     </View>
   )
 }
@@ -555,6 +628,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     alignItems: 'center',
+  },
+  statementAuthorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  authorAvatar: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    gap: 3,
+    marginTop: 2,
+  },
+  badge: {
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '600',
   },
   signInButton: {
     backgroundColor: '#8B8BFF',
