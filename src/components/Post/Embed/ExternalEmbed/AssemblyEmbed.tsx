@@ -381,8 +381,12 @@ export function AssemblyEmbed({
             <Pressable
               style={({hovered}: {hovered?: boolean}) => [
                 styles.voteButton,
-                styles.agreeButton,
-                hovered && {backgroundColor: 'rgba(97, 197, 84, 0.08)'},
+                {
+                  borderColor: '#61C554',
+                  backgroundColor: hovered
+                    ? 'rgba(97, 197, 84, 0.15)'
+                    : t.atoms.bg_contrast_25.backgroundColor,
+                },
               ]}
               onPress={() => onVote(-1)}
               disabled={voting}
@@ -396,8 +400,12 @@ export function AssemblyEmbed({
             <Pressable
               style={({hovered}: {hovered?: boolean}) => [
                 styles.voteButton,
-                styles.disagreeButton,
-                hovered && {backgroundColor: 'rgba(244, 11, 66, 0.06)'},
+                {
+                  borderColor: '#F40B42',
+                  backgroundColor: hovered
+                    ? 'rgba(244, 11, 66, 0.12)'
+                    : t.atoms.bg_contrast_25.backgroundColor,
+                },
               ]}
               onPress={() => onVote(1)}
               disabled={voting}
@@ -411,8 +419,12 @@ export function AssemblyEmbed({
             <Pressable
               style={({hovered}: {hovered?: boolean}) => [
                 styles.voteButton,
-                styles.passButton,
-                hovered && {backgroundColor: 'rgba(0, 0, 0, 0.03)'},
+                {
+                  borderColor: t.atoms.border_contrast_low.borderColor,
+                  backgroundColor: hovered
+                    ? t.atoms.bg_contrast_50.backgroundColor
+                    : t.atoms.bg_contrast_25.backgroundColor,
+                },
               ]}
               onPress={() => onVote(0)}
               disabled={voting}
@@ -543,18 +555,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     alignItems: 'center',
-  },
-  agreeButton: {
-    borderColor: '#61C554',
-    backgroundColor: 'rgba(97, 197, 84, 0.1)',
-  },
-  disagreeButton: {
-    borderColor: '#F40B42',
-    backgroundColor: 'rgba(244, 11, 66, 0.08)',
-  },
-  passButton: {
-    borderColor: 'rgba(150, 150, 150, 0.4)',
-    backgroundColor: 'rgba(150, 150, 150, 0.08)',
   },
   signInButton: {
     backgroundColor: '#8B8BFF',
