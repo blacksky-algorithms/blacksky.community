@@ -122,7 +122,9 @@ function AccountItem({
     onSelect(account)
   }, [account, onSelect])
 
-  const isLoggedOut = !account.refreshJwt || isJwtExpired(account.refreshJwt)
+  const isLoggedOut = account.isOauthSession
+    ? false // OAuth sessions are managed by the OAuth client, not refreshJwt
+    : !account.refreshJwt || isJwtExpired(account.refreshJwt)
 
   return (
     <Button

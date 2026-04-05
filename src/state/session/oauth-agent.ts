@@ -20,9 +20,28 @@ export async function oauthCreateAgent(session: OAuthSession) {
   return agent.prepare(account, gates, moderation)
 }
 
+const OAUTH_RESTORE_TIMEOUT_MS = 10_000
+
 export async function oauthResumeSession(account: SessionAccount) {
   const client = getWebOAuthClient()
-  const session = await client.restore(account.did)
+  let session: OAuthSession
+  try {
+    session = await Promise.race([
+      client.restore(account.did),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('OAuth session restore timed out')),
+          OAUTH_RESTORE_TIMEOUT_MS,
+        ),
+      ),
+    ])
+  } catch (e) {
+    logger.error('oauthResumeSession: restore failed', {
+      did: account.did,
+      error: e instanceof Error ? e.message : String(e),
+    })
+    throw e
+  }
   return await oauthCreateAgent(session)
 }
 
@@ -43,13 +62,36 @@ export async function oauthAgentAndSessionToSessionAccount(
 ): Promise<SessionAccount | undefined> {
   let data: OutputSchema
   try {
-    const res = await agent.com.atproto.server.getSession()
+    const res = await Promise.race([
+      agent.com.atproto.server.getSession(),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('getSession timed out')),
+          OAUTH_RESTORE_TIMEOUT_MS,
+        ),
+      ),
+    ])
     data = res.data
   } catch (e: any) {
-    logger.error(e)
+    logger.error('oauthAgentAndSessionToSessionAccount: getSession failed', e)
     return undefined
   }
-  const {aud} = await session.getTokenInfo(false)
+  let aud: string
+  try {
+    const tokenInfo = await Promise.race([
+      session.getTokenInfo(false),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('getTokenInfo timed out')),
+          OAUTH_RESTORE_TIMEOUT_MS,
+        ),
+      ),
+    ])
+    aud = tokenInfo.aud
+  } catch (e: any) {
+    logger.error('oauthAgentAndSessionToSessionAccount: getTokenInfo failed', e)
+    return undefined
+  }
   return {
     service: session.serverMetadata.issuer,
     did: session.did,
@@ -69,12 +111,8 @@ export class OauthBskyAppAgent extends Agent {
   session?: AtpSessionData
   dispatchUrl?: string
 
-  #oauthSession: OAuthSession
-  #account?: SessionAccount
-
   constructor(session: OAuthSession) {
     super(session)
-    this.#oauthSession = session
   }
 
   async prepare(
