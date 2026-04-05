@@ -332,38 +332,53 @@ export function AssemblyEmbed({
         </View>
       ) : statement ? (
         <>
-          <View style={styles.statementCard}>
-            {statement.author_name ? (
-              <Text
-                style={[
-                  a.text_xs,
-                  {color: t.atoms.text_contrast_medium.color, marginBottom: 4},
-                ]}>
-                {statement.author_name} wrote:
+          <View style={styles.statementCardStack}>
+            <View style={styles.statementCard}>
+              {statement.author_name ? (
+                <Text
+                  style={[
+                    a.text_xs,
+                    {
+                      color: t.atoms.text_contrast_medium.color,
+                      marginBottom: 4,
+                    },
+                  ]}>
+                  {statement.author_name} wrote:
+                </Text>
+              ) : null}
+              <Text style={[a.text_md, a.font_bold, {lineHeight: 22}]}>
+                {statement.txt}
               </Text>
-            ) : null}
-            <Text style={[a.text_md, a.font_bold, {lineHeight: 22}]}>
-              {statement.txt}
-            </Text>
-            {statement.remaining != null && statement.remaining > 0 && (
-              <Text
-                style={[
-                  a.text_xs,
-                  {
-                    color: t.atoms.text_contrast_low.color,
-                    marginTop: 6,
-                    textAlign: 'right',
-                  },
-                ]}>
-                {statement.remaining > 100 ? '100+' : statement.remaining}{' '}
-                remaining
-              </Text>
+              {statement.remaining != null && statement.remaining > 0 && (
+                <Text
+                  style={[
+                    a.text_xs,
+                    {
+                      color: t.atoms.text_contrast_low.color,
+                      marginTop: 6,
+                      textAlign: 'right',
+                    },
+                  ]}>
+                  {statement.remaining > 100 ? '100+' : statement.remaining}{' '}
+                  remaining
+                </Text>
+              )}
+            </View>
+            {(statement.remaining ?? 0) > 1 && (
+              <View style={styles.stackLayer1} />
+            )}
+            {(statement.remaining ?? 0) > 2 && (
+              <View style={styles.stackLayer2} />
             )}
           </View>
 
           <View style={styles.voteButtons}>
             <Pressable
-              style={[styles.voteButton, styles.agreeButton]}
+              style={({hovered}: {hovered?: boolean}) => [
+                styles.voteButton,
+                styles.agreeButton,
+                hovered && {backgroundColor: 'rgba(97, 197, 84, 0.08)'},
+              ]}
               onPress={() => onVote(-1)}
               disabled={voting}
               accessibilityRole="button"
@@ -374,7 +389,11 @@ export function AssemblyEmbed({
               </Text>
             </Pressable>
             <Pressable
-              style={[styles.voteButton, styles.disagreeButton]}
+              style={({hovered}: {hovered?: boolean}) => [
+                styles.voteButton,
+                styles.disagreeButton,
+                hovered && {backgroundColor: 'rgba(244, 11, 66, 0.06)'},
+              ]}
               onPress={() => onVote(1)}
               disabled={voting}
               accessibilityRole="button"
@@ -385,7 +404,11 @@ export function AssemblyEmbed({
               </Text>
             </Pressable>
             <Pressable
-              style={[styles.voteButton, styles.passButton]}
+              style={({hovered}: {hovered?: boolean}) => [
+                styles.voteButton,
+                styles.passButton,
+                hovered && {backgroundColor: 'rgba(0, 0, 0, 0.03)'},
+              ]}
               onPress={() => onVote(0)}
               disabled={voting}
               accessibilityRole="button"
@@ -467,12 +490,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
+  statementCardStack: {
+    marginTop: 8,
+    marginBottom: 6,
+  },
   statementCard: {
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
-    marginTop: 8,
+    borderLeftWidth: 3,
+    borderColor: 'lightgray',
+    backgroundColor: '#fff',
+    position: 'relative',
+    zIndex: 3,
+  },
+  stackLayer1: {
+    height: 16,
+    marginTop: -12,
+    marginHorizontal: '0.5%',
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: 'lightgray',
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    zIndex: 2,
+  },
+  stackLayer2: {
+    height: 16,
+    marginTop: -12,
+    marginHorizontal: '1%',
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: '#eee',
+    borderRadius: 5,
+    backgroundColor: '#fafafa',
+    zIndex: 1,
   },
   voteButtons: {
     flexDirection: 'row',
