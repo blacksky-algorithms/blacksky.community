@@ -1338,8 +1338,8 @@ msgstr ""
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:333
 #: src/components/moderation/LabelsOnMeDialog.tsx:334
-#: src/screens/Login/ChooseAccountForm.tsx:92
-#: src/screens/Login/ChooseAccountForm.tsx:97
+#: src/screens/Login/ChooseAccountForm.tsx:101
+#: src/screens/Login/ChooseAccountForm.tsx:106
 #: src/screens/Login/ForgotPasswordForm.tsx:124
 #: src/screens/Login/ForgotPasswordForm.tsx:130
 #: src/screens/Login/LoginForm.tsx:106
@@ -1362,9 +1362,9 @@ msgstr ""
 msgid "Back to Chats"
 msgstr ""
 
-#: src/view/screens/SupportReturn.tsx:114
-#: src/view/screens/SupportReturn.tsx:120
-msgid "Back to Support"
+#: src/view/screens/SupportReturn.tsx:112
+#: src/view/screens/SupportReturn.tsx:118
+msgid "Back to Home"
 msgstr ""
 
 #: src/screens/Profile/Header/Shell.tsx:376
@@ -1624,14 +1624,15 @@ msgid "Browse other feeds"
 msgstr ""
 
 #: src/components/TrendingTopics.tsx:179
+#: src/components/TrendingTopics.tsx:187
 msgid "Browse posts about {displayName}"
 msgstr ""
 
-#: src/components/TrendingTopics.tsx:187
+#: src/components/TrendingTopics.tsx:195
 msgid "Browse posts tagged with {displayName}"
 msgstr ""
 
-#: src/components/TrendingTopics.tsx:196
+#: src/components/TrendingTopics.tsx:204
 msgid "Browse starter pack {displayName}"
 msgstr ""
 
@@ -1639,7 +1640,7 @@ msgstr ""
 msgid "Browse topic {0}"
 msgstr ""
 
-#: src/components/TrendingTopics.tsx:233
+#: src/components/TrendingTopics.tsx:241
 msgid "Browse topic {displayName}"
 msgstr ""
 
@@ -2113,6 +2114,10 @@ msgstr ""
 msgid "Comics"
 msgstr ""
 
+#: src/screens/Search/modules/ExploreTrendingTopics.tsx:231
+msgid "Community"
+msgstr ""
+
 #: src/Navigation.tsx:356
 #: src/view/screens/CommunityGuidelines.tsx:37
 msgid "Community Guidelines"
@@ -2265,7 +2270,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
-#: src/components/AccountList.tsx:135
+#: src/components/AccountList.tsx:137
 msgid "Continue as {0} (currently signed in)"
 msgstr ""
 
@@ -2575,6 +2580,7 @@ msgid "Creator has been blocked"
 msgstr ""
 
 #: src/lib/interests.ts:57
+#: src/screens/Search/modules/ExploreTrendingTopics.tsx:227
 msgid "Culture"
 msgstr ""
 
@@ -2905,8 +2911,8 @@ msgstr ""
 msgid "Discover New Feeds"
 msgstr ""
 
-#: src/view/shell/desktop/RightNav.tsx:107
-#: src/view/shell/desktop/RightNav.tsx:108
+#: src/view/shell/desktop/RightNav.tsx:105
+#: src/view/shell/desktop/RightNav.tsx:106
 #: src/view/shell/Drawer.tsx:380
 msgid "Discussion"
 msgstr ""
@@ -2986,27 +2992,6 @@ msgstr ""
 
 #: src/components/dialogs/EmailDialog/components/ResendEmailText.tsx:37
 msgid "Don't see an email? <0>Click here to resend.</0>"
-msgstr ""
-
-#: src/view/screens/SupportStripeCheckout.web.tsx:100
-msgid "Donate ${0}"
-msgstr ""
-
-#: src/view/screens/SupportStripeCheckout.web.tsx:99
-msgid "Donate ${0}/mo"
-msgstr ""
-
-#: src/view/screens/Support.tsx:63
-#: src/view/screens/Support.tsx:64
-msgid "Donate on OpenCollective"
-msgstr ""
-
-#: src/view/screens/SupportStripeCheckout.web.tsx:113
-msgid "Donate with Card"
-msgstr ""
-
-#: src/view/screens/SupportStripeCheckout.web.tsx:159
-msgid "Donation frequency"
 msgstr ""
 
 #: src/components/contacts/components/InviteInfo.tsx:72
@@ -3421,6 +3406,7 @@ msgid "Enters full screen"
 msgstr ""
 
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:223
+#: src/screens/Search/modules/ExploreTrendingTopics.tsx:225
 msgid "Entertainment"
 msgstr ""
 
@@ -4476,8 +4462,8 @@ msgstr ""
 
 #: src/screens/Settings/Settings.tsx:248
 #: src/screens/Settings/Settings.tsx:252
-#: src/view/shell/desktop/RightNav.tsx:125
-#: src/view/shell/desktop/RightNav.tsx:126
+#: src/view/shell/desktop/RightNav.tsx:123
+#: src/view/shell/desktop/RightNav.tsx:124
 #: src/view/shell/Drawer.tsx:393
 msgid "Help"
 msgstr ""
@@ -5007,7 +4993,7 @@ msgstr ""
 
 #: src/screens/Hashtag.tsx:111
 #: src/screens/Search/SearchResults.tsx:63
-#: src/screens/Topic.tsx:78
+#: src/screens/Topic.tsx:273
 msgid "Latest"
 msgstr ""
 
@@ -5372,7 +5358,7 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-#: src/components/AccountList.tsx:191
+#: src/components/AccountList.tsx:193
 msgid "Logged out"
 msgstr ""
 
@@ -5451,7 +5437,7 @@ msgid "Marked all as read"
 msgstr ""
 
 #: src/view/screens/SupportStripeCheckout.web.tsx:44
-msgid "Maximum donation is $1,000"
+msgid "Maximum support amount is $1,000"
 msgstr ""
 
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:90
@@ -5538,7 +5524,7 @@ msgid "Migrating from Bluesky? Use <0>move.blacksky.community</0> to move your f
 msgstr ""
 
 #: src/view/screens/SupportStripeCheckout.web.tsx:43
-msgid "Minimum donation is $5"
+msgid "Minimum support amount is $5"
 msgstr ""
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:177
@@ -5657,6 +5643,7 @@ msgid "Movies"
 msgstr ""
 
 #: src/lib/interests.ts:65
+#: src/screens/Search/modules/ExploreTrendingTopics.tsx:229
 msgid "Music"
 msgstr ""
 
@@ -5909,7 +5896,7 @@ msgid "Newest replies first"
 msgstr ""
 
 #: src/lib/interests.ts:67
-#: src/screens/Search/modules/ExploreTrendingTopics.tsx:225
+#: src/screens/Search/modules/ExploreTrendingTopics.tsx:233
 msgid "News"
 msgstr ""
 
@@ -6389,7 +6376,7 @@ msgstr ""
 msgid "Open Germ DM"
 msgstr ""
 
-#: src/components/Post/Embed/ExternalEmbed/index.tsx:79
+#: src/components/Post/Embed/ExternalEmbed/index.tsx:88
 msgid "Open link to {niceUrl}"
 msgstr ""
 
@@ -7130,8 +7117,8 @@ msgid "Primary Language"
 msgstr ""
 
 #: src/view/com/auth/SplashScreen.web.tsx:202
-#: src/view/shell/desktop/RightNav.tsx:115
-#: src/view/shell/desktop/RightNav.tsx:116
+#: src/view/shell/desktop/RightNav.tsx:113
+#: src/view/shell/desktop/RightNav.tsx:114
 msgid "Privacy"
 msgstr ""
 
@@ -8224,7 +8211,7 @@ msgstr ""
 msgid "Select a reason"
 msgstr ""
 
-#: src/screens/Login/ChooseAccountForm.tsx:78
+#: src/screens/Login/ChooseAccountForm.tsx:87
 msgid "Select account"
 msgstr ""
 
@@ -8526,7 +8513,8 @@ msgstr ""
 #: src/components/StarterPack/QrCodeDialog.tsx:194
 #: src/screens/Hashtag.tsx:142
 #: src/screens/StarterPack/StarterPackScreen.tsx:440
-#: src/screens/Topic.tsx:103
+#: src/screens/Topic.tsx:86
+#: src/screens/Topic.tsx:298
 msgid "Share"
 msgstr ""
 
@@ -8746,12 +8734,16 @@ msgstr ""
 msgid "Sign in"
 msgstr ""
 
-#: src/components/AccountList.tsx:136
+#: src/components/AccountList.tsx:138
 msgid "Sign in as {0}"
 msgstr ""
 
-#: src/screens/Login/ChooseAccountForm.tsx:82
+#: src/screens/Login/ChooseAccountForm.tsx:91
 msgid "Sign in as..."
+msgstr ""
+
+#: src/screens/Login/ChooseAccountForm.tsx:67
+msgid "Sign in failed. Please try again."
 msgstr ""
 
 #: src/screens/Deactivated.tsx:194
@@ -8803,7 +8795,7 @@ msgid "Sign-in Required"
 msgstr ""
 
 #: src/lib/hooks/useAccountSwitcher.ts:42
-#: src/screens/Login/ChooseAccountForm.tsx:54
+#: src/screens/Login/ChooseAccountForm.tsx:62
 msgid "Signed in as @{0}"
 msgstr ""
 
@@ -9113,19 +9105,40 @@ msgstr ""
 msgid "Support"
 msgstr ""
 
+#: src/view/screens/SupportStripeCheckout.web.tsx:100
+msgid "Support ${0}"
+msgstr ""
+
+#: src/view/screens/SupportStripeCheckout.web.tsx:99
+msgid "Support ${0}/mo"
+msgstr ""
+
 #: src/components/contacts/screens/PhoneInput.tsx:233
 msgid "Support for this feature in your country has not been enabled yet! Please check back later."
+msgstr ""
+
+#: src/view/screens/SupportStripeCheckout.web.tsx:159
+msgid "Support frequency"
+msgstr ""
+
+#: src/view/screens/Support.tsx:63
+#: src/view/screens/Support.tsx:64
+msgid "Support on OpenCollective"
 msgstr ""
 
 #: src/view/screens/Support.tsx:55
 msgid "Support the Blacksky community through OpenCollective. Your contributions help us maintain and improve the platform."
 msgstr ""
 
-#: src/view/shell/desktop/RightNav.tsx:99
-#: src/view/shell/desktop/RightNav.tsx:100
+#: src/view/shell/desktop/RightNav.tsx:97
+#: src/view/shell/desktop/RightNav.tsx:98
 #: src/view/shell/Drawer.tsx:397
 #: src/view/shell/Drawer.tsx:406
 msgid "Support Us"
+msgstr ""
+
+#: src/view/screens/SupportStripeCheckout.web.tsx:113
+msgid "Support with Card"
 msgstr ""
 
 #: src/screens/Settings/Settings.tsx:123
@@ -9217,8 +9230,8 @@ msgid "Tell us a little more"
 msgstr ""
 
 #: src/view/com/auth/SplashScreen.web.tsx:197
-#: src/view/shell/desktop/RightNav.tsx:121
-#: src/view/shell/desktop/RightNav.tsx:122
+#: src/view/shell/desktop/RightNav.tsx:119
+#: src/view/shell/desktop/RightNav.tsx:120
 msgid "Terms"
 msgstr ""
 
@@ -9833,7 +9846,7 @@ msgstr ""
 
 #: src/screens/Hashtag.tsx:100
 #: src/screens/Search/SearchResults.tsx:53
-#: src/screens/Topic.tsx:72
+#: src/screens/Topic.tsx:263
 msgid "Top"
 msgstr ""
 
@@ -9845,6 +9858,7 @@ msgid "Top replies first"
 msgstr ""
 
 #: src/Navigation.tsx:567
+#: src/screens/Topic.tsx:58
 msgid "Topic"
 msgstr ""
 
@@ -10668,7 +10682,8 @@ msgstr ""
 msgid "We couldn't find any results for that tag."
 msgstr ""
 
-#: src/screens/Topic.tsx:180
+#: src/screens/Topic.tsx:189
+#: src/screens/Topic.tsx:375
 msgid "We couldn't find any results for that topic."
 msgstr ""
 
@@ -11423,10 +11438,6 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr ""
 
-#: src/view/screens/SupportReturn.tsx:93
-msgid "Your donation helps us maintain and improve the Blacksky community."
-msgstr ""
-
 #: src/screens/Login/ForgotPasswordForm.tsx:52
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:81
 #: src/screens/Signup/state.ts:284
@@ -11522,6 +11533,10 @@ msgstr ""
 
 #: src/screens/Settings/InterestsSettings.tsx:60
 msgid "Your selected interests help us serve you content you care about."
+msgstr ""
+
+#: src/view/screens/SupportReturn.tsx:93
+msgid "Your support helps us maintain and improve the Blacksky community."
 msgstr ""
 
 #: src/components/verification/VerificationsDialog.tsx:66
