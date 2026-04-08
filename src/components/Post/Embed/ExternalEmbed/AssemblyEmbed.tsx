@@ -151,18 +151,17 @@ export function AssemblyEmbed({
       try {
         let voteAtUri: string | undefined
 
-        // If authenticated, create a signed vote record in user's repo.
-        // This IS the authentication — only the DID owner can create
-        // records in their repo. The PDS validates the signing key.
-        if (agent.session) {
+        // If authenticated and statement has an AT URI, create a signed vote
+        // record in the user's repo as proof of identity.
+        if (agent.session && statement.at_uri && statement.at_cid) {
           const createResult = await agent.com.atproto.repo.createRecord({
             repo: agent.assertDid,
             collection: 'community.blacksky.assembly.vote',
             record: {
               $type: 'community.blacksky.assembly.vote',
               subject: {
-                uri: statement.at_uri || '',
-                cid: statement.at_cid || '',
+                uri: statement.at_uri,
+                cid: statement.at_cid,
               },
               value,
               createdAt: new Date().toISOString(),
