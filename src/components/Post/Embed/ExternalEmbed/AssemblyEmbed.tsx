@@ -75,6 +75,9 @@ export function AssemblyEmbed({
   const [error, setError] = useState<string | null>(null)
   const [allVoted, setAllVoted] = useState(false)
   const [notFound, setNotFound] = useState(false)
+  const [participationToken, setParticipationToken] = useState<string | null>(
+    null,
+  )
 
   const isAuthenticated = !!currentAccount?.did
 
@@ -121,7 +124,7 @@ export function AssemblyEmbed({
               (await initResp.json()) as ParticipationInitResponse
 
             if (initData.auth?.token) {
-              // JWT available but not needed — votes are verified via repo records
+              setParticipationToken(initData.auth.token)
             }
 
             // Use personalized next comment (excludes already-voted)
@@ -173,9 +176,15 @@ export function AssemblyEmbed({
         // Submit to assembly's verified vote endpoint.
         // If authenticated: server fetches the record from user's PDS to verify.
         // If anonymous: server accepts the vote directly (conversation allows it).
+        const voteHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+        }
+        if (participationToken) {
+          voteHeaders.Authorization = `Bearer ${participationToken}`
+        }
         const voteResp = await fetch(`${ASSEMBLY_API}/embed/vote`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: voteHeaders,
           body: JSON.stringify({
             conversation_id: conversationId,
             tid: statement.tid,
