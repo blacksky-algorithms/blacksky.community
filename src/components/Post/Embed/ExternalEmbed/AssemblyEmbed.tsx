@@ -124,9 +124,13 @@ export function AssemblyEmbed({
               // JWT available but not needed — votes are verified via repo records
             }
 
-            // Use personalized next comment if available (excludes already-voted)
+            // Use personalized next comment (excludes already-voted)
             if (initData.nextComment) {
               setStatement(initData.nextComment)
+            } else {
+              // User has voted on all statements
+              setStatement(null)
+              setAllVoted(true)
             }
           }
         } catch {
