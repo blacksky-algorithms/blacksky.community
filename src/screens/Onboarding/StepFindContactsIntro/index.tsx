@@ -81,7 +81,7 @@ export function StepFindContactsIntro() {
             </ButtonText>
           </Button>
           <Button
-            onPress={() => dispatch({type: 'skip-contacts'})}
+            onPress={() => dispatch({type: 'next'})}
             label={_(msg`Skip`)}
             size="large"
             color="secondary">

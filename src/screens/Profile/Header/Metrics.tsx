@@ -5,6 +5,7 @@ import {useLingui} from '@lingui/react'
 
 import {makeProfileLink} from '#/lib/routes/links'
 import {type Shadow} from '#/state/cache/types'
+import {useBskyProfileQuery} from '#/state/queries/profile'
 import {formatCount} from '#/view/com/util/numeric/format'
 import {atoms as a, useTheme} from '#/alf'
 import {InlineLinkText} from '#/components/Link'
@@ -17,13 +18,21 @@ export function ProfileHeaderMetrics({
 }) {
   const t = useTheme()
   const {_, i18n} = useLingui()
-  const following = formatCount(i18n, profile.followsCount || 0)
-  const followers = formatCount(i18n, profile.followersCount || 0)
-  const pluralizedFollowers = plural(profile.followersCount || 0, {
+  const {data: bskyProfile} = useBskyProfileQuery({did: profile.did})
+
+  // Prefer Bluesky counts, fall back to local when user is suspended on Bluesky
+  const followsCount = bskyProfile?.followsCount ?? profile.followsCount ?? 0
+  const followersCount =
+    bskyProfile?.followersCount ?? profile.followersCount ?? 0
+  const postsCount = bskyProfile?.postsCount ?? profile.postsCount ?? 0
+
+  const following = formatCount(i18n, followsCount)
+  const followers = formatCount(i18n, followersCount)
+  const pluralizedFollowers = plural(followersCount, {
     one: 'follower',
     other: 'followers',
   })
-  const pluralizedFollowings = plural(profile.followsCount || 0, {
+  const pluralizedFollowings = plural(followsCount, {
     one: 'following',
     other: 'following',
   })
@@ -36,7 +45,7 @@ export function ProfileHeaderMetrics({
         testID="profileHeaderFollowersButton"
         style={[a.flex_row, t.atoms.text]}
         to={makeProfileLink(profile, 'followers')}
-        label={`${profile.followersCount || 0} ${pluralizedFollowers}`}>
+        label={`${followersCount} ${pluralizedFollowers}`}>
         <Text style={[a.font_semi_bold, a.text_md]}>{followers} </Text>
         <Text style={[t.atoms.text_contrast_medium, a.text_md]}>
           {pluralizedFollowers}
@@ -46,16 +55,16 @@ export function ProfileHeaderMetrics({
         testID="profileHeaderFollowsButton"
         style={[a.flex_row, t.atoms.text]}
         to={makeProfileLink(profile, 'follows')}
-        label={_(msg`${profile.followsCount || 0} following`)}>
+        label={_(msg`${followsCount} following`)}>
         <Text style={[a.font_semi_bold, a.text_md]}>{following} </Text>
         <Text style={[t.atoms.text_contrast_medium, a.text_md]}>
           {pluralizedFollowings}
         </Text>
       </InlineLinkText>
       <Text style={[a.font_semi_bold, t.atoms.text, a.text_md]}>
-        {formatCount(i18n, profile.postsCount || 0)}{' '}
+        {formatCount(i18n, postsCount)}{' '}
         <Text style={[t.atoms.text_contrast_medium, a.font_normal, a.text_md]}>
-          {plural(profile.postsCount || 0, {one: 'post', other: 'posts'})}
+          {plural(postsCount, {one: 'post', other: 'posts'})}
         </Text>
       </Text>
     </View>

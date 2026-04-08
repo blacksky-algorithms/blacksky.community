@@ -30,6 +30,7 @@ import {useAgent, useSession} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
+import {ALT_PROXY_DID} from '#/env'
 import type * as bsky from '#/types/bsky'
 import {
   ProgressGuideAction,
@@ -109,6 +110,35 @@ export function usePublicProfileQuery({did}: {did: string | undefined}) {
       )
       if (!res.ok) return null
       return res.json()
+    },
+    enabled: !!did,
+  })
+}
+
+const BSKY_PROXY_HEADER = {
+  'atproto-proxy': `${ALT_PROXY_DID}#bsky_appview`,
+}
+
+/**
+ * Fetches a profile from Bluesky's appview via the PDS proxy.
+ * Returns null if the user is suspended on Bluesky or the request fails.
+ * Used to get accurate follower/following counts and known followers data.
+ */
+export function useBskyProfileQuery({did}: {did: string | undefined}) {
+  const agent = useAgent()
+  return useQuery<AppBskyActorDefs.ProfileViewDetailed | null>({
+    staleTime: STALE.MINUTES.FIVE,
+    queryKey: ['bsky-profile', did ?? ''],
+    queryFn: async () => {
+      try {
+        const res = await agent.app.bsky.actor.getProfile(
+          {actor: did ?? ''},
+          {headers: BSKY_PROXY_HEADER},
+        )
+        return res.data
+      } catch {
+        return null
+      }
     },
     enabled: !!did,
   })

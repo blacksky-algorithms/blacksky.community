@@ -17,6 +17,7 @@ import {sanitizeHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {type Shadow, useProfileShadow} from '#/state/cache/profile-shadow'
 import {
+  useBskyProfileQuery,
   useProfileBlockMutationQueue,
   useProfileFollowMutationQueue,
 } from '#/state/queries/profile'
@@ -92,6 +93,11 @@ let ProfileHeaderStandard = ({
   }
 
   const isMe = currentAccount?.did === profile.did
+  const {data: bskyProfile} = useBskyProfileQuery({did: profile.did})
+
+  // Prefer Bluesky known followers, fall back to local
+  const knownFollowers =
+    bskyProfile?.viewer?.knownFollowers ?? profile.viewer?.knownFollowers
 
   const {isActive: live} = useActorStatus(profile)
 
@@ -170,10 +176,17 @@ let ProfileHeaderStandard = ({
 
               {!isMe &&
                 !isBlockedUser &&
-                shouldShowKnownFollowers(profile.viewer?.knownFollowers) && (
+                shouldShowKnownFollowers(knownFollowers) && (
                   <View style={[a.flex_row, a.align_center, a.gap_sm]}>
                     <KnownFollowers
-                      profile={profile}
+                      profile={
+                        knownFollowers !== profile.viewer?.knownFollowers
+                          ? {
+                              ...profile,
+                              viewer: {...profile.viewer, knownFollowers},
+                            }
+                          : profile
+                      }
                       moderationOpts={moderationOpts}
                     />
                   </View>

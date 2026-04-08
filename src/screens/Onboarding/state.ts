@@ -6,14 +6,7 @@ import {
   type Emoji,
 } from '#/screens/Onboarding/StepProfile/types'
 
-type OnboardingScreen =
-  | 'profile'
-  | 'interests'
-  | 'suggested-accounts'
-  | 'suggested-starterpacks'
-  | 'find-contacts-intro'
-  | 'find-contacts'
-  | 'finished'
+type OnboardingScreen = 'profile' | 'interests' | 'finished'
 
 export type OnboardingState = {
   screens: Record<OnboardingScreen, boolean>
@@ -49,9 +42,6 @@ export type OnboardingAction =
       type: 'prev'
     }
   | {
-      type: 'skip-contacts'
-    }
-  | {
       type: 'finish'
     }
   | {
@@ -72,22 +62,10 @@ export type OnboardingAction =
         | undefined
     }
 
-export function createInitialOnboardingState(
-  {
-    starterPacksStepEnabled,
-    findContactsStepEnabled,
-  }: {
-    starterPacksStepEnabled: boolean
-    findContactsStepEnabled: boolean
-  } = {starterPacksStepEnabled: true, findContactsStepEnabled: false},
-): OnboardingState {
+export function createInitialOnboardingState(): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
     interests: true,
-    'suggested-accounts': true,
-    'suggested-starterpacks': starterPacksStepEnabled,
-    'find-contacts-intro': findContactsStepEnabled,
-    'find-contacts': findContactsStepEnabled,
     finished: true,
   }
 
@@ -140,18 +118,8 @@ export function reducer(
       next.stepTransitionDirection = 'Backward'
       break
     }
-    case 'skip-contacts': {
-      const nextIndex = stepOrder.indexOf('find-contacts') + 1
-      const nextStep = stepOrder[nextIndex] ?? 'finished'
-      next.activeStep = nextStep
-      next.stepTransitionDirection = 'Forward'
-      break
-    }
     case 'finish': {
-      next = createInitialOnboardingState({
-        starterPacksStepEnabled: s.screens['suggested-starterpacks'],
-        findContactsStepEnabled: s.screens['find-contacts'],
-      })
+      next = createInitialOnboardingState()
       break
     }
     case 'setInterestsStepResults': {
@@ -197,10 +165,6 @@ function getStepOrder(s: OnboardingState): OnboardingScreen[] {
   return [
     s.screens.profile && ('profile' as const),
     s.screens.interests && ('interests' as const),
-    s.screens['suggested-accounts'] && ('suggested-accounts' as const),
-    s.screens['suggested-starterpacks'] && ('suggested-starterpacks' as const),
-    s.screens['find-contacts-intro'] && ('find-contacts-intro' as const),
-    s.screens['find-contacts'] && ('find-contacts' as const),
     s.screens.finished && ('finished' as const),
   ].filter(x => !!x)
 }
@@ -225,7 +189,7 @@ export function useOnboardingInternalState() {
   return {
     state: useMemo(() => {
       const stepOrder = getStepOrder(state).filter(
-        x => x !== 'find-contacts' && x !== 'finished',
+        x => x !== 'finished',
       ) as string[]
       const canGoBack = state.activeStep !== stepOrder[0]
       return {
@@ -235,11 +199,7 @@ export function useOnboardingInternalState() {
          * Note: for *display* purposes only, do not lean on this
          * for navigation purposes! we merge certain steps!
          */
-        activeStepIndex: stepOrder.indexOf(
-          state.activeStep === 'find-contacts'
-            ? 'find-contacts-intro'
-            : state.activeStep,
-        ),
+        activeStepIndex: stepOrder.indexOf(state.activeStep),
         totalSteps: stepOrder.length,
       }
     }, [state]),
