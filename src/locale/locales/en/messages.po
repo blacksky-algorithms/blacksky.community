@@ -94,21 +94,15 @@ msgid "{0, plural, one {1 more post} other {# more posts}}"
 msgstr ""
 
 #: src/components/ProfileHoverCard/index.web.tsx:445
-#: src/screens/Profile/Header/Metrics.tsx:22
 msgid "{0, plural, one {follower} other {followers}}"
 msgstr ""
 
 #: src/components/ProfileHoverCard/index.web.tsx:449
-#: src/screens/Profile/Header/Metrics.tsx:26
 msgid "{0, plural, one {following} other {following}}"
 msgstr ""
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:492
 msgid "{0, plural, one {like} other {likes}}"
-msgstr ""
-
-#: src/screens/Profile/Header/Metrics.tsx:58
-msgid "{0, plural, one {post} other {posts}}"
 msgstr ""
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:476
@@ -149,10 +143,6 @@ msgstr ""
 #. Pattern: {wordValue} in text, tags
 #: src/components/dialogs/MutedWords.tsx:470
 msgid "{0} <0>in <1>text & tags</1></0>"
-msgstr ""
-
-#: src/screens/Profile/Header/Metrics.tsx:49
-msgid "{0} following"
 msgstr ""
 
 #: src/components/live/LiveStatusDialog.tsx:79
@@ -402,8 +392,20 @@ msgstr ""
 msgid "{firstAuthorName} verified you"
 msgstr ""
 
+#: src/screens/Profile/Header/Metrics.tsx:31
+msgid "{followersCount, plural, one {follower} other {followers}}"
+msgstr ""
+
 #: src/components/ProfileHoverCard/index.web.tsx:578
 msgid "{following} following"
+msgstr ""
+
+#: src/screens/Profile/Header/Metrics.tsx:35
+msgid "{followsCount, plural, one {following} other {following}}"
+msgstr ""
+
+#: src/screens/Profile/Header/Metrics.tsx:58
+msgid "{followsCount} following"
 msgstr ""
 
 #: src/components/dialogs/SearchablePeopleList.tsx:413
@@ -433,6 +435,10 @@ msgstr ""
 
 #: src/screens/Settings/FindContactsSettings.tsx:435
 msgid "{numMatches, plural, one {# contact found} other {# contacts found}}"
+msgstr ""
+
+#: src/screens/Profile/Header/Metrics.tsx:67
+msgid "{postsCount, plural, one {post} other {posts}}"
 msgstr ""
 
 #: src/components/NewskieDialog.tsx:113
@@ -661,8 +667,8 @@ msgstr ""
 msgid "Account removed from quick access"
 msgstr ""
 
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:85
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:295
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:86
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:308
 #: src/view/com/profile/ProfileMenu.tsx:170
 msgctxt "toast"
 msgid "Account unblocked"
@@ -1348,7 +1354,7 @@ msgstr ""
 #: src/screens/Login/SetNewPasswordForm.tsx:175
 #: src/screens/Messages/components/ChatDisabled.tsx:145
 #: src/screens/Messages/components/ChatDisabled.tsx:146
-#: src/screens/Profile/Header/Shell.tsx:185
+#: src/screens/Profile/Header/Shell.tsx:180
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:272
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:281
 #: src/screens/Signup/BackNextButtons.tsx:41
@@ -1365,12 +1371,6 @@ msgstr ""
 #: src/view/screens/SupportReturn.tsx:112
 #: src/view/screens/SupportReturn.tsx:118
 msgid "Back to Home"
-msgstr ""
-
-#: src/screens/Profile/Header/Shell.tsx:376
-#: src/screens/Profile/Header/Shell.tsx:405
-#: src/screens/Profile/Header/Shell.tsx:414
-msgid "Backfill in progress"
 msgstr ""
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:216
@@ -1445,10 +1445,6 @@ msgstr ""
 msgid "Blacksky is better with friends!"
 msgstr ""
 
-#: src/screens/Profile/Header/Shell.tsx:417
-msgid "Blacksky is still indexing this account's data from the AT Protocol network. The follower, following, and post counts shown may be lower than the actual totals. Relationship indicators (like whether this account follows you) may also be incomplete until backfill is finished."
-msgstr ""
-
 #: src/view/com/auth/SplashScreen.web.tsx:205
 msgid "Blacksky on GitHub"
 msgstr ""
@@ -1467,7 +1463,7 @@ msgid "Blacksky will not show your profile and posts to logged-out users. Other 
 msgstr ""
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:821
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:195
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:208
 #: src/view/com/profile/ProfileMenu.tsx:547
 msgid "Block"
 msgstr ""
@@ -2123,7 +2119,7 @@ msgstr ""
 msgid "Community Guidelines"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:333
+#: src/screens/Onboarding/StepFinished/index.tsx:245
 msgid "Complete onboarding and start using your account"
 msgstr ""
 
@@ -3182,12 +3178,12 @@ msgstr ""
 #: src/screens/Profile/Header/EditProfileDialog.tsx:280
 #: src/screens/Profile/Header/EditProfileDialog.tsx:286
 #: src/screens/Profile/Header/ProfileHeaderLabeler.tsx:295
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:329
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:342
 msgid "Edit profile"
 msgstr ""
 
 #: src/screens/Profile/Header/ProfileHeaderLabeler.tsx:298
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:331
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:344
 msgid "Edit Profile"
 msgstr ""
 
@@ -3890,7 +3886,7 @@ msgstr ""
 msgid "Filter who you receive notifications from"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:339
+#: src/screens/Onboarding/StepFinished/index.tsx:251
 msgid "Finalizing"
 msgstr ""
 
@@ -3965,7 +3961,7 @@ msgstr ""
 #: src/components/ProfileHoverCard/index.web.tsx:497
 #: src/components/ProfileHoverCard/index.web.tsx:508
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:152
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:386
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:399
 #: src/screens/VideoFeed/index.tsx:874
 #: src/view/com/notifications/NotificationFeedItem.tsx:841
 #: src/view/com/notifications/NotificationFeedItem.tsx:848
@@ -3973,7 +3969,7 @@ msgid "Follow"
 msgstr ""
 
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:139
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:374
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:387
 msgid "Follow {0}"
 msgstr ""
 
@@ -4017,7 +4013,7 @@ msgstr ""
 #. User is not following this account, click to follow back
 #: src/components/ProfileCard.tsx:553
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:150
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:384
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:397
 #: src/view/com/notifications/NotificationFeedItem.tsx:841
 #: src/view/com/notifications/NotificationFeedItem.tsx:848
 msgid "Follow back"
@@ -4062,7 +4058,7 @@ msgstr ""
 #: src/components/ProfileHoverCard/index.web.tsx:496
 #: src/components/ProfileHoverCard/index.web.tsx:507
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:155
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:382
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:395
 #: src/screens/VideoFeed/index.tsx:872
 #: src/view/com/notifications/NotificationFeedItem.tsx:819
 #: src/view/com/notifications/NotificationFeedItem.tsx:836
@@ -4076,7 +4072,7 @@ msgid "Following"
 msgstr ""
 
 #: src/components/ProfileCard.tsx:509
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:249
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:262
 #: src/view/com/notifications/NotificationFeedItem.tsx:772
 msgid "Following {0}"
 msgstr ""
@@ -5099,7 +5095,7 @@ msgstr ""
 msgid "Let's get your password reset!"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:341
+#: src/screens/Onboarding/StepFinished/index.tsx:253
 msgid "Let's go!"
 msgstr ""
 
@@ -5906,8 +5902,8 @@ msgstr ""
 #: src/screens/Login/ForgotPasswordForm.tsx:144
 #: src/screens/Login/SetNewPasswordForm.tsx:183
 #: src/screens/Login/SetNewPasswordForm.tsx:189
-#: src/screens/Onboarding/StepFinished/index.tsx:334
-#: src/screens/Onboarding/StepFinished/index.tsx:343
+#: src/screens/Onboarding/StepFinished/index.tsx:246
+#: src/screens/Onboarding/StepFinished/index.tsx:255
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:168
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:176
 #: src/screens/Signup/BackNextButtons.tsx:67
@@ -5982,7 +5978,7 @@ msgid "No lists"
 msgstr ""
 
 #: src/components/ProfileCard.tsx:531
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:274
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:287
 #: src/view/com/notifications/NotificationFeedItem.tsx:792
 msgid "No longer following {0}"
 msgstr ""
@@ -6237,7 +6233,6 @@ msgstr ""
 
 #: src/screens/Login/PasswordUpdatedForm.tsx:37
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:705
-#: src/screens/Profile/Header/Shell.tsx:427
 msgid "Okay"
 msgstr ""
 
@@ -8807,8 +8802,8 @@ msgstr ""
 #: src/components/contacts/screens/VerifyNumber.tsx:204
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:85
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:89
-#: src/screens/Onboarding/StepFinished/index.tsx:299
-#: src/screens/Onboarding/StepFinished/index.tsx:321
+#: src/screens/Onboarding/StepFinished/index.tsx:211
+#: src/screens/Onboarding/StepFinished/index.tsx:233
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:261
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:104
 #: src/screens/StarterPack/Wizard/index.tsx:216
@@ -8820,8 +8815,8 @@ msgstr ""
 msgid "Skip contact sharing and continue to the app"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:292
-#: src/screens/Onboarding/StepFinished/index.tsx:318
+#: src/screens/Onboarding/StepFinished/index.tsx:204
+#: src/screens/Onboarding/StepFinished/index.tsx:230
 msgid "Skip introduction and start using your account"
 msgstr ""
 
@@ -9292,8 +9287,8 @@ msgstr ""
 msgid "That's everything!"
 msgstr ""
 
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:191
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:399
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:204
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:412
 #: src/view/com/profile/ProfileMenu.tsx:535
 msgid "The account will be able to interact with you after unblocking."
 msgstr ""
@@ -9464,10 +9459,10 @@ msgstr ""
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:450
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:116
 #: src/screens/PostThread/components/ThreadItemAnchorFollowButton.tsx:127
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:89
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:258
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:284
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:299
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:90
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:271
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:297
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:312
 #: src/view/com/profile/ProfileMenu.tsx:150
 #: src/view/com/profile/ProfileMenu.tsx:160
 #: src/view/com/profile/ProfileMenu.tsx:174
@@ -9960,16 +9955,16 @@ msgstr ""
 #: src/components/dms/MessagesListBlockedFooter.tsx:104
 #: src/components/dms/MessagesListBlockedFooter.tsx:112
 #: src/components/dms/MessagesListBlockedFooter.tsx:119
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:195
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:342
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:402
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:208
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:355
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:415
 #: src/screens/ProfileList/components/Header.tsx:165
 #: src/screens/ProfileList/components/Header.tsx:172
 #: src/view/com/profile/ProfileMenu.tsx:547
 msgid "Unblock"
 msgstr ""
 
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:346
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:359
 msgctxt "action"
 msgid "Unblock"
 msgstr ""
@@ -9981,8 +9976,8 @@ msgstr ""
 msgid "Unblock account"
 msgstr ""
 
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:189
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:397
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:202
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:410
 #: src/view/com/profile/ProfileMenu.tsx:529
 msgid "Unblock Account?"
 msgstr ""
@@ -10018,7 +10013,7 @@ msgstr ""
 msgid "Undo repost ({0, plural, one {# repost} other {# reposts}})"
 msgstr ""
 
-#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:373
+#: src/screens/Profile/Header/ProfileHeaderStandard.tsx:386
 msgid "Unfollow {0}"
 msgstr ""
 
@@ -10511,7 +10506,7 @@ msgctxt "Action to view the post the user just created"
 msgid "View"
 msgstr ""
 
-#: src/screens/Profile/Header/Shell.tsx:260
+#: src/screens/Profile/Header/Shell.tsx:255
 msgid "View {0}'s avatar"
 msgstr ""
 
