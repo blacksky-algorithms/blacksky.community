@@ -17,7 +17,6 @@ import {sanitizeHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {type Shadow, useProfileShadow} from '#/state/cache/profile-shadow'
 import {
-  useBskyProfileQuery,
   useProfileBlockMutationQueue,
   useProfileFollowMutationQueue,
 } from '#/state/queries/profile'
@@ -93,11 +92,9 @@ let ProfileHeaderStandard = ({
   }
 
   const isMe = currentAccount?.did === profile.did
-  const {data: bskyProfile} = useBskyProfileQuery({did: profile.did})
 
-  // Prefer Bluesky known followers, fall back to local
-  const knownFollowers =
-    bskyProfile?.viewer?.knownFollowers ?? profile.viewer?.knownFollowers
+  // Known followers are merged from Bluesky's API in useProfileQuery
+  const knownFollowers = profile.viewer?.knownFollowers
 
   const {isActive: live} = useActorStatus(profile)
 

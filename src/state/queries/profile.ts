@@ -82,8 +82,33 @@ export function useProfileQuery({
     refetchOnWindowFocus: true,
     queryKey: RQKEY(did ?? ''),
     queryFn: async () => {
-      const res = await agent.getProfile({actor: did ?? ''})
-      return res.data
+      const profilePromise = agent.getProfile({actor: did ?? ''})
+      const bskyPromise = agent.app.bsky.actor
+        .getProfile({actor: did ?? ''}, {headers: BSKY_PROXY_HEADER})
+        .catch(() => null)
+
+      const [profileRes, bskyRes] = await Promise.all([
+        profilePromise,
+        bskyPromise,
+      ])
+      const profile = profileRes.data
+
+      // Prefer Bluesky's counts and known followers to avoid flickering
+      // between our appview's counts and Bluesky's
+      if (bskyRes?.data) {
+        profile.followersCount =
+          bskyRes.data.followersCount ?? profile.followersCount
+        profile.followsCount = bskyRes.data.followsCount ?? profile.followsCount
+        profile.postsCount = bskyRes.data.postsCount ?? profile.postsCount
+        if (bskyRes.data.viewer?.knownFollowers) {
+          profile.viewer = {
+            ...profile.viewer,
+            knownFollowers: bskyRes.data.viewer.knownFollowers,
+          }
+        }
+      }
+
+      return profile
     },
     placeholderData: () => {
       if (!did) return
@@ -172,8 +197,32 @@ export function usePrefetchProfileQuery() {
         staleTime: STALE.SECONDS.THIRTY,
         queryKey: RQKEY(did),
         queryFn: async () => {
-          const res = await agent.getProfile({actor: did || ''})
-          return res.data
+          const profilePromise = agent.getProfile({actor: did || ''})
+          const bskyPromise = agent.app.bsky.actor
+            .getProfile({actor: did || ''}, {headers: BSKY_PROXY_HEADER})
+            .catch(() => null)
+
+          const [profileRes, bskyRes] = await Promise.all([
+            profilePromise,
+            bskyPromise,
+          ])
+          const profile = profileRes.data
+
+          if (bskyRes?.data) {
+            profile.followersCount =
+              bskyRes.data.followersCount ?? profile.followersCount
+            profile.followsCount =
+              bskyRes.data.followsCount ?? profile.followsCount
+            profile.postsCount = bskyRes.data.postsCount ?? profile.postsCount
+            if (bskyRes.data.viewer?.knownFollowers) {
+              profile.viewer = {
+                ...profile.viewer,
+                knownFollowers: bskyRes.data.viewer.knownFollowers,
+              }
+            }
+          }
+
+          return profile
         },
         enableFallback: true,
         fallbackType: 'profile',
