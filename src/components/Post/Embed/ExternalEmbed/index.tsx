@@ -21,6 +21,7 @@ import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
 import {GifEmbed} from './Gif'
+import {StreamplaceEmbed} from './StreamplaceEmbed'
 
 export const ExternalEmbed = ({
   link,
@@ -64,6 +65,14 @@ export const ExternalEmbed = ({
     return (
       <View style={style}>
         <AssemblyEmbed link={link} params={embedPlayerParams} />
+      </View>
+    )
+  }
+
+  if (embedPlayerParams?.type === 'streamplace_stream') {
+    return (
+      <View style={style}>
+        <StreamplaceEmbed link={link} params={embedPlayerParams} />
       </View>
     )
   }

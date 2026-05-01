@@ -25,6 +25,7 @@ export const embedPlayerSources = [
   'tenor',
   'flickr',
   'assembly',
+  'streamplace',
 ] as const
 
 export type EmbedPlayerSource = (typeof embedPlayerSources)[number]
@@ -46,6 +47,7 @@ export type EmbedPlayerType =
   | 'tenor_gif'
   | 'flickr_album'
   | 'assembly_conversation'
+  | 'streamplace_stream'
 
 export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   youtube: 'YouTube',
@@ -59,6 +61,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   soundcloud: 'SoundCloud',
   flickr: 'Flickr',
   assembly: "Blacksky People's Assembly",
+  streamplace: 'Streamplace',
 }
 
 export interface EmbedPlayerParams {
@@ -475,6 +478,43 @@ export function parseEmbedPlayerFromUrl(
       }
     }
   }
+
+  // Stream.place livestreams. Path is /<handle> (or /@<handle>); we keep an
+  // explicit blocklist of reserved top-level paths so non-handle pages like
+  // /about or /docs don't get misread as streamer handles.
+  if (
+    urlp.hostname === 'stream.place' ||
+    urlp.hostname === 'www.stream.place'
+  ) {
+    const reservedPaths = new Set([
+      'about',
+      'download',
+      'live',
+      'login',
+      'support',
+      'settings',
+      'go-live',
+      'embed',
+      'mobile-golive',
+      'sync-test',
+      'app-return',
+      'chat-popout',
+      'legacy',
+      'widgets',
+      'info-widget',
+      'docs',
+      'multi',
+    ])
+    const match = urlp.pathname.match(/^\/@?([a-zA-Z0-9._-]+)\/?$/)
+    if (match && !reservedPaths.has(match[1])) {
+      return {
+        type: 'streamplace_stream' as EmbedPlayerType,
+        source: 'streamplace' as EmbedPlayerSource,
+        playerUri: match[1],
+        hideDetails: false,
+      }
+    }
+  }
 }
 
 export function getPlayerAspect({
@@ -516,6 +556,8 @@ export function getPlayerAspect({
       return {height: 150}
     case 'assembly_conversation':
       return {height: 320}
+    case 'streamplace_stream':
+      return {aspectRatio: 16 / 9}
     default:
       return {aspectRatio: 16 / 9}
   }

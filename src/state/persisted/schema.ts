@@ -108,6 +108,7 @@ const schema = z.object({
       soundcloud: z.enum(externalEmbedOptions).optional(),
       flickr: z.enum(externalEmbedOptions).optional(),
       assembly: z.enum(externalEmbedOptions).optional(),
+      streamplace: z.enum(externalEmbedOptions).optional(),
     })
     .optional(),
   invites: z.object({
