@@ -68,7 +68,7 @@ export const ExternalEmbed = ({
     )
   }
 
-  if (embedPlayerParams?.source === 'tenor') {
+  if (embedPlayerParams?.source === 'tenor' || embedPlayerParams?.source === 'klipy') {
     const parsedAlt = parseAltFromGIFDescription(link.description)
     return (
       <View style={style}>

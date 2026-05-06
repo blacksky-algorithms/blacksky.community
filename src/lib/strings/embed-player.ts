@@ -23,6 +23,7 @@ export const embedPlayerSources = [
   'vimeo',
   'giphy',
   'tenor',
+  'klipy',
   'flickr',
   'assembly',
 ] as const
@@ -44,6 +45,7 @@ export type EmbedPlayerType =
   | 'vimeo_video'
   | 'giphy_gif'
   | 'tenor_gif'
+  | 'klipy_gif'
   | 'flickr_album'
   | 'assembly_conversation'
 
@@ -54,6 +56,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   twitch: 'Twitch',
   giphy: 'GIPHY',
   tenor: 'Tenor',
+  klipy: 'Klipy',
   spotify: 'Spotify',
   appleMusic: 'Apple Music',
   soundcloud: 'SoundCloud',
@@ -376,6 +379,19 @@ export function parseEmbedPlayerFromUrl(
     }
   }
 
+  const klipyGif = parseKlipyGif(urlp)
+  if (klipyGif.success) {
+    const {playerUri, dimensions} = klipyGif
+    return {
+      type: 'klipy_gif',
+      source: 'klipy',
+      isGif: true,
+      hideDetails: true,
+      playerUri,
+      dimensions,
+    }
+  }
+
   const tenorGif = parseTenorGif(urlp)
   if (tenorGif.success) {
     const {playerUri, dimensions} = tenorGif
@@ -609,7 +625,83 @@ export function isTenorGifUri(url: URL | string) {
   try {
     return parseTenorGif(typeof url === 'string' ? new URL(url) : url).success
   } catch {
-    // Invalid URL
     return false
   }
+}
+
+export function parseKlipyGif(urlp: URL):
+  | {success: false}
+  | {
+      success: true
+      playerUri: string
+      dimensions: {height: number; width: number}
+    } {
+  if (urlp.hostname !== 'static.klipy.com') {
+    return {success: false}
+  }
+
+  if (!urlp.pathname.startsWith('/ii/')) {
+    return {success: false}
+  }
+
+  const h = urlp.searchParams.get('hh')
+  const w = urlp.searchParams.get('ww')
+
+  if (!h || !w) {
+    return {success: false}
+  }
+
+  const dimensions = {
+    height: Number(h),
+    width: Number(w),
+  }
+
+  if (
+    isNaN(dimensions.height) ||
+    isNaN(dimensions.width) ||
+    dimensions.height <= 0 ||
+    dimensions.width <= 0
+  ) {
+    return {success: false}
+  }
+
+  const playerUrl = new URL(urlp.href)
+  playerUrl.hostname = 'k.gifs.bsky.app'
+
+  if (IS_WEB) {
+    const mp4Slug = playerUrl.searchParams.get('mp4')
+    const webmSlug = playerUrl.searchParams.get('webm')
+    if (IS_WEB_SAFARI) {
+      if (mp4Slug) {
+        playerUrl.pathname = playerUrl.pathname.replace(/\.[^.]+$/, '.mp4')
+      }
+    } else {
+      if (webmSlug) {
+        playerUrl.pathname = playerUrl.pathname.replace(/\.[^.]+$/, '.webm')
+      }
+    }
+  }
+
+  playerUrl.searchParams.delete('hh')
+  playerUrl.searchParams.delete('ww')
+  playerUrl.searchParams.delete('mp4')
+  playerUrl.searchParams.delete('webm')
+
+  return {
+    success: true,
+    playerUri: playerUrl.toString(),
+    dimensions,
+  }
+}
+
+export function isKlipyGifUri(url: URL | string) {
+  try {
+    return parseKlipyGif(typeof url === 'string' ? new URL(url) : url).success
+  } catch {
+    return false
+  }
+}
+
+export function isGifEmbed(url: URL | string) {
+  return isTenorGifUri(url) || isKlipyGifUri(url)
 }
