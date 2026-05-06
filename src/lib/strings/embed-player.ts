@@ -669,17 +669,18 @@ export function parseKlipyGif(urlp: URL):
   playerUrl.hostname = 'k.gifs.bsky.app'
 
   if (IS_WEB) {
-    const mp4Slug = playerUrl.searchParams.get('mp4')
     const webmSlug = playerUrl.searchParams.get('webm')
-    if (IS_WEB_SAFARI) {
-      if (mp4Slug) {
-        playerUrl.pathname = playerUrl.pathname.replace(/\.[^.]+$/, '.mp4')
-      }
-    } else {
-      if (webmSlug) {
-        playerUrl.pathname = playerUrl.pathname.replace(/\.[^.]+$/, '.webm')
-      }
+    const mp4Slug = playerUrl.searchParams.get('mp4')
+    const slug = IS_WEB_SAFARI ? mp4Slug : webmSlug
+    const ext = IS_WEB_SAFARI ? 'mp4' : 'webm'
+
+    if (!slug) {
+      return {success: false}
     }
+
+    const parts = playerUrl.pathname.split('/')
+    parts[parts.length - 1] = `${slug}.${ext}`
+    playerUrl.pathname = parts.join('/')
   }
 
   playerUrl.searchParams.delete('hh')
