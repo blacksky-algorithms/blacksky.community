@@ -12,7 +12,10 @@ export const RQKEY_LINK = (url: string) => [RQKEY_LINK_ROOT, url]
 export const RQKEY_GIF_ROOT = 'resolve-gif'
 export const RQKEY_GIF = (url: string) => [RQKEY_GIF_ROOT, url]
 
-export function useResolveLinkQuery(url: string) {
+export function useResolveLinkQuery(
+  url: string,
+  options?: {enabled?: boolean},
+) {
   const agent = useAgent()
 
   return useQuery({
@@ -21,6 +24,7 @@ export function useResolveLinkQuery(url: string) {
     queryFn: async () => {
       return await resolveLink(agent, url)
     },
+    enabled: options?.enabled ?? true,
   })
 }
 export function fetchResolveLinkQuery(

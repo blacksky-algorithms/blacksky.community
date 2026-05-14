@@ -22,6 +22,7 @@ export interface LinkMeta {
   title?: string
   description?: string
   image?: string
+  associatedRecord?: string
 }
 
 export async function getLinkMeta(
@@ -88,6 +89,9 @@ export async function getLinkMeta(
     meta.description = body.description
     meta.image = body.image
     meta.title = body.title
+    if (typeof body.associated_record === 'string' && body.associated_record) {
+      meta.associatedRecord = body.associated_record
+    }
     if (shouldFollowRedirect) {
       meta.url = body.url
     }

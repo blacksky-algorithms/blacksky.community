@@ -94,6 +94,7 @@ export const ExternalEmbedLink = ({
               description: data.description,
               thumb: data.thumb?.source.path,
             }}
+            associatedRecord={data.associatedRecord}
             hideAlt
           />
         )
@@ -132,10 +133,14 @@ export const ExternalEmbedLink = ({
     return null
   }
 
+  const isInteractive =
+    data?.type === 'external' && Boolean(data.associatedRecord)
   return (
     <View style={[a.mb_xl, a.overflow_hidden, t.atoms.border_contrast_medium]}>
       {linkComponent ? (
-        <View style={{pointerEvents: 'none'}}>{linkComponent}</View>
+        <View style={{pointerEvents: isInteractive ? 'auto' : 'none'}}>
+          {linkComponent}
+        </View>
       ) : error ? (
         <Container style={[a.align_start, a.p_md, a.gap_xs]}>
           <Text numberOfLines={1} style={t.atoms.text_contrast_high}>

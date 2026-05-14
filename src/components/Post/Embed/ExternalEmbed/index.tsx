@@ -11,27 +11,32 @@ import {shareUrl} from '#/lib/sharing'
 import {parseEmbedPlayerFromUrl} from '#/lib/strings/embed-player'
 import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {useExternalEmbedsPrefs} from '#/state/preferences'
+import {useResolveLinkQuery} from '#/state/queries/resolve-link'
 import {atoms as a, useTheme} from '#/alf'
 import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+import {parseStandardDocumentUri} from '#/types/standard-site'
 import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
 import {GifEmbed} from './Gif'
+import {StandardSiteEmbed} from './StandardSiteEmbed'
 
 export const ExternalEmbed = ({
   link,
   onOpen,
   style,
   hideAlt,
+  associatedRecord,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
+  associatedRecord?: string
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -60,11 +65,33 @@ export const ExternalEmbed = ({
     }
   }, [link.uri, playHaptic])
 
+  const lookup = useResolveLinkQuery(link.uri, {
+    enabled: !associatedRecord && !embedPlayerParams,
+  })
+  const lookupAssociatedRecord =
+    lookup.data?.type === 'external' ? lookup.data.associatedRecord : undefined
+  const effectiveAssociatedRecord = associatedRecord ?? lookupAssociatedRecord
+  const standardDocumentUri = parseStandardDocumentUri(
+    effectiveAssociatedRecord,
+  )
+    ? effectiveAssociatedRecord
+    : undefined
+
   if (embedPlayerParams?.type === 'assembly_conversation') {
     return (
       <View style={style}>
         <AssemblyEmbed link={link} params={embedPlayerParams} />
       </View>
+    )
+  }
+
+  if (standardDocumentUri) {
+    return (
+      <StandardSiteEmbed
+        link={link}
+        atUri={standardDocumentUri}
+        style={style}
+      />
     )
   }
 
