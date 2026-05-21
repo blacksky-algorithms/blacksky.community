@@ -7,6 +7,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {useLingui} from '@lingui/react/macro'
 import * as Sentry from '@sentry/react-native'
 
+import {BrandProvider, useBrand} from '#/lib/community/BrandContext'
 import {QueryProvider} from '#/lib/react-query'
 import {ThemeProvider} from '#/lib/ThemeContext'
 import {Provider as TranslateOnDeviceProvider} from '#/lib/translation'
@@ -95,6 +96,7 @@ function InnerApp() {
   const {currentAccount} = useSession()
   const {resumeSession, login} = useSessionApi()
   const theme = useColorModeTheme()
+  const brand = useBrand()
   const {t: l} = useLingui()
   const hasCheckedReferrer = useStarterPackEntry()
 
@@ -156,7 +158,12 @@ function InnerApp() {
   }, [l])
 
   return (
-    <Alf theme={theme}>
+    <Alf
+      theme={theme}
+      brandColors={brand.theme.brand}
+      brandHue={brand.theme.hue}
+      brandBgHue={brand.theme.bgHue}
+      brandColorScale={brand.theme.colorScale}>
       <ThemeProvider theme={theme}>
         <ContextMenuProvider>
           <Splash isReady={isReady && hasCheckedReferrer}>
@@ -238,31 +245,33 @@ function App() {
    * that is set up in the InnerApp component above.
    */
   return (
-    <A11yProvider>
-      <OnboardingProvider>
-        <AnalyticsContext>
-          <SessionProvider>
-            <PrefsStateProvider>
-              <I18nProvider>
-                <ShellStateProvider>
-                  <ModalStateProvider>
-                    <DialogStateProvider>
-                      <LightboxStateProvider>
-                        <PortalProvider>
-                          <StarterPackProvider>
-                            <InnerApp />
-                          </StarterPackProvider>
-                        </PortalProvider>
-                      </LightboxStateProvider>
-                    </DialogStateProvider>
-                  </ModalStateProvider>
-                </ShellStateProvider>
-              </I18nProvider>
-            </PrefsStateProvider>
-          </SessionProvider>
-        </AnalyticsContext>
-      </OnboardingProvider>
-    </A11yProvider>
+    <BrandProvider>
+      <A11yProvider>
+        <OnboardingProvider>
+          <AnalyticsContext>
+            <SessionProvider>
+              <PrefsStateProvider>
+                <I18nProvider>
+                  <ShellStateProvider>
+                    <ModalStateProvider>
+                      <DialogStateProvider>
+                        <LightboxStateProvider>
+                          <PortalProvider>
+                            <StarterPackProvider>
+                              <InnerApp />
+                            </StarterPackProvider>
+                          </PortalProvider>
+                        </LightboxStateProvider>
+                      </DialogStateProvider>
+                    </ModalStateProvider>
+                  </ShellStateProvider>
+                </I18nProvider>
+              </PrefsStateProvider>
+            </SessionProvider>
+          </AnalyticsContext>
+        </OnboardingProvider>
+      </A11yProvider>
+    </BrandProvider>
   )
 }
 

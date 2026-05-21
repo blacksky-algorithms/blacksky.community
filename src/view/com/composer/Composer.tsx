@@ -64,6 +64,7 @@ import {EmbeddingDisabledError} from '#/lib/api/resolve'
 import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
 import {until} from '#/lib/async/until'
+import {useBrand} from '#/lib/community/BrandContext'
 import {
   MAX_DRAFT_GRAPHEME_LENGTH,
   MAX_GRAPHEME_LENGTH,
@@ -1382,6 +1383,7 @@ let ComposerPost = memo(function ComposerPost({
   const {currentAccount} = useSession()
   const currentDid = currentAccount!.did
   const {t: l} = useLingui()
+  const brand = useBrand()
   const {data: currentProfile} = useProfileQuery({did: currentDid})
   const richtext = post.richtext
   const isTextOnly = !post.embed.link && !post.embed.quote && !post.embed.media
@@ -1390,7 +1392,7 @@ let ComposerPost = memo(function ComposerPost({
     ? isFirstPost
       ? l`Write your reply`
       : l`Add another post`
-    : l`What's up?`
+    : brand.messages.composerPlaceholder
   const discardPromptControl = Prompt.usePromptControl()
 
   const dispatchPost = useCallback(
@@ -1594,6 +1596,7 @@ function ComposerTopBar({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
+  const brand = useBrand()
 
   return (
     <Animated.View
@@ -1679,9 +1682,11 @@ function ComposerTopBar({
                 {isReply ? (
                   <Trans context="action">Reply</Trans>
                 ) : isThread ? (
-                  <Trans context="action">Post All</Trans>
+                  <Trans context="action">
+                    {brand.messages.postButtonLabel} All
+                  </Trans>
                 ) : (
-                  <Trans context="action">Post</Trans>
+                  brand.messages.postButtonLabel
                 )}
               </ButtonText>
             </Button>

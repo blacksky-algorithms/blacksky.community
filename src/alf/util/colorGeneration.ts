@@ -1,6 +1,8 @@
 import {logger} from '#/logger'
 
-export const BLUE_HUE = 240
+export const DEFAULT_BLUE_HUE = 240
+/** @deprecated Use DEFAULT_BLUE_HUE instead */
+export const BLUE_HUE = DEFAULT_BLUE_HUE
 export const RED_HUE = 0
 export const GREEN_HUE = 80
 

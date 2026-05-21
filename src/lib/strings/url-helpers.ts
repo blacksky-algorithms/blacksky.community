@@ -2,17 +2,37 @@ import {AtUri} from '@atproto/api'
 import psl from 'psl'
 import TLDs from 'tlds'
 
+import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {BSKY_SERVICE} from '#/lib/constants'
 import {isInvalidHandle} from '#/lib/strings/handles'
 import {startUriToStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
 
-export const BSKY_APP_HOST = 'https://blacksky.community'
+export const BSKY_APP_HOST = DEFAULT_BRAND_CONFIG.web.domains.main
+
+function extractHost(url: string): string {
+  try {
+    return new URL(url).host
+  } catch {
+    return url.replace(/^https?:\/\//, '')
+  }
+}
+
+const _mainHost = extractHost(DEFAULT_BRAND_CONFIG.web.domains.main).replace(
+  /[.*+?^${}()|[\]\\]/g,
+  '\\$&',
+)
+const _shortlinkHost = DEFAULT_BRAND_CONFIG.web.domains.shortlink
+  ? extractHost(DEFAULT_BRAND_CONFIG.web.domains.shortlink).replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    )
+  : null
+
 const BSKY_TRUSTED_HOSTS = [
-  'blacksky\\.community',
-  'staging\\.blacksky\\.community',
-  'blacksky\\.app',
-  'blackskyweb\\.xyz',
+  _mainHost,
+  `staging\\.${_mainHost}`,
+  ...(_shortlinkHost ? [_shortlinkHost] : []),
   'rsky\\.dev',
   'tektite\\.cc',
   'opencollective\\.com',
@@ -60,8 +80,12 @@ export function makeRecordUri(
 export function toNiceDomain(url: string): string {
   try {
     const urlp = new URL(url)
-    if (`https://${urlp.host}` === BSKY_SERVICE) {
-      return 'Blacksky Algorithms'
+    const normalized = `https://${urlp.host}`
+    if (
+      normalized === BSKY_SERVICE ||
+      normalized === DEFAULT_BRAND_CONFIG.services.pds
+    ) {
+      return DEFAULT_BRAND_CONFIG.metadata.displayName
     }
     return urlp.host ? urlp.host : url
   } catch (e) {
@@ -88,7 +112,7 @@ export function toShortUrl(url: string): string {
 
 export function toShareUrl(url: string): string {
   if (!url.startsWith('https')) {
-    const urlp = new URL('https://blacksky.community')
+    const urlp = new URL(BSKY_APP_HOST)
     urlp.pathname = url
     url = urlp.toString()
   }
@@ -100,10 +124,11 @@ export function toBskyAppUrl(url: string): string {
 }
 
 export function isBskyAppUrl(url: string): boolean {
+  const mainDomain = DEFAULT_BRAND_CONFIG.web.domains.main
   return (
     url.startsWith('https://bsky.app/') ||
-    url.startsWith('https://blacksky.community/') ||
-    url.startsWith('https://staging.blacksky.community/')
+    url.startsWith(`${mainDomain}/`) ||
+    url.startsWith(`${mainDomain.replace('https://', 'https://staging.')}/`)
   )
 }
 
@@ -112,13 +137,7 @@ export function isRelativeUrl(url: string): boolean {
 }
 
 export function isBskyRSSUrl(url: string): boolean {
-  return (
-    (url.startsWith('https://bsky.app/') ||
-      url.startsWith('https://blacksky.community/') ||
-      url.startsWith('https://staging.blacksky.community/') ||
-      isRelativeUrl(url)) &&
-    /\/rss\/?$/.test(url)
-  )
+  return (isBskyAppUrl(url) || isRelativeUrl(url)) && /\/rss\/?$/.test(url)
 }
 
 export function isExternalUrl(url: string): boolean {
@@ -348,11 +367,17 @@ export function createProxiedUrl(url: string): string {
     return url
   }
 
-  return `https://go.blacksky.community/redirect?u=${encodeURIComponent(url)}`
+  const shortlinkDomain =
+    DEFAULT_BRAND_CONFIG.web.domains.shortlink ||
+    'https://go.blacksky.community'
+  return `${shortlinkDomain}/redirect?u=${encodeURIComponent(url)}`
 }
 
 export function isShortLink(url: string): boolean {
-  return url.startsWith('https://go.blacksky.community/')
+  const shortlinkDomain =
+    DEFAULT_BRAND_CONFIG.web.domains.shortlink ||
+    'https://go.blacksky.community'
+  return url.startsWith(`${shortlinkDomain}/`)
 }
 
 export function shortLinkToHref(url: string): string {

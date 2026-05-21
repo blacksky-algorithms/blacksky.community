@@ -1,6 +1,7 @@
 import {createContext, useCallback, useContext, useMemo, useState} from 'react'
 import {type Theme, type ThemeName} from '@bsky.app/alf'
 
+import {type BrandColors} from '#/lib/community/types'
 import {
   computeFontScaleMultiplier,
   getFontFamily,
@@ -8,7 +9,8 @@ import {
   setFontFamily as persistFontFamily,
   setFontScale as persistFontScale,
 } from '#/alf/fonts'
-import {themes} from '#/alf/themes'
+import {createThemes, themes} from '#/alf/themes'
+import {DEFAULT_BLUE_HUE, GREEN_HUE, RED_HUE} from '#/alf/util/colorGeneration'
 import {type Device} from '#/storage'
 
 export {
@@ -64,7 +66,17 @@ Context.displayName = 'AlfContext'
 export function ThemeProvider({
   children,
   theme: themeName,
-}: React.PropsWithChildren<{theme: ThemeName}>) {
+  brandColors,
+  brandHue,
+  brandBgHue,
+  brandColorScale,
+}: React.PropsWithChildren<{
+  theme: ThemeName
+  brandColors?: BrandColors
+  brandHue?: number
+  brandBgHue?: number
+  brandColorScale?: Record<string, string>
+}>) {
   const [fontScale, setFontScale] = useState<Alf['fonts']['scale']>(() =>
     getFontScale(),
   )
@@ -90,11 +102,28 @@ export function ThemeProvider({
     [setFontFamily],
   )
 
+  const resolvedThemes = useMemo(
+    () =>
+      brandColors
+        ? createThemes({
+            hues: {
+              primary: brandHue ?? DEFAULT_BLUE_HUE,
+              negative: RED_HUE,
+              positive: GREEN_HUE,
+              bg: brandBgHue ?? brandHue ?? DEFAULT_BLUE_HUE,
+            },
+            brand: brandColors,
+            colorScale: brandColorScale,
+          })
+        : themes,
+    [brandColors, brandHue, brandBgHue, brandColorScale],
+  )
+
   const value = useMemo<Alf>(
     () => ({
-      themes,
+      themes: resolvedThemes,
       themeName: themeName,
-      theme: themes[themeName],
+      theme: resolvedThemes[themeName],
       fonts: {
         scale: fontScale,
         scaleMultiplier: fontScaleMultiplier,
@@ -105,6 +134,7 @@ export function ThemeProvider({
       flags: {},
     }),
     [
+      resolvedThemes,
       themeName,
       fontScale,
       setFontScaleAndPersist,

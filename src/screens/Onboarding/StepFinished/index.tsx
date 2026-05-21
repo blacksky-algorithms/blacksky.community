@@ -3,6 +3,7 @@ import {View} from 'react-native'
 import {
   type AppBskyActorDefs,
   type AppBskyActorProfile,
+  type AppBskyGraphDefs,
   type Un$Typed,
 } from '@atproto/api'
 import {TID} from '@atproto/common-web'
@@ -12,20 +13,21 @@ import {Trans} from '@lingui/react/macro'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
-import {
-  BLACKSKY_COMMUNITY_DID,
-  BSKY_APP_ACCOUNT_DID,
-  DISCOVER_SAVED_FEED,
-  TIMELINE_SAVED_FEED,
-  VIDEO_SAVED_FEED,
-} from '#/lib/constants'
+import {useBrand} from '#/lib/community/BrandContext'
+import {BLACKSKY_COMMUNITY_DID, BSKY_APP_ACCOUNT_DID} from '#/lib/constants'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {logger} from '#/logger'
+import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
+import {getAllListMembers} from '#/state/queries/list-members'
 import {preferencesQueryKey} from '#/state/queries/preferences'
 import {RQKEY as profileRQKey} from '#/state/queries/profile'
 import {useAgent} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
 import {useProgressGuideControls} from '#/state/shell/progress-guide'
+import {
+  useActiveStarterPack,
+  useSetActiveStarterPack,
+} from '#/state/shell/starter-pack'
 import {
   OnboardingControls,
   OnboardingHeaderSlot,
@@ -34,7 +36,11 @@ import {
   type OnboardingState,
   useOnboardingInternalState,
 } from '#/screens/Onboarding/state'
-import {bulkWriteFollows} from '#/screens/Onboarding/util'
+import {
+  bulkWriteFollows,
+  resolveFollowDids,
+  resolveStarterPackUri,
+} from '#/screens/Onboarding/util'
 import {atoms as a, useBreakpoints} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {ArrowRight_Stroke2_Corner0_Rounded as ArrowRight} from '#/components/icons/Arrow'
@@ -51,36 +57,71 @@ export function StepFinished() {
   const queryClient = useQueryClient()
   const agent = useAgent()
   const requestNotificationsPermission = useRequestNotificationsPermission()
+  const brand = useBrand()
+  const activeStarterPack = useActiveStarterPack()
+  const setActiveStarterPack = useSetActiveStarterPack()
+  const setHasCheckedForStarterPack = useSetHasCheckedForStarterPack()
   const {startProgressGuide} = useProgressGuideControls()
 
   const finishOnboarding = useCallback(async () => {
     setSaving(true)
+
+    let starterPack: AppBskyGraphDefs.StarterPackView | undefined
+    let listItems: AppBskyGraphDefs.ListItemView[] | undefined
+
+    // Use the active starter pack (from link) or fall back to community config default
+    const starterPackUri = resolveStarterPackUri(activeStarterPack?.uri, brand)
+
+    if (starterPackUri) {
+      try {
+        const spRes = await agent.app.bsky.graph.getStarterPack({
+          starterPack: starterPackUri,
+        })
+        starterPack = spRes.data.starterPack
+      } catch (e) {
+        logger.error('Failed to fetch starter pack', {safeMessage: e})
+        // don't tell the user, just get them through onboarding.
+      }
+      try {
+        if (starterPack?.list) {
+          listItems = await getAllListMembers(agent, starterPack.list.uri)
+        }
+      } catch (e) {
+        logger.error('Failed to fetch starter pack list items', {
+          safeMessage: e,
+        })
+        // don't tell the user, just get them through onboarding.
+      }
+    }
 
     try {
       const {interestsStepResults, profileStepResults} = state
       const {selectedInterests} = interestsStepResults
 
       await Promise.all([
-        bulkWriteFollows(agent, [BSKY_APP_ACCOUNT_DID, BLACKSKY_COMMUNITY_DID]),
+        bulkWriteFollows(
+          agent,
+          resolveFollowDids(
+            [BSKY_APP_ACCOUNT_DID, BLACKSKY_COMMUNITY_DID],
+            brand,
+            listItems?.map(i => i.subject.did) ?? [],
+          ),
+          starterPack
+            ? {uri: starterPack.uri, cid: starterPack.cid}
+            : undefined,
+        ),
         (async () => {
           // Interests need to get saved first, then we can write the feeds to prefs
           await agent.setInterestsPref({tags: selectedInterests})
 
-          // Default feeds that every user should have pinned when landing in the app
-          const feedsToSave: AppBskyActorDefs.SavedFeed[] = [
-            {
-              ...DISCOVER_SAVED_FEED,
+          // Default feeds that every user should have pinned when landing in
+          // the app, sourced from the active brand config so non-Blacksky
+          // brands don't end up with Blacksky's feed URIs after onboarding.
+          const feedsToSave: AppBskyActorDefs.SavedFeed[] =
+            brand.feeds.defaultPinned.map(f => ({
+              ...f,
               id: TID.nextStr(),
-            },
-            {
-              ...TIMELINE_SAVED_FEED,
-              id: TID.nextStr(),
-            },
-            {
-              ...VIDEO_SAVED_FEED,
-              id: TID.nextStr(),
-            },
-          ]
+            }))
 
           await agent.overwriteSavedFeeds(feedsToSave)
         })(),
@@ -139,6 +180,8 @@ export function StepFinished() {
     })
 
     setSaving(false)
+    setActiveStarterPack(undefined)
+    setHasCheckedForStarterPack(true)
     startProgressGuide('follow-10')
     dispatch({type: 'finish'})
     onboardDispatch({type: 'finish'})
@@ -151,6 +194,7 @@ export function StepFinished() {
     ax,
     queryClient,
     agent,
+    brand,
     dispatch,
     onboardDispatch,
     state,

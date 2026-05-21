@@ -36,10 +36,11 @@ import (
 )
 
 type Server struct {
-	echo  *echo.Echo
-	httpd *http.Server
-	xrpcc *xrpc.Client
-	cfg   *Config
+	echo        *echo.Echo
+	httpd       *http.Server
+	xrpcc       *xrpc.Client
+	cfg         *Config
+	brandClient *BrandConfigClient // nil when using local file mode
 
 	ipccClient http.Client
 
@@ -50,13 +51,15 @@ type Server struct {
 }
 
 type Config struct {
-	debug         bool
-	httpAddress   string
-	appviewHost   string
-	ogcardHost    string
-	linkHost      string
-	ipccHost      string
-	staticCDNHost string
+	debug             bool
+	httpAddress       string
+	appviewHost       string
+	ogcardHost        string
+	linkHost          string
+	ipccHost          string
+	staticCDNHost     string
+	brandHostOverride string
+	brand             BrandConfig
 }
 
 func serve(cctx *cli.Context) error {
@@ -70,8 +73,19 @@ func serve(cctx *cli.Context) error {
 	corsOrigins := cctx.StringSlice("cors-allowed-origins")
 	staticCDNHost := cctx.String("static-cdn-host")
 	staticCDNHost = strings.TrimSuffix(staticCDNHost, "/")
+	brandConfigPath := cctx.String("brand-config")
 	canonicalInstance := cctx.Bool("bsky-canonical-instance")
+	frameAncestors := cctx.StringSlice("frame-ancestors")
 	robotsDisallowAll := cctx.Bool("robots-disallow-all")
+
+	brandHostOverride := cctx.String("brand-host-override")
+	brandCfg := LoadBrandConfig(brandConfigPath)
+
+	configAPIURL := cctx.String("config-api-url")
+	var brandClient *BrandConfigClient
+	if configAPIURL != "" {
+		brandClient = NewBrandConfigClient(configAPIURL, 60*time.Second)
+	}
 
 	// Echo
 	e := echo.New()
@@ -105,8 +119,9 @@ func serve(cctx *cli.Context) error {
 	// server
 	//
 	server := &Server{
-		echo:  e,
-		xrpcc: xrpcc,
+		echo:        e,
+		xrpcc:       xrpcc,
+		brandClient: brandClient,
 		cfg: &Config{
 			debug:         debug,
 			httpAddress:   httpAddress,
@@ -114,7 +129,9 @@ func serve(cctx *cli.Context) error {
 			ogcardHost:    ogcardHost,
 			linkHost:      linkHost,
 			ipccHost:      ipccHost,
-			staticCDNHost: staticCDNHost,
+			staticCDNHost:     staticCDNHost,
+			brandHostOverride: brandHostOverride,
+			brand:             brandCfg,
 		},
 		ipccClient: http.Client{
 			Transport: &http.Transport{
@@ -151,14 +168,18 @@ func serve(cctx *cli.Context) error {
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	// SECURITY: Do not modify without due consideration.
-	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+	secureConfig := middleware.SecureConfig{
 		ContentTypeNosniff: "nosniff",
 		XFrameOptions:      "SAMEORIGIN",
 		HSTSMaxAge:         31536000, // 365 days
 		// TODO:
-		// ContentSecurityPolicy
 		// XSSProtection
-	}))
+	}
+	if len(frameAncestors) > 0 {
+		secureConfig.XFrameOptions = ""
+		secureConfig.ContentSecurityPolicy = "frame-ancestors 'self' " + strings.Join(frameAncestors, " ")
+	}
+	e.Use(middleware.SecureWithConfig(secureConfig))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		// Don't log requests for static content.
 		Skipper: func(c echo.Context) bool {
@@ -239,6 +260,9 @@ func serve(cctx *cli.Context) error {
 	} else {
 		e.GET("/robots.txt", echo.WrapHandler(staticHandler))
 	}
+
+	// PWA manifest (generated dynamically from brand config)
+	e.GET("/manifest.json", server.WebManifest)
 
 	// OAuth client metadata (generated dynamically from request host)
 	e.GET("/oauth-client-metadata.json", server.OAuthClientMetadata)
@@ -419,12 +443,78 @@ func (srv *Server) Shutdown() error {
 	return srv.httpd.Shutdown(ctx)
 }
 
-// NewTemplateContext returns a new pongo2 context with some default values.
-func (srv *Server) NewTemplateContext() pongo2.Context {
-	return pongo2.Context{
-		"staticCDNHost": srv.cfg.staticCDNHost,
-		"favicon":       fmt.Sprintf("%s/static/favicon.png", srv.cfg.staticCDNHost),
+// stripPort removes the port suffix from a Host header value.
+func stripPort(host string) string {
+	if idx := strings.LastIndex(host, ":"); idx != -1 {
+		return host[:idx]
 	}
+	return host
+}
+
+func (srv *Server) resolveBrand(r *http.Request) (BrandConfig, json.RawMessage) {
+	if srv.brandClient == nil {
+		return srv.cfg.brand, nil
+	}
+
+	host := srv.cfg.brandHostOverride
+	if host == "" {
+		host = stripPort(r.Host)
+	}
+
+	// Preview mode — uses a scoped, short-lived preview token (not the master API key).
+	if r.URL.Query().Get("preview") == "true" {
+		token := r.URL.Query().Get("token")
+		if token == "" {
+			if cookie, err := r.Cookie("admin_token"); err == nil {
+				token = cookie.Value
+			}
+		}
+		if token != "" {
+			cfg, raw, err := srv.brandClient.FetchBrandPreview(host, token)
+			if err == nil {
+				return cfg, raw
+			}
+			log.Warnf("preview fetch failed for %s: %v, falling back to published", host, err)
+		}
+	}
+
+	cfg, raw, err := srv.brandClient.FetchBrand(host)
+	if err != nil {
+		log.Warnf("brand fetch failed for %s: %v, using default", host, err)
+		return srv.cfg.brand, nil
+	}
+	return cfg, raw
+}
+
+// NewTemplateContext returns a new pongo2 context with some default values.
+func (srv *Server) NewTemplateContext(r *http.Request) pongo2.Context {
+	b, rawJSON := srv.resolveBrand(r)
+	ctx := pongo2.Context{
+		"staticCDNHost":       srv.cfg.staticCDNHost,
+		"favicon":             srv.resolveAssetURL(b.Favicon, "favicon.png"),
+		"appleTouchIcon":      srv.resolveAssetURL(b.Logo, "apple-touch-icon.png"),
+		"brandLogoDark":       srv.resolveAssetURL(b.LogoDark, "logo-dark.png"),
+		"brandLogoLight":      srv.resolveAssetURL(b.LogoLight, "logo-light.png"),
+		"brandSocialCard":     srv.resolveAssetURL(b.SocialCard, "social-card-default-gradient.png"),
+		"brandName":           b.Name,
+		"brandTitle":          b.Title,
+		"brandThemeColor":     b.ThemeColor,
+		"brandDomain":         b.Domain,
+		"brandShortlink":      b.Shortlink,
+		"brandDescription":    b.Description,
+		"brandPrimaryCTA":     b.PrimaryCTA,
+		"brandTwitterSite":    b.TwitterSite,
+		"brandBgLight":        b.BgLight,
+		"brandBgDark":         b.BgDark,
+		"brandBgDim":          b.BgDim,
+		"brandSelectionLight": b.SelectionLight,
+		"brandSelectionDark":  b.SelectionDark,
+		"brandHue":            b.BrandHue,
+	}
+	if rawJSON != nil {
+		ctx["brandConfigJSON"] = string(rawJSON)
+	}
+	return ctx
 }
 
 func (srv *Server) errorHandler(err error, c echo.Context) {
@@ -433,12 +523,23 @@ func (srv *Server) errorHandler(err error, c echo.Context) {
 		code = he.Code
 	}
 	c.Logger().Error(err)
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 	data["statusCode"] = code
 	c.Render(code, "error.html", data)
 }
 
+// resolveAssetURL returns brandValue if non-empty, otherwise the static CDN
+// default at the given path (e.g. "favicon.png" -> "{staticCDNHost}/static/favicon.png").
+func (srv *Server) resolveAssetURL(brandValue, staticPath string) string {
+	if brandValue != "" {
+		return brandValue
+	}
+	return fmt.Sprintf("%s/static/%s", srv.cfg.staticCDNHost, staticPath)
+}
+
 // Handler for redirecting to the download page.
+// TODO(multi-brand): Store URLs should come from brand config once the
+// app is published under the Blacksky brand in app stores.
 func (srv *Server) Download(c echo.Context) error {
 	ua := c.Request().UserAgent()
 	if strings.Contains(ua, "Android") {
@@ -476,6 +577,34 @@ func (srv *Server) LinkProxyMiddleware(url *url.URL) echo.MiddlewareFunc {
 	)
 }
 
+// WebManifest returns a dynamically generated PWA manifest with brand-specific
+// name, theme color, and icon URLs.
+func (srv *Server) WebManifest(c echo.Context) error {
+	b, _ := srv.resolveBrand(c.Request())
+
+	type manifestIcon struct {
+		Src   string `json:"src"`
+		Sizes string `json:"sizes"`
+	}
+
+	manifest := map[string]interface{}{
+		"display":          "standalone",
+		"lang":             "en",
+		"name":             b.Name,
+		"short_name":       b.Name,
+		"start_url":        "/",
+		"theme_color":      b.ThemeColor,
+		"background_color": b.BgDark,
+		"icons": []manifestIcon{
+			{Src: srv.resolveAssetURL(b.Logo, "apple-touch-icon.png"), Sizes: "512x512"},
+			{Src: srv.resolveAssetURL(b.Favicon, "favicon.png"), Sizes: "32x32"},
+		},
+	}
+
+	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
+	return c.JSON(http.StatusOK, manifest)
+}
+
 // handler for endpoint that have no specific server-side handling
 func (srv *Server) OAuthClientMetadata(c echo.Context) error {
 	scheme := "https"
@@ -483,10 +612,20 @@ func (srv *Server) OAuthClientMetadata(c echo.Context) error {
 		scheme = "http"
 	}
 	baseURL := fmt.Sprintf("%s://%s", scheme, c.Request().Host)
+	brand, raw := srv.resolveBrand(c.Request())
+
+	// In multi-brand mode, only serve metadata for recognized brands.
+	// Without this, wildcard DNS lets any subdomain become a valid OAuth client.
+	if srv.brandClient != nil && raw == nil {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error":             "unknown_client",
+			"error_description": "no brand configuration found for this host",
+		})
+	}
 
 	metadata := map[string]interface{}{
 		"client_id":                    baseURL + "/oauth-client-metadata.json",
-		"client_name":                  "Blacksky Community",
+		"client_name":                  brand.Name,
 		"client_uri":                   baseURL,
 		"redirect_uris":               []string{baseURL + "/auth/web/callback"},
 		"scope":                        "atproto transition:generic transition:email transition:chat.bsky identity:handle account:email?action=manage account:status?action=manage",
@@ -524,12 +663,12 @@ func (srv *Server) OAuthClientMetadataNative(c echo.Context) error {
 }
 
 func (srv *Server) WebGeneric(c echo.Context) error {
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 	return c.Render(http.StatusOK, "base.html", data)
 }
 
 func (srv *Server) WebHome(c echo.Context) error {
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 	return c.Render(http.StatusOK, "home.html", data)
 }
 
@@ -547,7 +686,7 @@ var hideEmbedLabels = map[string]bool{
 
 func (srv *Server) WebPost(c echo.Context) error {
 	ctx := c.Request().Context()
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 
 	// sanity check arguments. don't 4xx, just let app handle if not expected format
 	rkeyParam := c.Param("rkey")
@@ -679,7 +818,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 func (srv *Server) WebStarterPack(c echo.Context) error {
 	req := c.Request()
 	ctx := req.Context()
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 	// sanity check arguments. don't 4xx, just let app handle if not expected format
 	rkeyParam := c.Param("rkey")
@@ -717,7 +856,7 @@ func (srv *Server) WebStarterPack(c echo.Context) error {
 
 func (srv *Server) WebProfile(c echo.Context) error {
 	ctx := c.Request().Context()
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 
 	// sanity check arguments. don't 4xx, just let app handle if not expected format
 	handleOrDIDParam := c.Param("handleOrDID")
@@ -753,7 +892,7 @@ func (srv *Server) WebProfile(c echo.Context) error {
 
 func (srv *Server) WebFeed(c echo.Context) error {
 	ctx := c.Request().Context()
-	data := srv.NewTemplateContext()
+	data := srv.NewTemplateContext(c.Request())
 
 	// sanity check arguments. don't 4xx, just let app handle if not expected format
 	rkeyParam := c.Param("rkey")

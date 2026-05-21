@@ -3,6 +3,7 @@ import {ActivityIndicator, StyleSheet} from 'react-native'
 import {withSpring} from 'react-native-reanimated'
 import {useFocusEffect} from '@react-navigation/native'
 
+import {useBrand} from '#/lib/community/BrandContext'
 import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
@@ -107,6 +108,7 @@ function HomeScreenReady({
   pinnedFeedInfos: SavedFeedSourceInfo[]
 }) {
   const ax = useAnalytics()
+  const brand = useBrand()
   const allFeeds = useMemo(
     () => pinnedFeedInfos.map(f => f.feedDescriptor),
     [pinnedFeedInfos],
@@ -211,7 +213,10 @@ function HomeScreenReady({
             testID="homeScreenFeedTabs"
             onPressSelected={onPressSelected}
             // @ts-ignore
-            feeds={[{displayName: 'Following'}, {displayName: 'Discover'}]}
+            feeds={[
+              {displayName: 'Following'},
+              {displayName: brand.metadata.displayName},
+            ]}
           />
         )
       }
@@ -225,7 +230,7 @@ function HomeScreenReady({
         />
       )
     },
-    [onPressSelected, pinnedFeedInfos, demoMode],
+    [onPressSelected, pinnedFeedInfos, demoMode, brand.metadata.displayName],
   )
 
   const renderFollowingEmptyState = useCallback(() => {
@@ -326,14 +331,28 @@ function HomeScreenReady({
       onPageSelected={onPageSelected}
       onPageScrollStateChanged={onPageScrollStateChanged}
       renderTabBar={renderTabBar}>
-      <FeedPage
-        testID="customFeedPage"
-        isPageFocused
-        isPageAdjacent={false}
-        feed={`feedgen|${PROD_DEFAULT_FEED('blacksky-trend')}`}
-        renderEmptyState={renderCustomFeedEmptyState}
-        feedInfo={pinnedFeedInfos[0]}
-      />
+      {pinnedFeedInfos.length > 0 ? (
+        pinnedFeedInfos.map((feedInfo, index) => (
+          <FeedPage
+            key={feedInfo.feedDescriptor}
+            testID="customFeedPage"
+            isPageFocused={selectedIndex === index}
+            isPageAdjacent={Math.abs(selectedIndex - index) === 1}
+            feed={feedInfo.feedDescriptor}
+            renderEmptyState={renderCustomFeedEmptyState}
+            feedInfo={feedInfo}
+          />
+        ))
+      ) : (
+        <FeedPage
+          testID="customFeedPage"
+          isPageFocused
+          isPageAdjacent={false}
+          feed={`feedgen|${PROD_DEFAULT_FEED('blacksky-trend')}`}
+          renderEmptyState={renderCustomFeedEmptyState}
+          feedInfo={pinnedFeedInfos[0]}
+        />
+      )}
     </Pager>
   )
 }
