@@ -35,7 +35,7 @@ async function reactivateWithPassword({
   password: string
 }) {
   const agent = new AtpAgent({service: pdsUrl})
-  await agent.com.atproto.server.createSession({identifier, password})
+  await agent.login({identifier, password})
   try {
     try {
       await agent.com.atproto.server.activateAccount()
@@ -47,7 +47,7 @@ async function reactivateWithPassword({
     }
   } finally {
     try {
-      await agent.com.atproto.server.deleteSession()
+      await agent.logout()
     } catch {
       // best-effort cleanup; the throwaway session expires anyway
     }
