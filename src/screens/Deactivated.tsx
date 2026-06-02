@@ -143,7 +143,7 @@ export function Deactivated() {
         setError(_(msg`Couldn't reactivate the account. Please try again.`))
       }
 
-      logger.error(e, {
+      logger.error(e instanceof Error ? e : String(e), {
         message: 'Failed to activate account',
       })
     } finally {
