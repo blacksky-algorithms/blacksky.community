@@ -131,7 +131,7 @@ export function QrCodeInner({link}: {link: string}) {
             zIndex: 1,
             padding: 4,
           }}>
-          <Logo width={logoArea.width - 14} height={logoArea.height - 14} />
+          <Logo width={logoArea.width - 14} />
         </View>
       )}
       <QRCode

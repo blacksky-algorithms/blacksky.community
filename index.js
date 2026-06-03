@@ -9,7 +9,10 @@ import App from '#/App'
 if (process.env.NODE_ENV === 'test') {
   LogBox.ignoreAllLogs() // suppress all logs in tests
 } else {
-  LogBox.ignoreLogs(['Require cycle:']) // suppress require-cycle warnings, it's fine
+  LogBox.ignoreLogs([
+    'Require cycle:', // suppress require-cycle warnings, it's fine
+    'Maximum call stack size exceeded', // Trans/Text recursion caught by ErrorBoundary (same as upstream Bluesky)
+  ])
 }
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
