@@ -388,3 +388,15 @@ index ff8fc8a947a0aeb959e21ec061882c3d190a2ce0..34dde79727765623df80dbcdab5016de
 -    flexWrap: 'wrap',
 -  },
 -});
+diff --git a/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp b/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
+index f5f332e24f0f56522762e2b2b524a9eeff81eccc..c939b1d7e55cd4f9e44139f315c4174a5c9d6907 100644
+--- a/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
++++ b/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
+@@ -1,4 +1,7 @@
+ #include <worklets/Tools/ReanimatedJSIUtils.h>
++#include <algorithm>
++#include <iterator>
++#include <sstream>
+ #include <vector>
+ 
+ using namespace facebook;
