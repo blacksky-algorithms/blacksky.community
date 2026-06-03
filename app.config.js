@@ -46,10 +46,9 @@ module.exports = function (_config) {
     expo: {
       version: VERSION,
       name: 'Blacksky',
-      slug: 'bluesky',
+      slug: 'blacksky',
       scheme: ['blacksky', 'community.blacksky'],
-      // TODO: Phase 0 — replace with new EAS org name after `eas init`
-      owner: 'blueskysocial',
+      owner: 'blacksky-algorithms',
       runtimeVersion: {
         policy: 'appVersion',
       },
@@ -458,8 +457,7 @@ module.exports = function (_config) {
               },
             },
           },
-          // TODO: Phase 0 — replace with new EAS project ID after `eas init`
-          projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
+          projectId: '680dd4a3-7b77-4a43-8f10-f14617b73b9b',
         },
       },
     },
