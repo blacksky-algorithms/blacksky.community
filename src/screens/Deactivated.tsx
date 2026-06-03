@@ -135,11 +135,13 @@ export function Deactivated() {
         e.error === 'AuthFactorTokenRequired'
       ) {
         // PDS just emailed a code; reveal the input and let the user retry.
+        // Not a real error, so skip the error log below.
         setNeeds2fa(true)
         setError(undefined)
+        return
       } else if (
         e instanceof XRPCError &&
-        String(e.message).includes('Token is invalid')
+        e.message.includes('Token is invalid')
       ) {
         setError(_(msg`Invalid 2FA code. Please try again.`))
       } else if (
