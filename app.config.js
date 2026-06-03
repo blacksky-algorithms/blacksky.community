@@ -31,7 +31,12 @@ module.exports = function (_config) {
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
-  const UPDATES_ENABLED = IS_TESTFLIGHT || IS_PRODUCTION
+  // OTA updates are disabled: Blacksky has no update server yet. The url and
+  // code-signing cert in the `updates` block still point at Bluesky's
+  // infrastructure, so OTA must stay off until EAS Update (or a self-hosted
+  // manifest signed with a Blacksky cert) is configured. New builds ship via
+  // EAS build in the meantime.
+  const UPDATES_ENABLED = false
 
   const USE_SENTRY = Boolean(process.env.SENTRY_AUTH_TOKEN)
 
@@ -59,6 +64,7 @@ module.exports = function (_config) {
       ios: {
         supportsTablet: false,
         bundleIdentifier: 'community.blacksky.app',
+        buildNumber: process.env.BSKY_IOS_BUILD_NUMBER ?? '1',
         config: {
           usesNonExemptEncryption: false,
         },
@@ -294,6 +300,7 @@ module.exports = function (_config) {
             networkInstrumentation: true,
           },
         ],
+        './plugins/withIosEmbeddedBuildVersions.js',
         './plugins/starterPackAppClipExtension/withStarterPackAppClip.js',
         './plugins/withGradleJVMHeapSizeIncrease.js',
         './plugins/withAndroidManifestLargeHeapPlugin.js',
