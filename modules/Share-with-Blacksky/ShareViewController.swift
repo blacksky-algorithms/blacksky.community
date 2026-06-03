@@ -172,7 +172,7 @@ class ShareViewController: UIViewController {
   }
 
   private func getTempUrl(ext: String) -> URL? {
-    if let dir = FileManager().containerURL(forSecurityApplicationGroupIdentifier: "group.app.bsky") {
+    if let dir = FileManager().containerURL(forSecurityApplicationGroupIdentifier: "group.community.blacksky.app") {
       return URL(string: "\(dir.absoluteString)\(ProcessInfo.processInfo.globallyUniqueString).\(ext)")!
     }
     return nil

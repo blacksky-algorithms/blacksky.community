@@ -4,24 +4,31 @@
   <dict>
     <key>NSExtension</key>
     <dict>
-      <key>NSExtensionPointIdentifier</key>
-      <string>com.apple.usernotifications.service</string>
       <key>NSExtensionPrincipalClass</key>
-      <string>$(PRODUCT_MODULE_NAME).NotificationService</string>
+      <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
       <key>NSExtensionAttributes</key>
       <dict>
-        <key>IntentsSupported</key>
-        <array>
-          <string>INSendMessageIntent</string>
-        </array>
+        <key>NSExtensionActivationRule</key>
+        <dict>
+          <key>NSExtensionActivationSupportsText</key>
+          <true/>
+          <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+          <integer>1</integer>
+          <key>NSExtensionActivationSupportsImageWithMaxCount</key>
+          <integer>10</integer>
+          <key>NSExtensionActivationSupportsMovieWithMaxCount</key>
+          <integer>1</integer>
+        </dict>
       </dict>
+      <key>NSExtensionPointIdentifier</key>
+      <string>com.apple.share-services</string>
     </dict>
     <key>MainAppScheme</key>
-    <string>bluesky</string>
+    <string>blacksky</string>
     <key>CFBundleName</key>
     <string>$(PRODUCT_NAME)</string>
     <key>CFBundleDisplayName</key>
-    <string>Bluesky Notifications</string>
+    <string>Extension</string>
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleVersion</key>
