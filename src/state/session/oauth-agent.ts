@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Agent,
-  type AtpSessionData,
-  type ComAtprotoServerGetSession,
-} from '@atproto/api'
-import {type OAuthSession} from '@atproto/oauth-client-browser'
-
-type OutputSchema = ComAtprotoServerGetSession.OutputSchema
+import {Agent, type AtpSessionData} from '@atproto/api'
+import {type OutputSchema} from '@atproto/api/dist/client/types/com/atproto/server/getSession'
+import {type OAuthSession} from '@atproto/oauth-client'
 
 import {BLUESKY_PROXY_HEADER, BSKY_SERVICE} from '#/lib/constants'
 import {logger} from '#/logger'
 import {sessionAccountToSession} from './agent'
 import {configureModerationForAccount} from './moderation'
-import {getWebOAuthClient} from './oauth-web-client'
+import {getOAuthClient} from './oauth-client'
 import {type SessionAccount} from './types'
 
 export async function oauthCreateAgent(session: OAuthSession) {
@@ -29,7 +24,7 @@ export async function oauthCreateAgent(session: OAuthSession) {
 const OAUTH_RESTORE_TIMEOUT_MS = 10_000
 
 export async function oauthResumeSession(account: SessionAccount) {
-  const client = getWebOAuthClient()
+  const client = getOAuthClient()
   let session: OAuthSession
   try {
     session = await Promise.race([

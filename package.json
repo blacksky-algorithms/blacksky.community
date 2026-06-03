@@ -70,7 +70,7 @@
     "e2e:run": "maestro test",
     "perf:test": "NODE_ENV=test maestro test",
     "perf:test:run": "NODE_ENV=test maestro test __e2e__/perf-test.yml",
-    "perf:test:measure": "NODE_ENV=test flashlight test --bundleId xyz.blueskyweb.app --testCommand \"pnpm perf:test\" --duration 150000 --resultsFilePath .perf/results.json",
+    "perf:test:measure": "NODE_ENV=test flashlight test --bundleId community.blacksky.app --testCommand \"pnpm perf:test\" --duration 150000 --resultsFilePath .perf/results.json",
     "perf:test:results": "NODE_ENV=test flashlight report .perf/results.json",
     "perf:measure": "NODE_ENV=test flashlight measure",
     "intl:build": "pnpm intl:extract:all && pnpm intl:compile",
@@ -95,7 +95,9 @@
   },
   "dependencies": {
     "@atproto/api": "0.20.15",
+    "@atproto/oauth-client": "0.5.14",
     "@atproto/oauth-client-browser": "0.3.40",
+    "@atproto/oauth-client-expo": "^0.0.10",
     "@atproto/syntax": "0.6.1",
     "@bitdrift/react-native": "^0.6.8",
     "@braintree/sanitize-url": "^6.0.2",
@@ -318,10 +320,9 @@
     "metro-config": "0.83.3",
     "metro-runtime": "0.83.3",
     "metro-source-map": "0.83.3",
-    "@atproto/oauth-client": "0.5.14",
-    "@atproto/oauth-client-browser": "0.3.40",
     "@atproto/lexicon": "0.6.2",
-    "@atproto/common-web": "0.4.21"
+    "@atproto/common-web": "0.4.21",
+    "react-native-mmkv": "npm:@bsky.app/react-native-mmkv@2.12.5"
   },
   "jest": {
     "preset": "jest-expo/ios",
