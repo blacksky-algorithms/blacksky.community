@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-reanimated/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp b/node_modules/react-native-reanimated/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
+index f5f332e..c939b1d 100644
+--- a/node_modules/react-native-reanimated/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
++++ b/node_modules/react-native-reanimated/Common/cpp/worklets/Tools/ReanimatedJSIUtils.cpp
+@@ -1,4 +1,7 @@
+ #include <worklets/Tools/ReanimatedJSIUtils.h>
++#include <algorithm>
++#include <iterator>
++#include <sstream>
+ #include <vector>
+ 
+ using namespace facebook;
