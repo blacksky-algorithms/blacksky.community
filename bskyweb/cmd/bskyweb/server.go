@@ -617,10 +617,12 @@ func (srv *Server) resolveAssetURL(brandValue, staticPath string) string {
 func (srv *Server) Download(c echo.Context) error {
 	ua := c.Request().UserAgent()
 	if strings.Contains(ua, "Android") {
-		return c.Redirect(http.StatusFound, "https://play.google.com/store/apps/details?id=xyz.blueskyweb.app")
+		return c.Redirect(http.StatusFound, "https://play.google.com/store/apps/details?id=community.blacksky.app")
 	}
 
 	if strings.Contains(ua, "iPhone") || strings.Contains(ua, "iPad") || strings.Contains(ua, "iPod") {
+		// TODO: Phase 0/6 — replace with Blacksky's App Store Connect numeric
+		// app ID once the iOS listing is created.
 		return c.Redirect(http.StatusFound, "https://apps.apple.com/tr/app/bluesky-social/id6444370199")
 	}
 

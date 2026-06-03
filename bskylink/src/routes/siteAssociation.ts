@@ -4,18 +4,20 @@ import {AppContext} from '../context.js'
 
 export default function (ctx: AppContext, app: Express) {
   return app.get('/.well-known/apple-app-site-association', (req, res) => {
+    // TODO: Phase 0 — replace TEAMID placeholder with the real Apple
+    // Developer Team ID once Phase 0.1 (Apple Developer enrollment) completes.
     res.json({
       applinks: {
         apps: [],
         details: [
           {
-            appID: 'B3LX46C5HS.xyz.blueskyweb.app',
+            appID: 'TEAMID.community.blacksky.app',
             paths: ['*'],
           },
         ],
       },
       appclips: {
-        apps: ['B3LX46C5HS.xyz.blueskyweb.app.AppClip'],
+        apps: ['TEAMID.community.blacksky.app.AppClip'],
       },
     })
   })

@@ -799,7 +799,7 @@ const FlatNavigator = ({
 
 const LINKING = {
   // TODO figure out what we are going to use
-  // note: `bluesky://` is what is used in app.config.js
+  // note: `blacksky://` is what is used in app.config.js
   prefixes: [
     'bsky://',
     'blacksky://',
