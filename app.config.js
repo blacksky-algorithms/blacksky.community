@@ -23,10 +23,10 @@ module.exports = function (_config) {
   const IS_DEV = !IS_TESTFLIGHT && !IS_PRODUCTION
 
   const ASSOCIATED_DOMAINS = [
-    'applinks:bsky.app',
-    'applinks:staging.bsky.app',
-    'appclips:bsky.app',
-    'appclips:go.bsky.app', // Allows App Clip to work when scanning QR codes
+    'applinks:blacksky.community',
+    'applinks:staging.blacksky.community',
+    'appclips:blacksky.community',
+    'appclips:go.blacksky.community', // Allows App Clip to work when scanning QR codes
     // When testing local services, enter an ngrok (et al) domain here. It must use a standard HTTP/HTTPS port.
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
@@ -47,7 +47,8 @@ module.exports = function (_config) {
       version: VERSION,
       name: 'Blacksky',
       slug: 'bluesky',
-      scheme: 'bluesky',
+      scheme: ['blacksky', 'community.blacksky'],
+      // TODO: Phase 0 — replace with new EAS org name after `eas init`
       owner: 'blueskysocial',
       runtimeVersion: {
         policy: 'appVersion',
@@ -58,7 +59,7 @@ module.exports = function (_config) {
       newArchEnabled: false,
       ios: {
         supportsTablet: false,
-        bundleIdentifier: 'xyz.blueskyweb.app',
+        bundleIdentifier: 'community.blacksky.app',
         config: {
           usesNonExemptEncryption: false,
         },
@@ -75,7 +76,7 @@ module.exports = function (_config) {
             'Used to save images to your library.',
           NSPhotoLibraryUsageDescription:
             'Used for profile pictures, posts, and other kinds of content',
-          CFBundleSpokenName: 'Blue Sky',
+          CFBundleSpokenName: 'Blacksky',
           CFBundleLocalizations: [
             'en',
             'an',
@@ -123,7 +124,7 @@ module.exports = function (_config) {
         entitlements: {
           'com.apple.developer.kernel.increased-memory-limit': true,
           'com.apple.developer.kernel.extended-virtual-addressing': true,
-          'com.apple.security.application-groups': 'group.app.bsky',
+          'com.apple.security.application-groups': 'group.community.blacksky.app',
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
         },
@@ -194,7 +195,7 @@ module.exports = function (_config) {
           backgroundColor: '#006AFF',
         },
         googleServicesFile: './google-services.json',
-        package: 'xyz.blueskyweb.app',
+        package: 'community.blacksky.app',
         intentFilters: [
           {
             action: 'VIEW',
@@ -202,7 +203,7 @@ module.exports = function (_config) {
             data: [
               {
                 scheme: 'https',
-                host: 'bsky.app',
+                host: 'blacksky.community',
               },
               ...(IS_DEV
                 ? [
@@ -421,7 +422,7 @@ module.exports = function (_config) {
           'expo-contacts',
           {
             contactsPermission:
-              'I agree to allow Bluesky to use my contacts for friend discovery until I opt out.',
+              'I agree to allow Blacksky to use my contacts for friend discovery until I opt out.',
           },
         ],
       ],
@@ -432,31 +433,32 @@ module.exports = function (_config) {
               ios: {
                 appExtensions: [
                   {
-                    targetName: 'Share-with-Bluesky',
-                    bundleIdentifier: 'xyz.blueskyweb.app.Share-with-Bluesky',
+                    targetName: 'Share-with-Blacksky',
+                    bundleIdentifier: 'community.blacksky.app.Share-with-Blacksky',
                     entitlements: {
                       'com.apple.security.application-groups': [
-                        'group.app.bsky',
+                        'group.community.blacksky.app',
                       ],
                     },
                   },
                   {
-                    targetName: 'BlueskyNSE',
-                    bundleIdentifier: 'xyz.blueskyweb.app.BlueskyNSE',
+                    targetName: 'BlackskyNSE',
+                    bundleIdentifier: 'community.blacksky.app.BlackskyNSE',
                     entitlements: {
                       'com.apple.security.application-groups': [
-                        'group.app.bsky',
+                        'group.community.blacksky.app',
                       ],
                     },
                   },
                   {
-                    targetName: 'BlueskyClip',
-                    bundleIdentifier: 'xyz.blueskyweb.app.AppClip',
+                    targetName: 'BlackskyClip',
+                    bundleIdentifier: 'community.blacksky.app.AppClip',
                   },
                 ],
               },
             },
           },
+          // TODO: Phase 0 — replace with new EAS project ID after `eas init`
           projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
         },
       },
