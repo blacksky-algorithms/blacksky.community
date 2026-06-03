@@ -10,3 +10,32 @@ index f5f332e..c939b1d 100644
  #include <vector>
  
  using namespace facebook;
+diff --git a/node_modules/react-native-reanimated/Common/cpp/reanimated/Fabric/PropsRegistry.h b/node_modules/react-native-reanimated/Common/cpp/reanimated/Fabric/PropsRegistry.h
+--- a/node_modules/react-native-reanimated/Common/cpp/reanimated/Fabric/PropsRegistry.h
++++ b/node_modules/react-native-reanimated/Common/cpp/reanimated/Fabric/PropsRegistry.h
+@@ -3,6 +3,7 @@
+ #include <react/renderer/components/root/RootShadowNode.h>
+ #include <react/renderer/core/ShadowNode.h>
+ 
++#include <atomic>
+ #include <memory>
+ #include <unordered_map>
+ #include <utility>
+diff --git a/node_modules/react-native-reanimated/apple/reanimated/apple/LayoutReanimation/REASwizzledUIManager.mm b/node_modules/react-native-reanimated/apple/reanimated/apple/LayoutReanimation/REASwizzledUIManager.mm
+--- a/node_modules/react-native-reanimated/apple/reanimated/apple/LayoutReanimation/REASwizzledUIManager.mm
++++ b/node_modules/react-native-reanimated/apple/reanimated/apple/LayoutReanimation/REASwizzledUIManager.mm
+@@ -1,3 +1,5 @@
++#include <atomic>
++
+ #import <React/RCTLayoutAnimation.h>
+ #import <React/RCTLayoutAnimationGroup.h>
+ #import <React/RCTRootShadowView.h>
+diff --git a/node_modules/react-native-reanimated/apple/worklets/apple/WorkletsMessageThread.mm b/node_modules/react-native-reanimated/apple/worklets/apple/WorkletsMessageThread.mm
+--- a/node_modules/react-native-reanimated/apple/worklets/apple/WorkletsMessageThread.mm
++++ b/node_modules/react-native-reanimated/apple/worklets/apple/WorkletsMessageThread.mm
+@@ -1,3 +1,5 @@
++#include <atomic>
++
+ #import <worklets/apple/WorkletsMessageThread.h>
+ 
+ #import <condition_variable>
