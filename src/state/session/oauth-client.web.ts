@@ -7,9 +7,7 @@ import {
   truncateOauthMessage,
 } from '#/state/session/oauth-telemetry'
 import {type Metrics} from '#/analytics/metrics'
-
-const OAUTH_SCOPE =
-  'atproto transition:generic transition:email transition:chat.bsky identity:handle account:email?action=manage account:status?action=manage'
+import {OAUTH_SCOPE} from './oauth-config'
 
 function getOAuthBaseUrl(): string {
   if (typeof window !== 'undefined') {
@@ -194,6 +192,6 @@ function createWebOAuthClient() {
 
 const BSKY_OAUTH_CLIENT = createWebOAuthClient()
 
-export function getWebOAuthClient() {
+export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
 }
