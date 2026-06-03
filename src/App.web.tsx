@@ -33,7 +33,7 @@ import {
   useSession,
   useSessionApi,
 } from '#/state/session'
-import {getWebOAuthClient} from '#/state/session/oauth-web-client'
+import {getOAuthClient} from '#/state/session/oauth-client'
 import {readLastActiveAccount} from '#/state/session/util'
 import {Provider as ShellStateProvider} from '#/state/shell'
 import {Provider as ComposerProvider} from '#/state/shell/composer'
@@ -115,7 +115,7 @@ function InnerApp() {
       try {
         // Check for OAuth callback params first (loopback redirects to /)
         if (hasOAuthCallbackParams()) {
-          const client = getWebOAuthClient()
+          const client = getOAuthClient()
           const result = await client.init()
           if (result?.session) {
             await login(

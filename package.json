@@ -59,7 +59,7 @@
     "e2e:run": "maestro test",
     "perf:test": "NODE_ENV=test maestro test",
     "perf:test:run": "NODE_ENV=test maestro test __e2e__/perf-test.yml",
-    "perf:test:measure": "NODE_ENV=test flashlight test --bundleId xyz.blueskyweb.app --testCommand \"yarn perf:test\" --duration 150000 --resultsFilePath .perf/results.json",
+    "perf:test:measure": "NODE_ENV=test flashlight test --bundleId community.blacksky.app --testCommand \"yarn perf:test\" --duration 150000 --resultsFilePath .perf/results.json",
     "perf:test:results": "NODE_ENV=test flashlight report .perf/results.json",
     "perf:measure": "NODE_ENV=test flashlight measure",
     "intl:build": "yarn intl:extract:all && yarn intl:compile",
@@ -83,6 +83,7 @@
   "dependencies": {
     "@atproto/api": "^0.19.13",
     "@atproto/oauth-client-browser": "0.3.40",
+    "@atproto/oauth-client-expo": "^0.0.10",
     "@atproto/syntax": "0.5.4",
     "@bitdrift/react-native": "^0.6.8",
     "@braintree/sanitize-url": "^6.0.2",
@@ -224,7 +225,7 @@
     "react-native-pager-view": "6.8.0",
     "react-native-progress": "bluesky-social/react-native-progress",
     "react-native-qrcode-styled": "^0.3.3",
-    "react-native-reanimated": "^3.19.1",
+    "react-native-reanimated": "3.19.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "^4.24.0",
     "react-native-svg": "15.12.1",
@@ -313,10 +314,9 @@
     "metro-config": "0.83.3",
     "metro-runtime": "0.83.3",
     "metro-source-map": "0.83.3",
-    "@atproto/oauth-client": "0.5.14",
-    "@atproto/oauth-client-browser": "0.3.40",
     "@atproto/lexicon": "0.6.2",
-    "@atproto/common-web": "0.4.21"
+    "@atproto/common-web": "0.4.21",
+    "react-native-mmkv": "npm:@bsky.app/react-native-mmkv@2.12.5"
   },
   "jest": {
     "preset": "jest-expo/ios",
