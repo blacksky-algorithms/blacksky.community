@@ -360,11 +360,9 @@ function LandingScreenLoaded({
         </Prompt.Actions>
       </Prompt.Outer>
       {IS_WEB && (
-        // TODO: Phase 0/6 — `app-id` should be the numeric App Store ID
-        // (not the bundle ID) once Blacksky's ASC record is created.
         <meta
           name="apple-itunes-app"
-          content="app-id=community.blacksky.app, app-clip-bundle-id=community.blacksky.app.AppClip, app-clip-display=card"
+          content="app-id=6776276281, app-clip-bundle-id=community.blacksky.app.AppClip, app-clip-display=card"
         />
       )}
     </View>
