@@ -400,3 +400,15 @@ index f5f332e24f0f56522762e2b2b524a9eeff81eccc..c939b1d7e55cd4f9e44139f315c4174a
  #include <vector>
  
  using namespace facebook;
+diff --git a/Common/cpp/worklets/SharedItems/Shareables.cpp b/Common/cpp/worklets/SharedItems/Shareables.cpp
+index f8c5bfce88f58dc6a6eec158c6664046acb90075..47b5fbe5a718864b7b2611b56d6142ca63d02aae 100644
+--- a/Common/cpp/worklets/SharedItems/Shareables.cpp
++++ b/Common/cpp/worklets/SharedItems/Shareables.cpp
+@@ -1,5 +1,7 @@
+ #include <worklets/SharedItems/Shareables.h>
+ 
++#include <algorithm>
++
+ using namespace facebook;
+ 
+ namespace worklets {

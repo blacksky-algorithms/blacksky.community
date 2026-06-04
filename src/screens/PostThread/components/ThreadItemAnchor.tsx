@@ -7,10 +7,12 @@ import {
   AtUri,
   RichText as RichTextAPI,
 } from '@atproto/api'
-import {Plural, Trans, useLingui} from '@lingui/react/macro'
+import {msg, ph, plural} from '@lingui/core/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
+import {RichTransText} from '#/lib/lingui/RichTransText'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
@@ -447,78 +449,119 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                 ]}>
                 {post.repostCount != null && post.repostCount !== 0 ? (
                   <Link to={repostsHref} label={l`Reposts of this post`}>
-                    <Text
-                      testID="repostCount-expanded"
-                      style={[a.text_md, t.atoms.text_contrast_medium]}>
-                      <Trans comment="Repost count display, the <0> tags enclose the number of reposts in bold (will never be 0)">
-                        <Text
-                          style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
-                          {formatPostStatCount(post.repostCount)}
-                        </Text>{' '}
-                        <Plural
-                          value={post.repostCount}
-                          one="repost"
-                          other="reposts"
-                        />
-                      </Trans>
-                    </Text>
+                    <RichTransText
+                      message={msg({
+                        message: `${ph({displayCount: ''})} ${plural(
+                          post.repostCount,
+                          {
+                            one: 'repost',
+                            other: 'reposts',
+                          },
+                        )}`,
+                        comment:
+                          'Repost count display, the displayCount placeholder is the number of reposts in bold (will never be 0)',
+                      })}
+                      values={{
+                        displayCount: (
+                          <Text
+                            style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                            {formatPostStatCount(post.repostCount)}
+                          </Text>
+                        ),
+                      }}
+                      textProps={{
+                        testID: 'repostCount-expanded',
+                        style: [a.text_md, t.atoms.text_contrast_medium],
+                      }}
+                    />
                   </Link>
                 ) : null}
                 {post.quoteCount != null &&
                 post.quoteCount !== 0 &&
                 !post.viewer?.embeddingDisabled ? (
                   <Link to={quotesHref} label={l`Quotes of this post`}>
-                    <Text
-                      testID="quoteCount-expanded"
-                      style={[a.text_md, t.atoms.text_contrast_medium]}>
-                      <Trans comment="Quote count display, the <0> tags enclose the number of quotes in bold (will never be 0)">
-                        <Text
-                          style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
-                          {formatPostStatCount(post.quoteCount)}
-                        </Text>{' '}
-                        <Plural
-                          value={post.quoteCount}
-                          one="quote"
-                          other="quotes"
-                        />
-                      </Trans>
-                    </Text>
+                    <RichTransText
+                      message={msg({
+                        message: `${ph({displayCount: ''})} ${plural(
+                          post.quoteCount,
+                          {
+                            one: 'quote',
+                            other: 'quotes',
+                          },
+                        )}`,
+                        comment:
+                          'Quote count display, the displayCount placeholder is the number of quotes in bold (will never be 0)',
+                      })}
+                      values={{
+                        displayCount: (
+                          <Text
+                            style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                            {formatPostStatCount(post.quoteCount)}
+                          </Text>
+                        ),
+                      }}
+                      textProps={{
+                        testID: 'quoteCount-expanded',
+                        style: [a.text_md, t.atoms.text_contrast_medium],
+                      }}
+                    />
                   </Link>
                 ) : null}
                 {post.likeCount != null && post.likeCount !== 0 ? (
                   <Link to={likesHref} label={l`Likes on this post`}>
-                    <Text
-                      testID="likeCount-expanded"
-                      style={[a.text_md, t.atoms.text_contrast_medium]}>
-                      <Trans comment="Like count display, the <0> tags enclose the number of likes in bold (will never be 0)">
-                        <Text
-                          style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
-                          {formatPostStatCount(post.likeCount)}
-                        </Text>{' '}
-                        <Plural
-                          value={post.likeCount}
-                          one="like"
-                          other="likes"
-                        />
-                      </Trans>
-                    </Text>
+                    <RichTransText
+                      message={msg({
+                        message: `${ph({displayCount: ''})} ${plural(
+                          post.likeCount,
+                          {
+                            one: 'like',
+                            other: 'likes',
+                          },
+                        )}`,
+                        comment:
+                          'Like count display, the displayCount placeholder is the number of likes in bold (will never be 0)',
+                      })}
+                      values={{
+                        displayCount: (
+                          <Text
+                            style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                            {formatPostStatCount(post.likeCount)}
+                          </Text>
+                        ),
+                      }}
+                      textProps={{
+                        testID: 'likeCount-expanded',
+                        style: [a.text_md, t.atoms.text_contrast_medium],
+                      }}
+                    />
                   </Link>
                 ) : null}
                 {post.bookmarkCount != null && post.bookmarkCount !== 0 ? (
-                  <Text
-                    testID="bookmarkCount-expanded"
-                    style={[a.text_md, t.atoms.text_contrast_medium]}>
-                    <Trans comment="Save count display, the <0> tags enclose the number of saves in bold (will never be 0)">
-                      <Text style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
-                        {formatPostStatCount(post.bookmarkCount)}
-                      </Text>{' '}
-                      <Plural
-                        value={post.bookmarkCount}
-                        one="save"
-                        other="saves"
-                      />
-                    </Trans>
-                  </Text>
+                  <RichTransText
+                    message={msg({
+                      message: `${ph({displayCount: ''})} ${plural(
+                        post.bookmarkCount,
+                        {
+                          one: 'save',
+                          other: 'saves',
+                        },
+                      )}`,
+                      comment:
+                        'Save count display, the displayCount placeholder is the number of saves in bold (will never be 0)',
+                    })}
+                    values={{
+                      displayCount: (
+                        <Text
+                          style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                          {formatPostStatCount(post.bookmarkCount)}
+                        </Text>
+                      ),
+                    }}
+                    textProps={{
+                      testID: 'bookmarkCount-expanded',
+                      style: [a.text_md, t.atoms.text_contrast_medium],
+                    }}
+                  />
                 ) : null}
               </View>
             ) : null}
