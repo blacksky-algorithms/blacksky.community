@@ -5,10 +5,10 @@ import {
   moderateProfile,
   type ModerationOpts,
 } from '@atproto/api'
-import {msg} from '@lingui/core/macro'
+import {msg, ph, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
-import {Plural, Trans} from '@lingui/react/macro'
 
+import {RichTransText} from '#/lib/lingui/RichTransText'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
@@ -122,6 +122,12 @@ function KnownFollowersInner({
 
   const SIZE = minimal ? AVI_SIZE_SMALL : AVI_SIZE
 
+  const renderName = (index: number) => (
+    <Text emoji key={slice[index].profile.did} style={textStyle}>
+      {slice[index].profile.displayName}
+    </Text>
+  )
+
   return (
     <Link
       label={_(
@@ -136,125 +142,128 @@ function KnownFollowersInner({
         a.align_center,
         {marginLeft: -AVI_BORDER},
       ]}>
-      {({hovered, pressed}) => (
-        <>
-          <View
-            style={[
-              a.flex_row,
-              {
-                height: SIZE,
-              },
-              pressed && {
-                opacity: 0.5,
-              },
-            ]}>
-            {slice.map(({profile: prof, moderation}, i) => (
-              <View
-                key={prof.did}
-                style={[
-                  a.rounded_full,
-                  {
-                    borderWidth: AVI_BORDER,
-                    borderColor: t.atoms.bg.backgroundColor,
-                    width: SIZE + AVI_BORDER * 2,
-                    height: SIZE + AVI_BORDER * 2,
-                    zIndex: AVI_BORDER - i,
-                    marginLeft: i > 0 ? -8 : 0,
-                  },
-                ]}>
-                <UserAvatar
-                  size={SIZE}
-                  avatar={prof.avatar}
-                  moderation={moderation.ui('avatar')}
-                  type={prof.associated?.labeler ? 'labeler' : 'user'}
-                  noBorder
-                />
-              </View>
-            ))}
-          </View>
+      {({hovered, pressed}) => {
+        const richTextProps = {
+          style: [
+            a.flex_shrink,
+            textStyle,
+            hovered && {
+              textDecorationLine: 'underline' as const,
+              textDecorationColor: t.atoms.text_contrast_medium.color,
+            },
+            pressed && {
+              opacity: 0.5,
+            },
+          ],
+          numberOfLines: 2,
+        }
 
-          <Text
-            style={[
-              a.flex_shrink,
-              textStyle,
-              hovered && {
-                textDecorationLine: 'underline',
-                textDecorationColor: t.atoms.text_contrast_medium.color,
-              },
-              pressed && {
-                opacity: 0.5,
-              },
-            ]}
-            numberOfLines={2}>
+        return (
+          <>
+            <View
+              style={[
+                a.flex_row,
+                {
+                  height: SIZE,
+                },
+                pressed && {
+                  opacity: 0.5,
+                },
+              ]}>
+              {slice.map(({profile: prof, moderation}, i) => (
+                <View
+                  key={prof.did}
+                  style={[
+                    a.rounded_full,
+                    {
+                      borderWidth: AVI_BORDER,
+                      borderColor: t.atoms.bg.backgroundColor,
+                      width: SIZE + AVI_BORDER * 2,
+                      height: SIZE + AVI_BORDER * 2,
+                      zIndex: AVI_BORDER - i,
+                      marginLeft: i > 0 ? -8 : 0,
+                    },
+                  ]}>
+                  <UserAvatar
+                    size={SIZE}
+                    avatar={prof.avatar}
+                    moderation={moderation.ui('avatar')}
+                    type={prof.associated?.labeler ? 'labeler' : 'user'}
+                    noBorder
+                  />
+                </View>
+              ))}
+            </View>
+
             {slice.length >= 2 ? (
               // 2-n followers, including blocks
-              serverCount > 2 ? ( // only 2
-                <Trans>
-                  Followed by{' '}
-                  <Text emoji key={slice[0].profile.did} style={textStyle}>
-                    {slice[0].profile.displayName}
-                  </Text>
-                  ,{' '}
-                  <Text emoji key={slice[1].profile.did} style={textStyle}>
-                    {slice[1].profile.displayName}
-                  </Text>
-                  , and{' '}
-                  <Plural
-                    value={serverCount - 2}
-                    one="# other"
-                    other="# others"
-                  />
-                </Trans>
+              serverCount > 2 ? (
+                <RichTransText
+                  message={msg`Followed by ${ph({name0: ''})}, ${ph({
+                    name1: '',
+                  })}, and ${plural(serverCount - 2, {
+                    one: '# other',
+                    other: '# others',
+                  })}`}
+                  values={{
+                    name0: renderName(0),
+                    name1: renderName(1),
+                  }}
+                  textProps={richTextProps}
+                />
               ) : (
-                <Trans>
-                  Followed by{' '}
-                  <Text emoji key={slice[0].profile.did} style={textStyle}>
-                    {slice[0].profile.displayName}
-                  </Text>{' '}
-                  and{' '}
-                  <Text emoji key={slice[1].profile.did} style={textStyle}>
-                    {slice[1].profile.displayName}
-                  </Text>
-                </Trans>
+                <RichTransText
+                  message={msg`Followed by ${ph({name0: ''})} and ${ph({
+                    name1: '',
+                  })}`}
+                  values={{
+                    name0: renderName(0),
+                    name1: renderName(1),
+                  }}
+                  textProps={richTextProps}
+                />
               )
             ) : serverCount > 1 ? (
               // 1-n followers, including blocks
-              <Trans>
-                Followed by{' '}
-                <Text emoji key={slice[0].profile.did} style={textStyle}>
-                  {slice[0].profile.displayName}
-                </Text>{' '}
-                and{' '}
-                <Plural
-                  value={serverCount - 1}
-                  one="# other"
-                  other="# others"
-                />
-              </Trans>
+              <RichTransText
+                message={msg`Followed by ${ph({name0: ''})} and ${plural(
+                  serverCount - 1,
+                  {
+                    one: '# other',
+                    other: '# others',
+                  },
+                )}`}
+                values={{
+                  name0: renderName(0),
+                }}
+                textProps={richTextProps}
+              />
             ) : (
               // only 1
-              <Trans>
-                Followed by{' '}
-                <Text emoji key={slice[0].profile.did} style={textStyle}>
-                  {slice[0].profile.displayName}
-                </Text>
-              </Trans>
+              <RichTransText
+                message={msg`Followed by ${ph({name0: ''})}`}
+                values={{
+                  name0: renderName(0),
+                }}
+                textProps={richTextProps}
+              />
             )}
-          </Text>
-        </>
-      )}
+          </>
+        )
+      }}
     </Link>
   )
 }
 
 function EmptyFallback({show}: {show?: boolean}) {
   const t = useTheme()
+  const {_} = useLingui()
 
   if (!show) return null
 
   return (
     <Text style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_medium]}>
-      <Trans>Not followed by anyone you're following</Trans>
+      {_(msg`Not followed by anyone you're following`)}
     </Text>
   )
 }
