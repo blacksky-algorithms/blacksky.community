@@ -19,14 +19,16 @@ import {
 } from '@atproto/api'
 import {AtUri} from '@atproto/api'
 import {TID} from '@atproto/common-web'
-import {msg, plural} from '@lingui/core/macro'
+import {type MessageDescriptor} from '@lingui/core'
+import {msg, ph, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
-import {Plural, Trans} from '@lingui/react/macro'
+import {Trans} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {DM_SERVICE_HEADERS, MAX_POST_LINES} from '#/lib/constants'
 import {useAnimatedValue} from '#/lib/hooks/useAnimatedValue'
+import {RichTransText} from '#/lib/lingui/RichTransText'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {forceLTR} from '#/lib/strings/bidi'
@@ -280,6 +282,49 @@ let NotificationFeedItem = ({
     : ''
 
   let a11yLabel = ''
+  const renderNotificationText = (
+    message: MessageDescriptor,
+    components?: React.ComponentProps<typeof RichTransText>['components'],
+  ) => (
+    <RichTransText
+      message={message}
+      values={{firstAuthorLink}}
+      components={components}
+      textProps={{
+        style: [
+          a.flex_row,
+          a.flex_wrap,
+          {paddingTop: 6},
+          a.self_start,
+          a.text_md,
+          a.leading_snug,
+        ],
+        accessibilityHint: '',
+        accessibilityLabel: a11yLabel,
+      }}
+      append={
+        <TimeElapsed timestamp={item.notification.indexedAt}>
+          {({timeElapsed}) => (
+            <>
+              {/* make sure there's whitespace around the middot -sfn */}
+              <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
+                {' '}
+                &middot;{' '}
+              </Text>
+              <Text
+                style={[a.text_md, t.atoms.text_contrast_medium]}
+                title={niceTimestamp}>
+                {timeElapsed}
+              </Text>
+            </>
+          )}
+        </TimeElapsed>
+      }
+    />
+  )
+  const countTextComponent = (
+    <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]} />
+  )
   let notificationContent: React.ReactElement<any>
   let icon = (
     <HeartIconFilled
@@ -300,21 +345,20 @@ let NotificationFeedItem = ({
           })} liked your post`,
         )
       : _(msg`${firstAuthorName} liked your post`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        liked your post
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} liked your post</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> liked your post`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} liked your post`,
+        )
   } else if (item.type === 'repost') {
     a11yLabel = hasMultipleAuthors
       ? _(
@@ -324,21 +368,20 @@ let NotificationFeedItem = ({
           })} reposted your post`,
         )
       : _(msg`${firstAuthorName} reposted your post`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        reposted your post
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} reposted your post</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> reposted your post`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} reposted your post`,
+        )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'follow') {
     if (isFollowBack && !hasMultipleAuthors) {
@@ -347,7 +390,9 @@ let NotificationFeedItem = ({
        * see `src/state/queries/notifications/util.ts`
        */
       a11yLabel = _(msg`${firstAuthorName} followed you back`)
-      notificationContent = <Trans>{firstAuthorLink} followed you back</Trans>
+      notificationContent = renderNotificationText(
+        msg`${ph({firstAuthorLink: ''})} followed you back`,
+      )
     } else {
       a11yLabel = hasMultipleAuthors
         ? _(
@@ -357,27 +402,24 @@ let NotificationFeedItem = ({
             })} followed you`,
           )
         : _(msg`${firstAuthorName} followed you`)
-      notificationContent = hasMultipleAuthors ? (
-        <Trans>
-          {firstAuthorLink} and{' '}
-          <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-            <Plural
-              value={additionalAuthorsCount}
-              one={`${formattedAuthorsCount} other`}
-              other={`${formattedAuthorsCount} others`}
-            />
-          </Text>{' '}
-          followed you
-        </Trans>
-      ) : (
-        <Trans>{firstAuthorLink} followed you</Trans>
-      )
+      notificationContent = hasMultipleAuthors
+        ? renderNotificationText(
+            msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+              additionalAuthorsCount,
+              {
+                one: `${formattedAuthorsCount} other`,
+                other: `${formattedAuthorsCount} others`,
+              },
+            )}</0> followed you`,
+            {0: countTextComponent},
+          )
+        : renderNotificationText(msg`${ph({firstAuthorLink: ''})} followed you`)
     }
     icon = <PersonPlusIcon size="xl" style={{color: t.palette.primary_500}} />
   } else if (item.type === 'contact-match') {
     a11yLabel = _(msg`Your contact ${firstAuthorName} is on Blacksky`)
-    notificationContent = (
-      <Trans>Your contact {firstAuthorLink} is on Blacksky</Trans>
+    notificationContent = renderNotificationText(
+      msg`Your contact ${ph({firstAuthorLink: ''})} is on Blacksky`,
     )
     icon = (
       <ContactsIconFilled size="xl" style={{color: t.palette.primary_500}} />
@@ -391,21 +433,20 @@ let NotificationFeedItem = ({
           })} liked your custom feed`,
         )
       : _(msg`${firstAuthorName} liked your custom feed`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        liked your custom feed
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} liked your custom feed</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> liked your custom feed`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} liked your custom feed`,
+        )
   } else if (item.type === 'starterpack-joined') {
     a11yLabel = hasMultipleAuthors
       ? _(
@@ -415,21 +456,20 @@ let NotificationFeedItem = ({
           })} signed up with your starter pack`,
         )
       : _(msg`${firstAuthorName} signed up with your starter pack`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        signed up with your starter pack
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} signed up with your starter pack</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> signed up with your starter pack`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} signed up with your starter pack`,
+        )
     icon = (
       <View style={{height: 30, width: 30}}>
         <StarterPack width={30} gradient="sky" />
@@ -444,21 +484,18 @@ let NotificationFeedItem = ({
           })} verified you`,
         )
       : _(msg`${firstAuthorName} verified you`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        verified you
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} verified you</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> verified you`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(msg`${ph({firstAuthorLink: ''})} verified you`)
     icon = <VerifiedCheck size="xl" />
   } else if (item.type === 'unverified') {
     a11yLabel = hasMultipleAuthors
@@ -469,23 +506,20 @@ let NotificationFeedItem = ({
           })} removed their verifications from your account`,
         )
       : _(msg`${firstAuthorName} removed their verification from your account`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        removed their verifications from your account
-      </Trans>
-    ) : (
-      <Trans>
-        {firstAuthorLink} removed their verification from your account
-      </Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> removed their verifications from your account`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} removed their verification from your account`,
+        )
     icon = <VerifiedCheck size="xl" fill={t.palette.contrast_500} />
   } else if (item.type === 'like-via-repost') {
     a11yLabel = hasMultipleAuthors
@@ -496,21 +530,20 @@ let NotificationFeedItem = ({
           })} liked your repost`,
         )
       : _(msg`${firstAuthorName} liked your repost`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        liked your repost
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} liked your repost</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> liked your repost`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} liked your repost`,
+        )
   } else if (item.type === 'repost-via-repost') {
     a11yLabel = hasMultipleAuthors
       ? _(
@@ -520,21 +553,20 @@ let NotificationFeedItem = ({
           })} reposted your repost`,
         )
       : _(msg`${firstAuthorName} reposted your repost`)
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-        reposted your repost
-      </Trans>
-    ) : (
-      <Trans>{firstAuthorLink} reposted your repost</Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0> reposted your repost`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`${ph({firstAuthorLink: ''})} reposted your repost`,
+        )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'subscribed-post') {
     const postsCount = 1 + (item.additional?.length || 0)
@@ -554,23 +586,23 @@ let NotificationFeedItem = ({
             other: 'posts',
           })} from ${firstAuthorName}`,
         )
-    notificationContent = hasMultipleAuthors ? (
-      <Trans>
-        New posts from {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-          <Plural
-            value={additionalAuthorsCount}
-            one={`${formattedAuthorsCount} other`}
-            other={`${formattedAuthorsCount} others`}
-          />
-        </Text>{' '}
-      </Trans>
-    ) : (
-      <Trans>
-        New <Plural value={postsCount} one="post" other="posts" /> from{' '}
-        {firstAuthorLink}
-      </Trans>
-    )
+    notificationContent = hasMultipleAuthors
+      ? renderNotificationText(
+          msg`New posts from ${ph({firstAuthorLink: ''})} and <0>${plural(
+            additionalAuthorsCount,
+            {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            },
+          )}</0>`,
+          {0: countTextComponent},
+        )
+      : renderNotificationText(
+          msg`New ${plural(postsCount, {
+            one: 'post',
+            other: 'posts',
+          })} from ${ph({firstAuthorLink: ''})}`,
+        )
     icon = <BellRingingIcon size="xl" style={{color: t.palette.primary_500}} />
   } else {
     return null
@@ -666,35 +698,7 @@ let NotificationFeedItem = ({
                 authors={authors}
                 moderationOpts={moderationOpts}
               />
-              <Text
-                style={[
-                  a.flex_row,
-                  a.flex_wrap,
-                  {paddingTop: 6},
-                  a.self_start,
-                  a.text_md,
-                  a.leading_snug,
-                ]}
-                accessibilityHint=""
-                accessibilityLabel={a11yLabel}>
-                {notificationContent}
-                <TimeElapsed timestamp={item.notification.indexedAt}>
-                  {({timeElapsed}) => (
-                    <>
-                      {/* make sure there's whitespace around the middot -sfn */}
-                      <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
-                        {' '}
-                        &middot;{' '}
-                      </Text>
-                      <Text
-                        style={[a.text_md, t.atoms.text_contrast_medium]}
-                        title={niceTimestamp}>
-                        {timeElapsed}
-                      </Text>
-                    </>
-                  )}
-                </TimeElapsed>
-              </Text>
+              {notificationContent}
             </ExpandListPressable>
             {(item.type === 'follow' && !hasMultipleAuthors && !isFollowBack) ||
             (item.type === 'contact-match' &&
