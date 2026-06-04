@@ -129,7 +129,8 @@ module.exports = function (_config) {
         entitlements: {
           'com.apple.developer.kernel.increased-memory-limit': true,
           'com.apple.developer.kernel.extended-virtual-addressing': true,
-          'com.apple.security.application-groups': 'group.community.blacksky.app',
+          'com.apple.security.application-groups':
+            'group.community.blacksky.app',
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
         },
@@ -197,7 +198,7 @@ module.exports = function (_config) {
         adaptiveIcon: {
           foregroundImage: './assets/icon-android-foreground.png',
           monochromeImage: './assets/icon-android-monochrome.png',
-          backgroundColor: '#006AFF',
+          backgroundColor: '#00007F',
         },
         googleServicesFile: './google-services.json',
         package: 'community.blacksky.app',
@@ -441,7 +442,8 @@ module.exports = function (_config) {
                 appExtensions: [
                   {
                     targetName: 'Share-with-Blacksky',
-                    bundleIdentifier: 'community.blacksky.app.Share-with-Blacksky',
+                    bundleIdentifier:
+                      'community.blacksky.app.Share-with-Blacksky',
                     entitlements: {
                       'com.apple.security.application-groups': [
                         'group.community.blacksky.app',
