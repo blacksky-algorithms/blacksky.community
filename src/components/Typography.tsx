@@ -63,7 +63,9 @@ export function Text({
   if (selectable && ios(true)) {
     return (
       <UITextView {...shared}>
-        {renderChildrenWithEmoji(children, shared, emoji ?? false)}
+        {renderChildrenWithEmoji(children, shared, emoji ?? false, {
+          allowNestedUITextView: false,
+        })}
       </UITextView>
     )
   }

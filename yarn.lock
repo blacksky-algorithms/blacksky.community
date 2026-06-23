@@ -2677,7 +2677,7 @@
     "@messageformat/parser" "^5.0.0"
     js-sha256 "^0.10.1"
 
-"@lingui/react@^5.9.2":
+"@lingui/react@5.9.5":
   version "5.9.5"
   resolved "https://registry.yarnpkg.com/@lingui/react/-/react-5.9.5.tgz#f77168fd3e5c1b221a47a7e43f63ca30479cf1eb"
   integrity sha512-jzYoA/f4jrTfpOB+jrMhlC835UwqSXJdepr7cfWsmg+Rpp3HBSREtfrogaz1LqLI/AVnkmfp10Mo6VOp/8qeOQ==
