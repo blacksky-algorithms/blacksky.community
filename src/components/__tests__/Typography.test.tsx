@@ -46,6 +46,17 @@ describe('Text', () => {
     expect(getByTestId('ui-text-view')).toBeTruthy()
   })
 
+  it('does not nest UITextView inside selectable emoji text', () => {
+    const {getAllByTestId, getByText} = render(
+      <Text selectable emoji>
+        😀 popular post
+      </Text>,
+    )
+
+    expect(getByText('😀 popular post')).toBeTruthy()
+    expect(getAllByTestId('ui-text-view')).toHaveLength(1)
+  })
+
   it('still allows native Text children inside non-selectable text', () => {
     const {getByText, queryByTestId} = render(
       <Text>

@@ -1,0 +1,51 @@
+diff --git a/node_modules/@lingui/react/dist/shared/react.90cde280.cjs b/node_modules/@lingui/react/dist/shared/react.90cde280.cjs
+index 43f4ae5..2031526 100644
+--- a/node_modules/@lingui/react/dist/shared/react.90cde280.cjs
++++ b/node_modules/@lingui/react/dist/shared/react.90cde280.cjs
+@@ -2,6 +2,8 @@
+ 
+ const jsxRuntime = require('react/jsx-runtime');
+ const React = require('react');
++const _RNText = require('react-native').Text;
++const _isNative = require('react-native').Platform.OS !== 'web';
+ 
+ const tagRe = /<([a-zA-Z0-9]+)>([\s\S]*?)<\/\1>|<([a-zA-Z0-9]+)\/>/;
+ const voidElementTags = {
+@@ -48,15 +50,28 @@ function formatElements(value, elements = {}) {
+     if (Array.isArray(element)) {
+       element = /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: element });
+     }
+-    tree.push(
+-      React.cloneElement(
+-        element,
+-        { key: uniqueId() },
+-        // format children for pair tags
+-        // unpaired tags might have children if it's a component passed as a variable
+-        children ? formatElements(children, elements) : element.props.children
+-      )
+-    );
++    // PATCH(blacksky): On React Native, cloning custom Text components causes
++    // infinite recursion when Trans output is rendered inside a parent Text.
++    // Use plain RN Text with the original style to preserve formatting.
++    if (_isNative) {
++      tree.push(
++        React.createElement(
++          _RNText,
++          { key: uniqueId(), style: element.props.style },
++          children ? formatElements(children, elements) : element.props.children
++        )
++      );
++    } else {
++      tree.push(
++        React.cloneElement(
++          element,
++          { key: uniqueId() },
++          // format children for pair tags
++          // unpaired tags might have children if it's a component passed as a variable
++          children ? formatElements(children, elements) : element.props.children
++        )
++      );
++    }
+     if (after)
+       tree.push(after);
+   }

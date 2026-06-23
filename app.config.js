@@ -255,8 +255,8 @@ module.exports = function (_config) {
               /** @type {[string, any]} */ ([
                 '@sentry/react-native/expo',
                 {
-                  organization: 'blueskyweb',
-                  project: 'app',
+                  organization: 'blacksky-algorithms',
+                  project: 'social-app',
                   url: 'https://sentry.io',
                 },
               ]),
