@@ -67,8 +67,8 @@ module.exports = async function (env, argv) {
   if (process.env.SENTRY_AUTH_TOKEN) {
     config.plugins.push(
       sentryWebpackPlugin({
-        org: 'blueskyweb',
-        project: 'app',
+        org: 'blacksky-algorithms',
+        project: 'social-app',
         authToken: process.env.SENTRY_AUTH_TOKEN,
         release: {
           // fallback needed for Render.com deployments
