@@ -49,6 +49,7 @@
     },
     "testflight": {
       "extends": "base",
+      "environment": "production",
       "ios": {
         "autoIncrement": true,
         "buildArtifactPaths": ["ios/build/*"]
