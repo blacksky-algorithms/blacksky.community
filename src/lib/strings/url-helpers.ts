@@ -83,7 +83,7 @@ export function toNiceDomain(url: string): string {
     const normalized = `https://${urlp.host}`
     if (
       normalized === BSKY_SERVICE ||
-      normalized === DEFAULT_BRAND_CONFIG.services.pds
+      normalized === DEFAULT_BRAND_CONFIG.services.pds.url
     ) {
       return DEFAULT_BRAND_CONFIG.metadata.displayName
     }

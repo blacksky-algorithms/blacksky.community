@@ -217,10 +217,9 @@ function HomeScreenReady({
             {...props}
             testID="homeScreenFeedTabs"
             onPressSelected={onPressSelected}
-            // @ts-ignore
             feeds={[
-              {displayName: 'Following'},
-              {displayName: brand.metadata.displayName},
+              {displayName: 'Following', uri: 'following'},
+              {displayName: brand.metadata.displayName, uri: 'demo'},
             ]}
           />
         )

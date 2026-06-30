@@ -12,8 +12,8 @@ import {
 import {createThemes, themes} from '#/alf/themes'
 import {
   contrastRatio,
-  DEFAULT_BLUE_HUE,
   darken,
+  DEFAULT_BLUE_HUE,
   GREEN_HUE,
   lighten,
   RED_HUE,
@@ -114,27 +114,24 @@ export function ThemeProvider({
     [setFontFamily],
   )
 
-  const resolvedThemes = useMemo(
-    () => {
-      const baseThemes = brandColors
-        ? createThemes({
-            hues: {
-              primary: brandHue ?? DEFAULT_BLUE_HUE,
-              negative: RED_HUE,
-              positive: GREEN_HUE,
-              bg: brandBgHue ?? brandHue ?? DEFAULT_BLUE_HUE,
-            },
-            brand: brandColors,
-            colorScale: brandColorScale,
-          })
-        : themes
-      return {
-        ...baseThemes,
-        ...themesOverride,
-      }
-    },
-    [brandColors, brandHue, brandBgHue, brandColorScale, themesOverride],
-  )
+  const resolvedThemes = useMemo(() => {
+    const baseThemes = brandColors
+      ? createThemes({
+          hues: {
+            primary: brandHue ?? DEFAULT_BLUE_HUE,
+            negative: RED_HUE,
+            positive: GREEN_HUE,
+            bg: brandBgHue ?? brandHue ?? DEFAULT_BLUE_HUE,
+          },
+          brand: brandColors,
+          colorScale: brandColorScale,
+        })
+      : themes
+    return {
+      ...baseThemes,
+      ...themesOverride,
+    }
+  }, [brandColors, brandHue, brandBgHue, brandColorScale, themesOverride])
 
   const value = useMemo<Alf>(
     () => ({
