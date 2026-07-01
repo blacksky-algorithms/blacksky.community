@@ -1,5 +1,7 @@
 import type * as ReactNative from 'react-native'
 import {Text as RNText} from 'react-native'
+import {setupI18n} from '@lingui/core'
+import {I18nProvider, Trans} from '@lingui/react'
 import {render} from '@testing-library/react-native'
 
 import {Text} from '#/components/Typography'
@@ -66,5 +68,31 @@ describe('Text', () => {
 
     expect(getByText('Nested text')).toBeTruthy()
     expect(queryByTestId('ui-text-view')).toBeNull()
+  })
+
+  it('resolves direct Lingui Trans children before rendering native Text', () => {
+    const i18n = setupI18n()
+    i18n.load('en', {
+      handlePreview: 'Your full handle will be <0>{handle}</0>.',
+    })
+    i18n.activate('en')
+
+    const {getByText, UNSAFE_queryByType} = render(
+      <I18nProvider i18n={i18n}>
+        <Text>
+          <Trans
+            id="handlePreview"
+            message="Your full handle will be <0>{handle}</0>."
+            values={{handle: '@alice.test'}}
+            components={{
+              0: <RNText testID="handle" />,
+            }}
+          />
+        </Text>
+      </I18nProvider>,
+    )
+
+    expect(getByText('@alice.test')).toBeTruthy()
+    expect(UNSAFE_queryByType(Trans)).toBeNull()
   })
 })
