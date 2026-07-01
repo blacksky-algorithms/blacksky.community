@@ -554,3 +554,87 @@ It does not cover:
 
 Additional targeted E2E coverage should be added after fixes or repro helpers
 are stable.
+
+## Root Cause Identified (2026-07-01)
+
+The `RangeError: Maximum call stack size exceeded (native stack depth)` class
+is not caused by Lingui `<Trans>` nesting inside app `<Text>`. It is an
+infinite mutual recursion inside core-js's `Function.prototype.toString`
+wrapper, triggered by Metro's `inlineRequires` in release bundles. The nested
+Trans/Text sites were only where the error *surfaced*, because the recursion
+fires from any `fn.toString()` call — including React's component-stack
+generation during those renders.
+
+### Mechanism
+
+1. `@atproto/oauth-client-expo` (added with native OAuth, commit `bdcf45d8`)
+   imports `core-js/proposals/explicit-resource-management` on native. This is
+   the only thing that puts core-js in the app bundle — upstream Bluesky does
+   not ship core-js, which is why upstream renders the identical Trans/Text
+   patterns without crashing.
+2. core-js's `internals/make-built-in.js` replaces
+   `Function.prototype.toString` at module-body execution time. The wrapper
+   falls back to `internals/inspect-source.js` for functions without core-js
+   internal state.
+3. `inspect-source.js` captures `Function.toString` at *its* module-body
+   execution time. In a Metro release bundle, `inlineRequires` defers that
+   execution to the first call of the wrapper — i.e. strictly *after* the
+   wrap. It therefore captures the wrapper itself.
+4. From then on, any `fn.toString()` on a non-core-js function recurses:
+   wrapper → inspectSource → wrapper → … until Hermes hits its native stack
+   guard. This matches Sentry `SOCIAL-APP-2`, whose stack repeats through
+   core-js `Function.prototype.toString` helpers.
+5. Known upstream reports: core-js issues #1237 and #1381 (React Native /
+   Hermes, import-order dependent).
+
+This explains every previously unexplained observation:
+
+- Device/TestFlight-only: dev/simulator surfaces it as a LogBox warning caught
+  by the ErrorBoundary (the `Maximum call stack size exceeded` LogBox ignore
+  was added in `cc06d67f` — the very next commit after OAuth/core-js landed);
+  release builds turn the unhandled rethrow into `RCTFatal`.
+- Never reproduced in Jest or the E2E harness: the loop needs Metro
+  `inlineRequires` plus a runtime `fn.toString()` call, not any particular
+  component tree.
+- "Crashes upon opening": OAuth session restore initializes core-js at launch
+  for logged-in users.
+- Build 14 still crashed on open after the UITextView clamp fix: the clamp
+  addressed the separate native crash only.
+
+### Verification
+
+Reproduced deterministically in plain Node against the real core-js@3.49.0
+files by emulating the inline-requires execution order (wrap first, lazy
+inspect-source):
+
+- unpatched: `RangeError: Maximum call stack size exceeded`
+- with the re-entrancy guard patch: safe (no recursion)
+- with inspect-source loaded before the wrap: fully correct native source
+  returned
+
+### Fix (this branch)
+
+1. `index.js` eagerly imports `core-js/internals/inspect-source` before any
+   core-js polyfill can wrap `Function.prototype.toString`, so the native
+   `toString` is captured first and the shared `inspectSource` helper is
+   permanently safe (`core-js` is now declared as a direct dependency for
+   this import).
+2. `patches/core-js@3.49.0.patch` adds a re-entrancy guard inside
+   `inspect-source.js` as a backstop in case the import ever moves.
+
+### Workarounds removed as obsolete
+
+- The `Typography.tsx` `<Trans>` interception (`7aa4c03a6`) — reverted.
+- `patches/@lingui+react+5.9.5.patch` — deleted (it was already unwired from
+  `pnpm-workspace.yaml`).
+- The `Maximum call stack size exceeded` LogBox ignore in `index.js` — removed
+  so any regression is visible in dev again.
+
+### Kept (separate, real native bug)
+
+- `patches/react-native-uitextview@1.4.0.patch` (shadow-child index clamp):
+  TestFlight feedback 10's `-[__NSArrayM insertObject:atIndex:]` crash in
+  `RNUITextViewShadow.insertReactSubview` is a genuine react-native-uitextview
+  index-skew bug, unrelated to core-js. A follow-up should replace the clamp
+  with correct index mapping to avoid silently dropping/reordering text.
+- `RichTransText` and its call-site migrations (functional improvements).
