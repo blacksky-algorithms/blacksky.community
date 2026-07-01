@@ -217,6 +217,7 @@ overrides:
 
 patchedDependencies:
   '@sentry/react-native@6.20.0': 1d48e4d5178f5684eb33262299e7eed283bf9601f79b9ae1af63a7f607d3483a
+  core-js@3.49.0: b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38
   expo-glass-effect@55.0.8: 6c9fa5b104e53b87df4e17b320acb3b94d12ac90c0101190045dd620681efff0
   expo-haptics@15.0.8: b33910ba2753c4eccdc885b449e6e33aa90b9cefa75ca8639762a26013141410
   expo-image-picker@17.0.11: 47b28f6ddb8bcaa6483f8714c82daaa0001122f2b0dac6c05d19e98a61a6ceab
@@ -428,6 +429,9 @@ importers:
       bcp-47-match:
         specifier: ^2.0.3
         version: 2.0.3
+      core-js:
+        specifier: 3.49.0
+        version: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -9714,7 +9718,7 @@ snapshots:
       '@atproto/jwk-webcrypto': 0.2.0
       '@atproto/oauth-client': 0.5.14
       '@atproto/oauth-types': 0.6.2
-      core-js: 3.49.0
+      core-js: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
 
   '@atproto/oauth-client-browser@0.3.42':
     dependencies:
@@ -9726,14 +9730,14 @@ snapshots:
       '@atproto/jwk-webcrypto': 0.2.0
       '@atproto/oauth-client': 0.6.1
       '@atproto/oauth-types': 0.6.3
-      core-js: 3.49.0
+      core-js: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
 
   '@atproto/oauth-client-expo@0.0.10(expo@54.0.34(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@atproto-labs/simple-store': 0.3.0
       '@atproto/oauth-client': 0.6.1
       '@atproto/oauth-client-browser': 0.3.42
-      core-js: 3.49.0
+      core-js: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
       expo: 54.0.34(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-web-browser: 15.0.11(expo@54.0.34(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))
       react-native: 0.81.5(patch_hash=a4697d09f19dae4f03ab06149406dfaa724be049bc7bd01016bb88c4b9316fdb)(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0)
@@ -9754,7 +9758,7 @@ snapshots:
       '@atproto/jwk': 0.6.0
       '@atproto/oauth-types': 0.6.2
       '@atproto/xrpc': 0.7.7
-      core-js: 3.49.0
+      core-js: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
       multiformats: 9.9.0
       zod: 3.23.8
 
@@ -9770,7 +9774,7 @@ snapshots:
       '@atproto/jwk': 0.6.0
       '@atproto/oauth-types': 0.6.3
       '@atproto/xrpc': 0.7.7
-      core-js: 3.49.0
+      core-js: 3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38)
       multiformats: 9.9.0
       zod: 3.23.8
 
@@ -14269,7 +14273,7 @@ snapshots:
 
   core-js-pure@3.49.0: {}
 
-  core-js@3.49.0: {}
+  core-js@3.49.0(patch_hash=b14d6dc69d8b2ee39f04ff532bcb886f363b381a493cc59074f0f569f7844a38): {}
 
   core-util-is@1.0.3: {}
 
