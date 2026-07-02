@@ -16,6 +16,16 @@ import {
   useProfileFollowMutationQueue,
   useProfileMuteMutationQueue,
 } from '#/state/queries/profile'
+import {
+  usePostTypeFiltersQuery,
+  useUpdatePostTypeFiltersMutation,
+} from '#/state/queries/post-type-filters'
+import {
+  QUOTE_TYPES,
+  REPOST_TYPE,
+  isQuoteFilter,
+  isRepostFilter,
+} from '#/state/queries/post-type-filters/client-map'
 import {useSession} from '#/state/session'
 import {EventStopper} from '#/view/com/util/EventStopper'
 import {atoms as a, useTheme} from '#/alf'
@@ -34,6 +44,9 @@ import {ListSparkle_Stroke2_Corner0_Rounded as List} from '#/components/icons/Li
 import {Live_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/Live'
 import {MagnifyingGlass_Stroke2_Corner0_Rounded as SearchIcon} from '#/components/icons/MagnifyingGlass'
 import {Mute_Stroke2_Corner0_Rounded as Mute} from '#/components/icons/Mute'
+import {Eye_Stroke2_Corner0_Rounded as Eye} from '#/components/icons/Eye'
+import {EyeSlash_Stroke2_Corner0_Rounded as EyeSlash} from '#/components/icons/EyeSlash'
+import {Filter_Stroke2_Corner0_Rounded as Filter} from '#/components/icons/Filter'
 import {PeopleRemove2_Stroke2_Corner0_Rounded as UserMinus} from '#/components/icons/PeopleRemove2'
 import {
   PersonCheck_Stroke2_Corner0_Rounded as PersonCheck,
@@ -98,6 +111,33 @@ let ProfileMenu = ({
     profile,
     'ProfileMenu',
   )
+
+  const {data: filterRecord} = usePostTypeFiltersQuery()
+  const {mutate: updateFilters} = useUpdatePostTypeFiltersMutation()
+
+  const filterForThisProfile = !isSelf
+    ? filterRecord?.filters?.find(f => f.subject === profile.did)
+    : undefined
+  const isRepostFilterOn = isRepostFilter(filterForThisProfile?.types ?? [])
+  const isQuoteFilterOn = isQuoteFilter(filterForThisProfile?.types ?? [])
+
+  const onToggleRepostFilter = () => {
+    if (isSelf) return
+    updateFilters({
+      op: isRepostFilterOn ? 'remove' : 'add',
+      subject: profile.did,
+      type: REPOST_TYPE,
+    })
+  }
+
+  const onToggleQuoteFilter = () => {
+    if (isSelf) return
+    updateFilters({
+      op: isQuoteFilterOn ? 'remove' : 'add',
+      subject: profile.did,
+      type: QUOTE_TYPES[0],
+    })
+  }
 
   const blockPromptControl = Prompt.usePromptControl()
   const loggedOutWarningPromptControl = Prompt.usePromptControl()
@@ -477,6 +517,50 @@ let ProfileMenu = ({
                           }
                         />
                       </Menu.Item>
+                    )}
+                    {!isSelf && (
+                      <>
+                        <Menu.Item
+                          testID="profileHeaderDropdownHideRepostsBtn"
+                          label={
+                            isRepostFilterOn
+                              ? l`Show reposts from this account`
+                              : l`Hide reposts from this account`
+                          }
+                          onPress={onToggleRepostFilter}>
+                          <Menu.ItemText>
+                            {isRepostFilterOn ? (
+                              <Trans>Show reposts from this account</Trans>
+                            ) : (
+                              <Trans>Hide reposts from this account</Trans>
+                            )}
+                          </Menu.ItemText>
+                          <Menu.ItemIcon
+                            icon={isRepostFilterOn ? Eye : EyeSlash}
+                          />
+                        </Menu.Item>
+                        <Menu.Item
+                          testID="profileHeaderDropdownHideQuotePostsBtn"
+                          label={
+                            isQuoteFilterOn
+                              ? l`Show quote posts from this account`
+                              : l`Hide quote posts from this account`
+                          }
+                          onPress={onToggleQuoteFilter}>
+                          <Menu.ItemText>
+                            {isQuoteFilterOn ? (
+                              <Trans>
+                                Show quote posts from this account
+                              </Trans>
+                            ) : (
+                              <Trans>Hide quote posts from this account</Trans>
+                            )}
+                          </Menu.ItemText>
+                          <Menu.ItemIcon
+                            icon={isQuoteFilterOn ? Eye : EyeSlash}
+                          />
+                        </Menu.Item>
+                      </>
                     )}
                     <Menu.Item
                       testID="profileHeaderDropdownReportBtn"

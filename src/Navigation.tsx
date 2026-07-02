@@ -60,6 +60,7 @@ import {FeedsScreen} from '#/view/screens/Feeds'
 import {HomeScreen} from '#/view/screens/Home'
 import {ListsScreen} from '#/view/screens/Lists'
 import {ModerationBlockedAccounts} from '#/view/screens/ModerationBlockedAccounts'
+import {ModerationFilteredAccounts} from '#/view/screens/ModerationFilteredAccounts'
 import {ModerationModlistsScreen} from '#/view/screens/ModerationModlists'
 import {ModerationMutedAccounts} from '#/view/screens/ModerationMutedAccounts'
 import {NotFoundScreen} from '#/view/screens/NotFound'
@@ -198,6 +199,14 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="ModerationBlockedAccounts"
         getComponent={() => ModerationBlockedAccounts}
         options={{title: title(msg`Blocked Accounts`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ModerationFilteredAccounts"
+        getComponent={() => ModerationFilteredAccounts}
+        options={{
+          title: title(msg`Filtered Accounts`),
+          requireAuth: true,
+        }}
       />
       <Stack.Screen
         name="ModerationInteractionSettings"

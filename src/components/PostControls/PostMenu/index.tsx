@@ -29,6 +29,7 @@ let PostMenuButton = ({
   onShowLess,
   hitSlop,
   logContext,
+  viaRepost,
 }: {
   testID: string
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -42,6 +43,7 @@ let PostMenuButton = ({
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
   hitSlop?: Insets
   logContext: 'FeedItem' | 'PostThreadItem' | 'Post' | 'ImmersiveVideo'
+  viaRepost?: {uri: string; cid: string; by?: {did: string; handle: string}}
 }): React.ReactNode => {
   const {t: l} = useLingui()
 
@@ -89,6 +91,7 @@ let PostMenuButton = ({
             threadgateRecord={threadgateRecord}
             onShowLess={onShowLess}
             logContext={logContext}
+            viaRepost={viaRepost}
           />
         )}
       </Menu.Root>

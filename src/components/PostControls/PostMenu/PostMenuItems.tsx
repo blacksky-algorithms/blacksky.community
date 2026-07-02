@@ -7,6 +7,8 @@ import {
 } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 import {
+  AppBskyEmbedRecord,
+  AppBskyEmbedRecordWithMedia,
   type AppBskyFeedDefs,
   type AppBskyFeedPost,
   type AppBskyFeedThreadgate,
@@ -34,6 +36,16 @@ import {type Shadow} from '#/state/cache/post-shadow'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useFeedFeedbackContext} from '#/state/feed-feedback'
 import {useHiddenPosts, useLanguagePrefs} from '#/state/preferences'
+import {
+  usePostTypeFiltersQuery,
+  useUpdatePostTypeFiltersMutation,
+} from '#/state/queries/post-type-filters'
+import {
+  REPOST_TYPE,
+  QUOTE_TYPES,
+  isQuoteFilter,
+  isRepostFilter,
+} from '#/state/queries/post-type-filters/client-map'
 import {usePinnedPostMutation} from '#/state/queries/pinned-post'
 import {
   usePostDeleteMutation,
@@ -103,6 +115,7 @@ let PostMenuItems = ({
   threadgateRecord,
   onShowLess,
   logContext,
+  viaRepost,
 }: {
   testID: string
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -117,6 +130,7 @@ let PostMenuItems = ({
   threadgateRecord?: AppBskyFeedThreadgate.Record
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
   logContext: 'FeedItem' | 'PostThreadItem' | 'Post' | 'ImmersiveVideo'
+  viaRepost?: {uri: string; cid: string; by?: {did: string; handle: string}}
 }): React.ReactNode => {
   const {hasSession, currentAccount} = useSession()
   const {t: l} = useLingui()
@@ -171,6 +185,41 @@ let PostMenuItems = ({
 
   const {mutateAsync: toggleQuoteDetachment, isPending: isDetachPending} =
     useToggleQuoteDetachmentMutation()
+
+  const {data: filterRecord} = usePostTypeFiltersQuery()
+  const {mutate: updateFilters} = useUpdatePostTypeFiltersMutation()
+
+  const repostSubject = viaRepost?.by
+  const quoteEmbedForFilter =
+    post.embed && AppBskyEmbedRecord.isView(post.embed) ? post.embed : undefined
+
+  const filterForSubject = (subject: string) =>
+    filterRecord?.filters?.find(f => f.subject === subject)
+
+  const repostSubjectDid = repostSubject?.did
+  const quoteSubjectDid = quoteEmbedForFilter ? postAuthor.did : undefined
+
+  const currentRepostFilter = repostSubjectDid
+    ? filterForSubject(repostSubjectDid)
+    : undefined
+  const currentQuoteFilter = quoteSubjectDid
+    ? filterForSubject(quoteSubjectDid)
+    : undefined
+
+  const isRepostFiltered = isRepostFilter(currentRepostFilter?.types ?? [])
+  const isQuoteFiltered = isQuoteFilter(currentQuoteFilter?.types ?? [])
+
+  const onTogglePostTypeFilter = (
+    subject: string,
+    type: string,
+    shouldAdd: boolean,
+  ) => {
+    updateFilters(
+      shouldAdd
+        ? {op: 'add', subject, type}
+        : {op: 'remove', subject, type},
+    )
+  }
 
   const [queueBlock] = useProfileBlockMutationQueue(postAuthor)
   const [queueMute, queueUnmute] = useProfileMuteMutationQueue(postAuthor)
@@ -626,13 +675,71 @@ let PostMenuItems = ({
           </>
         )}
 
-        {hasSession && (canHideReplyForEveryone || canDetachQuote) && (
-          <>
-            <Menu.Divider />
-            <Menu.Group>
-              {/* canHidePostForMe block removed in fork commit f9c39fb8e —
-                  hide-post-for-me is exposed as a HideButton in PostControls. */}
-              {canHideReplyForEveryone && (
+        {hasSession &&
+          (canHideReplyForEveryone ||
+            canDetachQuote ||
+            !!repostSubject ||
+            !!quoteEmbedForFilter) && (
+            <>
+              <Menu.Divider />
+              <Menu.Group>
+                {/* canHidePostForMe block removed in fork commit f9c39fb8e —
+                    hide-post-for-me is exposed as a HideButton in PostControls. */}
+                {repostSubject && (
+                  <Menu.Item
+                    testID="postDropdownHideRepostFilterBtn"
+                    label={
+                      isRepostFiltered
+                        ? l`Show reposts from @${repostSubject.handle} again`
+                        : l`Don't show reposts from @${repostSubject.handle}`
+                    }
+                    onPress={() =>
+                      onTogglePostTypeFilter(
+                        repostSubject.did,
+                        REPOST_TYPE,
+                        !isRepostFiltered,
+                      )
+                    }>
+                    <Menu.ItemText>
+                      {isRepostFiltered
+                        ? l`Show reposts from @${repostSubject.handle} again`
+                        : l`Don't show reposts from @${repostSubject.handle}`}
+                    </Menu.ItemText>
+                    <Menu.ItemIcon
+                      icon={isRepostFiltered ? Eye : EyeSlash}
+                      position="right"
+                    />
+                  </Menu.Item>
+                )}
+
+                {quoteEmbedForFilter && (
+                  <Menu.Item
+                    testID="postDropdownHideQuoteFilterBtn"
+                    label={
+                      isQuoteFiltered
+                        ? l`Show quote posts from @${postAuthor.handle} again`
+                        : l`Don't show quote posts from @${postAuthor.handle}`
+                    }
+                    onPress={() =>
+                      onTogglePostTypeFilter(
+                        postAuthor.did,
+                        QUOTE_TYPES[0],
+                        !isQuoteFiltered,
+                      )
+                    }>
+                    <Menu.ItemText>
+                      {isQuoteFiltered
+                        ? l`Show quote posts from @${postAuthor.handle} again`
+                        : l`Don't show quote posts from @${postAuthor.handle}`}
+                    </Menu.ItemText>
+                    <Menu.ItemIcon
+                      icon={isQuoteFiltered ? Eye : EyeSlash}
+                      position="right"
+                    />
+                  </Menu.Item>
+                )}
+
+                {canHideReplyForEveryone && (
                 <Menu.Item
                   testID="postDropdownHideBtn"
                   label={

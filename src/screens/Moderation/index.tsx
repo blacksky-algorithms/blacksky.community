@@ -18,6 +18,7 @@ import {
   type UsePreferencesQueryResponse,
   usePreferencesSetAdultContentMutation,
 } from '#/state/queries/preferences'
+import {usePostTypeFiltersQuery} from '#/state/queries/post-type-filters'
 import {isNonConfigurableModerationAuthority} from '#/state/session/additional-moderation-authorities'
 import {atoms as a, useBreakpoints, useTheme, type ViewStyleProp} from '#/alf'
 import * as Admonition from '#/components/Admonition'
@@ -162,6 +163,8 @@ export function ModerationScreenInner({
     data: labelers,
     error: labelersError,
   } = useMyLabelersQuery()
+  const {data: postTypeFilterRecord} = usePostTypeFiltersQuery()
+  const filteredAccountCount = postTypeFilterRecord?.filters?.length ?? 0
   const {mutateAsync: removeLabelers, isPending: isRemovingLabelers} =
     useRemoveLabelersMutation()
 
@@ -298,6 +301,21 @@ export function ModerationScreenInner({
             <SubItem
               title={_(msg`Blocked accounts`)}
               icon={CircleBanSign}
+              style={[
+                (state.hovered || state.pressed) && [t.atoms.bg_contrast_50],
+              ]}
+            />
+          )}
+        </Link>
+        <Divider />
+        <Link
+          label={_(msg`View your filtered accounts`)}
+          testID="filteredAccountsBtn"
+          to="/moderation/filtered-accounts">
+          {state => (
+            <SubItem
+              title={_(msg`Filtered accounts`)}
+              icon={Filter}
               style={[
                 (state.hovered || state.pressed) && [t.atoms.bg_contrast_50],
               ]}

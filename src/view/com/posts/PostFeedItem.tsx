@@ -295,6 +295,9 @@ let FeedItemInner = ({
       return {
         uri: reason.uri,
         cid: reason.cid,
+        by: reason.by
+          ? {did: reason.by.did, handle: reason.by.handle}
+          : undefined,
       }
     }
   }, [reason])

@@ -1,0 +1,60 @@
+{
+  "lexicon": 1,
+  "id": "community.lexicon.preference.feed",
+  "description": "Per-author post-type filters. The viewer declares that records of specific $type values authored by specific accounts should be hidden from their feeds. The client is responsible for mapping the $type tokens to filterable behavior; the lexicon is intentionally token-typed for interop safety without coupling to specific record schemas.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["filters"],
+        "properties": {
+          "filters": {
+            "type": "array",
+            "maxLength": 5000,
+            "items": {"type": "ref", "ref": "#authorFilter"}
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of the most recent change to any filter."
+          }
+        }
+      }
+    },
+    "authorFilter": {
+      "type": "object",
+      "description": "A filter that hides records of the listed $type tokens when authored by the given DID.",
+      "required": ["subject", "types"],
+      "properties": {
+        "subject": {
+          "type": "string",
+          "format": "did",
+          "description": "DID of the author whose records this filter applies to."
+        },
+        "types": {
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "type": "string",
+            "knownValues": [
+              "app.bsky.feed.repost",
+              "app.bsky.embed.record",
+              "app.bsky.embed.recordWithMedia"
+            ]
+          },
+          "description": "ATProto $type tokens to hide when the author matches `subject`."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    }
+  }
+}

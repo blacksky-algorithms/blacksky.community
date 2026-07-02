@@ -335,6 +335,28 @@ export class FeedTuner {
     return slices
   }
 
+  static removeAuthorReposts({did}: {did: string}) {
+    return (
+      _tuner: FeedTuner,
+      slices: FeedViewPostsSlice[],
+      _dryRun: boolean,
+    ): FeedViewPostsSlice[] => {
+      for (let i = slices.length - 1; i >= 0; i--) {
+        const reason = slices[i].reason
+        if (AppBskyFeedDefs.isReasonRepost(reason)) {
+          // Predicate narrows but TS over-narrows to `never` on `.$Typed`
+          // unions that include a catch-all arm — cast through the known
+          // upstream ReasonRepost shape.
+          const byDid = (reason as AppBskyFeedDefs.ReasonRepost).by?.did
+          if (byDid === did) {
+            slices.splice(i, 1)
+          }
+        }
+      }
+      return slices
+    }
+  }
+
   static removeQuotePosts(
     tuner: FeedTuner,
     slices: FeedViewPostsSlice[],
@@ -347,6 +369,24 @@ export class FeedTuner {
       }
     }
     return slices
+  }
+
+  static removeAuthorQuotePosts({did}: {did: string}) {
+    return (
+      _tuner: FeedTuner,
+      slices: FeedViewPostsSlice[],
+      _dryRun: boolean,
+    ): FeedViewPostsSlice[] => {
+      for (let i = slices.length - 1; i >= 0; i--) {
+        if (
+          slices[i].isQuotePost &&
+          slices[i].getAuthors().author.did === did
+        ) {
+          slices.splice(i, 1)
+        }
+      }
+      return slices
+    }
   }
 
   static removeOrphans(

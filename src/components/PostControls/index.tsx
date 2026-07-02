@@ -69,7 +69,7 @@ let PostControls = ({
   logContext: 'FeedItem' | 'PostThreadItem' | 'Post' | 'ImmersiveVideo'
   threadgateRecord?: AppBskyFeedThreadgate.Record
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
-  viaRepost?: {uri: string; cid: string}
+  viaRepost?: {uri: string; cid: string; by?: {did: string; handle: string}}
   variant?: 'compact' | 'normal' | 'large'
   forceGoogleTranslate?: boolean
 }): React.ReactNode => {
@@ -359,6 +359,7 @@ let PostControls = ({
             left: secondaryControlSpacingStyles.gap / 2,
           }}
           logContext={logContext}
+          viaRepost={viaRepost}
         />
       </View>
     </View>

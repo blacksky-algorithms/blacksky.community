@@ -21,6 +21,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ModerationModlists: '/moderation/modlists',
   ModerationMutedAccounts: '/moderation/muted-accounts',
   ModerationBlockedAccounts: '/moderation/blocked-accounts',
+  ModerationFilteredAccounts: '/moderation/filtered-accounts',
   ModerationInteractionSettings: '/moderation/interaction-settings',
   ModerationVerificationSettings: '/moderation/verification-settings',
   // profiles, threads, lists
