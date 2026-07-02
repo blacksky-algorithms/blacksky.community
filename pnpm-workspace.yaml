@@ -10,6 +10,7 @@ overrides:
   '@types/estree': '1.0.6'
   'react-native-compressor': '1.13.0'
   'react-native-reanimated': '3.19.1'
+  'react-native-mmkv': 'npm:@bsky.app/react-native-mmkv@2.12.5'
   'psl': '1.9.0'
   '@types/psl': '1.1.1'
   'react-native-screens': '4.24.0'
