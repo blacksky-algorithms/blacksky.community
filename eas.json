@@ -14,8 +14,7 @@
       "distribution": "internal",
       "channel": "development",
       "ios": {
-        "simulator": true,
-        "resourceClass": "large"
+        "simulator": true
       },
       "env": {
         "EXPO_PUBLIC_ENV": "production"
@@ -25,9 +24,6 @@
       "extends": "base",
       "distribution": "internal",
       "channel": "production",
-      "ios": {
-        "resourceClass": "large"
-      },
       "env": {
         "EXPO_PUBLIC_ENV": "production"
       }
@@ -35,7 +31,6 @@
     "production": {
       "extends": "base",
       "ios": {
-        "resourceClass": "large",
         "autoIncrement": true,
         "buildArtifactPaths": ["ios/build/*"]
       },
