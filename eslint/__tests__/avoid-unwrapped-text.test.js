@@ -427,6 +427,14 @@ function MyText({ foo }) {
 
       {
         code: `
+<Text>
+  <Trans>{renderItem('foo')}</Trans>
+</Text>
+       `,
+      },
+
+      {
+        code: `
 <View>
   {null}
 </View>
@@ -766,66 +774,6 @@ function MyText({ foo }) {
 </View>
         `,
         errors: 1,
-      },
-
-      {
-        code: `
-<Text>
-  <Trans>{renderItem('foo')}</Trans>
-</Text>
-       `,
-        options: [{detectRichTransInText: true}],
-        errors: [
-          {
-            message:
-              'Use <RichTransText> for rich/component-interpolated translations inside <Text>.',
-          },
-        ],
-      },
-
-      {
-        code: `
-<Text>
-  <Trans>{firstAuthorLink} liked your post</Trans>
-</Text>
-       `,
-        options: [{detectRichTransInText: true}],
-        errors: [
-          {
-            message:
-              'Use <RichTransText> for rich/component-interpolated translations inside <Text>.',
-          },
-        ],
-      },
-
-      {
-        code: `
-<Text>
-  <Trans><Text>foo</Text></Trans>
-</Text>
-       `,
-        options: [{detectRichTransInText: true}],
-        errors: [
-          {
-            message:
-              'Use <RichTransText> for rich/component-interpolated translations inside <Text>.',
-          },
-        ],
-      },
-
-      {
-        code: `
-<Text>
-  <Trans><Plural value={count} one="thing" other="things" /></Trans>
-</Text>
-       `,
-        options: [{detectRichTransInText: true}],
-        errors: [
-          {
-            message:
-              'Use <RichTransText> for rich/component-interpolated translations inside <Text>.',
-          },
-        ],
       },
 
       {

@@ -1,8 +1,6 @@
 import {View} from 'react-native'
-import {msg, ph} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
+import {Trans} from '@lingui/react/macro'
 
-import {RichTransText} from '#/lib/lingui/RichTransText'
 import {useSession} from '#/state/session'
 import {UserInfoText} from '#/view/com/util/UserInfoText'
 import {atoms as a, useTheme} from '#/alf'
@@ -21,44 +19,29 @@ export function PostRepliedTo({
   isParentNotFound?: boolean
 }) {
   const t = useTheme()
-  const {_} = useLingui()
   const {currentAccount} = useSession()
 
   const textStyle = [a.text_sm, t.atoms.text_contrast_medium, a.leading_snug]
-  const textProps = {
-    style: [a.flex_1, textStyle],
-    numberOfLines: 1,
-  }
 
   let label
   if (isParentBlocked) {
-    label = _(
-      msg({message: 'Replied to a blocked post', context: 'description'}),
-    )
+    label = <Trans context="description">Replied to a blocked post</Trans>
   } else if (isParentNotFound) {
-    label = _(msg({message: 'Replied to a post', context: 'description'}))
+    label = <Trans context="description">Replied to a post</Trans>
   } else if (parentAuthor) {
     const did =
       typeof parentAuthor === 'string' ? parentAuthor : parentAuthor.did
     const isMe = currentAccount?.did === did
     if (isMe) {
-      label = _(msg({message: 'Replied to you', context: 'description'}))
+      label = <Trans context="description">Replied to you</Trans>
     } else {
       label = (
-        <RichTransText
-          message={msg({
-            message: `Replied to ${ph({author: ''})}`,
-            context: 'description',
-          })}
-          values={{
-            author: (
-              <ProfileHoverCard did={did}>
-                <UserInfoText did={did} attr="displayName" style={textStyle} />
-              </ProfileHoverCard>
-            ),
-          }}
-          textProps={textProps}
-        />
+        <Trans context="description">
+          Replied to{' '}
+          <ProfileHoverCard did={did}>
+            <UserInfoText did={did} attr="displayName" style={textStyle} />
+          </ProfileHoverCard>
+        </Trans>
       )
     }
   }
@@ -74,7 +57,9 @@ export function PostRepliedTo({
         size="xs"
         style={[t.atoms.text_contrast_medium, {top: -1}]}
       />
-      {typeof label === 'string' ? <Text {...textProps}>{label}</Text> : label}
+      <Text style={[a.flex_1, textStyle]} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   )
 }

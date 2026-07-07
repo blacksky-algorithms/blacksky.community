@@ -29,44 +29,6 @@ function getTagName(node) {
   return reversedIdentifiers.reverse().join('.')
 }
 
-function isDefinitelySafeTransExpression(expression) {
-  switch (expression.type) {
-    case 'Literal':
-    case 'TemplateLiteral':
-      return true
-    case 'UnaryExpression':
-      return isDefinitelySafeTransExpression(expression.argument)
-    case 'TaggedTemplateExpression':
-      return true
-    case 'CallExpression':
-      return (
-        expression.callee.type === 'Identifier' &&
-        expression.callee.name === '_'
-      )
-    case 'Identifier':
-      return expression.name === 'undefined'
-    default:
-      return false
-  }
-}
-
-function hasRichTransChild(node) {
-  return node.children.some(child => {
-    if (child.type === 'JSXElement') {
-      return true
-    }
-
-    if (child.type === 'JSXExpressionContainer') {
-      if (child.expression.type === 'JSXEmptyExpression') {
-        return false
-      }
-      return !isDefinitelySafeTransExpression(child.expression)
-    }
-
-    return false
-  })
-}
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
   meta: {
@@ -90,9 +52,6 @@ module.exports = {
             type: 'object',
             additionalProperties: {type: 'string'},
           },
-          detectRichTransInText: {
-            type: 'boolean',
-          },
         },
         additionalProperties: false,
       },
@@ -103,7 +62,6 @@ module.exports = {
     const impliedTextProps = options.impliedTextProps ?? []
     const impliedTextComponents = options.impliedTextComponents ?? []
     const suggestedTextWrappers = options.suggestedTextWrappers ?? {}
-    const detectRichTransInText = options.detectRichTransInText ?? false
     const textProps = [...impliedTextProps]
     const textComponents = ['Text', ...impliedTextComponents]
 
@@ -299,19 +257,12 @@ module.exports = {
         if (getTagName(node) !== 'Trans') {
           return
         }
-        const hasRichChildren = detectRichTransInText && hasRichTransChild(node)
         let parent = node.parent
         while (parent) {
           if (parent.type === 'JSXElement') {
             const tagName = getTagName(parent)
             if (isTextComponent(tagName)) {
-              if (hasRichChildren) {
-                context.report({
-                  node,
-                  message:
-                    'Use <RichTransText> for rich/component-interpolated translations inside <Text>.',
-                })
-              }
+              // We're good.
               return
             }
             if (tagName === 'Trans') {
