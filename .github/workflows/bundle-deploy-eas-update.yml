@@ -124,21 +124,20 @@ jobs:
           echo "EXPO_PUBLIC_GCP_PROJECT_ID=${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}" >> .env
           echo "$json" > google-services.json
 
-      - name: 🏗️ Create Bundle
+      - name: 🚀 Publish OTA Update (eoas)
         if: ${{ !steps.fingerprint.outputs.includes-changes }}
         run: >
-          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_RELEASE=${{ steps.env.outputs.EXPO_PUBLIC_RELEASE_VERSION }}
-          SENTRY_DIST=${{ steps.env.outputs.EXPO_PUBLIC_BUNDLE_IDENTIFIER }}
-          pnpm export
-
-      - name: 📦 Package Bundle and 🚀 Deploy
-        if: ${{ !steps.fingerprint.outputs.includes-changes }}
-        run: pnpm use-build-number bash scripts/bundleUpdate.sh
+          pnpm use-build-number pnpm exec eoas publish
+          --branch=${{ inputs.channel || 'testflight' }}
+          --platform=all
+          --nonInteractive
+          --dumpSourcemap
+          --message="${{ github.event.head_commit.message || github.sha }}"
         env:
-          DENIS_API_KEY: ${{ secrets.DENIS_API_KEY }}
-          RUNTIME_VERSION: ${{ inputs.runtimeVersion }}
-          CHANNEL_NAME: ${{ inputs.channel || 'testflight' }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: ${{ steps.env.outputs.EXPO_PUBLIC_RELEASE_VERSION }}
+          SENTRY_DIST: ${{ steps.env.outputs.EXPO_PUBLIC_BUNDLE_IDENTIFIER }}
 
       - name: ⬇️ Restore Cache
         id: get-base-commit
