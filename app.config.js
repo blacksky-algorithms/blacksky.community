@@ -346,11 +346,11 @@ module.exports = function (_config) {
               },
             },
             android: {
-              backgroundColor: '#006AFF', // primary_500
+              backgroundColor: '#00007F', // Blacksky navy (matches adaptive icon background)
               image: './assets/splash/android-splash-logo-white.png',
               imageWidth: 102, // even division of 306px
               dark: {
-                backgroundColor: '#002861', // primary_900
+                backgroundColor: '#000040', // darker Blacksky navy
                 image: './assets/splash/android-splash-logo-white.png',
                 imageWidth: 102,
               },
