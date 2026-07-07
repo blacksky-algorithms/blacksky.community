@@ -14,29 +14,28 @@ import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
 import {IS_ANDROID, IS_IOS, IS_TESTFLIGHT} from '#/env'
 
+// Pull-request OTA previews are temporarily disabled. expo-open-ota selects the
+// channel from the `expo-channel-name` request header, so retargeting an
+// already-installed build to a `pull-request-<n>` channel at runtime requires
+// `Updates.setUpdateURLAndRequestHeadersOverride`, which in turn requires
+// `updates.disableAntiBrickingMeasures: true` in app.config.js. That flag ships
+// in production and weakens the embedded-update brick-recovery safety net, so
+// it is intentionally left off. To re-enable previews, set that flag, restore
+// the runtime override in `tryApplyUpdate`, and rebuild the native binaries.
+const PR_OTA_PREVIEWS_ENABLED = false
+
 const MINIMUM_MINIMIZE_TIME = 15 * 60e3
 
 async function setExtraParams() {
+  // Channel is now carried by the baked-in `expo-channel-name` request header
+  // (see app.config.js `updates.requestHeaders`). expo-open-ota resolves the
+  // channel from that header, so we no longer set it as an extra param.
   await setExtraParamAsync(
     IS_IOS ? 'ios-build-number' : 'android-build-number',
     // Hilariously, `buildVersion` is not actually a string on Android even though the TS type says it is.
     // This just ensures it gets passed as a string
     `${nativeBuildVersion}`,
   )
-  await setExtraParamAsync(
-    'channel',
-    IS_TESTFLIGHT ? 'testflight' : 'production',
-  )
-}
-
-async function setExtraParamsPullRequest(channel: string) {
-  await setExtraParamAsync(
-    IS_IOS ? 'ios-build-number' : 'android-build-number',
-    // Hilariously, `buildVersion` is not actually a string on Android even though the TS type says it is.
-    // This just ensures it gets passed as a string
-    `${nativeBuildVersion}`,
-  )
-  await setExtraParamAsync('channel', channel)
 }
 
 async function updateTestflight() {
@@ -67,41 +66,22 @@ async function updateTestflight() {
 
 export function useApplyPullRequestOTAUpdate() {
   const {currentlyRunning} = useUpdates()
-  const [pending, setPending] = useState(false)
+  // PR previews are disabled (see PR_OTA_PREVIEWS_ENABLED), so this never toggles.
+  const [pending] = useState(false)
   const currentChannel = currentlyRunning?.channel
   const isCurrentlyRunningPullRequestDeployment =
     currentChannel?.startsWith('pull-request')
 
-  const tryApplyUpdate = async (channel: string) => {
-    setPending(true)
-    await setExtraParamsPullRequest(channel)
-    const res = await checkForUpdateAsync()
-    if (res.isAvailable) {
+  const tryApplyUpdate = async (_channel: string) => {
+    // Disabled: see PR_OTA_PREVIEWS_ENABLED above. Applying a PR channel at
+    // runtime needs the anti-bricking override, which is intentionally off.
+    if (!PR_OTA_PREVIEWS_ENABLED) {
       Alert.alert(
-        'Deployment Available',
-        `A deployment of ${channel} is availalble. Applying this deployment may result in a bricked installation, in which case you will need to reinstall the app and may lose local data. Are you sure you want to proceed?`,
-        [
-          {
-            text: 'No',
-            style: 'cancel',
-          },
-          {
-            text: 'Relaunch',
-            style: 'default',
-            onPress: async () => {
-              await fetchUpdateAsync()
-              await reloadAsync()
-            },
-          },
-        ],
+        'Unavailable',
+        'Pull-request OTA previews are temporarily disabled.',
       )
-    } else {
-      Alert.alert(
-        'No Deployment Available',
-        `No new deployments of ${channel} are currently available for your current native build.`,
-      )
+      return
     }
-    setPending(false)
   }
 
   const revertToEmbedded = async () => {

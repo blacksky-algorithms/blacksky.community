@@ -31,13 +31,6 @@ module.exports = function (_config) {
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
-  // OTA updates are disabled: Blacksky has no update server yet. The url and
-  // code-signing cert in the `updates` block still point at Bluesky's
-  // infrastructure, so OTA must stay off until EAS Update (or a self-hosted
-  // manifest signed with a Blacksky cert) is configured. New builds ship via
-  // EAS build in the meantime.
-  const UPDATES_ENABLED = false
-
   const USE_SENTRY = Boolean(process.env.SENTRY_AUTH_TOKEN)
 
   const IOS_ICON_FILE =
@@ -228,19 +221,18 @@ module.exports = function (_config) {
         favicon: './assets/favicon.png',
       },
       updates: {
-        url: 'https://updates.bsky.app/manifest',
-        enabled: UPDATES_ENABLED,
+        url: 'https://updates.blacksky.community/manifest',
+        enabled: true,
         fallbackToCacheTimeout: 30000,
-        codeSigningCertificate: UPDATES_ENABLED
-          ? './code-signing/certificate.pem'
-          : undefined,
-        codeSigningMetadata: UPDATES_ENABLED
-          ? {
-              keyid: 'main',
-              alg: 'rsa-v1_5-sha256',
-            }
-          : undefined,
+        codeSigningCertificate: './code-signing/certificate.pem',
+        codeSigningMetadata: {
+          keyid: 'main',
+          alg: 'rsa-v1_5-sha256',
+        },
         checkAutomatically: 'NEVER',
+        requestHeaders: {
+          'expo-channel-name': IS_TESTFLIGHT ? 'testflight' : 'production',
+        },
       },
       plugins: [
         'expo-video',
