@@ -124,6 +124,10 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
     }
   }, [refetch])
 
+  const handleRefresh = useCallback(() => {
+    void onRefresh()
+  }, [onRefresh])
+
   useEffect(() => {
     if (isPageFocused) void refetch()
   }, [isPageFocused, refetch])
