@@ -38,7 +38,7 @@ permissions:
 
 jobs:
   build:
-    if: github.repository == 'bluesky-social/social-app'
+    if: github.repository == 'blacksky-algorithms/blacksky.community'
     name: Build and Submit iOS
     runs-on: macos-26-xlarge
     concurrency:
