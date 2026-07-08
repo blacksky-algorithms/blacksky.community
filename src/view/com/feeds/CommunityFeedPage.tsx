@@ -12,6 +12,7 @@ import {
   useCommunityTimelineQuery,
 } from '#/state/queries/community-feed'
 import {useSession} from '#/state/session'
+import {ComposerPrompt} from '#/view/com/feeds/ComposerPrompt'
 import {isThreadChildAt, isThreadParentAt} from '#/view/com/posts/PostFeed'
 import {PostFeedItem} from '#/view/com/posts/PostFeedItem'
 import {ViewFullThread} from '#/view/com/posts/ViewFullThread'
@@ -249,6 +250,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
           data={rows}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
+          ListHeaderComponent={hasSession ? <ComposerPrompt /> : null}
           ListEmptyComponent={renderEmpty}
           ListFooterComponent={renderFooter}
           onEndReached={onEndReached}
