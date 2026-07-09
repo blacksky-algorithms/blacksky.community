@@ -287,8 +287,8 @@ jobs:
 
       - name: 🪲 Upload dSYM to Sentry
         run: >
-          SENTRY_ORG=blueskyweb
-          SENTRY_PROJECT=app
+          SENTRY_ORG=blacksky-algorithms
+          SENTRY_PROJECT=social-app
           SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           pnpm sentry-cli debug-files upload "$BUILD_DIR/Bluesky.app.dSYM.zip" --include-sources
 
@@ -430,15 +430,6 @@ jobs:
           compression-level: 0
           name: build-${{ steps.timestamp.outputs.time }}.apk
           path: build.apk
-
-      - name: 🔔 Notify Slack
-        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-        with:
-          webhook: ${{ secrets.SLACK_CLIENT_ALERT_WEBHOOK }}
-          webhook-type: incoming-webhook
-          payload-templated: true
-          payload: |
-            {"text": "Android build is ready for testing. Download the artifact here: ${{ steps.upload-artifact.outputs.artifact-url }}"}
 
       - name: ⬇️ Restore Cache
         id: get-base-commit
