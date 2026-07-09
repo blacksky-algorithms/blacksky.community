@@ -6026,12 +6026,12 @@ packages:
   flow-enums-runtime@0.0.6:
     resolution: {integrity: sha512-3PYnM29RFXwvAN6Pc/scUfkI7RwhQ/xqyLUyPNlXUp9S40zI8nup9tUSrTLSVnWGBN38FNiGWbwZOB6uR4OGdw==}
 
-  flow-estree@0.321.0:
-    resolution: {integrity: sha512-rQY7YKoo+PKpAHQjEP2cxyIefk04OCEKUlbtV4y6LAUG3Ly7guQX9YH8th6drSmYcNkMgpqWMaHRhhYaAF69CA==}
+  flow-estree@0.322.0:
+    resolution: {integrity: sha512-v7wiiFWSKbJ1HGVCRKhxl+6pQWTQV6P4c7XEfKjVlH71YkgQyJCq0AG5dhJDD/3/SkJgX/F9lvAj2rbrFzArdQ==}
     engines: {node: '>=18'}
 
-  flow-parser@0.321.0:
-    resolution: {integrity: sha512-9LNK2rp/NWWbwdEK6mxC54XfQRyD2lVV0iPVBYf+5o5vvqJl7ietkR1hX3/dZ39j0GAbL4PIFoeekDViOW0x/Q==}
+  flow-parser@0.322.0:
+    resolution: {integrity: sha512-Qfd8N4sSuWmlf1qk5M60fi8JrvhNvj9fbwMsRkcnm3UhLYukkbm2CFkAhiTD3n4RVXb6TuCHFCp78TMXpO0zcA==}
     engines: {node: '>=0.4.0'}
 
   follow-redirects@1.16.0:
@@ -16480,11 +16480,11 @@ snapshots:
 
   flow-enums-runtime@0.0.6: {}
 
-  flow-estree@0.321.0: {}
+  flow-estree@0.322.0: {}
 
-  flow-parser@0.321.0:
+  flow-parser@0.322.0:
     dependencies:
-      flow-estree: 0.321.0
+      flow-estree: 0.322.0
 
   follow-redirects@1.16.0: {}
 
@@ -17649,7 +17649,7 @@ snapshots:
       '@babel/preset-flow': 7.29.7(@babel/core@7.29.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
       '@babel/register': 7.29.7(@babel/core@7.29.0)
-      flow-parser: 0.321.0
+      flow-parser: 0.322.0
       graceful-fs: 4.2.11
       micromatch: 4.0.8
       neo-async: 2.6.2
