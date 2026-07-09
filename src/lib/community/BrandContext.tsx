@@ -103,15 +103,45 @@ const BLACKSKY_PRIMARY_SCALE = {
   primary_975: '#13133B',
 }
 
+type Pin = {type: string; value: string; pinned: boolean}
+
+// The Following timeline is a protocol-level home invariant, not per-community
+// configurable data. Guarantee exactly one entry (appended if missing) and drop
+// any following entry mis-typed as a feed. Backstops a served config that omits
+// Following (stale cache, service-down fallback, or upstream serialization bug).
+export function ensureFollowingPinned(pins: Pin[]): Pin[] {
+  let hasFollowing = false
+  const out = pins.filter(p => {
+    if (p.type === 'feed' && p.value === 'following') return false // drop corruption
+    if (p.type === 'timeline' && p.value === 'following') {
+      if (hasFollowing) return false // dedupe
+      hasFollowing = true
+    }
+    return true
+  })
+  if (!hasFollowing) out.push({type: 'timeline', value: 'following', pinned: true})
+  return out
+}
+
+function normalizeBrandConfig(config: ComputedBrandConfig): ComputedBrandConfig {
+  return {
+    ...config,
+    feeds: {
+      ...config.feeds,
+      defaultPinned: ensureFollowingPinned(config.feeds?.defaultPinned ?? []),
+    },
+  }
+}
+
 // In multi-brand mode, bskyweb injects the config into the HTML before React loads.
 // In dev mode (yarn web), fall back to the Blacksky defaults above.
 function resolveBrandConfig(): ComputedBrandConfig {
   if (typeof window !== 'undefined' && window.__BRAND_CONFIG__) {
-    return window.__BRAND_CONFIG__
+    return normalizeBrandConfig(window.__BRAND_CONFIG__)
   }
 
   const config = generateComputedConfig(BLACKSKY_CONFIG)
-  return {
+  return normalizeBrandConfig({
     ...config,
     theme: {
       ...config.theme,
@@ -125,7 +155,7 @@ function resolveBrandConfig(): ComputedBrandConfig {
         selectionDark: '#464985',
       },
     },
-  }
+  })
 }
 
 export const DEFAULT_BRAND_CONFIG = resolveBrandConfig()
