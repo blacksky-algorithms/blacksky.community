@@ -26,10 +26,7 @@ const debugFetch: typeof fetch = async (input, init) => {
     try {
       body = await cloned.text()
     } catch {}
-    console.log(
-      `[OAuth fetch] ${res.status} ${url}`,
-      body?.slice(0, 500),
-    )
+    console.log(`[OAuth fetch] ${res.status} ${url}`, body?.slice(0, 500))
     return res
   } catch (err) {
     console.error(`[OAuth fetch] FAILED ${url}`, err)

@@ -156,19 +156,17 @@ let DrawerProfileCard = ({
       <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
         <Text style={[a.text_md, a.font_semi_bold]}>
           {formatCount(i18n, profile?.followersCount ?? 0)}
-        </Text>
-        {' '}
+        </Text>{' '}
         {i18n._(
           plural(profile?.followersCount || 0, {
             one: 'follower',
             other: 'followers',
           }),
-        )}
-        {' '}&middot;{' '}
+        )}{' '}
+        &middot;{' '}
         <Text style={[a.text_md, a.font_semi_bold]}>
           {formatCount(i18n, profile?.followsCount ?? 0)}
-        </Text>
-        {' '}
+        </Text>{' '}
         {i18n._(
           plural(profile?.followsCount || 0, {
             one: 'following',

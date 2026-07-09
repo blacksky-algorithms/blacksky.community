@@ -4,18 +4,17 @@ const fs = require('fs')
 const path = require('path')
 const {execFileSync} = require('child_process')
 
-if (process.env.EAS_BUILD_PLATFORM && process.env.EAS_BUILD_PLATFORM !== 'ios') {
+if (
+  process.env.EAS_BUILD_PLATFORM &&
+  process.env.EAS_BUILD_PLATFORM !== 'ios'
+) {
   process.exit(0)
 }
 
 const root = path.resolve(__dirname, '..')
 const iosDir = path.join(root, 'ios')
 const appInfoPlist = path.join(iosDir, 'Blacksky', 'Info.plist')
-const projectFile = path.join(
-  iosDir,
-  'Blacksky.xcodeproj',
-  'project.pbxproj',
-)
+const projectFile = path.join(iosDir, 'Blacksky.xcodeproj', 'project.pbxproj')
 
 const targetInfoPlists = [
   path.join(iosDir, 'BlackskyClip', 'Info.plist'),
@@ -25,9 +24,13 @@ const targetInfoPlists = [
 
 function readPlistValue(plist, key) {
   try {
-    return execFileSync('/usr/libexec/PlistBuddy', ['-c', `Print :${key}`, plist], {
-      encoding: 'utf8',
-    }).trim()
+    return execFileSync(
+      '/usr/libexec/PlistBuddy',
+      ['-c', `Print :${key}`, plist],
+      {
+        encoding: 'utf8',
+      },
+    ).trim()
   } catch {
     return undefined
   }
@@ -35,14 +38,23 @@ function readPlistValue(plist, key) {
 
 function setPlistValue(plist, key, value) {
   try {
-    execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, plist])
+    execFileSync('/usr/libexec/PlistBuddy', [
+      '-c',
+      `Set :${key} ${value}`,
+      plist,
+    ])
   } catch {
-    execFileSync('/usr/libexec/PlistBuddy', ['-c', `Add :${key} string ${value}`, plist])
+    execFileSync('/usr/libexec/PlistBuddy', [
+      '-c',
+      `Add :${key} string ${value}`,
+      plist,
+    ])
   }
 }
 
 const rawBuildNumber =
-  process.env.BSKY_IOS_BUILD_NUMBER ?? readPlistValue(appInfoPlist, 'CFBundleVersion')
+  process.env.BSKY_IOS_BUILD_NUMBER ??
+  readPlistValue(appInfoPlist, 'CFBundleVersion')
 
 if (!rawBuildNumber || rawBuildNumber.includes('$(')) {
   throw new Error(

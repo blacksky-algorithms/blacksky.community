@@ -59,14 +59,16 @@ done
 const withIosEmbeddedBuildVersions = config => {
   return withXcodeProject(config, config => {
     const project = config.modResults
-    const shellScripts = project.hash.project.objects.PBXShellScriptBuildPhase ?? {}
+    const shellScripts =
+      project.hash.project.objects.PBXShellScriptBuildPhase ?? {}
     const existingEntry = Object.entries(shellScripts).find(
       ([key, phase]) =>
         !key.endsWith('_comment') && phase && phase.name === `"${PHASE_NAME}"`,
     )
-    const target = project.hash.project.objects.PBXNativeTarget[
-      project.getFirstTarget().uuid
-    ]
+    const target =
+      project.hash.project.objects.PBXNativeTarget[
+        project.getFirstTarget().uuid
+      ]
 
     let phaseUuid = existingEntry?.[0]
 
