@@ -5,7 +5,10 @@ import {type OAuthSession} from '@atproto/oauth-client'
 
 import {BLUESKY_PROXY_HEADER, BSKY_SERVICE} from '#/lib/constants'
 import {logger} from '#/logger'
-import {sessionAccountToSession} from './agent'
+import {
+  sessionAccountToSession,
+  stripAppviewProxyForPdsLocalMethods,
+} from './agent'
 import {configureModerationForAccount} from './moderation'
 import {getOAuthClient} from './oauth-client'
 import {type SessionAccount} from './types'
@@ -113,7 +116,21 @@ export class OauthBskyAppAgent extends Agent {
   dispatchUrl?: string
 
   constructor(session: OAuthSession) {
-    super(session)
+    // Wrap the OAuth session's fetchHandler so the appview proxy header is
+    // stripped from PDS-local methods. The header is added by the Agent's XRPC
+    // wrapper before it calls the session manager, so stripping here removes it
+    // from the outbound request. See stripAppviewProxyForPdsLocalMethods.
+    super({
+      get did() {
+        return session.did
+      },
+      fetchHandler(url, init) {
+        return session.fetchHandler(
+          url,
+          stripAppviewProxyForPdsLocalMethods(url, init) ?? init,
+        )
+      },
+    })
   }
 
   async prepare(
