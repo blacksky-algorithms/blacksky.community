@@ -26,6 +26,9 @@ describe('BrandContext defaults', () => {
     expect(DEFAULT_BRAND_CONFIG.messages.postButtonLabel).toBe('Post')
 
     expect(DEFAULT_BRAND_CONFIG.services.pds.url).toBe('https://blacksky.app')
+    expect(DEFAULT_BRAND_CONFIG.services.moderation).toEqual([
+      'did:plc:d2mkddsbmnrgr3domzg5qexf',
+    ])
     expect(DEFAULT_BRAND_CONFIG.web.domains.main).toBe(
       'https://blacksky.community',
     )

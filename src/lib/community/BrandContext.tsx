@@ -9,6 +9,8 @@ import {
 import {DISCOVER_FEED_URI, VIDEO_FEED_URI} from '#/lib/constants'
 import {DEFAULT_BLUE_HUE} from '#/alf/util/colorGeneration'
 
+const BLACKSKY_MODERATION_DID = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
+
 // Blacksky defaults used as the dev-mode fallback when no brand config is
 // injected by bskyweb (i.e. when running `yarn web` locally).
 const BLACKSKY_CONFIG: RawCommunityConfig = {
@@ -39,6 +41,7 @@ const BLACKSKY_CONFIG: RawCommunityConfig = {
     pds: {
       url: 'https://blacksky.app',
     },
+    moderation: [BLACKSKY_MODERATION_DID],
   },
   feeds: {
     defaultPinned: [
