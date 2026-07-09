@@ -7,22 +7,29 @@ import {
   isEnabled,
   reloadAsync,
   setExtraParamAsync,
+  setUpdateURLAndRequestHeadersOverride,
   useUpdates,
 } from 'expo-updates'
 
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {IS_ANDROID, IS_IOS, IS_TESTFLIGHT} from '#/env'
+import {IS_ANDROID, IS_INTERNAL, IS_IOS, IS_TESTFLIGHT} from '#/env'
 
-// Pull-request OTA previews are temporarily disabled. expo-open-ota selects the
-// channel from the `expo-channel-name` request header, so retargeting an
-// already-installed build to a `pull-request-<n>` channel at runtime requires
+// Pull-request OTA previews are only available on internal (dev/TestFlight)
+// builds. expo-open-ota selects the channel from the `expo-channel-name`
+// request header, so retargeting an already-installed build to a
+// `pull-request-<n>` channel at runtime requires
 // `Updates.setUpdateURLAndRequestHeadersOverride`, which in turn requires
-// `updates.disableAntiBrickingMeasures: true` in app.config.js. That flag ships
-// in production and weakens the embedded-update brick-recovery safety net, so
-// it is intentionally left off. To re-enable previews, set that flag, restore
-// the runtime override in `tryApplyUpdate`, and rebuild the native binaries.
-const PR_OTA_PREVIEWS_ENABLED = false
+// `updates.disableAntiBrickingMeasures: true` in app.config.js. That flag
+// weakens the embedded-update brick-recovery safety net, so it is baked into
+// non-production builds only (`disableAntiBrickingMeasures: !IS_PRODUCTION`).
+// Calling the override on a production build throws ERR_UPDATES_RUNTIME_OVERRIDE,
+// hence the IS_INTERNAL gate here.
+const PR_OTA_PREVIEWS_ENABLED = IS_INTERNAL
+
+// The self-hosted expo-open-ota manifest endpoint (mirrors app.config.js
+// `updates.url`). The runtime override points here with a per-PR channel header.
+const UPDATES_MANIFEST_URL = 'https://updates.blacksky.community/manifest'
 
 const MINIMUM_MINIMIZE_TIME = 15 * 60e3
 
@@ -66,26 +73,77 @@ async function updateTestflight() {
 
 export function useApplyPullRequestOTAUpdate() {
   const {currentlyRunning} = useUpdates()
-  // PR previews are disabled (see PR_OTA_PREVIEWS_ENABLED), so this never toggles.
-  const [pending] = useState(false)
+  const [pending, setPending] = useState(false)
   const currentChannel = currentlyRunning?.channel
   const isCurrentlyRunningPullRequestDeployment =
     currentChannel?.startsWith('pull-request')
 
-  const tryApplyUpdate = async (_channel: string) => {
-    // Disabled: see PR_OTA_PREVIEWS_ENABLED above. Applying a PR channel at
-    // runtime needs the anti-bricking override, which is intentionally off.
+  const tryApplyUpdate = async (channel: string) => {
+    // Only available on non-production builds (see PR_OTA_PREVIEWS_ENABLED).
+    // On production, disableAntiBrickingMeasures is off and the override below
+    // would throw ERR_UPDATES_RUNTIME_OVERRIDE.
     if (!PR_OTA_PREVIEWS_ENABLED) {
       Alert.alert(
         'Unavailable',
-        'Pull-request OTA previews are temporarily disabled.',
+        'Pull-request OTA previews are only available on TestFlight and development builds.',
       )
       return
+    }
+
+    setPending(true)
+    try {
+      // Retarget this install at the PR channel by overriding the manifest
+      // request headers. expo-open-ota resolves the branch from
+      // `expo-channel-name`, so this points the client at the PR bundle.
+      setUpdateURLAndRequestHeadersOverride({
+        updateUrl: UPDATES_MANIFEST_URL,
+        requestHeaders: {'expo-channel-name': channel},
+      })
+      await setExtraParams()
+
+      const res = await checkForUpdateAsync()
+      if (res.isAvailable) {
+        Alert.alert(
+          'Deployment Available',
+          `A deployment of ${channel} is available. Applying it may result in a bricked installation, in which case you will need to reinstall the app and may lose local data. Proceed?`,
+          [
+            {
+              text: 'No',
+              style: 'cancel',
+              // User declined - drop the override so the next launch stays on
+              // the embedded/build channel rather than the PR channel.
+              onPress: () => setUpdateURLAndRequestHeadersOverride(null),
+            },
+            {
+              text: 'Relaunch',
+              style: 'default',
+              onPress: async () => {
+                await fetchUpdateAsync()
+                await reloadAsync()
+              },
+            },
+          ],
+        )
+      } else {
+        setUpdateURLAndRequestHeadersOverride(null)
+        Alert.alert(
+          'No Deployment Available',
+          `No new deployments of ${channel} are currently available for your current native build.`,
+        )
+      }
+    } catch (e: any) {
+      setUpdateURLAndRequestHeadersOverride(null)
+      logger.error('PR OTA Update Error', {error: `${e}`})
+      Alert.alert('Error', `Could not apply ${channel}: ${e}`)
+    } finally {
+      setPending(false)
     }
   }
 
   const revertToEmbedded = async () => {
     try {
+      // Clear any PR channel override so we fall back to the baked-in channel.
+      setUpdateURLAndRequestHeadersOverride(null)
       await updateTestflight()
     } catch (e: any) {
       logger.error('Internal OTA Update Error', {error: `${e}`})

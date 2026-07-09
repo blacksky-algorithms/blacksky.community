@@ -202,7 +202,7 @@ jobs:
             Your requested OTA deployment was published to channel `pull-request-${{ github.event.issue.number }}`.
 
             > [!NOTE]
-            > Applying PR previews on-device is currently disabled. It requires `updates.disableAntiBrickingMeasures` in `app.config.js` (weakens production brick recovery); re-enable the runtime override in `useOTAUpdates.ts` alongside that flag to use the deep link below.
+            > On-device apply works on **TestFlight and development builds only**. Production builds keep the anti-bricking safety net (`disableAntiBrickingMeasures` is off), so the deep link below is a no-op there.
 
             `blacksky://intent/apply-ota?channel=pull-request-${{ github.event.issue.number }}`
             ---

@@ -230,6 +230,11 @@ module.exports = function (_config) {
           alg: 'rsa-v1_5-sha256',
         },
         checkAutomatically: 'NEVER',
+        // Enables Updates.setUpdateURLAndRequestHeadersOverride at runtime, which
+        // is how non-production builds retarget to a pull-request-<n> channel for
+        // OTA previews (see useOTAUpdates.ts). It weakens the embedded-update
+        // brick-recovery safety net, so it is kept off in production builds only.
+        disableAntiBrickingMeasures: !IS_PRODUCTION,
         requestHeaders: {
           'expo-channel-name': IS_TESTFLIGHT ? 'testflight' : 'production',
         },
