@@ -187,25 +187,29 @@ describe('subscribeToBrandModerationServices', () => {
     const brand = makeConfig({}, ['did:plc:mod1', 'did:plc:mod1'])
     const agent = {
       labelers: [] as string[],
-      addLabeler: jest.fn(async (did: string) => {
+      addLabeler: jest.fn((did: string) => {
         agent.labelers.push(did)
       }),
     }
 
-    await subscribeToBrandModerationServices(agent as any, 'did:plc:user', brand)
+    await subscribeToBrandModerationServices(
+      agent as unknown as Parameters<
+        typeof subscribeToBrandModerationServices
+      >[0],
+      'did:plc:user',
+      brand,
+    )
 
     expect(agent.addLabeler).toHaveBeenCalledTimes(1)
     expect(agent.addLabeler).toHaveBeenCalledWith('did:plc:mod1')
-    expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', [
-      'did:plc:mod1',
-    ])
+    expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', ['did:plc:mod1'])
   })
 
   it('keeps onboarding best-effort when a moderation service fails', async () => {
     const brand = makeConfig({}, ['did:plc:good', 'did:plc:bad'])
     const agent = {
       labelers: [] as string[],
-      addLabeler: jest.fn(async (did: string) => {
+      addLabeler: jest.fn((did: string) => {
         if (did === 'did:plc:bad') {
           throw new Error('failed')
         }
@@ -214,12 +218,16 @@ describe('subscribeToBrandModerationServices', () => {
     }
 
     await expect(
-      subscribeToBrandModerationServices(agent as any, 'did:plc:user', brand),
+      subscribeToBrandModerationServices(
+        agent as unknown as Parameters<
+          typeof subscribeToBrandModerationServices
+        >[0],
+        'did:plc:user',
+        brand,
+      ),
     ).resolves.toBeUndefined()
 
     expect(agent.addLabeler).toHaveBeenCalledTimes(2)
-    expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', [
-      'did:plc:good',
-    ])
+    expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', ['did:plc:good'])
   })
 })
