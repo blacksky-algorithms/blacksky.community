@@ -1,4 +1,10 @@
-import {createContext, type PropsWithChildren, useContext} from 'react'
+import {
+  createContext,
+  type PropsWithChildren,
+  useCallback,
+  useContext,
+  useState,
+} from 'react'
 
 import {generateComputedConfig} from '#/lib/community/configGenerator'
 import {
@@ -122,11 +128,14 @@ export function ensureFollowingPinned(pins: Pin[]): Pin[] {
     }
     return true
   })
-  if (!hasFollowing) out.push({type: 'timeline', value: 'following', pinned: true})
+  if (!hasFollowing)
+    out.push({type: 'timeline', value: 'following', pinned: true})
   return out
 }
 
-function normalizeBrandConfig(config: ComputedBrandConfig): ComputedBrandConfig {
+function normalizeBrandConfig(
+  config: ComputedBrandConfig,
+): ComputedBrandConfig {
   return {
     ...config,
     feeds: {
@@ -214,18 +223,41 @@ if (typeof document !== 'undefined') {
 }
 
 const BrandContext = createContext<ComputedBrandConfig>(DEFAULT_BRAND_CONFIG)
+const SetBrandContext = createContext<(config: ComputedBrandConfig) => void>(
+  () => {},
+)
 
 export function BrandProvider({
   children,
   config,
 }: PropsWithChildren<{config?: ComputedBrandConfig}>) {
+  // On web the active config is fixed at page load (bskyweb injects it by
+  // hostname), so this state never changes. On native it starts at the bundled
+  // Blacksky default and is updated to follow the active account's community —
+  // see useCommunityBrandSync. Account switches don't remount this provider
+  // (it sits above the account-keyed subtree), so re-theming rides this state.
+  const [current, setCurrent] = useState<ComputedBrandConfig>(
+    config || DEFAULT_BRAND_CONFIG,
+  )
+  const setBrandConfig = useCallback((next: ComputedBrandConfig) => {
+    setCurrent(normalizeBrandConfig(next))
+  }, [])
   return (
-    <BrandContext.Provider value={config || DEFAULT_BRAND_CONFIG}>
-      {children}
-    </BrandContext.Provider>
+    <SetBrandContext.Provider value={setBrandConfig}>
+      <BrandContext.Provider value={current}>{children}</BrandContext.Provider>
+    </SetBrandContext.Provider>
   )
 }
 
 export function useBrand(): ComputedBrandConfig {
   return useContext(BrandContext)
+}
+
+/**
+ * Setter for the active brand config. Used by useCommunityBrandSync (native) to
+ * re-theme when the active account resolves to a different community. The value
+ * is normalized (following-pinned) before it is applied.
+ */
+export function useSetBrandConfig(): (config: ComputedBrandConfig) => void {
+  return useContext(SetBrandContext)
 }
