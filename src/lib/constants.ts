@@ -9,7 +9,7 @@ export const LOCAL_DEV_SERVICE =
 export const STAGING_SERVICE = 'https://staging.bsky.dev'
 export const BSKY_SERVICE = 'https://blacksky.app'
 export const BSKY_SERVICE_DID = 'did:web:bsky.social'
-export const PUBLIC_BSKY_SERVICE = 'https://api.blacksky.community'
+export const PUBLIC_BSKY_SERVICE = 'https://api.eurosky.network'
 export const DEFAULT_SERVICE = BSKY_SERVICE
 
 // Handle suffixes that identify a Latinsky-community account living on the shared
@@ -211,8 +211,8 @@ export type SupportedMimeTypes = (typeof SUPPORTED_MIME_TYPES)[number]
 export const EMOJI_REACTION_LIMIT = 5
 
 export const PUBLIC_BSKY_API = 'https://public.api.bsky.app'
-export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
-export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
+export const PUBLIC_APPVIEW = 'https://api.eurosky.network'
+export const PUBLIC_APPVIEW_DID = 'did:web:api.eurosky.network'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
