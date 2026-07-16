@@ -135,7 +135,9 @@ function DialogInner() {
         <Trans>Appeal this decision</Trans>
       </Text>
       <Text style={[a.text_md, a.leading_snug]}>
-        <Trans>This appeal will be sent to Blacksky's moderation service.</Trans>
+        <Trans>
+          This appeal will be sent to Blacksky's moderation service.
+        </Trans>
       </Text>
       <View style={[a.my_md]}>
         <Dialog.Input
