@@ -41,6 +41,8 @@ import {ModeratedFeedEmbed} from './FeedEmbed'
 import {ImageEmbed} from './ImageEmbed'
 import {ModeratedListEmbed} from './ListEmbed'
 import {PostPlaceholder as PostPlaceholderText} from './PostPlaceholder'
+import {TileEmbed} from './TileEmbed'
+import {parseBlackskyTileUrl} from './TileEmbed/utils'
 import {type CommonProps, type EmbedProps, PostEmbedViewContext} from './types'
 import {VideoEmbed} from './VideoEmbed'
 
@@ -98,6 +100,19 @@ function MediaEmbed({
       )
     }
     case 'link': {
+      if (parseBlackskyTileUrl(embed.view.external.uri)) {
+        return (
+          <ContentHider
+            modui={rest.moderation?.ui('contentMedia')}
+            activeStyle={[a.mt_sm]}>
+            <TileEmbed
+              link={embed.view.external}
+              onOpen={rest.onOpen}
+              style={[a.mt_sm, rest.style]}
+            />
+          </ContentHider>
+        )
+      }
       if (isStandardSiteEmbed(embed.view.external)) {
         return (
           <ContentHider

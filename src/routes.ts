@@ -89,4 +89,6 @@ export const router = new Router<AllNavigatableRoutes>({
   VideoFeed: '/video-feed',
   Bookmarks: '/saved',
   FindContactsFlow: '/find-contacts',
+  // Experimental Web Tiles host. Do not use this route as a general-purpose webview.
+  TilesPrototype: ['/sys/tiles', '/tiles/:repo/:rkey'],
 })

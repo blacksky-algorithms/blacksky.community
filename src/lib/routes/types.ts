@@ -87,6 +87,7 @@ export type CommonNavigatorParams = {
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
   FindContactsFlow: undefined
+  TilesPrototype: {repo?: string; rkey?: string}
 }
 
 export type BottomTabNavigatorParams = CommonNavigatorParams & {

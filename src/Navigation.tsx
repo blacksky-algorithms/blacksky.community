@@ -128,6 +128,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {TilesPrototypeScreen} from '#/screens/TilesPrototype'
 import TopicScreen from '#/screens/Topic'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {type Theme, useTheme} from '#/alf'
@@ -313,6 +314,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Debug"
         getComponent={() => StorybookScreen}
         options={{title: title(msg`Storybook`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="TilesPrototype"
+        getComponent={() => TilesPrototypeScreen}
+        options={{title: title(msg`Web Tiles prototype`), requireAuth: true}}
       />
       <Stack.Screen
         name="DebugMod"
