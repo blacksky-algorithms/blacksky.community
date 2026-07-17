@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {AtUri} from '@atproto/api'
+import {AtUri, type ComAtprotoLabelDefs} from '@atproto/api'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {PUBLIC_APPVIEW} from '#/lib/constants'
@@ -191,6 +191,7 @@ export async function buildSyntheticProfileView(
   queryClient: QueryClient,
   did: string,
   handle: string,
+  labels: ComAtprotoLabelDefs.Label[] = [],
 ): Promise<any> {
   // Check viewer state before fetching profile data
   const viewer = buildViewerState(queryClient, did)
@@ -222,7 +223,7 @@ export async function buildSyntheticProfileView(
     postsCount: undefined, // Not available from PDS or Constellation
     indexedAt: new Date().toISOString(),
     viewer, // Use viewer state with block/mute info
-    labels: [],
+    labels,
     __fallbackMode: true, // Mark as fallback data
   }
 }
@@ -283,32 +284,70 @@ export async function isAuthorModerated(did: string): Promise<boolean> {
 }
 
 /**
- * Check if a specific post has moderation labels applied by Blacksky.
+ * Fetch active labels for a post and its author from the AppView label index.
  *
- * Uses com.atproto.label.queryLabels to check if the Blacksky moderation
- * account has applied takedown/suspend labels to this specific post URI.
- * This catches per-post takedowns that wouldn't be caught by the author check.
+ * Queries com.atproto.label.queryLabels for the post URI, the author DID
+ * (account-level labels), and the author's profile record, restricted to the
+ * viewer's subscribed labelers plus the Blacksky moderation account. Negated
+ * labels are dropped.
  */
-export async function isPostModerated(atUri: string): Promise<boolean> {
+export async function fetchAppviewLabels(
+  atUri: string,
+  authorDid: string,
+  labelerDids: readonly string[],
+): Promise<ComAtprotoLabelDefs.Label[]> {
   try {
     const params = new URLSearchParams()
     params.append('uriPatterns', atUri)
-    params.append('sources', BLACKSKY_MOD_DID)
+    params.append('uriPatterns', authorDid)
+    params.append(
+      'uriPatterns',
+      `at://${authorDid}/app.bsky.actor.profile/self`,
+    )
+    for (const did of new Set([...labelerDids, BLACKSKY_MOD_DID])) {
+      params.append('sources', did)
+    }
     const res = await fetch(
       `${PUBLIC_APPVIEW}/xrpc/com.atproto.label.queryLabels?${params}`,
     )
-    if (!res.ok) return false
+    if (!res.ok) return []
 
-    const data = await res.json()
-    const labels: Array<{val: string; neg?: boolean}> = data.labels || []
-
-    // Check for active (non-negated) moderation labels
-    return labels.some(l => !l.neg && MODERATION_LABEL_VALUES.includes(l.val))
+    const data = (await res.json()) as {labels?: ComAtprotoLabelDefs.Label[]}
+    return (data.labels || []).filter(l => !l.neg)
   } catch {
-    // If label query fails, don't block fallback -- the author-level
+    // If the label query fails, don't block fallback -- the author-level
     // check is the primary guard
-    return false
+    return []
   }
+}
+
+/**
+ * Materialize a record's self-labels into label objects, matching how the
+ * AppView surfaces them on hydrated views.
+ */
+function selfLabels(
+  atUri: string,
+  cid: string,
+  authorDid: string,
+  recordValue:
+    | {labels?: ComAtprotoLabelDefs.SelfLabels; createdAt?: string}
+    | undefined,
+): ComAtprotoLabelDefs.Label[] {
+  const values = recordValue?.labels?.values
+  if (!Array.isArray(values)) return []
+  return values.flatMap(v =>
+    typeof v?.val === 'string'
+      ? [
+          {
+            src: authorDid,
+            uri: atUri,
+            cid,
+            val: v.val,
+            cts: recordValue?.createdAt || new Date(0).toISOString(),
+          },
+        ]
+      : [],
+  )
 }
 
 /**
@@ -426,15 +465,16 @@ function resolveSingleEmbed(authorDid: string, embed: any): any | null {
 export async function buildSyntheticEmbedViewRecord(
   queryClient: QueryClient,
   atUri: string,
+  labelerDids: readonly string[] = [],
 ): Promise<any | null> {
   const urip = new AtUri(atUri)
   const authorDid = urip.host
 
   // SECURITY: Check author-level and post-level moderation in parallel.
   // This prevents fallback from bypassing AppView takedowns/suspensions.
-  const [authorModerated, postModerated] = await Promise.all([
+  const [authorModerated, appviewLabels] = await Promise.all([
     isAuthorModerated(authorDid),
-    isPostModerated(atUri),
+    fetchAppviewLabels(atUri, authorDid, labelerDids),
   ])
 
   if (authorModerated) {
@@ -444,7 +484,7 @@ export async function buildSyntheticEmbedViewRecord(
     )
     return null
   }
-  if (postModerated) {
+  if (appviewLabels.some(l => MODERATION_LABEL_VALUES.includes(l.val))) {
     console.log(
       '[Embed Fallback] Post is moderated, refusing fallback for',
       atUri,
@@ -460,10 +500,16 @@ export async function buildSyntheticEmbedViewRecord(
 
   const counts = await fetchConstellationCounts(atUri)
 
+  // Split fetched labels between the post itself and its author so
+  // moderation decisions see the same shape the AppView hydrates.
+  const postLabels = appviewLabels.filter(l => l.uri === atUri)
+  const authorLabels = appviewLabels.filter(l => l.uri !== atUri)
+
   const profileView = await buildSyntheticProfileView(
     queryClient,
     authorDid,
     identity.handle,
+    authorLabels,
   )
 
   return {
@@ -478,7 +524,10 @@ export async function buildSyntheticEmbedViewRecord(
     repostCount: counts.repostCount,
     replyCount: counts.replyCount,
     quoteCount: counts.quoteCount,
-    labels: [],
+    labels: [
+      ...postLabels,
+      ...selfLabels(atUri, record.cid, authorDid, record.value),
+    ],
     __fallbackMode: true,
   }
 }
