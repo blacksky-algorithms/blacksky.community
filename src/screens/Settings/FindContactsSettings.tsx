@@ -9,11 +9,11 @@ import {
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Plural, Trans} from '@lingui/react/macro'
-import {useIsFocused} from '@react-navigation/native'
+import {useFocusEffect, useIsFocused} from '@react-navigation/native'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {wait} from '#/lib/async/wait'
-import {HITSLOP_10, urls} from '#/lib/constants'
+import {HITSLOP_10} from '#/lib/constants'
 import {isBlockedOrBlocking, isMuted} from '#/lib/moderation/blocked-and-muted'
 import {
   type AllNavigatorParams,
@@ -39,12 +39,13 @@ import {atoms as a, tokens, useGutters, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {ContactsHeroImage} from '#/components/contacts/components/HeroImage'
+import {useIsFindContactsFeatureEnabledBasedOnGeolocation} from '#/components/contacts/country-allowlist'
 import {useDialogControl} from '#/components/Dialog'
 import {ArrowRotateClockwise_Stroke2_Corner0_Rounded as ResyncIcon} from '#/components/icons/ArrowRotate'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
 import * as Layout from '#/components/Layout'
-import {InlineLinkText, Link} from '#/components/Link'
+import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as ProfileCard from '#/components/ProfileCard'
 import * as Toast from '#/components/Toast'
@@ -56,9 +57,22 @@ import type * as bsky from '#/types/bsky'
 import {bulkWriteFollows} from '../Onboarding/util'
 
 type Props = NativeStackScreenProps<AllNavigatorParams, 'FindContactsSettings'>
-export function FindContactsSettingsScreen({}: Props) {
+export function FindContactsSettingsScreen({navigation}: Props) {
   const {_} = useLingui()
   const ax = useAnalytics()
+
+  // Blacksky: feature disabled/unreachable. Guard the deep-linkable route
+  // (`/settings/find-contacts`) so it can't be reached directly even though the
+  // UI entry points are gated. See country-allowlist.ts.
+  const findContactsEnabled =
+    useIsFindContactsFeatureEnabledBasedOnGeolocation()
+  useFocusEffect(
+    useCallback(() => {
+      if (!findContactsEnabled) {
+        navigation.navigate('Home')
+      }
+    }, [findContactsEnabled, navigation]),
+  )
 
   const {data, error, refetch} = useContactsSyncStatusQuery()
 
@@ -133,18 +147,7 @@ function Intro() {
         <Trans>
           Find your friends on Bluesky by verifying your phone number and
           matching with your contacts. We protect your information and you
-          control what happens next.{' '}
-          <InlineLinkText
-            to={urls.website.blog.findFriendsAnnouncement}
-            label={_(
-              msg({
-                message: `Learn more about importing contacts`,
-                context: `english-only-resource`,
-              }),
-            )}
-            style={[a.text_md, a.leading_snug]}>
-            <Trans context="english-only-resource">Learn more</Trans>
-          </InlineLinkText>
+          control what happens next.
         </Trans>
       </Text>
       {isAvailable ? (

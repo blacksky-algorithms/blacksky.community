@@ -119,8 +119,6 @@ export function LINK_META_PROXY(_serviceUrl: string) {
   return PROD_LINK_META_PROXY
 }
 
-export const STATUS_PAGE_URL = 'https://status.bsky.app/'
-
 // Hitslop constants
 export const createHitslop = (size: number): Insets => ({
   top: size,
@@ -211,22 +209,6 @@ export const SUPPORTED_MIME_TYPES = [
 export type SupportedMimeTypes = (typeof SUPPORTED_MIME_TYPES)[number]
 
 export const EMOJI_REACTION_LIMIT = 5
-
-export const urls = {
-  website: {
-    blog: {
-      findFriendsAnnouncement:
-        'https://www.blackskyweb.xyz/about/blog/12-16-2025-find-friends',
-      initialVerificationAnnouncement: `https://bsky.social/about/blog/04-21-2025-verification`,
-      searchTipsAndTricks:
-        'https://www.blackskyweb.xyz/about/blog/05-31-2024-search',
-    },
-    support: {
-      findFriendsPrivacyPolicy:
-        'https://www.blackskyweb.xyz/about/support/find-friends-privacy-policy',
-    },
-  },
-}
 
 export const PUBLIC_BSKY_API = 'https://public.api.bsky.app'
 export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
