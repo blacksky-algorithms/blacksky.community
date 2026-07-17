@@ -88,11 +88,12 @@ export function AppIconSettingsScreen({}: Props) {
 }
 
 function setAppIcon(icon: DynamicAppIcon.IconName) {
-  if (icon === 'default_light') {
-    return getAppIconName(DynamicAppIcon.setAppIcon(null))
-  } else {
-    return getAppIconName(DynamicAppIcon.setAppIcon(icon))
-  }
+  // Every icon shown in this screen (including `default_light`) is registered
+  // as an *alternate* icon by the config plugin — the primary icon is a
+  // separate design. Always apply the selected icon by name so the chosen
+  // variant matches its preview; passing `null` would reset to the primary
+  // icon instead of the legacy light icon.
+  return getAppIconName(DynamicAppIcon.setAppIcon(icon))
 }
 
 function getAppIconName(icon: string | false): DynamicAppIcon.IconName {
