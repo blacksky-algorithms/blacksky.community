@@ -85,14 +85,18 @@ jobs:
         with:
           xcode-version: "26.4"
 
-      - name: ☕️ Assert Cocoapods version
+      - name: ☕️ Pin Cocoapods version
         run: |
+          # Must match the COCOAPODS stamp in ios/Podfile.lock; the runner image's
+          # preinstalled version drifts (https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md)
           EXPECTED=1.16.2
+          if [ "$(pod --version)" != "$EXPECTED" ]; then
+            sudo gem uninstall cocoapods --all --executables --ignore-dependencies
+            sudo gem install cocoapods -v "$EXPECTED" --no-document
+          fi
           ACTUAL=$(pod --version)
           if [ "$ACTUAL" != "$EXPECTED" ]; then
-            echo "Expected Cocoapods $EXPECTED but runner has $ACTUAL."
-            echo "The version ships preinstalled with the macOS runner image: https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md"
-            echo "If the runner image changed, update EXPECTED here or reinstall the pinned version."
+            echo "Expected Cocoapods $EXPECTED but runner has $ACTUAL after pinning."
             exit 1
           fi
 
