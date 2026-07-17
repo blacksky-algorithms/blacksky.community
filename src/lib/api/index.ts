@@ -277,8 +277,15 @@ async function postCommunity(
     uris.push(uri)
 
     const rt = await rtPromise
-    const embed = await embedPromise
+    const resolvedEmbed = await embedPromise
     const reply = await replyPromise
+
+    // Community posts use the community video embed type, which allows
+    // larger files than app.bsky.embed.video permits.
+    const embed =
+      resolvedEmbed?.$type === 'app.bsky.embed.video'
+        ? {...resolvedEmbed, $type: 'community.blacksky.embed.video'}
+        : resolvedEmbed
 
     // Step 1: Build the canonical record for CID computation
     // This MUST match the structure the appview uses for CID verification
