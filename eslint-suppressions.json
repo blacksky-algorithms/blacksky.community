@@ -1803,7 +1803,7 @@
       "count": 4
     },
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 41
+      "count": 40
     }
   },
   "src/state/queries/my-lists.ts": {
