@@ -217,11 +217,21 @@ func serve(cctx *cli.Context) error {
 			},
 		),
 		IdentifierExtractor: func(ctx echo.Context) (string, error) {
-			id := ctx.RealIP()
-			return id, nil
+			// We sit behind Cloudflare and DigitalOcean's load balancer, so the
+			// socket peer is always an edge IP and ctx.RealIP() alone collapses
+			// every user into a handful of buckets. Prefer the proxy-supplied
+			// real-client headers, then fall back to RealIP() (which itself
+			// checks X-Forwarded-For, then X-Real-IP, then the socket address).
+			req := ctx.Request()
+			for _, h := range []string{"CF-Connecting-IP", "True-Client-IP"} {
+				if ip := req.Header.Get(h); ip != "" {
+					return ip, nil
+				}
+			}
+			return ctx.RealIP(), nil
 		},
 		DenyHandler: func(c echo.Context, identifier string, err error) error {
-			return c.String(http.StatusTooManyRequests, "Your request has been rate limited. Please try again later. Contact security@bsky.app if you believe this was a mistake.\n")
+			return c.String(http.StatusTooManyRequests, "Your request has been rate limited. Please try again later. Contact support@blacksky.app if you believe this was a mistake.\n")
 		},
 	}))
 
