@@ -1933,8 +1933,8 @@ msgstr ""
 #: src/screens/Login/LoginForm.tsx:141
 #: src/screens/Login/SetNewPasswordForm.tsx:170
 #: src/screens/Login/SetNewPasswordForm.tsx:176
-#: src/screens/Messages/components/ChatDisabled.tsx:164
 #: src/screens/Messages/components/ChatDisabled.tsx:166
+#: src/screens/Messages/components/ChatDisabled.tsx:168
 #: src/screens/Messages/components/InviteLinkDialog.tsx:277
 #: src/screens/Messages/components/InviteLinkDialog.tsx:305
 #: src/screens/Messages/Inbox.tsx:230
@@ -2270,7 +2270,7 @@ msgstr ""
 msgid "By <0>{ownerDisplayName}</0>"
 msgstr "By <0>{ownerDisplayName}</0>"
 
-#: src/components/contacts/screens/PhoneInput.tsx:295
+#: src/components/contacts/screens/PhoneInput.tsx:294
 msgid "By continuing, you consent to this use. You may change your mind any time by visiting settings."
 msgstr "By continuing, you consent to this use. You may change your mind any time by visiting settings."
 
@@ -3634,7 +3634,7 @@ msgstr ""
 msgid "Deleted Account"
 msgstr ""
 
-#: src/components/contacts/screens/PhoneInput.tsx:282
+#: src/components/contacts/screens/PhoneInput.tsx:281
 msgid "Deleted by Plivo after verification"
 msgstr ""
 
@@ -4472,7 +4472,7 @@ msgstr ""
 msgid "Expands or collapses post text"
 msgstr ""
 
-#: src/lib/api/index.ts:775
+#: src/lib/api/index.ts:782
 msgid "Expected uri to resolve to a record"
 msgstr ""
 
@@ -4816,7 +4816,7 @@ msgstr "Failed to send report"
 msgid "Failed to submit appeal, please try again."
 msgstr ""
 
-#: src/lib/api/index.ts:385
+#: src/lib/api/index.ts:392
 msgid "Failed to submit community post. Please try again."
 msgstr "Failed to submit community post. Please try again."
 
@@ -5690,7 +5690,7 @@ msgstr ""
 msgid "Having trouble?"
 msgstr ""
 
-#: src/components/contacts/screens/PhoneInput.tsx:286
+#: src/components/contacts/screens/PhoneInput.tsx:285
 msgid "Held by Blacksky for 7 days to prevent abuse, then deleted"
 msgstr "Held by Blacksky for 7 days to prevent abuse, then deleted"
 
@@ -5884,7 +5884,7 @@ msgstr ""
 msgid "How should we open this link?"
 msgstr ""
 
-#: src/components/contacts/screens/PhoneInput.tsx:275
+#: src/components/contacts/screens/PhoneInput.tsx:274
 msgid "How we use your number:"
 msgstr ""
 
@@ -8600,7 +8600,7 @@ msgstr "Please enter your username or handle"
 msgid "Please explain why you think this label was incorrectly applied by {0}"
 msgstr ""
 
-#: src/screens/Messages/components/ChatDisabled.tsx:143
+#: src/screens/Messages/components/ChatDisabled.tsx:145
 msgid "Please explain why you think your chats were incorrectly disabled"
 msgstr ""
 
@@ -8693,7 +8693,7 @@ msgid "Post deleted"
 msgstr ""
 
 #: src/lib/api/index.ts:218
-#: src/lib/api/index.ts:434
+#: src/lib/api/index.ts:441
 msgid "Post failed to upload. Please check your Internet connection and try again."
 msgstr ""
 
@@ -10306,7 +10306,7 @@ msgstr ""
 msgid "Sent at {0}"
 msgstr "Sent at {0}"
 
-#: src/components/contacts/screens/PhoneInput.tsx:279
+#: src/components/contacts/screens/PhoneInput.tsx:278
 msgid "Sent to our phone number verification provider Plivo"
 msgstr ""
 
@@ -11019,7 +11019,7 @@ msgstr ""
 msgid "Storage cleared, you need to restart the app now."
 msgstr ""
 
-#: src/components/contacts/screens/PhoneInput.tsx:292
+#: src/components/contacts/screens/PhoneInput.tsx:291
 msgid "Stored as part of a secure code for matching with others"
 msgstr ""
 
@@ -11034,8 +11034,8 @@ msgstr ""
 #: src/components/SendErrorReportDialog.tsx:95
 #: src/features/liveNow/components/GoLiveDisabledDialog.tsx:139
 #: src/features/liveNow/components/GoLiveDisabledDialog.tsx:140
-#: src/screens/Messages/components/ChatDisabled.tsx:175
 #: src/screens/Messages/components/ChatDisabled.tsx:177
+#: src/screens/Messages/components/ChatDisabled.tsx:179
 msgid "Submit"
 msgstr ""
 
@@ -11053,7 +11053,7 @@ msgstr ""
 msgid "Submit report"
 msgstr ""
 
-#: src/lib/api/index.ts:310
+#: src/lib/api/index.ts:317
 msgid "Submitting to community..."
 msgstr "Submitting to community..."
 
@@ -11339,7 +11339,7 @@ msgstr ""
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:307
 #: src/features/liveNow/components/GoLiveDisabledDialog.tsx:122
-#: src/screens/Messages/components/ChatDisabled.tsx:142
+#: src/screens/Messages/components/ChatDisabled.tsx:144
 msgid "Text input field"
 msgstr ""
 
@@ -12575,13 +12575,13 @@ msgstr ""
 msgid "Uploading GIF..."
 msgstr ""
 
-#: src/lib/api/index.ts:612
-#: src/lib/api/index.ts:639
+#: src/lib/api/index.ts:619
+#: src/lib/api/index.ts:646
 msgid "Uploading images..."
 msgstr ""
 
-#: src/lib/api/index.ts:711
-#: src/lib/api/index.ts:735
+#: src/lib/api/index.ts:718
+#: src/lib/api/index.ts:742
 msgid "Uploading link thumbnail..."
 msgstr ""
 
