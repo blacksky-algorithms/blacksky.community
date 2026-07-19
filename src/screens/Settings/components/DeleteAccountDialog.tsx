@@ -4,8 +4,10 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {gateRequestAccountDelete} from '#/lib/api/gatekeeper'
 import {DM_SERVICE_HEADERS} from '#/lib/constants'
 import {useCleanError} from '#/lib/hooks/useCleanError'
+import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {useAgent, useSession, useSessionApi} from '#/state/session'
@@ -81,7 +83,17 @@ function DeleteAccountDialogInner({
   const [step, setStep] = useState(Step.SEND_CODE)
   const [confirmCode, setConfirmCode] = useState('')
   const [password, setPassword] = useState('')
+  const [authFactorToken, setAuthFactorToken] = useState('')
+  const [authFactorRequired, setAuthFactorRequired] = useState(false)
   const [error, setError] = useState('')
+
+  // OAuth sessions cannot call requestAccountDelete directly (the PDS
+  // requires a full password session), so on gatekeeper-fronted PDSes we
+  // route the request through the gatekeeper, which verifies the password
+  // and mints a session server-side. Same pattern as DeactivateAccountDialog.
+  const isOauth = currentAccount?.isOauthSession === true
+  const isBlackskyPds = useIsBlackskyPds()
+  const useGatekeeper = isOauth && isBlackskyPds
 
   const sendEmail = useCallback(async () => {
     if (emailState === EmailState.PENDING) {
@@ -89,21 +101,53 @@ function DeleteAccountDialogInner({
     }
     try {
       setEmailState(EmailState.PENDING)
-      await agent.com.atproto.server.requestAccountDelete()
+      if (useGatekeeper) {
+        if (!currentAccount?.did || !currentAccount?.service) {
+          throw new Error('Invalid session')
+        }
+        const {status} = await gateRequestAccountDelete({
+          serviceUrl: currentAccount.service,
+          did: currentAccount.did,
+          password,
+          authFactorToken:
+            authFactorToken.replace(WHITESPACE_RE, '') || undefined,
+        })
+        if (status === 'authFactorTokenRequired') {
+          // The PDS has emailed a sign-in code (2FA). Collect it and retry.
+          setAuthFactorRequired(true)
+          setStep(Step.SEND_CODE)
+          setError('')
+          return
+        }
+      } else {
+        await agent.com.atproto.server.requestAccountDelete()
+      }
       setError('')
       setEmailSentCount(prevCount => prevCount + 1)
       setStep(Step.VERIFY_CODE)
-    } catch (e: any) {
-      const {clean, raw} = cleanError(e)
-      const error = clean || raw || e
-      setError(error)
-      logger.error(raw || e, {
-        message: 'Failed to send account deletion verification email',
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'Invalid password') {
+        setError(_(msg`Invalid password. Please try again.`))
+      } else {
+        const {clean, raw} = cleanError(e)
+        setError(clean || raw || String(e))
+      }
+      logger.error('Failed to send account deletion verification email', {
+        error: e,
       })
     } finally {
       setEmailState(EmailState.DEFAULT)
     }
-  }, [agent, cleanError, emailState, setEmailState])
+  }, [
+    _,
+    agent,
+    authFactorToken,
+    cleanError,
+    currentAccount,
+    emailState,
+    password,
+    useGatekeeper,
+  ])
 
   const confirmDeletion = useCallback(async () => {
     try {
@@ -112,12 +156,17 @@ function DeleteAccountDialogInner({
         throw new Error('Invalid did')
       }
       const token = confirmCode.replace(WHITESPACE_RE, '')
-      // Inform chat service of intent to delete account.
-      const {success} = await agent.chat.bsky.actor.deleteAccount(undefined, {
-        headers: DM_SERVICE_HEADERS,
-      })
-      if (!success) {
-        throw new Error('Failed to inform chat service of account deletion')
+      // Inform chat service of intent to delete account. Best-effort: a
+      // failure here (chat service down, account never used chat) must not
+      // block the actual account deletion.
+      try {
+        await agent.chat.bsky.actor.deleteAccount(undefined, {
+          headers: DM_SERVICE_HEADERS,
+        })
+      } catch (e: unknown) {
+        logger.error('Failed to inform chat service of account deletion', {
+          error: e,
+        })
       }
       await agent.com.atproto.server.deleteAccount({
         did: currentAccount.did,
@@ -129,12 +178,11 @@ function DeleteAccountDialogInner({
         resetToTab('HomeTab')
         removeAccount(currentAccount)
       })
-    } catch (e: any) {
+    } catch (e: unknown) {
       const {clean, raw} = cleanError(e)
-      const error = clean || raw || e
-      setError(error)
-      logger.error(raw || e, {
-        message: 'Failed to delete account',
+      setError(clean || raw || String(e))
+      logger.error('Failed to delete account', {
+        error: e,
       })
       setConfirmCode('')
       setPassword('')
@@ -193,10 +241,64 @@ function DeleteAccountDialogInner({
               </Trans>
             </Prompt.DescriptionText>
           </Prompt.Content>
+          {useGatekeeper && (
+            <View style={[a.mb_lg]}>
+              <TextField.LabelText>
+                <Trans>Password</Trans>
+              </TextField.LabelText>
+              <TextField.Root>
+                <TextField.Icon icon={Lock} />
+                <TextField.Input
+                  testID="deleteAccountPasswordInput"
+                  label={_(msg`Enter your password`)}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  secureTextEntry={true}
+                  autoComplete="off"
+                  clearButtonMode="while-editing"
+                  passwordRules={`minlength: ${PASSWORD_MIN_LENGTH}};`}
+                  value={password}
+                  onChangeText={setPassword}
+                  onSubmitEditing={handleSendEmail}
+                />
+              </TextField.Root>
+            </View>
+          )}
+          {useGatekeeper && authFactorRequired && (
+            <View style={[a.mb_lg]}>
+              <TextField.LabelText>
+                <Trans>Sign in code</Trans>
+              </TextField.LabelText>
+              <TokenField
+                value={authFactorToken}
+                onChangeText={setAuthFactorToken}
+                onSubmitEditing={handleSendEmail}
+              />
+              <Text
+                style={[
+                  a.text_sm,
+                  a.leading_snug,
+                  a.mt_xs,
+                  t.atoms.text_contrast_medium,
+                ]}>
+                <Trans>
+                  Your account has two-factor authentication enabled. A sign in
+                  code has been sent to your email address — enter it above,
+                  then press Send email again.
+                </Trans>
+              </Text>
+            </View>
+          )}
           <Prompt.Actions>
             <Prompt.Action
               icon={emailState === EmailState.PENDING ? Loader : Envelope}
               cta={_(msg`Send email`)}
+              disabled={
+                useGatekeeper &&
+                (!isPasswordValid(password) ||
+                  (authFactorRequired && !isValidCode(authFactorToken)))
+              }
               shouldCloseOnPress={false}
               onPress={handleSendEmail}
             />
