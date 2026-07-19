@@ -1,5 +1,5 @@
 import {createContext, useCallback, useContext} from 'react'
-import {LayoutAnimation} from 'react-native'
+import {LayoutAnimation, Platform} from 'react-native'
 import {
   ComAtprotoServerCreateAccount,
   type ComAtprotoServerDescribeServer,
@@ -27,6 +27,14 @@ export enum SignupStep {
   HANDLE,
   CAPTCHA,
 }
+
+/**
+ * On web the community is fixed by the hostname the app is served from, so the
+ * community-picker step is skipped and INFO is the first step. On native the
+ * user chooses their community first. Used as the "floor" step for back/prev.
+ */
+export const FIRST_SIGNUP_STEP =
+  Platform.OS === 'web' ? SignupStep.INFO : SignupStep.COMMUNITY
 
 type SubmitTask = {
   verificationCode: string | undefined
@@ -99,7 +107,7 @@ export const initialState: SignupState = {
   analytics: undefined,
 
   hasPrev: false,
-  activeStep: SignupStep.COMMUNITY,
+  activeStep: FIRST_SIGNUP_STEP,
   screenTransitionDirection: 'Forward',
 
   serviceUrl: DEFAULT_SERVICE,
@@ -146,7 +154,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       break
     }
     case 'prev': {
-      if (s.activeStep !== SignupStep.COMMUNITY) {
+      if (s.activeStep !== FIRST_SIGNUP_STEP) {
         next.screenTransitionDirection = 'Backward'
         next.activeStep--
         next.error = ''
@@ -266,7 +274,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
     }
   }
 
-  next.hasPrev = next.activeStep !== SignupStep.COMMUNITY
+  next.hasPrev = next.activeStep !== FIRST_SIGNUP_STEP
 
   s.analytics?.logger.debug('signup', next)
 

@@ -79,11 +79,32 @@ export async function gateRequestAccountDelete(params: {
   serviceUrl: string
   did: string
   password: string
-}): Promise<void> {
-  await gatekeeperPost(params.serviceUrl, '/gate/request-account-delete', {
+  authFactorToken?: string
+}): Promise<{status: 'success' | 'authFactorTokenRequired'}> {
+  const body: Record<string, unknown> = {
     did: params.did,
     password: params.password,
-  })
+  }
+  if (params.authFactorToken) {
+    body.authFactorToken = params.authFactorToken
+  }
+
+  try {
+    await gatekeeperPost(
+      params.serviceUrl,
+      '/gate/request-account-delete',
+      body,
+    )
+    return {status: 'success'}
+  } catch (e) {
+    if (
+      e instanceof GatekeeperError &&
+      e.errorType === 'AuthFactorTokenRequired'
+    ) {
+      return {status: 'authFactorTokenRequired'}
+    }
+    throw e
+  }
 }
 
 export async function gateDeactivateAccount(params: {
