@@ -1,5 +1,5 @@
 import {useEffect, useReducer, useState} from 'react'
-import {AppState, type AppStateStatus, View} from 'react-native'
+import {AppState, type AppStateStatus, Platform, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
 import {AppBskyGraphStarterpack} from '@atproto/api'
@@ -55,12 +55,22 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
     })
   }, [ax])
 
-  // Use the brand-configured PDS instead of the hardcoded default
+  // Point signup at the brand-configured PDS instead of the hardcoded default.
+  // On web the community is fixed by the hostname (there is no picker step), so
+  // also stamp its slug up front the way the picker would on native.
   useEffect(() => {
     if (brand.services.pds.url) {
-      dispatch({type: 'setServiceUrl', value: brand.services.pds.url})
+      if (Platform.OS === 'web') {
+        dispatch({
+          type: 'setCommunity',
+          slug: brand.metadata.slug,
+          serviceUrl: brand.services.pds.url,
+        })
+      } else {
+        dispatch({type: 'setServiceUrl', value: brand.services.pds.url})
+      }
     }
-  }, [brand.services.pds.url])
+  }, [brand.services.pds.url, brand.metadata.slug])
 
   const activeStarterPack = useActiveStarterPack()
   const {
@@ -146,6 +156,18 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
     )
   }, [])
 
+  // Web skips the community-picker step, so shift the displayed step numbering
+  // down by one to keep the count starting at "Step 1".
+  const isWeb = Platform.OS === 'web'
+  const stepOffset = isWeb ? 1 : 0
+  const totalSteps =
+    state.serviceDescription &&
+    !state.serviceDescription.phoneVerificationRequired
+      ? 3
+      : 4
+  const displayStep = state.activeStep + 1 - stepOffset
+  const displayTotal = totalSteps - stepOffset
+
   return (
     <Animated.View exiting={native(FadeIn.duration(90))} style={a.flex_1}>
       <SignupContext.Provider value={{state, dispatch}}>
@@ -197,11 +219,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                     <Text
                       style={[a.font_semi_bold, t.atoms.text_contrast_medium]}>
                       <Trans>
-                        Step {state.activeStep + 1} of{' '}
-                        {state.serviceDescription &&
-                        !state.serviceDescription.phoneVerificationRequired
-                          ? '3'
-                          : '4'}
+                        Step {displayStep} of {displayTotal}
                       </Trans>
                     </Text>
                     <Text style={[a.text_3xl, a.font_semi_bold]}>
@@ -221,7 +239,11 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                     <StepCommunity onPressBack={onPressBack} />
                   ) : state.activeStep === SignupStep.INFO ? (
                     <StepInfo
-                      onPressBack={() => dispatch({type: 'prev'})}
+                      onPressBack={
+                        // On web INFO is the first step, so back exits signup;
+                        // on native it returns to the community picker.
+                        isWeb ? onPressBack : () => dispatch({type: 'prev'})
+                      }
                       isLoadingStarterPack={
                         isFetchingStarterPack && !isErrorStarterPack
                       }
