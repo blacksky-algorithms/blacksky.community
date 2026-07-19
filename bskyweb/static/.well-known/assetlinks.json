@@ -5,7 +5,10 @@
       "namespace": "android_app",
       "package_name": "community.blacksky.app",
       "sha256_cert_fingerprints":
-        ["3C:E4:09:29:B4:37:76:3C:47:AE:A8:5B:52:B2:15:54:CC:6E:24:A8:A3:E0:40:BB:34:FF:46:B4:6A:F3:BF:DD", "2B:21:9F:58:BB:AC:F0:F1:D4:F2:95:82:06:9D:1B:93:56:B3:DA:62:2A:23:EB:10:81:3F:D2:12:40:6B:71:E0"]
+        ["3C:E4:09:29:B4:37:76:3C:47:AE:A8:5B:52:B2:15:54:CC:6E:24:A8:A3:E0:40:BB:34:FF:46:B4:6A:F3:BF:DD",
+        "2B:21:9F:58:BB:AC:F0:F1:D4:F2:95:82:06:9D:1B:93:56:B3:DA:62:2A:23:EB:10:81:3F:D2:12:40:6B:71:E0",
+        "24:1A:0B:2D:D4:CF:EA:21:CC:BD:11:A9:34:19:62:42:51:6A:51:E2:5A:F1:A6:46:98:28:2E:4D:4D:20:CF:EB"
+        ]
     }
   }
 ]

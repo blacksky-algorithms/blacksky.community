@@ -317,10 +317,17 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   }, [brand.web.links.community])
 
   const onPressContribute = useCallback(() => {
-    if (brand.web.links.contribute) {
-      void Linking.openURL(brand.web.links.contribute)
+    const contribute = brand.web.links.contribute
+    if (contribute) {
+      // `contribute` may be a site-relative path (e.g. "/support"), which
+      // Linking.openURL can't resolve on native. Resolve it against the brand
+      // domain first.
+      const url = contribute.startsWith('http')
+        ? contribute
+        : `${brand.web.domains.main.replace(/\/$/, '')}${contribute}`
+      void Linking.openURL(url)
     }
-  }, [brand.web.links.contribute])
+  }, [brand.web.links.contribute, brand.web.domains.main])
 
   // rendering
   // =

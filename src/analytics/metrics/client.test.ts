@@ -21,8 +21,7 @@ jest.mock('#/logger', () => ({
 }))
 
 jest.mock('#/env', () => ({
-  POSTHOG_API_KEY: 'phc_test_key',
-  POSTHOG_HOST: 'https://test.posthog.api',
+  METRICS_API_HOST: 'https://test.metrics.api',
   IS_WEB: false,
 }))
 
@@ -31,17 +30,13 @@ type TestEvents = {
   view: {screen: string}
 }
 
+type MetricsBody = {
+  events: Array<{event: string}>
+}
+
 describe('MetricsClient', () => {
   let fetchMock: jest.Mock
-  type PostHogBody = {
-    api_key: string
-    batch: Array<{
-      event: string
-      distinct_id: string
-      properties: Record<string, unknown>
-    }>
-  }
-  let fetchRequests: {body: PostHogBody}[]
+  let fetchRequests: {body: MetricsBody}[]
 
   beforeEach(() => {
     jest.useFakeTimers({advanceTimers: true})
@@ -51,7 +46,7 @@ describe('MetricsClient', () => {
       .mockImplementation(async (_url, options: RequestInit) => {
         const body = JSON.parse(
           typeof options.body === 'string' ? options.body : '',
-        ) as PostHogBody
+        ) as MetricsBody
         fetchRequests.push({body})
         return {ok: true, status: 200}
       })
@@ -74,12 +69,9 @@ describe('MetricsClient', () => {
     await jest.advanceTimersByTimeAsync(10_000)
 
     expect(fetchRequests).toHaveLength(1)
-    expect(fetchRequests[0].body.api_key).toBe('phc_test_key')
-    expect(fetchRequests[0].body.batch).toHaveLength(2)
-    expect(fetchRequests[0].body.batch[0].event).toBe('click')
-    expect(fetchRequests[0].body.batch[0].properties.button).toBe('submit')
-    expect(fetchRequests[0].body.batch[0].distinct_id).toBeDefined()
-    expect(fetchRequests[0].body.batch[1].event).toBe('view')
+    expect(fetchRequests[0].body.events).toHaveLength(2)
+    expect(fetchRequests[0].body.events[0].event).toBe('click')
+    expect(fetchRequests[0].body.events[1].event).toBe('view')
   })
 
   it('flushes when maxBatchSize is exceeded', async () => {
@@ -100,7 +92,7 @@ describe('MetricsClient', () => {
     await jest.advanceTimersByTimeAsync(0)
 
     expect(fetchRequests).toHaveLength(1)
-    expect(fetchRequests[0].body.batch).toHaveLength(6)
+    expect(fetchRequests[0].body.events).toHaveLength(6)
   })
 
   it('retries failed events once on 500 response', async () => {
@@ -110,7 +102,7 @@ describe('MetricsClient', () => {
       requestCount++
       const body = JSON.parse(
         typeof options.body === 'string' ? options.body : '',
-      ) as PostHogBody
+      ) as MetricsBody
 
       if (requestCount === 1) {
         // First request fails with 500 - "Failed to fetch" triggers isNetworkError
@@ -141,8 +133,8 @@ describe('MetricsClient', () => {
 
     expect(requestCount).toBe(2)
     expect(fetchRequests).toHaveLength(1)
-    expect(fetchRequests[0].body.batch).toHaveLength(1)
-    expect(fetchRequests[0].body.batch[0].event).toBe('click')
+    expect(fetchRequests[0].body.events).toHaveLength(1)
+    expect(fetchRequests[0].body.events[0].event).toBe('click')
   })
 
   it('does not retry more than once', async () => {

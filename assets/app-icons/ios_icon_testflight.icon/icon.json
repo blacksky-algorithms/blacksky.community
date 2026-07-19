@@ -7,7 +7,7 @@
       "layers" : [
         {
           "fill" : "none",
-          "glass" : false,
+          "glass" : true,
           "image-name" : "iOS transparent.png",
           "name" : "iOS transparent"
         }
