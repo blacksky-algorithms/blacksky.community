@@ -5,6 +5,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {isDeclaredUnder18} from '#/lib/age'
 import {getLabelingServiceTitle, isAppLabeler} from '#/lib/moderation'
 import {
   type CommonNavigatorParams,
@@ -23,6 +24,8 @@ import {isNonConfigurableModerationAuthority} from '#/state/session/additional-m
 import {atoms as a, useBreakpoints, useTheme, type ViewStyleProp} from '#/alf'
 import * as Admonition from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import * as Dialog from '#/components/Dialog'
+import {BirthDateSettingsDialog} from '#/components/dialogs/BirthDateSettings'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
 import {Divider} from '#/components/Divider'
 import * as Toggle from '#/components/forms/Toggle'
@@ -190,12 +193,24 @@ export function ModerationScreenInner({
 
   const {mutateAsync: setAdultContentPref, variables: optimisticAdultContent} =
     usePreferencesSetAdultContentMutation()
+  const birthDateDialogControl = Dialog.useDialogControl()
+  const isDeclaredMinor = isDeclaredUnder18(preferences.birthDate)
   let adultContentEnabled = !!(
     (optimisticAdultContent && optimisticAdultContent.enabled) ||
     (!optimisticAdultContent && preferences.moderationPrefs.adultContentEnabled)
   )
   const adultContentUIDisabledOnIOS = IS_IOS && !adultContentEnabled
-  const adultContentUIDisabled = adultContentUIDisabledOnIOS
+  let adultContentUIDisabled = adultContentUIDisabledOnIOS
+  /*
+   * Declared-under-18 users cannot view or enable adult content, regardless of
+   * platform or a previously-stored preference. This mirrors the effective gate
+   * applied in #/state/preferences/moderation-opts. Declared age only - no
+   * verification vendor.
+   */
+  if (isDeclaredMinor) {
+    adultContentEnabled = false
+    adultContentUIDisabled = true
+  }
 
   const onToggleAdultContentEnabled = useCallback(
     async (selected: boolean) => {
@@ -214,6 +229,7 @@ export function ModerationScreenInner({
 
   return (
     <View style={[a.pt_2xl, a.px_lg, gtMobile && a.px_2xl]}>
+      <BirthDateSettingsDialog control={birthDateDialogControl} />
       <Text
         style={[
           a.text_md,
@@ -371,28 +387,50 @@ export function ModerationScreenInner({
               </View>
             </Toggle.Item>
           </View>
-          {adultContentUIDisabledOnIOS && (
+          {isDeclaredMinor ? (
             <View style={[a.pb_lg, a.px_lg]}>
               <Text>
                 <Trans>
-                  Adult content can only be enabled via the Web at{' '}
+                  Your declared age is under 18, so adult content is turned off
+                  and cannot be enabled. If this is a mistake, you can{' '}
                   <InlineLinkText
-                    label={_(msg`The Blacksky web application`)}
+                    label={_(msg`Update your birthdate`)}
                     to=""
                     onPress={evt => {
                       evt.preventDefault()
-                      Linking.openURL(`${BSKY_APP_HOST.replace(/\/$/, '')}/`)
+                      birthDateDialogControl.open()
                       return false
                     }}>
-                    {BSKY_APP_HOST.replace(/^https?:\/\//, '').replace(
-                      /\/$/,
-                      '',
-                    )}
+                    update your birthdate
                   </InlineLinkText>
                   .
                 </Trans>
               </Text>
             </View>
+          ) : (
+            adultContentUIDisabledOnIOS && (
+              <View style={[a.pb_lg, a.px_lg]}>
+                <Text>
+                  <Trans>
+                    Adult content can only be enabled via the Web at{' '}
+                    <InlineLinkText
+                      label={_(msg`The Blacksky web application`)}
+                      to=""
+                      onPress={evt => {
+                        evt.preventDefault()
+                        Linking.openURL(`${BSKY_APP_HOST.replace(/\/$/, '')}/`)
+                        return false
+                      }}>
+                      {BSKY_APP_HOST.replace(/^https?:\/\//, '').replace(
+                        /\/$/,
+                        '',
+                      )}
+                    </InlineLinkText>
+                    .
+                  </Trans>
+                </Text>
+              </View>
+            )
           )}
 
           {adultContentEnabled && (

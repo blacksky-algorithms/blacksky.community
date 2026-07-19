@@ -1,6 +1,7 @@
 import {createContext, useContext, useMemo} from 'react'
 import {AtpAgent, type ModerationOpts} from '@atproto/api'
 
+import {adultContentAgeBlocked} from '#/lib/age'
 import {useHiddenPosts, useLabelDefinitions} from '#/state/preferences'
 import {DEFAULT_LOGGED_OUT_LABEL_PREFERENCES} from '#/state/queries/preferences/const'
 import {useSession} from '#/state/session'
@@ -30,6 +31,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
 
   const userDid = currentAccount?.did
   const moderationPrefs = prefs.data?.moderationPrefs
+  const birthDate = prefs.data?.birthDate
   const value = useMemo<ModerationOpts | undefined>(() => {
     if (override) {
       return override
@@ -41,6 +43,15 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       userDid,
       prefs: {
         ...moderationPrefs,
+        /*
+         * Force adult content off for declared-under-18 users regardless of the
+         * stored preference (which could have been enabled on another client).
+         * This is the effective gate that hides adult labels everywhere content
+         * is moderated, not just in the settings UI. See #/lib/age.
+         */
+        adultContentEnabled: adultContentAgeBlocked(birthDate)
+          ? false
+          : moderationPrefs.adultContentEnabled,
         labelers: moderationPrefs.labelers.length
           ? moderationPrefs.labelers
           : AtpAgent.appLabelers.map(did => ({
@@ -51,7 +62,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       },
       labelDefs,
     }
-  }, [override, userDid, labelDefs, moderationPrefs, hiddenPosts])
+  }, [override, userDid, labelDefs, moderationPrefs, hiddenPosts, birthDate])
 
   return (
     <moderationOptsContext.Provider value={value}>

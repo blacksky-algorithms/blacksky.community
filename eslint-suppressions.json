@@ -1391,11 +1391,6 @@
       "count": 1
     }
   },
-  "src/screens/Settings/AccountSettings.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/screens/Settings/AutomationLabelSettings.tsx": {
     "@typescript-eslint/no-floating-promises": {
       "count": 2

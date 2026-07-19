@@ -6,11 +6,7 @@
   },
   "build": {
     "base": {
-      "node": "24.15.0",
-      "env": {
-        "EXPO_PUBLIC_POSTHOG_API_KEY": "phc_zKqA8hPzEyjPJsGEyNfBPrGbRSsH9SrhebuHh5cY9EAv",
-        "EXPO_PUBLIC_POSTHOG_HOST": "https://us.i.posthog.com"
-      }
+      "node": "24.15.0"
     },
     "development": {
       "extends": "base",
