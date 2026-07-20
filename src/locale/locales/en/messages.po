@@ -1811,7 +1811,7 @@ msgstr ""
 msgid "Archived post"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:327
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:429
 msgid "Are you really, really sure?"
 msgstr ""
 
@@ -1884,7 +1884,7 @@ msgstr ""
 msgid "At least 8 characters"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:338
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:440
 msgid "AT Protocol FAQ"
 msgstr "AT Protocol FAQ"
 
@@ -2341,7 +2341,7 @@ msgstr "Camera access needed"
 #: src/screens/Profile/Header/EditProfileDialog.tsx:235
 #: src/screens/Search/Shell.tsx:405
 #: src/screens/Settings/AppIconSettings/index.tsx:39
-#: src/screens/Settings/AppIconSettings/index.tsx:198
+#: src/screens/Settings/AppIconSettings/index.tsx:199
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:80
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:87
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:250
@@ -2409,7 +2409,7 @@ msgstr ""
 #. placeholder {0}: icon.name
 #. placeholder {0}: next.name
 #: src/screens/Settings/AppIconSettings/index.tsx:33
-#: src/screens/Settings/AppIconSettings/index.tsx:194
+#: src/screens/Settings/AppIconSettings/index.tsx:195
 msgid "Change app icon to \"{0}\""
 msgstr ""
 
@@ -2455,7 +2455,7 @@ msgstr "Change the source language"
 msgid "Change your password"
 msgstr ""
 
-#: src/screens/Settings/AppIconSettings/index.tsx:189
+#: src/screens/Settings/AppIconSettings/index.tsx:190
 msgid "Changes app icon"
 msgstr ""
 
@@ -2568,7 +2568,7 @@ msgstr ""
 msgid "Chats"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:233
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:335
 msgid "Check <0>{currentEmail}</0> for an email with the confirmation code to enter below:"
 msgstr ""
 
@@ -2634,7 +2634,7 @@ msgstr ""
 msgid "Choose your account provider"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:209
+#: src/screens/Signup/index.tsx:227
 msgid "Choose your community"
 msgstr "Choose your community"
 
@@ -2646,7 +2646,7 @@ msgstr ""
 msgid "Choose your password"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:213
+#: src/screens/Signup/index.tsx:231
 msgid "Choose your username"
 msgstr ""
 
@@ -2684,8 +2684,8 @@ msgstr "Click here to add people to this group chat"
 msgid "Click here to create or manage an invite link for this group chat"
 msgstr "Click here to create or manage an invite link for this group chat"
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:263
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:272
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:365
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:374
 msgid "Click here to resend the email"
 msgstr "Click here to resend the email"
 
@@ -2871,7 +2871,7 @@ msgstr ""
 msgid "Complete onboarding and start using your account"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:215
+#: src/screens/Signup/index.tsx:233
 msgid "Complete the challenge"
 msgstr ""
 
@@ -2933,14 +2933,14 @@ msgstr "Confirm with your account password"
 #: src/screens/Deactivated.tsx:239
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:189
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:193
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:244
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:346
 #: src/screens/Settings/components/DisableEmail2FADialog.tsx:145
 #: src/screens/Settings/components/DisableEmail2FADialog.tsx:151
 msgid "Confirmation code"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:256
-#: src/screens/Signup/index.tsx:259
+#: src/screens/Signup/index.tsx:278
+#: src/screens/Signup/index.tsx:281
 msgid "Contact support"
 msgstr ""
 
@@ -3353,7 +3353,7 @@ msgstr ""
 msgid "Create account"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:154
+#: src/screens/Signup/index.tsx:176
 msgid "Create Account"
 msgstr "Create Account"
 
@@ -3555,8 +3555,8 @@ msgstr ""
 msgid "Delete account"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:183
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:230
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:231
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:332
 msgid "Delete account “{currentHandle}”"
 msgstr ""
 
@@ -3606,7 +3606,7 @@ msgstr ""
 msgid "Delete message for me"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:309
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:411
 msgid "Delete my account"
 msgstr ""
 
@@ -3900,7 +3900,7 @@ msgstr ""
 msgid "Don't have a code or need a new one? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:269
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:371
 msgid "Don’t see a code? <0>Click here to resend.</0>"
 msgstr ""
 
@@ -4202,7 +4202,7 @@ msgstr ""
 msgid "Email sent!"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:260
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:362
 msgid "Email sent! <0>Click here to resend.</0>"
 msgstr ""
 
@@ -4366,7 +4366,8 @@ msgstr "Enter your handle (e.g. alice.bsky.social)"
 msgid "Enter your handle to sign in"
 msgstr "Enter your handle to sign in"
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:291
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:253
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:393
 msgid "Enter your password"
 msgstr ""
 
@@ -5254,7 +5255,7 @@ msgstr ""
 msgid "Food"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:186
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:234
 msgid "For security reasons, we’ll need to send a confirmation code to your email address <0>{currentEmail}</0>."
 msgstr ""
 
@@ -5701,7 +5702,7 @@ msgstr ""
 msgid "Have a code? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:254
+#: src/screens/Signup/index.tsx:276
 msgid "Having trouble?"
 msgstr ""
 
@@ -6159,6 +6160,7 @@ msgid "Invalid interaction settings."
 msgstr ""
 
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:84
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:130
 msgid "Invalid password. Please try again."
 msgstr "Invalid password. Please try again."
 
@@ -6192,7 +6194,7 @@ msgstr ""
 msgid "Invite code"
 msgstr ""
 
-#: src/screens/Signup/state.ts:380
+#: src/screens/Signup/state.ts:388
 msgid "Invite code not accepted. Check that you input it correctly and try again."
 msgstr ""
 
@@ -7822,7 +7824,7 @@ msgstr ""
 #: src/screens/Profile/Header/ProfileHeaderLabeler.tsx:226
 #: src/screens/Search/modules/ExploreInterestsCard.tsx:49
 #: src/screens/Settings/AppIconSettings/index.tsx:43
-#: src/screens/Settings/AppIconSettings/index.tsx:202
+#: src/screens/Settings/AppIconSettings/index.tsx:203
 msgid "OK"
 msgstr ""
 
@@ -8316,7 +8318,8 @@ msgstr "Party GIFs"
 #: src/screens/Settings/AppPasswords.tsx:107
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:145
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:146
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:284
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:247
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:386
 #: src/screens/Signup/StepInfo/index.tsx:230
 msgid "Password"
 msgstr ""
@@ -8529,11 +8532,11 @@ msgstr ""
 msgid "Please add any content warning labels that are applicable for the media you are posting."
 msgstr ""
 
-#: src/screens/Signup/state.ts:326
+#: src/screens/Signup/state.ts:334
 msgid "Please choose your handle."
 msgstr ""
 
-#: src/screens/Signup/state.ts:318
+#: src/screens/Signup/state.ts:326
 #: src/screens/Signup/StepInfo/index.tsx:126
 msgid "Please choose your password."
 msgstr ""
@@ -8542,7 +8545,7 @@ msgstr ""
 msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 msgstr "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 
-#: src/screens/Signup/state.ts:341
+#: src/screens/Signup/state.ts:349
 msgid "Please complete the verification captcha."
 msgstr ""
 
@@ -8601,7 +8604,7 @@ msgstr ""
 msgid "Please enter your account password to manage app passwords."
 msgstr "Please enter your account password to manage app passwords."
 
-#: src/screens/Signup/state.ts:302
+#: src/screens/Signup/state.ts:310
 #: src/screens/Signup/StepInfo/index.tsx:99
 msgid "Please enter your email."
 msgstr ""
@@ -10289,7 +10292,7 @@ msgstr ""
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Disable.tsx:172
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Disable.tsx:179
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:311
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:199
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:296
 msgid "Send email"
 msgstr ""
 
@@ -10360,7 +10363,7 @@ msgid "Session storage is unavailable. Please sign in again."
 msgstr "Session storage is unavailable. Please sign in again."
 
 #. placeholder {0}: icon.name
-#: src/screens/Settings/AppIconSettings/index.tsx:146
+#: src/screens/Settings/AppIconSettings/index.tsx:147
 msgid "Set app icon to {0}"
 msgstr ""
 
@@ -10697,6 +10700,10 @@ msgstr ""
 #: src/screens/Login/ChooseAccountForm.tsx:97
 msgid "Sign in as..."
 msgstr ""
+
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:271
+msgid "Sign in code"
+msgstr "Sign in code"
 
 #: src/screens/Login/ChooseAccountForm.tsx:71
 msgid "Sign in failed. Please try again."
@@ -11043,14 +11050,15 @@ msgstr ""
 msgid "Starts the sign-in process"
 msgstr "Starts the sign-in process"
 
-#. placeholder {0}: state.activeStep + 1
 #. placeholder {0}: state.activeStepIndex + 1
-#. placeholder {1}: state.serviceDescription && !state.serviceDescription.phoneVerificationRequired ? '3' : '4'
 #. placeholder {1}: state.totalSteps
 #: src/screens/Onboarding/Layout.tsx:226
-#: src/screens/Signup/index.tsx:199
 msgid "Step {0} of {1}"
 msgstr ""
+
+#: src/screens/Signup/index.tsx:221
+msgid "Step {displayStep} of {displayTotal}"
+msgstr "Step {displayStep} of {displayTotal}"
 
 #: src/screens/Settings/Settings.tsx:399
 msgid "Storage cleared, you need to restart the app now."
@@ -11354,7 +11362,7 @@ msgstr ""
 msgid "Tell us a little more"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:214
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:316
 msgid "Temporarily deactivate your account"
 msgstr "Temporarily deactivate your account"
 
@@ -11428,7 +11436,7 @@ msgid "The account will be able to interact with you after unblocking."
 msgstr ""
 
 #: src/screens/Settings/AppIconSettings/index.tsx:36
-#: src/screens/Settings/AppIconSettings/index.tsx:195
+#: src/screens/Settings/AppIconSettings/index.tsx:196
 msgid "The app will be restarted"
 msgstr ""
 
@@ -12059,7 +12067,7 @@ msgstr ""
 msgid "This will delete \"{0}\" from your muted words. You can always add it back later."
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:330
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:432
 msgid "This will irreversibly delete your Blacksky account <0>{currentHandle}</0> and all associated data. Note that this will affect any other <1>AT Protocol</1> services you use with this account."
 msgstr "This will irreversibly delete your Blacksky account <0>{currentHandle}</0> and all associated data. Note that this will affect any other <1>AT Protocol</1> services you use with this account."
 
@@ -12275,7 +12283,7 @@ msgstr ""
 #: src/screens/Login/index.tsx:94
 #: src/screens/Login/LoginForm.tsx:91
 #: src/screens/Login/SetNewPasswordForm.tsx:83
-#: src/screens/Signup/index.tsx:103
+#: src/screens/Signup/index.tsx:113
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
 
@@ -13409,7 +13417,7 @@ msgstr "Yes GIFs"
 msgid "Yes, deactivate"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:348
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:450
 msgid "Yes, delete my account"
 msgstr ""
 
@@ -13499,7 +13507,7 @@ msgstr "You can adjust these settings to configure how AI systems may use your d
 msgid "You can adjust your interests at any time from \"Content and media\" settings."
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:211
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:313
 msgid "You can also <0>temporarily deactivate</0> your account instead. Your profile, posts, feeds, and lists will no longer be visible to other Blacksky users. You can reactivate your account at any time by logging in."
 msgstr "You can also <0>temporarily deactivate</0> your account instead. Your profile, posts, feeds, and lists will no longer be visible to other Blacksky users. You can reactivate your account at any time by logging in."
 
@@ -13825,11 +13833,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:171
+#: src/screens/Signup/index.tsx:193
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:176
+#: src/screens/Signup/index.tsx:198
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -13912,17 +13920,21 @@ msgstr ""
 msgid "You've run out of videos to watch. Maybe it's a good time to take a break?"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:211
+#: src/screens/Signup/index.tsx:229
 msgid "Your account"
 msgstr ""
 
-#: src/screens/Settings/components/DeleteAccountDialog.tsx:128
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:177
 msgid "Your account has been deleted, see ya! ✌️"
 msgstr ""
 
 #: src/screens/Takendown.tsx:144
 msgid "Your account has been suspended"
 msgstr ""
+
+#: src/screens/Settings/components/DeleteAccountDialog.tsx:285
+msgid "Your account has two-factor authentication enabled. A sign in code has been sent to your email address — enter it above, then press Send email again."
+msgstr "Your account has two-factor authentication enabled. A sign in code has been sent to your email address — enter it above, then press Send email again."
 
 #: src/lib/strings/errors.ts:74
 msgid "Your account is deactivated. If you recently moved to a new hosting provider, reactivate to complete the migration."
@@ -13992,7 +14004,7 @@ msgstr "Your device clock appears to be incorrect. Please check your system time
 
 #: src/screens/Login/ForgotPasswordForm.tsx:52
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:84
-#: src/screens/Signup/state.ts:310
+#: src/screens/Signup/state.ts:318
 #: src/screens/Signup/StepInfo/index.tsx:106
 msgid "Your email appears to be invalid."
 msgstr ""
