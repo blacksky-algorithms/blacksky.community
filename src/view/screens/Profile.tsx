@@ -243,7 +243,8 @@ function ProfileScreenLoaded({
   const hasLabeler = !!profile.associated?.labeler
   const showFiltersTab = hasLabeler
   const showPostsTab = true
-  // Community posts surface on the home Community tab only, not profiles.
+  // Community posts are merged into the Posts tab server-side for member
+  // viewers, so the dedicated profile Community tab stays off.
   const showCommunityTab = false
   const showRepliesTab = hasSession
   const showMediaTab = !hasLabeler
