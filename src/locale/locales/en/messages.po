@@ -1977,7 +1977,7 @@ msgstr ""
 #: src/components/dialogs/StarterPackDialog.tsx:72
 #: src/components/StarterPack/ProfileStarterPacks.tsx:264
 #: src/components/StarterPack/ProfileStarterPacks.tsx:274
-#: src/view/screens/Profile.tsx:387
+#: src/view/screens/Profile.tsx:388
 msgid "Before creating a starter pack, you must first verify your email."
 msgstr ""
 
@@ -2854,7 +2854,7 @@ msgstr ""
 
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:232
 #: src/screens/Signup/StepCommunity/index.tsx:92
-#: src/view/screens/Profile.tsx:264
+#: src/view/screens/Profile.tsx:265
 msgid "Community"
 msgstr "Community"
 
@@ -3330,8 +3330,8 @@ msgstr ""
 msgid "Create a starter pack"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:611
 #: src/view/screens/Profile.tsx:612
+#: src/view/screens/Profile.tsx:613
 msgid "Create a Starter Pack"
 msgstr ""
 
@@ -4942,7 +4942,7 @@ msgstr ""
 #: src/screens/Search/SearchResults.tsx:80
 #: src/screens/StarterPack/StarterPackScreen.tsx:196
 #: src/view/screens/Feeds.tsx:504
-#: src/view/screens/Profile.tsx:269
+#: src/view/screens/Profile.tsx:270
 #: src/view/shell/desktop/LeftNav.tsx:718
 #: src/view/shell/Drawer.tsx:654
 msgid "Feeds"
@@ -6351,7 +6351,7 @@ msgid "Labeled by the author."
 msgstr ""
 
 #: src/view/com/composer/labels/LabelsBtn.tsx:70
-#: src/view/screens/Profile.tsx:261
+#: src/view/screens/Profile.tsx:262
 msgid "Labels"
 msgstr ""
 
@@ -6578,7 +6578,7 @@ msgstr ""
 #: src/lib/hooks/useNotificationHandler.ts:160
 #: src/screens/Settings/NotificationSettings/index.tsx:139
 #: src/screens/Settings/NotificationSettings/index.tsx:260
-#: src/view/screens/Profile.tsx:268
+#: src/view/screens/Profile.tsx:269
 msgid "Likes"
 msgstr ""
 
@@ -6689,8 +6689,8 @@ msgstr ""
 
 #: src/Navigation.tsx:181
 #: src/view/screens/Lists.tsx:60
-#: src/view/screens/Profile.tsx:262
-#: src/view/screens/Profile.tsx:271
+#: src/view/screens/Profile.tsx:263
+#: src/view/screens/Profile.tsx:272
 #: src/view/shell/desktop/LeftNav.tsx:728
 #: src/view/shell/Drawer.tsx:669
 msgid "Lists"
@@ -6918,7 +6918,7 @@ msgstr "Maximum support amount is $1,000"
 msgid "Maybe later"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:266
+#: src/view/screens/Profile.tsx:267
 msgid "Media"
 msgstr ""
 
@@ -7426,7 +7426,7 @@ msgstr ""
 #: src/view/com/feeds/CommunityFeedPage.tsx:272
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
-#: src/view/screens/Profile.tsx:642
+#: src/view/screens/Profile.tsx:643
 msgid "New post"
 msgstr ""
 
@@ -7555,7 +7555,7 @@ msgstr ""
 
 #: src/components/LikedByList.tsx:84
 #: src/view/com/post-thread/PostLikedBy.tsx:84
-#: src/view/screens/Profile.tsx:574
+#: src/view/screens/Profile.tsx:575
 msgid "No likes yet"
 msgstr ""
 
@@ -7572,7 +7572,7 @@ msgstr ""
 msgid "No longer following {0}"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:520
+#: src/view/screens/Profile.tsx:521
 msgid "No media yet"
 msgstr ""
 
@@ -7622,7 +7622,7 @@ msgid "No posts here"
 msgstr ""
 
 #: src/screens/Profile/Sections/Feed.tsx:81
-#: src/view/screens/Profile.tsx:467
+#: src/view/screens/Profile.tsx:468
 msgid "No posts yet"
 msgstr ""
 
@@ -7639,7 +7639,7 @@ msgstr ""
 msgid "No recent GIFs yet. Pick one to see it here."
 msgstr "No recent GIFs yet. Pick one to see it here."
 
-#: src/view/screens/Profile.tsx:505
+#: src/view/screens/Profile.tsx:506
 msgid "No replies yet"
 msgstr ""
 
@@ -7672,7 +7672,7 @@ msgstr ""
 msgid "No results found for “<0>{query}</0>”."
 msgstr "No results found for “<0>{query}</0>”."
 
-#: src/view/screens/Profile.tsx:606
+#: src/view/screens/Profile.tsx:607
 msgid "No Starter Packs yet"
 msgstr ""
 
@@ -7690,7 +7690,7 @@ msgstr ""
 msgid "No translation received from your device."
 msgstr "No translation received from your device."
 
-#: src/view/screens/Profile.tsx:547
+#: src/view/screens/Profile.tsx:548
 msgid "No video posts yet"
 msgstr ""
 
@@ -8696,13 +8696,13 @@ msgctxt "description"
 msgid "Post"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:524
 #: src/view/screens/Profile.tsx:525
+#: src/view/screens/Profile.tsx:526
 msgid "Post a photo"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:551
 #: src/view/screens/Profile.tsx:552
+#: src/view/screens/Profile.tsx:553
 msgid "Post a video"
 msgstr ""
 
@@ -8795,7 +8795,7 @@ msgstr ""
 #: src/components/activity-notifications/SubscribeProfileDialog.tsx:269
 #: src/screens/ProfileList/index.tsx:167
 #: src/screens/StarterPack/StarterPackScreen.tsx:197
-#: src/view/screens/Profile.tsx:263
+#: src/view/screens/Profile.tsx:264
 msgid "Posts"
 msgstr ""
 
@@ -9416,7 +9416,7 @@ msgstr "Replied-to message, tap to scroll to it"
 #: src/lib/hooks/useNotificationHandler.ts:174
 #: src/screens/Settings/NotificationSettings/index.tsx:161
 #: src/screens/Settings/NotificationSettings/index.tsx:276
-#: src/view/screens/Profile.tsx:265
+#: src/view/screens/Profile.tsx:266
 msgid "Replies"
 msgstr ""
 
@@ -11030,7 +11030,7 @@ msgstr ""
 msgid "Starter pack is invalid"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:270
+#: src/view/screens/Profile.tsx:271
 msgid "Starter Packs"
 msgstr ""
 
@@ -11042,7 +11042,7 @@ msgstr ""
 msgid "Starter packs let you share your favorite feeds and people with your friends."
 msgstr ""
 
-#: src/view/screens/Profile.tsx:604
+#: src/view/screens/Profile.tsx:605
 msgid "Starter Packs let you share your favorite feeds and people with your friends."
 msgstr ""
 
@@ -12694,7 +12694,7 @@ msgstr "Use your data in AI search and recommendation systems. This is how AI fi
 msgid "Use your data to build or train new AI models. Once your work is in a model, it stays there, even if you delete your account later."
 msgstr "Use your data to build or train new AI models. Once your work is in a model, it stays there, even if you delete your account later."
 
-#: src/view/screens/Profile.tsx:420
+#: src/view/screens/Profile.tsx:421
 msgid "user"
 msgstr "user"
 
@@ -12921,7 +12921,7 @@ msgstr ""
 msgid "Video: {0}"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:267
+#: src/view/screens/Profile.tsx:268
 msgid "Videos"
 msgstr ""
 
@@ -13374,8 +13374,8 @@ msgstr ""
 msgid "Would you like to save this as a draft to edit later?"
 msgstr ""
 
-#: src/view/screens/Profile.tsx:471
 #: src/view/screens/Profile.tsx:472
+#: src/view/screens/Profile.tsx:473
 msgid "Write a post"
 msgstr ""
 
