@@ -75,6 +75,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
 export const exemptExternalEmbedSources = new Set<EmbedPlayerSource>([
   'tenor',
   'klipy',
+  'assembly',
 ])
 
 export interface EmbedPlayerParams {
