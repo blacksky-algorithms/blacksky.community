@@ -56,16 +56,16 @@ export const LoginForm = ({
     setIsProcessing(true)
 
     const client = getOAuthClient()
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
-    const doSignIn = (id: string) => {
-      if (Platform.OS === 'android') {
-        const controller = new AbortController()
-        abortRef.current = controller
-        setAwaitingRedirect(true)
-        return signInNativeAndroid(client, id, {signal: controller.signal})
-      }
-      return client.signIn(id)
+    const controller = Platform.OS === 'android' ? new AbortController() : null
+    if (controller) {
+      abortRef.current = controller
+      setAwaitingRedirect(true)
     }
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
+    const doSignIn = (id: string) =>
+      controller
+        ? signInNativeAndroid(client, id, {signal: controller.signal})
+        : client.signIn(id)
 
     try {
       let session
@@ -73,11 +73,15 @@ export const LoginForm = ({
         session = await doSignIn(identifier)
       } catch (e) {
         if (!isHandleResolutionError(e)) throw e
+        if (controller?.signal.aborted) throw new Error('OAUTH_CANCELLED')
         const did = await resolveDeactivatedHandle(identifier)
+        if (controller?.signal.aborted) throw new Error('OAUTH_CANCELLED')
         session = await doSignIn(did)
       }
       /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
+      // On native, signInNativeAndroid/signIn returns the session directly.
+      // On web, the browser redirects away and App.web.tsx handles the callback.
       if (Platform.OS !== 'web' && session) {
         await login(
           {service: '', identifier: '', password: '', oauthSession: session},
