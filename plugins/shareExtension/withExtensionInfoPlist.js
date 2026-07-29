@@ -19,7 +19,13 @@ const withExtensionInfoPlist = (config, {extensionName}) => {
 
     const extPlist = plist.default.parse(fs.readFileSync(plistPath).toString())
 
-    extPlist.MainAppScheme = config.scheme
+    // `config.scheme` may be an array when the app registers multiple URL
+    // schemes. The extension reads a single scheme, so coerce to the first one
+    // (writing the array would break the String cast and fall back to opening
+    // another app, e.g. Bluesky).
+    extPlist.MainAppScheme = Array.isArray(config.scheme)
+      ? config.scheme[0]
+      : config.scheme
     extPlist.CFBundleName = '$(PRODUCT_NAME)'
     extPlist.CFBundleDisplayName = 'Extension'
     extPlist.CFBundleIdentifier = '$(PRODUCT_BUNDLE_IDENTIFIER)'
