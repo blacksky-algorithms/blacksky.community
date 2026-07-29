@@ -7,17 +7,18 @@ import {Trans} from '@lingui/react/macro'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
-import {getOAuthClient} from '#/state/session/oauth-client'
+import {getOAuthClient, signInNativeAndroid} from '#/state/session/oauth-client'
 import {
   isHandleResolutionError,
   resolveDeactivatedHandle,
 } from '#/state/session/resolveForLogin'
-import {atoms as a} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {FormError} from '#/components/forms/FormError'
 import * as TextField from '#/components/forms/TextField'
 import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
+import {Text} from '#/components/Typography'
 import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({
@@ -32,7 +33,10 @@ export const LoginForm = ({
   onPressBack: () => void
 }) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const [awaitingRedirect, setAwaitingRedirect] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
   const identifierValueRef = useRef<string>(initialHandle || '')
+  const t = useTheme()
   const {_} = useLingui()
   const {login} = useSessionApi()
 
@@ -51,38 +55,41 @@ export const LoginForm = ({
 
     setIsProcessing(true)
 
+    const client = getOAuthClient()
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
+    const doSignIn = (id: string) => {
+      if (Platform.OS === 'android') {
+        const controller = new AbortController()
+        abortRef.current = controller
+        setAwaitingRedirect(true)
+        return signInNativeAndroid(client, id, {signal: controller.signal})
+      }
+      return client.signIn(id)
+    }
+
     try {
-      const client = getOAuthClient()
       let session
-      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
       try {
-        session = await client.signIn(identifier)
+        session = await doSignIn(identifier)
       } catch (e) {
         if (!isHandleResolutionError(e)) throw e
         const did = await resolveDeactivatedHandle(identifier)
-        session = await client.signIn(did)
+        session = await doSignIn(did)
       }
       /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
       if (Platform.OS !== 'web' && session) {
-        // On native, signIn() returns the session directly after the
-        // in-app browser completes the OAuth flow.
         await login(
-          {
-            service: '',
-            identifier: '',
-            password: '',
-            oauthSession: session,
-          },
+          {service: '', identifier: '', password: '', oauthSession: session},
           'LoginForm',
         )
       }
-      // On web, the browser redirects away and App.web.tsx handles the callback.
     } catch (e) {
       const errMsg = String(e)
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-      setIsProcessing(false)
-      if (isNetworkError(e)) {
+      if (errMsg.includes('OAUTH_CANCELLED')) {
+        // User-initiated cancel (Android): silent reset, no error banner.
+      } else if (isNetworkError(e)) {
         logger.warn('Failed to start OAuth sign-in due to network error', {
           error: errMsg,
         })
@@ -95,6 +102,10 @@ export const LoginForm = ({
         logger.warn('Failed to start OAuth sign-in', {error: errMsg})
         setError(cleanError(errMsg))
       }
+    } finally {
+      setIsProcessing(false)
+      setAwaitingRedirect(false)
+      abortRef.current = null
     }
   }
 
@@ -130,6 +141,13 @@ export const LoginForm = ({
         </View>
       </View>
       <FormError error={error} />
+      {awaitingRedirect && (
+        <Text style={[a.text_sm, a.text_center, t.atoms.text_contrast_medium]}>
+          <Trans>
+            Finishing sign-in… complete it in your browser, or cancel.
+          </Trans>
+        </Text>
+      )}
       <View style={[a.flex_row, a.align_center, a.pt_md]}>
         <Button
           label={_(msg`Back`)}
@@ -142,19 +160,34 @@ export const LoginForm = ({
           </ButtonText>
         </Button>
         <View style={a.flex_1} />
-        <Button
-          testID="loginNextButton"
-          label={_(msg`Login`)}
-          accessibilityHint={_(msg`Starts the sign-in process`)}
-          variant="solid"
-          color="primary"
-          size="large"
-          onPress={onPressNext}>
-          <ButtonText>
-            <Trans>Login</Trans>
-          </ButtonText>
-          {isProcessing && <ButtonIcon icon={Loader} />}
-        </Button>
+        {awaitingRedirect ? (
+          <Button
+            testID="loginCancelButton"
+            label={_(msg`Cancel`)}
+            accessibilityHint={_(msg`Cancels the sign-in process`)}
+            variant="solid"
+            color="secondary"
+            size="large"
+            onPress={() => abortRef.current?.abort()}>
+            <ButtonText>
+              <Trans>Cancel</Trans>
+            </ButtonText>
+          </Button>
+        ) : (
+          <Button
+            testID="loginNextButton"
+            label={_(msg`Login`)}
+            accessibilityHint={_(msg`Starts the sign-in process`)}
+            variant="solid"
+            color="primary"
+            size="large"
+            onPress={onPressNext}>
+            <ButtonText>
+              <Trans>Login</Trans>
+            </ButtonText>
+            {isProcessing && <ButtonIcon icon={Loader} />}
+          </Button>
+        )}
       </View>
     </FormContainer>
   )
