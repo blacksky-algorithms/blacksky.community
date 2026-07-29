@@ -1,5 +1,5 @@
 import * as Linking from 'expo-linking'
-import {openAuthSessionAsync} from 'expo-web-browser'
+import {dismissBrowser, openAuthSessionAsync} from 'expo-web-browser'
 import {ExpoOAuthClient} from '@atproto/oauth-client-expo'
 
 import {logger} from '#/logger'
@@ -10,6 +10,11 @@ import {
 import {OAUTH_BASE_URL, OAUTH_CLIENT_NAME, OAUTH_SCOPE} from './oauth-config'
 
 export const NATIVE_REDIRECT_URI = 'community.blacksky:/oauth/callback'
+
+// The redirect deep-link can arrive with either a single (`:/oauth`) or double
+// (`://oauth`) slash depending on the Android/Hermes deep-link path, so match
+// both forms rather than relying on `startsWith(NATIVE_REDIRECT_URI)`.
+const OAUTH_CALLBACK_RE = /^community\.blacksky:\/\/?oauth\/callback\b/
 
 // Debug fetch wrapper — logs all OAuth-related network requests to Metro console
 const debugFetch: typeof fetch = async (input, init) => {
@@ -99,53 +104,74 @@ export function getOAuthClient() {
  * redirect, so the UI must provide one).
  */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
-export function signInNativeAndroid(
+export async function signInNativeAndroid(
   client: any,
   identifier: string,
   {signal}: {signal?: AbortSignal} = {},
 ): Promise<any> {
   const redirectUri = NATIVE_REDIRECT_URI
-  return (async () => {
-    const url = await client.authorize(identifier, {display: 'touch', signal})
 
-    return await new Promise((resolve, reject) => {
-      let settled = false
+  let url
+  try {
+    url = await client.authorize(identifier, {display: 'touch', signal})
+  } catch (e) {
+    // An abort during authorize() rejects with a DOMException `AbortError`;
+    // normalize it so the UI's cancel branch recognizes it like every other path.
+    if (signal?.aborted) throw new Error('OAUTH_CANCELLED')
+    throw e
+  }
 
-      const cleanup = () => {
-        sub.remove()
-        signal?.removeEventListener('abort', onAbort)
-      }
+  return await new Promise((resolve, reject) => {
+    let settled = false
 
-      const onAbort = () => {
-        if (settled) return
-        settled = true
-        cleanup()
-        reject(new Error('OAUTH_CANCELLED'))
-      }
+    const cleanup = () => {
+      sub.remove()
+      signal?.removeEventListener('abort', onAbort)
+      // Best-effort: close the lingering Custom Tab on every settle path.
+      dismissBrowser().catch(() => {})
+    }
 
-      const sub = Linking.addEventListener('url', ({url: incoming}) => {
-        if (settled) return
-        if (!incoming.startsWith(redirectUri)) return // ignore other deep-links
-        settled = true
-        cleanup()
-        ;(async () => {
-          const params = new URL(incoming).searchParams
-          const {session} = await client.callback(params, {
-            redirect_uri: redirectUri,
-          })
-          resolve(session)
-        })().catch(reject)
-      })
+    const onAbort = () => {
+      if (settled) return
+      settled = true
+      cleanup()
+      reject(new Error('OAUTH_CANCELLED'))
+    }
 
-      if (signal) {
-        if (signal.aborted) return onAbort()
-        signal.addEventListener('abort', onAbort)
-      }
-
-      // Fire the browser. Its result (incl. Android's phantom `dismiss`) is
-      // intentionally ignored — the redirect listener above completes the flow.
-      openAuthSessionAsync(url.toString(), redirectUri).catch(() => {})
+    const sub = Linking.addEventListener('url', ({url: incoming}) => {
+      if (settled) return
+      if (!OAUTH_CALLBACK_RE.test(incoming)) return // ignore other deep-links
+      settled = true
+      cleanup()
+      ;(async () => {
+        // Slash-count-agnostic param extraction — do NOT rely on `new URL()`,
+        // which is fragile on Hermes for the custom `community.blacksky:` scheme.
+        const query = incoming.includes('?')
+          ? incoming.slice(incoming.indexOf('?') + 1)
+          : ''
+        const params = new URLSearchParams(query)
+        const {session} = await client.callback(params, {
+          redirect_uri: redirectUri,
+        })
+        resolve(session)
+      })().catch(reject)
     })
-  })()
+
+    if (signal) {
+      if (signal.aborted) return onAbort()
+      signal.addEventListener('abort', onAbort)
+    }
+
+    // Fire the browser. Its RESULT (incl. Android's phantom `dismiss`) is
+    // intentionally ignored — the redirect listener above completes the flow.
+    // A genuine launch REJECTION, however, must surface, or the promise would
+    // hang forever with no redirect ever arriving.
+    openAuthSessionAsync(url.toString(), redirectUri).catch(err => {
+      if (settled) return
+      settled = true
+      cleanup()
+      reject(err instanceof Error ? err : new Error(String(err)))
+    })
+  })
   /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 }

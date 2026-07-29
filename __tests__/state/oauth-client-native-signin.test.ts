@@ -8,8 +8,10 @@ import {signInNativeAndroid} from '#/state/session/oauth-client'
 jest.mock('@atproto/oauth-client-expo', () => ({ExpoOAuthClient: class {}}))
 
 const mockOpenAuthSessionAsync = jest.fn().mockResolvedValue({type: 'dismiss'})
+const mockDismissBrowser = jest.fn().mockResolvedValue(undefined)
 jest.mock('expo-web-browser', () => ({
   openAuthSessionAsync: (...a: any[]) => mockOpenAuthSessionAsync(...a),
+  dismissBrowser: (...a: any[]) => mockDismissBrowser(...a),
 }))
 
 let mockUrlHandler: ((e: {url: string}) => void) | null = null
@@ -94,4 +96,28 @@ test('surfaces an error redirect (Kind 2) via callback throwing', async () => {
 
   mockUrlHandler!({url: `${REDIRECT}?error=access_denied&state=st`})
   await expect(promise).rejects.toThrow('access_denied')
+})
+
+test('completes via a double-slash redirect deep-link', async () => {
+  const client = makeClient()
+  const promise = signInNativeAndroid(client, 'alice.test')
+  await new Promise(r => setImmediate(r))
+
+  mockUrlHandler!({url: 'community.blacksky://oauth/callback?code=ds&state=st'})
+
+  const session = await promise
+  expect(session).toEqual({sub: 'did:plc:abc'})
+  expect(client.callback).toHaveBeenCalledTimes(1)
+  const params = client.callback.mock.calls[0][0] as URLSearchParams
+  expect(params.get('code')).toBe('ds')
+})
+
+test('rejects (no hang) when the browser fails to launch', async () => {
+  mockOpenAuthSessionAsync.mockRejectedValueOnce(new Error('no browser'))
+  const client = makeClient()
+  const promise = signInNativeAndroid(client, 'alice.test')
+
+  // No redirect is ever delivered; the flow must still settle via the launch error.
+  await expect(promise).rejects.toThrow('no browser')
+  expect(client.callback).not.toHaveBeenCalled()
 })
