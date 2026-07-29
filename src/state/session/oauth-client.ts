@@ -1,3 +1,5 @@
+import * as Linking from 'expo-linking'
+import {openAuthSessionAsync} from 'expo-web-browser'
 import {ExpoOAuthClient} from '@atproto/oauth-client-expo'
 
 import {logger} from '#/logger'
@@ -7,7 +9,7 @@ import {
 } from '#/state/session/oauth-telemetry'
 import {OAUTH_BASE_URL, OAUTH_CLIENT_NAME, OAUTH_SCOPE} from './oauth-config'
 
-const NATIVE_REDIRECT_URI = 'community.blacksky:/oauth/callback'
+export const NATIVE_REDIRECT_URI = 'community.blacksky:/oauth/callback'
 
 // Debug fetch wrapper — logs all OAuth-related network requests to Metro console
 const debugFetch: typeof fetch = async (input, init) => {
@@ -79,4 +81,71 @@ const BSKY_OAUTH_CLIENT = new ExpoOAuthClient({
 
 export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
+}
+
+/**
+ * Android-only OAuth sign-in.
+ *
+ * `client.signIn` relies on `openAuthSessionAsync`'s result, which on Android is
+ * a fragile AppState-based polyfill: returning to the app (e.g. after switching
+ * to an email app to fetch a 2FA code) makes it resolve `{type:'dismiss'}` even
+ * though the Custom Tab is still open. See docs/plans/2026-07-29-android-oauth-2fa-signin-design.md.
+ *
+ * Instead we drive the flow with the public `authorize()`/`callback()` methods and
+ * treat the redirect deep-link (delivered via `Linking`) as the only source of
+ * truth. The browser promise result — including the phantom `dismiss` — is ignored.
+ *
+ * Pass an `AbortSignal` to support user cancellation (a genuine cancel produces no
+ * redirect, so the UI must provide one).
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
+export function signInNativeAndroid(
+  client: any,
+  identifier: string,
+  {signal}: {signal?: AbortSignal} = {},
+): Promise<any> {
+  const redirectUri = NATIVE_REDIRECT_URI
+  return (async () => {
+    const url = await client.authorize(identifier, {display: 'touch', signal})
+
+    return await new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => {
+        sub.remove()
+        signal?.removeEventListener('abort', onAbort)
+      }
+
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(new Error('OAUTH_CANCELLED'))
+      }
+
+      const sub = Linking.addEventListener('url', ({url: incoming}) => {
+        if (settled) return
+        if (!incoming.startsWith(redirectUri)) return // ignore other deep-links
+        settled = true
+        cleanup()
+        ;(async () => {
+          const params = new URL(incoming).searchParams
+          const {session} = await client.callback(params, {
+            redirect_uri: redirectUri,
+          })
+          resolve(session)
+        })().catch(reject)
+      })
+
+      if (signal) {
+        if (signal.aborted) return onAbort()
+        signal.addEventListener('abort', onAbort)
+      }
+
+      // Fire the browser. Its result (incl. Android's phantom `dismiss`) is
+      // intentionally ignored — the redirect listener above completes the flow.
+      openAuthSessionAsync(url.toString(), redirectUri).catch(() => {})
+    })
+  })()
+  /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 }
