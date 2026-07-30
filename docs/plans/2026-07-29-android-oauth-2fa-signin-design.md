@@ -69,10 +69,31 @@ Instead of `client.signIn`, a new Android-only helper:
 ```
 1. url = await client.authorize(identifier, { display: 'touch' })
 2. register a Linking listener for community.blacksky:/oauth/callback
-3. openAuthSessionAsync(url, redirectUri)   // fire it; IGNORE the result (dismiss included)
+3. openAuthSessionAsync(url, redirectUri, { showInRecents: true })   // fire it; IGNORE the result (dismiss included)
 4. on redirect: const { session } = await client.callback(params)
 5. return session   // LoginForm then calls login(...)
 ```
+
+### Device-testing findings (2026-07-30, Android emulator)
+
+On-device testing surfaced two Android-specific issues that unit tests could not:
+
+1. **`dismissBrowser()` crash.** An early revision called `dismissBrowser().catch(...)` to
+   close the lingering tab. On Android the expo-web-browser native module does **not** implement
+   `dismissBrowser`, so it returns `undefined` and `.catch` threw
+   `Cannot read property 'catch' of undefined`. Custom Tabs cannot be dismissed programmatically
+   on Android anyway, so the call was removed entirely (this helper is Android-only). The test's
+   `expo-web-browser` mock intentionally omits `dismissBrowser` so the code can never call it again.
+
+2. **Tab destroyed on app-switch → `showInRecents: true`.** By default Expo launches the Custom
+   Tab with `FLAG_ACTIVITY_NO_HISTORY` + `FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS`
+   (`WebBrowserModule.kt`, gated on `showInRecents` which defaults to `false`). This means leaving
+   the tab to fetch a 2FA code from an email app **destroys** it, and it never reappears in the
+   recents switcher — the user can never get back to enter the code. Passing
+   `{ showInRecents: true }` to `openAuthSessionAsync` drops those flags so the tab survives
+   backgrounding and stays in recents. This is what makes the "leave for the code, then return"
+   flow actually usable; it is as essential as ignoring the phantom `dismiss`. iOS ignores the
+   option.
 
 The phantom `dismiss` is never read, so it cannot fail the flow. `callback` is only ever
 called from the redirect listener — so there is exactly one code exchange (no double-exchange

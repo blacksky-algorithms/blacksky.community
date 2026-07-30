@@ -1,5 +1,5 @@
 import * as Linking from 'expo-linking'
-import {dismissBrowser, openAuthSessionAsync} from 'expo-web-browser'
+import {openAuthSessionAsync} from 'expo-web-browser'
 import {ExpoOAuthClient} from '@atproto/oauth-client-expo'
 
 import {logger} from '#/logger'
@@ -127,8 +127,10 @@ export async function signInNativeAndroid(
     const cleanup = () => {
       sub.remove()
       signal?.removeEventListener('abort', onAbort)
-      // Best-effort: close the lingering Custom Tab on every settle path.
-      dismissBrowser().catch(() => {})
+      // NOTE: we deliberately do NOT call dismissBrowser() here. It is not
+      // implemented by the expo-web-browser Android native module (returns
+      // undefined), so calling it throws; and Custom Tabs cannot be dismissed
+      // programmatically on Android anyway. This helper is Android-only.
     }
 
     const onAbort = () => {
@@ -166,7 +168,16 @@ export async function signInNativeAndroid(
     // intentionally ignored — the redirect listener above completes the flow.
     // A genuine launch REJECTION, however, must surface, or the promise would
     // hang forever with no redirect ever arriving.
-    openAuthSessionAsync(url.toString(), redirectUri).catch(err => {
+    //
+    // `showInRecents: true` is critical for the 2FA flow. By default Expo
+    // launches the Custom Tab with FLAG_ACTIVITY_NO_HISTORY + EXCLUDE_FROM_RECENTS,
+    // so leaving the tab (e.g. to fetch a 2FA code from an email app) DESTROYS it
+    // and it never reappears in the recents switcher — the user can never get back
+    // to enter the code. showInRecents keeps the tab alive and in recents so they
+    // can return to it. iOS ignores this option.
+    openAuthSessionAsync(url.toString(), redirectUri, {
+      showInRecents: true,
+    }).catch(err => {
       if (settled) return
       settled = true
       cleanup()

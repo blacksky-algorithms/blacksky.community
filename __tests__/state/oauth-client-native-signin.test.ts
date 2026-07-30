@@ -8,10 +8,11 @@ import {signInNativeAndroid} from '#/state/session/oauth-client'
 jest.mock('@atproto/oauth-client-expo', () => ({ExpoOAuthClient: class {}}))
 
 const mockOpenAuthSessionAsync = jest.fn().mockResolvedValue({type: 'dismiss'})
-const mockDismissBrowser = jest.fn().mockResolvedValue(undefined)
+// NB: intentionally do NOT mock dismissBrowser. On the real Android native module
+// it is unimplemented (returns undefined), so the helper must never call it — this
+// mock shape (no dismissBrowser export) mirrors that and guards the regression.
 jest.mock('expo-web-browser', () => ({
   openAuthSessionAsync: (...a: any[]) => mockOpenAuthSessionAsync(...a),
-  dismissBrowser: (...a: any[]) => mockDismissBrowser(...a),
 }))
 
 let mockUrlHandler: ((e: {url: string}) => void) | null = null
@@ -49,6 +50,11 @@ test('completes via redirect deep-link, ignoring the browser dismiss', async () 
 
   await new Promise(r => setImmediate(r))
   expect(mockOpenAuthSessionAsync).toHaveBeenCalledTimes(1)
+  // showInRecents:true keeps the Custom Tab alive + in recents so the user can
+  // leave to fetch a 2FA code and return to it (Android would otherwise destroy it).
+  expect(mockOpenAuthSessionAsync.mock.calls[0][2]).toEqual({
+    showInRecents: true,
+  })
   expect(mockUrlHandler).toBeTruthy()
 
   mockUrlHandler!({url: `${REDIRECT}?code=xyz&state=st`})
