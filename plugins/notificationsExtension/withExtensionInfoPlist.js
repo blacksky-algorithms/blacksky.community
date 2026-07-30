@@ -26,7 +26,7 @@ const withExtensionInfoPlist = (config, {extensionName}) => {
       ? config.scheme[0]
       : config.scheme
     extPlist.CFBundleName = '$(PRODUCT_NAME)'
-    extPlist.CFBundleDisplayName = 'Bluesky Notifications'
+    extPlist.CFBundleDisplayName = 'Blacksky Notifications'
     extPlist.CFBundleIdentifier = '$(PRODUCT_BUNDLE_IDENTIFIER)'
     extPlist.CFBundleVersion = '$(CURRENT_PROJECT_VERSION)'
     extPlist.CFBundleExecutable = '$(EXECUTABLE_NAME)'
