@@ -19,9 +19,14 @@ const withExtensionInfoPlist = (config, {extensionName}) => {
 
     const extPlist = plist.default.parse(fs.readFileSync(plistPath).toString())
 
-    extPlist.MainAppScheme = config.scheme
+    // `config.scheme` may be an array when the app registers multiple URL
+    // schemes; coerce to a single scheme so consumers reading it as a String
+    // don't silently fall back to another app's scheme.
+    extPlist.MainAppScheme = Array.isArray(config.scheme)
+      ? config.scheme[0]
+      : config.scheme
     extPlist.CFBundleName = '$(PRODUCT_NAME)'
-    extPlist.CFBundleDisplayName = 'Bluesky Notifications'
+    extPlist.CFBundleDisplayName = 'Blacksky Notifications'
     extPlist.CFBundleIdentifier = '$(PRODUCT_BUNDLE_IDENTIFIER)'
     extPlist.CFBundleVersion = '$(CURRENT_PROJECT_VERSION)'
     extPlist.CFBundleExecutable = '$(EXECUTABLE_NAME)'

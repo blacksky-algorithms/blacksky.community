@@ -12,8 +12,20 @@ enum URLType: String, CaseIterable {
 
 class ShareViewController: UIViewController {
   // This allows other forks to use this extension while also changing their
-  // scheme.
-  let appScheme = Bundle.main.object(forInfoDictionaryKey: "MainAppScheme") as? String ?? "bluesky"
+  // scheme. `MainAppScheme` may be a single String or an array of schemes
+  // (forks that register more than one URL scheme); accept both and use the
+  // first entry. Falling back to a hardcoded scheme here would silently open a
+  // different installed app, so handle the array case explicitly.
+  let appScheme: String = {
+    let value = Bundle.main.object(forInfoDictionaryKey: "MainAppScheme")
+    if let scheme = value as? String {
+      return scheme
+    }
+    if let schemes = value as? [String], let first = schemes.first {
+      return first
+    }
+    return "blacksky"
+  }()
 
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
