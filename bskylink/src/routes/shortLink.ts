@@ -1,9 +1,9 @@
 import assert from 'node:assert'
 
-import {DAY, SECOND} from '@atproto/common'
 import {Express} from 'express'
 
 import {AppContext} from '../context.js'
+import {trackLinkEvent} from '../linkEvents.js'
 import {handler} from './util.js'
 
 export default function (ctx: AppContext, app: Express) {
@@ -43,12 +43,21 @@ export default function (ctx: AppContext, app: Express) {
         `https://${ctx.cfg.service.appHostname}`,
       )
       url.pathname = found.path
-      res.setHeader('Cache-Control', `max-age=${(7 * DAY) / SECOND}`)
+      ctx.metrics.track('shortlink', {linkId: found.id, path: found.path})
+      await trackLinkEvent(ctx, {
+        event: 'shortlink',
+        link: url.href,
+        host: url.hostname.toLowerCase(),
+        linkId: found.id,
+        referrer: req.get('referer'),
+      })
+      // Never cache: every visit must reach this service to be counted
+      res.setHeader('Cache-Control', 'no-store')
       if (contentType === 'json') {
         return res.json({url: url.href}).end()
       }
       res.setHeader('Location', url.href)
-      return res.status(301).end()
+      return res.status(302).end()
     }),
   )
 }
