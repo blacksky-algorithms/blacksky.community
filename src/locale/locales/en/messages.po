@@ -983,7 +983,7 @@ msgid "Accessibility Settings"
 msgstr ""
 
 #: src/Navigation.tsx:431
-#: src/screens/Login/LoginForm.tsx:105
+#: src/screens/Login/LoginForm.tsx:120
 #: src/screens/Settings/AccountSettings.tsx:69
 #: src/screens/Settings/Settings.tsx:167
 #: src/screens/Settings/Settings.tsx:170
@@ -1929,8 +1929,8 @@ msgstr ""
 #: src/screens/Login/ChooseAccountForm.tsx:113
 #: src/screens/Login/ForgotPasswordForm.tsx:124
 #: src/screens/Login/ForgotPasswordForm.tsx:130
-#: src/screens/Login/LoginForm.tsx:135
-#: src/screens/Login/LoginForm.tsx:141
+#: src/screens/Login/LoginForm.tsx:157
+#: src/screens/Login/LoginForm.tsx:163
 #: src/screens/Login/SetNewPasswordForm.tsx:170
 #: src/screens/Login/SetNewPasswordForm.tsx:176
 #: src/screens/Messages/components/ChatDisabled.tsx:166
@@ -2331,6 +2331,8 @@ msgstr "Camera access needed"
 #: src/features/liveNow/components/GoLiveDialog.tsx:254
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:288
+#: src/screens/Login/LoginForm.tsx:170
+#: src/screens/Login/LoginForm.tsx:177
 #: src/screens/Messages/components/InviteLinkDialog.tsx:502
 #: src/screens/Messages/components/InviteLinkDialog.tsx:506
 #: src/screens/Messages/ConversationSettings/prompts.tsx:108
@@ -2372,6 +2374,10 @@ msgstr "Cancel reply"
 #: src/screens/Search/Shell.tsx:396
 msgid "Cancel search"
 msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:171
+msgid "Cancels the sign-in process"
+msgstr "Cancels the sign-in process"
 
 #: src/components/PostControls/index.tsx:113
 #: src/components/PostControls/index.tsx:143
@@ -4358,7 +4364,7 @@ msgstr "Enter your birthdate"
 msgid "Enter your email address"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:126
+#: src/screens/Login/LoginForm.tsx:141
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr "Enter your handle (e.g. alice.bsky.social)"
 
@@ -5068,6 +5074,10 @@ msgstr ""
 #: src/screens/StarterPack/Wizard/index.tsx:206
 msgid "Finish"
 msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:150
+msgid "Finishing sign-in… complete it in your browser, or cancel."
+msgstr "Finishing sign-in… complete it in your browser, or cancel."
 
 #: src/components/contacts/components/OTPInput.tsx:55
 msgid "Focus code input"
@@ -6813,8 +6823,8 @@ msgstr ""
 msgid "Logged-out visibility"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:147
-#: src/screens/Login/LoginForm.tsx:154
+#: src/screens/Login/LoginForm.tsx:183
+#: src/screens/Login/LoginForm.tsx:190
 msgid "Login"
 msgstr "Login"
 
@@ -8626,7 +8636,7 @@ msgstr "Please enter your password to continue."
 msgid "Please enter your password."
 msgstr "Please enter your password."
 
-#: src/screens/Login/LoginForm.tsx:48
+#: src/screens/Login/LoginForm.tsx:52
 msgid "Please enter your username or handle"
 msgstr "Please enter your username or handle"
 
@@ -10675,7 +10685,7 @@ msgstr ""
 #: src/screens/Hashtag.tsx:228
 #: src/screens/Login/index.tsx:121
 #: src/screens/Login/index.tsx:135
-#: src/screens/Login/LoginForm.tsx:102
+#: src/screens/Login/LoginForm.tsx:117
 #: src/screens/Messages/JoinRequest.tsx:290
 #: src/screens/Messages/JoinRequest.tsx:296
 #: src/screens/Search/SearchResults.tsx:303
@@ -11046,7 +11056,7 @@ msgstr ""
 msgid "Starter Packs let you share your favorite feeds and people with your friends."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:148
+#: src/screens/Login/LoginForm.tsx:184
 msgid "Starts the sign-in process"
 msgstr "Starts the sign-in process"
 
@@ -12281,7 +12291,7 @@ msgstr ""
 #: src/screens/Deactivated.tsx:130
 #: src/screens/Login/ForgotPasswordForm.tsx:69
 #: src/screens/Login/index.tsx:94
-#: src/screens/Login/LoginForm.tsx:91
+#: src/screens/Login/LoginForm.tsx:102
 #: src/screens/Login/SetNewPasswordForm.tsx:83
 #: src/screens/Signup/index.tsx:113
 msgid "Unable to contact your service. Please check your Internet connection."
@@ -12770,7 +12780,7 @@ msgstr "Username must be at least 3 characters"
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:112
+#: src/screens/Login/LoginForm.tsx:127
 msgid "Username or handle"
 msgstr "Username or handle"
 
