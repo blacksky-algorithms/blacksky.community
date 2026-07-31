@@ -39,6 +39,9 @@
   <meta name="twitter:value1" content="@{{ feedView.Creator.Handle }}">
 
   <link rel="alternate" href="{{ feedView.Uri }}" />
+  {%- if atURI %}
+  <meta name="at:canonical" content="{{ atURI }}">
+  {% endif -%}
 {% endif -%}
 {%- endblock %}
 
