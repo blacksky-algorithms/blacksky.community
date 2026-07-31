@@ -2,7 +2,7 @@
 import {AtUri, type ComAtprotoLabelDefs} from '@atproto/api'
 import {type QueryClient} from '@tanstack/react-query'
 
-import {PUBLIC_APPVIEW} from '#/lib/constants'
+import {PUBLIC_APPVIEW, VIDEO_SERVICE} from '#/lib/constants'
 import {isDidBlocked} from './my-blocked-accounts'
 import {isDidMuted} from './my-muted-accounts'
 
@@ -419,11 +419,15 @@ function resolveSingleEmbed(authorDid: string, embed: any): any | null {
       const cid = embed.video?.ref?.$link
       if (!cid) return null
 
+      // Match the URL the AppView emits for the same embed: Blacksky's
+      // video service (rsky-video) serves at `/stream/`, not `video.bsky.app/watch/`.
+      // The DID is URL-encoded to mirror the AppView's `#view` output.
+      const encodedDid = encodeURIComponent(authorDid)
       return {
         $type: 'app.bsky.embed.video#view',
         cid,
-        playlist: `https://video.bsky.app/watch/${authorDid}/${cid}/playlist.m3u8`,
-        thumbnail: `https://video.bsky.app/watch/${authorDid}/${cid}/thumbnail.jpg`,
+        playlist: `${VIDEO_SERVICE}/stream/${encodedDid}/${cid}/playlist.m3u8`,
+        thumbnail: `${VIDEO_SERVICE}/stream/${encodedDid}/${cid}/thumbnail.jpg`,
         alt: embed.alt || '',
         aspectRatio: embed.aspectRatio,
       }
