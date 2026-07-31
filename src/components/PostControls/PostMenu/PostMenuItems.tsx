@@ -17,8 +17,6 @@ import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
-import {DISCOVER_DEBUG_DIDS} from '#/lib/constants'
-import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {
@@ -26,7 +24,6 @@ import {
   type NavigationProp,
 } from '#/lib/routes/types'
 import {richTextToString} from '#/lib/strings/rich-text-helpers'
-import {toShareUrl} from '#/lib/strings/url-helpers'
 import {useTranslate} from '#/lib/translation'
 import {getPostLanguageTags} from '#/locale/helpers'
 import {logger} from '#/logger'
@@ -60,7 +57,6 @@ import {
   PostInteractionSettingsDialog,
   usePrefetchPostInteractionSettings,
 } from '#/components/dialogs/PostInteractionSettingsDialog'
-import {Atom_Stroke2_Corner0_Rounded as AtomIcon} from '#/components/icons/Atom'
 import {BubbleQuestion_Stroke2_Corner0_Rounded as Translate} from '#/components/icons/Bubble'
 import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/icons/Clipboard'
 import {
@@ -98,7 +94,6 @@ import {
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {useAnalytics} from '#/analytics'
-import {IS_INTERNAL} from '#/env'
 
 let PostMenuItems = ({
   post,
@@ -134,7 +129,6 @@ let PostMenuItems = ({
   const requireSignIn = useRequireAuth()
   const hiddenPosts = useHiddenPosts()
   const feedFeedback = useFeedFeedbackContext()
-  const openLink = useOpenLink()
   const {clearTranslation, translate, translationState} = useTranslate({
     key: post.uri,
   })
@@ -490,21 +484,9 @@ let PostMenuItems = ({
     }
   }
 
-  const onReportMisclassification = () => {
-    const url = `https://docs.google.com/forms/d/e/1FAIpQLSd0QPqhNFksDQf1YyOos7r1ofCLvmrKAH1lU042TaS3GAZaWQ/viewform?entry.1756031717=${toShareUrl(
-      href,
-    )}`
-    void openLink(url)
-  }
-
   const onSignIn = () => requireSignIn(() => {})
 
   const onPressHideTranslation = () => clearTranslation()
-
-  const isDiscoverDebugUser =
-    IS_INTERNAL ||
-    DISCOVER_DEBUG_DIDS[currentAccount?.did || ''] ||
-    ax.features.enabled(ax.features.DebugFeedContext)
 
   return (
     <>
@@ -600,19 +582,6 @@ let PostMenuItems = ({
                 <Menu.ItemIcon icon={EmojiSad} position="right" />
               </Menu.Item>
             </Menu.Group>
-          </>
-        )}
-
-        {isDiscoverDebugUser && (
-          <>
-            <Menu.Divider />
-            <Menu.Item
-              testID="postDropdownReportMisclassificationBtn"
-              label={l`Assign topic for algo`}
-              onPress={onReportMisclassification}>
-              <Menu.ItemText>{l`Assign topic for algo`}</Menu.ItemText>
-              <Menu.ItemIcon icon={AtomIcon} position="right" />
-            </Menu.Item>
           </>
         )}
 
