@@ -135,8 +135,9 @@ jobs:
           --platform=all
           --nonInteractive
           --dumpSourcemap
-          --message="${{ github.event.head_commit.message || github.sha }}"
+          --message="$OTA_MESSAGE"
         env:
+          OTA_MESSAGE: ${{ github.event.head_commit.message || github.sha }}
           EAS_NO_VCS: '1'
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
