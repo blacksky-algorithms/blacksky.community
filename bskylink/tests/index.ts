@@ -128,10 +128,10 @@ describe.skip('link service', async () => {
     assert.strictEqual(link1, link2)
   })
 
-  it('serves permanent redirect, preserving query params.', async () => {
+  it('serves temporary redirect, preserving query params.', async () => {
     const link = await getLink('/start/did:example:carol/zzz/')
     const [status, location] = await getRedirect(`${link}?a=b`)
-    assert.strictEqual(status, 301)
+    assert.strictEqual(status, 302)
     const locationUrl = new URL(location)
     assert.strictEqual(
       locationUrl.pathname + locationUrl.search,
@@ -243,7 +243,7 @@ describe.skip('link service', async () => {
     const res = await fetch(url, {redirect: 'manual'})
     await res.arrayBuffer() // drain
     assert(
-      res.status === 301 || res.status === 303,
+      res.status === 302 || res.status === 303,
       'response was not a redirect',
     )
     return [res.status, res.headers.get('location') ?? '']
@@ -284,6 +284,7 @@ describe.skip('link service', async () => {
 describe('link service no safelink', async () => {
   let linkService: LinkService
   let baseUrl: string
+  let db: Database
   before(async () => {
     const env = readEnv()
     const cfg = envToCfg({
@@ -304,6 +305,10 @@ describe('link service no safelink', async () => {
     })
     await migrateDb.migrateToLatestOrThrow()
     await migrateDb.close()
+    db = Database.postgres({
+      url: cfg.db.url,
+      schema: cfg.db.schema,
+    })
     linkService = await LinkService.create(cfg)
     await linkService.start()
     const {port} = linkService.server?.address() as AddressInfo
@@ -311,6 +316,7 @@ describe('link service no safelink', async () => {
   })
   after(async () => {
     await linkService?.destroy()
+    await db?.close()
   })
   it('Wikipedia whitelisted, url restricted. Safelink is disabled, so redirect is always safe', async () => {
     const urlToRedirect = 'https://en.wikipedia.org/wiki/Fight_Club'
@@ -376,5 +382,76 @@ describe('link service no safelink', async () => {
     )
     // No blocked-site div, always safe
     assert.doesNotMatch(html, /"blocked-site"/)
+  })
+
+  it('records a link_event for redirects and disables caching', async () => {
+    const urlToRedirect = `https://example.com/blog/post-${Date.now()}`
+    const url = new URL(`${baseUrl}/redirect`)
+    url.searchParams.set('u', urlToRedirect)
+    url.searchParams.set('utm_source', 'newsletter')
+    url.searchParams.set('utm_campaign', 'launch')
+    const res = await fetch(url, {redirect: 'manual'})
+    assert.strictEqual(res.status, 200)
+    await res.text()
+    assert.strictEqual(res.headers.get('cache-control'), 'no-store')
+    const events = await db.db
+      .selectFrom('link_event')
+      .selectAll()
+      .where('link', '=', urlToRedirect)
+      .execute()
+    assert.strictEqual(events.length, 1)
+    assert.strictEqual(events[0].event, 'redirect')
+    assert.strictEqual(events[0].host, 'example.com')
+    assert.strictEqual(events[0].utmSource, 'newsletter')
+    assert.strictEqual(events[0].utmCampaign, 'launch')
+    assert.strictEqual(events[0].blocked, false)
+    assert.strictEqual(events[0].warned, false)
+  })
+
+  it('records a link_event for invalid redirects', async () => {
+    const badLink = `not-a-url-${Date.now()}`
+    const url = new URL(`${baseUrl}/redirect`)
+    url.searchParams.set('u', badLink)
+    const res = await fetch(url, {redirect: 'manual'})
+    assert.strictEqual(res.status, 302)
+    assert.strictEqual(res.headers.get('location'), 'https://test.bsky.app')
+    const events = await db.db
+      .selectFrom('link_event')
+      .selectAll()
+      .where('link', '=', badLink)
+      .execute()
+    assert.strictEqual(events.length, 1)
+    assert.strictEqual(events[0].event, 'invalid_redirect')
+    assert.strictEqual(events[0].host, null)
+  })
+
+  it('records a link_event for shortlinks and serves temporary redirect', async () => {
+    const path = `/start/did:example:events/${Date.now()}`
+    const createRes = await fetch(new URL('/link', baseUrl), {
+      method: 'post',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({path}),
+    })
+    assert.strictEqual(createRes.status, 200)
+    const payload = await createRes.json()
+    assert(typeof payload.url === 'string')
+    const linkId = new URL(payload.url).pathname.split('/').filter(Boolean)[0]
+    const res = await fetch(new URL(`/${linkId}`, baseUrl), {
+      redirect: 'manual',
+    })
+    assert.strictEqual(res.status, 302)
+    assert.strictEqual(res.headers.get('cache-control'), 'no-store')
+    const location = res.headers.get('location')
+    assert(location)
+    assert.strictEqual(new URL(location).pathname, path)
+    const events = await db.db
+      .selectFrom('link_event')
+      .selectAll()
+      .where('linkId', '=', linkId)
+      .execute()
+    assert.strictEqual(events.length, 1)
+    assert.strictEqual(events[0].event, 'shortlink')
+    assert.strictEqual(events[0].host, 'test.bsky.app')
+    assert.strictEqual(events[0].link, `https://test.bsky.app${path}`)
   })
 })

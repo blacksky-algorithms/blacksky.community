@@ -1,12 +1,12 @@
 import assert from 'node:assert'
 
-import {DAY, SECOND} from '@atproto/common'
 import {type Express} from 'express'
 
 import {type AppContext} from '../context.js'
 import {linkRedirectContents} from '../html/linkRedirectContents.js'
 import {linkWarningContents} from '../html/linkWarningContents.js'
 import {linkWarningLayout} from '../html/linkWarningLayout.js'
+import {trackLinkEvent} from '../linkEvents.js'
 import {redirectLogger} from '../logger.js'
 import {handler} from './util.js'
 
@@ -38,13 +38,14 @@ export default function (ctx: AppContext, app: Express) {
         INTERNAL_IP_REGEX.test(url.hostname) // isn't directing to an internal location
       ) {
         ctx.metrics.track('invalid_redirect', {link})
+        await trackLinkEvent(ctx, {event: 'invalid_redirect', link})
         res.setHeader('Cache-Control', 'no-store')
         res.setHeader('Location', `https://${ctx.cfg.service.appHostname}`)
         return res.status(302).end()
       }
 
-      // Default to a max age header
-      res.setHeader('Cache-Control', `max-age=${(7 * DAY) / SECOND}`)
+      // Never cache: every click must reach this service to be counted
+      res.setHeader('Cache-Control', 'no-store')
       res.status(200)
       res.type('html')
 
@@ -69,7 +70,6 @@ export default function (ctx: AppContext, app: Express) {
                   link: url.href,
                 }),
               )
-              res.setHeader('Cache-Control', 'no-store')
               redirectLogger.info({rule}, 'Block rule matched')
               blocked = true
               break
@@ -81,7 +81,6 @@ export default function (ctx: AppContext, app: Express) {
                   link: url.href,
                 }),
               )
-              res.setHeader('Cache-Control', 'no-store')
               redirectLogger.info({rule}, 'Warn rule matched')
               warned = true
               break
@@ -106,6 +105,21 @@ export default function (ctx: AppContext, app: Express) {
         utm_campaign: req.query.utm_campaign?.toString(),
         utm_content: req.query.utm_content?.toString(),
         utm_term: req.query.utm_term?.toString(),
+      })
+
+      await trackLinkEvent(ctx, {
+        event: 'redirect',
+        link: url.href,
+        host: url.hostname.toLowerCase(),
+        whitelisted: whitelisted === 'yes',
+        blocked,
+        warned,
+        utmSource: req.query.utm_source?.toString(),
+        utmMedium: req.query.utm_medium?.toString(),
+        utmCampaign: req.query.utm_campaign?.toString(),
+        utmContent: req.query.utm_content?.toString(),
+        utmTerm: req.query.utm_term?.toString(),
+        referrer: req.get('referer'),
       })
 
       return res.end(html)

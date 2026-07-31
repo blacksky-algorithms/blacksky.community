@@ -20,6 +20,10 @@ type Events = {
   invalid_redirect: {
     link: string
   }
+  shortlink: {
+    linkId: string
+    path: string
+  }
 }
 
 type Event<M extends Record<string, any>> = {
