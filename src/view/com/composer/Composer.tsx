@@ -105,6 +105,7 @@ import {resolveLinkQueryOptions} from '#/state/queries/resolve-link'
 import {useAgent, useSession} from '#/state/session'
 import {useComposerControls} from '#/state/shell/composer'
 import {type ComposerOpts, type OnPostSuccessData} from '#/state/shell/composer'
+import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {ComposerReplyTo} from '#/view/com/composer/ComposerReplyTo'
 import {DraftsButton} from '#/view/com/composer/drafts/DraftsButton'
@@ -361,6 +362,8 @@ export const ComposePost = ({
   const blackskyOnlyDefault = useBlackskyOnlyDefault()
   const setBlackskyOnlyDefault = useSetBlackskyOnlyDefault()
   const {data: isCommunityMember = false} = useCommunityMembership()
+  const selectedFeed = useSelectedFeed()
+  const isCommunityTabActive = selectedFeed === 'community'
 
   // Force Blacksky-Only when the thread targets a community post — replies
   // and quotes of a community post can only land in the community.
@@ -378,9 +381,13 @@ export const ComposePost = ({
       initInteractionSettings: preferences?.postInteractionSettings,
       // Replies inherit their parent's audience: forced on for community
       // parents, forced off for public parents. The sticky default only
-      // applies to top-level posts, and only for community members.
+      // applies to top-level posts, and only for community members. When
+      // the user is composing on the Community tab we also default ON so
+      // the composer matches the tab context; this is per-instance — the
+      // sticky default is left alone (see the toggle's onChange).
       initBlackskyOnly:
         isForcedBlackskyOnly ||
+        (isCommunityTabActive && !replyTo && isCommunityMember) ||
         (!replyTo && isCommunityMember && blackskyOnlyDefault),
     },
     createComposerState,
@@ -1995,6 +2002,8 @@ function ComposerPills({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
+  const selectedFeed = useSelectedFeed()
+  const isCommunityTabActive = selectedFeed === 'community'
   const {data: isCommunityMember = false} = useCommunityMembership()
   const media = post.embed.media
   const hasMedia =
@@ -2043,7 +2052,12 @@ function ComposerPills({
             onChange={() => {
               const next = !thread.blackskyOnly
               dispatch({type: 'toggle_blacksky_only'})
-              setBlackskyOnlyDefault(next)
+              // On the Community tab the toggle is driven by tab context,
+              // not user choice — keep it per-instance so the sticky
+              // default isn't poisoned by a manual flip.
+              if (!isCommunityTabActive) {
+                setBlackskyOnlyDefault(next)
+              }
             }}
             style={[a.flex_row, a.align_center, a.gap_xs]}>
             <Toggle.LabelText>
