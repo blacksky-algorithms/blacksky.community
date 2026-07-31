@@ -1841,11 +1841,6 @@ msgstr ""
 msgid "Artistic or non-erotic nudity."
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:616
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:618
-msgid "Assign topic for algo"
-msgstr ""
-
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:209
 msgid "At least 8 characters"
 msgstr ""
