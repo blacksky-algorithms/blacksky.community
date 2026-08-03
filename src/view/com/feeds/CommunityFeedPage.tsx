@@ -1,25 +1,25 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {
-  ActivityIndicator,
-  AppState,
-  type ListRenderItemInfo,
-  View,
-} from 'react-native'
+import {ActivityIndicator, type ListRenderItemInfo, View} from 'react-native'
+import {moderatePost} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
+import {useQueryClient} from '@tanstack/react-query'
 
+import {getCurrentState} from '#/lib/appState'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {s} from '#/lib/styles'
 import {logger} from '#/logger'
+import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {
   type CommunityFeedSlice,
   fetchCommunityTimelineHead,
-  surfacesInCommunityFeed,
+  TIMELINE_RQKEY,
   useCommunityFeedSlices,
   useCommunityTimelineQuery,
 } from '#/state/queries/community-feed'
+import {truncateAndInvalidate} from '#/state/queries/util'
 import {useAgent, useSession} from '#/state/session'
 import {isThreadChildAt, isThreadParentAt} from '#/view/com/posts/PostFeed'
 import {PostFeedItem} from '#/view/com/posts/PostFeedItem'
@@ -52,6 +52,8 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   const {_} = useLingui()
   const t = useTheme()
   const agent = useAgent()
+  const queryClient = useQueryClient()
+  const moderationOpts = useModerationOpts()
   const {hasSession} = useSession()
   const headerOffset = useHeaderOffset()
   const scrollElRef = useRef<ListMethods>(null)
@@ -64,6 +66,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   const {
     data,
     isLoading,
+    isFetching,
     isError,
     hasNextPage,
     fetchNextPage,
@@ -129,25 +132,34 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true)
     try {
-      await refetch()
+      await truncateAndInvalidate(queryClient, TIMELINE_RQKEY())
       setHasNew(false)
     } finally {
       setIsRefreshing(false)
     }
-  }, [refetch])
+  }, [queryClient])
 
   // Refetching an infinite query replays every loaded page, so doing it on
   // a timer shifts content under the user's scroll position (see upstream
-  // PostFeed's "UI freakouts" note). Poll a one-post head probe instead and
-  // light the load-latest pill; only user actions trigger a real refetch.
+  // PostFeed's "UI freakouts" note). Poll a head probe instead and light
+  // the load-latest pill; a real refetch only happens on user action or to
+  // recover an empty/errored feed.
   const checkForNew = useNonReactiveCallback(async () => {
-    if (!isPageFocused || hasNew || isLoading || isRefreshing) return
-    if (AppState.currentState !== 'active') return
+    if (!isPageFocused || hasNew || isLoading || isFetching || isRefreshing) {
+      return
+    }
+    if (getCurrentState() !== 'active') return
     try {
-      const head = await fetchCommunityTimelineHead(agent)
-      if (!head || !surfacesInCommunityFeed(head)) return
       if (feedItems.length === 0) {
         void refetch()
+        return
+      }
+      const head = await fetchCommunityTimelineHead(agent)
+      if (!head) return
+      if (
+        moderationOpts &&
+        moderatePost(head.post, moderationOpts).ui('contentList').filter
+      ) {
         return
       }
       if (!feedItems.some(item => item.post.uri === head.post.uri)) {
@@ -161,11 +173,8 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   })
 
   useEffect(() => {
-    if (isPageFocused) void checkForNew()
-  }, [isPageFocused, checkForNew])
-
-  useEffect(() => {
     if (!isPageFocused) return
+    void checkForNew()
     const id = setInterval(() => void checkForNew(), 60_000)
     return () => clearInterval(id)
   }, [isPageFocused, checkForNew])
@@ -176,8 +185,8 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
       offset: -headerOffset,
     })
     setHasNew(false)
-    void refetch()
-  }, [scrollElRef, headerOffset, refetch])
+    void truncateAndInvalidate(queryClient, TIMELINE_RQKEY())
+  }, [scrollElRef, headerOffset, queryClient])
 
   const renderItem = useCallback(
     ({item, index}: ListRenderItemInfo<CommunityFeedRow>) => {

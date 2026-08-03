@@ -3,6 +3,7 @@ import {
   AppBskyFeedDefs,
   type AppBskyFeedPost,
   AtUri,
+  type BskyAgent,
   jsonToLex,
   moderatePost,
   type ModerationDecision,
@@ -18,6 +19,7 @@ import {
 import {communityXrpc} from '#/lib/api/community'
 import {FeedTuner} from '#/lib/api/feed-manip'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
+import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {
   didOrHandleUriMatches,
@@ -118,26 +120,32 @@ export function useCommunityTimelineQuery(enabled: boolean) {
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
+    // Never auto-refetch when `enabled` flips back on: replaying every
+    // loaded page shifts content under the viewport (same reason the
+    // page polls a head probe instead of refetching on a timer).
+    staleTime: STALE.INFINITY,
     enabled,
   })
 }
 
 /**
- * Fetch just the newest community timeline post, for cheap freshness probes.
+ * Fetch the newest surfacing community timeline post, for cheap freshness
+ * probes. Probes a small window rather than a single item because the raw
+ * head is often a non-surfacing reply that would hide newer posts behind it.
  */
 export async function fetchCommunityTimelineHead(
-  agent: ReturnType<typeof useAgent>,
+  agent: BskyAgent,
 ): Promise<AppBskyFeedDefs.FeedViewPost | undefined> {
   const res = await communityXrpc(
     agent,
     'community.blacksky.feed.getCommunityTimeline',
-    {params: {limit: '1'}},
+    {params: {limit: '10'}},
   )
   if (!res.ok) {
     throw new Error(`getCommunityTimeline failed: ${res.status}`)
   }
   const page = jsonToLex(await res.json()) as CommunityFeedPage
-  return page.feed?.[0]
+  return page.feed?.find(surfacesInCommunityFeed)
 }
 
 // A reply only resurfaces its thread when the root author is
@@ -158,6 +166,11 @@ export function surfacesInCommunityFeed(
   }
   const reply = (item.post.record as AppBskyFeedPost.Record)?.reply
   if (!reply?.root?.uri) return true
+  // Replies whose parent the appview didn't hydrate are orphans; the
+  // tuner drops them (removeOrphans), so they must not count as new.
+  if (!item.reason && !AppBskyFeedDefs.isPostView(item.reply?.parent)) {
+    return false
+  }
   return new AtUri(reply.root.uri).host === item.post.author.did
 }
 
