@@ -1,4 +1,4 @@
-import {ReactNode, useMemo, useState} from 'react'
+import {type ReactNode, useMemo, useState} from 'react'
 import {View} from 'react-native'
 import Animated, {
   FadeIn,
@@ -35,12 +35,17 @@ import {useAnalytics} from '#/analytics'
 import {BackNextButtons} from '../BackNextButtons'
 import {HandleSuggestions} from './HandleSuggestions'
 
-export function StepHandle() {
+export function StepHandle({
+  onPressSignIn,
+}: {
+  onPressSignIn?: (handle: string) => void
+}) {
   const {_} = useLingui()
   const ax = useAnalytics()
   const t = useTheme()
   const {state, dispatch} = useSignupContext()
   const [draftValue, setDraftValue] = useState(state.handle)
+  const [submitFoundTaken, setSubmitFoundTaken] = useState(false)
   const [selectedDomain, setSelectedDomain] = useState(
     state.userDomain ||
       state.serviceDescription?.availableUserDomains?.[0] ||
@@ -85,6 +90,12 @@ export function StepHandle() {
   const isNextDisabled =
     !validCheck.overall || !!state.error || isNotReady ? true : isHandleTaken
 
+  const showSignInInstead =
+    !!onPressSignIn &&
+    draftValue.length > 0 &&
+    ((isHandleTaken && hasDebounceSettled) || submitFoundTaken)
+  const fullDraftHandle = createFullHandle(draftValue.trim(), selectedDomain)
+
   const textFieldInvalid =
     isHandleTaken ||
     !validCheck.frontLengthNotTooLong ||
@@ -119,6 +130,7 @@ export function StepHandle() {
       )
 
       if (!handleAvailable) {
+        setSubmitFoundTaken(true)
         dispatch({
           type: 'setError',
           value: _(msg`That handle is already taken.`),
@@ -178,6 +190,7 @@ export function StepHandle() {
                 if (state.error) {
                   dispatch({type: 'setError', value: ''})
                 }
+                setSubmitFoundTaken(false)
                 setDraftValue(val.toLowerCase())
               }}
               label={selectedDomain}
@@ -241,7 +254,10 @@ export function StepHandle() {
                       <Menu.Item
                         key={domain}
                         label={domain}
-                        onPress={() => setSelectedDomain(domain)}>
+                        onPress={() => {
+                          setSubmitFoundTaken(false)
+                          setSelectedDomain(domain)
+                        }}>
                         <Menu.ItemText>
                           <View style={[a.flex_row, a.align_center, a.gap_sm]}>
                             <Text>{domain}</Text>
@@ -339,6 +355,27 @@ export function StepHandle() {
                     <Trans>Username must be at least 3 characters</Trans>
                   )}
                 </RequirementText>
+              </Requirement>
+            )}
+            {showSignInInstead && (
+              <Requirement>
+                <View style={[a.mt_xs, a.align_start]}>
+                  <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+                    <Trans>Is this your account?</Trans>
+                  </Text>
+                  <Button
+                    testID="signInInsteadButton"
+                    label={_(msg`Sign in instead`)}
+                    variant="ghost"
+                    color="primary"
+                    size="small"
+                    style={[a.mt_xs]}
+                    onPress={() => onPressSignIn(fullDraftHandle)}>
+                    <ButtonText>
+                      <Trans>Sign in as {fullDraftHandle}</Trans>
+                    </ButtonText>
+                  </Button>
+                </View>
               </Requirement>
             )}
           </View>

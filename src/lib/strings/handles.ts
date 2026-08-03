@@ -21,6 +21,41 @@ export function createFullHandle(name: string, domain: string): string {
   return `${name}.${domain}`
 }
 
+export function normalizeLoginIdentifier(input: string): string {
+  const identifier = input.trim()
+  if (/^did:/i.test(identifier)) {
+    return identifier
+  }
+  return identifier
+    .toLowerCase()
+    .replace(/^@+/, '')
+    .replace(/@/g, '.')
+    .replace(/\.+$/, '')
+}
+
+// case/whitespace/leading-@ changes are habits, not mistakes — only
+// separator rewrites should pause sign-in for user confirmation
+export function isCorrectedLoginIdentifier(
+  input: string,
+  normalized: string,
+): boolean {
+  const identifier = input.trim()
+  if (/^did:/i.test(identifier)) {
+    return false
+  }
+  return normalized !== identifier.toLowerCase().replace(/^@+/, '')
+}
+
+export function buildHandleCandidates(
+  name: string,
+  availableUserDomains?: string[],
+): string[] {
+  const domains = [...(availableUserDomains ?? []), 'bsky.social'].map(d =>
+    d.replace(/^\.+/, ''),
+  )
+  return [...new Set(domains)].map(domain => createFullHandle(name, domain))
+}
+
 export function isInvalidHandle(handle: string): boolean {
   return handle === 'handle.invalid'
 }

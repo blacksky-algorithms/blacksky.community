@@ -36,7 +36,13 @@ import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID} from '#/env'
 import * as bsky from '#/types/bsky'
 
-export function Signup({onPressBack}: {onPressBack: () => void}) {
+export function Signup({
+  onPressBack,
+  onPressSignIn,
+}: {
+  onPressBack: () => void
+  onPressSignIn?: (handle: string) => void
+}) {
   const ax = useAnalytics()
   const {_} = useLingui()
   const brand = useBrand()
@@ -251,7 +257,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                       refetchServer={refetch}
                     />
                   ) : state.activeStep === SignupStep.HANDLE ? (
-                    <StepHandle />
+                    <StepHandle onPressSignIn={onPressSignIn} />
                   ) : (
                     <StepCaptcha />
                   )}
