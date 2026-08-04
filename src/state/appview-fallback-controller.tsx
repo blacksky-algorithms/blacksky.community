@@ -2,15 +2,13 @@ import {useCallback, useEffect} from 'react'
 import {AppState} from 'react-native'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {setFallbackActive} from '#/state/appview-fallback'
+import {type FallbackMode, setFallbackActive} from '#/state/appview-fallback'
 import {probeFallbackEligibility} from '#/state/appview-fallback-probe'
 import {useAlwaysUseHomeAppview} from '#/state/preferences'
 import {useAgent, useSession} from '#/state/session'
 import {Features, features} from '#/analytics/features'
 
 const RECHECK_INTERVAL = 3 * 60e3
-
-type FallbackMode = 'auto' | 'force-fallback' | 'force-primary'
 
 function getMode(): FallbackMode {
   const value = features.getFeatureValue(
