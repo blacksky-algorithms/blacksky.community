@@ -2,6 +2,7 @@ import {type StyleProp, type ViewStyle} from 'react-native'
 import {atoms as baseAtoms} from '@bsky.app/alf'
 
 import {CARD_ASPECT_RATIO} from '#/lib/constants'
+import {HEADING_FONT_FAMILY, MONO_FONT_FAMILY} from '#/alf/fonts'
 import {native, platform, web} from '#/alf/util/platform'
 import * as Layout from '#/components/Layout'
 
@@ -32,6 +33,16 @@ export const atoms = {
    */
   bg_transparent: {
     backgroundColor: 'transparent',
+  },
+
+  /*
+   * Brand fonts that sit outside the theme font. Respected by `applyFonts`.
+   */
+  font_mono: {
+    fontFamily: MONO_FONT_FAMILY,
+  },
+  font_heading: {
+    fontFamily: HEADING_FONT_FAMILY,
   },
 
   /**
