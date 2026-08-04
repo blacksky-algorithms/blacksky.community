@@ -29,7 +29,7 @@ export type Events = {
 
   'appviewFallback:changed': {
     active: boolean
-    trigger: 'flag'
+    trigger: 'auto' | 'force-fallback' | 'force-primary'
   }
   'appviewFallback:probe': {
     result: 'eligible' | 'ineligible' | 'unknown'

@@ -32,6 +32,7 @@ export function setFallbackActive(
   next: boolean,
   agent: AtpAgent,
   queryClient: QueryClient,
+  trigger: FallbackMode = 'auto',
 ): void {
   if (next === active) return
   active = next
@@ -39,8 +40,8 @@ export function setFallbackActive(
   BLUESKY_PROXY_HEADER.set(header)
   agent.configureProxy(header)
   void queryClient.resetQueries()
-  logger.info('appview fallback changed', {active: next})
-  metrics.track('appviewFallback:changed', {active: next, trigger: 'flag'})
+  logger.info('appview fallback changed', {active: next, trigger})
+  metrics.track('appviewFallback:changed', {active: next, trigger})
   listeners.forEach(fn => fn())
 }
 

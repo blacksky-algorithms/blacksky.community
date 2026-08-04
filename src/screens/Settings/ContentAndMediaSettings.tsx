@@ -4,12 +4,7 @@ import {Trans} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
 import {type CommonNavigatorParams} from '#/lib/routes/types'
-import {
-  useAlwaysUseHomeAppview,
-  useAutoplayDisabled,
-  useSetAlwaysUseHomeAppview,
-  useSetAutoplayDisabled,
-} from '#/state/preferences'
+import {useAutoplayDisabled, useSetAutoplayDisabled} from '#/state/preferences'
 import {
   useInAppBrowser,
   useSetInAppBrowser,
@@ -20,7 +15,6 @@ import {
 } from '#/state/preferences/trending'
 import {useTrendingConfig} from '#/state/service-config'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
-import {atoms as a} from '#/alf'
 import * as Toggle from '#/components/forms/Toggle'
 import {Bubbles_Stroke2_Corner2_Rounded as BubblesIcon} from '#/components/icons/Bubble'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfo} from '#/components/icons/CircleInfo'
@@ -43,8 +37,6 @@ export function ContentAndMediaSettingsScreen({}: Props) {
   const ax = useAnalytics()
   const autoplayDisabledPref = useAutoplayDisabled()
   const setAutoplayDisabledPref = useSetAutoplayDisabled()
-  const alwaysUseHomeAppview = useAlwaysUseHomeAppview()
-  const setAlwaysUseHomeAppview = useSetAlwaysUseHomeAppview()
   const inAppBrowserPref = useInAppBrowser()
   const setUseInAppBrowser = useSetInAppBrowser()
   const {enabled: trendingEnabled} = useTrendingConfig()
@@ -181,28 +173,6 @@ export function ContentAndMediaSettingsScreen({}: Props) {
               </Toggle.Item>
             </>
           ) : null}
-          <SettingsList.Divider />
-          <Toggle.Item
-            name="always_use_home_appview"
-            label={_(msg`Always use Blacksky's servers`)}
-            value={alwaysUseHomeAppview}
-            onChange={value => setAlwaysUseHomeAppview(value)}>
-            <SettingsList.Item>
-              <SettingsList.ItemIcon icon={HomeIcon} />
-              <SettingsList.ItemText>
-                <Trans>Always use Blacksky's servers</Trans>
-              </SettingsList.ItemText>
-              <Toggle.Platform />
-            </SettingsList.Item>
-          </Toggle.Item>
-          <SettingsList.Item>
-            <SettingsList.ItemText style={[a.text_sm]}>
-              <Trans>
-                Opts out of compatibility mode during slowdowns. Feeds may be
-                delayed instead.
-              </Trans>
-            </SettingsList.ItemText>
-          </SettingsList.Item>
         </SettingsList.Container>
       </Layout.Content>
     </Layout.Screen>
