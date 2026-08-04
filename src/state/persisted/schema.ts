@@ -145,7 +145,6 @@ const schema = z.object({
   hideFollowNotifications: z.boolean().optional(),
   showLinkInHandle: z.boolean().optional(),
   blackskyOnlyDefault: z.boolean().optional(),
-  alwaysUseHomeAppview: z.boolean().optional(),
 
   /** @deprecated */
   mutedThreads: z.array(z.string()),
@@ -206,7 +205,6 @@ export const defaults: Schema = {
   repostCarouselEnabled: false,
   hideFollowNotifications: false,
   showLinkInHandle: false,
-  alwaysUseHomeAppview: false,
 }
 
 export function tryParse(rawData: string): Schema | undefined {

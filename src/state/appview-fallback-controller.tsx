@@ -11,7 +11,6 @@ import {
   getThresholds,
   INITIAL_DECIDER_STATE,
 } from '#/state/appview-status'
-import {useAlwaysUseHomeAppview} from '#/state/preferences'
 import {useAgent, useSession} from '#/state/session'
 import {Features, features} from '#/analytics/features'
 
@@ -27,11 +26,10 @@ export function AppviewFallbackController() {
   const agent = useAgent()
   const queryClient = useQueryClient()
   const {hasSession} = useSession()
-  const alwaysUseHomeAppview = useAlwaysUseHomeAppview()
   const deciderRef = useRef<DeciderState>(INITIAL_DECIDER_STATE)
 
   const evaluate = useCallback(async () => {
-    if (!hasSession || alwaysUseHomeAppview) {
+    if (!hasSession) {
       setFallbackActive(false, agent, queryClient)
       return
     }
@@ -58,7 +56,7 @@ export function AppviewFallbackController() {
 
     const eligibility = await probeFallbackEligibility(agent)
     setFallbackActive(eligibility === 'eligible', agent, queryClient, mode)
-  }, [agent, queryClient, hasSession, alwaysUseHomeAppview])
+  }, [agent, queryClient, hasSession])
 
   useEffect(() => {
     void evaluate()
