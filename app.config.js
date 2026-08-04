@@ -287,6 +287,10 @@ module.exports = function (_config) {
                   git: 'https://github.com/bluesky-social/MCEmojiPicker.git',
                   branch: 'main',
                 },
+                // MMKV 2.4.1's secureClearMemory path calls memset_s, which fails to
+                // compile under Xcode 26. react-native-mmkv depends on MMKV ">= 1.3.3"
+                // with no upper bound, so pin below 2.4.1 until upstream fixes it.
+                {name: 'MMKV', version: '2.4.0'},
               ],
             },
             android: {
