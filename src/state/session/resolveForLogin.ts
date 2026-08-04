@@ -2,6 +2,7 @@ import {AtpAgent, XRPCError} from '@atproto/api'
 
 import {BSKY_SERVICE, PUBLIC_BSKY_SERVICE} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
+import {buildHandleCandidates} from '#/lib/strings/handles'
 
 export function isHandleResolutionError(e: unknown): boolean {
   if (e && typeof e === 'object' && 'name' in e) {
@@ -16,6 +17,29 @@ export function isHandleResolutionError(e: unknown): boolean {
     s.includes('does not resolve to a DID') ||
     s.includes('Failed to resolve identity')
   )
+}
+
+export async function resolveBareNameToHandles(
+  name: string,
+  availableUserDomains?: string[],
+): Promise<string[]> {
+  const candidates = buildHandleCandidates(name, availableUserDomains)
+  const appview = new AtpAgent({service: PUBLIC_BSKY_SERVICE})
+  const results = await Promise.allSettled(
+    candidates.map(handle =>
+      appview.com.atproto.identity.resolveHandle({handle}),
+    ),
+  )
+  const matches = candidates.filter((_, i) => results[i].status === 'fulfilled')
+  // only a definite not-found proves a candidate doesn't exist; a transient
+  // failure on the user's real domain must not let a lookalike domain win
+  const retryableFailure = results.find(
+    r => r.status === 'rejected' && !isHandleResolutionError(r.reason),
+  )
+  if (retryableFailure?.status === 'rejected') {
+    throw retryableFailure.reason
+  }
+  return matches
 }
 
 export async function resolveDeactivatedHandle(

@@ -61,6 +61,7 @@ export function LoggedOut({onDismiss}: {onDismiss?: () => void}) {
   const initialScreenState = getInitialScreenState(requestedAccountSwitchTo)
   const [screenState, setScreenState] =
     useState<ScreenState>(initialScreenState)
+  const [loginHandlePrefill, setLoginHandlePrefill] = useState('')
   const {clearRequestedAccount} = useLoggedOutViewControls()
   const setActiveLanding = useSetActiveLanding()
 
@@ -137,13 +138,21 @@ export function LoggedOut({onDismiss}: {onDismiss?: () => void}) {
         ) : undefined}
         {screenState === ScreenState.S_Login ? (
           <Login
+            prefillHandle={loginHandlePrefill}
             onPressBack={() => {
+              setLoginHandlePrefill('')
               setScreenState(initialScreenState)
             }}
           />
         ) : undefined}
         {screenState === ScreenState.S_CreateAccount ? (
-          <Signup onPressBack={() => setScreenState(initialScreenState)} />
+          <Signup
+            onPressBack={() => setScreenState(initialScreenState)}
+            onPressSignIn={handle => {
+              setLoginHandlePrefill(handle)
+              setScreenState(ScreenState.S_Login)
+            }}
+          />
         ) : undefined}
       </ErrorBoundary>
     </View>

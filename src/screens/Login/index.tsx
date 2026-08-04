@@ -38,7 +38,13 @@ const OrderedForms = [
   Forms.PasswordUpdated,
 ] as const
 
-export const Login = ({onPressBack}: {onPressBack: () => void}) => {
+export const Login = ({
+  onPressBack,
+  prefillHandle,
+}: {
+  onPressBack: () => void
+  prefillHandle?: string
+}) => {
   const {_} = useLingui()
   const brand = useBrand()
   const failedAttemptCountRef = useRef(0)
@@ -54,10 +60,10 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
     requestedAccount?.service || brand.services.pds.url || DEFAULT_SERVICE,
   )
   const [initialHandle, setInitialHandle] = useState(
-    requestedAccount?.handle || '',
+    prefillHandle || requestedAccount?.handle || '',
   )
   const [currentForm, setCurrentForm] = useState<Forms>(
-    requestedAccount
+    requestedAccount || prefillHandle
       ? Forms.Login
       : accounts.length
         ? Forms.ChooseAccount
@@ -123,6 +129,7 @@ export const Login = ({onPressBack}: {onPressBack: () => void}) => {
       content = (
         <LoginForm
           error={error}
+          serviceDescription={serviceDescription}
           initialHandle={initialHandle}
           setError={setError}
           onPressBack={() =>
