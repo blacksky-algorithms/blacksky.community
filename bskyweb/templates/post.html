@@ -14,6 +14,9 @@
 {%- if postView -%}
   <meta property="og:type" content="article">
   <meta property="profile:username" content="{{ postView.Author.Handle }}">
+  {%- if atURI %}
+  <meta name="at:canonical" content="{{ atURI }}">
+  {% endif -%}
   {%- if requestURI %}
   {% if canonicalURL %}
   <meta property="og:url" content="{{ canonicalURL }}">
@@ -75,6 +78,9 @@
 {%- elif requiresAuth and profileHandle -%}
   <meta property="og:type" content="article">
   <meta property="profile:username" content="{{ profileHandle }}">
+  {%- if atURI %}
+  <meta name="at:canonical" content="{{ atURI }}">
+  {% endif -%}
   {%- if requestURI %}
   {% if canonicalURL %}
   <meta property="og:url" content="{{ canonicalURL }}">
