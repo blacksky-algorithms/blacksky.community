@@ -221,29 +221,11 @@ export function Signup({
                     a.pt_2xl,
                     !gtMobile && {paddingBottom: 100},
                   ]}>
-                  <View style={[a.gap_sm, a.pb_3xl]}>
-                    <Text
-                      style={[a.font_semi_bold, t.atoms.text_contrast_medium]}>
-                      <Trans>
-                        Step {displayStep} of {displayTotal}
-                      </Trans>
-                    </Text>
-                    <Text style={[a.text_3xl, a.font_semi_bold]}>
-                      {state.activeStep === SignupStep.COMMUNITY ? (
-                        <Trans>Choose your community</Trans>
-                      ) : state.activeStep === SignupStep.INFO ? (
-                        <Trans>Your account</Trans>
-                      ) : state.activeStep === SignupStep.HANDLE ? (
-                        <Trans>Choose your username</Trans>
-                      ) : (
-                        <Trans>Complete the challenge</Trans>
-                      )}
-                    </Text>
-                  </View>
-
-                  {state.activeStep === SignupStep.COMMUNITY ? (
-                    <StepCommunity onPressBack={onPressBack} />
-                  ) : state.activeStep === SignupStep.INFO ? (
+                  {state.activeStep === SignupStep.INFO ? (
+                    // The redesigned INFO step owns its full chrome (top app bar,
+                    // eyebrow, heading and bottom action), so it renders without
+                    // the shared header, divider and support footer used by the
+                    // not-yet-restyled steps.
                     <StepInfo
                       onPressBack={
                         // On web INFO is the first step, so back exits signup;
@@ -256,38 +238,65 @@ export function Signup({
                       isServerError={isError}
                       refetchServer={refetch}
                     />
-                  ) : state.activeStep === SignupStep.HANDLE ? (
-                    <StepHandle onPressSignIn={onPressSignIn} />
                   ) : (
-                    <StepCaptcha />
+                    <>
+                      <View style={[a.gap_sm, a.pb_3xl]}>
+                        <Text
+                          style={[
+                            a.font_semi_bold,
+                            t.atoms.text_contrast_medium,
+                          ]}>
+                          <Trans>
+                            Step {displayStep} of {displayTotal}
+                          </Trans>
+                        </Text>
+                        <Text style={[a.text_3xl, a.font_semi_bold]}>
+                          {state.activeStep === SignupStep.COMMUNITY ? (
+                            <Trans>Choose your community</Trans>
+                          ) : state.activeStep === SignupStep.HANDLE ? (
+                            <Trans>Choose your username</Trans>
+                          ) : (
+                            <Trans>Complete the challenge</Trans>
+                          )}
+                        </Text>
+                      </View>
+
+                      {state.activeStep === SignupStep.COMMUNITY ? (
+                        <StepCommunity onPressBack={onPressBack} />
+                      ) : state.activeStep === SignupStep.HANDLE ? (
+                        <StepHandle onPressSignIn={onPressSignIn} />
+                      ) : (
+                        <StepCaptcha />
+                      )}
+
+                      <Divider />
+
+                      <View
+                        style={[
+                          a.w_full,
+                          a.py_lg,
+                          a.flex_row,
+                          a.gap_md,
+                          a.align_center,
+                        ]}>
+                        <AppLanguageDropdown />
+                        <Text
+                          style={[
+                            a.flex_1,
+                            t.atoms.text_contrast_medium,
+                            !gtMobile && a.text_md,
+                          ]}>
+                          <Trans>Having trouble?</Trans>{' '}
+                          <InlineLinkText
+                            label={_(msg`Contact support`)}
+                            to={FEEDBACK_FORM_URL({email: state.email})}
+                            style={[!gtMobile && a.text_md]}>
+                            <Trans>Contact support</Trans>
+                          </InlineLinkText>
+                        </Text>
+                      </View>
+                    </>
                   )}
-
-                  <Divider />
-
-                  <View
-                    style={[
-                      a.w_full,
-                      a.py_lg,
-                      a.flex_row,
-                      a.gap_md,
-                      a.align_center,
-                    ]}>
-                    <AppLanguageDropdown />
-                    <Text
-                      style={[
-                        a.flex_1,
-                        t.atoms.text_contrast_medium,
-                        !gtMobile && a.text_md,
-                      ]}>
-                      <Trans>Having trouble?</Trans>{' '}
-                      <InlineLinkText
-                        label={_(msg`Contact support`)}
-                        to={FEEDBACK_FORM_URL({email: state.email})}
-                        style={[!gtMobile && a.text_md]}>
-                        <Trans>Contact support</Trans>
-                      </InlineLinkText>
-                    </Text>
-                  </View>
                 </View>
               </ScreenTransition>
             </LayoutAnimationConfig>
