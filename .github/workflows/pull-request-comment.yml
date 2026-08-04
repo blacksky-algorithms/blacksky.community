@@ -191,6 +191,21 @@ jobs:
           SENTRY_RELEASE: ${{ steps.env.outputs.EXPO_PUBLIC_RELEASE_VERSION }}
           SENTRY_DIST: ${{ steps.env.outputs.EXPO_PUBLIC_BUNDLE_IDENTIFIER }}
 
+      - name: 🔗 Point PR channel at its branch
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          PR_CHANNEL: pull-request-${{ github.event.issue.number }}
+        # eoas publish creates only the branch. The client retargets OTA at a
+        # channel named pull-request-<n> at runtime, so that channel must exist
+        # and point at the matching branch — otherwise the manifest request
+        # returns an empty branch mapping and 500s. Create-if-absent, then
+        # always (re)point so re-runs and force-pushes stay correct.
+        run: |
+          if ! eas channel:view "$PR_CHANNEL" >/dev/null 2>&1; then
+            eas channel:create "$PR_CHANNEL" --non-interactive
+          fi
+          eas channel:edit "$PR_CHANNEL" --branch "$PR_CHANNEL" --non-interactive
+
       - name: 💬 Drop a comment
         uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         env:
