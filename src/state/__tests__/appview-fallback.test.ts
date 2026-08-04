@@ -53,13 +53,26 @@ describe('appview fallback state', () => {
     expect(second.configureProxy).toHaveBeenCalledWith(HOME_PROXY_HEADER)
   })
 
-  it('setting the same value is a no-op', () => {
+  it('setting the same value skips the reset but still aligns the agent', () => {
     const {agent, queryClient, configureProxy, resetQueries} = mocks()
 
     setFallbackActive(false, agent, queryClient)
 
-    expect(configureProxy).not.toHaveBeenCalled()
+    expect(configureProxy).toHaveBeenCalledWith(HOME_PROXY_HEADER)
     expect(resetQueries).not.toHaveBeenCalled()
+  })
+
+  it('a fresh agent passed after activation gets the fallback header', () => {
+    const first = mocks()
+    setFallbackActive(true, first.agent, first.queryClient)
+
+    const second = mocks()
+    setFallbackActive(true, second.agent, second.queryClient)
+
+    expect(second.configureProxy).toHaveBeenCalledWith(
+      BLUESKY_FALLBACK_PROXY_HEADER,
+    )
+    expect(second.resetQueries).not.toHaveBeenCalled()
   })
 
   it('notifies subscribers on change and stops after unsubscribe', () => {

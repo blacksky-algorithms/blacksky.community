@@ -34,9 +34,15 @@ export function setFallbackActive(
   queryClient: QueryClient,
   trigger: FallbackMode = 'auto',
 ): void {
-  if (next === active) return
-  active = next
   const header = next ? BLUESKY_FALLBACK_PROXY_HEADER : HOME_PROXY_HEADER
+  if (next === active) {
+    // The agent instance may be newer than the last transition (session
+    // restore and account switches swap agents); keep it coherent even
+    // when the state itself is unchanged.
+    agent.configureProxy(header)
+    return
+  }
+  active = next
   BLUESKY_PROXY_HEADER.set(header)
   agent.configureProxy(header)
   void queryClient.resetQueries()
