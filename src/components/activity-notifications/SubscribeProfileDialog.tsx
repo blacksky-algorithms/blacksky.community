@@ -15,6 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {createSanitizedDisplayName} from '#/lib/moderation/create-sanitized-display-name'
 import {cleanError} from '#/lib/strings/errors'
 import {sanitizeHandle} from '#/lib/strings/handles'
@@ -122,10 +123,13 @@ function DialogInner({
     mutationFn: async (
       activitySubscription: Un$Typed<AppBskyNotificationDefs.ActivitySubscription>,
     ) => {
-      await agent.app.bsky.notification.putActivitySubscription({
-        subject: profile.did,
-        activitySubscription,
-      })
+      await agent.app.bsky.notification.putActivitySubscription(
+        {
+          subject: profile.did,
+          activitySubscription,
+        },
+        HOME_APPVIEW_PINNED_OPTS,
+      )
     },
     onSuccess: (_data, activitySubscription) => {
       control.close(() => {

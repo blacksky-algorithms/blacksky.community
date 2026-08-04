@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {logger} from '#/logger'
 import {useAgent} from '#/state/session'
 import * as Toast from '#/components/Toast'
@@ -22,7 +23,10 @@ export function useNotificationSettingsQuery({
   return useQuery({
     queryKey: RQKEY,
     queryFn: async () => {
-      const response = await agent.app.bsky.notification.getPreferences()
+      const response = await agent.app.bsky.notification.getPreferences(
+        {},
+        HOME_APPVIEW_PINNED_OPTS,
+      )
       return response.data.preferences
     },
     enabled,
@@ -36,8 +40,10 @@ export function useNotificationSettingsUpdateMutation() {
     mutationFn: async (
       update: Partial<AppBskyNotificationDefs.Preferences>,
     ) => {
-      const response =
-        await agent.app.bsky.notification.putPreferencesV2(update)
+      const response = await agent.app.bsky.notification.putPreferencesV2(
+        update,
+        HOME_APPVIEW_PINNED_OPTS,
+      )
       return response.data.preferences
     },
     onMutate: update => {

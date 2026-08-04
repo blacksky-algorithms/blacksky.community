@@ -227,6 +227,12 @@ export const BLUESKY_FALLBACK_PROXY_HEADER =
 export const HOME_PROXY_HEADER =
   `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
 
+// Per-call opts pinning a request to the home appview regardless of the
+// global proxy header (notification state lives only there).
+export const HOME_APPVIEW_PINNED_OPTS = {
+  headers: {'atproto-proxy': HOME_PROXY_HEADER},
+}
+
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 
 // temp hack for e2e - esb
