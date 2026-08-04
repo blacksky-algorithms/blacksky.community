@@ -36,6 +36,9 @@ export type Events = {
     errorName?: string
     status?: number
   }
+  'appviewFallback:outage': {
+    active: boolean
+  }
 
   'account:loggedIn': {
     logContext:

@@ -20,6 +20,7 @@ import {List, type ListMethods} from '#/view/com/util/List'
 import {LoadLatestBtn} from '#/view/com/util/load-latest/LoadLatestBtn'
 import {MainScrollProvider} from '#/view/com/util/MainScrollProvider'
 import {atoms as a, useTheme} from '#/alf'
+import {HomeAppviewOutageNotice} from '#/components/HomeAppviewOutageNotice'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
 import {Text} from '#/components/Typography'
@@ -245,6 +246,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
           data={rows}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
+          ListHeaderComponent={HomeAppviewOutageNotice}
           ListEmptyComponent={renderEmpty}
           ListFooterComponent={renderFooter}
           onEndReached={onEndReached}

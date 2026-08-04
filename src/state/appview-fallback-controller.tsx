@@ -5,6 +5,10 @@ import {useQueryClient} from '@tanstack/react-query'
 import {type FallbackMode, setFallbackActive} from '#/state/appview-fallback'
 import {probeFallbackEligibility} from '#/state/appview-fallback-probe'
 import {
+  isHomeAppviewOutage,
+  subscribe as subscribeOutage,
+} from '#/state/appview-health'
+import {
   decide,
   type DeciderState,
   fetchStatusSample,
@@ -43,6 +47,8 @@ export function AppviewFallbackController() {
     let wantsFallback: boolean
     if (mode === 'force-fallback') {
       wantsFallback = true
+    } else if (isHomeAppviewOutage()) {
+      wantsFallback = true
     } else {
       const sample = await fetchStatusSample()
       deciderRef.current = decide(deciderRef.current, sample, getThresholds())
@@ -65,9 +71,11 @@ export function AppviewFallbackController() {
     const sub = AppState.addEventListener('change', state => {
       if (state === 'active') void evaluate()
     })
+    const unsubOutage = subscribeOutage(() => void evaluate())
     return () => {
       clearInterval(interval)
       sub.remove()
+      unsubOutage()
     }
   }, [evaluate])
 
