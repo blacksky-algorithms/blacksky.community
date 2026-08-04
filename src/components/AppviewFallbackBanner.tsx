@@ -1,4 +1,5 @@
 import {View} from 'react-native'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {Trans} from '@lingui/react/macro'
 
 import {useAppviewFallback} from '#/state/appview-fallback'
@@ -7,6 +8,7 @@ import {Text} from '#/components/Typography'
 
 export function AppviewFallbackBanner() {
   const t = useTheme()
+  const insets = useSafeAreaInsets()
   const active = useAppviewFallback()
 
   if (!active) return null
@@ -19,6 +21,7 @@ export function AppviewFallbackBanner() {
         a.py_xs,
         a.align_center,
         t.atoms.bg_contrast_25,
+        {paddingTop: insets.top + a.py_xs.paddingTop},
       ]}>
       <Text style={[a.text_xs, a.text_center, t.atoms.text_contrast_medium]}>
         <Trans>

@@ -5,13 +5,17 @@ import {metrics} from '#/analytics/metrics'
 
 export type ProbeResult = 'eligible' | 'ineligible' | 'unknown'
 
-const cache = new Map<string, ProbeResult>()
+const PROBE_TTL_MS = 60 * 60e3
+
+const cache = new Map<string, {result: ProbeResult; at: number}>()
+const lastTracked = new Map<string, ProbeResult>()
 
 const INELIGIBLE_ERROR_NAMES = ['AccountTakedown', 'AccountDeactivated']
 const INELIGIBLE_MESSAGE_FRAGMENTS = ['suspended', 'taken down', 'deactivated']
 
 // Matches broadly — any auth rejection or takedown signal counts, mirroring
-// isAuthorModerated in microcosm-fallback.
+// isAuthorModerated in microcosm-fallback. Definitive results expire after
+// PROBE_TTL_MS so a status change is picked up within the hour.
 export async function probeFallbackEligibility(
   agent: AtpAgent,
 ): Promise<ProbeResult> {
@@ -19,7 +23,13 @@ export async function probeFallbackEligibility(
   if (!did) return 'unknown'
 
   const cached = cache.get(did)
-  if (cached && cached !== 'unknown') return cached
+  if (
+    cached &&
+    cached.result !== 'unknown' &&
+    Date.now() - cached.at < PROBE_TTL_MS
+  ) {
+    return cached.result
+  }
 
   let result: ProbeResult
   let errorName: string | undefined
@@ -37,8 +47,11 @@ export async function probeFallbackEligibility(
     result = classifyProbeError(e)
   }
 
-  cache.set(did, result)
-  metrics.track('appviewFallback:probe', {result, errorName, status})
+  cache.set(did, {result, at: Date.now()})
+  if (lastTracked.get(did) !== result) {
+    lastTracked.set(did, result)
+    metrics.track('appviewFallback:probe', {result, errorName, status})
+  }
   return result
 }
 
@@ -61,4 +74,5 @@ function classifyProbeError(e: unknown): ProbeResult {
 
 export function resetProbeCacheForTesting() {
   cache.clear()
+  lastTracked.clear()
 }

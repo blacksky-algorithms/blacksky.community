@@ -64,6 +64,26 @@ describe('probeFallbackEligibility', () => {
     expect(getProfile).toHaveBeenCalledTimes(1)
   })
 
+  it('re-probes after the cache TTL expires', async () => {
+    const getProfile = jest
+      .fn()
+      .mockResolvedValueOnce({data: {}})
+      .mockRejectedValueOnce(
+        Object.assign(new Error(), {error: 'AccountTakedown', status: 400}),
+      )
+    const agent = agentWith(getProfile)
+    const nowSpy = jest.spyOn(Date, 'now')
+
+    nowSpy.mockReturnValue(1_000_000)
+    expect(await probeFallbackEligibility(agent)).toBe('eligible')
+
+    nowSpy.mockReturnValue(1_000_000 + 61 * 60e3)
+    expect(await probeFallbackEligibility(agent)).toBe('ineligible')
+    expect(getProfile).toHaveBeenCalledTimes(2)
+
+    nowSpy.mockRestore()
+  })
+
   it('unknown without a session', async () => {
     const getProfile = jest.fn()
     const agent = {
