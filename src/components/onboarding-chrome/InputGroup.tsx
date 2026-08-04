@@ -1,40 +1,26 @@
+import {forwardRef, useState} from 'react'
 import {
   type KeyboardTypeOptions,
+  Pressable,
   StyleSheet,
   TextInput,
   type TextInputProps,
   View,
 } from 'react-native'
 
-import {applyFonts, atoms as a, useAlf} from '#/alf'
+import {applyFonts, atoms as a, useAlf, useTheme} from '#/alf'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
 
 const FIELD_BG = '#262644'
 const FIELD_BORDER = '#464985'
 const PLACEHOLDER = '#7878A5'
-const LABEL_COLOR = '#F8FAF9'
-const SUPPORTING_COLOR = '#9393B7'
-const ERROR_COLOR = '#F40B42'
+const INPUT_TEXT_COLOR = '#F8FAF9'
 const RADIUS = 8
 
 export type InputGroupPosition = 'top' | 'middle' | 'bottom' | 'single'
 
-export function InputGroup({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  icon: Icon,
-  trailing,
-  secureTextEntry,
-  keyboardType,
-  autoCapitalize,
-  supportingText,
-  errorText,
-  position = 'single',
-  testID,
-}: {
+export type InputGroupProps = {
   label: string
   value: string
   onChangeText: (text: string) => void
@@ -44,93 +30,193 @@ export function InputGroup({
   secureTextEntry?: boolean
   keyboardType?: KeyboardTypeOptions
   autoCapitalize?: TextInputProps['autoCapitalize']
+  autoComplete?: TextInputProps['autoComplete']
+  textContentType?: TextInputProps['textContentType']
+  autoCorrect?: TextInputProps['autoCorrect']
+  autoFocus?: boolean
+  maxLength?: number
+  returnKeyType?: TextInputProps['returnKeyType']
+  blurOnSubmit?: boolean
+  onSubmitEditing?: TextInputProps['onSubmitEditing']
+  onFocus?: TextInputProps['onFocus']
+  onBlur?: TextInputProps['onBlur']
+  editable?: boolean
+  onPress?: () => void
+  uppercaseValue?: boolean
   supportingText?: string
   errorText?: string
   position?: InputGroupPosition
   testID?: string
-}) {
-  const {fonts} = useAlf()
-
-  const isTop = position === 'top' || position === 'single'
-  const isBottom = position === 'bottom' || position === 'single'
-
-  const inputStyle = StyleSheet.flatten([
-    a.flex_1,
-    a.font_mono,
-    {
-      fontSize: 14,
-      color: LABEL_COLOR,
-      padding: 0,
-      textTransform: 'uppercase' as const,
-    },
-  ])
-  applyFonts(inputStyle, fonts.family)
-
-  return (
-    <View style={[a.w_full]}>
-      <Text
-        style={[
-          a.font_mono,
-          a.mb_xs,
-          {
-            fontSize: 12,
-            fontWeight: '300',
-            letterSpacing: -0.5,
-            textTransform: 'uppercase',
-            color: LABEL_COLOR,
-          },
-        ]}>
-        {label}
-      </Text>
-
-      <View
-        style={[
-          a.flex_row,
-          a.align_center,
-          a.gap_sm,
-          {
-            backgroundColor: FIELD_BG,
-            borderColor: FIELD_BORDER,
-            borderWidth: 1,
-            borderBottomWidth: isBottom ? 1 : 0,
-            borderTopLeftRadius: isTop ? RADIUS : 0,
-            borderTopRightRadius: isTop ? RADIUS : 0,
-            borderBottomLeftRadius: isBottom ? RADIUS : 0,
-            borderBottomRightRadius: isBottom ? RADIUS : 0,
-            paddingHorizontal: 12,
-            paddingVertical: 14,
-          },
-        ]}>
-        {Icon ? (
-          <Icon width={24} style={{color: PLACEHOLDER, flexShrink: 0}} />
-        ) : null}
-
-        <TextInput
-          testID={testID}
-          accessibilityLabel={label}
-          accessibilityHint=""
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder ? placeholder.toUpperCase() : undefined}
-          placeholderTextColor={PLACEHOLDER}
-          secureTextEntry={secureTextEntry}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          style={inputStyle}
-        />
-
-        {trailing ? <View style={{flexShrink: 0}}>{trailing}</View> : null}
-      </View>
-
-      {errorText != null ? (
-        <Text style={[a.mt_xs, {fontSize: 12, color: ERROR_COLOR}]}>
-          {errorText}
-        </Text>
-      ) : supportingText != null ? (
-        <Text style={[a.mt_xs, {fontSize: 12, color: SUPPORTING_COLOR}]}>
-          {supportingText}
-        </Text>
-      ) : null}
-    </View>
-  )
 }
+
+export const InputGroup = forwardRef<TextInput, InputGroupProps>(
+  function InputGroup(
+    {
+      label,
+      value,
+      onChangeText,
+      placeholder,
+      icon: Icon,
+      trailing,
+      secureTextEntry,
+      keyboardType,
+      autoCapitalize,
+      autoComplete,
+      textContentType,
+      autoCorrect,
+      autoFocus,
+      maxLength,
+      returnKeyType,
+      blurOnSubmit,
+      onSubmitEditing,
+      onFocus,
+      onBlur,
+      editable = true,
+      onPress,
+      uppercaseValue = false,
+      supportingText,
+      errorText,
+      position = 'single',
+      testID,
+    },
+    ref,
+  ) {
+    const {fonts} = useAlf()
+    const t = useTheme()
+    const [focused, setFocused] = useState(false)
+
+    const isTop = position === 'top' || position === 'single'
+    const isBottom = position === 'bottom' || position === 'single'
+    const hasError = errorText != null
+
+    const borderColor = hasError
+      ? t.palette.negative_500
+      : focused
+        ? t.palette.primary_500
+        : FIELD_BORDER
+
+    const inputStyle = StyleSheet.flatten([
+      a.flex_1,
+      a.font_mono,
+      {
+        fontSize: 14,
+        color: INPUT_TEXT_COLOR,
+        padding: 0,
+        textTransform: uppercaseValue ? ('uppercase' as const) : undefined,
+      },
+    ])
+    applyFonts(inputStyle, fonts.family)
+
+    const fieldStyle = [
+      a.flex_row,
+      a.align_center,
+      a.gap_sm,
+      {
+        backgroundColor: FIELD_BG,
+        borderColor,
+        borderWidth: 1,
+        borderBottomWidth: isBottom ? 1 : 0,
+        borderTopLeftRadius: isTop ? RADIUS : 0,
+        borderTopRightRadius: isTop ? RADIUS : 0,
+        borderBottomLeftRadius: isBottom ? RADIUS : 0,
+        borderBottomRightRadius: isBottom ? RADIUS : 0,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+      },
+    ]
+
+    const iconEl = Icon ? (
+      <Icon width={24} style={{color: PLACEHOLDER, flexShrink: 0}} />
+    ) : null
+
+    const input = (
+      <TextInput
+        ref={ref}
+        testID={testID}
+        accessibilityLabel={editable ? label : undefined}
+        accessibilityHint={editable ? errorText : undefined}
+        aria-invalid={hasError}
+        accessibilityState={{disabled: !editable}}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder ? placeholder.toUpperCase() : undefined}
+        placeholderTextColor={PLACEHOLDER}
+        secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
+        autoCorrect={autoCorrect}
+        autoFocus={autoFocus}
+        maxLength={maxLength}
+        returnKeyType={returnKeyType}
+        blurOnSubmit={blurOnSubmit}
+        onSubmitEditing={onSubmitEditing}
+        editable={editable}
+        pointerEvents={editable ? undefined : 'none'}
+        onFocus={e => {
+          setFocused(true)
+          onFocus?.(e)
+        }}
+        onBlur={e => {
+          setFocused(false)
+          onBlur?.(e)
+        }}
+        style={inputStyle}
+      />
+    )
+
+    const trailingEl = trailing ? (
+      <View style={{flexShrink: 0}}>{trailing}</View>
+    ) : null
+
+    return (
+      <View style={[a.w_full]}>
+        <Text
+          style={[
+            a.font_mono,
+            a.mb_xs,
+            t.atoms.text,
+            {
+              fontSize: 12,
+              fontWeight: '300',
+              letterSpacing: -0.5,
+              textTransform: 'uppercase',
+            },
+          ]}>
+          {label}
+        </Text>
+
+        {editable ? (
+          <View style={fieldStyle}>
+            {iconEl}
+            {input}
+            {trailingEl}
+          </View>
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityHint={errorText}
+            onPress={onPress}
+            style={fieldStyle}>
+            {iconEl}
+            {input}
+            {trailingEl}
+          </Pressable>
+        )}
+
+        {errorText != null ? (
+          <Text
+            style={[a.mt_xs, {fontSize: 12, color: t.palette.negative_500}]}>
+            {errorText}
+          </Text>
+        ) : supportingText != null ? (
+          <Text style={[a.mt_xs, t.atoms.text_contrast_medium, {fontSize: 12}]}>
+            {supportingText}
+          </Text>
+        ) : null}
+      </View>
+    )
+  },
+)

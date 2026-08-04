@@ -42,18 +42,22 @@ export function AppBar({
         <View style={{width: BUTTON_SIZE, height: BUTTON_SIZE}} />
       )}
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={_(msg`Get help`)}
-        accessibilityHint=""
-        onPress={onHelp}
-        style={[
-          a.align_center,
-          a.justify_center,
-          {width: BUTTON_SIZE, height: BUTTON_SIZE},
-        ]}>
-        <CircleQuestion width={ICON_SIZE} fill={t.atoms.text.color} />
-      </Pressable>
+      {onHelp != null ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={_(msg`Get help`)}
+          accessibilityHint=""
+          onPress={onHelp}
+          style={[
+            a.align_center,
+            a.justify_center,
+            {width: BUTTON_SIZE, height: BUTTON_SIZE},
+          ]}>
+          <CircleQuestion width={ICON_SIZE} fill={t.atoms.text.color} />
+        </Pressable>
+      ) : (
+        <View style={{width: BUTTON_SIZE, height: BUTTON_SIZE}} />
+      )}
     </View>
   )
 }

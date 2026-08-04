@@ -42,4 +42,10 @@ describe('AppBar', () => {
 
     expect(queryByLabelText('Go back')).toBeNull()
   })
+
+  it('renders no help button when onHelp is undefined', () => {
+    const {queryByLabelText} = renderWithI18n(<AppBar onBack={jest.fn()} />)
+
+    expect(queryByLabelText('Get help')).toBeNull()
+  })
 })
