@@ -215,6 +215,18 @@ export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
 export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
+export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
+
+export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'
+export const BLUESKY_FALLBACK_PROXY_HEADER =
+  `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
+// The home appview's header value, captured immutably. BLUESKY_PROXY_HEADER
+// below is mutable (it flips during appview fallback); calls that must always
+// reach the home appview use this instead.
+export const HOME_PROXY_HEADER =
+  `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 
 // temp hack for e2e - esb
