@@ -26,7 +26,6 @@ import {Deactivated} from '#/screens/Deactivated'
 import {Takendown} from '#/screens/Takendown'
 import {atoms as a, select, useTheme} from '#/alf'
 import {setSystemUITheme} from '#/alf/util/systemUI'
-import {AppviewFallbackBanner} from '#/components/AppviewFallbackBanner'
 import {EmailDialog} from '#/components/dialogs/EmailDialog'
 import {InAppBrowserConsentDialog} from '#/components/dialogs/InAppBrowserConsent'
 import {LinkWarningDialog} from '#/components/dialogs/LinkWarning'
@@ -97,7 +96,6 @@ function ShellInner() {
       <View style={[a.h_full]}>
         <ErrorBoundary
           style={{paddingTop: insets.top, paddingBottom: insets.bottom}}>
-          <AppviewFallbackBanner />
           <TabsNavigator layout={drawerLayout} />
         </ErrorBoundary>
       </View>

@@ -15,7 +15,6 @@ import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Deactivated} from '#/screens/Deactivated'
 import {Takendown} from '#/screens/Takendown'
 import {atoms as a, select, useBreakpoints, useTheme} from '#/alf'
-import {AppviewFallbackBanner} from '#/components/AppviewFallbackBanner'
 import {EmailDialog} from '#/components/dialogs/EmailDialog'
 import {LinkWarningDialog} from '#/components/dialogs/LinkWarning'
 import {MutedWordsDialog} from '#/components/dialogs/MutedWords'
@@ -50,7 +49,6 @@ function ShellInner() {
   return (
     <>
       <ErrorBoundary>
-        <AppviewFallbackBanner />
         <FlatNavigator layout={drawerLayout} />
       </ErrorBoundary>
       <AppviewFallbackController />

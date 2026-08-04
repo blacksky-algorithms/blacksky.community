@@ -2776,7 +2776,7 @@ msgstr "Close banner"
 msgid "Close dialog"
 msgstr ""
 
-#: src/view/shell/index.web.tsx:104
+#: src/view/shell/index.web.tsx:102
 msgid "Close drawer menu"
 msgstr ""
 
@@ -2867,10 +2867,6 @@ msgstr "Community Builder"
 #: src/view/screens/CommunityGuidelines.tsx:28
 msgid "Community Guidelines"
 msgstr ""
-
-#: src/components/AppviewFallbackBanner.tsx:27
-msgid "Compatibility mode — community features and some accounts may be delayed or unavailable."
-msgstr "Compatibility mode — community features and some accounts may be delayed or unavailable."
 
 #: src/screens/Onboarding/StepFinished/index.tsx:333
 msgid "Complete onboarding and start using your account"
