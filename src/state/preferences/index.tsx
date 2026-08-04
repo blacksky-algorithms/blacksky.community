@@ -1,4 +1,5 @@
 import {Provider as AltTextRequiredProvider} from './alt-text-required'
+import {Provider as AlwaysUseHomeAppviewProvider} from './always-use-home-appview'
 import {Provider as AutoplayProvider} from './autoplay'
 import {Provider as BlackskyOnlyDefaultProvider} from './blacksky-only-default'
 import {Provider as DisableHapticsProvider} from './disable-haptics'
@@ -16,6 +17,10 @@ export {
   useRequireAltTextEnabled,
   useSetRequireAltTextEnabled,
 } from './alt-text-required'
+export {
+  useAlwaysUseHomeAppview,
+  useSetAlwaysUseHomeAppview,
+} from './always-use-home-appview'
 export {useAutoplayDisabled, useSetAutoplayDisabled} from './autoplay'
 export {
   useBlackskyOnlyDefault,
@@ -45,7 +50,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                       <SubtitlesProvider>
                         <TrendingSettingsProvider>
                           <BlackskyOnlyDefaultProvider>
-                            <KawaiiProvider>{children}</KawaiiProvider>
+                            <AlwaysUseHomeAppviewProvider>
+                              <KawaiiProvider>{children}</KawaiiProvider>
+                            </AlwaysUseHomeAppviewProvider>
                           </BlackskyOnlyDefaultProvider>
                         </TrendingSettingsProvider>
                       </SubtitlesProvider>

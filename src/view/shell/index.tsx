@@ -11,6 +11,7 @@ import {useIntentHandler} from '#/lib/hooks/useIntentHandler'
 import {useNotificationsHandler} from '#/lib/hooks/useNotificationHandler'
 import {useNotificationsRegistration} from '#/lib/notifications/notifications'
 import {isStateAtTabRoot} from '#/lib/routes/helpers'
+import {AppviewFallbackController} from '#/state/appview-fallback-controller'
 import {useDialogFullyExpandedCountContext} from '#/state/dialogs'
 import {useProfileEnrichment} from '#/state/queries/profile-enrichment'
 import {useSession} from '#/state/session'
@@ -25,6 +26,7 @@ import {Deactivated} from '#/screens/Deactivated'
 import {Takendown} from '#/screens/Takendown'
 import {atoms as a, select, useTheme} from '#/alf'
 import {setSystemUITheme} from '#/alf/util/systemUI'
+import {AppviewFallbackBanner} from '#/components/AppviewFallbackBanner'
 import {EmailDialog} from '#/components/dialogs/EmailDialog'
 import {InAppBrowserConsentDialog} from '#/components/dialogs/InAppBrowserConsent'
 import {LinkWarningDialog} from '#/components/dialogs/LinkWarning'
@@ -95,9 +97,11 @@ function ShellInner() {
       <View style={[a.h_full]}>
         <ErrorBoundary
           style={{paddingTop: insets.top, paddingBottom: insets.bottom}}>
+          <AppviewFallbackBanner />
           <TabsNavigator layout={drawerLayout} />
         </ErrorBoundary>
       </View>
+      <AppviewFallbackController />
       <Composer />
       <MutedWordsDialog />
       <SigninDialog />

@@ -27,6 +27,16 @@ export type Events = {
     variationId?: string
   }
 
+  'appviewFallback:changed': {
+    active: boolean
+    trigger: 'flag'
+  }
+  'appviewFallback:probe': {
+    result: 'eligible' | 'ineligible' | 'unknown'
+    errorName?: string
+    status?: number
+  }
+
   'account:loggedIn': {
     logContext:
       | 'LoginForm'

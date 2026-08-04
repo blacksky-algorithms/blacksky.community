@@ -1510,6 +1510,11 @@ msgstr ""
 msgid "Alt text will be truncated. {MAX_ALT_TEXT, plural, other {Limit: {0} characters.}}"
 msgstr ""
 
+#: src/screens/Settings/ContentAndMediaSettings.tsx:187
+#: src/screens/Settings/ContentAndMediaSettings.tsx:193
+msgid "Always use Blacksky's servers"
+msgstr "Always use Blacksky's servers"
+
 #. placeholder {0}: currentAccount?.email || '(no email)'
 #: src/screens/Settings/components/DisableEmail2FADialog.tsx:94
 msgid "An email has been sent to {0}. It includes a confirmation code which you can enter below."
@@ -1902,8 +1907,8 @@ msgstr "Automation label"
 msgid "Automation Label"
 msgstr "Automation Label"
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:118
-#: src/screens/Settings/ContentAndMediaSettings.tsx:124
+#: src/screens/Settings/ContentAndMediaSettings.tsx:126
+#: src/screens/Settings/ContentAndMediaSettings.tsx:132
 msgid "Autoplay videos and GIFs"
 msgstr ""
 
@@ -2302,7 +2307,7 @@ msgstr ""
 msgid "Camera access needed"
 msgstr "Camera access needed"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:213
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:217
 #: src/components/contacts/screens/GetContacts.tsx:292
 #: src/components/contacts/screens/GetContacts.tsx:297
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:122
@@ -2465,7 +2470,7 @@ msgstr ""
 msgid "Changes hosting provider"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:179
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:183
 msgid "Changes saved"
 msgstr ""
 
@@ -2776,7 +2781,7 @@ msgstr "Close banner"
 msgid "Close dialog"
 msgstr ""
 
-#: src/view/shell/index.web.tsx:100
+#: src/view/shell/index.web.tsx:104
 msgid "Close drawer menu"
 msgstr ""
 
@@ -2868,6 +2873,10 @@ msgstr "Community Builder"
 msgid "Community Guidelines"
 msgstr ""
 
+#: src/components/AppviewFallbackBanner.tsx:29
+msgid "Compatibility mode — community features and some accounts may be delayed or unavailable."
+msgstr "Compatibility mode — community features and some accounts may be delayed or unavailable."
+
 #: src/screens/Onboarding/StepFinished/index.tsx:333
 msgid "Complete onboarding and start using your account"
 msgstr ""
@@ -2958,7 +2967,7 @@ msgstr ""
 msgid "Contacts removed"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:53
+#: src/screens/Settings/ContentAndMediaSettings.tsx:61
 msgid "Content & Media"
 msgstr ""
 
@@ -3269,7 +3278,7 @@ msgid "Could not remove member."
 msgstr "Could not remove member."
 
 #. placeholder {0}: cleanError(error)
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:295
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:299
 msgid "Could not save changes: {0}"
 msgstr ""
 
@@ -3277,7 +3286,7 @@ msgstr ""
 msgid "Could not share – please try again"
 msgstr "Could not share – please try again"
 
-#: src/state/queries/notifications/settings.ts:49
+#: src/state/queries/notifications/settings.ts:55
 msgid "Could not update notification settings"
 msgstr ""
 
@@ -4287,13 +4296,13 @@ msgstr ""
 msgid "Enable this source only"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:134
-#: src/screens/Settings/ContentAndMediaSettings.tsx:148
+#: src/screens/Settings/ContentAndMediaSettings.tsx:142
+#: src/screens/Settings/ContentAndMediaSettings.tsx:156
 msgid "Enable trending topics"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:155
-#: src/screens/Settings/ContentAndMediaSettings.tsx:169
+#: src/screens/Settings/ContentAndMediaSettings.tsx:163
+#: src/screens/Settings/ContentAndMediaSettings.tsx:177
 msgid "Enable trending videos in your Discover feed"
 msgstr ""
 
@@ -4556,8 +4565,8 @@ msgstr ""
 msgid "Export my profile data"
 msgstr "Export my profile data"
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:86
-#: src/screens/Settings/ContentAndMediaSettings.tsx:89
+#: src/screens/Settings/ContentAndMediaSettings.tsx:94
+#: src/screens/Settings/ContentAndMediaSettings.tsx:97
 msgid "External media"
 msgstr ""
 
@@ -4863,7 +4872,7 @@ msgstr ""
 msgid "Failed to update feeds"
 msgstr ""
 
-#: src/state/queries/activity-subscriptions.ts:101
+#: src/state/queries/activity-subscriptions.ts:105
 msgid "Failed to update notification declaration"
 msgstr ""
 
@@ -5233,8 +5242,8 @@ msgstr "Following {displayName}"
 msgid "Following {handle}"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:78
-#: src/screens/Settings/ContentAndMediaSettings.tsx:81
+#: src/screens/Settings/ContentAndMediaSettings.tsx:86
+#: src/screens/Settings/ContentAndMediaSettings.tsx:89
 msgid "Following feed preferences"
 msgstr ""
 
@@ -5398,11 +5407,11 @@ msgstr "Get notifications when there's activity on posts you're subscribed to."
 msgid "Get notified about new posts"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:226
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
 msgid "Get notified of new posts from {name}"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:233
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:237
 msgid "Get notified of this account’s activity"
 msgstr ""
 
@@ -6329,7 +6338,7 @@ msgstr ""
 msgid "Keep editing"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:234
 msgid "Keep me posted"
 msgstr ""
 
@@ -6869,8 +6878,8 @@ msgstr ""
 msgid "Make sure this is where you intend to go!"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:62
-#: src/screens/Settings/ContentAndMediaSettings.tsx:65
+#: src/screens/Settings/ContentAndMediaSettings.tsx:70
+#: src/screens/Settings/ContentAndMediaSettings.tsx:73
 msgid "Manage saved feeds"
 msgstr ""
 
@@ -8227,6 +8236,10 @@ msgstr ""
 msgid "Options:"
 msgstr ""
 
+#: src/screens/Settings/ContentAndMediaSettings.tsx:200
+msgid "Opts out of compatibility mode during slowdowns. Feeds may be delayed instead."
+msgstr "Opts out of compatibility mode during slowdowns. Feeds may be delayed instead."
+
 #: src/screens/Deactivated.tsx:330
 msgid "Or, continue with another account."
 msgstr ""
@@ -8796,8 +8809,8 @@ msgctxt "toast"
 msgid "Post unpinned"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:257
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:269
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:261
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:273
 #: src/screens/ProfileList/index.tsx:167
 #: src/screens/StarterPack/StarterPackScreen.tsx:197
 #: src/view/screens/Profile.tsx:264
@@ -9416,8 +9429,8 @@ msgstr "Replied-to message from {senderName}, tap to scroll to it"
 msgid "Replied-to message, tap to scroll to it"
 msgstr "Replied-to message, tap to scroll to it"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:274
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:286
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:278
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:290
 #: src/lib/hooks/useNotificationHandler.ts:174
 #: src/screens/Settings/NotificationSettings/index.tsx:161
 #: src/screens/Settings/NotificationSettings/index.tsx:276
@@ -9835,8 +9848,8 @@ msgstr ""
 msgid "Save birthdate"
 msgstr "Save birthdate"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:198
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:207
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:202
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:211
 #: src/screens/SavedFeeds.tsx:122
 #: src/screens/SavedFeeds.tsx:126
 #: src/screens/SavedFeeds.tsx:314
@@ -11127,7 +11140,7 @@ msgstr "Subscribe to {publicationTitle} on {0}"
 msgid "Subscribe to @{0} to use these labels:"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:252
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:256
 msgid "Subscribe to account activity"
 msgstr ""
 
@@ -12090,8 +12103,8 @@ msgstr ""
 msgid "Thread options"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:70
-#: src/screens/Settings/ContentAndMediaSettings.tsx:73
+#: src/screens/Settings/ContentAndMediaSettings.tsx:78
+#: src/screens/Settings/ContentAndMediaSettings.tsx:81
 msgid "Thread preferences"
 msgstr ""
 
@@ -12673,8 +12686,8 @@ msgstr ""
 msgid "Use in-app browser"
 msgstr ""
 
-#: src/screens/Settings/ContentAndMediaSettings.tsx:104
-#: src/screens/Settings/ContentAndMediaSettings.tsx:110
+#: src/screens/Settings/ContentAndMediaSettings.tsx:112
+#: src/screens/Settings/ContentAndMediaSettings.tsx:118
 msgid "Use in-app browser to open links"
 msgstr ""
 
@@ -13813,7 +13826,7 @@ msgid "You will be signed out of all your accounts."
 msgstr ""
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:140
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:144
 msgid "You will no longer receive notifications for {0}"
 msgstr ""
 
@@ -13860,7 +13873,7 @@ msgid "You'll need to go to the System Settings for Bluesky and give permission 
 msgstr ""
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:172
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:176
 msgid "You'll start receiving notifications for {0}!"
 msgstr ""
 
@@ -14038,8 +14051,8 @@ msgstr ""
 
 #: src/Navigation.tsx:484
 #: src/screens/Search/modules/ExploreInterestsCard.tsx:68
-#: src/screens/Settings/ContentAndMediaSettings.tsx:94
-#: src/screens/Settings/ContentAndMediaSettings.tsx:97
+#: src/screens/Settings/ContentAndMediaSettings.tsx:102
+#: src/screens/Settings/ContentAndMediaSettings.tsx:105
 #: src/screens/Settings/InterestsSettings.tsx:49
 msgid "Your interests"
 msgstr ""
