@@ -287,10 +287,14 @@ module.exports = function (_config) {
                   git: 'https://github.com/bluesky-social/MCEmojiPicker.git',
                   branch: 'main',
                 },
-                // MMKV 2.4.1's secureClearMemory path calls memset_s, which fails to
-                // compile under Xcode 26. react-native-mmkv depends on MMKV ">= 1.3.3"
-                // with no upper bound, so pin below 2.4.1 until upstream fixes it.
+                // MMKVCore 2.4.1's AESCrypt.cpp calls memset_s on the MMKV_APPLE
+                // path, which fails to compile under Xcode 26 (memset_s is only
+                // declared when __STDC_WANT_LIB_EXT1__ == 1). Pinning MMKV alone is
+                // not enough: MMKV depends on MMKVCore with an open-ended range, so
+                // MMKVCore still floats to 2.4.1. Pin MMKVCore itself to 2.4.0 (which
+                // does not use memset_s) until upstream fixes it.
                 {name: 'MMKV', version: '2.4.0'},
+                {name: 'MMKVCore', version: '2.4.0'},
               ],
             },
             android: {
