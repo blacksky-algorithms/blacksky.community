@@ -26,14 +26,8 @@ export function subscribe(fn: () => void): () => void {
   }
 }
 
-/**
- * Switch app.bsky.* reads between the home appview and the fallback appview.
- *
- * Flips the global proxy header (used by all agents at construction), points
- * the live agent at the new appview, and resets the query cache — pagination
- * cursors are appview-specific, so a cached page from one appview must never
- * be continued against the other.
- */
+// Pagination cursors are appview-specific: a cached page from one appview
+// must never be continued against the other, hence the cache reset on flip.
 export function setFallbackActive(
   next: boolean,
   agent: AtpAgent,

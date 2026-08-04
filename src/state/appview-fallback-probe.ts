@@ -10,12 +10,8 @@ const cache = new Map<string, ProbeResult>()
 const INELIGIBLE_ERROR_NAMES = ['AccountTakedown', 'AccountDeactivated']
 const INELIGIBLE_MESSAGE_FRAGMENTS = ['suspended', 'taken down', 'deactivated']
 
-/**
- * Whether this account can read from the fallback appview at all. Accounts
- * taken down there get errors or silently stripped context, so they must
- * stay on the home appview. Matches broadly: any auth rejection or takedown
- * signal counts, mirroring isAuthorModerated in microcosm-fallback.
- */
+// Matches broadly — any auth rejection or takedown signal counts, mirroring
+// isAuthorModerated in microcosm-fallback.
 export async function probeFallbackEligibility(
   agent: AtpAgent,
 ): Promise<ProbeResult> {

@@ -221,14 +221,11 @@ export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'
 export const BLUESKY_FALLBACK_PROXY_HEADER =
   `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as ProxyHeaderValue
 
-// The home appview's header value, captured immutably. BLUESKY_PROXY_HEADER
-// below is mutable (it flips during appview fallback); calls that must always
-// reach the home appview use this instead.
+// Immutable, unlike BLUESKY_PROXY_HEADER below — use for calls that must not
+// follow that mutable header.
 export const HOME_PROXY_HEADER =
   `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
 
-// Per-call opts pinning a request to the home appview regardless of the
-// global proxy header (notification state lives only there).
 export const HOME_APPVIEW_PINNED_OPTS = {
   headers: {'atproto-proxy': HOME_PROXY_HEADER},
 }

@@ -5,11 +5,6 @@ import {useAppviewFallback} from '#/state/appview-fallback'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 
-/**
- * Thin notice shown while app.bsky.* reads are served by the fallback
- * appview. Community surfaces stay on the home appview and may lag.
- * Rendered inside the shell's safe-area padding, so no inset handling here.
- */
 export function AppviewFallbackBanner() {
   const t = useTheme()
   const active = useAppviewFallback()

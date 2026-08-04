@@ -9,9 +9,7 @@ import {HOME_PROXY_HEADER} from '#/lib/constants'
  * header. The PDS validates the user's credentials, creates a service auth
  * JWT signed by the user's keypair, and forwards the request to the appview.
  *
- * Pinned to the home appview: community.blacksky.* endpoints only exist
- * there, so these calls must not follow the global proxy header when it is
- * flipped during appview fallback.
+ * Pinned: community.blacksky.* endpoints only exist on the home appview.
  */
 export async function communityXrpc(
   agent: BskyAgent,

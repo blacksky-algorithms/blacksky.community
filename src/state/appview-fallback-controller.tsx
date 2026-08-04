@@ -19,11 +19,7 @@ function getMode(): FallbackMode {
   return 'force-primary'
 }
 
-/**
- * Headless component that decides whether app.bsky.* reads should be served
- * by the fallback appview. v1: driven entirely by the feature flag ('auto'
- * behaves as 'force-primary' until the lag poller lands).
- */
+// 'auto' behaves as 'force-primary' until the lag poller lands.
 export function AppviewFallbackController() {
   const agent = useAgent()
   const queryClient = useQueryClient()
