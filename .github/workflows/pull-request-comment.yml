@@ -186,6 +186,9 @@ jobs:
           --nonInteractive
           --message="PR #${{ github.event.issue.number }}"
         env:
+          # intl:build dirties tracked .po files; skip eoas's git-clean check
+          # (matches bundle-deploy-eas-update.yml)
+          EAS_NO_VCS: '1'
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_RELEASE: ${{ steps.env.outputs.EXPO_PUBLIC_RELEASE_VERSION }}
