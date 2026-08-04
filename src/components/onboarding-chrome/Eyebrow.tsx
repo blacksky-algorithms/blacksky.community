@@ -1,11 +1,13 @@
-import {Text, View} from 'react-native'
+import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
 import {colors} from '#/lib/styles'
-import {atoms as a, tokens} from '#/alf'
+import {atoms as a} from '#/alf'
+import {Text} from '#/components/Typography'
 
 const SHIM_SIZE = 13
+const LIME = colors.green2
 
 export function Eyebrow({
   step,
@@ -20,9 +22,9 @@ export function Eyebrow({
 
   let text: string | undefined
   if (step != null && total != null) {
-    text = _(msg`Step ${step} of ${total}`).toUpperCase()
+    text = _(msg`Step ${step} of ${total}`)
   } else if (label != null) {
-    text = label.toUpperCase()
+    text = label
   }
 
   if (text == null) {
@@ -30,23 +32,25 @@ export function Eyebrow({
   }
 
   return (
-    <View style={[a.flex_row, a.align_center, {gap: tokens.space.sm}]}>
+    <View style={[a.flex_row, a.align_center, a.gap_sm]}>
       <View
         style={{
           width: SHIM_SIZE,
           height: SHIM_SIZE,
-          backgroundColor: colors.green2,
+          backgroundColor: LIME,
         }}
       />
       <Text
-        style={{
-          fontFamily: 'AzeretMonoVariable',
-          fontWeight: '300',
-          fontSize: 14,
-          letterSpacing: -0.5,
-          textTransform: 'uppercase',
-          color: colors.green2,
-        }}>
+        style={[
+          a.font_mono,
+          {
+            fontWeight: '300',
+            fontSize: 14,
+            letterSpacing: -0.5,
+            textTransform: 'uppercase',
+            color: LIME,
+          },
+        ]}>
         {text}
       </Text>
     </View>
