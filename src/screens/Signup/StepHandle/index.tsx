@@ -16,7 +16,6 @@ import {
   checkHandleAvailability,
   useHandleAvailabilityQuery,
 } from '#/state/queries/handle-availability'
-import {Logomark} from '#/view/icons/Logomark'
 import {useSignupContext} from '#/screens/Signup/state'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -28,7 +27,6 @@ import {
   Eyebrow,
   InputGroup,
   PrimaryButton,
-  SelectionRow,
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
@@ -46,17 +44,13 @@ export function StepHandle({
   const {state, dispatch} = useSignupContext()
   const [draftValue, setDraftValue] = useState(state.handle)
   const [submitFoundTaken, setSubmitFoundTaken] = useState(false)
-  const [selectedDomain, setSelectedDomain] = useState(
+  // The handle domain is chosen on the "Choose your handle" step and delivered
+  // here via the selected community's serviceDescription.
+  const selectedDomain =
     state.userDomain ||
-      state.serviceDescription?.availableUserDomains?.[0] ||
-      '',
-  )
+    state.serviceDescription?.availableUserDomains?.[0] ||
+    ''
   const isNextLoading = useThrottledValue(state.isLoading, 500)
-
-  const availableDomains = useMemo(
-    () => state.serviceDescription?.availableUserDomains || [],
-    [state.serviceDescription?.availableUserDomains],
-  )
 
   const validCheck = validateServiceHandle(draftValue, selectedDomain)
 
@@ -199,14 +193,6 @@ export function StepHandle({
     ax.metric('signup:backPressed', {activeStep: state.activeStep})
   }
 
-  const onSelectDomain = (domain: string) => {
-    setSubmitFoundTaken(false)
-    if (state.error) {
-      dispatch({type: 'setError', value: ''})
-    }
-    setSelectedDomain(domain)
-  }
-
   return (
     <View style={[a.gap_lg]}>
       <AppBar
@@ -215,7 +201,7 @@ export function StepHandle({
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow step={2} total={7} />
+      <Eyebrow step={2} total={4} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
@@ -253,32 +239,6 @@ export function StepHandle({
         autoFocus
         autoComplete="off"
       />
-
-      {availableDomains.length > 0 && (
-        <View style={[a.gap_xs]}>
-          <View>
-            {availableDomains.map(domain => (
-              <SelectionRow
-                key={domain}
-                testID={`domainOption-${domain}`}
-                mode="radio"
-                selected={selectedDomain === domain}
-                onPress={() => onSelectDomain(domain)}
-                title={domain}
-                subtitle={domainSubtitle(domain, _)}
-                icon={<Logomark width={24} fill={t.palette.primary_500} />}
-              />
-            ))}
-          </View>
-          <Text
-            style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_medium]}>
-            <Trans>
-              Blacksky.app is reserved for Black folks building communal
-              infrastructure. Learn more.
-            </Trans>
-          </Text>
-        </View>
-      )}
 
       {isHandleTaken &&
         validCheck.overall &&
@@ -326,16 +286,4 @@ export function StepHandle({
       />
     </View>
   )
-}
-
-function domainSubtitle(domain: string, _: ReturnType<typeof useLingui>['_']) {
-  const key = domain.replace(/^\./, '')
-  switch (key) {
-    case 'blacksky.app':
-      return _(msg`Reserved for Black folks`)
-    case 'myatproto.social':
-    case 'cryptoanarchy.network':
-    default:
-      return _(msg`For all`)
-  }
 }

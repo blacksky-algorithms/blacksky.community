@@ -15,6 +15,7 @@ export function SelectionRow({
   selected,
   onPress,
   title,
+  description,
   subtitle,
   icon,
   testID,
@@ -23,6 +24,7 @@ export function SelectionRow({
   selected: boolean
   onPress: () => void
   title: string
+  description?: string
   subtitle?: string
   icon?: React.ReactNode
   testID?: string
@@ -62,6 +64,12 @@ export function SelectionRow({
           style={[a.text_md, a.font_semi_bold, a.leading_tight, t.atoms.text]}>
           {title}
         </Text>
+        {description != null ? (
+          <Text
+            style={[a.text_xs, a.leading_tight, {color: LIME, marginTop: 2}]}>
+            {description}
+          </Text>
+        ) : null}
         {subtitle != null ? (
           <Text
             style={[

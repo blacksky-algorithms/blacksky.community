@@ -1,5 +1,5 @@
 import {createContext, useCallback, useContext} from 'react'
-import {LayoutAnimation, Platform} from 'react-native'
+import {LayoutAnimation} from 'react-native'
 import {
   ComAtprotoServerCreateAccount,
   type ComAtprotoServerDescribeServer,
@@ -29,12 +29,11 @@ export enum SignupStep {
 }
 
 /**
- * On web the community is fixed by the hostname the app is served from, so the
- * community-picker step is skipped and INFO is the first step. On native the
- * user chooses their community first. Used as the "floor" step for back/prev.
+ * "Choose your handle" (the community picker) is the first step on every
+ * platform: it carries the handle domain the rest of the flow depends on. Used
+ * as the "floor" step for back/prev.
  */
-export const FIRST_SIGNUP_STEP =
-  Platform.OS === 'web' ? SignupStep.INFO : SignupStep.COMMUNITY
+export const FIRST_SIGNUP_STEP = SignupStep.COMMUNITY
 
 type SubmitTask = {
   verificationCode: string | undefined

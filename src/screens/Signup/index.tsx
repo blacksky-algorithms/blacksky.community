@@ -1,5 +1,5 @@
 import {useEffect, useReducer, useState} from 'react'
-import {AppState, type AppStateStatus, Platform, View} from 'react-native'
+import {AppState, type AppStateStatus, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
 import {AppBskyGraphStarterpack} from '@atproto/api'
@@ -8,7 +8,6 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
 import {useStarterPackQuery} from '#/state/queries/starter-packs'
@@ -25,11 +24,8 @@ import {StepCaptcha} from '#/screens/Signup/StepCaptcha'
 import {StepCommunity} from '#/screens/Signup/StepCommunity'
 import {StepHandle} from '#/screens/Signup/StepHandle'
 import {StepInfo} from '#/screens/Signup/StepInfo'
-import {atoms as a, native, useBreakpoints, useTheme} from '#/alf'
-import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
-import {Divider} from '#/components/Divider'
+import {atoms as a, native, useBreakpoints} from '#/alf'
 import {LinearGradientBackground} from '#/components/LinearGradientBackground'
-import {InlineLinkText} from '#/components/Link'
 import {ScreenTransition} from '#/components/ScreenTransition'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
@@ -46,7 +42,6 @@ export function Signup({
   const ax = useAnalytics()
   const {_} = useLingui()
   const brand = useBrand()
-  const t = useTheme()
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     analytics: ax,
@@ -61,20 +56,16 @@ export function Signup({
     })
   }, [ax])
 
-  // Point signup at the brand-configured PDS instead of the hardcoded default.
-  // On web the community is fixed by the hostname (there is no picker step), so
-  // also stamp its slug up front the way the picker would on native.
+  // Default the community picker to the served/bundled brand: point signup at
+  // its PDS (so describeServer runs) and pre-select its slug. Picking a
+  // different community in "Choose your handle" overrides both.
   useEffect(() => {
     if (brand.services.pds.url) {
-      if (Platform.OS === 'web') {
-        dispatch({
-          type: 'setCommunity',
-          slug: brand.metadata.slug,
-          serviceUrl: brand.services.pds.url,
-        })
-      } else {
-        dispatch({type: 'setServiceUrl', value: brand.services.pds.url})
-      }
+      dispatch({
+        type: 'setCommunity',
+        slug: brand.metadata.slug,
+        serviceUrl: brand.services.pds.url,
+      })
     }
   }, [brand.services.pds.url, brand.metadata.slug])
 
@@ -162,18 +153,6 @@ export function Signup({
     )
   }, [])
 
-  // Web skips the community-picker step, so shift the displayed step numbering
-  // down by one to keep the count starting at "Step 1".
-  const isWeb = Platform.OS === 'web'
-  const stepOffset = isWeb ? 1 : 0
-  const totalSteps =
-    state.serviceDescription &&
-    !state.serviceDescription.phoneVerificationRequired
-      ? 3
-      : 4
-  const displayStep = state.activeStep + 1 - stepOffset
-  const displayTotal = totalSteps - stepOffset
-
   return (
     <Animated.View exiting={native(FadeIn.duration(90))} style={a.flex_1}>
       <SignupContext.Provider value={{state, dispatch}}>
@@ -221,17 +200,14 @@ export function Signup({
                     a.pt_2xl,
                     !gtMobile && {paddingBottom: 100},
                   ]}>
-                  {state.activeStep === SignupStep.INFO ? (
-                    // The redesigned INFO step owns its full chrome (top app bar,
-                    // eyebrow, heading and bottom action), so it renders without
-                    // the shared header, divider and support footer used by the
-                    // not-yet-restyled steps.
+                  {state.activeStep === SignupStep.COMMUNITY ? (
+                    // Each redesigned step owns its full chrome (top app bar,
+                    // eyebrow, heading and bottom action). "Choose your handle"
+                    // is the first step, so its back action exits signup.
+                    <StepCommunity onPressBack={onPressBack} />
+                  ) : state.activeStep === SignupStep.INFO ? (
                     <StepInfo
-                      onPressBack={
-                        // On web INFO is the first step, so back exits signup;
-                        // on native it returns to the community picker.
-                        isWeb ? onPressBack : () => dispatch({type: 'prev'})
-                      }
+                      onPressBack={() => dispatch({type: 'prev'})}
                       isLoadingStarterPack={
                         isFetchingStarterPack && !isErrorStarterPack
                       }
@@ -239,57 +215,9 @@ export function Signup({
                       refetchServer={refetch}
                     />
                   ) : state.activeStep === SignupStep.HANDLE ? (
-                    // The redesigned HANDLE step also owns its full chrome.
                     <StepHandle onPressSignIn={onPressSignIn} />
-                  ) : state.activeStep === SignupStep.CAPTCHA ? (
-                    // The redesigned CAPTCHA step also owns its full chrome.
-                    <StepCaptcha />
                   ) : (
-                    <>
-                      <View style={[a.gap_sm, a.pb_3xl]}>
-                        <Text
-                          style={[
-                            a.font_semi_bold,
-                            t.atoms.text_contrast_medium,
-                          ]}>
-                          <Trans>
-                            Step {displayStep} of {displayTotal}
-                          </Trans>
-                        </Text>
-                        <Text style={[a.text_3xl, a.font_semi_bold]}>
-                          <Trans>Choose your community</Trans>
-                        </Text>
-                      </View>
-
-                      <StepCommunity onPressBack={onPressBack} />
-
-                      <Divider />
-
-                      <View
-                        style={[
-                          a.w_full,
-                          a.py_lg,
-                          a.flex_row,
-                          a.gap_md,
-                          a.align_center,
-                        ]}>
-                        <AppLanguageDropdown />
-                        <Text
-                          style={[
-                            a.flex_1,
-                            t.atoms.text_contrast_medium,
-                            !gtMobile && a.text_md,
-                          ]}>
-                          <Trans>Having trouble?</Trans>{' '}
-                          <InlineLinkText
-                            label={_(msg`Contact support`)}
-                            to={FEEDBACK_FORM_URL({email: state.email})}
-                            style={[!gtMobile && a.text_md]}>
-                            <Trans>Contact support</Trans>
-                          </InlineLinkText>
-                        </Text>
-                      </View>
-                    </>
+                    <StepCaptcha />
                   )}
                 </View>
               </ScreenTransition>
