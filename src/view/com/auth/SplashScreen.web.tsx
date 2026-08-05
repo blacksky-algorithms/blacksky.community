@@ -1,11 +1,13 @@
 import {useEffect, useState} from 'react'
 import {Pressable, View} from 'react-native'
+import {ImageBackground} from 'expo-image'
+import {LinearGradient} from 'expo-linear-gradient'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
+import {colors} from '#/lib/styles'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Logo} from '#/view/icons/Logo'
@@ -18,9 +20,12 @@ import {atoms as a, useTheme} from '#/alf'
 import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
 import {Button, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as TimesIcon} from '#/components/icons/Times'
-import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
+
+const cookoutImage = require('../../../../assets/splash-cookout.jpg')
+
+const ACCENT_TEXT = '#1D1B20'
 
 export const SplashScreen = ({
   onDismiss,
@@ -32,9 +37,7 @@ export const SplashScreen = ({
   onPressCreateAccount: () => void
 }) => {
   const {_} = useLingui()
-  const t = useTheme()
   const brand = useBrand()
-  const {isTabletOrMobile: IS_WEB_MOBILE} = useWebMediaQueries()
   const [showClipOverlay, setShowClipOverlay] = useState(false)
 
   useEffect(() => {
@@ -51,7 +54,23 @@ export const SplashScreen = ({
   const kawaii = useKawaiiMode()
 
   return (
-    <>
+    <ImageBackground
+      accessibilityIgnoresInvertColors
+      source={cookoutImage}
+      contentFit="cover"
+      contentPosition="top center"
+      style={[a.h_full, a.flex_1]}>
+      <LinearGradient
+        colors={['rgba(0,0,0,0.45)', 'rgba(0,0,0,0)']}
+        style={[a.absolute, {top: 0, left: 0, right: 0, height: 280}]}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)']}
+        style={[a.absolute, {bottom: 0, left: 0, right: 0, height: 360}]}
+        pointerEvents="none"
+      />
+
       {onDismiss && (
         <Pressable
           accessibilityRole="button"
@@ -63,96 +82,99 @@ export const SplashScreen = ({
             zIndex: 100,
           }}
           onPress={onDismiss}>
-          <TimesIcon width={24} style={t.atoms.text} />
+          <TimesIcon width={24} style={{color: colors.white}} />
         </Pressable>
       )}
 
-      <Layout.Center style={[a.h_full, a.flex_1]} ignoreTabletLayoutOffset>
-        <View
-          testID="noSessionView"
-          style={[
-            a.h_full,
-            a.justify_center,
-            // @ts-expect-error web only
-            {paddingBottom: '20vh'},
-            IS_WEB_MOBILE && a.pb_5xl,
-            t.atoms.border_contrast_medium,
-            a.align_center,
-            a.gap_5xl,
-            a.flex_1,
-          ]}>
-          <ErrorBoundary>
-            <View style={[a.justify_center, a.align_center]}>
-              <Logo width={kawaii ? 300 : 92} fill={t.atoms.text.color} />
+      <View
+        testID="noSessionView"
+        style={[a.h_full, a.flex_1, a.align_center, a.justify_between]}>
+        <ErrorBoundary>
+          <View style={[a.align_center, {paddingTop: 72}]}>
+            <Logo width={kawaii ? 300 : 68} fill={colors.white} />
 
-              {!kawaii && (
-                <View style={[a.pb_sm, a.pt_5xl]}>
-                  <Logotype width={161} fill={t.atoms.text.color} />
-                </View>
+            {!kawaii && (
+              <View style={[a.pt_lg, a.pb_sm]}>
+                <Logotype width={120} fill={colors.white} />
+              </View>
+            )}
+
+            <Text
+              style={[
+                a.text_sm,
+                a.font_mono,
+                a.text_center,
+                {color: colors.white, opacity: 0.9},
+              ]}>
+              {brand.messages.splashTagline}
+            </Text>
+          </View>
+
+          <View
+            testID="signinOrCreateAccount"
+            style={[a.w_full, a.px_xl, a.gap_md, {maxWidth: 380}]}>
+            <Button
+              testID="createAccountButton"
+              onPress={onPressCreateAccount}
+              label={_(msg`Create new account`)}
+              accessibilityHint={_(
+                msg`Opens flow to create a new ${brand.web.title} account`,
               )}
-
+              size="large"
+              color="primary"
+              shape="rectangular"
+              style={[a.rounded_full, {backgroundColor: colors.green2}]}>
+              <ButtonText
+                style={[
+                  a.font_mono,
+                  {color: ACCENT_TEXT, textTransform: 'uppercase'},
+                ]}>
+                <Trans>Create account</Trans>
+              </ButtonText>
+            </Button>
+            <Button
+              testID="signInButton"
+              onPress={onPressSignin}
+              label={_(msg`Sign in`)}
+              accessibilityHint={_(
+                msg`Opens flow to sign in to your existing ${brand.web.title} account`,
+              )}
+              size="large"
+              color="primary"
+              variant="ghost"
+              style={[a.bg_transparent]}
+              hoverStyle={[a.bg_transparent]}>
+              <ButtonText
+                style={[
+                  a.font_mono,
+                  {color: colors.white, textTransform: 'uppercase'},
+                ]}>
+                <Trans>Sign in</Trans>
+              </ButtonText>
+            </Button>
+            {brand.messages.migrationMessage && (
               <Text
                 style={[
-                  a.text_md,
-                  a.font_semi_bold,
-                  t.atoms.text_contrast_medium,
+                  a.text_sm,
+                  a.leading_snug,
+                  a.text_center,
+                  a.pt_md,
+                  {color: colors.white, opacity: 0.85},
                 ]}>
-                {brand.messages.splashTagline}
+                {brand.messages.migrationMessage}
               </Text>
-            </View>
+            )}
+          </View>
 
-            <View
-              testID="signinOrCreateAccount"
-              style={[a.w_full, a.px_xl, a.gap_md, a.pb_2xl, {maxWidth: 320}]}>
-              <Button
-                testID="createAccountButton"
-                onPress={onPressCreateAccount}
-                label={_(msg`Create new account`)}
-                accessibilityHint={_(
-                  msg`Opens flow to create a new ${brand.web.title} account`,
-                )}
-                size="large"
-                variant="solid"
-                color="primary">
-                <ButtonText>
-                  <Trans>Create account</Trans>
-                </ButtonText>
-              </Button>
-              <Button
-                testID="signInButton"
-                onPress={onPressSignin}
-                label={_(msg`Sign in`)}
-                accessibilityHint={_(
-                  msg`Opens flow to sign in to your existing ${brand.web.title} account`,
-                )}
-                size="large"
-                variant="solid"
-                color="secondary">
-                <ButtonText>
-                  <Trans>Sign in</Trans>
-                </ButtonText>
-              </Button>
-              {brand.messages.migrationMessage && (
-                <Text
-                  style={[
-                    a.text_sm,
-                    a.leading_snug,
-                    t.atoms.text_contrast_medium,
-                    a.pt_md,
-                  ]}>
-                  {brand.messages.migrationMessage}
-                </Text>
-              )}
-            </View>
-          </ErrorBoundary>
-        </View>
-        <Footer />
-      </Layout.Center>
+          <Footer />
+        </ErrorBoundary>
+      </View>
+
       <AppClipOverlay
         visible={showClipOverlay}
         setIsVisible={setShowClipOverlay}
       />
-    </>
+    </ImageBackground>
   )
 }
 
@@ -164,9 +186,7 @@ function Footer() {
   return (
     <View
       style={[
-        a.absolute,
-        a.inset_0,
-        {top: 'auto'},
+        a.w_full,
         a.px_xl,
         a.py_lg,
         a.border_t,
@@ -174,7 +194,7 @@ function Footer() {
         a.align_center,
         a.flex_wrap,
         a.gap_xl,
-        a.flex_1,
+        t.atoms.bg,
         t.atoms.border_contrast_medium,
       ]}>
       <InlineLinkText
