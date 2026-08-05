@@ -98,8 +98,8 @@ export function StepFinished() {
     }
 
     try {
-      const {interestsStepResults, profileStepResults} = state
-      const {selectedInterests} = interestsStepResults
+      const {pinFeedsStepResults, profileStepResults} = state
+      const {selectedFeedUris} = pinFeedsStepResults
 
       await Promise.all([
         bulkWriteFollows(
@@ -115,17 +115,25 @@ export function StepFinished() {
         ),
         subscribeToBrandModerationServices(agent, agent.session?.did, brand),
         (async () => {
-          // Interests need to get saved first, then we can write the feeds to prefs
-          await agent.setInterestsPref({tags: selectedInterests})
+          // Preferences ordering: write interests before feeds so the two
+          // preference updates don't race.
+          await agent.setInterestsPref({tags: []})
 
-          // Default feeds that every user should have pinned when landing in
-          // the app, sourced from the active brand config so non-Blacksky
-          // brands don't end up with Blacksky's feed URIs after onboarding.
+          // Feeds the user pinned in the pin-feeds step take priority; when
+          // they picked none, fall back to the active brand's default set so
+          // non-Blacksky brands don't end up with Blacksky's feed URIs.
           const feedsToSave: AppBskyActorDefs.SavedFeed[] =
-            brand.feeds.defaultPinned.map(f => ({
-              ...f,
-              id: TID.nextStr(),
-            }))
+            selectedFeedUris.length > 0
+              ? selectedFeedUris.map(uri => ({
+                  type: 'feed',
+                  value: uri,
+                  pinned: true,
+                  id: TID.nextStr(),
+                }))
+              : brand.feeds.defaultPinned.map(f => ({
+                  ...f,
+                  id: TID.nextStr(),
+                }))
 
           // Any starter pack feeds will be pinned _after_ the defaults
           if (starterPack && starterPack.feeds?.length) {
