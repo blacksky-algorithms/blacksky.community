@@ -248,19 +248,20 @@ export function StepProfile() {
   return (
     <AvatarContext.Provider value={value}>
       <View style={[a.gap_lg]}>
-        <AppBar showBack={state.canGoBack} onBack={() => dispatch({type: 'prev'})} />
+        <AppBar
+          showBack={state.canGoBack}
+          onBack={() => dispatch({type: 'prev'})}
+        />
 
-        <Eyebrow step={4} total={7} />
+        <Eyebrow label={_(msg`Profile`)} />
 
         <View style={[a.gap_xs]}>
           <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
-            <Trans>Give your profile a face</Trans>
+            <Trans>Add a profile picture</Trans>
           </Text>
           <Text
             style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
-            <Trans>
-              Help people know you're not a bot by uploading a picture.
-            </Trans>
+            <Trans>Upload a photo to personalize your page.</Trans>
           </Text>
         </View>
 

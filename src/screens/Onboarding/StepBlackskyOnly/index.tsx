@@ -22,7 +22,7 @@ export function StepBlackskyOnly() {
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
-          <Trans>For us, by us</Trans>
+          <Trans>Keep it in the community</Trans>
         </Text>
         <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
           <Trans>

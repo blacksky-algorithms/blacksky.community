@@ -181,18 +181,14 @@ function StepCaptchaInner({
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow step={3} total={7} />
+      <Eyebrow step={3} total={4} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Complete the challenge</Trans>
         </Text>
         <Text
-          style={[
-            a.text_md,
-            a.leading_snug,
-            theme.atoms.text_contrast_medium,
-          ]}>
+          style={[a.text_md, a.leading_snug, theme.atoms.text_contrast_medium]}>
           <Trans>
             hCaptcha helps us reduce the number of bots in our community.
           </Trans>

@@ -162,7 +162,7 @@ export function StepInfo({
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow step={1} total={7} />
+      <Eyebrow label={l`Create account`} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
