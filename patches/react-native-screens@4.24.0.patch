@@ -13,7 +13,7 @@ index c99ca362df5baee81fa48d1c9ef09b40a2c23f07..725c07aa0ed516f9dd09f81e522f2d31
 @@ -637,7 +638,7 @@ class Screen(
                  endTransitionRecursive(childView.toolbar)
              }
-
+ 
 -            if (childView is ViewGroup) {
 +            if (childView is ViewGroup && childView !is RecyclerView) {
                  endTransitionRecursive(childView)
@@ -22,7 +22,7 @@ index c99ca362df5baee81fa48d1c9ef09b40a2c23f07..725c07aa0ed516f9dd09f81e522f2d31
 @@ -666,7 +667,10 @@ class Screen(
                      startTransitionRecursive(child.toolbar)
                  }
-
+ 
 -                if (child is ViewGroup) {
 +                // Transition a RecyclerView as one unit. Marking its recyclable children as
 +                // transitioning keeps their parent set after removal, so RecyclerView crashes
@@ -31,3 +31,45 @@ index c99ca362df5baee81fa48d1c9ef09b40a2c23f07..725c07aa0ed516f9dd09f81e522f2d31
                      startTransitionRecursive(child)
                  }
              }
+diff --git a/common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNode.cpp b/common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNode.cpp
+index e69df80b12ec9c680a8096b34d8f3e5a717ef6c7..9cee7e9925faedfcb66ad342b2499ab2acdffeaa 100644
+--- a/common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNode.cpp
++++ b/common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNode.cpp
+@@ -1,4 +1,5 @@
+ #include "RNSScreenShadowNode.h"
++#include <optional>
+ 
+ namespace facebook {
+ namespace react {
+diff --git a/cpp/RNSScreenRemovalListener.cpp b/cpp/RNSScreenRemovalListener.cpp
+index 50dee1e18078708492d2411fcc33b7db1227a689..589e70f1ecb7ae78e388b5c2217167ee42e2aee2 100644
+--- a/cpp/RNSScreenRemovalListener.cpp
++++ b/cpp/RNSScreenRemovalListener.cpp
+@@ -1,4 +1,5 @@
+ #include "RNSScreenRemovalListener.h"
++#include <optional>
+ #include <react/renderer/mounting/ShadowViewMutation.h>
+ using namespace facebook::react;
+ 
+diff --git a/cpp/RNSScreenRemovalListener.h b/cpp/RNSScreenRemovalListener.h
+index 5bf662958119cbf982a2a17513b5816e24f91e86..15c50b122fb689ebb68ae27dce668e3ccf8b92e7 100644
+--- a/cpp/RNSScreenRemovalListener.h
++++ b/cpp/RNSScreenRemovalListener.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <react/renderer/componentregistry/ComponentDescriptorFactory.h>
++#include <optional>
+ #include <react/renderer/mounting/MountingOverrideDelegate.h>
+ #include <react/renderer/mounting/ShadowView.h>
+ 
+diff --git a/ios/RNSModule.mm b/ios/RNSModule.mm
+index f3f14d34370953d58a51845802773774f13fc829..70ba6fb75e93f4c3c86c9efabd92f0d9604ed616 100644
+--- a/ios/RNSModule.mm
++++ b/ios/RNSModule.mm
+@@ -1,4 +1,5 @@
+ #import "RNSModule.h"
++#include <atomic>
+ #import <React/RCTBridge+Private.h>
+ #import <React/RCTBridge.h>
+ #import <React/RCTUIManager.h>

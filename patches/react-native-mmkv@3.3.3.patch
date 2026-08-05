@@ -1,0 +1,12 @@
+diff --git a/cpp/MmkvLogger.h b/cpp/MmkvLogger.h
+index 2a524baebcf98459d1c54b544569b1b3d1305e59..b54e0b6febb59c92f36f4b35c3eb3bfc02280435 100644
+--- a/cpp/MmkvLogger.h
++++ b/cpp/MmkvLogger.h
+@@ -5,6 +5,7 @@
+ //  Created by Marc Rousavy on 25.03.24.
+ //
+ 
++#include <memory>
+ #include <string>
+ 
+ class MmkvLogger {
