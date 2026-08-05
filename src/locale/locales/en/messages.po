@@ -233,7 +233,7 @@ msgid "{0} is live"
 msgstr ""
 
 #. placeholder {0}: createFullHandle(draftValue, selectedDomain)
-#: src/screens/Signup/StepHandle/index.tsx:283
+#: src/screens/Signup/StepHandle/index.tsx:299
 msgid "{0} is not available"
 msgstr ""
 
@@ -983,7 +983,7 @@ msgid "Accessibility Settings"
 msgstr ""
 
 #: src/Navigation.tsx:431
-#: src/screens/Login/LoginForm.tsx:120
+#: src/screens/Login/LoginForm.tsx:218
 #: src/screens/Settings/AccountSettings.tsx:69
 #: src/screens/Settings/Settings.tsx:167
 #: src/screens/Settings/Settings.tsx:170
@@ -1924,8 +1924,8 @@ msgstr ""
 #: src/screens/Login/ChooseAccountForm.tsx:113
 #: src/screens/Login/ForgotPasswordForm.tsx:124
 #: src/screens/Login/ForgotPasswordForm.tsx:130
-#: src/screens/Login/LoginForm.tsx:157
-#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:290
+#: src/screens/Login/LoginForm.tsx:296
 #: src/screens/Login/SetNewPasswordForm.tsx:170
 #: src/screens/Login/SetNewPasswordForm.tsx:176
 #: src/screens/Messages/components/ChatDisabled.tsx:166
@@ -2330,8 +2330,8 @@ msgstr "Camera access needed"
 #: src/features/liveNow/components/GoLiveDialog.tsx:254
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:288
-#: src/screens/Login/LoginForm.tsx:170
-#: src/screens/Login/LoginForm.tsx:177
+#: src/screens/Login/LoginForm.tsx:303
+#: src/screens/Login/LoginForm.tsx:310
 #: src/screens/Messages/components/InviteLinkDialog.tsx:502
 #: src/screens/Messages/components/InviteLinkDialog.tsx:506
 #: src/screens/Messages/ConversationSettings/prompts.tsx:108
@@ -2374,7 +2374,7 @@ msgstr "Cancel reply"
 msgid "Cancel search"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:171
+#: src/screens/Login/LoginForm.tsx:304
 msgid "Cancels the sign-in process"
 msgstr "Cancels the sign-in process"
 
@@ -2639,7 +2639,7 @@ msgstr ""
 msgid "Choose your account provider"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:227
+#: src/screens/Signup/index.tsx:233
 msgid "Choose your community"
 msgstr "Choose your community"
 
@@ -2651,7 +2651,7 @@ msgstr ""
 msgid "Choose your password"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:231
+#: src/screens/Signup/index.tsx:237
 msgid "Choose your username"
 msgstr ""
 
@@ -2880,7 +2880,7 @@ msgstr ""
 msgid "Complete onboarding and start using your account"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:233
+#: src/screens/Signup/index.tsx:239
 msgid "Complete the challenge"
 msgstr ""
 
@@ -2948,8 +2948,8 @@ msgstr "Confirm with your account password"
 msgid "Confirmation code"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:278
-#: src/screens/Signup/index.tsx:281
+#: src/screens/Signup/index.tsx:284
+#: src/screens/Signup/index.tsx:287
 msgid "Contact support"
 msgstr ""
 
@@ -3362,7 +3362,7 @@ msgstr ""
 msgid "Create account"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:176
+#: src/screens/Signup/index.tsx:182
 msgid "Create Account"
 msgstr "Create Account"
 
@@ -3540,8 +3540,8 @@ msgstr ""
 #: src/screens/Settings/AppearanceSettings.tsx:156
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:273
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:298
-#: src/screens/Signup/StepHandle/index.tsx:229
-#: src/screens/Signup/StepHandle/index.tsx:254
+#: src/screens/Signup/StepHandle/index.tsx:242
+#: src/screens/Signup/StepHandle/index.tsx:270
 msgid "Default"
 msgstr ""
 
@@ -3897,7 +3897,7 @@ msgid "Does not include nudity."
 msgstr ""
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:249
-#: src/screens/Signup/StepHandle/index.tsx:205
+#: src/screens/Signup/StepHandle/index.tsx:218
 msgid "Domain"
 msgstr "Domain"
 
@@ -4311,7 +4311,7 @@ msgstr ""
 
 #: src/screens/Profile/Sections/CommunityFeed.tsx:156
 #: src/screens/Profile/Sections/Feed.tsx:131
-#: src/view/com/feeds/CommunityFeedPage.tsx:232
+#: src/view/com/feeds/CommunityFeedPage.tsx:278
 msgid "End of feed"
 msgstr ""
 
@@ -4367,11 +4367,11 @@ msgstr "Enter your birthdate"
 msgid "Enter your email address"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:141
+#: src/screens/Login/LoginForm.tsx:245
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr "Enter your handle (e.g. alice.bsky.social)"
 
-#: src/screens/Login/index.tsx:122
+#: src/screens/Login/index.tsx:128
 msgid "Enter your handle to sign in"
 msgstr "Enter your handle to sign in"
 
@@ -4714,7 +4714,7 @@ msgstr "Failed to leave group chat"
 
 #: src/components/CommunityFeed.tsx:39
 #: src/screens/Profile/Sections/CommunityFeed.tsx:123
-#: src/view/com/feeds/CommunityFeedPage.tsx:200
+#: src/view/com/feeds/CommunityFeedPage.tsx:246
 msgid "Failed to load community posts"
 msgstr "Failed to load community posts"
 
@@ -5078,7 +5078,7 @@ msgstr ""
 msgid "Finish"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:150
+#: src/screens/Login/LoginForm.tsx:283
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr "Finishing sign-in… complete it in your browser, or cancel."
 
@@ -5296,8 +5296,8 @@ msgstr ""
 msgid "Forget the noise"
 msgstr ""
 
-#: src/screens/Login/index.tsx:146
-#: src/screens/Login/index.tsx:162
+#: src/screens/Login/index.tsx:153
+#: src/screens/Login/index.tsx:169
 msgid "Forgot Password"
 msgstr ""
 
@@ -5457,7 +5457,7 @@ msgstr ""
 #: src/screens/VideoFeed/components/Header.tsx:163
 #: src/screens/VideoFeed/index.tsx:1168
 #: src/screens/VideoFeed/index.tsx:1172
-#: src/view/com/auth/LoggedOut.tsx:103
+#: src/view/com/auth/LoggedOut.tsx:104
 #: src/view/com/profile/ProfileFollowers.tsx:211
 #: src/view/com/profile/ProfileFollowers.tsx:212
 #: src/view/screens/NotFound.tsx:51
@@ -5715,7 +5715,7 @@ msgstr ""
 msgid "Have a code? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:276
+#: src/screens/Signup/index.tsx:282
 msgid "Having trouble?"
 msgstr ""
 
@@ -6283,6 +6283,10 @@ msgstr ""
 msgid "iOS 26 Crash Regression"
 msgstr "iOS 26 Crash Regression"
 
+#: src/screens/Signup/StepHandle/index.tsx:364
+msgid "Is this your account?"
+msgstr "Is this your account?"
+
 #: src/components/contacts/components/InviteInfo.tsx:47
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr ""
@@ -6516,8 +6520,8 @@ msgstr ""
 msgid "Let me choose"
 msgstr ""
 
-#: src/screens/Login/index.tsx:147
-#: src/screens/Login/index.tsx:163
+#: src/screens/Login/index.tsx:154
+#: src/screens/Login/index.tsx:170
 msgid "Let's get your password reset!"
 msgstr ""
 
@@ -6768,7 +6772,7 @@ msgstr ""
 #: src/screens/Profile/ProfileFeed/index.tsx:206
 #: src/screens/Profile/Sections/Feed.tsx:117
 #: src/screens/ProfileList/FeedSection.tsx:113
-#: src/view/com/feeds/CommunityFeedPage.tsx:264
+#: src/view/com/feeds/CommunityFeedPage.tsx:310
 #: src/view/com/feeds/FeedPage.tsx:168
 msgid "Load new posts"
 msgstr ""
@@ -6826,8 +6830,8 @@ msgstr ""
 msgid "Logged-out visibility"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:183
-#: src/screens/Login/LoginForm.tsx:190
+#: src/screens/Login/LoginForm.tsx:316
+#: src/screens/Login/LoginForm.tsx:323
 msgid "Login"
 msgstr "Login"
 
@@ -7436,7 +7440,7 @@ msgstr ""
 #: src/screens/Profile/ProfileFeed/index.tsx:217
 #: src/screens/ProfileList/index.tsx:237
 #: src/screens/ProfileList/index.tsx:280
-#: src/view/com/feeds/CommunityFeedPage.tsx:274
+#: src/view/com/feeds/CommunityFeedPage.tsx:320
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
 #: src/view/screens/Profile.tsx:643
@@ -7515,7 +7519,7 @@ msgstr ""
 
 #: src/components/CommunityFeed.tsx:51
 #: src/screens/Profile/Sections/CommunityFeed.tsx:133
-#: src/view/com/feeds/CommunityFeedPage.tsx:208
+#: src/view/com/feeds/CommunityFeedPage.tsx:254
 msgid "No community posts yet"
 msgstr "No community posts yet"
 
@@ -8345,7 +8349,7 @@ msgstr ""
 msgid "Password must be at least 8 characters long."
 msgstr ""
 
-#: src/screens/Login/index.tsx:176
+#: src/screens/Login/index.tsx:183
 msgid "Password updated"
 msgstr ""
 
@@ -8639,7 +8643,7 @@ msgstr "Please enter your password to continue."
 msgid "Please enter your password."
 msgstr "Please enter your password."
 
-#: src/screens/Login/LoginForm.tsx:52
+#: src/screens/Login/LoginForm.tsx:70
 msgid "Please enter your username or handle"
 msgstr "Please enter your username or handle"
 
@@ -10177,8 +10181,8 @@ msgstr ""
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:252
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:256
-#: src/screens/Signup/StepHandle/index.tsx:208
-#: src/screens/Signup/StepHandle/index.tsx:212
+#: src/screens/Signup/StepHandle/index.tsx:221
+#: src/screens/Signup/StepHandle/index.tsx:225
 msgid "Select domain"
 msgstr "Select domain"
 
@@ -10186,7 +10190,7 @@ msgstr "Select domain"
 msgid "Select duration"
 msgstr ""
 
-#: src/screens/Login/index.tsx:136
+#: src/screens/Login/index.tsx:143
 msgid "Select from an existing account"
 msgstr ""
 
@@ -10686,9 +10690,9 @@ msgstr ""
 #: src/components/WelcomeModal.tsx:197
 #: src/components/WelcomeModal.tsx:209
 #: src/screens/Hashtag.tsx:228
-#: src/screens/Login/index.tsx:121
-#: src/screens/Login/index.tsx:135
-#: src/screens/Login/LoginForm.tsx:117
+#: src/screens/Login/index.tsx:127
+#: src/screens/Login/index.tsx:142
+#: src/screens/Login/LoginForm.tsx:215
 #: src/screens/Messages/JoinRequest.tsx:290
 #: src/screens/Messages/JoinRequest.tsx:296
 #: src/screens/Search/SearchResults.tsx:303
@@ -10710,6 +10714,14 @@ msgstr ""
 msgid "Sign in as {0}"
 msgstr ""
 
+#: src/screens/Signup/StepHandle/index.tsx:375
+msgid "Sign in as {fullDraftHandle}"
+msgstr "Sign in as {fullDraftHandle}"
+
+#: src/screens/Login/LoginForm.tsx:263
+msgid "Sign in as {handle}"
+msgstr "Sign in as {handle}"
+
 #: src/screens/Login/ChooseAccountForm.tsx:97
 msgid "Sign in as..."
 msgstr ""
@@ -10721,6 +10733,10 @@ msgstr "Sign in code"
 #: src/screens/Login/ChooseAccountForm.tsx:71
 msgid "Sign in failed. Please try again."
 msgstr "Sign in failed. Please try again."
+
+#: src/screens/Signup/StepHandle/index.tsx:368
+msgid "Sign in instead"
+msgstr "Sign in instead"
 
 #: src/lib/strings/errors.ts:62
 msgid "Sign in is taking too long. Please try again."
@@ -11059,7 +11075,7 @@ msgstr ""
 msgid "Starter Packs let you share your favorite feeds and people with your friends."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:184
+#: src/screens/Login/LoginForm.tsx:317
 msgid "Starts the sign-in process"
 msgstr "Starts the sign-in process"
 
@@ -11069,7 +11085,7 @@ msgstr "Starts the sign-in process"
 msgid "Step {0} of {1}"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:221
+#: src/screens/Signup/index.tsx:227
 msgid "Step {displayStep} of {displayTotal}"
 msgstr "Step {displayStep} of {displayTotal}"
 
@@ -11421,7 +11437,7 @@ msgstr ""
 msgid "That contains the following:"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:124
+#: src/screens/Signup/StepHandle/index.tsx:136
 msgid "That handle is already taken."
 msgstr "That handle is already taken."
 
@@ -12293,10 +12309,12 @@ msgstr ""
 
 #: src/screens/Deactivated.tsx:130
 #: src/screens/Login/ForgotPasswordForm.tsx:69
-#: src/screens/Login/index.tsx:94
-#: src/screens/Login/LoginForm.tsx:102
+#: src/screens/Login/index.tsx:100
+#: src/screens/Login/LoginForm.tsx:84
+#: src/screens/Login/LoginForm.tsx:122
+#: src/screens/Login/LoginForm.tsx:191
 #: src/screens/Login/SetNewPasswordForm.tsx:83
-#: src/screens/Signup/index.tsx:113
+#: src/screens/Signup/index.tsx:119
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
 
@@ -12767,23 +12785,23 @@ msgctxt "toast"
 msgid "User list updated"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:331
+#: src/screens/Signup/StepHandle/index.tsx:347
 msgid "Username cannot be longer than {MAX_SERVICE_HANDLE_LENGTH, plural, other {# characters}}"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:314
+#: src/screens/Signup/StepHandle/index.tsx:330
 msgid "Username cannot begin or end with a hyphen"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:339
+#: src/screens/Signup/StepHandle/index.tsx:355
 msgid "Username must be at least 3 characters"
 msgstr "Username must be at least 3 characters"
 
-#: src/screens/Signup/StepHandle/index.tsx:318
+#: src/screens/Signup/StepHandle/index.tsx:334
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:127
+#: src/screens/Login/LoginForm.tsx:225
 msgid "Username or handle"
 msgstr "Username or handle"
 
@@ -13166,6 +13184,14 @@ msgstr ""
 msgid "We couldn't find an account at {didOrHandle}."
 msgstr "We couldn't find an account at {didOrHandle}."
 
+#: src/screens/Login/LoginForm.tsx:104
+msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
+msgstr "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
+
+#: src/screens/Login/LoginForm.tsx:200
+msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
+msgstr "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
+
 #: src/screens/Hashtag.tsx:259
 msgid "We couldn't find any results for that tag."
 msgstr ""
@@ -13198,6 +13224,14 @@ msgstr ""
 #: src/screens/SignupQueued.tsx:163
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:275
+msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
+msgstr "We filled in our best guess at your full handle. If it looks right, press Login to continue"
+
+#: src/screens/Login/LoginForm.tsx:255
+msgid "We found more than one account with that name. Which one is yours?"
+msgstr "We found more than one account with that name. Which one is yours?"
 
 #. placeholder {0}: currentAccount?.email
 #: src/components/intents/VerifyEmailIntentDialog.tsx:102
@@ -13546,7 +13580,7 @@ msgstr ""
 msgid "You can continue ongoing conversations regardless of which setting you choose."
 msgstr ""
 
-#: src/screens/Login/index.tsx:177
+#: src/screens/Login/index.tsx:184
 #: src/screens/Login/PasswordUpdatedForm.tsx:27
 msgid "You can now sign in with your new password."
 msgstr ""
@@ -13846,11 +13880,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:193
+#: src/screens/Signup/index.tsx:199
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:198
+#: src/screens/Signup/index.tsx:204
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -13933,7 +13967,7 @@ msgstr ""
 msgid "You've run out of videos to watch. Maybe it's a good time to take a break?"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:229
+#: src/screens/Signup/index.tsx:235
 msgid "Your account"
 msgstr ""
 

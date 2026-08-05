@@ -1,15 +1,22 @@
 import {useRef, useState} from 'react'
 import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
+import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
+import {
+  buildHandleCandidates,
+  isCorrectedLoginIdentifier,
+  normalizeLoginIdentifier,
+} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
 import {getOAuthClient, signInNativeAndroid} from '#/state/session/oauth-client'
 import {
   isHandleResolutionError,
+  resolveBareNameToHandles,
   resolveDeactivatedHandle,
 } from '#/state/session/resolveForLogin'
 import {atoms as a, useTheme} from '#/alf'
@@ -23,11 +30,13 @@ import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({
   error,
+  serviceDescription,
   initialHandle,
   setError,
   onPressBack,
 }: {
   error: string
+  serviceDescription: ComAtprotoServerDescribeServer.OutputSchema | undefined
   initialHandle: string
   setError: (v: string) => void
   onPressBack: () => void
@@ -35,26 +44,106 @@ export const LoginForm = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [awaitingRedirect, setAwaitingRedirect] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
-  const identifierValueRef = useRef<string>(initialHandle || '')
+  const processingRef = useRef(false)
+  const [identifierValue, setIdentifierValue] = useState<string>(
+    initialHandle || '',
+  )
+  const [handleOptions, setHandleOptions] = useState<string[] | null>(null)
+  const [showGuessConfirm, setShowGuessConfirm] = useState(false)
   const t = useTheme()
   const {_} = useLingui()
   const {login} = useSessionApi()
 
   const onPressNext = async () => {
-    if (isProcessing) return
-    Keyboard.dismiss()
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setError('')
+    if (isProcessing || processingRef.current) return
+    processingRef.current = true
+    try {
+      Keyboard.dismiss()
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+      setError('')
+      setHandleOptions(null)
+      setShowGuessConfirm(false)
 
-    const identifier = identifierValueRef.current.trim()
+      const identifier = normalizeLoginIdentifier(identifierValue)
 
-    if (!identifier) {
-      setError(_(msg`Please enter your username or handle`))
-      return
+      if (!identifier) {
+        setError(_(msg`Please enter your username or handle`))
+        return
+      }
+
+      if (isCorrectedLoginIdentifier(identifierValue, identifier)) {
+        setIdentifierValue(identifier)
+        setShowGuessConfirm(true)
+        return
+      }
+
+      if (!identifier.startsWith('did:') && !identifier.includes('.')) {
+        if (!serviceDescription) {
+          setError(
+            _(
+              msg`Unable to contact your service. Please check your Internet connection.`,
+            ),
+          )
+          return
+        }
+        setIsProcessing(true)
+        try {
+          const matches = await resolveBareNameToHandles(
+            identifier,
+            serviceDescription.availableUserDomains,
+          )
+          if (matches.length === 0) {
+            const examples = buildHandleCandidates(
+              identifier,
+              serviceDescription.availableUserDomains,
+            )
+              .slice(0, 2)
+              .join(' or ')
+            setError(
+              _(
+                msg`We couldn't find an account for "${identifier}". Enter your full handle including its domain (like ${examples})`,
+              ),
+            )
+            return
+          }
+          if (matches.length > 1) {
+            setHandleOptions(matches)
+            return
+          }
+          setIdentifierValue(matches[0])
+          setShowGuessConfirm(true)
+          return
+        } catch (e) {
+          logger.warn('Failed to resolve bare name during sign-in', {
+            error: String(e),
+          })
+          setError(
+            _(
+              msg`Unable to contact your service. Please check your Internet connection.`,
+            ),
+          )
+          return
+        } finally {
+          setIsProcessing(false)
+        }
+      }
+
+      setIdentifierValue(identifier)
+      await signInWithIdentifier(identifier)
+    } finally {
+      processingRef.current = false
     }
+  }
 
-    setIsProcessing(true)
+  const onPressHandleOption = (handle: string) => {
+    if (isProcessing) return
+    setHandleOptions(null)
+    setError('')
+    setIdentifierValue(handle)
+    setShowGuessConfirm(true)
+  }
 
+  const signInWithIdentifier = async (identifier: string) => {
     const client = getOAuthClient()
     const controller = Platform.OS === 'android' ? new AbortController() : null
     if (controller) {
@@ -102,6 +191,15 @@ export const LoginForm = ({
             msg`Unable to contact your service. Please check your Internet connection.`,
           ),
         )
+      } else if (isHandleResolutionError(e)) {
+        logger.warn('Failed to resolve handle during sign-in', {
+          error: errMsg,
+        })
+        setError(
+          _(
+            msg`We couldn't find an account with the handle "${identifier}". Check the spelling, or create a new account if you don't have one yet.`,
+          ),
+        )
       } else {
         logger.warn('Failed to start OAuth sign-in', {error: errMsg})
         setError(cleanError(errMsg))
@@ -131,11 +229,17 @@ export const LoginForm = ({
               autoComplete="username"
               returnKeyType="done"
               textContentType="username"
-              defaultValue={initialHandle || ''}
+              value={identifierValue}
               onChangeText={v => {
-                identifierValueRef.current = v
+                setIdentifierValue(v)
+                if (handleOptions) {
+                  setHandleOptions(null)
+                }
+                if (showGuessConfirm) {
+                  setShowGuessConfirm(false)
+                }
               }}
-              onSubmitEditing={onPressNext}
+              onSubmitEditing={() => void onPressNext()}
               editable={!isProcessing}
               accessibilityHint={_(
                 msg`Enter your handle (e.g. alice.bsky.social)`,
@@ -145,6 +249,35 @@ export const LoginForm = ({
         </View>
       </View>
       <FormError error={error} />
+      {handleOptions && (
+        <View style={[a.gap_xs]}>
+          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+            <Trans>
+              We found more than one account with that name. Which one is yours?
+            </Trans>
+          </Text>
+          {handleOptions.map(handle => (
+            <Button
+              key={handle}
+              testID={`handleOption-${handle}`}
+              label={_(msg`Sign in as ${handle}`)}
+              variant="outline"
+              color="primary"
+              size="large"
+              onPress={() => onPressHandleOption(handle)}>
+              <ButtonText>{handle}</ButtonText>
+            </Button>
+          ))}
+        </View>
+      )}
+      {showGuessConfirm && (
+        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+          <Trans>
+            We filled in our best guess at your full handle. If it looks right,
+            press Login to continue
+          </Trans>
+        </Text>
+      )}
       {awaitingRedirect && (
         <Text style={[a.text_sm, a.text_center, t.atoms.text_contrast_medium]}>
           <Trans>
@@ -185,7 +318,7 @@ export const LoginForm = ({
             variant="solid"
             color="primary"
             size="large"
-            onPress={onPressNext}>
+            onPress={() => void onPressNext()}>
             <ButtonText>
               <Trans>Login</Trans>
             </ButtonText>
