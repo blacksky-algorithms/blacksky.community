@@ -1,5 +1,5 @@
 import {useMemo} from 'react'
-import {Image, View} from 'react-native'
+import {Image, Pressable, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -9,11 +9,13 @@ import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {fetchBrandList} from '#/lib/community/resolveBrand'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
+import {colors} from '#/lib/styles'
 import {Logo} from '#/view/icons/Logo'
 import {useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
+import {Loader} from '#/components/Loader'
 import {
   AppBar,
   Eyebrow,
@@ -125,23 +127,25 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
 
       <View>
         {options.map(option => (
-          <SelectionRow
-            key={option.slug}
-            testID={`communityOption-${option.slug}`}
-            mode="radio"
-            selected={option.slug === selectedSlug}
-            onPress={() =>
-              dispatch({
-                type: 'setCommunity',
-                slug: option.slug,
-                serviceUrl: option.pds,
-              })
-            }
-            title={option.displayName}
-            description={option.description || undefined}
-            subtitle={option.pds.replace(/^https?:\/\//, '')}
-            icon={<CommunityIcon option={option} />}
-          />
+          <View key={option.slug}>
+            <SelectionRow
+              testID={`communityOption-${option.slug}`}
+              mode="radio"
+              selected={option.slug === selectedSlug}
+              onPress={() =>
+                dispatch({
+                  type: 'setCommunity',
+                  slug: option.slug,
+                  serviceUrl: option.pds,
+                })
+              }
+              title={option.displayName}
+              description={option.description || undefined}
+              subtitle={option.pds.replace(/^https?:\/\//, '')}
+              icon={<CommunityIcon option={option} />}
+            />
+            {option.slug === selectedSlug ? <HandleDomainPicker /> : null}
+          </View>
         ))}
       </View>
 
@@ -172,6 +176,94 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
           </ButtonText>
         </Button>
       </View>
+    </View>
+  )
+}
+
+const DOMAIN_PICKER_INDENT = ICON_PLATE + 12
+
+function displayDomain(domain: string): string {
+  return domain.replace(/^\.+/, '')
+}
+
+/**
+ * Inline handle-domain picker nested under the selected community. Only shown
+ * when that community's PDS (via describeServer) offers more than one domain;
+ * a single domain is auto-selected by the reducer and needs no UI. The raw
+ * domain value (leading dot preserved) is dispatched — downstream
+ * createFullHandle strips it — while the label shows the cleaned form.
+ */
+function HandleDomainPicker() {
+  const {_} = useLingui()
+  const t = useTheme()
+  const {state, dispatch} = useSignupContext()
+
+  if (state.isLoading) {
+    return (
+      <View style={[a.py_sm, {paddingLeft: DOMAIN_PICKER_INDENT}]}>
+        <Loader size="sm" />
+      </View>
+    )
+  }
+
+  const domains = state.serviceDescription?.availableUserDomains ?? []
+  if (domains.length <= 1) {
+    return null
+  }
+
+  const selectedDomain = state.userDomain || domains[0]
+
+  return (
+    <View style={[a.gap_2xs, a.pb_sm, {paddingLeft: DOMAIN_PICKER_INDENT}]}>
+      {domains.map(domain => {
+        const selected = domain === selectedDomain
+        return (
+          <Pressable
+            key={domain}
+            testID={`handleDomainOption-${displayDomain(domain)}`}
+            accessibilityRole="radio"
+            accessibilityLabel={displayDomain(domain)}
+            accessibilityHint={_(msg`Use this handle domain`)}
+            accessibilityState={{selected}}
+            aria-checked={selected}
+            onPress={() => dispatch({type: 'setUserDomain', value: domain})}
+            style={[
+              a.flex_row,
+              a.align_center,
+              a.gap_sm,
+              a.rounded_sm,
+              {paddingHorizontal: 8, paddingVertical: 8},
+            ]}>
+            <View
+              style={[
+                a.align_center,
+                a.justify_center,
+                a.rounded_full,
+                {
+                  width: 20,
+                  height: 20,
+                  borderWidth: 2,
+                  borderColor: selected
+                    ? colors.green2
+                    : t.palette.contrast_400,
+                  flexShrink: 0,
+                },
+              ]}>
+              {selected ? (
+                <View
+                  style={[
+                    a.rounded_full,
+                    {width: 10, height: 10, backgroundColor: colors.green2},
+                  ]}
+                />
+              ) : null}
+            </View>
+            <Text style={[a.text_sm, a.leading_tight, t.atoms.text]}>
+              @{displayDomain(domain)}
+            </Text>
+          </Pressable>
+        )
+      })}
     </View>
   )
 }
