@@ -9,7 +9,6 @@ import {
 import Animated, {
   Easing,
   interpolate,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -23,6 +22,7 @@ import Svg, {
   Rect,
   type SvgProps,
 } from 'react-native-svg'
+import {scheduleOnRN} from 'react-native-worklets'
 import {Image} from 'expo-image'
 import * as SplashScreen from 'expo-splash-screen'
 
@@ -98,47 +98,31 @@ export function Splash(props: React.PropsWithChildren<Props>) {
   const isDarkMode = colorScheme === 'dark'
 
   const logoAnimation = useAnimatedStyle(() => {
+    const introScale = interpolate(intro.get(), [0, 1], [0.8, 1], 'clamp')
+    const outroScale =
+      reduceMotion === true
+        ? 1
+        : interpolate(outroLogo.get(), [0, 0.08, 1], [1, 0.8, 500], 'clamp')
+
+    const introOpacity = interpolate(intro.get(), [0, 1], [0, 1], 'clamp')
+    const outroOpacity = interpolate(
+      outroAppOpacity.get(),
+      [0, 0.1, 0.2, 1],
+      [1, 1, 0, 0],
+      'clamp',
+    )
+
     return {
+      opacity: introOpacity * outroOpacity,
       transform: [
-        {
-          scale: interpolate(intro.get(), [0, 1], [0.8, 1], 'clamp'),
-        },
-        {
-          scale: interpolate(
-            outroLogo.get(),
-            [0, 0.08, 1],
-            [1, 0.8, 500],
-            'clamp',
-          ),
-        },
+        {translateY: -(insets.top / 2)},
+        {scale: 0.1 * outroScale * introScale},
       ],
-      opacity: interpolate(intro.get(), [0, 1], [0, 1], 'clamp'),
     }
   })
   const bottomLogoAnimation = useAnimatedStyle(() => {
     return {
       opacity: interpolate(intro.get(), [0, 1], [0, 1], 'clamp'),
-    }
-  })
-  const reducedLogoAnimation = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          scale: interpolate(intro.get(), [0, 1], [0.8, 1], 'clamp'),
-        },
-      ],
-      opacity: interpolate(intro.get(), [0, 1], [0, 1], 'clamp'),
-    }
-  })
-
-  const logoWrapperAnimation = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        outroAppOpacity.get(),
-        [0, 0.1, 0.2, 1],
-        [1, 1, 0, 0],
-        'clamp',
-      ),
     }
   })
 
@@ -152,7 +136,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
       opacity: interpolate(
         outroAppOpacity.get(),
         [0, 0.1, 0.2, 1],
-        [0, 0, 1, 1],
+        [0.02, 0.02, 1, 1], // first two values cant be 0 for the iOS blur/glass effects to work, the values obtained by trial and error
         'clamp',
       ),
     }
@@ -178,7 +162,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
                     1,
                     {duration: 1200, easing: Easing.in(Easing.cubic)},
                     () => {
-                      runOnJS(onFinish)()
+                      scheduleOnRN(onFinish)
                     },
                   ),
                 )
@@ -205,9 +189,6 @@ export function Splash(props: React.PropsWithChildren<Props>) {
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion)
   }, [])
-
-  const logoAnimations =
-    reduceMotion === true ? reducedLogoAnimation : logoAnimation
 
   return (
     <View style={{flex: 1}} onLayout={onLayout}>
@@ -248,17 +229,14 @@ export function Splash(props: React.PropsWithChildren<Props>) {
             <Animated.View
               style={[
                 StyleSheet.absoluteFillObject,
-                logoWrapperAnimation,
+                logoAnimation,
                 {
                   flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  transform: [{translateY: -(insets.top / 2)}, {scale: 0.1}], // scale from 1000px to 100px
                 },
               ]}>
-              <Animated.View style={[logoAnimations]}>
-                <Logo fill={isDarkMode ? '#fff' : '#000'} />
-              </Animated.View>
+              <Logo fill={isDarkMode ? '#fff' : '#000'} />
             </Animated.View>
           )}
         </>

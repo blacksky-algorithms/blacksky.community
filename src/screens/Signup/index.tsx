@@ -1,11 +1,11 @@
-import {useEffect, useReducer, useState} from 'react'
+import {type PropsWithChildren, useEffect, useReducer, useState} from 'react'
 import {AppState, type AppStateStatus, Platform, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
 import {AppBskyGraphStarterpack} from '@atproto/api'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
-import {Trans} from '@lingui/react/macro'
+import {tokens} from '@bsky.app/alf'
+import {Trans, useLingui} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
@@ -44,7 +44,7 @@ export function Signup({
   onPressSignIn?: (handle: string) => void
 }) {
   const ax = useAnalytics()
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const brand = useBrand()
   const t = useTheme()
   const [state, dispatch] = useReducer(reducer, {
@@ -115,9 +115,7 @@ export function Signup({
       })
       dispatch({
         type: 'setError',
-        value: _(
-          msg`Unable to contact your service. Please check your Internet connection.`,
-        ),
+        value: l`Unable to contact your service. Please check your Internet connection.`,
       })
     } else if (serviceInfo) {
       dispatch({
@@ -127,13 +125,13 @@ export function Signup({
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [_, serviceInfo, isError, brand.services.pds.availableHandles])
+  }, [l, serviceInfo, isError, brand.services.pds.availableHandles])
 
   useEffect(() => {
     if (state.pendingSubmit) {
       if (!state.pendingSubmit.mutableProcessed) {
         state.pendingSubmit.mutableProcessed = true
-        submit(state, dispatch)
+        void submit(state, dispatch)
       }
     }
   }, [state, dispatch, submit])
@@ -177,123 +175,151 @@ export function Signup({
   return (
     <Animated.View exiting={native(FadeIn.duration(90))} style={a.flex_1}>
       <SignupContext.Provider value={{state, dispatch}}>
-        <LoggedOutLayout
-          leadin=""
-          title={_(msg`Create Account`)}
-          description={brand.messages.welcomeMessage}
-          scrollable>
-          <View testID="createAccount" style={a.flex_1}>
-            {showStarterPackCard &&
-            bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
-              starterPack.record,
-              AppBskyGraphStarterpack.isRecord,
-            ) ? (
-              <Animated.View entering={!isFetchedAtMount ? FadeIn : undefined}>
-                <LinearGradientBackground
-                  style={[a.mx_lg, a.p_lg, a.gap_sm, a.rounded_sm]}>
-                  <Text style={[a.font_semi_bold, a.text_xl, {color: 'white'}]}>
-                    {starterPack.record.name}
-                  </Text>
-                  <Text style={[{color: 'white'}]}>
-                    {starterPack.feeds?.length ? (
-                      <Trans>
-                        You'll follow the suggested users and feeds once you
-                        finish creating your account!
-                      </Trans>
-                    ) : (
-                      <Trans>
-                        You'll follow the suggested users once you finish
-                        creating your account!
-                      </Trans>
-                    )}
-                  </Text>
-                </LinearGradientBackground>
-              </Animated.View>
-            ) : null}
-            <LayoutAnimationConfig skipEntering>
-              <ScreenTransition
-                key={state.activeStep}
-                direction={state.screenTransitionDirection}>
-                <View
-                  style={[
-                    a.flex_1,
-                    a.px_xl,
-                    a.pt_2xl,
-                    !gtMobile && {paddingBottom: 100},
-                  ]}>
-                  <View style={[a.gap_sm, a.pb_3xl]}>
+        <SignupKeyboardAvoidingView
+          enabled={state.activeStep !== SignupStep.CAPTCHA}>
+          <LoggedOutLayout
+            leadin=""
+            title={l`Create Account`}
+            description={brand.messages.welcomeMessage}
+            scrollable>
+            <View testID="createAccount" style={a.flex_1}>
+              {showStarterPackCard &&
+              bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
+                starterPack.record,
+                AppBskyGraphStarterpack.isRecord,
+              ) ? (
+                <Animated.View
+                  entering={!isFetchedAtMount ? FadeIn : undefined}>
+                  <LinearGradientBackground
+                    style={[a.mx_lg, a.p_lg, a.gap_sm, a.rounded_sm]}>
                     <Text
-                      style={[a.font_semi_bold, t.atoms.text_contrast_medium]}>
-                      <Trans>
-                        Step {displayStep} of {displayTotal}
-                      </Trans>
+                      style={[a.font_semi_bold, a.text_xl, {color: 'white'}]}>
+                      {starterPack.record.name}
                     </Text>
-                    <Text style={[a.text_3xl, a.font_semi_bold]}>
-                      {state.activeStep === SignupStep.COMMUNITY ? (
-                        <Trans>Choose your community</Trans>
-                      ) : state.activeStep === SignupStep.INFO ? (
-                        <Trans>Your account</Trans>
-                      ) : state.activeStep === SignupStep.HANDLE ? (
-                        <Trans>Choose your username</Trans>
+                    <Text style={[{color: 'white'}]}>
+                      {starterPack.feeds?.length ? (
+                        <Trans>
+                          You'll follow the suggested users and feeds once you
+                          finish creating your account!
+                        </Trans>
                       ) : (
-                        <Trans>Complete the challenge</Trans>
+                        <Trans>
+                          You'll follow the suggested users once you finish
+                          creating your account!
+                        </Trans>
                       )}
                     </Text>
-                  </View>
-
-                  {state.activeStep === SignupStep.COMMUNITY ? (
-                    <StepCommunity onPressBack={onPressBack} />
-                  ) : state.activeStep === SignupStep.INFO ? (
-                    <StepInfo
-                      onPressBack={
-                        // On web INFO is the first step, so back exits signup;
-                        // on native it returns to the community picker.
-                        isWeb ? onPressBack : () => dispatch({type: 'prev'})
-                      }
-                      isLoadingStarterPack={
-                        isFetchingStarterPack && !isErrorStarterPack
-                      }
-                      isServerError={isError}
-                      refetchServer={refetch}
-                    />
-                  ) : state.activeStep === SignupStep.HANDLE ? (
-                    <StepHandle onPressSignIn={onPressSignIn} />
-                  ) : (
-                    <StepCaptcha />
-                  )}
-
-                  <Divider />
-
+                  </LinearGradientBackground>
+                </Animated.View>
+              ) : null}
+              <LayoutAnimationConfig skipEntering>
+                <ScreenTransition
+                  key={state.activeStep}
+                  direction={state.screenTransitionDirection}>
                   <View
                     style={[
-                      a.w_full,
-                      a.py_lg,
-                      a.flex_row,
-                      a.gap_md,
-                      a.align_center,
+                      a.flex_1,
+                      a.px_xl,
+                      a.pt_2xl,
+                      !gtMobile && {paddingBottom: 100},
                     ]}>
-                    <AppLanguageDropdown />
-                    <Text
+                    <View style={[a.gap_sm, a.pb_3xl]}>
+                      <Text
+                        style={[
+                          a.font_semi_bold,
+                          t.atoms.text_contrast_medium,
+                        ]}>
+                        <Trans>
+                          Step {displayStep} of {displayTotal}
+                        </Trans>
+                      </Text>
+                      <Text style={[a.text_3xl, a.font_semi_bold]}>
+                        {state.activeStep === SignupStep.COMMUNITY ? (
+                          <Trans>Choose your community</Trans>
+                        ) : state.activeStep === SignupStep.INFO ? (
+                          <Trans>Your account</Trans>
+                        ) : state.activeStep === SignupStep.HANDLE ? (
+                          <Trans>Choose your username</Trans>
+                        ) : (
+                          <Trans>Complete the challenge</Trans>
+                        )}
+                      </Text>
+                    </View>
+
+                    {state.activeStep === SignupStep.COMMUNITY ? (
+                      <StepCommunity onPressBack={onPressBack} />
+                    ) : state.activeStep === SignupStep.INFO ? (
+                      <StepInfo
+                        onPressBack={
+                          isWeb ? onPressBack : () => dispatch({type: 'prev'})
+                        }
+                        isLoadingStarterPack={
+                          isFetchingStarterPack && !isErrorStarterPack
+                        }
+                        isServerError={isError}
+                        refetchServer={() => void refetch()}
+                      />
+                    ) : state.activeStep === SignupStep.HANDLE ? (
+                      <StepHandle onPressSignIn={onPressSignIn} />
+                    ) : (
+                      <StepCaptcha />
+                    )}
+
+                    <Divider />
+
+                    <View
                       style={[
-                        a.flex_1,
-                        t.atoms.text_contrast_medium,
-                        !gtMobile && a.text_md,
+                        a.w_full,
+                        a.py_lg,
+                        a.flex_row,
+                        a.gap_md,
+                        a.align_center,
                       ]}>
-                      <Trans>Having trouble?</Trans>{' '}
-                      <InlineLinkText
-                        label={_(msg`Contact support`)}
-                        to={FEEDBACK_FORM_URL({email: state.email})}
-                        style={[!gtMobile && a.text_md]}>
-                        <Trans>Contact support</Trans>
-                      </InlineLinkText>
-                    </Text>
+                      <AppLanguageDropdown />
+                      <View
+                        style={
+                          gtMobile
+                            ? [a.flex_1, a.flex, a.flex_row, a.justify_end]
+                            : []
+                        }>
+                        <Text
+                          style={[
+                            t.atoms.text_contrast_medium,
+                            !gtMobile && a.text_md,
+                            {paddingInline: tokens.space.sm},
+                          ]}>
+                          <Trans>Having trouble?</Trans>{' '}
+                          <InlineLinkText
+                            label={l`Contact support`}
+                            to={FEEDBACK_FORM_URL({email: state.email})}
+                            style={[!gtMobile && a.text_md]}>
+                            <Trans>Contact support</Trans>
+                          </InlineLinkText>
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </ScreenTransition>
-            </LayoutAnimationConfig>
-          </View>
-        </LoggedOutLayout>
+                </ScreenTransition>
+              </LayoutAnimationConfig>
+            </View>
+          </LoggedOutLayout>
+        </SignupKeyboardAvoidingView>
       </SignupContext.Provider>
     </Animated.View>
+  )
+}
+
+function SignupKeyboardAvoidingView({
+  children,
+  enabled,
+}: PropsWithChildren<{enabled: boolean}>) {
+  if (!enabled) {
+    return <View style={a.flex_1}>{children}</View>
+  }
+
+  return (
+    <KeyboardAvoidingView behavior="padding" style={a.flex_1} automaticOffset>
+      {children}
+    </KeyboardAvoidingView>
   )
 }

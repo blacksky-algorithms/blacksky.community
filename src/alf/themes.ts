@@ -375,6 +375,9 @@ export function createThemes({
       text: {
         color: lightPalette.black,
       },
+      text_link: {
+        color: lightPalette.primary_500,
+      },
       text_contrast_low: {
         color: lightPalette.contrast_400,
       },
@@ -468,6 +471,9 @@ export function createThemes({
     atoms: {
       text: {
         color: darkPalette.white,
+      },
+      text_link: {
+        color: darkPalette.primary_600,
       },
       text_contrast_low: {
         color: darkPalette.contrast_400,

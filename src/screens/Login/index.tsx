@@ -1,8 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
-import {KeyboardAvoidingView} from 'react-native'
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
+import {useLingui} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
 import {DEFAULT_SERVICE} from '#/lib/constants'
@@ -45,7 +44,7 @@ export const Login = ({
   onPressBack: () => void
   prefillHandle?: string
 }) => {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const brand = useBrand()
   const failedAttemptCountRef = useRef(0)
 
@@ -96,9 +95,7 @@ export const Login = ({
   useEffect(() => {
     if (serviceError) {
       setError(
-        _(
-          msg`Unable to contact your service. Please check your Internet connection.`,
-        ),
+        l`Unable to contact your service. Please check your Internet connection.`,
       )
       logger.warn(`Failed to fetch service description for ${serviceUrl}`, {
         error: String(serviceError),
@@ -107,7 +104,7 @@ export const Login = ({
     } else {
       setError('')
     }
-  }, [serviceError, serviceUrl, _])
+  }, [serviceError, serviceUrl, l, ax])
 
   const handlePressBack = () => {
     onPressBack()
@@ -124,23 +121,23 @@ export const Login = ({
 
   switch (currentForm) {
     case Forms.Login:
-      title = _(msg`Sign in`)
-      description = _(msg`Enter your handle to sign in`)
+      title = l`Sign in`
+      description = l`Enter your handle to sign in`
+      goBack = () =>
+        accounts.length ? gotoForm(Forms.ChooseAccount) : handlePressBack()
       content = (
         <LoginForm
           error={error}
           serviceDescription={serviceDescription}
           initialHandle={initialHandle}
           setError={setError}
-          onPressBack={() =>
-            accounts.length ? gotoForm(Forms.ChooseAccount) : handlePressBack()
-          }
+          onPressBack={goBack}
         />
       )
       break
     case Forms.ChooseAccount:
-      title = _(msg`Sign in`)
-      description = _(msg`Select from an existing account`)
+      title = l`Sign in`
+      description = l`Select from an existing account`
       goBack = handlePressBack
       content = (
         <ChooseAccountForm
@@ -150,8 +147,8 @@ export const Login = ({
       )
       break
     case Forms.ForgotPassword:
-      title = _(msg`Forgot Password`)
-      description = _(msg`Let's get your password reset!`)
+      title = l`Forgot Password`
+      description = l`Let's get your password reset!`
       goBack = () => gotoForm(Forms.Login)
       content = (
         <ForgotPasswordForm
@@ -166,8 +163,8 @@ export const Login = ({
       )
       break
     case Forms.SetNewPassword:
-      title = _(msg`Forgot Password`)
-      description = _(msg`Let's get your password reset!`)
+      title = l`Forgot Password`
+      description = l`Let's get your password reset!`
       goBack = () => gotoForm(Forms.ForgotPassword)
       content = (
         <SetNewPasswordForm
@@ -180,8 +177,8 @@ export const Login = ({
       )
       break
     case Forms.PasswordUpdated:
-      title = _(msg`Password updated`)
-      description = _(msg`You can now sign in with your new password.`)
+      title = l`Password updated`
+      description = l`You can now sign in with your new password.`
       content = (
         <PasswordUpdatedForm onPressNext={() => gotoForm(Forms.Login)} />
       )
@@ -196,7 +193,8 @@ export const Login = ({
         <KeyboardAvoidingView
           testID="signIn"
           behavior="padding"
-          style={a.flex_1}>
+          style={a.flex_1}
+          automaticOffset>
           <AuthLayout.Header.Outer>
             <AuthLayout.Header.BackButton />
             <AuthLayout.Header.Content />
@@ -210,7 +208,8 @@ export const Login = ({
             <LayoutAnimationConfig skipEntering>
               <ScreenTransition
                 key={currentForm}
-                direction={screenTransitionDirection}>
+                direction={screenTransitionDirection}
+                style={a.flex_1}>
                 {content}
               </ScreenTransition>
             </LayoutAnimationConfig>

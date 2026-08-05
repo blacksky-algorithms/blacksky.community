@@ -12,16 +12,17 @@ import {
   type AppBskyActorDefs,
   type AppBskyFeedDefs,
   AppBskyFeedPost,
+  type AppBskyGraphDefs,
   AppBskyGraphFollow,
+  AppBskyGraphStarterpack,
+  AtUri,
   moderateProfile,
   type ModerationDecision,
   type ModerationOpts,
 } from '@atproto/api'
-import {AtUri} from '@atproto/api'
 import {TID} from '@atproto/common-web'
-import {msg, plural} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
-import {Plural, Trans} from '@lingui/react/macro'
+import {plural} from '@lingui/core/macro'
+import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
@@ -31,10 +32,8 @@ import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {forceLTR} from '#/lib/strings/bidi'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
-import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
 import {postUriToRelativePath} from '#/lib/strings/url-helpers'
-import {s} from '#/lib/styles'
 import {logger} from '#/logger'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {type FeedNotification} from '#/state/queries/notifications/feed'
@@ -45,8 +44,8 @@ import {FeedSourceCard} from '#/view/com/feeds/FeedSourceCard'
 import {Post} from '#/view/com/post/Post'
 import {formatCount} from '#/view/com/util/numeric/format'
 import {TimeElapsed} from '#/view/com/util/TimeElapsed'
-import {PreviewableUserAvatar, UserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, platform, useTheme} from '#/alf'
+import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
+import {atoms as a, native, platform, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {BellRinging_Filled_Corner0_Rounded as BellRingingIcon} from '#/components/icons/BellRinging'
 import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
@@ -66,7 +65,10 @@ import * as MediaPreview from '#/components/MediaPreview'
 import {ProfileBadges} from '#/components/ProfileBadges'
 import * as ProfileCard from '#/components/ProfileCard'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
-import {Notification as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
+import {
+  Notification as StarterPackCard,
+  useStarterPackLink,
+} from '#/components/StarterPack/StarterPackCard'
 import {SubtleHover} from '#/components/SubtleHover'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
@@ -75,8 +77,6 @@ import {IS_WEB} from '#/env'
 import * as bsky from '#/types/bsky'
 
 const MAX_AUTHORS = 5
-
-const EXPANDED_AUTHOR_EL_HEIGHT = 35
 
 interface Author {
   profile: AppBskyActorDefs.ProfileView
@@ -97,12 +97,9 @@ let NotificationFeedItem = ({
 }): React.ReactNode => {
   const queryClient = useQueryClient()
   const t = useTheme()
-  const {_, i18n} = useLingui()
+  const {t: l, i18n} = useLingui()
   const ax = useAnalytics()
-  const profileCardEnabled = ax.features.enabled(
-    ax.features.NotificationsExpandedProfileCardEnable,
-  )
-  const [isAuthorsExpanded, setIsAuthorsExpanded] = useState<boolean>(false)
+  const [isAuthorsExpanded, setIsAuthorsExpanded] = useState(false)
   const [isHoveringAuthorsList, setIsHoveringAuthorsList] = useState(false)
   const itemHref = useMemo(() => {
     switch (item.type) {
@@ -248,38 +245,44 @@ let NotificationFeedItem = ({
     <ProfileHoverCard did={firstAuthor.profile.did} inline>
       <InlineLinkText
         key={firstAuthor.href}
-        style={[t.atoms.text, a.font_semi_bold, a.text_md, a.leading_tight]}
+        style={[
+          t.atoms.text,
+          a.font_semi_bold,
+          a.text_md,
+          web({direction: 'ltr', unicodeBidi: 'isolate'}),
+        ]}
         to={firstAuthor.href}
         disableMismatchWarning
         emoji
-        label={_(msg`Go to ${firstAuthorName}'s profile`)}>
+        label={l`Go to ${firstAuthorName}'s profile`}>
         {forceLTR(firstAuthorName)}
         <ProfileBadges
           profile={firstAuthor.profile}
-          size="md"
-          style={[
-            a.relative,
-            {
-              // weird stuff here
-              paddingTop: platform({android: 2}),
-              marginBottom: platform({ios: -6}),
-              top: platform({web: 2}),
-              paddingLeft: 3,
-              paddingRight: 2,
-            },
-          ]}
+          size="sm"
+          style={[a.px_2xs, {transform: [{translateY: 1}]}]}
         />
       </InlineLinkText>
     </ProfileHoverCard>
   )
   const additionalAuthorsCount = authors.length - 1
   const hasMultipleAuthors = additionalAuthorsCount > 0
+  const starterPack = item.notification.starterPack
+  const allFollowedViaSameStarterPack =
+    item.type === 'follow' &&
+    starterPack !== undefined &&
+    (item.additional ?? []).every(
+      notification => notification.starterPack?.uri === starterPack.uri,
+    )
+  const starterPackName =
+    allFollowedViaSameStarterPack && starterPack
+      ? getStarterPackName(starterPack)
+      : undefined
   const formattedAuthorsCount = hasMultipleAuthors
     ? formatCount(i18n, additionalAuthorsCount)
     : ''
 
   let a11yLabel = ''
-  let notificationContent: React.ReactElement<any>
+  let notificationContent: React.ReactElement
   let icon = (
     <HeartIconFilled
       size="xl"
@@ -292,17 +295,15 @@ let NotificationFeedItem = ({
 
   if (item.type === 'post-like') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} liked your post`,
-        )
-      : _(msg`${firstAuthorName} liked your post`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} liked your post`
+      : l`${firstAuthorName} liked your post`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -316,17 +317,15 @@ let NotificationFeedItem = ({
     )
   } else if (item.type === 'repost') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} reposted your post`,
-        )
-      : _(msg`${firstAuthorName} reposted your post`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} reposted your post`
+      : l`${firstAuthorName} reposted your post`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -345,21 +344,28 @@ let NotificationFeedItem = ({
        * Follow-backs are ungrouped, grouped follow-backs not supported atm,
        * see `src/state/queries/notifications/util.ts`
        */
-      a11yLabel = _(msg`${firstAuthorName} followed you back`)
+      a11yLabel = starterPackName
+        ? l`${firstAuthorName} followed you back via starter pack ${starterPackName}`
+        : l`${firstAuthorName} followed you back`
       notificationContent = <Trans>{firstAuthorLink} followed you back</Trans>
     } else {
-      a11yLabel = hasMultipleAuthors
-        ? _(
-            msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+      a11yLabel = starterPackName
+        ? hasMultipleAuthors
+          ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
               one: `${formattedAuthorsCount} other`,
               other: `${formattedAuthorsCount} others`,
-            })} followed you`,
-          )
-        : _(msg`${firstAuthorName} followed you`)
+            })} followed you via starter pack ${starterPackName}`
+          : l`${firstAuthorName} followed you via starter pack ${starterPackName}`
+        : hasMultipleAuthors
+          ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+              one: `${formattedAuthorsCount} other`,
+              other: `${formattedAuthorsCount} others`,
+            })} followed you`
+          : l`${firstAuthorName} followed you`
       notificationContent = hasMultipleAuthors ? (
         <Trans>
           {firstAuthorLink} and{' '}
-          <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+          <Text style={[a.text_md, a.font_semi_bold]}>
             <Plural
               value={additionalAuthorsCount}
               one={`${formattedAuthorsCount} other`}
@@ -374,7 +380,7 @@ let NotificationFeedItem = ({
     }
     icon = <PersonPlusIcon size="xl" style={{color: t.palette.primary_500}} />
   } else if (item.type === 'contact-match') {
-    a11yLabel = _(msg`Your contact ${firstAuthorName} is on Blacksky`)
+    a11yLabel = l`Your contact ${firstAuthorName} is on Blacksky`
     notificationContent = (
       <Trans>Your contact {firstAuthorLink} is on Blacksky</Trans>
     )
@@ -383,17 +389,15 @@ let NotificationFeedItem = ({
     )
   } else if (item.type === 'feedgen-like') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} liked your custom feed`,
-        )
-      : _(msg`${firstAuthorName} liked your custom feed`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} liked your custom feed`
+      : l`${firstAuthorName} liked your custom feed`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -407,17 +411,15 @@ let NotificationFeedItem = ({
     )
   } else if (item.type === 'starterpack-joined') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} signed up with your starter pack`,
-        )
-      : _(msg`${firstAuthorName} signed up with your starter pack`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} signed up with your starter pack`
+      : l`${firstAuthorName} signed up with your starter pack`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -436,17 +438,15 @@ let NotificationFeedItem = ({
     )
   } else if (item.type === 'verified') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} verified you`,
-        )
-      : _(msg`${firstAuthorName} verified you`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} verified you`
+      : l`${firstAuthorName} verified you`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -461,17 +461,15 @@ let NotificationFeedItem = ({
     icon = <VerifiedCheck size="xl" />
   } else if (item.type === 'unverified') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} removed their verifications from your account`,
-        )
-      : _(msg`${firstAuthorName} removed their verification from your account`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} removed their verifications from your account`
+      : l`${firstAuthorName} removed their verification from your account`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -488,17 +486,15 @@ let NotificationFeedItem = ({
     icon = <VerifiedCheck size="xl" fill={t.palette.contrast_500} />
   } else if (item.type === 'like-via-repost') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} liked your repost`,
-        )
-      : _(msg`${firstAuthorName} liked your repost`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} liked your repost`
+      : l`${firstAuthorName} liked your repost`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -512,17 +508,15 @@ let NotificationFeedItem = ({
     )
   } else if (item.type === 'repost-via-repost') {
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-            one: `${formattedAuthorsCount} other`,
-            other: `${formattedAuthorsCount} others`,
-          })} reposted your repost`,
-        )
-      : _(msg`${firstAuthorName} reposted your repost`)
+      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+          one: `${formattedAuthorsCount} other`,
+          other: `${formattedAuthorsCount} others`,
+        })} reposted your repost`
+      : l`${firstAuthorName} reposted your repost`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -538,25 +532,21 @@ let NotificationFeedItem = ({
   } else if (item.type === 'subscribed-post') {
     const postsCount = 1 + (item.additional?.length || 0)
     a11yLabel = hasMultipleAuthors
-      ? _(
-          msg`New posts from ${firstAuthorName} and ${plural(
-            additionalAuthorsCount,
-            {
-              one: `${formattedAuthorsCount} other`,
-              other: `${formattedAuthorsCount} others`,
-            },
-          )}`,
-        )
-      : _(
-          msg`New ${plural(postsCount, {
-            one: 'post',
-            other: 'posts',
-          })} from ${firstAuthorName}`,
-        )
+      ? l`New posts from ${firstAuthorName} and ${plural(
+          additionalAuthorsCount,
+          {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          },
+        )}`
+      : l`New ${plural(postsCount, {
+          one: 'post',
+          other: 'posts',
+        })} from ${firstAuthorName}`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         New posts from {firstAuthorLink} and{' '}
-        <Text style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+        <Text style={[a.text_md, a.font_semi_bold]}>
           <Plural
             value={additionalAuthorsCount}
             one={`${formattedAuthorsCount} other`}
@@ -607,18 +597,16 @@ let NotificationFeedItem = ({
               {
                 name: 'toggleAuthorsExpanded',
                 label: isAuthorsExpanded
-                  ? _(msg`Collapse list of users`)
-                  : _(msg`Expand list of users`),
+                  ? l`Collapse list of users`
+                  : l`Expand list of users`,
               },
             ]
           : [
               {
                 name: 'viewProfile',
-                label: _(
-                  msg`View ${
-                    authors[0].profile.displayName || authors[0].profile.handle
-                  }'s profile`,
-                ),
+                label: l`View ${
+                  authors[0].profile.displayName || authors[0].profile.handle
+                }'s profile`,
               },
             ]
       }
@@ -632,9 +620,7 @@ let NotificationFeedItem = ({
       }}>
       {({hovered}) => (
         <>
-          <SubtleHover
-            hover={hovered && (!profileCardEnabled || !isHoveringAuthorsList)}
-          />
+          <SubtleHover hover={hovered && !isHoveringAuthorsList} />
           <View style={[styles.layoutIcon, a.pr_sm]}>
             {/* TODO: Prevent conditional rendering and move toward composable
           notifications for clearer accessibility labeling */}
@@ -644,16 +630,8 @@ let NotificationFeedItem = ({
             <ExpandListPressable
               hasMultipleAuthors={hasMultipleAuthors}
               onToggleAuthorsExpanded={onToggleAuthorsExpanded}
-              onHoverIn={
-                profileCardEnabled
-                  ? () => setIsHoveringAuthorsList(true)
-                  : undefined
-              }
-              onHoverOut={
-                profileCardEnabled
-                  ? () => setIsHoveringAuthorsList(false)
-                  : undefined
-              }>
+              onHoverIn={() => setIsHoveringAuthorsList(true)}
+              onHoverOut={() => setIsHoveringAuthorsList(false)}>
               <CondensedAuthorsList
                 visible={!isAuthorsExpanded}
                 authors={authors}
@@ -672,7 +650,6 @@ let NotificationFeedItem = ({
                   {paddingTop: 6},
                   a.self_start,
                   a.text_md,
-                  a.leading_snug,
                 ]}
                 accessibilityHint=""
                 accessibilityLabel={a11yLabel}>
@@ -695,6 +672,9 @@ let NotificationFeedItem = ({
                 </TimeElapsed>
               </Text>
             </ExpandListPressable>
+            {allFollowedViaSameStarterPack && starterPack ? (
+              <FollowedViaStarterPack starterPack={starterPack} />
+            ) : null}
             {(item.type === 'follow' && !hasMultipleAuthors && !isFollowBack) ||
             (item.type === 'contact-match' &&
               !item.notification.author.viewer?.following) ? (
@@ -746,6 +726,53 @@ let NotificationFeedItem = ({
 NotificationFeedItem = memo(NotificationFeedItem)
 export {NotificationFeedItem}
 
+function FollowedViaStarterPack({
+  starterPack,
+}: {
+  starterPack: AppBskyGraphDefs.StarterPackViewBasic
+}) {
+  const t = useTheme()
+  const link = useStarterPackLink({view: starterPack})
+
+  const starterPackName = getStarterPackName(starterPack)
+
+  if (!starterPackName) {
+    return null
+  }
+
+  return (
+    <Text style={[native(a.pt_xs), t.atoms.text_contrast_medium]}>
+      <Trans comment="When the source of a follow is a starter pack, i.e., 'via starter pack {starterPackName}'.">
+        via starter pack{' '}
+        <StarterPack
+          size="sm"
+          gradient="sky"
+          style={[native(a.mr_2xs), {transform: [{translateY: 4}]}]}
+        />
+        <InlineLinkText
+          to={link.to}
+          label={link.label}
+          onPress={link.precache}
+          onMouseEnter={link.precache}
+          style={[a.font_semi_bold, t.atoms.text]}>
+          {starterPackName}
+        </InlineLinkText>
+      </Trans>
+    </Text>
+  )
+}
+
+function getStarterPackName(
+  starterPack: AppBskyGraphDefs.StarterPackViewBasic,
+) {
+  return bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
+    starterPack.record,
+    AppBskyGraphStarterpack.isRecord,
+  )
+    ? starterPack.record.name
+    : undefined
+}
+
 function ExpandListPressable({
   hasMultipleAuthors,
   children,
@@ -776,7 +803,7 @@ function ExpandListPressable({
 }
 
 function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const {currentAccount, hasSession} = useSession()
   const profileShadow = useProfileShadow(profile)
   const [queueFollow, queueUnfollow] = useProfileFollowMutationQueue(
@@ -796,15 +823,14 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
     try {
       await queueFollow()
       Toast.show(
-        _(
-          msg`Following ${sanitizeDisplayName(
-            profile.displayName || profile.handle,
-          )}`,
-        ),
+        l`Following ${sanitizeDisplayName(
+          profile.displayName || profile.handle,
+        )}`,
       )
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error
       if (err?.name !== 'AbortError') {
-        Toast.show(_(msg`An issue occurred, please try again.`), {
+        Toast.show(l`An issue occurred, please try again.`, {
           type: 'error',
         })
       }
@@ -818,15 +844,14 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
     try {
       await queueUnfollow()
       Toast.show(
-        _(
-          msg`No longer following ${sanitizeDisplayName(
-            profile.displayName || profile.handle,
-          )}`,
-        ),
+        l`No longer following ${sanitizeDisplayName(
+          profile.displayName || profile.handle,
+        )}`,
       )
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error
       if (err?.name !== 'AbortError') {
-        Toast.show(_(msg`An issue occurred, please try again.`), {
+        Toast.show(l`An issue occurred, please try again.`, {
           type: 'error',
         })
       }
@@ -847,12 +872,10 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
 
   const isFollowing = profileShadow.viewer.following
   const isFollowedBy = profileShadow.viewer.followedBy
-  const followingLabel = _(
-    msg({
-      message: 'Following',
-      comment: 'User is following this account, click to unfollow',
-    }),
-  )
+  const followingLabel = l({
+    message: 'Following',
+    comment: 'User is following this account, click to unfollow',
+  })
 
   return (
     <View style={[a.pt_sm]}>
@@ -862,7 +885,7 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
           color="secondary"
           size="small"
           style={[a.self_start]}
-          onPress={onPressUnfollow}>
+          onPress={(e: GestureResponderEvent) => void onPressUnfollow(e)}>
           <ButtonIcon icon={CheckIcon} />
           <ButtonText>
             <Trans>Following</Trans>
@@ -870,11 +893,11 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
         </Button>
       ) : (
         <Button
-          label={isFollowedBy ? _(msg`Follow back`) : _(msg`Follow`)}
+          label={isFollowedBy ? l`Follow back` : l`Follow`}
           color="primary"
           size="small"
           style={[a.self_start]}
-          onPress={onPressFollow}>
+          onPress={(e: GestureResponderEvent) => void onPressFollow(e)}>
           <ButtonIcon icon={PlusIcon} />
           <ButtonText>
             {isFollowedBy ? <Trans>Follow back</Trans> : <Trans>Follow</Trans>}
@@ -886,10 +909,29 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
 }
 
 function SayHelloBtn({profile}: {profile: AppBskyActorDefs.ProfileView}) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const agent = useAgent()
   const navigation = useNavigation<NavigationProp>()
   const [isLoading, setIsLoading] = useState(false)
+
+  const onPress = async () => {
+    try {
+      setIsLoading(true)
+      const res = await agent.api.chat.bsky.convo.getConvoForMembers(
+        {
+          members: [profile.did, agent.session!.did],
+        },
+        {headers: DM_SERVICE_HEADERS},
+      )
+      navigation.navigate('MessagesConversation', {
+        conversation: res.data.convo.id,
+      })
+    } catch (e) {
+      logger.error('Failed to get conversation', {safeMessage: e})
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (
     profile.associated?.chat?.allowIncoming === 'none' ||
@@ -901,30 +943,13 @@ function SayHelloBtn({profile}: {profile: AppBskyActorDefs.ProfileView}) {
 
   return (
     <Button
-      label={_(msg`Say hello!`)}
+      label={l`Say hello!`}
       variant="ghost"
       color="primary"
       size="small"
       style={[a.self_center, {marginLeft: 'auto'}]}
       disabled={isLoading}
-      onPress={async () => {
-        try {
-          setIsLoading(true)
-          const res = await agent.api.chat.bsky.convo.getConvoForMembers(
-            {
-              members: [profile.did, agent.session!.did],
-            },
-            {headers: DM_SERVICE_HEADERS},
-          )
-          navigation.navigate('MessagesConversation', {
-            conversation: res.data.convo.id,
-          })
-        } catch (e) {
-          logger.error('Failed to get conversation', {safeMessage: e})
-        } finally {
-          setIsLoading(false)
-        }
-      }}>
+      onPress={() => void onPress()}>
       <ButtonText>
         <Trans>Say hello!</Trans>
       </ButtonText>
@@ -944,7 +969,7 @@ function CondensedAuthorsList({
   showDmButton?: boolean
 }) {
   const t = useTheme()
-  const {_} = useLingui()
+  const {t: l} = useLingui()
 
   if (!visible) {
     return (
@@ -953,10 +978,8 @@ function CondensedAuthorsList({
           style={styles.expandedAuthorsCloseBtn}
           onPress={onToggleAuthorsExpanded}
           accessibilityRole="button"
-          accessibilityLabel={_(msg`Hide user list`)}
-          accessibilityHint={_(
-            msg`Collapses list of users for a given notification`,
-          )}>
+          accessibilityLabel={l`Hide user list`}
+          accessibilityHint={l`Collapses list of users for a given notification`}>
           <ChevronUpIcon
             size="md"
             style={[a.ml_xs, a.mr_md, t.atoms.text_contrast_high]}
@@ -987,7 +1010,7 @@ function CondensedAuthorsList({
       onPress={onToggleAuthorsExpanded}>
       <View style={[a.flex_row, a.align_center]}>
         {authors.slice(0, MAX_AUTHORS).map(author => (
-          <View key={author.href} style={s.mr5}>
+          <View key={author.href} style={{marginRight: 5}}>
             <PreviewableUserAvatar
               size={35}
               profile={author.profile}
@@ -1024,28 +1047,23 @@ function ExpandedAuthorsList({
   authors: Author[]
   moderationOpts: ModerationOpts
 }) {
-  const ax = useAnalytics()
-  const profileCardEnabled = ax.features.enabled(
-    ax.features.NotificationsExpandedProfileCardEnable,
-  )
-  const isNativeFade = !IS_WEB && profileCardEnabled
   const heightInterp = useAnimatedValue(visible ? 1 : 0)
   const opacityInterp = useAnimatedValue(visible ? 1 : 0)
   const [measuredHeight, setMeasuredHeight] = useState(0)
   useEffect(() => {
-    Animated.timing(isNativeFade ? opacityInterp : heightInterp, {
+    Animated.timing(IS_WEB ? heightInterp : opacityInterp, {
       toValue: visible ? 1 : 0,
       duration: 200,
-      useNativeDriver: isNativeFade,
+      useNativeDriver: !IS_WEB,
     }).start()
-  }, [heightInterp, opacityInterp, visible, isNativeFade])
+  }, [heightInterp, opacityInterp, visible])
   const onInnerLayout = (e: LayoutChangeEvent) => {
     if (measuredHeight === 0) {
       setMeasuredHeight(e.nativeEvent.layout.height)
     }
   }
 
-  if (isNativeFade) {
+  if (!IS_WEB) {
     return (
       <Animated.View style={{opacity: opacityInterp}}>
         {visible && (
@@ -1064,31 +1082,22 @@ function ExpandedAuthorsList({
     )
   }
 
-  const targetHeight = profileCardEnabled
-    ? measuredHeight
-    : authors.length * (EXPANDED_AUTHOR_EL_HEIGHT + 10) /*10=margin*/
   const heightStyle = {
-    height: Animated.multiply(heightInterp, targetHeight),
+    height: Animated.multiply(heightInterp, measuredHeight),
     opacity: Animated.divide(heightInterp, 1),
   }
   return (
     <Animated.View style={[a.overflow_hidden, heightStyle]}>
-      {profileCardEnabled ? (
-        <View onLayout={onInnerLayout} style={[a.pt_sm, a.pb_md]}>
-          {authors.map((author, i) => (
-            <ExpandedAuthorProfileCard
-              key={author.profile.did}
-              author={author}
-              moderationOpts={moderationOpts}
-              isLast={i === authors.length - 1}
-            />
-          ))}
-        </View>
-      ) : (
-        authors.map(author => (
-          <ExpandedAuthorCard key={author.profile.did} author={author} />
-        ))
-      )}
+      <View onLayout={onInnerLayout} style={[a.pt_sm, a.pb_md]}>
+        {authors.map((author, i) => (
+          <ExpandedAuthorProfileCard
+            key={author.profile.did}
+            author={author}
+            moderationOpts={moderationOpts}
+            isLast={i === authors.length - 1}
+          />
+        ))}
+      </View>
     </Animated.View>
   )
 }
@@ -1133,65 +1142,6 @@ function ExpandedAuthorProfileCard({
   )
 }
 
-function ExpandedAuthorCard({author}: {author: Author}) {
-  const t = useTheme()
-  const {_} = useLingui()
-  return (
-    <Link
-      label={author.profile.displayName || author.profile.handle}
-      accessibilityHint={_(msg`Opens this profile`)}
-      to={makeProfileLink({
-        did: author.profile.did,
-        handle: author.profile.handle,
-      })}
-      style={styles.expandedAuthor}>
-      <View style={[a.mr_sm]}>
-        <ProfileHoverCard did={author.profile.did}>
-          <UserAvatar
-            size={35}
-            avatar={author.profile.avatar}
-            moderation={author.moderation.ui('avatar')}
-            type={author.profile.associated?.labeler ? 'labeler' : 'user'}
-          />
-        </ProfileHoverCard>
-      </View>
-      <View style={[a.flex_1]}>
-        <View style={[a.flex_row, a.align_end]}>
-          <Text
-            numberOfLines={1}
-            emoji
-            style={[
-              a.text_md,
-              a.font_semi_bold,
-              a.leading_tight,
-              {maxWidth: '70%'},
-            ]}>
-            {sanitizeDisplayName(
-              author.profile.displayName || author.profile.handle,
-            )}
-          </Text>
-          <ProfileBadges
-            profile={author.profile}
-            size="md"
-            style={[a.pl_2xs, a.self_center]}
-          />
-          <Text
-            numberOfLines={1}
-            style={[
-              a.pl_xs,
-              a.text_md,
-              a.leading_tight,
-              a.flex_shrink,
-              t.atoms.text_contrast_medium,
-            ]}>
-            {sanitizeHandle(author.profile.handle, '@')}
-          </Text>
-        </View>
-      </View>
-    </Link>
-  )
-}
-
 function AdditionalPostText({post}: {post?: AppBskyFeedDefs.PostView}) {
   const t = useTheme()
   if (
@@ -1208,7 +1158,7 @@ function AdditionalPostText({post}: {post?: AppBskyFeedDefs.PostView}) {
         {text?.length > 0 && (
           <Text
             emoji
-            style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_medium]}
+            style={[a.text_sm, t.atoms.text_contrast_medium]}
             numberOfLines={MAX_POST_LINES}>
             {text}
           </Text>
@@ -1254,11 +1204,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     paddingBottom: 6,
-  },
-  expandedAuthor: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    height: EXPANDED_AUTHOR_EL_HEIGHT,
   },
 })

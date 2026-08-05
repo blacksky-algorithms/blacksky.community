@@ -6,10 +6,10 @@ import {Trans} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
-import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
+import {useLogoVariant} from '#/view/icons/useLogoVariant'
 import {
   AppClipOverlay,
   postAppClipMessage,
@@ -48,7 +48,8 @@ export const SplashScreen = ({
     }
   }, [])
 
-  const kawaii = useKawaiiMode()
+  const logoVariant = useLogoVariant()
+  const kawaii = logoVariant === 'kawaii'
 
   return (
     <>

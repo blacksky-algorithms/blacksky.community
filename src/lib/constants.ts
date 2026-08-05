@@ -139,6 +139,9 @@ export const FOUNDER_DID = 'did:plc:w4xbfzo7kqfes5zb7r6qv3rw'
 
 export const BSKY_FEED_OWNER_DIDS = [BSKY_APP_ACCOUNT_DID, FOUNDER_DID]
 
+export const TRENDING_DID = 'did:plc:qrz3lhbyuxbeilrc6nekdqme'
+export const TRENDING_HANDLE = 'trending.bsky.app'
+
 export const DISCOVER_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-trend'
 export const VIDEO_FEED_URI =
@@ -191,6 +194,7 @@ export const VIDEO_SERVICE = 'https://video.blacksky.community'
 export const VIDEO_SERVICE_DID = 'did:web:video.blacksky.community'
 
 export const VIDEO_MAX_DURATION_MS = 60 * 60 * 1000 // 60 minutes in milliseconds
+export const VIDEO_10_MINUTE_MAX_DURATION_MS = 10 * 60 * 1000
 /**
  * Maximum size of a video in megabytes, _not_ mebibytes. Backend uses
  * ISO megabytes.
