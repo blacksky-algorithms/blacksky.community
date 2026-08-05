@@ -10,7 +10,9 @@ const ratio = 243 / 285
 type Props = {
   style?: ImageProps['style']
   width?: number
+  height?: number
   fill?: string
+  allowVariants?: boolean
 }
 
 function isRemoteAsset(path: string): boolean {
@@ -18,7 +20,9 @@ function isRemoteAsset(path: string): boolean {
 }
 
 export const Logo = forwardRef<Image, Props>(function LogoImpl(props, ref) {
-  const {width = 32, style, fill, ...rest} = props
+  const {width = 32, style, fill, height, allowVariants, ...rest} = props
+  void height
+  void allowVariants
   const brand = useBrand()
   const t = useTheme()
   const size = width

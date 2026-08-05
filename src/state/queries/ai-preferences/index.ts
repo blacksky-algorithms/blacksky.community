@@ -58,7 +58,7 @@ export function useUpdateAIPreferencesMutation({
 
   type Ctx = {prev: AIPreferenceRecord | null}
 
-  return useMutation<void, Error, Patch, Ctx>({
+  return useMutation<void, Error, Patch, Ctx | undefined>({
     mutationFn: async patch => {
       if (!currentAccount) throw new Error('Not signed in')
       const queryKey = RQKEY(currentAccount.did)

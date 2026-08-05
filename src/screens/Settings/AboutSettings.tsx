@@ -9,6 +9,7 @@ import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useMutation} from '@tanstack/react-query'
 
 import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {purgeTemporaryImageFiles} from '#/state/gallery'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
 import {Atom_Stroke2_Corner0_Rounded as AtomIcon} from '#/components/icons/Atom'
 import {BroomSparkle_Stroke2_Corner2_Rounded as BroomSparkleIcon} from '#/components/icons/BroomSparkle'
@@ -39,7 +40,13 @@ export function AboutSettingsScreen({}: Props) {
     useMutation({
       mutationFn: async () => {
         const freeSpaceBefore = await FileSystem.getFreeDiskStorageAsync()
-        await Image.clearDiskCache()
+        await Promise.all([
+          // expo-image's disk cache
+          Image.clearDiskCache(),
+          // full-resolution media-upload leftovers (picker/manipulator copies);
+          // the only in-app way for iOS users to reclaim this space
+          purgeTemporaryImageFiles(),
+        ])
         const freeSpaceAfter = await FileSystem.getFreeDiskStorageAsync()
         const spaceDiff = freeSpaceBefore - freeSpaceAfter
         return spaceDiff * -1

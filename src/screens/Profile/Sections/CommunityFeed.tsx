@@ -1,10 +1,5 @@
 import {useCallback, useEffect, useImperativeHandle, useMemo} from 'react'
-import {
-  ActivityIndicator,
-  findNodeHandle,
-  type ListRenderItemInfo,
-  View,
-} from 'react-native'
+import {ActivityIndicator, type ListRenderItemInfo, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -17,6 +12,7 @@ import {
 import {PostFeedItem} from '#/view/com/posts/PostFeedItem'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {List, type ListRef} from '#/view/com/util/List'
+import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {atoms as a, ios, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 import {IS_IOS, IS_NATIVE} from '#/env'
@@ -72,7 +68,7 @@ export function CommunityFeedSection({
 
   useEffect(() => {
     if (IS_IOS && isFocused && scrollElRef.current) {
-      const nativeTag = findNodeHandle(scrollElRef.current)
+      const nativeTag = findListNativeTag(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }
   }, [isFocused, scrollElRef, setScrollViewTag])

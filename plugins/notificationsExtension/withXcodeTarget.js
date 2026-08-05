@@ -29,7 +29,7 @@ const withXcodeTarget = (
     )
 
     for (const file of soundFiles) {
-      pbxProject.addSourceFile(
+      pbxProject.addResourceFile(
         `${extensionName}/${file}`,
         {target: target.uuid},
         pbxGroupKey,

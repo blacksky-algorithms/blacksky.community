@@ -1,8 +1,7 @@
-import {Text as RNText} from 'react-native'
-import {UITextView} from 'react-native-uitextview'
+import {UITextView} from '@bsky.app/react-native-uitextview'
 
 import {logger} from '#/logger'
-import {atoms as a, ios, type TextStyleProp, useAlf, useTheme, web} from '#/alf'
+import {atoms as a, type TextStyleProp, useAlf, useTheme, web} from '#/alf'
 import {
   childHasEmoji,
   normalizeTextStyles,
@@ -63,20 +62,10 @@ export function Text({
     ...rest,
   }
 
-  if (selectable && ios(true)) {
-    return (
-      <UITextView {...shared}>
-        {renderChildrenWithEmoji(children, shared, emoji ?? false, {
-          allowNestedUITextView: false,
-        })}
-      </UITextView>
-    )
-  }
-
   return (
-    <RNText {...shared}>
+    <UITextView {...shared}>
       {renderChildrenWithEmoji(children, shared, emoji ?? false)}
-    </RNText>
+    </UITextView>
   )
 }
 

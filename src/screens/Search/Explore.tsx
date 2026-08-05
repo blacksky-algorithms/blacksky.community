@@ -158,7 +158,7 @@ export function Explore({
       viewabilityConfig={viewabilityConfig}
       onItemSeen={onItemSeen}
       refreshing={isPTR}
-      onRefresh={onPTR}
+      onRefresh={() => void onPTR()}
     />
   )
 }

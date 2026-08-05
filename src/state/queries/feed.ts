@@ -342,7 +342,7 @@ export function useGetPopularFeedsQuery(options?: GetPopularFeedsOptions) {
       count += page.feeds.length
     }
     if (count < limit && (data?.pages.length || 0) < 6) {
-      query.fetchNextPage()
+      void query.fetchNextPage()
       lastPageCountRef.current = data?.pages?.length || 0
     }
   }, [query, limit])
@@ -609,7 +609,7 @@ export function usePinnedFeedsInfos() {
       hasSession ? pinnedItems.map(f => f.value) : brandPinnedValues,
     ),
     gcTime: GCTIME.INFINITY,
-    staleTime: STALE.INFINITY,
+    staleTime: STALE.MINUTES.FIFTEEN,
     enabled: !isLoadingPrefs,
     select: injectCommunity,
     queryFn: async () => {

@@ -11,6 +11,7 @@ import {
   UploadLimitError,
   VideoTooLargeError,
 } from '#/lib/media/video/errors'
+import {type VideoTelemetry} from '#/lib/media/video/telemetry'
 import {type CompressedVideo} from '#/lib/media/video/types'
 import {uploadVideo} from '#/lib/media/video/upload'
 import {createVideoAgent} from '#/lib/media/video/util'
@@ -64,6 +65,7 @@ export const NO_VIDEO = Object.freeze({
   video: undefined,
   jobId: undefined,
   pendingPublish: undefined,
+  telemetry: undefined,
   altText: '',
   captions: [],
 })
@@ -79,6 +81,7 @@ type ErrorState = {
   jobId: string | null
   error: string
   pendingPublish?: undefined
+  telemetry: VideoTelemetry
   altText: string
   captions: CaptionsTrack[]
 }
@@ -91,6 +94,7 @@ type CompressingState = {
   video?: undefined
   jobId?: undefined
   pendingPublish?: undefined
+  telemetry: VideoTelemetry
   altText: string
   captions: CaptionsTrack[]
 }
@@ -103,6 +107,7 @@ type UploadingState = {
   video: CompressedVideo
   jobId?: undefined
   pendingPublish?: undefined
+  telemetry: VideoTelemetry
   altText: string
   captions: CaptionsTrack[]
 }
@@ -116,6 +121,7 @@ type ProcessingState = {
   jobId: string
   jobStatus: AppBskyVideoDefs.JobStatus | null
   pendingPublish?: undefined
+  telemetry: VideoTelemetry
   altText: string
   captions: CaptionsTrack[]
 }
@@ -128,6 +134,7 @@ type DoneState = {
   video: CompressedVideo
   jobId?: undefined
   pendingPublish: {blobRef: BlobRef}
+  telemetry: VideoTelemetry
   altText: string
   captions: CaptionsTrack[]
 }
@@ -142,12 +149,14 @@ export type VideoState =
 export function createVideoState(
   asset: ImagePickerAsset,
   abortController: AbortController,
+  telemetry: VideoTelemetry,
 ): CompressingState {
   return {
     status: 'compressing',
     progress: 0,
     abortController,
     asset,
+    telemetry,
     altText: '',
     captions: [],
   }
@@ -170,6 +179,7 @@ export function videoReducer(
       asset: state.asset ?? null,
       video: state.video ?? null,
       jobId: state.jobId ?? null,
+      telemetry: state.telemetry,
       altText: state.altText,
       captions: state.captions,
     }
@@ -198,6 +208,7 @@ export function videoReducer(
         abortController: state.abortController,
         asset: state.asset,
         video: action.video,
+        telemetry: state.telemetry,
         altText: state.altText,
         captions: state.captions,
       }
@@ -213,6 +224,7 @@ export function videoReducer(
         video: state.video,
         jobId: action.jobId,
         jobStatus: null,
+        telemetry: state.telemetry,
         altText: state.altText,
         captions: state.captions,
       }
@@ -239,6 +251,7 @@ export function videoReducer(
         pendingPublish: {
           blobRef: action.blobRef,
         },
+        telemetry: state.telemetry,
         altText: state.altText,
         captions: state.captions,
       }
@@ -265,18 +278,22 @@ export async function processVideo(
   did: string,
   signal: AbortSignal,
   i18n: I18n,
+  telemetry: VideoTelemetry,
 ) {
   let video: CompressedVideo | undefined
   try {
+    telemetry.compressStarted()
     video = await compressVideo(asset, {
       onProgress: num => {
         dispatch({type: 'update_progress', progress: trunc2dp(num), signal})
       },
       signal,
+      onProbe: metadata => telemetry.probed(metadata),
     })
   } catch (e) {
     const message = getCompressErrorMessage(e, i18n)
     if (message !== null) {
+      telemetry.compressFailed(e)
       dispatch({
         type: 'to_error',
         error: message,
@@ -284,6 +301,15 @@ export async function processVideo(
       })
     }
     return
+  }
+  if (video.passthroughReason) {
+    telemetry.compressSkipped({
+      size: video.size,
+      mimeType: video.mimeType,
+      skipReason: video.passthroughReason,
+    })
+  } else {
+    telemetry.compressCompleted({size: video.size, mimeType: video.mimeType})
   }
   dispatch({
     type: 'compressing_to_uploading',
@@ -293,12 +319,14 @@ export async function processVideo(
 
   let uploadResponse: AppBskyVideoDefs.JobStatus | undefined
   try {
+    telemetry.uploadStarted(video.size)
     uploadResponse = await uploadVideo({
       video,
       agent,
       did,
       signal,
       i18n,
+      onTransport: telemetry.uploadTransport,
       setProgress: p => {
         dispatch({type: 'update_progress', progress: p, signal})
       },
@@ -306,6 +334,7 @@ export async function processVideo(
   } catch (e) {
     const message = getUploadErrorMessage(e, i18n)
     if (message !== null) {
+      telemetry.uploadFailed(e)
       dispatch({
         type: 'to_error',
         error: message,
@@ -316,6 +345,8 @@ export async function processVideo(
   }
 
   const jobId = uploadResponse.jobId
+  telemetry.uploadCompleted(jobId)
+  telemetry.processingStarted(jobId)
   dispatch({
     type: 'uploading_to_processing',
     jobId,
@@ -354,15 +385,21 @@ export async function processVideo(
       }
 
       logger.error('Error processing video', {safeMessage: e})
+      telemetry.processingFailed(e)
       dispatch({
         type: 'to_error',
-        error: i18n._(msg`Video failed to process`),
+        error: getProcessingErrorMessage(
+          status?.failureCode,
+          status?.error,
+          i18n,
+        ),
         signal,
       })
       return // Exit async loop
     }
 
     if (blob) {
+      telemetry.processingCompleted()
       dispatch({
         type: 'to_done',
         blobRef: blob,
@@ -385,6 +422,54 @@ export async function processVideo(
     }
 
     return // Exit async loop
+  }
+}
+
+function getProcessingErrorMessage(
+  failureCode: string | undefined,
+  error: string | undefined,
+  i18n: I18n,
+) {
+  const validationError = getValidationErrorMessage(error, i18n)
+  if (failureCode === 'validation_failure') {
+    return (
+      validationError ?? i18n._(msg`The selected video could not be processed.`)
+    )
+  }
+  // Support workers deployed before failureCode was added.
+  if (!failureCode && validationError) {
+    return validationError
+  }
+
+  switch (failureCode) {
+    case 'encoding_failure':
+      return i18n._(msg`The selected video could not be encoded.`)
+    case 'pds_upload_failure':
+      return i18n._(
+        msg`The video could not be uploaded to your PDS. Please try again.`,
+      )
+    case 'pds_upload_unsupported_blob_size':
+      return i18n._(
+        msg`Your PDS does not support videos this large. Please try again with a smaller file.`,
+      )
+    case 'generic_failure':
+    default:
+      return i18n._(msg`Video failed to process`)
+  }
+}
+
+function getValidationErrorMessage(error: string | undefined, i18n: I18n) {
+  switch (error) {
+    case 'video_too_long':
+      return i18n._(msg`The selected video is too long.`)
+    case 'bad_aspect_ratio':
+      return i18n._(msg`The selected video has an unsupported aspect ratio.`)
+    case 'unsupported_codec':
+      return i18n._(msg`The selected video uses an unsupported format.`)
+    case 'encoded_video_too_large':
+      return i18n._(
+        msg`The processed video is too large. Please try again with a smaller file.`,
+      )
   }
 }
 
