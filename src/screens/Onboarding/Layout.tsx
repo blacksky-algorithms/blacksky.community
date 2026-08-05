@@ -50,6 +50,13 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
   const [headerHeight, setHeaderHeight] = useState(0)
   const [footerHeight, setFooterHeight] = useState(0)
 
+  // The redesigned steps own their full chrome (top app bar, eyebrow, heading
+  // and inline action button) via `#/components/onboarding-chrome`. Only the
+  // not-yet-restyled `finished` step still drives the shared header and footer
+  // through the `OnboardingHeaderSlot` / `OnboardingControls` portals, so those
+  // outlets — and the legacy header/footer that host them — render for it alone.
+  const isLegacyChrome = state.activeStep === 'finished'
+
   return (
     <View
       aria-modal
@@ -59,7 +66,27 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
       accessibilityLabel={dialogLabel}
       accessibilityHint={_(msg`Customizes your Blacksky experience`)}
       style={[IS_WEB ? a.fixed : a.absolute, a.inset_0, a.flex_1, t.atoms.bg]}>
-      {!gtMobile ? (
+      {IS_INTERNAL && (
+        <View
+          style={[
+            a.absolute,
+            a.align_center,
+            a.z_20,
+            {top: 0, left: 0, right: 0, paddingTop: insets.top},
+          ]}>
+          <Button
+            variant="ghost"
+            color="negative"
+            size="tiny"
+            onPress={() => onboardDispatch({type: 'skip'})}
+            // DEV ONLY
+            label="Clear onboarding state">
+            <ButtonText>[DEV] Clear</ButtonText>
+          </Button>
+        </View>
+      )}
+
+      {isLegacyChrome && !gtMobile && (
         <View
           style={[
             web(a.fixed),
@@ -70,7 +97,7 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
             a.flex_row,
             a.w_full,
             a.justify_center,
-            a.z_20,
+            a.z_10,
             a.px_xl,
             {paddingTop: (web(tokens.space.lg) ?? 0) + insets.top},
             native([t.atoms.bg, a.pb_xs, {minHeight: 48}]),
@@ -101,45 +128,11 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
               )}
             </HeaderSlot>
 
-            {IS_INTERNAL && (
-              <Button
-                variant="ghost"
-                color="negative"
-                size="tiny"
-                onPress={() => onboardDispatch({type: 'skip'})}
-                // DEV ONLY
-                label="Clear onboarding state">
-                <ButtonText>[DEV] Clear</ButtonText>
-              </Button>
-            )}
-
             <HeaderSlot>
               <OnboardingHeaderSlot.Outlet />
             </HeaderSlot>
           </View>
         </View>
-      ) : (
-        <>
-          {IS_INTERNAL && (
-            <View
-              style={[
-                a.absolute,
-                a.align_center,
-                a.z_10,
-                {top: 0, left: 0, right: 0},
-              ]}>
-              <Button
-                variant="ghost"
-                color="negative"
-                size="tiny"
-                onPress={() => onboardDispatch({type: 'skip'})}
-                // DEV ONLY
-                label="Clear onboarding state">
-                <ButtonText>[DEV] Clear</ButtonText>
-              </Button>
-            </View>
-          )}
-        </>
       )}
 
       <ScrollView
@@ -148,11 +141,19 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
         contentContainerStyle={{
           borderWidth: 0,
           minHeight: '100%',
-          paddingTop: gtMobile ? 40 : headerHeight,
-          paddingBottom: footerHeight,
+          paddingTop: gtMobile
+            ? 40
+            : isLegacyChrome
+              ? headerHeight
+              : insets.top,
+          paddingBottom: isLegacyChrome
+            ? footerHeight
+            : insets.bottom + tokens.space.xl,
         }}
         showsVerticalScrollIndicator={!IS_ANDROID}
-        scrollIndicatorInsets={{bottom: footerHeight - insets.bottom}}
+        scrollIndicatorInsets={{
+          bottom: isLegacyChrome ? footerHeight - insets.bottom : 0,
+        }}
         // @ts-expect-error web only --prf
         dataSet={{'stable-gutters': 1}}
         centerContent={gtMobile}>
@@ -164,47 +165,49 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
         </View>
       </ScrollView>
 
-      <View
-        onLayout={evt => setFooterHeight(evt.nativeEvent.layout.height)}
-        style={[
-          IS_WEB ? a.fixed : a.absolute,
-          {bottom: 0, left: 0, right: 0},
-          t.atoms.bg,
-          t.atoms.border_contrast_low,
-          a.border_t,
-          a.align_center,
-          gtMobile ? a.px_5xl : a.px_xl,
-          IS_WEB
-            ? a.py_2xl
-            : {
-                paddingTop: tokens.space.md,
-                paddingBottom: insets.bottom + tokens.space.md,
-              },
-        ]}>
+      {isLegacyChrome && (
         <View
+          onLayout={evt => setFooterHeight(evt.nativeEvent.layout.height)}
           style={[
-            a.w_full,
-            {maxWidth: ONBOARDING_COL_WIDTH},
-            gtMobile && [a.flex_row, a.justify_between, a.align_center],
+            IS_WEB ? a.fixed : a.absolute,
+            {bottom: 0, left: 0, right: 0},
+            t.atoms.bg,
+            t.atoms.border_contrast_low,
+            a.border_t,
+            a.align_center,
+            gtMobile ? a.px_5xl : a.px_xl,
+            IS_WEB
+              ? a.py_2xl
+              : {
+                  paddingTop: tokens.space.md,
+                  paddingBottom: insets.bottom + tokens.space.md,
+                },
           ]}>
-          {gtMobile &&
-            (state.canGoBack ? (
-              <Button
-                key={state.activeStep} // remove focus state on nav
-                color="secondary"
-                variant="ghost"
-                shape="square"
-                size="small"
-                label={_(msg`Go back to previous step`)}
-                onPress={() => dispatch({type: 'prev'})}>
-                <ButtonIcon icon={ArrowLeft} size="lg" />
-              </Button>
-            ) : (
-              <View style={{height: 33}} />
-            ))}
-          <OnboardingControls.Outlet />
+          <View
+            style={[
+              a.w_full,
+              {maxWidth: ONBOARDING_COL_WIDTH},
+              gtMobile && [a.flex_row, a.justify_between, a.align_center],
+            ]}>
+            {gtMobile &&
+              (state.canGoBack ? (
+                <Button
+                  key={state.activeStep} // remove focus state on nav
+                  color="secondary"
+                  variant="ghost"
+                  shape="square"
+                  size="small"
+                  label={_(msg`Go back to previous step`)}
+                  onPress={() => dispatch({type: 'prev'})}>
+                  <ButtonIcon icon={ArrowLeft} size="lg" />
+                </Button>
+              ) : (
+                <View style={{height: 33}} />
+              ))}
+            <OnboardingControls.Outlet />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   )
 }
