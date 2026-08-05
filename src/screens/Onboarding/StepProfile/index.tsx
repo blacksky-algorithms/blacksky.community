@@ -248,7 +248,7 @@ export function StepProfile() {
   return (
     <AvatarContext.Provider value={value}>
       <View style={[a.gap_lg]}>
-        <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+        <AppBar showBack={state.canGoBack} onBack={() => dispatch({type: 'prev'})} />
 
         <Eyebrow step={4} total={7} />
 
