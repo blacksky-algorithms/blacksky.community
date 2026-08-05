@@ -10,7 +10,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
-import {DM_SERVICE_HEADERS} from '#/lib/constants'
+import {DM_SERVICE_HEADERS, HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {logger} from '#/logger'
 import {useAgent} from '#/state/session'
 import * as Toast from '#/components/Toast'
@@ -72,7 +72,10 @@ export function useNotificationSettingsQuery({
   return useQuery({
     queryKey: RQKEY_APP,
     queryFn: async (): Promise<AppNotificationSettingsPreferences> => {
-      const res = await agent.app.bsky.notification.getPreferences()
+      const res = await agent.app.bsky.notification.getPreferences(
+        undefined,
+        HOME_APPVIEW_PINNED_OPTS,
+      )
       return appPreferencesWithoutChat(res.data.preferences)
     },
     enabled,
@@ -104,7 +107,10 @@ export function useNotificationSettingsUpdateMutation() {
       const {appUpdate, chatUpdate} = splitNotificationSettingsUpdate(update)
       await Promise.all([
         hasUpdates(appUpdate)
-          ? agent.app.bsky.notification.putPreferencesV2(appUpdate)
+          ? agent.app.bsky.notification.putPreferencesV2(
+              appUpdate,
+              HOME_APPVIEW_PINNED_OPTS,
+            )
           : undefined,
         hasUpdates(chatUpdate)
           ? agent.chat.bsky.notification.putPreferences(chatUpdate, {

@@ -30,6 +30,7 @@ import {
 } from '#/lib/constants'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
+import {reportProxiedFetch} from '#/state/appview-health'
 import {snoozeEmailConfirmationPrompt} from '#/state/shell/reminders'
 import {features} from '#/analytics'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
@@ -500,9 +501,11 @@ class BskyAppAgent extends BskyAgent {
         try {
           const result = await realFetch(input, init)
           success = true
+          reportProxiedFetch(init, result.status)
           return result
         } catch (e) {
           success = false
+          reportProxiedFetch(init, null)
           throw e
         } finally {
           if (success) {

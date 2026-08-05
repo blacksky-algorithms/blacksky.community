@@ -13,6 +13,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {useAgent, useSession} from '#/state/session'
 import * as Toast from '#/components/Toast'
 
@@ -26,9 +27,12 @@ export function useActivitySubscriptionsQuery() {
     queryKey: RQKEY_getActivitySubscriptions,
     queryFn: async ({pageParam}) => {
       const response =
-        await agent.app.bsky.notification.listActivitySubscriptions({
-          cursor: pageParam,
-        })
+        await agent.app.bsky.notification.listActivitySubscriptions(
+          {
+            cursor: pageParam,
+          },
+          HOME_APPVIEW_PINNED_OPTS,
+        )
       return response.data
     },
     initialPageParam: undefined as string | undefined,

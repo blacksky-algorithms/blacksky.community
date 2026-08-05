@@ -239,7 +239,7 @@ msgid "{0} added to chat"
 msgstr "{0}がチャットに追加されました"
 
 #. placeholder {0}: brand.messages.postButtonLabel
-#: src/view/com/composer/Composer.tsx:1960
+#: src/view/com/composer/Composer.tsx:1961
 msgctxt "action"
 msgid "{0} All"
 msgstr ""
@@ -1259,11 +1259,11 @@ msgstr "ALTテキストを追加（オプション）"
 msgid "Add another account"
 msgstr "他のアカウントを追加"
 
-#: src/view/com/composer/Composer.tsx:1673
+#: src/view/com/composer/Composer.tsx:1674
 msgid "Add another post"
 msgstr "他の投稿を追加"
 
-#: src/view/com/composer/Composer.tsx:2371
+#: src/view/com/composer/Composer.tsx:2377
 msgid "Add another post to thread"
 msgstr "スレッドに他の投稿を追加"
 
@@ -1982,7 +1982,7 @@ msgstr "本当にこのフィードをあなたのフィードから削除した
 msgid "Are you sure you want to rescind your request to join {0}?"
 msgstr "本当に{0}に参加するリクエストを取り消しますか？"
 
-#: src/view/com/composer/Composer.tsx:1809
+#: src/view/com/composer/Composer.tsx:1810
 msgid "Are you sure you'd like to discard this post?"
 msgstr "本当にこの投稿を削除しますか？"
 
@@ -2195,9 +2195,13 @@ msgid "Blacksky needs camera access to scan QR codes from other profiles."
 msgstr ""
 
 #: src/components/CommunityOnlyBadge.tsx:57
-#: src/view/com/composer/Composer.tsx:2157
-#: src/view/com/composer/Composer.tsx:2167
+#: src/view/com/composer/Composer.tsx:2159
+#: src/view/com/composer/Composer.tsx:2172
 msgid "Blacksky Only"
+msgstr ""
+
+#: src/view/com/composer/Composer.tsx:2170
+msgid "Blacksky Only (temporarily unavailable)"
 msgstr ""
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:343
@@ -2482,7 +2486,7 @@ msgstr "カメラ"
 msgid "Camera access needed"
 msgstr "カメラへのアクセスが必要です"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:213
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:217
 #: src/components/contacts/screens/GetContacts.tsx:292
 #: src/components/contacts/screens/GetContacts.tsx:297
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:122
@@ -2527,8 +2531,8 @@ msgstr "カメラへのアクセスが必要です"
 #: src/screens/Settings/Settings.tsx:312
 #: src/screens/Takendown.tsx:104
 #: src/screens/Takendown.tsx:107
-#: src/view/com/composer/Composer.tsx:1888
-#: src/view/com/composer/Composer.tsx:1898
+#: src/view/com/composer/Composer.tsx:1889
+#: src/view/com/composer/Composer.tsx:1899
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:44
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:53
 #: src/view/shell/desktop/LeftNav.tsx:232
@@ -2655,7 +2659,7 @@ msgstr "アプリアイコンを変更"
 msgid "Changes hosting provider"
 msgstr "ホスティングプロバイダーを変更"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:179
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:183
 msgid "Changes saved"
 msgstr "変更を保存しました"
 
@@ -3007,7 +3011,7 @@ msgstr "バナーを閉じる"
 msgid "Close dialog"
 msgstr "ダイアログを閉じる"
 
-#: src/view/shell/index.web.tsx:100
+#: src/view/shell/index.web.tsx:102
 msgid "Close drawer menu"
 msgstr "引き出しメニューを閉じる"
 
@@ -3051,7 +3055,7 @@ msgstr "ウェルカムモーダルを閉じる"
 msgid "Closes password update alert"
 msgstr "パスワード更新アラートを閉じる"
 
-#: src/view/com/composer/Composer.tsx:1896
+#: src/view/com/composer/Composer.tsx:1897
 msgid "Closes post composer and discards post draft"
 msgstr "投稿の編集画面を閉じて下書きを破棄"
 
@@ -3094,6 +3098,10 @@ msgstr ""
 msgid "Community Builder"
 msgstr ""
 
+#: src/components/HomeAppviewOutageNotice.tsx:27
+msgid "Community features are temporarily unavailable. We're working on it — the rest of the app still works."
+msgstr ""
+
 #: src/Navigation.tsx:367
 #: src/view/screens/CommunityGuidelines.tsx:28
 msgid "Community Guidelines"
@@ -3114,7 +3122,7 @@ msgid "Compose new post"
 msgstr "新しい投稿を作成"
 
 #. placeholder {0}: MAX_GRAPHEME_LENGTH || 0
-#: src/view/com/composer/Composer.tsx:1771
+#: src/view/com/composer/Composer.tsx:1772
 msgid "Compose posts up to {0, plural, other {# characters}} in length"
 msgstr "最大{0, plural, other {#文字}}まで投稿を編集"
 
@@ -3122,11 +3130,11 @@ msgstr "最大{0, plural, other {#文字}}まで投稿を編集"
 msgid "Compose reply"
 msgstr "返信を作成"
 
-#: src/view/com/composer/Composer.tsx:2775
+#: src/view/com/composer/Composer.tsx:2781
 msgid "Compressing GIF..."
 msgstr "GIFを圧縮中…"
 
-#: src/view/com/composer/Composer.tsx:2777
+#: src/view/com/composer/Composer.tsx:2783
 msgid "Compressing video..."
 msgstr "ビデオを圧縮中…"
 
@@ -3506,7 +3514,7 @@ msgid "Could not remove member."
 msgstr "メンバーを外せませんでした。"
 
 #. placeholder {0}: cleanError(error)
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:295
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:299
 msgid "Could not save changes: {0}"
 msgstr "変更を保存できませんでした：{0}"
 
@@ -3514,7 +3522,7 @@ msgstr "変更を保存できませんでした：{0}"
 msgid "Could not share – please try again"
 msgstr "共有できませんでした – もう一度お試しください"
 
-#: src/state/queries/notifications/settings.ts:124
+#: src/state/queries/notifications/settings.ts:130
 msgid "Could not update notification settings"
 msgstr "通知の設定を更新できませんでした"
 
@@ -3856,7 +3864,7 @@ msgstr "アカウントを削除"
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:767
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:769
-#: src/view/com/composer/Composer.tsx:1783
+#: src/view/com/composer/Composer.tsx:1784
 msgid "Delete post"
 msgstr "投稿を削除"
 
@@ -4015,9 +4023,9 @@ msgstr "無効"
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:101
 #: src/screens/Profile/Header/EditProfileDialog.tsx:82
-#: src/view/com/composer/Composer.tsx:1562
-#: src/view/com/composer/Composer.tsx:1606
-#: src/view/com/composer/Composer.tsx:1816
+#: src/view/com/composer/Composer.tsx:1563
+#: src/view/com/composer/Composer.tsx:1607
+#: src/view/com/composer/Composer.tsx:1817
 #: src/view/com/composer/drafts/DraftItem.tsx:242
 #: src/view/com/composer/drafts/DraftsButton.tsx:131
 msgid "Discard"
@@ -4028,14 +4036,14 @@ msgstr "破棄"
 msgid "Discard changes?"
 msgstr "変更を破棄しますか？"
 
-#: src/view/com/composer/Composer.tsx:1560
+#: src/view/com/composer/Composer.tsx:1561
 #: src/view/com/composer/drafts/DraftItem.tsx:239
 #: src/view/com/composer/drafts/DraftsButton.tsx:98
 msgid "Discard draft?"
 msgstr "下書きを削除しますか？"
 
-#: src/view/com/composer/Composer.tsx:1577
-#: src/view/com/composer/Composer.tsx:1808
+#: src/view/com/composer/Composer.tsx:1578
+#: src/view/com/composer/Composer.tsx:1809
 msgid "Discard post?"
 msgstr "投稿を削除しますか？"
 
@@ -4075,7 +4083,7 @@ msgstr "消す"
 msgid "Dismiss banner"
 msgstr "バナーを閉じる"
 
-#: src/view/com/composer/Composer.tsx:2696
+#: src/view/com/composer/Composer.tsx:2702
 msgid "Dismiss error"
 msgstr "エラーを消す"
 
@@ -4560,7 +4568,7 @@ msgstr "有効"
 
 #: src/screens/Profile/Sections/CommunityFeed.tsx:152
 #: src/screens/Profile/Sections/Feed.tsx:135
-#: src/view/com/feeds/CommunityFeedPage.tsx:277
+#: src/view/com/feeds/CommunityFeedPage.tsx:278
 msgid "End of feed"
 msgstr "フィードの終わり"
 
@@ -4638,7 +4646,7 @@ msgstr "フルスクリーンで表示"
 msgid "Entertainment"
 msgstr "エンターテインメント"
 
-#: src/view/com/composer/Composer.tsx:2795
+#: src/view/com/composer/Composer.tsx:2801
 #: src/view/com/util/error/ErrorScreen.tsx:40
 msgid "Error"
 msgstr "エラー"
@@ -4974,7 +4982,7 @@ msgstr "グループチャットからの退出に失敗"
 
 #: src/components/CommunityFeed.tsx:39
 #: src/screens/Profile/Sections/CommunityFeed.tsx:119
-#: src/view/com/feeds/CommunityFeedPage.tsx:245
+#: src/view/com/feeds/CommunityFeedPage.tsx:246
 msgid "Failed to load community posts"
 msgstr ""
 
@@ -5073,7 +5081,7 @@ msgstr "認証の削除に失敗しました"
 msgid "Failed to rescind your request. Please try again."
 msgstr "リクエストを取り消すことができませんでした。もう一度やり直してください。"
 
-#: src/view/com/composer/Composer.tsx:783
+#: src/view/com/composer/Composer.tsx:784
 msgid "Failed to save draft"
 msgstr "下書きの保存に失敗しました"
 
@@ -5141,7 +5149,7 @@ msgstr "メールの更新に失敗しました。後でもう一度お試しく
 msgid "Failed to update feeds"
 msgstr "フィードの更新に失敗しました"
 
-#: src/state/queries/activity-subscriptions.ts:101
+#: src/state/queries/activity-subscriptions.ts:105
 msgid "Failed to update notification declaration"
 msgstr "通知受信制限の更新に失敗しました"
 
@@ -5710,11 +5718,11 @@ msgstr "新しい投稿の通知を受け取る"
 msgid "Get notified about posts and replies from accounts you choose."
 msgstr "選択したアカウントからの投稿や返信について通知を受け取ります。"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:226
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
 msgid "Get notified of new posts from {name}"
 msgstr "{name} の新しい投稿の通知を受け取る"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:233
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:237
 msgid "Get notified of this account’s activity"
 msgstr "このアカウントのアクティビティの通知を受け取る"
 
@@ -5734,7 +5742,7 @@ msgstr "開始"
 msgid "GIF"
 msgstr "GIF"
 
-#: src/view/com/composer/Composer.tsx:2800
+#: src/view/com/composer/Composer.tsx:2806
 msgid "GIF uploaded"
 msgstr "GIFをアップロードしました"
 
@@ -6631,7 +6639,7 @@ msgid "It's just you right now! Add more people to your starter pack by searchin
 msgstr "今はあなただけ！上で検索してスターターパックにより多くのユーザーを追加してください。"
 
 #. placeholder {0}: videoState.jobId
-#: src/view/com/composer/Composer.tsx:2715
+#: src/view/com/composer/Composer.tsx:2721
 msgid "Job ID: {0}"
 msgstr "ジョブID：{0}"
 
@@ -6661,13 +6669,13 @@ msgstr "参加リクエストが取り消されました。"
 msgid "Journalism"
 msgstr "報道"
 
-#: src/view/com/composer/Composer.tsx:1610
-#: src/view/com/composer/Composer.tsx:1620
+#: src/view/com/composer/Composer.tsx:1611
+#: src/view/com/composer/Composer.tsx:1621
 #: src/view/com/composer/drafts/DraftsButton.tsx:135
 msgid "Keep editing"
 msgstr "編集を続ける"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:234
 msgid "Keep me posted"
 msgstr "投稿を逃さない"
 
@@ -7109,7 +7117,7 @@ msgstr "最新の通知を読み込む"
 #: src/screens/Profile/ProfileFeed/index.tsx:208
 #: src/screens/Profile/Sections/Feed.tsx:121
 #: src/screens/ProfileList/FeedSection.tsx:113
-#: src/view/com/feeds/CommunityFeedPage.tsx:308
+#: src/view/com/feeds/CommunityFeedPage.tsx:310
 #: src/view/com/feeds/FeedPage.tsx:168
 msgid "Load new posts"
 msgstr "最新の投稿を読み込む"
@@ -7800,7 +7808,7 @@ msgstr "新しいパスワード"
 #: src/screens/Profile/ProfileFeed/index.tsx:218
 #: src/screens/ProfileList/index.tsx:237
 #: src/screens/ProfileList/index.tsx:280
-#: src/view/com/feeds/CommunityFeedPage.tsx:318
+#: src/view/com/feeds/CommunityFeedPage.tsx:320
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
 #: src/view/screens/Profile.tsx:657
@@ -7894,7 +7902,7 @@ msgstr "現在ベータ版の機能はありません。"
 
 #: src/components/CommunityFeed.tsx:51
 #: src/screens/Profile/Sections/CommunityFeed.tsx:129
-#: src/view/com/feeds/CommunityFeedPage.tsx:253
+#: src/view/com/feeds/CommunityFeedPage.tsx:254
 msgid "No community posts yet"
 msgstr ""
 
@@ -8291,11 +8299,11 @@ msgstr "選択した受信者のいずれかがグループチャットを許可
 msgid "One of the selected recipients has blocked you and cannot be messaged."
 msgstr "選択した受信者のいずれかがあなたをブロックしていてメッセージを送れません。"
 
-#: src/view/com/composer/Composer.tsx:991
+#: src/view/com/composer/Composer.tsx:992
 msgid "One or more GIFs is missing alt text."
 msgstr "1つもしくは複数のGIFにALTテキストがありません。"
 
-#: src/view/com/composer/Composer.tsx:988
+#: src/view/com/composer/Composer.tsx:989
 msgid "One or more images is missing alt text."
 msgstr "1つもしくは複数の画像にALTテキストがありません。"
 
@@ -8307,11 +8315,11 @@ msgstr "選択したファイルの 1つ以上がサポートされていませ�
 msgid "One or more of your selected files are too large. Maximum size is {VIDEO_MAX_SIZE_MB} MB."
 msgstr "選択したファイルの1つ以上が大きすぎます。最大サイズは {VIDEO_MAX_SIZE_MB}MBです。"
 
-#: src/view/com/composer/Composer.tsx:794
+#: src/view/com/composer/Composer.tsx:795
 msgid "One or more posts are too long to save as a draft. {MAX_DRAFT_GRAPHEME_LENGTH, plural, one {The maximum number of characters is # character.} other {The maximum number of characters is # characters.}}"
 msgstr "一つ以上の投稿が下書きとしては長すぎます。{MAX_DRAFT_GRAPHEME_LENGTH, plural,other {最大で#文字です。}}"
 
-#: src/view/com/composer/Composer.tsx:998
+#: src/view/com/composer/Composer.tsx:999
 msgid "One or more videos is missing alt text."
 msgstr "1つもしくは複数のビデオにALTテキストがありません。"
 
@@ -8329,7 +8337,7 @@ msgstr "{0}のみ返信可能。"
 #. placeholder {0}: result.accepted.length
 #. placeholder {1}: next.length
 #. placeholder {2}: next.length
-#: src/view/com/composer/Composer.tsx:243
+#: src/view/com/composer/Composer.tsx:244
 msgid "Only {0} of {1} {2, plural, one {image} other {images}} added; limit is {MAX_GALLERY_IMAGES}"
 msgstr "{1}枚の{2, plural, other {画像}}中{0}枚のみを追加しました。最大で{MAX_GALLERY_IMAGES}枚です"
 
@@ -8441,7 +8449,7 @@ msgid "Open drawer menu"
 msgstr "引き出しメニューを開く"
 
 #: src/screens/Messages/components/MessageComposer.tsx:213
-#: src/view/com/composer/Composer.tsx:2348
+#: src/view/com/composer/Composer.tsx:2354
 msgid "Open emoji picker"
 msgstr "絵文字を入力"
 
@@ -9167,7 +9175,7 @@ msgstr "写真を投稿"
 msgid "Post a video"
 msgstr "ビデオを投稿"
 
-#: src/view/com/composer/Composer.tsx:1619
+#: src/view/com/composer/Composer.tsx:1620
 msgid "Post anyway"
 msgstr "とにかく投稿する"
 
@@ -9253,8 +9261,8 @@ msgctxt "toast"
 msgid "Post unpinned"
 msgstr "投稿の固定を解除しました"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:257
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:269
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:261
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:273
 #: src/screens/ProfileList/index.tsx:167
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:197
@@ -9351,11 +9359,11 @@ msgstr "プライバシーポリシー"
 msgid "Privacy violation of a minor"
 msgstr "未成年者のプライバシー侵害"
 
-#: src/view/com/composer/Composer.tsx:2789
+#: src/view/com/composer/Composer.tsx:2795
 msgid "Processing GIF..."
 msgstr "GIFを処理しています…"
 
-#: src/view/com/composer/Composer.tsx:2791
+#: src/view/com/composer/Composer.tsx:2797
 msgid "Processing video..."
 msgstr "ビデオを処理中…"
 
@@ -9409,22 +9417,22 @@ msgid "Public, sharable lists of users to mute or block in bulk."
 msgstr "ユーザーを一括でミュートまたはブロックする、公開された共有可能なリスト。"
 
 #. Accessibility label for button to publish a single post
-#: src/view/com/composer/Composer.tsx:1946
+#: src/view/com/composer/Composer.tsx:1947
 msgid "Publish post"
 msgstr "投稿を公開"
 
 #. Accessibility label for button to publish multiple posts in a thread
-#: src/view/com/composer/Composer.tsx:1941
+#: src/view/com/composer/Composer.tsx:1942
 msgid "Publish posts"
 msgstr "投稿を公開"
 
 #. Accessibility label for button to publish multiple replies in a thread
-#: src/view/com/composer/Composer.tsx:1930
+#: src/view/com/composer/Composer.tsx:1931
 msgid "Publish replies"
 msgstr "返信を公開"
 
 #. Accessibility label for button to publish a single reply
-#: src/view/com/composer/Composer.tsx:1935
+#: src/view/com/composer/Composer.tsx:1936
 msgid "Publish reply"
 msgstr "返信を公開"
 
@@ -9889,8 +9897,8 @@ msgstr "参加する前に送られた返信先メッセージ"
 msgid "Replied-to message, tap to scroll to it"
 msgstr "返信先のメッセージ、タップしてスクロール"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:274
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:286
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:278
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:290
 #: src/lib/hooks/useNotificationHandler.ts:172
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:218
 #: src/screens/Settings/NotificationSettings/index.tsx:182
@@ -9912,7 +9920,7 @@ msgstr "この投稿への返信は無効化されています。"
 msgid "Reply"
 msgstr "返信"
 
-#: src/view/com/composer/Composer.tsx:1958
+#: src/view/com/composer/Composer.tsx:1959
 msgctxt "action"
 msgid "Reply"
 msgstr "返信"
@@ -10317,28 +10325,28 @@ msgstr "保存"
 msgid "Save birthdate"
 msgstr "生年月日を保存"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:198
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:207
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:202
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:211
 #: src/screens/SavedFeeds.tsx:122
 #: src/screens/SavedFeeds.tsx:126
 #: src/screens/SavedFeeds.tsx:314
 #: src/screens/SavedFeeds.tsx:318
-#: src/view/com/composer/Composer.tsx:1600
+#: src/view/com/composer/Composer.tsx:1601
 #: src/view/com/composer/drafts/DraftsButton.tsx:125
 msgid "Save changes"
 msgstr "変更を保存"
 
-#: src/view/com/composer/Composer.tsx:1572
+#: src/view/com/composer/Composer.tsx:1573
 #: src/view/com/composer/drafts/DraftsButton.tsx:93
 msgid "Save changes?"
 msgstr "変更を保存しますか？"
 
-#: src/view/com/composer/Composer.tsx:1600
+#: src/view/com/composer/Composer.tsx:1601
 #: src/view/com/composer/drafts/DraftsButton.tsx:125
 msgid "Save draft"
 msgstr "下書きを保存"
 
-#: src/view/com/composer/Composer.tsx:1574
+#: src/view/com/composer/Composer.tsx:1575
 #: src/view/com/composer/drafts/DraftsButton.tsx:95
 msgid "Save draft?"
 msgstr "下書きを保存しますか？"
@@ -11362,7 +11370,7 @@ msgstr "スキップ"
 msgid "Skip contact sharing and continue to the app"
 msgstr "連絡先の共有をスキップしてアプリに進む"
 
-#: src/view/com/composer/Composer.tsx:1617
+#: src/view/com/composer/Composer.tsx:1618
 msgid "Skip empty posts?"
 msgstr "空の投稿をスキップしますか？"
 
@@ -11717,7 +11725,7 @@ msgstr "{0}の{publicationTitle}を購読"
 msgid "Subscribe to @{0} to use these labels:"
 msgstr "これらのラベルを使用するには@{0}を登録してください："
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:252
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:256
 msgid "Subscribe to account activity"
 msgstr "アカウントアクティビティを購読する"
 
@@ -12648,7 +12656,7 @@ msgstr "この投稿は投稿者によって削除されました"
 msgid "This post will be hidden from feeds and threads. This cannot be undone."
 msgstr "この投稿はフィードとスレッドから非表示になります。元に戻すことはできません。"
 
-#: src/view/com/composer/Composer.tsx:1179
+#: src/view/com/composer/Composer.tsx:1180
 msgid "This post's author has disabled quote posts."
 msgstr "この投稿の投稿者は引用投稿を無効にしています。"
 
@@ -13233,7 +13241,7 @@ msgstr "リストの登録を解除しました"
 msgid "Unsupported clipboard content"
 msgstr "サポートされていなクリップボードのコンテンツ"
 
-#: src/view/com/composer/Composer.tsx:1710
+#: src/view/com/composer/Composer.tsx:1711
 msgid "Unsupported video type: {mimeType}"
 msgstr "サポートしていないビデオ形式：{mimeType}"
 
@@ -13319,7 +13327,7 @@ msgstr "ファイルからアップロード"
 msgid "Upload from Library"
 msgstr "ライブラリーからアップロード"
 
-#: src/view/com/composer/Composer.tsx:2782
+#: src/view/com/composer/Composer.tsx:2788
 msgid "Uploading GIF..."
 msgstr "GIFをアップロード中…"
 
@@ -13333,7 +13341,7 @@ msgstr "画像をアップロード中…"
 msgid "Uploading link thumbnail..."
 msgstr "リンクのサムネイルをアップロード中…"
 
-#: src/view/com/composer/Composer.tsx:2784
+#: src/view/com/composer/Composer.tsx:2790
 msgid "Uploading video..."
 msgstr "ビデオをアップロード中…"
 
@@ -13605,7 +13613,7 @@ msgstr "ビデオが見つかりません。"
 msgid "Video settings"
 msgstr "ビデオの設定"
 
-#: src/view/com/composer/Composer.tsx:2802
+#: src/view/com/composer/Composer.tsx:2808
 msgid "Video uploaded"
 msgstr "ビデオをアップロードしました"
 
@@ -13618,19 +13626,19 @@ msgstr "ビデオ：{0}"
 msgid "Videos"
 msgstr "ビデオ"
 
-#: src/view/com/composer/Composer.tsx:477
-#: src/view/com/composer/Composer.tsx:620
+#: src/view/com/composer/Composer.tsx:478
+#: src/view/com/composer/Composer.tsx:621
 #: src/view/com/composer/SelectMediaButton.tsx:444
 msgid "Videos must be 10 minutes or less."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:478
-#: src/view/com/composer/Composer.tsx:621
+#: src/view/com/composer/Composer.tsx:479
+#: src/view/com/composer/Composer.tsx:622
 #: src/view/com/composer/SelectMediaButton.tsx:445
 msgid "Videos must be less than 3 minutes long."
 msgstr "ビデオは3分未満でなければなりません。"
 
-#: src/view/com/composer/Composer.tsx:1297
+#: src/view/com/composer/Composer.tsx:1298
 msgctxt "Action to view the post the user just created"
 msgid "View"
 msgstr "表示"
@@ -13719,7 +13727,7 @@ msgstr "もっと表示"
 msgid "View more trending videos"
 msgstr "話題のビデオをもっと見る"
 
-#: src/view/com/composer/Composer.tsx:1281
+#: src/view/com/composer/Composer.tsx:1282
 msgid "View post"
 msgstr "投稿を表示"
 
@@ -14000,7 +14008,7 @@ msgstr "申し訳ございませんが、検索を完了できませんでした
 msgid "We’re sorry, but your search could not be completed. Please try again in a few minutes."
 msgstr "大変申し訳ありませんが、検索を完了できませんでした。数分後にもう一度お試しください。"
 
-#: src/view/com/composer/Composer.tsx:1177
+#: src/view/com/composer/Composer.tsx:1178
 msgid "We're sorry! The post you are replying to has been deleted."
 msgstr "大変申し訳ありません！返信しようとしている投稿は削除されました。"
 
@@ -14107,7 +14115,7 @@ msgstr "ユーザーをブロックするかこの会話を削除しますか（
 msgid "Would you like to save this as a draft before viewing your drafts?"
 msgstr "保存されている下書きを表示する前にこれを下書きとして保存しますか？"
 
-#: src/view/com/composer/Composer.tsx:1588
+#: src/view/com/composer/Composer.tsx:1589
 msgid "Would you like to save this as a draft to edit later?"
 msgstr "後で編集するためにこれを下書きとして保存しますか？"
 
@@ -14116,12 +14124,12 @@ msgstr "後で編集するためにこれを下書きとして保存しますか
 msgid "Write a post"
 msgstr "投稿を書く"
 
-#: src/view/com/composer/Composer.tsx:1770
+#: src/view/com/composer/Composer.tsx:1771
 msgid "Write post"
 msgstr "投稿を書く"
 
 #: src/screens/PostThread/components/ThreadComposePrompt.tsx:91
-#: src/view/com/composer/Composer.tsx:1672
+#: src/view/com/composer/Composer.tsx:1673
 msgid "Write your reply"
 msgstr "返信を書く"
 
@@ -14282,11 +14290,11 @@ msgid "You can now sign in with your new password."
 msgstr "新しいパスワードでサインインできるようになりました。"
 
 #. Toast shown when the user tries to add more images but the post gallery is already at the cap
-#: src/view/com/composer/Composer.tsx:230
+#: src/view/com/composer/Composer.tsx:231
 msgid "You can only add up to {MAX_GALLERY_IMAGES, plural, other {# images}} per post"
 msgstr "投稿ひとつあたり{MAX_GALLERY_IMAGES, plural, other {画像#枚}}までしか添付できません"
 
-#: src/view/com/composer/Composer.tsx:1593
+#: src/view/com/composer/Composer.tsx:1594
 msgid "You can only save drafts up to 1000 characters."
 msgstr "下書きは最大で1000文字です。"
 
@@ -14426,7 +14434,7 @@ msgstr "メールアドレスの確認に成功しました。このダイアロ
 msgid "You have temporarily reached the limit for video uploads. Please try again later."
 msgstr "ビデオのアップロードの制限に一時的に到達しました。時間をおいてもう一度お試しください。"
 
-#: src/view/com/composer/Composer.tsx:1583
+#: src/view/com/composer/Composer.tsx:1584
 msgid "You have unsaved changes to this draft, would you like to save them?"
 msgstr "この下書きに未保存の変更があります。保存しますか？"
 
@@ -14555,7 +14563,7 @@ msgid "You will be signed out of all your accounts."
 msgstr "すべてのアカウントからサインアウトします。"
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:140
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:144
 msgid "You will no longer receive notifications for {0}"
 msgstr "{0}の通知を受信しなくなります"
 
@@ -14602,7 +14610,7 @@ msgid "You'll need to go to the System Settings for Bluesky and give permission 
 msgstr "この機能を使用する場合は、Blueskyのシステム設定に移動し、権限を与える必要があります。"
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:172
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:176
 msgid "You'll start receiving notifications for {0}!"
 msgstr "{0}の通知を受信し始めます！"
 
@@ -14643,7 +14651,7 @@ msgstr "アクティブなコンテンツの最後に到達しました。"
 msgid "You've reached the end of your feed! Find some more accounts to follow."
 msgstr "フィードはここまでです！もっとフォローするアカウントを見つけましょう。"
 
-#: src/view/com/composer/Composer.tsx:781
+#: src/view/com/composer/Composer.tsx:782
 msgid "You've reached the maximum number of drafts"
 msgstr "下書きの数の上限に達しました"
 
@@ -14836,11 +14844,11 @@ msgstr ""
 msgid "Your PDS does not support videos this large. Please try again with a smaller file."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1277
+#: src/view/com/composer/Composer.tsx:1278
 msgid "Your post was sent"
 msgstr "投稿が送信されました"
 
-#: src/view/com/composer/Composer.tsx:1274
+#: src/view/com/composer/Composer.tsx:1275
 msgid "Your posts were sent"
 msgstr "投稿が送信されました"
 
@@ -14858,7 +14866,7 @@ msgstr "あなたのプロフィール写真のまわりを、他のユーザー
 msgid "Your profile, posts, feeds, and lists will no longer be visible to other {0} users. You can reactivate your account at any time by logging in."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1276
+#: src/view/com/composer/Composer.tsx:1277
 msgid "Your reply was sent"
 msgstr "返信が送信されました"
 
@@ -14879,7 +14887,7 @@ msgstr ""
 msgid "Your support helps us maintain and improve the Blacksky community."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1618
+#: src/view/com/composer/Composer.tsx:1619
 msgid "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 msgstr "あなたのスレッドには空の投稿がありますが、それらはスキップされます。他の残りの投稿はスレッドとして公開されます。"
 

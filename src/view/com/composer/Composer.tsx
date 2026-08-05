@@ -82,6 +82,7 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
 import {colors} from '#/lib/styles'
 import {logger} from '#/logger'
+import {useHomeAppviewOutage} from '#/state/appview-health'
 import {useDialogStateControlContext} from '#/state/dialogs'
 import {emitPostCreated} from '#/state/events'
 import {
@@ -2113,6 +2114,7 @@ function ComposerPills({
   const t = useTheme()
   const {t: l} = useLingui()
   const {data: isCommunityMember = false} = useCommunityMembership()
+  const homeAppviewOutage = useHomeAppviewOutage()
   const media = post.embed.media
   const hasMedia =
     media?.type === 'images' ||
@@ -2156,7 +2158,7 @@ function ComposerPills({
             name="blacksky_only"
             label={l`Blacksky Only`}
             value={thread.blackskyOnly}
-            disabled={isForcedBlackskyOnly}
+            disabled={isForcedBlackskyOnly || homeAppviewOutage}
             onChange={() => {
               const next = !thread.blackskyOnly
               dispatch({type: 'toggle_blacksky_only'})
@@ -2164,7 +2166,11 @@ function ComposerPills({
             }}
             style={[a.flex_row, a.align_center, a.gap_xs]}>
             <Toggle.LabelText>
-              <Trans>Blacksky Only</Trans>
+              {homeAppviewOutage ? (
+                <Trans>Blacksky Only (temporarily unavailable)</Trans>
+              ) : (
+                <Trans>Blacksky Only</Trans>
+              )}
             </Toggle.LabelText>
             <Toggle.Switch />
           </Toggle.Item>

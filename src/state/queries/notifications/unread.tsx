@@ -15,6 +15,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {EventEmitter} from 'eventemitter3'
 
 import BroadcastChannel from '#/lib/broadcast'
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {resetBadgeCount} from '#/lib/notifications/notifications'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {truncateAndInvalidate} from '#/state/queries/util'
@@ -120,8 +121,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     return {
       async markAllRead() {
         // update server
-        await agent.updateSeenNotifications(
-          cacheRef.current.syncedAt.toISOString(),
+        await agent.app.bsky.notification.updateSeen(
+          {seenAt: cacheRef.current.syncedAt.toISOString()},
+          HOME_APPVIEW_PINNED_OPTS,
         )
 
         // update & broadcast

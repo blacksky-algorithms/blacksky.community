@@ -16,6 +16,7 @@ import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
 import {communityXrpc} from '#/lib/api/community'
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {labelIsHideableOffense} from '#/lib/moderation'
 import * as bsky from '#/types/bsky'
 import {precacheProfile} from '../profile'
@@ -61,11 +62,14 @@ export async function fetchPage({
   page: FeedPage
   indexedAt: string | undefined
 }> {
-  const res = await agent.listNotifications({
-    limit,
-    cursor,
-    reasons,
-  })
+  const res = await agent.app.bsky.notification.listNotifications(
+    {
+      limit,
+      cursor,
+      reasons,
+    },
+    HOME_APPVIEW_PINNED_OPTS,
+  )
 
   const indexedAt = res.data.notifications[0]?.indexedAt
 

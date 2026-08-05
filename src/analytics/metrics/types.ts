@@ -31,6 +31,19 @@ export type Events = {
     variationId?: string
   }
 
+  'appviewFallback:changed': {
+    active: boolean
+    trigger: 'auto' | 'force-fallback' | 'force-primary'
+  }
+  'appviewFallback:probe': {
+    result: 'eligible' | 'ineligible' | 'unknown'
+    errorName?: string
+    status?: number
+  }
+  'appviewFallback:outage': {
+    active: boolean
+  }
+
   'account:loggedIn': {
     logContext:
       | 'LoginForm'

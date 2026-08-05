@@ -239,7 +239,7 @@ msgid "{0} added to chat"
 msgstr ""
 
 #. placeholder {0}: brand.messages.postButtonLabel
-#: src/view/com/composer/Composer.tsx:1960
+#: src/view/com/composer/Composer.tsx:1961
 msgctxt "action"
 msgid "{0} All"
 msgstr ""
@@ -1259,11 +1259,11 @@ msgstr "Alt-tekst tafoegje (opsjoneel)"
 msgid "Add another account"
 msgstr "Noch in account tafoegje"
 
-#: src/view/com/composer/Composer.tsx:1673
+#: src/view/com/composer/Composer.tsx:1674
 msgid "Add another post"
 msgstr "Noch in berjocht tafoegje"
 
-#: src/view/com/composer/Composer.tsx:2371
+#: src/view/com/composer/Composer.tsx:2377
 msgid "Add another post to thread"
 msgstr ""
 
@@ -1982,7 +1982,7 @@ msgstr "Bisto wis datsto dit út dyn feeds fuortsmite wolst?"
 msgid "Are you sure you want to rescind your request to join {0}?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1809
+#: src/view/com/composer/Composer.tsx:1810
 msgid "Are you sure you'd like to discard this post?"
 msgstr "Bisto wis datsto dit berjocht fuortsmite wolst?"
 
@@ -2195,9 +2195,13 @@ msgid "Blacksky needs camera access to scan QR codes from other profiles."
 msgstr ""
 
 #: src/components/CommunityOnlyBadge.tsx:57
-#: src/view/com/composer/Composer.tsx:2157
-#: src/view/com/composer/Composer.tsx:2167
+#: src/view/com/composer/Composer.tsx:2159
+#: src/view/com/composer/Composer.tsx:2172
 msgid "Blacksky Only"
+msgstr ""
+
+#: src/view/com/composer/Composer.tsx:2170
+msgid "Blacksky Only (temporarily unavailable)"
 msgstr ""
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:343
@@ -2482,7 +2486,7 @@ msgstr "Kamera"
 msgid "Camera access needed"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:213
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:217
 #: src/components/contacts/screens/GetContacts.tsx:292
 #: src/components/contacts/screens/GetContacts.tsx:297
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:122
@@ -2527,8 +2531,8 @@ msgstr ""
 #: src/screens/Settings/Settings.tsx:312
 #: src/screens/Takendown.tsx:104
 #: src/screens/Takendown.tsx:107
-#: src/view/com/composer/Composer.tsx:1888
-#: src/view/com/composer/Composer.tsx:1898
+#: src/view/com/composer/Composer.tsx:1889
+#: src/view/com/composer/Composer.tsx:1899
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:44
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:53
 #: src/view/shell/desktop/LeftNav.tsx:232
@@ -2655,7 +2659,7 @@ msgstr "App-piktogram wizigje"
 msgid "Changes hosting provider"
 msgstr "Hostingprovider wizigje"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:179
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:183
 msgid "Changes saved"
 msgstr "Wizigingen bewarre"
 
@@ -3007,7 +3011,7 @@ msgstr ""
 msgid "Close dialog"
 msgstr "Dialoochfinster slute"
 
-#: src/view/shell/index.web.tsx:100
+#: src/view/shell/index.web.tsx:102
 msgid "Close drawer menu"
 msgstr "Lademenu slute"
 
@@ -3051,7 +3055,7 @@ msgstr ""
 msgid "Closes password update alert"
 msgstr "Slút warskôging foar bywurkjen wachtwurd"
 
-#: src/view/com/composer/Composer.tsx:1896
+#: src/view/com/composer/Composer.tsx:1897
 msgid "Closes post composer and discards post draft"
 msgstr "Slút opstellen berjocht en negearret konsept"
 
@@ -3094,6 +3098,10 @@ msgstr ""
 msgid "Community Builder"
 msgstr ""
 
+#: src/components/HomeAppviewOutageNotice.tsx:27
+msgid "Community features are temporarily unavailable. We're working on it — the rest of the app still works."
+msgstr ""
+
 #: src/Navigation.tsx:367
 #: src/view/screens/CommunityGuidelines.tsx:28
 msgid "Community Guidelines"
@@ -3114,7 +3122,7 @@ msgid "Compose new post"
 msgstr "Nij berjocht opstelle"
 
 #. placeholder {0}: MAX_GRAPHEME_LENGTH || 0
-#: src/view/com/composer/Composer.tsx:1771
+#: src/view/com/composer/Composer.tsx:1772
 msgid "Compose posts up to {0, plural, other {# characters}} in length"
 msgstr "Do kinst berjochten opstelle mei in lingte fan maksimaal {0, plural, other {# karakters}}"
 
@@ -3122,11 +3130,11 @@ msgstr "Do kinst berjochten opstelle mei in lingte fan maksimaal {0, plural, oth
 msgid "Compose reply"
 msgstr "Antwurd opstelle"
 
-#: src/view/com/composer/Composer.tsx:2775
+#: src/view/com/composer/Composer.tsx:2781
 msgid "Compressing GIF..."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2777
+#: src/view/com/composer/Composer.tsx:2783
 msgid "Compressing video..."
 msgstr "Fideo komprimearje…"
 
@@ -3506,7 +3514,7 @@ msgid "Could not remove member."
 msgstr ""
 
 #. placeholder {0}: cleanError(error)
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:295
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:299
 msgid "Could not save changes: {0}"
 msgstr "Wizigingen koene net bewarre wurde: {0}"
 
@@ -3514,7 +3522,7 @@ msgstr "Wizigingen koene net bewarre wurde: {0}"
 msgid "Could not share – please try again"
 msgstr ""
 
-#: src/state/queries/notifications/settings.ts:124
+#: src/state/queries/notifications/settings.ts:130
 msgid "Could not update notification settings"
 msgstr "Meldingsynstellingen bywurkje mislearre"
 
@@ -3856,7 +3864,7 @@ msgstr "Myn account fuortsmite"
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:767
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:769
-#: src/view/com/composer/Composer.tsx:1783
+#: src/view/com/composer/Composer.tsx:1784
 msgid "Delete post"
 msgstr "Berjocht fuortsmite"
 
@@ -4015,9 +4023,9 @@ msgstr "Utskeakele"
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:101
 #: src/screens/Profile/Header/EditProfileDialog.tsx:82
-#: src/view/com/composer/Composer.tsx:1562
-#: src/view/com/composer/Composer.tsx:1606
-#: src/view/com/composer/Composer.tsx:1816
+#: src/view/com/composer/Composer.tsx:1563
+#: src/view/com/composer/Composer.tsx:1607
+#: src/view/com/composer/Composer.tsx:1817
 #: src/view/com/composer/drafts/DraftItem.tsx:242
 #: src/view/com/composer/drafts/DraftsButton.tsx:131
 msgid "Discard"
@@ -4028,14 +4036,14 @@ msgstr "Fuortsmite"
 msgid "Discard changes?"
 msgstr "Wizigingen fuortsmite?"
 
-#: src/view/com/composer/Composer.tsx:1560
+#: src/view/com/composer/Composer.tsx:1561
 #: src/view/com/composer/drafts/DraftItem.tsx:239
 #: src/view/com/composer/drafts/DraftsButton.tsx:98
 msgid "Discard draft?"
 msgstr "Konsept fuortsmite?"
 
-#: src/view/com/composer/Composer.tsx:1577
-#: src/view/com/composer/Composer.tsx:1808
+#: src/view/com/composer/Composer.tsx:1578
+#: src/view/com/composer/Composer.tsx:1809
 msgid "Discard post?"
 msgstr "Berjocht fuortsmite?"
 
@@ -4075,7 +4083,7 @@ msgstr "Slute"
 msgid "Dismiss banner"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2696
+#: src/view/com/composer/Composer.tsx:2702
 msgid "Dismiss error"
 msgstr "Flater negearje"
 
@@ -4560,7 +4568,7 @@ msgstr "Ynskeakele"
 
 #: src/screens/Profile/Sections/CommunityFeed.tsx:152
 #: src/screens/Profile/Sections/Feed.tsx:135
-#: src/view/com/feeds/CommunityFeedPage.tsx:277
+#: src/view/com/feeds/CommunityFeedPage.tsx:278
 msgid "End of feed"
 msgstr "Ein fan feed"
 
@@ -4638,7 +4646,7 @@ msgstr "Iepenet folslein skerm"
 msgid "Entertainment"
 msgstr "Ferdivedaasje"
 
-#: src/view/com/composer/Composer.tsx:2795
+#: src/view/com/composer/Composer.tsx:2801
 #: src/view/com/util/error/ErrorScreen.tsx:40
 msgid "Error"
 msgstr "Flater"
@@ -4974,7 +4982,7 @@ msgstr ""
 
 #: src/components/CommunityFeed.tsx:39
 #: src/screens/Profile/Sections/CommunityFeed.tsx:119
-#: src/view/com/feeds/CommunityFeedPage.tsx:245
+#: src/view/com/feeds/CommunityFeedPage.tsx:246
 msgid "Failed to load community posts"
 msgstr ""
 
@@ -5073,7 +5081,7 @@ msgstr "Fuortsmiten fan ferifikaasje mislearre"
 msgid "Failed to rescind your request. Please try again."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:783
+#: src/view/com/composer/Composer.tsx:784
 msgid "Failed to save draft"
 msgstr ""
 
@@ -5141,7 +5149,7 @@ msgstr "E-mailadres bywurkjen mislearre, probearje it opnij."
 msgid "Failed to update feeds"
 msgstr "Net slagge om de feeds by te wurkjen"
 
-#: src/state/queries/activity-subscriptions.ts:101
+#: src/state/queries/activity-subscriptions.ts:105
 msgid "Failed to update notification declaration"
 msgstr "Bywurkjen meldingsdeklaraasje mislearre"
 
@@ -5710,11 +5718,11 @@ msgstr "Meldingen oer nije berjochten ûntfange"
 msgid "Get notified about posts and replies from accounts you choose."
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:226
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
 msgid "Get notified of new posts from {name}"
 msgstr "Meldingen oer nije berjochten fan {name} ûntfange"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:233
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:237
 msgid "Get notified of this account’s activity"
 msgstr "In melding ûntfange oer de aktiviteit fan dizze account"
 
@@ -5734,7 +5742,7 @@ msgstr "Oan de slach"
 msgid "GIF"
 msgstr "GIF"
 
-#: src/view/com/composer/Composer.tsx:2800
+#: src/view/com/composer/Composer.tsx:2806
 msgid "GIF uploaded"
 msgstr ""
 
@@ -6631,7 +6639,7 @@ msgid "It's just you right now! Add more people to your starter pack by searchin
 msgstr "Do bist no noch de iennige! Foegje mear persoanen ta oan dyn startpakket troch hjirboppe te sykjen."
 
 #. placeholder {0}: videoState.jobId
-#: src/view/com/composer/Composer.tsx:2715
+#: src/view/com/composer/Composer.tsx:2721
 msgid "Job ID: {0}"
 msgstr "Taak-ID: {0}"
 
@@ -6661,13 +6669,13 @@ msgstr ""
 msgid "Journalism"
 msgstr "Sjoernalistyk"
 
-#: src/view/com/composer/Composer.tsx:1610
-#: src/view/com/composer/Composer.tsx:1620
+#: src/view/com/composer/Composer.tsx:1611
+#: src/view/com/composer/Composer.tsx:1621
 #: src/view/com/composer/drafts/DraftsButton.tsx:135
 msgid "Keep editing"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:230
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:234
 msgid "Keep me posted"
 msgstr "Hâld my op de hichte"
 
@@ -7109,7 +7117,7 @@ msgstr "Nije meldingen lade"
 #: src/screens/Profile/ProfileFeed/index.tsx:208
 #: src/screens/Profile/Sections/Feed.tsx:121
 #: src/screens/ProfileList/FeedSection.tsx:113
-#: src/view/com/feeds/CommunityFeedPage.tsx:308
+#: src/view/com/feeds/CommunityFeedPage.tsx:310
 #: src/view/com/feeds/FeedPage.tsx:168
 msgid "Load new posts"
 msgstr "Nije berjochten lade"
@@ -7800,7 +7808,7 @@ msgstr "Nij wachtwurd"
 #: src/screens/Profile/ProfileFeed/index.tsx:218
 #: src/screens/ProfileList/index.tsx:237
 #: src/screens/ProfileList/index.tsx:280
-#: src/view/com/feeds/CommunityFeedPage.tsx:318
+#: src/view/com/feeds/CommunityFeedPage.tsx:320
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
 #: src/view/screens/Profile.tsx:657
@@ -7894,7 +7902,7 @@ msgstr ""
 
 #: src/components/CommunityFeed.tsx:51
 #: src/screens/Profile/Sections/CommunityFeed.tsx:129
-#: src/view/com/feeds/CommunityFeedPage.tsx:253
+#: src/view/com/feeds/CommunityFeedPage.tsx:254
 msgid "No community posts yet"
 msgstr ""
 
@@ -8291,11 +8299,11 @@ msgstr ""
 msgid "One of the selected recipients has blocked you and cannot be messaged."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:991
+#: src/view/com/composer/Composer.tsx:992
 msgid "One or more GIFs is missing alt text."
 msgstr "Alt-tekst ûntbrekt by ien of mear GIF’s."
 
-#: src/view/com/composer/Composer.tsx:988
+#: src/view/com/composer/Composer.tsx:989
 msgid "One or more images is missing alt text."
 msgstr "Alt-tekst ûntbrekt by ien of mear ôfbyldingen."
 
@@ -8307,11 +8315,11 @@ msgstr ""
 msgid "One or more of your selected files are too large. Maximum size is {VIDEO_MAX_SIZE_MB} MB."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:794
+#: src/view/com/composer/Composer.tsx:795
 msgid "One or more posts are too long to save as a draft. {MAX_DRAFT_GRAPHEME_LENGTH, plural, one {The maximum number of characters is # character.} other {The maximum number of characters is # characters.}}"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:998
+#: src/view/com/composer/Composer.tsx:999
 msgid "One or more videos is missing alt text."
 msgstr "Alt-tekst ûntbrekt by ien of mear fideo’s."
 
@@ -8329,7 +8337,7 @@ msgstr "Allinnich {0} kin reagearje."
 #. placeholder {0}: result.accepted.length
 #. placeholder {1}: next.length
 #. placeholder {2}: next.length
-#: src/view/com/composer/Composer.tsx:243
+#: src/view/com/composer/Composer.tsx:244
 msgid "Only {0} of {1} {2, plural, one {image} other {images}} added; limit is {MAX_GALLERY_IMAGES}"
 msgstr ""
 
@@ -8441,7 +8449,7 @@ msgid "Open drawer menu"
 msgstr "Menu iepenje"
 
 #: src/screens/Messages/components/MessageComposer.tsx:213
-#: src/view/com/composer/Composer.tsx:2348
+#: src/view/com/composer/Composer.tsx:2354
 msgid "Open emoji picker"
 msgstr "Emoji-kiezer iepenje"
 
@@ -9167,7 +9175,7 @@ msgstr ""
 msgid "Post a video"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1619
+#: src/view/com/composer/Composer.tsx:1620
 msgid "Post anyway"
 msgstr ""
 
@@ -9253,8 +9261,8 @@ msgctxt "toast"
 msgid "Post unpinned"
 msgstr "Berjocht losmakke"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:257
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:269
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:261
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:273
 #: src/screens/ProfileList/index.tsx:167
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:197
@@ -9351,11 +9359,11 @@ msgstr "Privacybelied"
 msgid "Privacy violation of a minor"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2789
+#: src/view/com/composer/Composer.tsx:2795
 msgid "Processing GIF..."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2791
+#: src/view/com/composer/Composer.tsx:2797
 msgid "Processing video..."
 msgstr "Fideo ferwurkje…"
 
@@ -9409,22 +9417,22 @@ msgid "Public, sharable lists of users to mute or block in bulk."
 msgstr "Iepenbiere, dielbere listen fan brûkers om yn bulk te dôvjen of te blokkearjen."
 
 #. Accessibility label for button to publish a single post
-#: src/view/com/composer/Composer.tsx:1946
+#: src/view/com/composer/Composer.tsx:1947
 msgid "Publish post"
 msgstr "Berjocht pleatse"
 
 #. Accessibility label for button to publish multiple posts in a thread
-#: src/view/com/composer/Composer.tsx:1941
+#: src/view/com/composer/Composer.tsx:1942
 msgid "Publish posts"
 msgstr "Berjochten pleatse"
 
 #. Accessibility label for button to publish multiple replies in a thread
-#: src/view/com/composer/Composer.tsx:1930
+#: src/view/com/composer/Composer.tsx:1931
 msgid "Publish replies"
 msgstr "Antwurden publisearje"
 
 #. Accessibility label for button to publish a single reply
-#: src/view/com/composer/Composer.tsx:1935
+#: src/view/com/composer/Composer.tsx:1936
 msgid "Publish reply"
 msgstr "Antwurd publisearje"
 
@@ -9889,8 +9897,8 @@ msgstr ""
 msgid "Replied-to message, tap to scroll to it"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:274
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:286
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:278
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:290
 #: src/lib/hooks/useNotificationHandler.ts:172
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:218
 #: src/screens/Settings/NotificationSettings/index.tsx:182
@@ -9912,7 +9920,7 @@ msgstr "Antwurden op dit berjocht binne útskeakele."
 msgid "Reply"
 msgstr "Reagearje"
 
-#: src/view/com/composer/Composer.tsx:1958
+#: src/view/com/composer/Composer.tsx:1959
 msgctxt "action"
 msgid "Reply"
 msgstr "Reagearje"
@@ -10317,28 +10325,28 @@ msgstr "Bewarje"
 msgid "Save birthdate"
 msgstr ""
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:198
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:207
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:202
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:211
 #: src/screens/SavedFeeds.tsx:122
 #: src/screens/SavedFeeds.tsx:126
 #: src/screens/SavedFeeds.tsx:314
 #: src/screens/SavedFeeds.tsx:318
-#: src/view/com/composer/Composer.tsx:1600
+#: src/view/com/composer/Composer.tsx:1601
 #: src/view/com/composer/drafts/DraftsButton.tsx:125
 msgid "Save changes"
 msgstr "Wizigingen bewarje"
 
-#: src/view/com/composer/Composer.tsx:1572
+#: src/view/com/composer/Composer.tsx:1573
 #: src/view/com/composer/drafts/DraftsButton.tsx:93
 msgid "Save changes?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1600
+#: src/view/com/composer/Composer.tsx:1601
 #: src/view/com/composer/drafts/DraftsButton.tsx:125
 msgid "Save draft"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1574
+#: src/view/com/composer/Composer.tsx:1575
 #: src/view/com/composer/drafts/DraftsButton.tsx:95
 msgid "Save draft?"
 msgstr ""
@@ -11362,7 +11370,7 @@ msgstr "Oerslaan"
 msgid "Skip contact sharing and continue to the app"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1617
+#: src/view/com/composer/Composer.tsx:1618
 msgid "Skip empty posts?"
 msgstr ""
 
@@ -11717,7 +11725,7 @@ msgstr ""
 msgid "Subscribe to @{0} to use these labels:"
 msgstr "Abonnearje dy op @{0} om dizze labels te brûken:"
 
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:252
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:256
 msgid "Subscribe to account activity"
 msgstr "Abonnearje op accountaktiviteit"
 
@@ -12648,7 +12656,7 @@ msgstr ""
 msgid "This post will be hidden from feeds and threads. This cannot be undone."
 msgstr "Dit berjocht wurdt ferstoppe foar feeds en petearen. Dit kin net ûngedien makke wurde."
 
-#: src/view/com/composer/Composer.tsx:1179
+#: src/view/com/composer/Composer.tsx:1180
 msgid "This post's author has disabled quote posts."
 msgstr "De auteur fan dit berjocht hat it pleatsen fan sitaten útskeakele."
 
@@ -13233,7 +13241,7 @@ msgstr "Fan lis ôfmeld"
 msgid "Unsupported clipboard content"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1710
+#: src/view/com/composer/Composer.tsx:1711
 msgid "Unsupported video type: {mimeType}"
 msgstr ""
 
@@ -13319,7 +13327,7 @@ msgstr "Fan bestannen út oplade"
 msgid "Upload from Library"
 msgstr "Fan bibloteek út oplade"
 
-#: src/view/com/composer/Composer.tsx:2782
+#: src/view/com/composer/Composer.tsx:2788
 msgid "Uploading GIF..."
 msgstr ""
 
@@ -13333,7 +13341,7 @@ msgstr "Ofbyldingen oplade…"
 msgid "Uploading link thumbnail..."
 msgstr "Keppelingminiatuer oplade…"
 
-#: src/view/com/composer/Composer.tsx:2784
+#: src/view/com/composer/Composer.tsx:2790
 msgid "Uploading video..."
 msgstr "Fideo oplade…"
 
@@ -13605,7 +13613,7 @@ msgstr "Fideo net fûn."
 msgid "Video settings"
 msgstr "Fideo-ynstellingen"
 
-#: src/view/com/composer/Composer.tsx:2802
+#: src/view/com/composer/Composer.tsx:2808
 msgid "Video uploaded"
 msgstr "Fideo opladen"
 
@@ -13618,19 +13626,19 @@ msgstr "Fideo: {0}"
 msgid "Videos"
 msgstr "Fideo’s"
 
-#: src/view/com/composer/Composer.tsx:477
-#: src/view/com/composer/Composer.tsx:620
+#: src/view/com/composer/Composer.tsx:478
+#: src/view/com/composer/Composer.tsx:621
 #: src/view/com/composer/SelectMediaButton.tsx:444
 msgid "Videos must be 10 minutes or less."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:478
-#: src/view/com/composer/Composer.tsx:621
+#: src/view/com/composer/Composer.tsx:479
+#: src/view/com/composer/Composer.tsx:622
 #: src/view/com/composer/SelectMediaButton.tsx:445
 msgid "Videos must be less than 3 minutes long."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1297
+#: src/view/com/composer/Composer.tsx:1298
 msgctxt "Action to view the post the user just created"
 msgid "View"
 msgstr ""
@@ -13719,7 +13727,7 @@ msgstr "Mear besjen"
 msgid "View more trending videos"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1281
+#: src/view/com/composer/Composer.tsx:1282
 msgid "View post"
 msgstr ""
 
@@ -14000,7 +14008,7 @@ msgstr ""
 msgid "We’re sorry, but your search could not be completed. Please try again in a few minutes."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1177
+#: src/view/com/composer/Composer.tsx:1178
 msgid "We're sorry! The post you are replying to has been deleted."
 msgstr "It spyt ús! It berjocht wêropsto reagearrest is fuortsmiten."
 
@@ -14107,7 +14115,7 @@ msgstr ""
 msgid "Would you like to save this as a draft before viewing your drafts?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1588
+#: src/view/com/composer/Composer.tsx:1589
 msgid "Would you like to save this as a draft to edit later?"
 msgstr ""
 
@@ -14116,12 +14124,12 @@ msgstr ""
 msgid "Write a post"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1770
+#: src/view/com/composer/Composer.tsx:1771
 msgid "Write post"
 msgstr "Skriuw berjocht"
 
 #: src/screens/PostThread/components/ThreadComposePrompt.tsx:91
-#: src/view/com/composer/Composer.tsx:1672
+#: src/view/com/composer/Composer.tsx:1673
 msgid "Write your reply"
 msgstr "Skriuw dyn reaksje"
 
@@ -14282,11 +14290,11 @@ msgid "You can now sign in with your new password."
 msgstr "Do kinst dy no oanmelde mei dyn nije wachtwurd."
 
 #. Toast shown when the user tries to add more images but the post gallery is already at the cap
-#: src/view/com/composer/Composer.tsx:230
+#: src/view/com/composer/Composer.tsx:231
 msgid "You can only add up to {MAX_GALLERY_IMAGES, plural, other {# images}} per post"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1593
+#: src/view/com/composer/Composer.tsx:1594
 msgid "You can only save drafts up to 1000 characters."
 msgstr ""
 
@@ -14426,7 +14434,7 @@ msgstr "Do hast dyn e-mailadres mei sukses ferifiearre. Do kinst dit dialoochfin
 msgid "You have temporarily reached the limit for video uploads. Please try again later."
 msgstr "Do bist tydlik oer de limyt foar fideo-oplaads hinne. Probearje it letter opnij."
 
-#: src/view/com/composer/Composer.tsx:1583
+#: src/view/com/composer/Composer.tsx:1584
 msgid "You have unsaved changes to this draft, would you like to save them?"
 msgstr ""
 
@@ -14555,7 +14563,7 @@ msgid "You will be signed out of all your accounts."
 msgstr "Do wurdst by al dyn accounts ôfmeld."
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:140
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:144
 msgid "You will no longer receive notifications for {0}"
 msgstr "Do ûntfangst gjin meldingen mear foar {0}"
 
@@ -14602,7 +14610,7 @@ msgid "You'll need to go to the System Settings for Bluesky and give permission 
 msgstr ""
 
 #. placeholder {0}: sanitizeHandle(profile.handle, '@')
-#: src/components/activity-notifications/SubscribeProfileDialog.tsx:172
+#: src/components/activity-notifications/SubscribeProfileDialog.tsx:176
 msgid "You'll start receiving notifications for {0}!"
 msgstr "Do silst meldingen foar {0} ûntfange!"
 
@@ -14643,7 +14651,7 @@ msgstr "Do hast it ein fan de aktive ynhâld berikt."
 msgid "You've reached the end of your feed! Find some more accounts to follow."
 msgstr "Do hast it ein fan dyn feed berikt! Sykje noch mear accounts om te folgjen."
 
-#: src/view/com/composer/Composer.tsx:781
+#: src/view/com/composer/Composer.tsx:782
 msgid "You've reached the maximum number of drafts"
 msgstr ""
 
@@ -14836,11 +14844,11 @@ msgstr ""
 msgid "Your PDS does not support videos this large. Please try again with a smaller file."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1277
+#: src/view/com/composer/Composer.tsx:1278
 msgid "Your post was sent"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1274
+#: src/view/com/composer/Composer.tsx:1275
 msgid "Your posts were sent"
 msgstr ""
 
@@ -14858,7 +14866,7 @@ msgstr ""
 msgid "Your profile, posts, feeds, and lists will no longer be visible to other {0} users. You can reactivate your account at any time by logging in."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1276
+#: src/view/com/composer/Composer.tsx:1277
 msgid "Your reply was sent"
 msgstr ""
 
@@ -14879,7 +14887,7 @@ msgstr ""
 msgid "Your support helps us maintain and improve the Blacksky community."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1618
+#: src/view/com/composer/Composer.tsx:1619
 msgid "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 msgstr ""
 

@@ -27,6 +27,8 @@ export enum Features {
   CanonicalPostNumberingEnable = 'canonical_post_numbering:enable',
 
   // values
+  AppviewFallbackMode = 'appview_fallback:mode',
+  AppviewFallbackThresholds = 'appview_fallback:thresholds',
   TrendingDiscoverValues = 'trending_discover:values',
   TrendingExploreTopicsCountValue = 'trending_explore_topics_count:value',
 

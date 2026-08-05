@@ -219,6 +219,21 @@ export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
 export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
+export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
+
+export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'
+export const BLUESKY_FALLBACK_PROXY_HEADER =
+  `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
+// Immutable, unlike BLUESKY_PROXY_HEADER below — use for calls that must not
+// follow that mutable header.
+export const HOME_PROXY_HEADER =
+  `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
+export const HOME_APPVIEW_PINNED_OPTS = {
+  headers: {'atproto-proxy': HOME_PROXY_HEADER},
+}
+
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 
 // temp hack for e2e - esb
