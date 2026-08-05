@@ -27,12 +27,6 @@ import {getDataUriSize} from '#/lib/media/util'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {isCancelledError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {
-  OnboardingControls,
-  OnboardingDescriptionText,
-  OnboardingPosition,
-  OnboardingTitleText,
-} from '#/screens/Onboarding/Layout'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {AvatarCircle} from '#/screens/Onboarding/StepProfile/AvatarCircle'
 import {AvatarCreatorCircle} from '#/screens/Onboarding/StepProfile/AvatarCreatorCircle'
@@ -46,6 +40,7 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {useSheetWrapper} from '#/components/Dialog/sheet-wrapper'
 import {CircleInfo_Stroke2_Corner0_Rounded} from '#/components/icons/CircleInfo'
+import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE, IS_WEB} from '#/env'
@@ -252,21 +247,29 @@ export function StepProfile() {
 
   return (
     <AvatarContext.Provider value={value}>
-      <View style={[a.align_start]}>
-        <View style={[a.gap_sm]}>
-          <OnboardingPosition />
-          <OnboardingTitleText>
+      <View style={[a.gap_lg]}>
+        <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+
+        <Eyebrow step={4} total={7} />
+
+        <View style={[a.gap_xs]}>
+          <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
             <Trans>Give your profile a face</Trans>
-          </OnboardingTitleText>
-          <OnboardingDescriptionText>
+          </Text>
+          <Text
+            style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
             <Trans>
-              Help people know you're not a bot by uploading a picture or
-              creating an avatar.
+              Help people know you're not a bot by uploading a picture.
             </Trans>
-          </OnboardingDescriptionText>
+          </Text>
         </View>
+
         <View
-          style={[a.w_full, a.align_center, {paddingTop: gtMobile ? 80 : 60}]}>
+          style={[
+            a.w_full,
+            a.align_center,
+            {paddingVertical: gtMobile ? 48 : 32},
+          ]}>
           <AvatarCircle
             openLibrary={openLibrary}
             openCreator={creatorControl.open}
@@ -292,34 +295,38 @@ export function StepProfile() {
           )}
         </View>
 
-        <OnboardingControls.Portal>
-          <View style={[a.gap_md, gtMobile && a.flex_row_reverse]}>
-            <Button
-              testID="onboardingContinue"
-              color="primary"
-              size="large"
-              label={_(msg`Continue to next step`)}
-              onPress={onContinue}>
-              <ButtonText>
-                <Trans>Continue</Trans>
-              </ButtonText>
-            </Button>
-            <Button
-              testID="onboardingAvatarCreator"
-              color="primary_subtle"
-              size="large"
-              label={_(msg`Open avatar creator`)}
-              onPress={onSecondaryPress}>
-              <ButtonText>
-                {avatar.useCreatedAvatar ? (
-                  <Trans>Upload a photo instead</Trans>
-                ) : (
-                  <Trans>Create an avatar instead</Trans>
-                )}
-              </ButtonText>
-            </Button>
-          </View>
-        </OnboardingControls.Portal>
+        <View style={[a.w_full, a.gap_md]}>
+          <Button
+            testID="onboardingAvatarCreator"
+            color="primary"
+            variant="outline"
+            size="large"
+            label={
+              avatar.useCreatedAvatar
+                ? _(msg`Upload a photo`)
+                : _(msg`Create an avatar`)
+            }
+            onPress={onSecondaryPress}
+            style={[a.w_full]}>
+            <ButtonText
+              style={[
+                a.font_mono,
+                {fontWeight: '300', fontSize: 14, textTransform: 'uppercase'},
+              ]}>
+              {avatar.useCreatedAvatar ? (
+                <Trans>Upload a photo</Trans>
+              ) : (
+                <Trans>Create an avatar</Trans>
+              )}
+            </ButtonText>
+          </Button>
+
+          <PrimaryButton
+            testID="onboardingContinue"
+            label={_(msg`Continue`)}
+            onPress={onContinue}
+          />
+        </View>
       </View>
 
       <Dialog.Outer control={creatorControl}>
