@@ -16,7 +16,7 @@ import {
   INITIAL_DECIDER_STATE,
 } from '#/state/appview-status'
 import {useAgent, useSession} from '#/state/session'
-import {Features, features} from '#/analytics/features'
+import {Features, features, init as featuresInit} from '#/analytics/features'
 
 const RECHECK_INTERVAL = 3 * 60e3
 
@@ -31,16 +31,31 @@ export function AppviewFallbackController() {
   const queryClient = useQueryClient()
   const {hasSession} = useSession()
   const deciderRef = useRef<DeciderState>(INITIAL_DECIDER_STATE)
+  const epochRef = useRef(0)
 
   const evaluate = useCallback(async () => {
+    // Evaluations await network (status poll, eligibility probe) and can fire
+    // concurrently from the interval, foregrounding, and outage transitions.
+    // Only the newest run may apply a result: a stale run resolving late would
+    // otherwise overwrite a fresher decision with an outdated one.
+    const epoch = ++epochRef.current
+    const apply = (next: boolean, trigger?: FallbackMode) => {
+      if (epoch !== epochRef.current) return
+      setFallbackActive(next, agent, queryClient, trigger)
+    }
+
+    // The flag defaults to 'auto' until GrowthBook has loaded; acting on that
+    // default would override an operator-set force-* mode during launch.
+    await featuresInit
+
     if (!hasSession) {
-      setFallbackActive(false, agent, queryClient)
+      apply(false)
       return
     }
 
     const mode = getMode()
     if (mode === 'force-primary') {
-      setFallbackActive(false, agent, queryClient)
+      apply(false)
       return
     }
 
@@ -56,12 +71,12 @@ export function AppviewFallbackController() {
     }
 
     if (!wantsFallback) {
-      setFallbackActive(false, agent, queryClient)
+      apply(false)
       return
     }
 
     const eligibility = await probeFallbackEligibility(agent)
-    setFallbackActive(eligibility === 'eligible', agent, queryClient, mode)
+    apply(eligibility === 'eligible', mode)
   }, [agent, queryClient, hasSession])
 
   useEffect(() => {
