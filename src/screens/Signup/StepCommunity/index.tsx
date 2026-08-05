@@ -1,5 +1,6 @@
-import {useMemo} from 'react'
+import {useMemo, useState} from 'react'
 import {Image, Pressable, View} from 'react-native'
+import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -37,6 +38,9 @@ type CommunityOption = {
 
 const ICON_PLATE = 40
 const LOGO_SIZE = 24
+const CONTROL_SIZE = 24
+const HANDLE_INDENT = ICON_PLATE + 16
+const SELECTED_ROW_BG = 'rgba(210, 252, 81, 0.08)'
 
 // Brand-plate colors from the design, used only as a fallback when a community's
 // catalog/config entry does not carry its own color.
@@ -47,13 +51,42 @@ const FIGMA_ICON_BG: Record<string, string> = {
   medsky: '#006BFF',
 }
 
+// Handle domains the design intentionally never surfaces at signup. The count
+// shown ("{N} handles available") is taken after this filter.
+const HIDDEN_HANDLE_DOMAINS = new Set(['latinsky.app', 'afrolatinsky.app'])
+
+function displayDomain(domain: string): string {
+  return domain.replace(/^\.+/, '')
+}
+
+// Subtitle shown for each handle domain. Extended later via config; unknown
+// domains read as open to everyone.
+function handleDescription(_: I18n['_'], domain: string): string {
+  switch (displayDomain(domain)) {
+    case 'blacksky.app':
+      return _(msg`Black community`)
+    case 'cryptoanarchy.network':
+      return _(msg`Tech community`)
+    case 'myatproto.social':
+    default:
+      return _(msg`Open to everyone`)
+  }
+}
+
 /**
  * First signup step: choose the community the account will live in, which sets
  * the PDS and (via describeServer) the handle domain used by the rest of the
- * flow. Blacksky (or whichever community the app is served/bundled as) is the
- * default and always the first option; other published communities follow,
- * sourced from the brand service. When the brand service is unreachable (e.g.
- * `yarn web` in dev) only the bundled default is shown.
+ * flow. Each community is a row; the selected community expands to reveal its
+ * handle domains so the account handle is picked in the same step. Blacksky (or
+ * whichever community the app is served/bundled as) is the default and always
+ * the first option, rendered expanded on load; other published communities
+ * follow, sourced from the brand service. When the brand service is unreachable
+ * (e.g. `yarn web` in dev) only the bundled default is shown.
+ *
+ * Only the selected community's describeServer is fetched, so only it knows its
+ * precise handle domains and count. Other communities render as a collapsed
+ * disclosure row; tapping one selects it, which points signup at its PDS,
+ * triggers its describeServer fetch, and expands it in turn.
  */
 export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
   const {_} = useLingui()
@@ -95,6 +128,17 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
   const selectedSlug =
     state.selectedBrandSlug ?? DEFAULT_BRAND_CONFIG.metadata.slug
 
+  // Handle domains for the selected community, after the hidden-domain filter.
+  const selectedDomains = useMemo(
+    () =>
+      (state.serviceDescription?.availableUserDomains ?? []).filter(
+        d => !HIDDEN_HANDLE_DOMAINS.has(displayDomain(d)),
+      ),
+    [state.serviceDescription],
+  )
+
+  const [collapsedSlug, setCollapsedSlug] = useState<string | null>(null)
+
   const onContinue = () => {
     dispatch({type: 'next'})
     ax.metric('signup:nextPressed', {activeStep: state.activeStep})
@@ -126,27 +170,46 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
       </View>
 
       <View>
-        {options.map(option => (
-          <View key={option.slug}>
-            <SelectionRow
-              testID={`communityOption-${option.slug}`}
-              mode="radio"
-              selected={option.slug === selectedSlug}
-              onPress={() =>
-                dispatch({
-                  type: 'setCommunity',
-                  slug: option.slug,
-                  serviceUrl: option.pds,
-                })
-              }
-              title={option.displayName}
-              description={option.description || undefined}
-              subtitle={option.pds.replace(/^https?:\/\//, '')}
-              icon={<CommunityIcon option={option} />}
+        {options.map(option => {
+          const isSelected = option.slug === selectedSlug
+          const expanded = isSelected && collapsedSlug !== option.slug
+          return (
+            <CommunityRow
+              key={option.slug}
+              option={option}
+              isSelected={isSelected}
+              domains={isSelected ? selectedDomains : undefined}
+              isLoading={isSelected && state.isLoading}
+              expanded={expanded}
+              selectedDomain={state.userDomain}
+              onToggle={() => {
+                if (isSelected) {
+                  setCollapsedSlug(prev =>
+                    prev === option.slug ? null : option.slug,
+                  )
+                } else {
+                  dispatch({
+                    type: 'setCommunity',
+                    slug: option.slug,
+                    serviceUrl: option.pds,
+                  })
+                  setCollapsedSlug(null)
+                }
+              }}
+              onSelectHandle={rawDomain => {
+                if (!isSelected) {
+                  dispatch({
+                    type: 'setCommunity',
+                    slug: option.slug,
+                    serviceUrl: option.pds,
+                  })
+                  setCollapsedSlug(null)
+                }
+                dispatch({type: 'setUserDomain', value: rawDomain})
+              }}
             />
-            {option.slug === selectedSlug ? <HandleDomainPicker /> : null}
-          </View>
-        ))}
+          )
+        })}
       </View>
 
       {state.serviceDescription ? (
@@ -180,95 +243,190 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
   )
 }
 
-const DOMAIN_PICKER_INDENT = ICON_PLATE + 12
-
-function displayDomain(domain: string): string {
-  return domain.replace(/^\.+/, '')
-}
-
-/**
- * Inline handle-domain picker nested under the selected community. Only shown
- * when that community's PDS (via describeServer) offers more than one domain;
- * a single domain is auto-selected by the reducer and needs no UI. The raw
- * domain value (leading dot preserved) is dispatched — downstream
- * createFullHandle strips it — while the label shows the cleaned form.
- */
-const HIDDEN_HANDLE_DOMAINS = new Set(['latinsky.app', 'afrolatinsky.app'])
-
-function HandleDomainPicker() {
+function CommunityRow({
+  option,
+  isSelected,
+  domains,
+  isLoading,
+  expanded,
+  selectedDomain,
+  onToggle,
+  onSelectHandle,
+}: {
+  option: CommunityOption
+  isSelected: boolean
+  domains: string[] | undefined
+  isLoading: boolean
+  expanded: boolean
+  selectedDomain: string
+  onToggle: () => void
+  onSelectHandle: (rawDomain: string) => void
+}) {
   const {_} = useLingui()
-  const t = useTheme()
-  const {state, dispatch} = useSignupContext()
+  const testID = `communityOption-${option.slug}`
+  const icon = <CommunityIcon option={option} />
 
-  if (state.isLoading) {
+  // Other communities: we have not fetched their describeServer, so their
+  // handle count is unknown. Show a collapsed disclosure row; tapping selects
+  // the community (which loads its handles and expands it).
+  if (!isSelected || domains === undefined) {
     return (
-      <View style={[a.py_sm, {paddingLeft: DOMAIN_PICKER_INDENT}]}>
-        <Loader size="sm" />
+      <SelectionRow
+        testID={testID}
+        mode="disclosure"
+        selected={false}
+        expanded={false}
+        onPress={onToggle}
+        title={option.displayName}
+        icon={icon}
+      />
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <View>
+        <SelectionRow
+          testID={testID}
+          mode="disclosure"
+          selected
+          expanded
+          onPress={onToggle}
+          title={option.displayName}
+          icon={icon}
+        />
+        <View style={[a.py_sm, {paddingLeft: HANDLE_INDENT}]}>
+          <Loader size="sm" />
+        </View>
       </View>
     )
   }
 
-  const domains = (state.serviceDescription?.availableUserDomains ?? []).filter(
-    d => !HIDDEN_HANDLE_DOMAINS.has(d.replace(/^\./, '')),
-  )
-  if (domains.length <= 1) {
-    return null
+  // Exactly one handle domain: a plain row that picks the community + its only
+  // domain. Handle description is the emphasis line, the domain is the subtitle.
+  if (domains.length === 1) {
+    const domain = domains[0]
+    return (
+      <SelectionRow
+        testID={testID}
+        mode="radio"
+        selected
+        onPress={() => onSelectHandle(domain)}
+        title={option.displayName}
+        description={handleDescription(_, domain)}
+        subtitle={displayDomain(domain)}
+        icon={icon}
+      />
+    )
   }
 
-  const selectedDomain = state.userDomain || domains[0]
-
+  // More than one handle domain: an expandable header revealing the domains.
+  // (domains.length is always > 1 here, so "handles" is always plural.)
   return (
-    <View style={[a.gap_2xs, a.pb_sm, {paddingLeft: DOMAIN_PICKER_INDENT}]}>
-      {domains.map(domain => {
-        const selected = domain === selectedDomain
-        return (
-          <Pressable
-            key={domain}
-            testID={`handleDomainOption-${displayDomain(domain)}`}
-            accessibilityRole="radio"
-            accessibilityLabel={displayDomain(domain)}
-            accessibilityHint={_(msg`Use this handle domain`)}
-            accessibilityState={{selected}}
-            aria-checked={selected}
-            onPress={() => dispatch({type: 'setUserDomain', value: domain})}
-            style={[
-              a.flex_row,
-              a.align_center,
-              a.gap_sm,
-              a.rounded_sm,
-              {paddingHorizontal: 8, paddingVertical: 8},
-            ]}>
-            <View
-              style={[
-                a.align_center,
-                a.justify_center,
-                a.rounded_full,
-                {
-                  width: 20,
-                  height: 20,
-                  borderWidth: 2,
-                  borderColor: selected
-                    ? colors.green2
-                    : t.palette.contrast_400,
-                  flexShrink: 0,
-                },
-              ]}>
-              {selected ? (
-                <View
-                  style={[
-                    a.rounded_full,
-                    {width: 10, height: 10, backgroundColor: colors.green2},
-                  ]}
-                />
-              ) : null}
-            </View>
-            <Text style={[a.text_sm, a.leading_tight, t.atoms.text]}>
-              @{displayDomain(domain)}
-            </Text>
-          </Pressable>
-        )
-      })}
+    <View>
+      <SelectionRow
+        testID={testID}
+        mode="disclosure"
+        selected
+        expanded={expanded}
+        onPress={onToggle}
+        title={option.displayName}
+        subtitle={
+          domains.length > 0
+            ? _(msg`${domains.length} handles available`)
+            : undefined
+        }
+        icon={icon}
+      />
+      {expanded ? (
+        <View style={[a.gap_2xs, a.pb_sm, {paddingLeft: HANDLE_INDENT}]}>
+          {domains.map(domain => (
+            <HandleRow
+              key={domain}
+              domain={domain}
+              description={handleDescription(_, domain)}
+              selected={domain === selectedDomain}
+              onPress={() => onSelectHandle(domain)}
+            />
+          ))}
+        </View>
+      ) : null}
     </View>
+  )
+}
+
+function HandleRow({
+  domain,
+  description,
+  selected,
+  onPress,
+}: {
+  domain: string
+  description: string
+  selected: boolean
+  onPress: () => void
+}) {
+  const t = useTheme()
+  return (
+    <Pressable
+      testID={`handleDomainOption-${displayDomain(domain)}`}
+      accessibilityRole="radio"
+      accessibilityLabel={displayDomain(domain)}
+      accessibilityHint={description}
+      accessibilityState={{selected}}
+      aria-checked={selected}
+      onPress={onPress}
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.gap_md,
+        a.rounded_sm,
+        {paddingHorizontal: 12, paddingVertical: 10},
+        selected && {backgroundColor: SELECTED_ROW_BG},
+      ]}>
+      <View style={[a.flex_1]}>
+        <Text
+          style={[
+            a.text_md,
+            a.font_semi_bold,
+            a.leading_tight,
+            {color: colors.green2},
+          ]}>
+          {displayDomain(domain)}
+        </Text>
+        <Text
+          style={[
+            a.text_xs,
+            a.leading_tight,
+            t.atoms.text_contrast_medium,
+            {marginTop: 2},
+          ]}>
+          {description}
+        </Text>
+      </View>
+      <View
+        style={[
+          a.align_center,
+          a.justify_center,
+          a.rounded_full,
+          {
+            width: CONTROL_SIZE,
+            height: CONTROL_SIZE,
+            borderWidth: 2,
+            borderColor: selected ? colors.green2 : t.palette.contrast_400,
+            flexShrink: 0,
+          },
+        ]}>
+        {selected ? (
+          <View
+            style={[
+              a.rounded_full,
+              {width: 12, height: 12, backgroundColor: colors.green2},
+            ]}
+          />
+        ) : null}
+      </View>
+    </Pressable>
   )
 }
 

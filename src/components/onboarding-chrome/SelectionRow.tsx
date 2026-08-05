@@ -3,6 +3,10 @@ import {Pressable, View} from 'react-native'
 import {colors} from '#/lib/styles'
 import {atoms as a, useTheme} from '#/alf'
 import {CheckThick_Stroke2_Corner0_Rounded as Checkmark} from '#/components/icons/Check'
+import {
+  ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown,
+  ChevronTop_Stroke2_Corner0_Rounded as ChevronUp,
+} from '#/components/icons/Chevron'
 import {Text} from '#/components/Typography'
 
 const LIME = colors.green2
@@ -13,6 +17,7 @@ const SELECTED_ROW_BG = 'rgba(210, 252, 81, 0.08)'
 export function SelectionRow({
   mode,
   selected,
+  expanded,
   onPress,
   title,
   description,
@@ -20,8 +25,9 @@ export function SelectionRow({
   icon,
   testID,
 }: {
-  mode: 'radio' | 'checkbox'
+  mode: 'radio' | 'checkbox' | 'disclosure'
   selected: boolean
+  expanded?: boolean
   onPress: () => void
   title: string
   description?: string
@@ -34,11 +40,13 @@ export function SelectionRow({
   return (
     <Pressable
       testID={testID}
-      accessibilityRole={mode}
+      accessibilityRole={mode === 'disclosure' ? 'button' : mode}
       accessibilityLabel={title}
       accessibilityHint={subtitle}
-      accessibilityState={{selected}}
-      aria-checked={selected}
+      accessibilityState={
+        mode === 'disclosure' ? {expanded: !!expanded} : {selected}
+      }
+      aria-checked={mode === 'disclosure' ? undefined : selected}
       onPress={onPress}
       style={[
         a.flex_row,
@@ -83,7 +91,21 @@ export function SelectionRow({
         ) : null}
       </View>
 
-      {mode === 'radio' ? (
+      {mode === 'disclosure' ? (
+        expanded ? (
+          <ChevronUp
+            width={CONTROL_SIZE}
+            fill={t.palette.contrast_500}
+            style={{flexShrink: 0}}
+          />
+        ) : (
+          <ChevronDown
+            width={CONTROL_SIZE}
+            fill={t.palette.contrast_500}
+            style={{flexShrink: 0}}
+          />
+        )
+      ) : mode === 'radio' ? (
         <View
           style={[
             a.align_center,
