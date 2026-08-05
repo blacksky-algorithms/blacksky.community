@@ -4303,7 +4303,7 @@ msgstr ""
 
 #: src/screens/Profile/Sections/CommunityFeed.tsx:156
 #: src/screens/Profile/Sections/Feed.tsx:131
-#: src/view/com/feeds/CommunityFeedPage.tsx:231
+#: src/view/com/feeds/CommunityFeedPage.tsx:277
 msgid "End of feed"
 msgstr ""
 
@@ -4706,7 +4706,7 @@ msgstr "Failed to leave group chat"
 
 #: src/components/CommunityFeed.tsx:39
 #: src/screens/Profile/Sections/CommunityFeed.tsx:123
-#: src/view/com/feeds/CommunityFeedPage.tsx:199
+#: src/view/com/feeds/CommunityFeedPage.tsx:245
 msgid "Failed to load community posts"
 msgstr "Failed to load community posts"
 
@@ -6764,7 +6764,7 @@ msgstr ""
 #: src/screens/Profile/ProfileFeed/index.tsx:206
 #: src/screens/Profile/Sections/Feed.tsx:117
 #: src/screens/ProfileList/FeedSection.tsx:113
-#: src/view/com/feeds/CommunityFeedPage.tsx:262
+#: src/view/com/feeds/CommunityFeedPage.tsx:308
 #: src/view/com/feeds/FeedPage.tsx:168
 msgid "Load new posts"
 msgstr ""
@@ -7432,7 +7432,7 @@ msgstr ""
 #: src/screens/Profile/ProfileFeed/index.tsx:217
 #: src/screens/ProfileList/index.tsx:237
 #: src/screens/ProfileList/index.tsx:280
-#: src/view/com/feeds/CommunityFeedPage.tsx:272
+#: src/view/com/feeds/CommunityFeedPage.tsx:318
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
 #: src/view/screens/Profile.tsx:643
@@ -7511,7 +7511,7 @@ msgstr ""
 
 #: src/components/CommunityFeed.tsx:51
 #: src/screens/Profile/Sections/CommunityFeed.tsx:133
-#: src/view/com/feeds/CommunityFeedPage.tsx:207
+#: src/view/com/feeds/CommunityFeedPage.tsx:253
 msgid "No community posts yet"
 msgstr "No community posts yet"
 
