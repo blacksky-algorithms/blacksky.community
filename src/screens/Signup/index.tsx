@@ -238,6 +238,9 @@ export function Signup({
                       isServerError={isError}
                       refetchServer={refetch}
                     />
+                  ) : state.activeStep === SignupStep.HANDLE ? (
+                    // The redesigned HANDLE step also owns its full chrome.
+                    <StepHandle onPressSignIn={onPressSignIn} />
                   ) : (
                     <>
                       <View style={[a.gap_sm, a.pb_3xl]}>
@@ -253,8 +256,6 @@ export function Signup({
                         <Text style={[a.text_3xl, a.font_semi_bold]}>
                           {state.activeStep === SignupStep.COMMUNITY ? (
                             <Trans>Choose your community</Trans>
-                          ) : state.activeStep === SignupStep.HANDLE ? (
-                            <Trans>Choose your username</Trans>
                           ) : (
                             <Trans>Complete the challenge</Trans>
                           )}
@@ -263,8 +264,6 @@ export function Signup({
 
                       {state.activeStep === SignupStep.COMMUNITY ? (
                         <StepCommunity onPressBack={onPressBack} />
-                      ) : state.activeStep === SignupStep.HANDLE ? (
-                        <StepHandle onPressSignIn={onPressSignIn} />
                       ) : (
                         <StepCaptcha />
                       )}
