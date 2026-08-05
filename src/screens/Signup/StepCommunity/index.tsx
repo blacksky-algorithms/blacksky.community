@@ -193,6 +193,8 @@ function displayDomain(domain: string): string {
  * domain value (leading dot preserved) is dispatched — downstream
  * createFullHandle strips it — while the label shows the cleaned form.
  */
+const HIDDEN_HANDLE_DOMAINS = new Set(['latinsky.app', 'afrolatinsky.app'])
+
 function HandleDomainPicker() {
   const {_} = useLingui()
   const t = useTheme()
@@ -206,7 +208,9 @@ function HandleDomainPicker() {
     )
   }
 
-  const domains = state.serviceDescription?.availableUserDomains ?? []
+  const domains = (state.serviceDescription?.availableUserDomains ?? []).filter(
+    d => !HIDDEN_HANDLE_DOMAINS.has(d.replace(/^\./, '')),
+  )
   if (domains.length <= 1) {
     return null
   }
