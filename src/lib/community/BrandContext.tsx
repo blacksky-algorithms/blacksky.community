@@ -46,11 +46,6 @@ const BLACKSKY_CONFIG: RawCommunityConfig = {
   services: {
     pds: {
       url: 'https://blacksky.app',
-      availableHandles: [
-        'myatproto.social',
-        'blacksky.app',
-        'cryptoanarchy.network',
-      ],
     },
     moderation: [BLACKSKY_MODERATION_DID],
   },
