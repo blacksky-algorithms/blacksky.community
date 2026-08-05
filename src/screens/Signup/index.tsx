@@ -241,6 +241,9 @@ export function Signup({
                   ) : state.activeStep === SignupStep.HANDLE ? (
                     // The redesigned HANDLE step also owns its full chrome.
                     <StepHandle onPressSignIn={onPressSignIn} />
+                  ) : state.activeStep === SignupStep.CAPTCHA ? (
+                    // The redesigned CAPTCHA step also owns its full chrome.
+                    <StepCaptcha />
                   ) : (
                     <>
                       <View style={[a.gap_sm, a.pb_3xl]}>
@@ -254,19 +257,11 @@ export function Signup({
                           </Trans>
                         </Text>
                         <Text style={[a.text_3xl, a.font_semi_bold]}>
-                          {state.activeStep === SignupStep.COMMUNITY ? (
-                            <Trans>Choose your community</Trans>
-                          ) : (
-                            <Trans>Complete the challenge</Trans>
-                          )}
+                          <Trans>Choose your community</Trans>
                         </Text>
                       </View>
 
-                      {state.activeStep === SignupStep.COMMUNITY ? (
-                        <StepCommunity onPressBack={onPressBack} />
-                      ) : (
-                        <StepCaptcha />
-                      )}
+                      <StepCommunity onPressBack={onPressBack} />
 
                       <Divider />
 
