@@ -428,9 +428,8 @@ function HandleRow({
         <Text
           style={[
             a.text_md,
-            a.font_semi_bold,
             a.leading_tight,
-            {color: colors.green2},
+            {color: colors.green2, fontWeight: '300'},
           ]}>
           {displayDomain(domain)}
         </Text>
@@ -438,7 +437,7 @@ function HandleRow({
           style={[
             a.text_xs,
             a.leading_tight,
-            {color: colors.brand3, marginTop: 2},
+            {color: colors.brand3, marginTop: 2, fontWeight: '300'},
           ]}>
           {description}
         </Text>
