@@ -40,7 +40,6 @@ const ICON_PLATE = 40
 const LOGO_SIZE = 24
 const BRAND_LOGO_SIZE = 32
 const CONTROL_SIZE = 24
-const HANDLE_INDENT = ICON_PLATE + 16
 const SELECTED_ROW_BG = 'rgba(210, 252, 81, 0.08)'
 
 // Contrasting star colors: a dark star on light plates, a near-white star on
@@ -332,7 +331,7 @@ function CommunityRow({
           title={option.displayName}
           icon={icon}
         />
-        <View style={[a.py_sm, {paddingLeft: HANDLE_INDENT}]}>
+        <View style={[a.py_sm]}>
           <Loader size="sm" />
         </View>
       </View>
@@ -376,7 +375,7 @@ function CommunityRow({
         icon={icon}
       />
       {expanded ? (
-        <View style={[a.gap_2xs, a.pb_sm, {paddingLeft: HANDLE_INDENT}]}>
+        <View style={[a.gap_2xs, a.pb_sm]}>
           {domains.map(domain => (
             <HandleRow
               key={domain}
