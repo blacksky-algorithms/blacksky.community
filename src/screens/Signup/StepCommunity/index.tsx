@@ -11,7 +11,7 @@ import {fetchBrandList} from '#/lib/community/resolveBrand'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {colors} from '#/lib/styles'
-import {Logo} from '#/view/icons/Logo'
+import {Logomark} from '#/view/icons/Logomark'
 import {useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
 import {atoms as a, useTheme} from '#/alf'
@@ -38,9 +38,15 @@ type CommunityOption = {
 
 const ICON_PLATE = 40
 const LOGO_SIZE = 24
+const BRAND_LOGO_SIZE = 32
 const CONTROL_SIZE = 24
 const HANDLE_INDENT = ICON_PLATE + 16
 const SELECTED_ROW_BG = 'rgba(210, 252, 81, 0.08)'
+
+// Contrasting star colors: a dark star on light plates, a near-white star on
+// dark plates.
+const STAR_DARK = '#161E27'
+const STAR_LIGHT = colors.white
 
 // Brand-plate colors from the design, used only as a fallback when a community's
 // catalog/config entry does not carry its own color.
@@ -49,6 +55,37 @@ const FIGMA_ICON_BG: Record<string, string> = {
   blacksky: '#000000',
   latinsky: '#091A25',
   medsky: '#006BFF',
+}
+
+// Per-domain handle plate: plate background + contrasting star fill, matched on
+// the domain with any leading dot stripped.
+const HANDLE_PLATE: Record<string, {bg: string; star: string}> = {
+  'myatproto.social': {bg: '#FFFFFF', star: STAR_DARK},
+  'blacksky.app': {bg: '#000000', star: STAR_LIGHT},
+  'cryptoanarchy.network': {bg: colors.green2, star: STAR_DARK},
+}
+const HANDLE_PLATE_FALLBACK = {bg: STAR_DARK, star: STAR_LIGHT}
+
+// Relative luminance of a #RGB/#RRGGBB color; true when the color is light
+// enough to want a dark star painted on it.
+function isLightColor(hex: string): boolean {
+  const h = hex.replace('#', '')
+  const full =
+    h.length === 3
+      ? h
+          .split('')
+          .map(c => c + c)
+          .join('')
+      : h
+  const r = parseInt(full.slice(0, 2), 16)
+  const g = parseInt(full.slice(2, 4), 16)
+  const b = parseInt(full.slice(4, 6), 16)
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+  return lum > 0.5
+}
+
+function contrastStar(bg: string): string {
+  return isLightColor(bg) ? STAR_DARK : STAR_LIGHT
 }
 
 // Handle domains the design intentionally never surfaces at signup. The count
@@ -367,6 +404,7 @@ function HandleRow({
   onPress: () => void
 }) {
   const t = useTheme()
+  const plate = HANDLE_PLATE[displayDomain(domain)] ?? HANDLE_PLATE_FALLBACK
   return (
     <Pressable
       testID={`handleDomainOption-${displayDomain(domain)}`}
@@ -384,6 +422,9 @@ function HandleRow({
         {paddingHorizontal: 12, paddingVertical: 10},
         selected && {backgroundColor: SELECTED_ROW_BG},
       ]}>
+      <IconPlate bg={plate.bg}>
+        <Logomark fill={plate.star} width={LOGO_SIZE} />
+      </IconPlate>
       <View style={[a.flex_1]}>
         <Text
           style={[
@@ -398,8 +439,7 @@ function HandleRow({
           style={[
             a.text_xs,
             a.leading_tight,
-            t.atoms.text_contrast_medium,
-            {marginTop: 2},
+            {color: colors.brand3, marginTop: 2},
           ]}>
           {description}
         </Text>
@@ -430,34 +470,44 @@ function HandleRow({
   )
 }
 
-function CommunityIcon({option}: {option: CommunityOption}) {
-  const t = useTheme()
-  const iconBg =
-    option.themeColor || FIGMA_ICON_BG[option.slug] || t.palette.contrast_25
-
+function IconPlate({bg, children}: {bg: string; children: React.ReactNode}) {
   return (
     <View
       style={[
-        {width: ICON_PLATE, height: ICON_PLATE, backgroundColor: iconBg},
+        {width: ICON_PLATE, height: ICON_PLATE, backgroundColor: bg},
         a.rounded_sm,
         a.overflow_hidden,
         a.justify_center,
         a.align_center,
       ]}>
-      {option.isDefault ? (
-        <Logo width={LOGO_SIZE} />
-      ) : option.logo ? (
+      {children}
+    </View>
+  )
+}
+
+function CommunityIcon({option}: {option: CommunityOption}) {
+  // Bundled/Blacksky community: white star on a black plate.
+  if (option.isDefault) {
+    return (
+      <IconPlate bg="#000000">
+        <Logomark fill={STAR_LIGHT} width={LOGO_SIZE} />
+      </IconPlate>
+    )
+  }
+
+  const bg = option.themeColor || FIGMA_ICON_BG[option.slug] || STAR_DARK
+  return (
+    <IconPlate bg={bg}>
+      {option.logo ? (
         <Image
           accessibilityIgnoresInvertColors
           source={{uri: option.logo}}
-          style={{width: LOGO_SIZE, height: LOGO_SIZE}}
+          style={{width: BRAND_LOGO_SIZE, height: BRAND_LOGO_SIZE}}
           resizeMode="contain"
         />
       ) : (
-        <Text style={[a.text_lg, a.font_bold, {color: t.palette.white}]}>
-          {option.displayName.slice(0, 1).toUpperCase()}
-        </Text>
+        <Logomark fill={contrastStar(bg)} width={LOGO_SIZE} />
       )}
-    </View>
+    </IconPlate>
   )
 }
