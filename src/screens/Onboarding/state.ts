@@ -75,12 +75,14 @@ export type OnboardingAction =
         | undefined
     }
 
-export function createInitialOnboardingState(): OnboardingState {
+export function createInitialOnboardingState(opts?: {
+  blackskyOnly?: boolean
+}): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
     'pin-feeds': true,
     belong: true,
-    'blacksky-only': true,
+    'blacksky-only': opts?.blackskyOnly ?? true,
     assembly: true,
     finished: true,
   }

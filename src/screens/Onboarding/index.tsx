@@ -1,6 +1,7 @@
 import {useMemo, useReducer} from 'react'
 import {View} from 'react-native'
 
+import {useAgent} from '#/state/session'
 import {
   Layout,
   OnboardingControls,
@@ -21,12 +22,21 @@ import {atoms as a, useTheme} from '#/alf'
 import {Portal} from '#/components/Portal'
 import {ScreenTransition} from '#/components/ScreenTransition'
 
+const BLACKSKY_HANDLE_DOMAIN = 'blacksky.app'
+
 export function Onboarding() {
   const t = useTheme()
+  const agent = useAgent()
+
+  // The Blacksky-only posts step is only relevant to accounts on a blacksky.app
+  // handle (the community that has the feature).
+  const isBlackskyMember = !!agent.session?.handle?.endsWith(
+    `.${BLACKSKY_HANDLE_DOMAIN}`,
+  )
 
   const [state, dispatch] = useReducer(
     reducer,
-    undefined,
+    {blackskyOnly: isBlackskyMember},
     createInitialOnboardingState,
   )
 
