@@ -60,6 +60,7 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
+import {getCommunityFeedUri} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
 import {useAppState} from '#/lib/appState'
@@ -119,6 +120,7 @@ import {LabelsBtn} from '#/view/com/composer/labels/LabelsBtn'
 import {Gallery} from '#/view/com/composer/photos/Gallery'
 import {OpenCameraBtn} from '#/view/com/composer/photos/OpenCameraBtn'
 import {SelectGifBtn} from '#/view/com/composer/photos/SelectGifBtn'
+import {PostTargetSelect} from '#/view/com/composer/PostTargetSelect'
 import {SuggestedLanguage} from '#/view/com/composer/select-language/SuggestedLanguage'
 // TODO: Prevent naming components that coincide with RN primitives
 // due to linting false positives
@@ -133,7 +135,6 @@ import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {CommunityOnlyBadge} from '#/components/CommunityOnlyBadge'
 import * as EmojiPicker from '#/components/EmojiPicker'
-import * as Toggle from '#/components/forms/Toggle'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfoIcon} from '#/components/icons/CircleInfo'
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiSmileIcon} from '#/components/icons/Emoji'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
@@ -363,11 +364,16 @@ export const ComposePost = ({
   const setBlackskyOnlyDefault = useSetBlackskyOnlyDefault()
   const {data: isCommunityMember = false} = useCommunityMembership()
 
-  // Force Blacksky-Only when the thread targets a community post — replies
-  // and quotes of a community post can only land in the community.
+  const isCommunityReply =
+    !!replyTo?.uri && replyTo.uri.includes('community.blacksky.feed.post')
+  const isCommunityQuote =
+    !!initQuote?.uri && initQuote.uri.includes('community.blacksky.feed.post')
+  const replyCommunityFeed = replyTo?.communityFeed
+  const quoteCommunityFeed = getCommunityFeedUri(initQuote)
   const isForcedBlackskyOnly =
-    (!!replyTo?.uri && replyTo.uri.includes('community.blacksky.feed.post')) ||
-    (!!initQuote?.uri && initQuote.uri.includes('community.blacksky.feed.post'))
+    (isCommunityReply && !replyCommunityFeed) ||
+    (isCommunityQuote && !quoteCommunityFeed)
+  const isForcedCommunityTarget = isCommunityReply || isCommunityQuote
 
   const [composerState, composerDispatch] = useReducer(
     composerReducer,
@@ -377,6 +383,7 @@ export const ComposePost = ({
       initText,
       initMention,
       initInteractionSettings: preferences?.postInteractionSettings,
+      initCommunityFeedUri: replyCommunityFeed ?? quoteCommunityFeed,
       // Replies inherit their parent's audience: forced on for community
       // parents, forced off for public parents. The sticky default only
       // applies to top-level posts, and only for community members.
@@ -1326,6 +1333,7 @@ export const ComposePost = ({
         dispatch={composerDispatch}
         bottomBarAnimatedStyle={bottomBarAnimatedStyle}
         isForcedBlackskyOnly={isForcedBlackskyOnly}
+        isForcedCommunityTarget={isForcedCommunityTarget}
         setBlackskyOnlyDefault={setBlackskyOnlyDefault}
       />
       <ComposerFooter
@@ -1984,6 +1992,7 @@ function ComposerPills({
   dispatch,
   bottomBarAnimatedStyle,
   isForcedBlackskyOnly,
+  isForcedCommunityTarget,
   setBlackskyOnlyDefault,
 }: {
   isReply: boolean
@@ -1992,10 +2001,10 @@ function ComposerPills({
   dispatch: (action: ComposerAction) => void
   bottomBarAnimatedStyle: StyleProp<ViewStyle>
   isForcedBlackskyOnly: boolean
+  isForcedCommunityTarget: boolean
   setBlackskyOnlyDefault: (v: boolean) => void
 }) {
   const t = useTheme()
-  const {t: l} = useLingui()
   const {data: isCommunityMember = false} = useCommunityMembership()
   const homeAppviewOutage = useHomeAppviewOutage()
   const media = post.embed.media
@@ -2006,7 +2015,13 @@ function ComposerPills({
     media?.type === 'video'
   const hasLink = !!post.embed.link
 
-  if (isReply && !hasMedia && !hasLink && !isForcedBlackskyOnly) {
+  if (
+    isReply &&
+    !hasMedia &&
+    !hasLink &&
+    !isForcedBlackskyOnly &&
+    !thread.communityFeedUri
+  ) {
     return null
   }
 
@@ -2036,27 +2051,14 @@ function ComposerPills({
             style={bottomBarAnimatedStyle}
           />
         )}
-        {!isCommunityMember || (isReply && !isForcedBlackskyOnly) ? null : (
-          <Toggle.Item
-            name="blacksky_only"
-            label={l`Blacksky Only`}
-            value={thread.blackskyOnly}
-            disabled={isForcedBlackskyOnly || homeAppviewOutage}
-            onChange={() => {
-              const next = !thread.blackskyOnly
-              dispatch({type: 'toggle_blacksky_only'})
-              setBlackskyOnlyDefault(next)
-            }}
-            style={[a.flex_row, a.align_center, a.gap_xs]}>
-            <Toggle.LabelText>
-              {homeAppviewOutage ? (
-                <Trans>Blacksky Only (temporarily unavailable)</Trans>
-              ) : (
-                <Trans>Blacksky Only</Trans>
-              )}
-            </Toggle.LabelText>
-            <Toggle.Switch />
-          </Toggle.Item>
+        {isReply || isForcedCommunityTarget ? null : (
+          <PostTargetSelect
+            thread={thread}
+            dispatch={dispatch}
+            isCommunityMember={isCommunityMember}
+            homeAppviewOutage={homeAppviewOutage}
+            setBlackskyOnlyDefault={setBlackskyOnlyDefault}
+          />
         )}
         {hasMedia || hasLink ? (
           <LabelsBtn
@@ -2074,9 +2076,9 @@ function ComposerPills({
           />
         ) : null}
       </ScrollView>
-      {thread.blackskyOnly && (
+      {(thread.blackskyOnly || thread.communityFeedUri) && (
         <View style={[a.justify_end, a.pl_sm, a.align_end]}>
-          <CommunityOnlyBadge />
+          <CommunityOnlyBadge communityFeed={thread.communityFeedUri} />
         </View>
       )}
     </Animated.View>

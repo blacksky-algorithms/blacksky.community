@@ -26,6 +26,7 @@ import {CID} from 'multiformats/cid'
 import * as Hasher from 'multiformats/hashes/hasher'
 
 import {communityXrpc} from '#/lib/api/community'
+import {admitFeedPost, fetchCommunityFeedTarget} from '#/lib/api/community-feed'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -64,7 +65,20 @@ export async function post(
   queryClient: QueryClient,
   opts: PostOpts,
 ) {
-  const thread = opts.thread
+  let thread = opts.thread
+  if (!opts.replyTo && !thread.communityFeed && thread.communityFeedUri) {
+    const target = await fetchCommunityFeedTarget(
+      agent,
+      thread.communityFeedUri,
+    )
+    if (!target) {
+      throw new Error(
+        t`You no longer have permission to post to this community.`,
+      )
+    }
+    thread = {...thread, communityFeed: target}
+    opts = {...opts, thread}
+  }
   opts.onStateChange?.(t`Processing...`)
 
   // Route to community post endpoint if the user explicitly toggled
@@ -74,8 +88,15 @@ export async function post(
   const isQuoteOfCommunityPost = thread.posts.some(p =>
     p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION),
   )
+  const selectedCommunityRecordFeed =
+    thread.communityFeed?.config.contentType === 'communityRecord'
 
-  if (thread.blackskyOnly || isReplyToCommunityPost || isQuoteOfCommunityPost) {
+  if (
+    thread.blackskyOnly ||
+    selectedCommunityRecordFeed ||
+    isReplyToCommunityPost ||
+    isQuoteOfCommunityPost
+  ) {
     return postCommunity(agent, queryClient, opts)
   }
 
@@ -108,6 +129,7 @@ export async function post(
   const did = agent.assertDid
   const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
   const uris: string[] = []
+  const admissions: Array<{post: string; cid: string}> = []
 
   let now = new Date()
   let tid: TID | undefined
@@ -196,6 +218,9 @@ export async function post(
       cid: await computeCid(record),
       uri,
     }
+    if (thread.communityFeed?.config.contentType === 'publicRecord') {
+      admissions.push({post: uri, cid: ref.cid})
+    }
     replyPromise = {
       root: reply?.root ?? ref,
       parent: ref,
@@ -220,6 +245,14 @@ export async function post(
     } else {
       throw e
     }
+  }
+
+  if (thread.communityFeed?.config.contentType === 'publicRecord') {
+    await Promise.all(
+      admissions.map(({post, cid}) =>
+        admitFeedPost(agent, thread.communityFeed!, post, cid),
+      ),
+    )
   }
 
   return {uris}
@@ -248,6 +281,7 @@ async function postCommunity(
   const did = agent.assertDid
   const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
   const uris: string[] = []
+  const admissions: Array<{post: string; cid: string}> = []
 
   let now = new Date()
   let tid: TID | undefined
@@ -321,6 +355,9 @@ async function postCommunity(
       createdAt,
       expectedCid: cid, // Appview will verify this matches
     }
+    if (!reply && thread.communityFeed) {
+      submitBody.feed = thread.communityFeed.feed
+    }
     if (rt.facets?.length) {
       submitBody.facets = rt.facets
     }
@@ -362,7 +399,10 @@ async function postCommunity(
       const submitRes = await communityXrpc(
         agent,
         'community.blacksky.feed.submitPost',
-        {body: submitBody},
+        {
+          body: submitBody,
+          serviceDid: thread.communityFeed?.config.contentStore,
+        },
       )
       if (!submitRes.ok) {
         const errBody = (await submitRes.json().catch(() => ({}))) as {
@@ -419,6 +459,9 @@ async function postCommunity(
       cid: await computeCid(stubRecord as unknown as AppBskyFeedPost.Record),
       uri,
     }
+    if (thread.communityFeed) {
+      admissions.push({post: uri, cid: ref.cid})
+    }
     replyPromise = {
       root: reply?.root ?? ref,
       parent: ref,
@@ -443,6 +486,14 @@ async function postCommunity(
     } else {
       throw e
     }
+  }
+
+  if (thread.communityFeed) {
+    await Promise.all(
+      admissions.map(({post, cid}) =>
+        admitFeedPost(agent, thread.communityFeed!, post, cid),
+      ),
+    )
   }
 
   void queryClient.invalidateQueries({queryKey: ['community-timeline']})

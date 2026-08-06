@@ -7,6 +7,7 @@ import {Trans} from '@lingui/react/macro'
 import {Logo as BlackskyLogo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
 import {ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown} from '#/components/icons/Chevron'
+import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Group'
 import * as Tooltip from '#/components/Tooltip'
 import {Text} from '#/components/Typography'
 
@@ -16,10 +17,17 @@ export function isCommunityPostUri(uri: string | undefined): boolean {
   return !!uri && uri.includes(COMMUNITY_POST_COLLECTION)
 }
 
-export function CommunityOnlyBadge() {
+export function CommunityOnlyBadge({communityFeed}: {communityFeed?: string}) {
   const t = useTheme()
   const {_} = useLingui()
   const [visible, setVisible] = useState(false)
+  const isTenant = !!communityFeed
+  const label = isTenant
+    ? _(msg`Community-only post`)
+    : _(msg`Blacksky-only post`)
+  const hint = isTenant
+    ? _(msg`Only visible to members of this community`)
+    : _(msg`Only visible to members of the Blacksky community`)
 
   useEffect(() => {
     return () => setVisible(false)
@@ -33,10 +41,8 @@ export function CommunityOnlyBadge() {
       <Tooltip.Target>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={_(msg`Blacksky-only post`)}
-          accessibilityHint={_(
-            msg`Only visible to members of the Blacksky community`,
-          )}
+          accessibilityLabel={label}
+          accessibilityHint={hint}
           onPress={() => setVisible(v => !v)}
           style={[
             a.flex_row,
@@ -47,19 +53,33 @@ export function CommunityOnlyBadge() {
             a.rounded_full,
             {backgroundColor: t.palette.primary_500},
           ]}>
-          <BlackskyLogo width={14} fill="#FFFFFF" />
+          {isTenant ? (
+            <GroupIcon width={14} fill="#FFFFFF" />
+          ) : (
+            <BlackskyLogo width={14} fill="#FFFFFF" />
+          )}
           <ChevronDown width={10} fill="#FFFFFF" />
         </Pressable>
       </Tooltip.Target>
-      <Tooltip.Content label={_(msg`Blacksky-only post`)}>
+      <Tooltip.Content label={label}>
         <View style={[a.gap_xs, {maxWidth: 260}]}>
           <Text style={[a.font_bold]}>
-            <Trans>Blacksky Only</Trans>
+            {isTenant ? (
+              <Trans>Community Only</Trans>
+            ) : (
+              <Trans>Blacksky Only</Trans>
+            )}
           </Text>
           <Text style={[t.atoms.text_contrast_high]}>
-            <Trans>
-              This post is only visible to members of the Blacksky community.
-            </Trans>
+            {isTenant ? (
+              <Trans>
+                This post is only visible to members of its community.
+              </Trans>
+            ) : (
+              <Trans>
+                This post is only visible to members of the Blacksky community.
+              </Trans>
+            )}
           </Text>
         </View>
       </Tooltip.Content>

@@ -10,6 +10,7 @@ import {useWindowDimensions, View} from 'react-native'
 import Animated, {useAnimatedStyle} from 'react-native-reanimated'
 import {Trans} from '@lingui/react/macro'
 
+import {getCommunityFeedUri} from '#/lib/api/community-post'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -131,6 +132,7 @@ export function PostThread({uri}: {uri: string}) {
         embed: post.embed,
         moderation: anchor.moderation,
         langs: post.record.langs,
+        communityFeed: getCommunityFeedUri(post),
       },
       onPostSuccess: optimisticOnPostReply,
       logContext: 'PostReply',

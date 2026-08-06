@@ -17,6 +17,7 @@ import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
+import {getCommunityFeedUri} from '#/lib/api/community-post'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {
@@ -162,7 +163,8 @@ let PostMenuItems = ({
     [postUri],
   )
   const {data: peerModPerms} = useMyPeerModPermissions()
-  const canLabelPost = !!peerModPerms?.isPeerMod && isCommunityPost
+  const canLabelPost =
+    !!peerModPerms?.isPeerMod && isCommunityPost && !getCommunityFeedUri(post)
   const [isThreadMuted, muteThread, unmuteThread] = useThreadMuteMutationQueue(
     post,
     rootUri,

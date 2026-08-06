@@ -27,6 +27,7 @@ export interface ComposerOptsPostRef {
   author: AppBskyActorDefs.ProfileViewBasic
   embed?: AppBskyFeedDefs.PostView['embed']
   moderation?: ModerationDecision
+  communityFeed?: string
 }
 
 export type OnPostSuccessData =

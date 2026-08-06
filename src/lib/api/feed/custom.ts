@@ -6,6 +6,12 @@ import {
 } from '@atproto/api'
 
 import {
+  type CommunityFeedConfig,
+  fetchCommunityFeedConfig,
+  fetchFeedServiceDid,
+} from '#/lib/api/community-feed'
+import {getServiceAuthToken} from '#/lib/api/service-auth'
+import {
   getAppLanguageAsContentLanguage,
   getContentLanguages,
 } from '#/state/preferences/languages'
@@ -20,6 +26,8 @@ export class CustomFeedAPI implements FeedAPI {
   agent: AtpAgent
   params: GetCustomFeed.QueryParams
   userInterests?: string
+  communityConfig: Promise<CommunityFeedConfig | null>
+  feedServiceDid: Promise<string | null>
 
   constructor({
     agent,
@@ -33,10 +41,32 @@ export class CustomFeedAPI implements FeedAPI {
     this.agent = agent
     this.params = feedParams
     this.userInterests = userInterests
+    this.communityConfig = fetchCommunityFeedConfig(agent, feedParams.feed)
+    this.feedServiceDid = this.communityConfig.then(config =>
+      config ? fetchFeedServiceDid(agent, feedParams.feed) : null,
+    )
+  }
+
+  async communityAuthHeaders(): Promise<Record<string, string>> {
+    const [config, serviceDid] = await Promise.all([
+      this.communityConfig,
+      this.feedServiceDid,
+    ])
+    if (!config || !serviceDid) return {}
+    const token = await getServiceAuthToken({
+      agent: this.agent,
+      aud: serviceDid,
+      lxm: 'app.bsky.feed.getFeedSkeleton',
+      exp: Math.floor(Date.now() / 1000) + 60,
+    })
+    return {Authorization: `Bearer ${token}`}
   }
 
   async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
     const contentLangs = getContentLanguages().join(',')
+    const communityAuthHeaders = this.agent.did
+      ? await this.communityAuthHeaders()
+      : {}
     const res = await this.agent.app.bsky.feed.getFeed(
       {
         ...this.params,
@@ -45,6 +75,7 @@ export class CustomFeedAPI implements FeedAPI {
       {
         headers: {
           ...getProxyHeadersForFeed(this.params.feed),
+          ...communityAuthHeaders,
           'Accept-Language': contentLangs,
         },
       },
@@ -62,6 +93,9 @@ export class CustomFeedAPI implements FeedAPI {
     const contentLangs = getContentLanguages().join(',')
     const agent = this.agent
     const isBlueskyOwned = isBlueskyOwnedFeed(this.params.feed)
+    const communityAuthHeaders = agent.did
+      ? await this.communityAuthHeaders()
+      : {}
 
     const res = agent.did
       ? await this.agent.app.bsky.feed.getFeed(
@@ -73,6 +107,7 @@ export class CustomFeedAPI implements FeedAPI {
           {
             headers: {
               ...getProxyHeadersForFeed(this.params.feed),
+              ...communityAuthHeaders,
               ...(isBlueskyOwned
                 ? createBskyTopicsHeader(this.userInterests)
                 : {}),

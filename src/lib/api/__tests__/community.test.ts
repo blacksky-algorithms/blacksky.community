@@ -34,4 +34,20 @@ describe('communityXrpc', () => {
       BLUESKY_FALLBACK_PROXY_HEADER,
     )
   })
+
+  it('can target a configured content store', async () => {
+    const {agent, fetchHandler} = mockAgent()
+
+    await communityXrpc(agent, 'community.blacksky.feed.submitPost', {
+      body: {text: 'hello'},
+      serviceDid: 'did:web:content.example.com',
+    })
+
+    const init = fetchHandler.mock.calls[0][1] as {
+      headers: Record<string, string>
+    }
+    expect(init.headers['atproto-proxy']).toBe(
+      'did:web:content.example.com#bsky_appview',
+    )
+  })
 })

@@ -11,6 +11,7 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {getCommunityFeedUri} from '#/lib/api/community-post'
 import {type ReasonFeedSource} from '#/lib/api/feed/types'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -200,6 +201,7 @@ let FeedItemInner = ({
         embed: post.embed,
         moderation,
         langs: record.langs,
+        communityFeed: getCommunityFeedUri(post),
       },
       logContext: 'PostReply',
     })
