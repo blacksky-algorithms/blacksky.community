@@ -291,7 +291,13 @@ export const LoginForm = ({
           variant="solid"
           color="secondary"
           size="large"
-          onPress={onPressBack}>
+          onPress={() => {
+            // Leaving the screen must also drop any pending sign-in. Its
+            // redirect listener would otherwise stay armed and race the next
+            // attempt for the same single-use authorization state.
+            abortRef.current?.abort()
+            onPressBack()
+          }}>
           <ButtonText>
             <Trans>Back</Trans>
           </ButtonText>

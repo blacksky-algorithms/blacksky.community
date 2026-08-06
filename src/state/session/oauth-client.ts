@@ -16,6 +16,41 @@ export const NATIVE_REDIRECT_URI = 'community.blacksky:/oauth/callback'
 // both forms rather than relying on `startsWith(NATIVE_REDIRECT_URI)`.
 const OAUTH_CALLBACK_RE = /^community\.blacksky:\/\/?oauth\/callback\b/
 
+export function isOAuthCallbackUrl(url: string): boolean {
+  return OAUTH_CALLBACK_RE.test(url)
+}
+
+// Exchanging a redirect consumes its one-time `state` entry from the OAuth
+// client's store, so exactly one handler may act on a given URL. Two are armed
+// whenever the app is alive: the in-flight `signInNativeAndroid` listener, and
+// the cold-start recovery in `useNativeOAuthRedirect`. Both claim here first;
+// the loser backs off instead of calling `callback()` on spent state.
+const claimedRedirects = new Set<string>()
+
+export function claimOAuthRedirect(url: string): boolean {
+  if (claimedRedirects.has(url)) return false
+  claimedRedirects.add(url)
+  return true
+}
+
+/**
+ * Exchange an OAuth redirect deep-link for a session.
+ *
+ * Slash-count-agnostic param extraction — do NOT rely on `new URL()`, which is
+ * fragile on Hermes for the custom `community.blacksky:` scheme.
+ */
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expo OAuth types do not resolve in Linux CI */
+export async function completeOAuthRedirect(client: any, url: string) {
+  const query = url.includes('?') ? url.slice(url.indexOf('?') + 1) : ''
+  const params = new URLSearchParams(query)
+  /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- ditto */
+  const {session} = await client.callback(params, {
+    redirect_uri: NATIVE_REDIRECT_URI,
+  })
+
+  return session
+}
+
 // Debug fetch wrapper — logs all OAuth-related network requests to Metro console
 const debugFetch: typeof fetch = async (input, init) => {
   const url =
@@ -142,20 +177,14 @@ export async function signInNativeAndroid(
 
     const sub = Linking.addEventListener('url', ({url: incoming}) => {
       if (settled) return
-      if (!OAUTH_CALLBACK_RE.test(incoming)) return // ignore other deep-links
+      if (!isOAuthCallbackUrl(incoming)) return // ignore other deep-links
+      // Claimed synchronously so the cold-start handler, which can only run a
+      // tick later off a React effect, stands down for this URL.
+      if (!claimOAuthRedirect(incoming)) return
       settled = true
       cleanup()
       ;(async () => {
-        // Slash-count-agnostic param extraction — do NOT rely on `new URL()`,
-        // which is fragile on Hermes for the custom `community.blacksky:` scheme.
-        const query = incoming.includes('?')
-          ? incoming.slice(incoming.indexOf('?') + 1)
-          : ''
-        const params = new URLSearchParams(query)
-        const {session} = await client.callback(params, {
-          redirect_uri: redirectUri,
-        })
-        resolve(session)
+        resolve(await completeOAuthRedirect(client, incoming))
       })().catch(reject)
     })
 
