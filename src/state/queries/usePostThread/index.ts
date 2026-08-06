@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useState} from 'react'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useThreadPreferences} from '#/state/queries/preferences/useThreadPreferences'
 import {
@@ -58,6 +59,16 @@ export function usePostThread({anchor}: {anchor?: string}) {
         : TREE_VIEW_BELOW
   }, [view, gtPhone])
 
+  /*
+   * `community.blacksky.feed.post` records only exist on the home appview;
+   * Bluesky's appview can never serve them. Pin these reads to the home
+   * appview so they survive the fallback header flip, otherwise the thread
+   * 404s during an appview outage.
+   */
+  const pinnedOpts = anchor?.includes('/community.blacksky.feed.post/')
+    ? HOME_APPVIEW_PINNED_OPTS
+    : undefined
+
   const postThreadQueryKey = createPostThreadQueryKey({
     anchor,
     sort,
@@ -71,12 +82,15 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: isThreadPreferencesLoaded && !!anchor && !!moderationOpts,
     queryKey: postThreadQueryKey,
     async queryFn(ctx) {
-      const {data} = await agent.app.bsky.unspecced.getPostThreadV2({
-        anchor: anchor!,
-        branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
-        below,
-        sort: sort,
-      })
+      const {data} = await agent.app.bsky.unspecced.getPostThreadV2(
+        {
+          anchor: anchor!,
+          branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
+          below,
+          sort: sort,
+        },
+        pinnedOpts,
+      )
 
       /*
        * Initialize `ctx.meta` to track if we know we have additional replies
@@ -161,9 +175,12 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: additionalQueryEnabled,
     queryKey: postThreadOtherQueryKey,
     async queryFn() {
-      const {data} = await agent.app.bsky.unspecced.getPostThreadOtherV2({
-        anchor: anchor!,
-      })
+      const {data} = await agent.app.bsky.unspecced.getPostThreadOtherV2(
+        {
+          anchor: anchor!,
+        },
+        pinnedOpts,
+      )
       return data
     },
   })
