@@ -5,6 +5,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {webLinks} from '#/lib/constants'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {InlineLinkText} from '#/components/Link'
@@ -54,6 +55,13 @@ export const Policies = ({
           key="pp"
           to={pp}>
           Privacy Policy
+        </InlineLinkText>
+        , and{' '}
+        <InlineLinkText
+          label={_(msg`Read the Blacksky Community Guidelines`)}
+          key="cg"
+          to={webLinks.community}>
+          Community Guidelines
         </InlineLinkText>
         .
       </Trans>

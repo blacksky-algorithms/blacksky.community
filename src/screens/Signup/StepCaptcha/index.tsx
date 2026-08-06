@@ -3,17 +3,21 @@ import {ActivityIndicator, Platform, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
+import {Trans} from '@lingui/react/macro'
 import {nanoid} from 'nanoid/non-secure'
 
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {createFullHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {useSignupContext} from '#/screens/Signup/state'
 import {CaptchaWebView} from '#/screens/Signup/StepCaptcha/CaptchaWebView'
 import {atoms as a, useTheme} from '#/alf'
 import {FormError} from '#/components/forms/FormError'
+import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID, IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
-import {BackNextButtons} from '../BackNextButtons'
 
 const CAPTCHA_PATH = '/gate/signup'
 const ATTEST_PATH = '/gate/signup/attempt-attest'
@@ -72,6 +76,7 @@ function StepCaptchaInner({
   const {_} = useLingui()
   const ax = useAnalytics()
   const theme = useTheme()
+  const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
 
   const [completed, setCompleted] = useState(false)
@@ -169,38 +174,60 @@ function StepCaptchaInner({
   }, [dispatch, state.handle])
 
   return (
-    <>
-      <View style={[a.gap_lg, a.pt_lg]}>
-        <View
-          style={[
-            a.w_full,
-            a.overflow_hidden,
-            {minHeight: 510},
-            completed && [a.align_center, a.justify_center],
-          ]}>
-          {!completed ? (
-            <CaptchaWebView
-              key={url}
-              url={url}
-              fallbackUrl={fallbackUrl}
-              stateParam={stateParam}
-              state={state}
-              onComplete={() => setCompleted(true)}
-              onSuccess={onSuccess}
-              onError={onError}
-            />
-          ) : (
-            <ActivityIndicator size="large" />
-          )}
-        </View>
-        <FormError error={state.error} />
-      </View>
-      <BackNextButtons
-        hideNext
-        isLoading={state.isLoading}
-        onBackPress={onBackPress}
+    <View style={[a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={onBackPress}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
-    </>
+
+      <Eyebrow step={3} total={4} />
+
+      <View style={[a.gap_xs]}>
+        <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+          <Trans>Complete the challenge</Trans>
+        </Text>
+        <Text
+          style={[a.text_md, a.leading_snug, theme.atoms.text_contrast_medium]}>
+          <Trans>
+            hCaptcha helps us reduce the number of bots in our community.
+          </Trans>
+        </Text>
+      </View>
+
+      <View
+        style={[
+          a.w_full,
+          a.overflow_hidden,
+          a.rounded_md,
+          {minHeight: 510},
+          completed && [a.align_center, a.justify_center],
+        ]}>
+        {!completed ? (
+          <CaptchaWebView
+            key={url}
+            url={url}
+            fallbackUrl={fallbackUrl}
+            stateParam={stateParam}
+            state={state}
+            onComplete={() => setCompleted(true)}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+        ) : (
+          <ActivityIndicator size="large" />
+        )}
+      </View>
+
+      <FormError error={state.error} />
+
+      <PrimaryButton
+        testID="captchaContinueBtn"
+        label={_(msg`Continue`)}
+        onPress={() => {}}
+        disabled
+      />
+    </View>
   )
 }
 

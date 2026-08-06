@@ -1,15 +1,11 @@
-import {type ReactNode, useMemo, useState} from 'react'
+import {useMemo, useState} from 'react'
 import {View} from 'react-native'
-import Animated, {
-  FadeIn,
-  FadeOut,
-  LayoutAnimationConfig,
-  LinearTransition,
-} from 'react-native-reanimated'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
-import {Plural, Trans} from '@lingui/react/macro'
+import {Trans} from '@lingui/react/macro'
 
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {
   createFullHandle,
   MAX_SERVICE_HANDLE_LENGTH,
@@ -21,18 +17,20 @@ import {
   useHandleAvailabilityQuery,
 } from '#/state/queries/handle-availability'
 import {useSignupContext} from '#/screens/Signup/state'
-import {atoms as a, native, useTheme} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
-import * as TextField from '#/components/forms/TextField'
+import {atoms as a, useTheme} from '#/alf'
+import {Button, ButtonText} from '#/components/Button'
 import {useThrottledValue} from '#/components/hooks/useThrottledValue'
 import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Check_Stroke2_Corner0_Rounded as Check} from '#/components/icons/Check'
-import {ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown} from '#/components/icons/Chevron'
-import * as Menu from '#/components/Menu'
-import {ScreenTransition} from '#/components/ScreenTransition'
+import {
+  AppBar,
+  Eyebrow,
+  FieldGroupCard,
+  InputGroup,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {BackNextButtons} from '../BackNextButtons'
 import {HandleSuggestions} from './HandleSuggestions'
 
 export function StepHandle({
@@ -43,29 +41,20 @@ export function StepHandle({
   const {_} = useLingui()
   const ax = useAnalytics()
   const t = useTheme()
+  const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
   const [draftValue, setDraftValue] = useState(state.handle)
   const [submitFoundTaken, setSubmitFoundTaken] = useState(false)
-  const [selectedDomain, setSelectedDomain] = useState(
+  // The handle domain is chosen on the "Choose your handle" step and delivered
+  // here via the selected community's serviceDescription.
+  const selectedDomain =
     state.userDomain ||
-      state.serviceDescription?.availableUserDomains?.[0] ||
-      '',
-  )
+    state.serviceDescription?.availableUserDomains?.[0] ||
+    ''
   const isNextLoading = useThrottledValue(state.isLoading, 500)
-
-  // Get available domains from service description
-  const availableDomains = useMemo(
-    () => state.serviceDescription?.availableUserDomains || [],
-    [state.serviceDescription?.availableUserDomains],
-  )
-  const hasMultipleDomains = useMemo(
-    () => availableDomains.length > 1,
-    [availableDomains],
-  )
 
   const validCheck = validateServiceHandle(draftValue, selectedDomain)
 
-  // Real-time handle availability checking
   const {
     debouncedUsername: debouncedDraftValue,
     enabled: queryEnabled,
@@ -79,7 +68,6 @@ export function StepHandle({
     enabled: validCheck.overall,
   })
 
-  // Calculate disabled state based on real-time checking
   const hasDebounceSettled = draftValue === debouncedDraftValue
   const isHandleTaken =
     !isPending &&
@@ -94,19 +82,49 @@ export function StepHandle({
     !!onPressSignIn &&
     draftValue.length > 0 &&
     ((isHandleTaken && hasDebounceSettled) || submitFoundTaken)
-  const fullDraftHandle = createFullHandle(draftValue.trim(), selectedDomain)
+  const trimmedDraft = draftValue.trim()
+  const fullDraftHandle = createFullHandle(trimmedDraft, selectedDomain)
 
-  const textFieldInvalid =
-    isHandleTaken ||
-    !validCheck.frontLengthNotTooLong ||
-    !validCheck.handleChars ||
-    !validCheck.hyphenStartOrEnd ||
-    !validCheck.totalLength
+  const errorText = useMemo(() => {
+    if (state.error) {
+      return state.error
+    }
+    if (isHandleTaken && validCheck.overall) {
+      return _(msg`${fullDraftHandle} is not available`)
+    }
+    if (draftValue.length === 0) {
+      return undefined
+    }
+    if (!validCheck.hyphenStartOrEnd) {
+      return _(msg`Username cannot begin or end with a hyphen`)
+    }
+    if (!validCheck.handleChars) {
+      return _(
+        msg`Username must only contain letters (a-z), numbers, and hyphens`,
+      )
+    }
+    if (!validCheck.totalLength || !validCheck.frontLengthNotTooLong) {
+      if (
+        !validCheck.totalLength ||
+        draftValue.length > MAX_SERVICE_HANDLE_LENGTH
+      ) {
+        return _(
+          msg`Username cannot be longer than ${MAX_SERVICE_HANDLE_LENGTH} characters`,
+        )
+      }
+      return _(msg`Username must be at least 3 characters`)
+    }
+    return undefined
+  }, [state.error, isHandleTaken, validCheck, draftValue, fullDraftHandle, _])
+
+  const supportingText =
+    trimmedDraft.length > 0
+      ? _(msg`Your username: @${fullDraftHandle}`)
+      : undefined
 
   const onNextPress = async () => {
     const handle = draftValue.trim()
 
-    // Save both handle and domain to state
     dispatch({
       type: 'setHandle',
       value: handle,
@@ -142,7 +160,6 @@ export function StepHandle({
       logger.error('Failed to check handle availability on next press', {
         safeMessage: error,
       })
-      // Don't block on error - let them proceed
     } finally {
       dispatch({type: 'setIsLoading', value: false})
     }
@@ -153,7 +170,6 @@ export function StepHandle({
         state.serviceDescription?.phoneVerificationRequired,
     })
 
-    // phoneVerificationRequired is actually whether a captcha is required
     if (!state.serviceDescription?.phoneVerificationRequired) {
       dispatch({
         type: 'submit',
@@ -179,238 +195,97 @@ export function StepHandle({
   }
 
   return (
-    <ScreenTransition direction={state.screenTransitionDirection ?? 'Forward'}>
-      <View style={[a.gap_sm, a.pt_lg, a.z_10]}>
-        <View>
-          <TextField.Root isInvalid={textFieldInvalid}>
-            <TextField.Icon icon={At} />
-            <TextField.Input
-              testID="handleInput"
-              onChangeText={val => {
-                if (state.error) {
-                  dispatch({type: 'setError', value: ''})
-                }
-                setSubmitFoundTaken(false)
-                setDraftValue(val.toLowerCase())
-              }}
-              label={selectedDomain}
-              value={draftValue}
-              keyboardType="ascii-capable" // fix for iOS replacing -- with —
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoFocus
-              autoComplete="off"
-            />
-            {draftValue.length > 0 && (
-              <TextField.GhostText value={selectedDomain}>
-                {draftValue}
-              </TextField.GhostText>
-            )}
-            {isHandleAvailable?.available && draftValue.length > 0 && (
-              <Check size="md" style={{color: t.palette.positive_600}} />
-            )}
-          </TextField.Root>
+    <View style={[a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={onBackPress}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
+      />
 
-          {/* Domain selector - only shown if multiple domains are available */}
-          {hasMultipleDomains && (
-            <View style={[a.mt_md]}>
-              <Text style={[a.text_sm, a.mb_xs, t.atoms.text_contrast_medium]}>
-                <Trans>Domain</Trans>
-              </Text>
-              <Menu.Root>
-                <Menu.Trigger label={_(msg`Select domain`)}>
-                  {({props}) => (
-                    <Button
-                      {...props}
-                      label={_(msg`Select domain`)}
-                      variant="solid"
-                      color="secondary"
-                      size="large"
-                      style={[
-                        a.flex_row,
-                        a.align_center,
-                        a.justify_between,
-                        a.w_full,
-                      ]}>
-                      <View style={[a.flex_1, a.align_start]}>
-                        <ButtonText style={[a.text_md, a.font_bold]}>
-                          {selectedDomain}
-                        </ButtonText>
-                        {selectedDomain === availableDomains[0] && (
-                          <Text
-                            style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                            <Trans>Default</Trans>
-                          </Text>
-                        )}
-                      </View>
-                      <ButtonIcon icon={ChevronDown} />
-                    </Button>
-                  )}
-                </Menu.Trigger>
+      <Eyebrow step={2} total={4} />
 
-                <Menu.Outer>
-                  <Menu.Group>
-                    {availableDomains.map((domain, index) => (
-                      <Menu.Item
-                        key={domain}
-                        label={domain}
-                        onPress={() => {
-                          setSubmitFoundTaken(false)
-                          setSelectedDomain(domain)
-                        }}>
-                        <Menu.ItemText>
-                          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-                            <Text>{domain}</Text>
-                            {index === 0 && (
-                              <Text
-                                style={[
-                                  a.text_xs,
-                                  t.atoms.text_contrast_medium,
-                                ]}>
-                                (<Trans>Default</Trans>)
-                              </Text>
-                            )}
-                          </View>
-                        </Menu.ItemText>
-                        {selectedDomain === domain && (
-                          <Menu.ItemIcon icon={Check} />
-                        )}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Group>
-                </Menu.Outer>
-              </Menu.Root>
-            </View>
-          )}
-        </View>
-
-        {/* Validation messages with animations */}
-        <LayoutAnimationConfig skipEntering skipExiting>
-          <View style={[a.gap_xs]}>
-            {state.error && (
-              <Requirement>
-                <RequirementText>{state.error}</RequirementText>
-              </Requirement>
-            )}
-            {isHandleTaken && validCheck.overall && (
-              <>
-                <Requirement>
-                  <RequirementText>
-                    <Trans>
-                      {createFullHandle(draftValue, selectedDomain)} is not
-                      available
-                    </Trans>
-                  </RequirementText>
-                </Requirement>
-                {isHandleAvailable?.suggestions &&
-                  isHandleAvailable.suggestions.length > 0 && (
-                    <HandleSuggestions
-                      suggestions={isHandleAvailable.suggestions}
-                      onSelect={suggestion => {
-                        // Extract just the handle part without the domain
-                        const handlePart = suggestion.handle.includes('.')
-                          ? suggestion.handle.split('.')[0]
-                          : suggestion.handle.slice(
-                              0,
-                              selectedDomain.length * -1,
-                            )
-                        setDraftValue(handlePart)
-                        ax.metric('signup:handleSuggestionSelected', {
-                          method: suggestion.method,
-                        })
-                      }}
-                    />
-                  )}
-              </>
-            )}
-            {(!validCheck.handleChars || !validCheck.hyphenStartOrEnd) && (
-              <Requirement>
-                {!validCheck.hyphenStartOrEnd ? (
-                  <RequirementText>
-                    <Trans>Username cannot begin or end with a hyphen</Trans>
-                  </RequirementText>
-                ) : (
-                  <RequirementText>
-                    <Trans>
-                      Username must only contain letters (a-z), numbers, and
-                      hyphens
-                    </Trans>
-                  </RequirementText>
-                )}
-              </Requirement>
-            )}
-            {(!validCheck.frontLengthNotTooLong || !validCheck.totalLength) && (
-              <Requirement>
-                <RequirementText>
-                  {!validCheck.totalLength ||
-                  draftValue.length > MAX_SERVICE_HANDLE_LENGTH ? (
-                    <Trans>
-                      Username cannot be longer than{' '}
-                      <Plural
-                        value={MAX_SERVICE_HANDLE_LENGTH}
-                        other="# characters"
-                      />
-                    </Trans>
-                  ) : (
-                    <Trans>Username must be at least 3 characters</Trans>
-                  )}
-                </RequirementText>
-              </Requirement>
-            )}
-            {showSignInInstead && (
-              <Requirement>
-                <View style={[a.mt_xs, a.align_start]}>
-                  <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-                    <Trans>Is this your account?</Trans>
-                  </Text>
-                  <Button
-                    testID="signInInsteadButton"
-                    label={_(msg`Sign in instead`)}
-                    variant="ghost"
-                    color="primary"
-                    size="small"
-                    style={[a.mt_xs]}
-                    onPress={() => onPressSignIn(fullDraftHandle)}>
-                    <ButtonText>
-                      <Trans>Sign in as {fullDraftHandle}</Trans>
-                    </ButtonText>
-                  </Button>
-                </View>
-              </Requirement>
-            )}
-          </View>
-        </LayoutAnimationConfig>
+      <View style={[a.gap_xs]}>
+        <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+          <Trans>Create your profile</Trans>
+        </Text>
+        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+          <Trans>Choose how you show up in the community.</Trans>
+        </Text>
       </View>
 
-      <Animated.View layout={native(LinearTransition)}>
-        <BackNextButtons
-          isLoading={isNextLoading}
-          isNextDisabled={isNextDisabled}
-          onBackPress={onBackPress}
-          onNextPress={onNextPress}
+      <FieldGroupCard>
+        <InputGroup
+          testID="handleInput"
+          label={_(msg`Handle`)}
+          icon={At}
+          value={draftValue}
+          placeholder={_(msg`Enter your handle`)}
+          onChangeText={val => {
+            if (state.error) {
+              dispatch({type: 'setError', value: ''})
+            }
+            setSubmitFoundTaken(false)
+            setDraftValue(val.toLowerCase())
+          }}
+          supportingText={supportingText}
+          errorText={errorText}
+          trailing={
+            isHandleAvailable?.available && draftValue.length > 0 ? (
+              <Check size="md" style={{color: t.palette.positive_600}} />
+            ) : undefined
+          }
+          keyboardType="ascii-capable"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoFocus
+          autoComplete="off"
         />
-      </Animated.View>
-    </ScreenTransition>
-  )
-}
+      </FieldGroupCard>
 
-function Requirement({children}: {children: ReactNode}) {
-  return (
-    <Animated.View
-      style={[a.w_full]}
-      layout={native(LinearTransition)}
-      entering={native(FadeIn)}
-      exiting={native(FadeOut)}>
-      {children}
-    </Animated.View>
-  )
-}
+      {isHandleTaken &&
+        validCheck.overall &&
+        isHandleAvailable?.suggestions &&
+        isHandleAvailable.suggestions.length > 0 && (
+          <HandleSuggestions
+            suggestions={isHandleAvailable.suggestions}
+            onSelect={suggestion => {
+              const handlePart = suggestion.handle.includes('.')
+                ? suggestion.handle.split('.')[0]
+                : suggestion.handle.slice(0, selectedDomain.length * -1)
+              setDraftValue(handlePart)
+              ax.metric('signup:handleSuggestionSelected', {
+                method: suggestion.method,
+              })
+            }}
+          />
+        )}
 
-function RequirementText({children}: {children: ReactNode}) {
-  const t = useTheme()
-  return (
-    <Text style={[a.text_sm, a.flex_1, {color: t.palette.negative_500}]}>
-      {children}
-    </Text>
+      {showSignInInstead && (
+        <View style={[a.align_start]}>
+          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+            <Trans>Is this your account?</Trans>
+          </Text>
+          <Button
+            testID="signInInsteadButton"
+            label={_(msg`Sign in instead`)}
+            variant="ghost"
+            color="primary"
+            size="small"
+            style={[a.mt_xs]}
+            onPress={() => onPressSignIn?.(fullDraftHandle)}>
+            <ButtonText>
+              <Trans>Sign in as {fullDraftHandle}</Trans>
+            </ButtonText>
+          </Button>
+        </View>
+      )}
+
+      <PrimaryButton
+        testID="nextBtn"
+        label={_(msg`Continue`)}
+        onPress={onNextPress}
+        disabled={isNextDisabled || isNextLoading}
+      />
+    </View>
   )
 }

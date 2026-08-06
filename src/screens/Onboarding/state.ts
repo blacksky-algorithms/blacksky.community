@@ -8,11 +8,10 @@ import {
 
 type OnboardingScreen =
   | 'profile'
-  | 'interests'
-  | 'suggested-accounts'
-  | 'suggested-starterpacks'
-  | 'find-contacts-intro'
-  | 'find-contacts'
+  | 'pin-feeds'
+  | 'belong'
+  | 'blacksky-only'
+  | 'assembly'
   | 'finished'
 
 export type OnboardingState = {
@@ -22,6 +21,9 @@ export type OnboardingState = {
 
   interestsStepResults: {
     selectedInterests: string[]
+  }
+  pinFeedsStepResults: {
+    selectedFeedUris: string[]
   }
   profileStepResults: {
     isCreatedAvatar: boolean
@@ -56,6 +58,10 @@ export type OnboardingAction =
       selectedInterests: string[]
     }
   | {
+      type: 'setPinFeedsStepResults'
+      selectedFeedUris: string[]
+    }
+  | {
       type: 'setProfileStepResults'
       isCreatedAvatar: boolean
       image: OnboardingState['profileStepResults']['image'] | undefined
@@ -69,28 +75,15 @@ export type OnboardingAction =
         | undefined
     }
 
-export function createInitialOnboardingState(
-  {
-    suggestedAccountsStepEnabled,
-    starterPacksStepEnabled,
-    findContactsStepEnabled,
-  }: {
-    suggestedAccountsStepEnabled: boolean
-    starterPacksStepEnabled: boolean
-    findContactsStepEnabled: boolean
-  } = {
-    suggestedAccountsStepEnabled: true,
-    starterPacksStepEnabled: true,
-    findContactsStepEnabled: false,
-  },
-): OnboardingState {
+export function createInitialOnboardingState(opts?: {
+  blackskyOnly?: boolean
+}): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
-    interests: true,
-    'suggested-accounts': suggestedAccountsStepEnabled,
-    'suggested-starterpacks': starterPacksStepEnabled,
-    'find-contacts-intro': findContactsStepEnabled,
-    'find-contacts': findContactsStepEnabled,
+    'pin-feeds': true,
+    belong: true,
+    'blacksky-only': opts?.blackskyOnly ?? true,
+    assembly: true,
     finished: true,
   }
 
@@ -100,6 +93,9 @@ export function createInitialOnboardingState(
     stepTransitionDirection: 'Forward',
     interestsStepResults: {
       selectedInterests: [],
+    },
+    pinFeedsStepResults: {
+      selectedFeedUris: [],
     },
     profileStepResults: {
       isCreatedAvatar: false,
@@ -144,16 +140,18 @@ export function reducer(
       break
     }
     case 'finish': {
-      next = createInitialOnboardingState({
-        suggestedAccountsStepEnabled: s.screens['suggested-accounts'],
-        starterPacksStepEnabled: s.screens['suggested-starterpacks'],
-        findContactsStepEnabled: s.screens['find-contacts'],
-      })
+      next = createInitialOnboardingState()
       break
     }
     case 'setInterestsStepResults': {
       next.interestsStepResults = {
         selectedInterests: a.selectedInterests,
+      }
+      break
+    }
+    case 'setPinFeedsStepResults': {
+      next.pinFeedsStepResults = {
+        selectedFeedUris: a.selectedFeedUris,
       }
       break
     }
@@ -190,10 +188,13 @@ export function reducer(
   return state
 }
 
-function getStepOrder(s: OnboardingState): OnboardingScreen[] {
+export function getStepOrder(s: OnboardingState): OnboardingScreen[] {
   return [
     s.screens.profile && ('profile' as const),
-    s.screens.interests && ('interests' as const),
+    s.screens['pin-feeds'] && ('pin-feeds' as const),
+    s.screens.belong && ('belong' as const),
+    s.screens['blacksky-only'] && ('blacksky-only' as const),
+    s.screens.assembly && ('assembly' as const),
     s.screens.finished && ('finished' as const),
   ].filter(x => !!x)
 }

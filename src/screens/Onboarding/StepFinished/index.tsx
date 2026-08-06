@@ -29,28 +29,19 @@ import {
   useSetActiveStarterPack,
 } from '#/state/shell/landing'
 import {useProgressGuideControls} from '#/state/shell/progress-guide'
-import {
-  OnboardingControls,
-  OnboardingHeaderSlot,
-} from '#/screens/Onboarding/Layout'
-import {
-  type OnboardingState,
-  useOnboardingInternalState,
-} from '#/screens/Onboarding/state'
+import {Logomark} from '#/view/icons/Logomark'
+import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {
   bulkWriteFollows,
   resolveFollowDids,
   resolveStarterPackUri,
   subscribeToBrandModerationServices,
 } from '#/screens/Onboarding/util'
-import {atoms as a, useBreakpoints} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
-import {ArrowRight_Stroke2_Corner0_Rounded as ArrowRight} from '#/components/icons/Arrow'
-import {Loader} from '#/components/Loader'
+import {atoms as a, useTheme} from '#/alf'
+import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import * as bsky from '#/types/bsky'
-import {ValuePropositionPager} from './ValuePropositionPager'
 
 export function StepFinished() {
   const {state, dispatch} = useOnboardingInternalState()
@@ -98,8 +89,8 @@ export function StepFinished() {
     }
 
     try {
-      const {interestsStepResults, profileStepResults} = state
-      const {selectedInterests} = interestsStepResults
+      const {pinFeedsStepResults, profileStepResults} = state
+      const {selectedFeedUris} = pinFeedsStepResults
 
       await Promise.all([
         bulkWriteFollows(
@@ -115,17 +106,25 @@ export function StepFinished() {
         ),
         subscribeToBrandModerationServices(agent, agent.session?.did, brand),
         (async () => {
-          // Interests need to get saved first, then we can write the feeds to prefs
-          await agent.setInterestsPref({tags: selectedInterests})
+          // Preferences ordering: write interests before feeds so the two
+          // preference updates don't race.
+          await agent.setInterestsPref({tags: []})
 
-          // Default feeds that every user should have pinned when landing in
-          // the app, sourced from the active brand config so non-Blacksky
-          // brands don't end up with Blacksky's feed URIs after onboarding.
+          // Feeds the user pinned in the pin-feeds step take priority; when
+          // they picked none, fall back to the active brand's default set so
+          // non-Blacksky brands don't end up with Blacksky's feed URIs.
           const feedsToSave: AppBskyActorDefs.SavedFeed[] =
-            brand.feeds.defaultPinned.map(f => ({
-              ...f,
-              id: TID.nextStr(),
-            }))
+            selectedFeedUris.length > 0
+              ? selectedFeedUris.map(uri => ({
+                  type: 'feed',
+                  value: uri,
+                  pinned: true,
+                  id: TID.nextStr(),
+                }))
+              : brand.feeds.defaultPinned.map(f => ({
+                  ...f,
+                  id: TID.nextStr(),
+                }))
 
           // Any starter pack feeds will be pinned _after_ the defaults
           if (starterPack && starterPack.feeds?.length) {
@@ -249,7 +248,7 @@ export function StepFinished() {
     <ValueProposition
       finishOnboarding={finishOnboarding}
       saving={saving}
-      state={state}
+      dispatch={dispatch}
     />
   )
 }
@@ -257,98 +256,43 @@ export function StepFinished() {
 function ValueProposition({
   finishOnboarding,
   saving,
-  state,
+  dispatch,
 }: {
   finishOnboarding: () => void
   saving: boolean
-  state: OnboardingState
+  dispatch: ReturnType<typeof useOnboardingInternalState>['dispatch']
 }) {
-  const [subStep, setSubStep] = useState<0 | 1 | 2>(0)
   const {_} = useLingui()
-  const ax = useAnalytics()
-  const {gtMobile} = useBreakpoints()
-
-  const onPress = () => {
-    if (subStep === 2) {
-      finishOnboarding() // has its own metrics
-    } else if (subStep === 1) {
-      setSubStep(2)
-      ax.metric('onboarding:valueProp:stepTwo:nextPressed', {})
-    } else if (subStep === 0) {
-      setSubStep(1)
-      ax.metric('onboarding:valueProp:stepOne:nextPressed', {})
-    }
-  }
+  const t = useTheme()
+  const brand = useBrand()
 
   return (
-    <>
-      {!gtMobile && (
-        <OnboardingHeaderSlot.Portal>
-          <Button
-            disabled={saving}
-            variant="ghost"
-            color="secondary"
-            size="small"
-            label={_(msg`Skip introduction and start using your account`)}
-            onPress={() => {
-              ax.metric('onboarding:valueProp:skipPressed', {})
-              finishOnboarding()
-            }}
-            style={[a.bg_transparent]}>
-            <ButtonText>
-              <Trans>Skip</Trans>
-            </ButtonText>
-          </Button>
-        </OnboardingHeaderSlot.Portal>
-      )}
+    <View style={[a.gap_lg]}>
+      <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
 
-      <ValuePropositionPager
-        step={subStep}
-        setStep={ss => setSubStep(ss)}
-        avatarUri={state.profileStepResults.imageUri}
+      <Eyebrow label={_(msg`Welcome`)} />
+
+      <View style={[a.gap_xs]}>
+        <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+          {brand.messages.welcomeMessage}
+        </Text>
+        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+          <Trans>
+            You're all set. Your feeds are ready and your community is waiting.
+          </Trans>
+        </Text>
+      </View>
+
+      <View style={[a.w_full, a.align_center, a.py_5xl]}>
+        <Logomark width={96} fill={t.atoms.text.color} />
+      </View>
+
+      <PrimaryButton
+        testID="onboardingFinish"
+        label={saving ? _(msg`Finalizing`) : _(msg`Let's go`)}
+        disabled={saving}
+        onPress={() => finishOnboarding()}
       />
-
-      <OnboardingControls.Portal>
-        <View style={gtMobile && [a.gap_md, a.flex_row]}>
-          {gtMobile && (IS_WEB ? subStep !== 2 : true) && (
-            <Button
-              disabled={saving}
-              color="secondary"
-              size="large"
-              label={_(msg`Skip introduction and start using your account`)}
-              onPress={() => finishOnboarding()}>
-              <ButtonText>
-                <Trans>Skip</Trans>
-              </ButtonText>
-            </Button>
-          )}
-          <Button
-            testID="onboardingFinish"
-            disabled={saving}
-            key={state.activeStep} // remove focus state on nav
-            color="primary"
-            size="large"
-            label={
-              subStep === 2
-                ? _(msg`Complete onboarding and start using your account`)
-                : _(msg`Next`)
-            }
-            onPress={onPress}>
-            <ButtonText>
-              {saving ? (
-                <Trans>Finalizing</Trans>
-              ) : subStep === 2 ? (
-                <Trans>Let's go!</Trans>
-              ) : (
-                <Trans>Next</Trans>
-              )}
-            </ButtonText>
-            {subStep === 2 && (
-              <ButtonIcon icon={saving ? Loader : ArrowRight} />
-            )}
-          </Button>
-        </View>
-      </OnboardingControls.Portal>
-    </>
+    </View>
   )
 }

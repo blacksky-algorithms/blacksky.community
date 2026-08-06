@@ -4,24 +4,33 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import * as EmailValidator from 'email-validator'
 import type tldts from 'tldts'
 
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {isEmailMaybeInvalid} from '#/lib/strings/email'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
 import {useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
-import {atoms as a, native} from '#/alf'
+import {atoms as a, native, useTheme} from '#/alf'
 import * as Admonition from '#/components/Admonition'
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
 import {FormError} from '#/components/forms/FormError'
 import {HostingProvider} from '#/components/forms/HostingProvider'
-import * as TextField from '#/components/forms/TextField'
+import {CalendarDays_Stroke2_Corner0_Rounded as CalendarDays} from '#/components/icons/CalendarDays'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
 import {Loader} from '#/components/Loader'
+import {
+  AppBar,
+  Eyebrow,
+  FieldGroupCard,
+  InputGroup,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {BackNextButtons} from '../BackNextButtons'
 
 function sanitizeDate(date: Date): Date {
   if (!date || date.toString() === 'Invalid Date') {
@@ -44,13 +53,16 @@ export function StepInfo({
   refetchServer: () => void
   isLoadingStarterPack: boolean
 }) {
-  const {t: l} = useLingui()
+  const {t: l, i18n} = useLingui()
+  const t = useTheme()
   const ax = useAnalytics()
+  const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
-  const inviteCodeValueRef = useRef<string>(state.inviteCode)
-  const emailValueRef = useRef<string>(state.email)
+
+  const [inviteCode, setInviteCode] = useState<string>(state.inviteCode)
+  const [email, setEmail] = useState<string>(state.email)
+  const [password, setPassword] = useState<string>(state.password)
   const prevEmailValueRef = useRef<string>(state.email)
-  const passwordValueRef = useRef<string>(state.password)
 
   const emailInputRef = useRef<TextInput>(null)
   const passwordInputRef = useRef<TextInput>(null)
@@ -77,10 +89,7 @@ export function StepInfo({
   }, [])
 
   const onNextPress = () => {
-    const inviteCode = inviteCodeValueRef.current
-    const email = emailValueRef.current
     const emailChanged = prevEmailValueRef.current !== email
-    const password = passwordValueRef.current
 
     if (!isOverAppMinAccessAge) {
       return
@@ -144,175 +153,194 @@ export function StepInfo({
     })
   }
 
+  const showForm = !state.isLoading && !isLoadingStarterPack
+
   return (
-    <>
-      <View style={[a.gap_md, a.pt_lg]}>
-        <FormError error={state.error} />
-        <HostingProvider
-          minimal
-          serviceUrl={state.serviceUrl}
-          onSelectServiceUrl={v => dispatch({type: 'setServiceUrl', value: v})}
-        />
-        {state.isLoading || isLoadingStarterPack ? (
-          <View style={[a.align_center]}>
-            <Loader size="xl" />
-          </View>
-        ) : state.serviceDescription ? (
-          <>
-            {state.serviceDescription.inviteCodeRequired && (
-              <View>
-                <TextField.LabelText>
-                  <Trans>Invite code</Trans>
-                </TextField.LabelText>
-                <TextField.Root isInvalid={state.errorField === 'invite-code'}>
-                  <TextField.Icon icon={Ticket} />
-                  <TextField.Input
-                    onChangeText={value => {
-                      inviteCodeValueRef.current = value.trim()
-                      if (
-                        state.errorField === 'invite-code' &&
-                        value.trim().length > 0
-                      ) {
-                        dispatch({type: 'clearError'})
-                      }
-                    }}
-                    label={l`Required for this provider`}
-                    defaultValue={state.inviteCode}
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    keyboardType="email-address"
-                    returnKeyType="next"
-                    submitBehavior={native('submit')}
-                    onSubmitEditing={native(() =>
-                      emailInputRef.current?.focus(),
-                    )}
-                  />
-                </TextField.Root>
-              </View>
-            )}
-            <View>
-              <TextField.LabelText>
-                <Trans>Email</Trans>
-              </TextField.LabelText>
-              <TextField.Root isInvalid={state.errorField === 'email'}>
-                <TextField.Icon icon={Envelope} />
-                <TextField.Input
-                  testID="emailInput"
-                  inputRef={emailInputRef}
-                  onChangeText={value => {
-                    emailValueRef.current = value.trim()
-                    if (hasWarnedEmail) {
-                      setHasWarnedEmail(false)
-                    }
-                    if (
-                      state.errorField === 'email' &&
-                      value.trim().length > 0 &&
-                      EmailValidator.validate(value.trim())
-                    ) {
-                      dispatch({type: 'clearError'})
-                    }
-                  }}
-                  label={l`Enter your email address`}
-                  defaultValue={state.email}
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  returnKeyType="next"
-                  submitBehavior={native('submit')}
-                  onSubmitEditing={native(() =>
-                    passwordInputRef.current?.focus(),
-                  )}
-                />
-              </TextField.Root>
-            </View>
-            <View>
-              <TextField.LabelText>
-                <Trans>Password</Trans>
-              </TextField.LabelText>
-              <TextField.Root isInvalid={state.errorField === 'password'}>
-                <TextField.Icon icon={Lock} />
-                <TextField.Input
-                  testID="passwordInput"
-                  inputRef={passwordInputRef}
-                  onChangeText={value => {
-                    passwordValueRef.current = value
-                    if (state.errorField === 'password' && value.length >= 8) {
-                      dispatch({type: 'clearError'})
-                    }
-                  }}
-                  label={l`Choose your password`}
-                  defaultValue={state.password}
-                  secureTextEntry
-                  autoComplete="new-password"
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  submitBehavior={native('blurAndSubmit')}
-                  onSubmitEditing={native(() =>
-                    birthdateInputRef.current?.focus(),
-                  )}
-                  passwordRules="minlength: 8;"
-                />
-              </TextField.Root>
-            </View>
-            <View>
-              <DateField.LabelText>
-                <Trans>Your birth date</Trans>
-              </DateField.LabelText>
-              <DateField.DateField
-                testID="date"
-                inputRef={birthdateInputRef}
-                value={state.dateOfBirth}
-                onChangeDate={date => {
-                  dispatch({
-                    type: 'setDateOfBirth',
-                    value: sanitizeDate(new Date(date)),
-                  })
-                }}
-                label={l`Date of birth`}
-                accessibilityHint={l`Select your date of birth`}
-                maximumDate={new Date()}
-              />
-            </View>
-
-            <View style={[a.gap_sm]}>
-              <Policies serviceDescription={state.serviceDescription} />
-
-              {!isOverAppMinAccessAge ? (
-                <Admonition.Outer type="error">
-                  <Admonition.Row>
-                    <Admonition.Icon />
-                    <Admonition.Content>
-                      <Admonition.Text>
-                        <Trans>
-                          You must be 13 years of age or older to create an
-                          account.
-                        </Trans>
-                      </Admonition.Text>
-                    </Admonition.Content>
-                  </Admonition.Row>
-                </Admonition.Outer>
-              ) : !isOverMinAdultAge ? (
-                <Admonition.Admonition type="warning">
-                  <Trans>
-                    If you are not yet an adult according to the laws of your
-                    country, your parent or legal guardian must read these Terms
-                    on your behalf.
-                  </Trans>
-                </Admonition.Admonition>
-              ) : undefined}
-            </View>
-          </>
-        ) : undefined}
-      </View>
-      <BackNextButtons
-        hideNext={!isOverAppMinAccessAge}
-        showRetry={isServerError}
-        isLoading={state.isLoading}
-        onBackPress={onPressBack}
-        onNextPress={onNextPress}
-        onRetryPress={refetchServer}
-        overrideNextText={hasWarnedEmail ? l`It's correct` : undefined}
+    <View style={[a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={onPressBack}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
-    </>
+
+      <Eyebrow label={l`Create account`} />
+
+      <View style={[a.gap_xs]}>
+        <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+          <Trans>Get started</Trans>
+        </Text>
+        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+          <Trans>Enter your details to create an account.</Trans>
+        </Text>
+      </View>
+
+      <FormError error={state.errorField ? undefined : state.error} />
+
+      <HostingProvider
+        minimal
+        serviceUrl={state.serviceUrl}
+        onSelectServiceUrl={v => dispatch({type: 'setServiceUrl', value: v})}
+      />
+
+      {!showForm ? (
+        <View style={[a.align_center]}>
+          <Loader size="xl" />
+        </View>
+      ) : state.serviceDescription ? (
+        <>
+          <FieldGroupCard>
+            {state.serviceDescription.inviteCodeRequired && (
+              <InputGroup
+                testID="inviteCodeInput"
+                showDivider
+                label={l`Invite code`}
+                icon={Ticket}
+                value={inviteCode}
+                placeholder={l`Required for this provider`}
+                onChangeText={value => {
+                  const next = value.trim()
+                  setInviteCode(next)
+                  if (state.errorField === 'invite-code' && next.length > 0) {
+                    dispatch({type: 'clearError'})
+                  }
+                }}
+                errorText={
+                  state.errorField === 'invite-code' ? state.error : undefined
+                }
+                autoCapitalize="none"
+                autoComplete="email"
+                keyboardType="email-address"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={native(() => emailInputRef.current?.focus())}
+              />
+            )}
+
+            <InputGroup
+              testID="emailInput"
+              ref={emailInputRef}
+              showDivider
+              label={l`Email`}
+              icon={Envelope}
+              value={email}
+              placeholder={l`Enter your email address`}
+              onChangeText={value => {
+                const next = value.trim()
+                setEmail(next)
+                if (hasWarnedEmail) {
+                  setHasWarnedEmail(false)
+                }
+                if (
+                  state.errorField === 'email' &&
+                  next.length > 0 &&
+                  EmailValidator.validate(next)
+                ) {
+                  dispatch({type: 'clearError'})
+                }
+              }}
+              errorText={state.errorField === 'email' ? state.error : undefined}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={native(() => passwordInputRef.current?.focus())}
+            />
+            <InputGroup
+              testID="passwordInput"
+              ref={passwordInputRef}
+              showDivider
+              label={l`Password`}
+              icon={Lock}
+              value={password}
+              placeholder={l`Choose your password`}
+              onChangeText={value => {
+                setPassword(value)
+                if (state.errorField === 'password' && value.length >= 8) {
+                  dispatch({type: 'clearError'})
+                }
+              }}
+              errorText={
+                state.errorField === 'password' ? state.error : undefined
+              }
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password-new"
+              textContentType="newPassword"
+              returnKeyType="next"
+              onSubmitEditing={native(() => birthdateInputRef.current?.focus())}
+            />
+            <InputGroup
+              testID="dateInput"
+              label={l`Date of birth`}
+              icon={CalendarDays}
+              value={i18n.date(state.dateOfBirth, {timeZone: 'UTC'})}
+              editable={false}
+              onPress={() => birthdateInputRef.current?.focus()}
+              onChangeText={() => {}}
+            />
+          </FieldGroupCard>
+
+          <View style={{height: 0, overflow: 'hidden'}}>
+            <DateField.DateField
+              testID="date"
+              inputRef={birthdateInputRef}
+              value={state.dateOfBirth}
+              onChangeDate={date => {
+                dispatch({
+                  type: 'setDateOfBirth',
+                  value: sanitizeDate(new Date(date)),
+                })
+              }}
+              label={l`Date of birth`}
+              accessibilityHint={l`Select your date of birth`}
+              maximumDate={new Date()}
+            />
+          </View>
+
+          <View style={[a.gap_sm]}>
+            <Policies serviceDescription={state.serviceDescription} />
+
+            {!isOverAppMinAccessAge ? (
+              <Admonition.Outer type="error">
+                <Admonition.Row>
+                  <Admonition.Icon />
+                  <Admonition.Content>
+                    <Admonition.Text>
+                      <Trans>
+                        You must be 13 years of age or older to create an
+                        account.
+                      </Trans>
+                    </Admonition.Text>
+                  </Admonition.Content>
+                </Admonition.Row>
+              </Admonition.Outer>
+            ) : !isOverMinAdultAge ? (
+              <Admonition.Admonition type="warning">
+                <Trans>
+                  If you are not yet an adult according to the laws of your
+                  country, your parent or legal guardian must read these Terms
+                  on your behalf.
+                </Trans>
+              </Admonition.Admonition>
+            ) : undefined}
+          </View>
+        </>
+      ) : undefined}
+
+      <PrimaryButton
+        testID="nextBtn"
+        label={
+          isServerError
+            ? l`Retry`
+            : hasWarnedEmail
+              ? l`It's correct`
+              : l`Continue`
+        }
+        onPress={isServerError ? refetchServer : onNextPress}
+        disabled={!isServerError && (!isOverAppMinAccessAge || state.isLoading)}
+      />
+    </View>
   )
 }

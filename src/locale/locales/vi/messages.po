@@ -237,11 +237,6 @@ msgstr ""
 msgid "{0} is live"
 msgstr ""
 
-#. placeholder {0}: createFullHandle(draftValue, selectedDomain)
-#: src/screens/Signup/StepHandle/index.tsx:283
-msgid "{0} is not available"
-msgstr ""
-
 #. placeholder {0}: codeToLanguageName( expectedSourceLanguage, langPrefs.appLanguage, )
 #: src/lib/translation/index.tsx:314
 msgid "{0} is not supported by your device."
@@ -279,7 +274,7 @@ msgid "{0} of {1}"
 msgstr "{0} trên {1}"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:196
+#: src/view/com/auth/SplashScreen.web.tsx:216
 msgid "{0} on GitHub"
 msgstr ""
 
@@ -290,7 +285,7 @@ msgid "{0} out of 50"
 msgstr "{0} trong số 50"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:191
+#: src/view/com/auth/SplashScreen.web.tsx:211
 msgid "{0} Privacy Policy"
 msgstr ""
 
@@ -303,7 +298,7 @@ msgstr "{0} đã bày tỏ cảm xúc {1}"
 #. placeholder {0}: brand.metadata.displayName
 #. placeholder {0}: brand.web.title
 #: src/screens/Takendown.tsx:216
-#: src/view/com/auth/SplashScreen.web.tsx:186
+#: src/view/com/auth/SplashScreen.web.tsx:206
 msgid "{0} Terms of Service"
 msgstr ""
 
@@ -623,6 +618,10 @@ msgstr ""
 msgid "{followsCount} following"
 msgstr ""
 
+#: src/screens/Signup/StepHandle/index.tsx:98
+msgid "{fullDraftHandle} is not available"
+msgstr ""
+
 #: src/components/dms/components/GroupChatProfileCard.tsx:62
 #: src/components/dms/InitiateChatFlow.tsx:938
 msgid "{handle} can’t be added"
@@ -932,7 +931,7 @@ msgstr ""
 #: src/screens/Settings/AboutSettings.tsx:76
 #: src/screens/Settings/Settings.tsx:257
 #: src/screens/Settings/Settings.tsx:260
-#: src/view/com/auth/SplashScreen.web.tsx:183
+#: src/view/com/auth/SplashScreen.web.tsx:203
 msgid "About"
 msgstr "Giới thiệu"
 
@@ -988,7 +987,7 @@ msgid "Accessibility Settings"
 msgstr "Cài đặt trợ năng"
 
 #: src/Navigation.tsx:431
-#: src/screens/Login/LoginForm.tsx:120
+#: src/screens/Login/LoginForm.tsx:218
 #: src/screens/Settings/AccountSettings.tsx:69
 #: src/screens/Settings/Settings.tsx:167
 #: src/screens/Settings/Settings.tsx:170
@@ -1358,6 +1357,10 @@ msgstr ""
 msgid "Advanced"
 msgstr "Nâng cao"
 
+#: src/screens/Onboarding/StepAssembly/index.tsx:93
+msgid "Agree"
+msgstr ""
+
 #: src/screens/Settings/AIPreferencesSettings.tsx:58
 #: src/screens/Settings/Settings.tsx:191
 #: src/screens/Settings/Settings.tsx:194
@@ -1661,6 +1664,10 @@ msgstr "Động vật"
 msgid "Animated GIF"
 msgstr "GIF động"
 
+#: src/screens/Onboarding/StepBelong/index.tsx:39
+msgid "Anti-Black Harassment"
+msgstr ""
+
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:457
 msgid "Anyone"
 msgstr ""
@@ -1929,8 +1936,8 @@ msgstr ""
 #: src/screens/Login/ChooseAccountForm.tsx:113
 #: src/screens/Login/ForgotPasswordForm.tsx:124
 #: src/screens/Login/ForgotPasswordForm.tsx:130
-#: src/screens/Login/LoginForm.tsx:157
-#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:290
+#: src/screens/Login/LoginForm.tsx:296
 #: src/screens/Login/SetNewPasswordForm.tsx:170
 #: src/screens/Login/SetNewPasswordForm.tsx:176
 #: src/screens/Messages/components/ChatDisabled.tsx:166
@@ -2004,6 +2011,10 @@ msgstr ""
 msgid "Begin Discussion"
 msgstr ""
 
+#: src/screens/Onboarding/StepBelong/index.tsx:26
+msgid "Belong, safely"
+msgstr ""
+
 #: src/components/dialogs/BirthDateSettings.tsx:163
 msgid "Birthdate"
 msgstr ""
@@ -2047,9 +2058,21 @@ msgstr ""
 msgid "Blacksky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
 msgstr ""
 
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:100
+msgid "Blacksky-Only"
+msgstr ""
+
 #: src/components/CommunityOnlyBadge.tsx:36
 #: src/components/CommunityOnlyBadge.tsx:54
 msgid "Blacksky-only post"
+msgstr ""
+
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:21
+msgid "Blacksky-only posts"
+msgstr ""
+
+#: src/screens/Signup/StepHandle/index.tsx:275
+msgid "Blacksky.app is reserved for Black folks building communal infrastructure. Learn more."
 msgstr ""
 
 #: src/screens/Messages/components/ChatDisabled.tsx:54
@@ -2283,15 +2306,15 @@ msgstr ""
 msgid "By continuing, you consent to this use. You may change your mind any time by visiting settings."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/Policies.tsx:76
+#: src/screens/Signup/StepInfo/Policies.tsx:84
 msgid "By creating an account you agree to the <0>Privacy Policy</0>."
 msgstr "Bằng việc tạo tài khoản, bạn đồng ý với <0>Chính sách Bảo mật</0>."
 
-#: src/screens/Signup/StepInfo/Policies.tsx:43
-msgid "By creating an account you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
-msgstr "Bằng việc tạo tài khoản, bạn đồng ý với <0>Điều khoản dịch vụ</0> và <1>Chính sách Bảo mật</1>."
+#: src/screens/Signup/StepInfo/Policies.tsx:44
+msgid "By creating an account you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>, and <2>Community Guidelines</2>."
+msgstr ""
 
-#: src/screens/Signup/StepInfo/Policies.tsx:63
+#: src/screens/Signup/StepInfo/Policies.tsx:71
 msgid "By creating an account you agree to the <0>Terms of Service</0>."
 msgstr "Bằng việc tạo tài khoản, bạn đồng ý với <0>Điều khoản dịch vụ</0>."
 
@@ -2331,8 +2354,8 @@ msgstr ""
 #: src/features/liveNow/components/GoLiveDialog.tsx:254
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:288
-#: src/screens/Login/LoginForm.tsx:170
-#: src/screens/Login/LoginForm.tsx:177
+#: src/screens/Login/LoginForm.tsx:303
+#: src/screens/Login/LoginForm.tsx:310
 #: src/screens/Messages/components/InviteLinkDialog.tsx:502
 #: src/screens/Messages/components/InviteLinkDialog.tsx:506
 #: src/screens/Messages/ConversationSettings/prompts.tsx:108
@@ -2375,7 +2398,7 @@ msgstr ""
 msgid "Cancel search"
 msgstr "Huỷ tìm kiếm"
 
-#: src/screens/Login/LoginForm.tsx:171
+#: src/screens/Login/LoginForm.tsx:304
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -2607,6 +2630,10 @@ msgstr "Chọn bảng tin"
 msgid "Choose for me"
 msgstr "Chọn cho tôi"
 
+#: src/screens/Signup/StepHandle/index.tsx:225
+msgid "Choose how you show up in the community."
+msgstr ""
+
 #: src/components/dialogs/LanguageSelectDialog.tsx:199
 msgid "Choose languages"
 msgstr ""
@@ -2640,7 +2667,7 @@ msgstr ""
 msgid "Choose your account provider"
 msgstr "Chọn nơi quản lý tài khoản của bạn"
 
-#: src/screens/Signup/index.tsx:227
+#: src/screens/Signup/index.tsx:260
 msgid "Choose your community"
 msgstr ""
 
@@ -2648,13 +2675,9 @@ msgstr ""
 msgid "Choose your own timeline! Feeds built by the community help you find content you love."
 msgstr "Chọn bảng tin của riêng bạn! Các bảng tin được xây dựng bởi cộng đồng giúp bạn tìm nội dung bạn yêu thích."
 
-#: src/screens/Signup/StepInfo/index.tsx:243
+#: src/screens/Signup/StepInfo/index.tsx:261
 msgid "Choose your password"
 msgstr "Chọn mật khẩu của bạn"
-
-#: src/screens/Signup/index.tsx:231
-msgid "Choose your username"
-msgstr "Chọn tên người dùng của bạn"
 
 #: src/screens/Settings/Settings.tsx:496
 msgid "Clear all storage data"
@@ -2873,11 +2896,11 @@ msgstr ""
 msgid "Community Guidelines"
 msgstr "Quy tắc cộng đồng"
 
-#: src/screens/Onboarding/StepFinished/index.tsx:333
-msgid "Complete onboarding and start using your account"
-msgstr "Hoàn thành quá trình hướng dẫn và bắt đầu sử dụng tài khoản của bạn"
+#: src/screens/Onboarding/StepBelong/index.tsx:22
+msgid "Community moderation"
+msgstr ""
 
-#: src/screens/Signup/index.tsx:233
+#: src/screens/Signup/StepCaptcha/index.tsx:188
 msgid "Complete the challenge"
 msgstr "Hoàn thành thử thách"
 
@@ -2945,8 +2968,8 @@ msgstr ""
 msgid "Confirmation code"
 msgstr "Mã xác nhận"
 
-#: src/screens/Signup/index.tsx:278
-#: src/screens/Signup/index.tsx:281
+#: src/screens/Signup/index.tsx:285
+#: src/screens/Signup/index.tsx:288
 msgid "Contact support"
 msgstr "Liên hệ hỗ trợ"
 
@@ -3016,12 +3039,19 @@ msgstr "Cảnh báo nội dung"
 msgid "Context menu backdrop, click to close the menu."
 msgstr "Nền trình đơn, nhấn để đóng trình đơn."
 
+#: src/screens/Onboarding/StepAssembly/index.tsx:40
+#: src/screens/Onboarding/StepBelong/index.tsx:50
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:40
 #: src/screens/Onboarding/StepInterests/index.tsx:93
-#: src/screens/Onboarding/StepProfile/index.tsx:304
+#: src/screens/Onboarding/StepPinFeeds/index.tsx:105
+#: src/screens/Onboarding/StepProfile/index.tsx:326
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:305
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:129
 #: src/screens/Settings/AppPasswords.tsx:119
 #: src/screens/Settings/AppPasswords.tsx:126
+#: src/screens/Signup/StepCaptcha/index.tsx:230
+#: src/screens/Signup/StepHandle/index.tsx:323
+#: src/screens/Signup/StepInfo/index.tsx:347
 msgid "Continue"
 msgstr "Tiếp tục"
 
@@ -3044,7 +3074,6 @@ msgid "Continue to group name"
 msgstr ""
 
 #: src/screens/Onboarding/StepInterests/index.tsx:90
-#: src/screens/Onboarding/StepProfile/index.tsx:301
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:302
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:126
 #: src/screens/Signup/BackNextButtons.tsx:61
@@ -3348,8 +3377,8 @@ msgstr "Tạo gói khởi đầu cho tôi"
 #: src/components/WelcomeModal.tsx:158
 #: src/components/WelcomeModal.tsx:166
 #: src/screens/Messages/JoinRequest.tsx:310
-#: src/view/com/auth/SplashScreen.tsx:107
-#: src/view/com/auth/SplashScreen.web.tsx:118
+#: src/view/com/auth/SplashScreen.tsx:95
+#: src/view/com/auth/SplashScreen.web.tsx:132
 #: src/view/shell/bottom-bar/BottomBar.tsx:340
 #: src/view/shell/bottom-bar/BottomBar.tsx:344
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:232
@@ -3359,7 +3388,7 @@ msgstr "Tạo gói khởi đầu cho tôi"
 msgid "Create account"
 msgstr "Tạo tài khoản"
 
-#: src/screens/Signup/index.tsx:176
+#: src/screens/Signup/index.tsx:182
 msgid "Create Account"
 msgstr ""
 
@@ -3375,9 +3404,10 @@ msgstr "Tạo tài khoản"
 msgid "Create an account without using this starter pack"
 msgstr "Tạo tài khoản nhưng không sử dụng gói khởi đầu này"
 
-#: src/screens/Onboarding/StepProfile/index.tsx:317
-msgid "Create an avatar instead"
-msgstr "Tạo hình đại diện"
+#: src/screens/Onboarding/StepProfile/index.tsx:307
+#: src/screens/Onboarding/StepProfile/index.tsx:319
+msgid "Create an avatar"
+msgstr ""
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:214
 msgid "Create another"
@@ -3406,8 +3436,8 @@ msgid "Create moderation list"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:304
-#: src/view/com/auth/SplashScreen.tsx:100
-#: src/view/com/auth/SplashScreen.web.tsx:110
+#: src/view/com/auth/SplashScreen.tsx:82
+#: src/view/com/auth/SplashScreen.web.tsx:119
 msgid "Create new account"
 msgstr "Tạo tài khoản mới"
 
@@ -3434,6 +3464,10 @@ msgstr ""
 #. placeholder {0}: option.displayName
 #: src/screens/Signup/StepCommunity/index.tsx:116
 msgid "Create your account in {0}"
+msgstr ""
+
+#: src/screens/Signup/StepHandle/index.tsx:222
+msgid "Create your profile"
 msgstr ""
 
 #. placeholder {0}: i18n.date(appPassword.createdAt, { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', })
@@ -3472,7 +3506,7 @@ msgstr ""
 msgid "Customization options"
 msgstr "Tùy chọn tùy chỉnh"
 
-#: src/screens/Onboarding/Layout.tsx:60
+#: src/screens/Onboarding/Layout.tsx:54
 msgid "Customizes your Blacksky experience"
 msgstr ""
 
@@ -3500,7 +3534,8 @@ msgstr "Tối"
 msgid "Dark theme"
 msgstr "Chế độ tối"
 
-#: src/screens/Signup/StepInfo/index.tsx:271
+#: src/screens/Signup/StepInfo/index.tsx:283
+#: src/screens/Signup/StepInfo/index.tsx:304
 msgid "Date of birth"
 msgstr "Ngày sinh"
 
@@ -3537,8 +3572,6 @@ msgstr ""
 #: src/screens/Settings/AppearanceSettings.tsx:156
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:273
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:298
-#: src/screens/Signup/StepHandle/index.tsx:229
-#: src/screens/Signup/StepHandle/index.tsx:254
 msgid "Default"
 msgstr "Mặc định"
 
@@ -3775,6 +3808,10 @@ msgstr ""
 msgid "Disabled"
 msgstr "Đã tắt"
 
+#: src/screens/Onboarding/StepAssembly/index.tsx:97
+msgid "Disagree"
+msgstr ""
+
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:101
 #: src/screens/Profile/Header/EditProfileDialog.tsx:82
 #: src/view/com/composer/Composer.tsx:1448
@@ -3894,7 +3931,6 @@ msgid "Does not include nudity."
 msgstr "Không chứa hình khỏa thân."
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:249
-#: src/screens/Signup/StepHandle/index.tsx:205
 msgid "Domain"
 msgstr ""
 
@@ -3933,8 +3969,8 @@ msgstr ""
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:147
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:153
 #: src/lib/media/picker.tsx:37
-#: src/screens/Onboarding/StepProfile/index.tsx:354
-#: src/screens/Onboarding/StepProfile/index.tsx:357
+#: src/screens/Onboarding/StepProfile/index.tsx:361
+#: src/screens/Onboarding/StepProfile/index.tsx:364
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:225
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:232
 #: src/view/com/composer/labels/LabelsBtn.tsx:219
@@ -4183,7 +4219,7 @@ msgid "Either the creator of this list has blocked you or you have blocked the c
 msgstr "Người tạo danh sách này đã chặn bạn hoặc bạn đã chặn người đó."
 
 #: src/screens/Settings/AccountSettings.tsx:84
-#: src/screens/Signup/StepInfo/index.tsx:195
+#: src/screens/Signup/StepInfo/index.tsx:223
 msgid "Email"
 msgstr "Email"
 
@@ -4308,7 +4344,7 @@ msgstr "Đã bật"
 
 #: src/screens/Profile/Sections/CommunityFeed.tsx:156
 #: src/screens/Profile/Sections/Feed.tsx:131
-#: src/view/com/feeds/CommunityFeedPage.tsx:231
+#: src/view/com/feeds/CommunityFeedPage.tsx:277
 msgid "End of feed"
 msgstr "Cuối bảng tin"
 
@@ -4359,16 +4395,24 @@ msgstr "Nhập email bạn đã dùng để tạo tài khoản. Chúng tôi sẽ
 msgid "Enter your birthdate"
 msgstr ""
 
+#: src/screens/Signup/StepInfo/index.tsx:172
+msgid "Enter your details to create an account."
+msgstr ""
+
 #: src/screens/Login/ForgotPasswordForm.tsx:100
-#: src/screens/Signup/StepInfo/index.tsx:215
+#: src/screens/Signup/StepInfo/index.tsx:226
 msgid "Enter your email address"
 msgstr "Nhập địa chỉ email của bạn"
 
-#: src/screens/Login/LoginForm.tsx:141
+#: src/screens/Signup/StepHandle/index.tsx:235
+msgid "Enter your handle"
+msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:245
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
-#: src/screens/Login/index.tsx:122
+#: src/screens/Login/index.tsx:128
 msgid "Enter your handle to sign in"
 msgstr ""
 
@@ -4412,7 +4456,7 @@ msgstr ""
 msgid "Error occurred while saving file"
 msgstr "Đã có lỗi xảy ra khi đang lưu tệp"
 
-#: src/screens/Signup/StepCaptcha/index.tsx:132
+#: src/screens/Signup/StepCaptcha/index.tsx:155
 msgid "Error receiving captcha response."
 msgstr "Nhận được lỗi phản hồi captcha."
 
@@ -4711,7 +4755,7 @@ msgstr ""
 
 #: src/components/CommunityFeed.tsx:39
 #: src/screens/Profile/Sections/CommunityFeed.tsx:123
-#: src/view/com/feeds/CommunityFeedPage.tsx:199
+#: src/view/com/feeds/CommunityFeedPage.tsx:245
 msgid "Failed to load community posts"
 msgstr ""
 
@@ -4970,6 +5014,10 @@ msgstr "Đã cập nhật bảng tin!"
 msgid "Feeds we think you might like."
 msgstr "Bảng tin mà bạn có thể thích."
 
+#: src/screens/Onboarding/StepBelong/index.tsx:29
+msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
+msgstr ""
+
 #: src/screens/Settings/components/OTAInfo.tsx:61
 msgid "Fetch update"
 msgstr "Tải cập nhật"
@@ -4999,7 +5047,7 @@ msgstr ""
 msgid "Filter who you receive notifications from"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:339
+#: src/screens/Onboarding/StepFinished/index.tsx:292
 msgid "Finalizing"
 msgstr "Đang hoàn tất"
 
@@ -5064,6 +5112,7 @@ msgid "Find your friends on Bluesky by verifying your phone number and matching 
 msgstr ""
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:21
+#: src/screens/Onboarding/StepPinFeeds/index.tsx:78
 msgid "Find your people"
 msgstr ""
 
@@ -5075,7 +5124,7 @@ msgstr ""
 msgid "Finish"
 msgstr "Hoàn tất"
 
-#: src/screens/Login/LoginForm.tsx:150
+#: src/screens/Login/LoginForm.tsx:283
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -5265,6 +5314,10 @@ msgstr "Kích cỡ phông chữ"
 msgid "Food"
 msgstr "Ăn uống"
 
+#: src/screens/Signup/StepHandle/index.tsx:339
+msgid "For all"
+msgstr ""
+
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:234
 msgid "For security reasons, we’ll need to send a confirmation code to your email address <0>{currentEmail}</0>."
 msgstr ""
@@ -5276,6 +5329,10 @@ msgstr "Vì lý do bảo mật, bạn sẽ không thể xem lại trang này. N�
 #: src/screens/Settings/AppearanceSettings.tsx:130
 msgid "For the best experience, we recommend using the theme font."
 msgstr "Chúng tôi khuyến nghị sử dụng phông chữ chủ đề để có trải nghiệm tốt nhất."
+
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:25
+msgid "For us, by us"
+msgstr ""
 
 #: src/components/ProgressGuide/FollowDialog.tsx:131
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:349
@@ -5293,8 +5350,8 @@ msgstr "Vĩnh viễn"
 msgid "Forget the noise"
 msgstr ""
 
-#: src/screens/Login/index.tsx:146
-#: src/screens/Login/index.tsx:162
+#: src/screens/Login/index.tsx:153
+#: src/screens/Login/index.tsx:169
 msgid "Forgot Password"
 msgstr "Quên mật khẩu"
 
@@ -5355,6 +5412,7 @@ msgstr ""
 msgid "Germ DM reconnected"
 msgstr ""
 
+#: src/components/onboarding-chrome/AppBar.tsx:48
 #: src/view/shell/Drawer.tsx:481
 msgid "Get help"
 msgstr "Trợ giúp"
@@ -5419,6 +5477,7 @@ msgstr ""
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:83
 #: src/screens/Messages/components/InviteLinkDialog.tsx:220
 #: src/screens/Messages/components/InviteLinkDialog.tsx:227
+#: src/screens/Signup/StepInfo/index.tsx:169
 msgid "Get started"
 msgstr "Bắt đầu"
 
@@ -5431,11 +5490,11 @@ msgstr "GIF"
 msgid "GIF uploaded"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:198
+#: src/view/com/auth/SplashScreen.web.tsx:218
 msgid "GitHub"
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:259
+#: src/screens/Onboarding/StepProfile/index.tsx:257
 msgid "Give your profile a face"
 msgstr "Chọn hình cho hồ sơ của bạn"
 
@@ -5448,13 +5507,14 @@ msgstr ""
 #: src/components/Layout/Header/index.tsx:133
 #: src/components/moderation/ScreenHider.tsx:161
 #: src/components/moderation/ScreenHider.tsx:170
+#: src/components/onboarding-chrome/AppBar.tsx:31
 #: src/screens/Login/components/AuthLayout/Header/index.tsx:75
 #: src/screens/ProfileList/components/ErrorScreen.tsx:35
 #: src/screens/ProfileList/components/ErrorScreen.tsx:41
 #: src/screens/VideoFeed/components/Header.tsx:163
 #: src/screens/VideoFeed/index.tsx:1168
 #: src/screens/VideoFeed/index.tsx:1172
-#: src/view/com/auth/LoggedOut.tsx:103
+#: src/view/com/auth/LoggedOut.tsx:104
 #: src/view/com/profile/ProfileFollowers.tsx:211
 #: src/view/com/profile/ProfileFollowers.tsx:212
 #: src/view/screens/NotFound.tsx:51
@@ -5471,8 +5531,6 @@ msgstr "Quay lại"
 msgid "Go Back"
 msgstr "Quay lại"
 
-#: src/screens/Onboarding/Layout.tsx:97
-#: src/screens/Onboarding/Layout.tsx:198
 #: src/screens/Signup/BackNextButtons.tsx:36
 msgid "Go back to previous step"
 msgstr "Quay lại bước trước"
@@ -5653,6 +5711,7 @@ msgstr "Nửa đường rồi!"
 
 #: src/screens/Settings/AccountSettings.tsx:150
 #: src/screens/Settings/AccountSettings.tsx:155
+#: src/screens/Signup/StepHandle/index.tsx:232
 msgid "Handle"
 msgstr "Tên tài khoản"
 
@@ -5712,9 +5771,17 @@ msgstr ""
 msgid "Have a code? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:276
+#: src/screens/Onboarding/StepAssembly/index.tsx:25
+msgid "Have a say"
+msgstr ""
+
+#: src/screens/Signup/index.tsx:283
 msgid "Having trouble?"
 msgstr "Gặp trục trặc?"
+
+#: src/screens/Signup/StepCaptcha/index.tsx:196
+msgid "hCaptcha helps us reduce the number of bots in our community."
+msgstr ""
 
 #: src/components/contacts/screens/PhoneInput.tsx:285
 msgid "Held by Blacksky for 7 days to prevent abuse, then deleted"
@@ -5728,9 +5795,9 @@ msgstr ""
 msgid "Help"
 msgstr "Giúp đỡ"
 
-#: src/screens/Onboarding/StepProfile/index.tsx:262
-msgid "Help people know you're not a bot by uploading a picture or creating an avatar."
-msgstr "Giúp người khác biết bạn không phải là bot bằng cách tải lên hoặc tạo hình đại diện."
+#: src/screens/Onboarding/StepProfile/index.tsx:261
+msgid "Help people know you're not a bot by uploading a picture."
+msgstr ""
 
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:198
 msgid "Here is your app password!"
@@ -5953,7 +6020,7 @@ msgstr "Hãy mở rộng nếu văn bản thay thế quá dài"
 msgid "If none are selected, all languages will be shown in your feeds."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:296
+#: src/screens/Signup/StepInfo/index.tsx:329
 msgid "If you are not yet an adult according to the laws of your country, your parent or legal guardian must read these Terms on your behalf."
 msgstr "Nếu bạn không phải là người lớn theo luật pháp tại nước bạn, phụ huynh hoặc người giám hộ pháp lý của bạn phải đọc những Điều khoản này thay bạn."
 
@@ -6200,7 +6267,7 @@ msgstr ""
 msgid "Invite {name} to join Bluesky"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:165
+#: src/screens/Signup/StepInfo/index.tsx:195
 msgid "Invite code"
 msgstr "Mã mời"
 
@@ -6280,11 +6347,15 @@ msgstr "Lời mời, nhưng cá nhân"
 msgid "iOS 26 Crash Regression"
 msgstr ""
 
+#: src/screens/Signup/StepHandle/index.tsx:304
+msgid "Is this your account?"
+msgstr ""
+
 #: src/components/contacts/components/InviteInfo.tsx:47
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:314
+#: src/screens/Signup/StepInfo/index.tsx:346
 msgid "It's correct"
 msgstr "Đúng"
 
@@ -6317,6 +6388,10 @@ msgstr ""
 #: src/components/intents/GroupChatJoinDialog.tsx:72
 #: src/components/intents/GroupChatJoinDialog.tsx:464
 msgid "Join group chat"
+msgstr ""
+
+#: src/screens/Onboarding/StepPinFeeds/index.tsx:81
+msgid "Join popular community feeds to connect with interesting people and conversations."
 msgstr ""
 
 #: src/components/intents/GroupChatJoinDialog.tsx:189
@@ -6410,7 +6485,7 @@ msgid "Learn More"
 msgstr "Tìm hiểu thêm"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:181
+#: src/view/com/auth/SplashScreen.web.tsx:201
 msgid "Learn more about {0}"
 msgstr ""
 
@@ -6513,14 +6588,14 @@ msgstr "còn lại."
 msgid "Let me choose"
 msgstr "Để tôi chọn"
 
-#: src/screens/Login/index.tsx:147
-#: src/screens/Login/index.tsx:163
+#: src/screens/Login/index.tsx:154
+#: src/screens/Login/index.tsx:170
 msgid "Let's get your password reset!"
 msgstr "Cùng đặt lại mật khẩu của bạn nào!"
 
-#: src/screens/Onboarding/StepFinished/index.tsx:341
-msgid "Let's go!"
-msgstr "Bắt đầu nào!"
+#: src/screens/Onboarding/StepFinished/index.tsx:292
+msgid "Let's go"
+msgstr ""
 
 #: src/components/dialogs/Embed.tsx:159
 #: src/components/dialogs/Embed.tsx:161
@@ -6765,7 +6840,7 @@ msgstr "Tải thông báo mới"
 #: src/screens/Profile/ProfileFeed/index.tsx:206
 #: src/screens/Profile/Sections/Feed.tsx:117
 #: src/screens/ProfileList/FeedSection.tsx:113
-#: src/view/com/feeds/CommunityFeedPage.tsx:262
+#: src/view/com/feeds/CommunityFeedPage.tsx:308
 #: src/view/com/feeds/FeedPage.tsx:168
 msgid "Load new posts"
 msgstr "Tải bài đăng mới"
@@ -6823,8 +6898,8 @@ msgstr ""
 msgid "Logged-out visibility"
 msgstr "Trạng thái hiển thị sau đăng xuất"
 
-#: src/screens/Login/LoginForm.tsx:183
-#: src/screens/Login/LoginForm.tsx:190
+#: src/screens/Login/LoginForm.tsx:316
+#: src/screens/Login/LoginForm.tsx:323
 msgid "Login"
 msgstr ""
 
@@ -7061,6 +7136,10 @@ msgstr ""
 msgid "Misleading"
 msgstr ""
 
+#: src/screens/Onboarding/StepBelong/index.tsx:37
+msgid "Misogynoir"
+msgstr ""
+
 #: src/view/com/composer/drafts/DraftItem.tsx:131
 msgid "Missing media"
 msgstr ""
@@ -7073,6 +7152,10 @@ msgstr "Kiểm duyệt"
 #: src/screens/Settings/Settings.tsx:183
 #: src/screens/Settings/Settings.tsx:186
 msgid "Moderation and content filters"
+msgstr ""
+
+#: src/screens/Onboarding/StepBelong/index.tsx:43
+msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:142
@@ -7433,7 +7516,7 @@ msgstr "Mật khẩu mới"
 #: src/screens/Profile/ProfileFeed/index.tsx:217
 #: src/screens/ProfileList/index.tsx:237
 #: src/screens/ProfileList/index.tsx:280
-#: src/view/com/feeds/CommunityFeedPage.tsx:272
+#: src/view/com/feeds/CommunityFeedPage.tsx:318
 #: src/view/screens/Feeds.tsx:545
 #: src/view/screens/Notifications.tsx:165
 #: src/view/screens/Profile.tsx:643
@@ -7482,8 +7565,6 @@ msgstr "Tin tức"
 #: src/screens/Login/ForgotPasswordForm.tsx:144
 #: src/screens/Login/SetNewPasswordForm.tsx:184
 #: src/screens/Login/SetNewPasswordForm.tsx:190
-#: src/screens/Onboarding/StepFinished/index.tsx:334
-#: src/screens/Onboarding/StepFinished/index.tsx:343
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:168
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:176
 #: src/screens/Signup/BackNextButtons.tsx:68
@@ -7512,7 +7593,7 @@ msgstr "Chưa có mật khẩu ứng dụng nào"
 
 #: src/components/CommunityFeed.tsx:51
 #: src/screens/Profile/Sections/CommunityFeed.tsx:133
-#: src/view/com/feeds/CommunityFeedPage.tsx:207
+#: src/view/com/feeds/CommunityFeedPage.tsx:253
 msgid "No community posts yet"
 msgstr ""
 
@@ -7973,10 +8054,6 @@ msgstr ""
 msgid "Oops!"
 msgstr "Ôi!"
 
-#: src/screens/Onboarding/StepProfile/index.tsx:311
-msgid "Open avatar creator"
-msgstr "Mở trình tạo hình đại diện"
-
 #: src/view/com/feeds/ComposerPrompt.tsx:203
 msgid "Open camera"
 msgstr ""
@@ -8154,22 +8231,22 @@ msgid "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:112
+#: src/view/com/auth/SplashScreen.tsx:84
+#: src/view/com/auth/SplashScreen.web.tsx:121
 msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:305
-#: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:126
+#: src/view/com/auth/SplashScreen.tsx:107
+#: src/view/com/auth/SplashScreen.web.tsx:140
 msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:291
-#: src/view/com/auth/SplashScreen.tsx:120
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
 
@@ -8321,6 +8398,10 @@ msgstr "Không tìm thấy trang"
 msgid "Party GIFs"
 msgstr ""
 
+#: src/screens/Onboarding/StepAssembly/index.tsx:101
+msgid "Pass/Unsure"
+msgstr ""
+
 #: src/screens/Deactivated.tsx:219
 #: src/screens/Settings/AccountSettings.tsx:141
 #: src/screens/Settings/AccountSettings.tsx:145
@@ -8330,7 +8411,7 @@ msgstr ""
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:146
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:247
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:386
-#: src/screens/Signup/StepInfo/index.tsx:230
+#: src/screens/Signup/StepInfo/index.tsx:258
 msgid "Password"
 msgstr "Mật khẩu"
 
@@ -8342,7 +8423,7 @@ msgstr ""
 msgid "Password must be at least 8 characters long."
 msgstr "Mật khẩu phải có ít nhất 8 ký tự."
 
-#: src/screens/Login/index.tsx:176
+#: src/screens/Login/index.tsx:183
 msgid "Password updated"
 msgstr "Đã cập nhật mật khẩu"
 
@@ -8420,6 +8501,11 @@ msgstr ""
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:524
 msgid "People you mention"
+msgstr ""
+
+#: src/screens/Onboarding/StepAssembly/index.tsx:21
+#: src/screens/Onboarding/StepAssembly/index.tsx:64
+msgid "People's Assembly"
 msgstr ""
 
 #: src/lib/media/save-image.ts:59
@@ -8547,7 +8633,7 @@ msgid "Please choose your handle."
 msgstr "Vui lòng chọn tên tài khoản."
 
 #: src/screens/Signup/state.ts:326
-#: src/screens/Signup/StepInfo/index.tsx:126
+#: src/screens/Signup/StepInfo/index.tsx:134
 msgid "Please choose your password."
 msgstr "Vui lòng chọn mật khẩu."
 
@@ -8563,7 +8649,7 @@ msgstr "Vui lòng hoàn thành xác minh captcha."
 msgid "Please confirm your email address to upload videos."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:116
+#: src/screens/Signup/StepInfo/index.tsx:124
 msgid "Please double-check that you have entered your email address correctly."
 msgstr "Vui lòng kiểm tra lại là bạn đã điền đúng địa chỉ email."
 
@@ -8615,11 +8701,11 @@ msgid "Please enter your account password to manage app passwords."
 msgstr ""
 
 #: src/screens/Signup/state.ts:310
-#: src/screens/Signup/StepInfo/index.tsx:99
+#: src/screens/Signup/StepInfo/index.tsx:107
 msgid "Please enter your email."
 msgstr "Vui lòng nhập email của bạn."
 
-#: src/screens/Signup/StepInfo/index.tsx:92
+#: src/screens/Signup/StepInfo/index.tsx:100
 msgid "Please enter your invite code."
 msgstr "Vui lòng nhập mã mời."
 
@@ -8636,7 +8722,7 @@ msgstr ""
 msgid "Please enter your password."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:52
+#: src/screens/Login/LoginForm.tsx:70
 msgid "Please enter your username or handle"
 msgstr ""
 
@@ -8858,7 +8944,7 @@ msgstr "Hình trước"
 msgid "Primary language"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:193
+#: src/view/com/auth/SplashScreen.web.tsx:213
 #: src/view/shell/desktop/RightNav.tsx:125
 #: src/view/shell/desktop/RightNav.tsx:126
 msgid "Privacy"
@@ -9092,13 +9178,17 @@ msgstr "Xem thêm"
 msgid "Read more replies"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/Policies.tsx:53
-#: src/screens/Signup/StepInfo/Policies.tsx:79
+#: src/screens/Signup/StepInfo/Policies.tsx:61
+msgid "Read the Blacksky Community Guidelines"
+msgstr ""
+
+#: src/screens/Signup/StepInfo/Policies.tsx:54
+#: src/screens/Signup/StepInfo/Policies.tsx:87
 msgid "Read the Blacksky Privacy Policy"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/Policies.tsx:46
-#: src/screens/Signup/StepInfo/Policies.tsx:66
+#: src/screens/Signup/StepInfo/Policies.tsx:47
+#: src/screens/Signup/StepInfo/Policies.tsx:74
 msgid "Read the Blacksky Terms of Service"
 msgstr ""
 
@@ -9680,7 +9770,7 @@ msgstr "Yêu cầu văn bản thay thế trước khi đăng"
 msgid "Require an email code to sign in to your account."
 msgstr "Yêu cầu một mã gửi qua email để đăng nhập vào tài khoản của bạn."
 
-#: src/screens/Signup/StepInfo/index.tsx:179
+#: src/screens/Signup/StepInfo/index.tsx:198
 msgid "Required for this provider"
 msgstr "Bắt buộc đối với nhà quản lý này"
 
@@ -9724,6 +9814,10 @@ msgstr "Gửi lại email"
 #: src/components/intents/VerifyEmailIntentDialog.tsx:117
 msgid "Resend Verification Email"
 msgstr "Gửi lại email xác minh"
+
+#: src/screens/Signup/StepHandle/index.tsx:335
+msgid "Reserved for Black folks"
+msgstr ""
 
 #: src/screens/Settings/Settings.tsx:488
 #: src/screens/Settings/Settings.tsx:490
@@ -9772,6 +9866,7 @@ msgstr "Thử lại hành động cuối cùng (đã xảy ra lỗi)"
 #: src/screens/PostThread/components/ThreadError.tsx:81
 #: src/screens/PostThread/components/ThreadError.tsx:87
 #: src/screens/Signup/BackNextButtons.tsx:54
+#: src/screens/Signup/StepInfo/index.tsx:344
 #: src/view/com/util/error/ErrorMessage.tsx:55
 #: src/view/com/util/error/ErrorScreen.tsx:91
 #: src/view/screens/Storybook/Admonitions.tsx:64
@@ -10174,8 +10269,6 @@ msgstr "Chọn ngôn ngữ nội dung"
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:252
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:256
-#: src/screens/Signup/StepHandle/index.tsx:208
-#: src/screens/Signup/StepHandle/index.tsx:212
 msgid "Select domain"
 msgstr ""
 
@@ -10183,7 +10276,7 @@ msgstr ""
 msgid "Select duration"
 msgstr ""
 
-#: src/screens/Login/index.tsx:136
+#: src/screens/Login/index.tsx:143
 msgid "Select from an existing account"
 msgstr "Chọn từ một tài khoản đã tồn tại"
 
@@ -10269,7 +10362,7 @@ msgstr "Chọn một ngôn ngữ để dùng làm giao diện người dùng cho
 msgid "Select which languages you want your subscribed feeds to include. If none are selected, all languages will be shown."
 msgstr "Chọn ngôn ngữ bạn muốn bảng tin đăng ký của mình bao gồm. Nếu không chọn, tất cả ngôn ngữ sẽ được hiển thị."
 
-#: src/screens/Signup/StepInfo/index.tsx:272
+#: src/screens/Signup/StepInfo/index.tsx:305
 msgid "Select your date of birth"
 msgstr "Chọn ngày sinh"
 
@@ -10385,7 +10478,7 @@ msgstr "Đặt mất khẩu mới"
 msgid "Set precisely which groups of people can reply to your post"
 msgstr ""
 
-#: src/screens/Onboarding/Layout.tsx:48
+#: src/screens/Onboarding/Layout.tsx:45
 msgid "Set up your account"
 msgstr "Thiết lập tài khoản của bạn"
 
@@ -10513,6 +10606,10 @@ msgstr ""
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:167
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:170
 msgid "Share post at:// URI"
+msgstr ""
+
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:28
+msgid "Share posts that only other members of the Blacksky community can see."
 msgstr ""
 
 #: src/components/StarterPack/ShareDialog.tsx:129
@@ -10683,16 +10780,16 @@ msgstr "Hiển thị nội dung"
 #: src/components/WelcomeModal.tsx:197
 #: src/components/WelcomeModal.tsx:209
 #: src/screens/Hashtag.tsx:228
-#: src/screens/Login/index.tsx:121
-#: src/screens/Login/index.tsx:135
-#: src/screens/Login/LoginForm.tsx:117
+#: src/screens/Login/index.tsx:127
+#: src/screens/Login/index.tsx:142
+#: src/screens/Login/LoginForm.tsx:215
 #: src/screens/Messages/JoinRequest.tsx:290
 #: src/screens/Messages/JoinRequest.tsx:296
 #: src/screens/Search/SearchResults.tsx:303
-#: src/view/com/auth/SplashScreen.tsx:118
-#: src/view/com/auth/SplashScreen.tsx:124
-#: src/view/com/auth/SplashScreen.web.tsx:124
-#: src/view/com/auth/SplashScreen.web.tsx:132
+#: src/view/com/auth/SplashScreen.tsx:105
+#: src/view/com/auth/SplashScreen.tsx:119
+#: src/view/com/auth/SplashScreen.web.tsx:138
+#: src/view/com/auth/SplashScreen.web.tsx:152
 #: src/view/shell/bottom-bar/BottomBar.tsx:349
 #: src/view/shell/bottom-bar/BottomBar.tsx:353
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:242
@@ -10707,6 +10804,14 @@ msgstr "Đăng nhập"
 msgid "Sign in as {0}"
 msgstr "Đăng nhập bằng {0}"
 
+#: src/screens/Signup/StepHandle/index.tsx:315
+msgid "Sign in as {fullDraftHandle}"
+msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:263
+msgid "Sign in as {handle}"
+msgstr ""
+
 #: src/screens/Login/ChooseAccountForm.tsx:97
 msgid "Sign in as..."
 msgstr "Đăng nhập bằng..."
@@ -10717,6 +10822,10 @@ msgstr ""
 
 #: src/screens/Login/ChooseAccountForm.tsx:71
 msgid "Sign in failed. Please try again."
+msgstr ""
+
+#: src/screens/Signup/StepHandle/index.tsx:308
+msgid "Sign in instead"
 msgstr ""
 
 #: src/lib/strings/errors.ts:62
@@ -10794,8 +10903,6 @@ msgstr ""
 #: src/components/contacts/screens/VerifyNumber.tsx:205
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:73
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:77
-#: src/screens/Onboarding/StepFinished/index.tsx:299
-#: src/screens/Onboarding/StepFinished/index.tsx:321
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:281
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:117
 #: src/screens/StarterPack/Wizard/index.tsx:206
@@ -10809,11 +10916,6 @@ msgstr ""
 
 #: src/view/com/composer/Composer.tsx:1503
 msgid "Skip empty posts?"
-msgstr ""
-
-#: src/screens/Onboarding/StepFinished/index.tsx:292
-#: src/screens/Onboarding/StepFinished/index.tsx:318
-msgid "Skip introduction and start using your account"
 msgstr ""
 
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:278
@@ -11056,18 +11158,22 @@ msgstr ""
 msgid "Starter Packs let you share your favorite feeds and people with your friends."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:184
+#: src/screens/Login/LoginForm.tsx:317
 msgid "Starts the sign-in process"
 msgstr ""
 
 #. placeholder {0}: state.activeStepIndex + 1
 #. placeholder {1}: state.totalSteps
-#: src/screens/Onboarding/Layout.tsx:226
+#: src/screens/Onboarding/Layout.tsx:107
 msgid "Step {0} of {1}"
 msgstr "Bước {0} / {1}"
 
-#: src/screens/Signup/index.tsx:221
+#: src/screens/Signup/index.tsx:255
 msgid "Step {displayStep} of {displayTotal}"
+msgstr ""
+
+#: src/components/onboarding-chrome/Eyebrow.tsx:25
+msgid "Step {step} of {total}"
 msgstr ""
 
 #: src/screens/Settings/Settings.tsx:399
@@ -11256,6 +11362,10 @@ msgstr "Chuyển sang {0}"
 msgid "Synthetic content"
 msgstr ""
 
+#: src/screens/Onboarding/StepBelong/index.tsx:38
+msgid "Synthetic Media"
+msgstr ""
+
 #: src/components/dialogs/Embed.tsx:154
 #: src/components/dialogs/Embed.tsx:156
 #: src/screens/Settings/AppearanceSettings.tsx:85
@@ -11376,7 +11486,7 @@ msgstr "Kể thêm một chút nữa"
 msgid "Temporarily deactivate your account"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:188
+#: src/view/com/auth/SplashScreen.web.tsx:208
 #: src/view/shell/desktop/RightNav.tsx:132
 #: src/view/shell/desktop/RightNav.tsx:133
 msgid "Terms"
@@ -11418,7 +11528,7 @@ msgstr "Cảm ơn, bạn đã xác minh địa chỉ email thành công. Bạn c
 msgid "That contains the following:"
 msgstr "Chứa giá trị sau đây:"
 
-#: src/screens/Signup/StepHandle/index.tsx:124
+#: src/screens/Signup/StepHandle/index.tsx:159
 msgid "That handle is already taken."
 msgstr ""
 
@@ -11878,7 +11988,7 @@ msgstr ""
 msgid "This handle is reserved. Please try a different one."
 msgstr "Tên người dùng này đã được đặt trước. Vui lòng thử tên khác."
 
-#: src/screens/Onboarding/StepProfile/index.tsx:142
+#: src/screens/Onboarding/StepProfile/index.tsx:137
 msgid "This image could not be used. Try a different format like .jpg or .png."
 msgstr ""
 
@@ -12009,7 +12119,7 @@ msgstr "Trả lời này sẽ được sắp xếp vào mục ẩn ở cuối th
 msgid "This screen is only available for group conversations."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/Policies.tsx:32
+#: src/screens/Signup/StepInfo/Policies.tsx:33
 msgid "This service has not provided terms of service or a privacy policy."
 msgstr "Dịch vụ này không cung cấp điều khoản dịch vụ hoặc chính sách bảo mật."
 
@@ -12290,10 +12400,12 @@ msgstr ""
 
 #: src/screens/Deactivated.tsx:130
 #: src/screens/Login/ForgotPasswordForm.tsx:69
-#: src/screens/Login/index.tsx:94
-#: src/screens/Login/LoginForm.tsx:102
+#: src/screens/Login/index.tsx:100
+#: src/screens/Login/LoginForm.tsx:84
+#: src/screens/Login/LoginForm.tsx:122
+#: src/screens/Login/LoginForm.tsx:191
 #: src/screens/Login/SetNewPasswordForm.tsx:83
-#: src/screens/Signup/index.tsx:113
+#: src/screens/Signup/index.tsx:119
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "Không thể kết nối với dịch vụ của bạn. Vui lòng kiểm tra kết nối mạng."
 
@@ -12619,9 +12731,10 @@ msgstr "Không thể cập nhật trạng thái hiển thị của trả lời"
 msgid "Updating..."
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:315
-msgid "Upload a photo instead"
-msgstr "Tải lên ảnh"
+#: src/screens/Onboarding/StepProfile/index.tsx:306
+#: src/screens/Onboarding/StepProfile/index.tsx:317
+msgid "Upload a photo"
+msgstr ""
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:545
 msgid "Upload a text file to:"
@@ -12764,23 +12877,23 @@ msgctxt "toast"
 msgid "User list updated"
 msgstr "Đã cập nhật danh sách người dùng"
 
-#: src/screens/Signup/StepHandle/index.tsx:331
-msgid "Username cannot be longer than {MAX_SERVICE_HANDLE_LENGTH, plural, other {# characters}}"
+#: src/screens/Signup/StepHandle/index.tsx:117
+msgid "Username cannot be longer than {MAX_SERVICE_HANDLE_LENGTH} characters"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:314
+#: src/screens/Signup/StepHandle/index.tsx:104
 msgid "Username cannot begin or end with a hyphen"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:339
+#: src/screens/Signup/StepHandle/index.tsx:120
 msgid "Username must be at least 3 characters"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:318
+#: src/screens/Signup/StepHandle/index.tsx:108
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:127
+#: src/screens/Login/LoginForm.tsx:225
 msgid "Username or handle"
 msgstr ""
 
@@ -13128,6 +13241,10 @@ msgstr ""
 msgid "Volume"
 msgstr "Ẩm lượng"
 
+#: src/screens/Onboarding/StepAssembly/index.tsx:28
+msgid "Vote on platform decisions, make proposals, and offer feedback through our People's Assembly."
+msgstr ""
+
 #: src/components/moderation/LabelPreference.tsx:142
 #: src/lib/moderation/useLabelBehaviorDescription.ts:20
 #: src/lib/moderation/useLabelBehaviorDescription.ts:25
@@ -13163,6 +13280,14 @@ msgstr ""
 msgid "We couldn't find an account at {didOrHandle}."
 msgstr ""
 
+#: src/screens/Login/LoginForm.tsx:104
+msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
+msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:200
+msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
+msgstr ""
+
 #: src/screens/Hashtag.tsx:259
 msgid "We couldn't find any results for that tag."
 msgstr ""
@@ -13195,6 +13320,14 @@ msgstr ""
 #: src/screens/SignupQueued.tsx:163
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "Chúng tôi ước lượng {estimatedTime} cho đến khi tài khoản của bạn sẵn sàng."
+
+#: src/screens/Login/LoginForm.tsx:275
+msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
+msgstr ""
+
+#: src/screens/Login/LoginForm.tsx:255
+msgid "We found more than one account with that name. Which one is yours?"
+msgstr ""
 
 #. placeholder {0}: currentAccount?.email
 #: src/components/intents/VerifyEmailIntentDialog.tsx:102
@@ -13290,6 +13423,10 @@ msgstr "Xin lỗi! Chúng tôi không thể tìm thấy trang bạn đang tìm k
 #: src/screens/Profile/Header/ProfileHeaderLabeler.tsx:219
 msgid "We're sorry! You can only subscribe to twenty labelers, and you've reached your limit of twenty."
 msgstr "Xin lỗi! Bạn chỉ có thể đăng ký tối đa hai mươi dịch vụ gắn nhãn, và bạn đã đạt giới hạn hai mươi."
+
+#: src/screens/Onboarding/StepFinished/index.tsx:273
+msgid "Welcome"
+msgstr ""
 
 #: src/screens/Deactivated.tsx:195
 msgid "Welcome back!"
@@ -13543,7 +13680,7 @@ msgstr ""
 msgid "You can continue ongoing conversations regardless of which setting you choose."
 msgstr "Bạn có thể tiếp tục cuộc trò chuyện đang diễn ra bất kể cài đặt nào bạn chọn."
 
-#: src/screens/Login/index.tsx:177
+#: src/screens/Login/index.tsx:184
 #: src/screens/Login/PasswordUpdatedForm.tsx:27
 msgid "You can now sign in with your new password."
 msgstr "Bạn có thể đăng nhập bằng mật khẩu mới của mình."
@@ -13743,7 +13880,7 @@ msgstr "Bạn chỉ có thể thêm tối đa {STARTER_PACK_MAX_SIZE, plural, ot
 msgid "You may only add up to 3 feeds"
 msgstr "Bạn chỉ có thể thêm tối đa 3 bảng tin"
 
-#: src/screens/Signup/StepInfo/index.tsx:286
+#: src/screens/Signup/StepInfo/index.tsx:319
 msgid "You must be 13 years of age or older to create an account."
 msgstr ""
 
@@ -13843,11 +13980,11 @@ msgstr ""
 msgid "You: {message}"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:193
+#: src/screens/Signup/index.tsx:199
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr "Bạn sẽ theo dõi người dùng và bảng tin được đề xuất sau khi hoàn tất việc tạo tài khoản!"
 
-#: src/screens/Signup/index.tsx:198
+#: src/screens/Signup/index.tsx:204
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr "Bạn sẽ theo dõi người dùng được đề xuất sau khi hoàn tất việc tạo tài khoản!"
 
@@ -13872,6 +14009,10 @@ msgstr ""
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:281
 msgid "You'll stay updated with these feeds"
 msgstr "Bạn sẽ được cập nhật với những bảng tin này"
+
+#: src/screens/Onboarding/StepFinished/index.tsx:280
+msgid "You're all set. Your feeds are ready and your community is waiting."
+msgstr ""
 
 #: src/screens/SignupQueued.tsx:130
 msgid "You're in line"
@@ -13930,10 +14071,6 @@ msgstr "Bạn đã đến giới hạn tải lên video hàng ngày (quá nhiề
 msgid "You've run out of videos to watch. Maybe it's a good time to take a break?"
 msgstr "Không còn video để xem nữa. Có lẽ đây là thời điểm thích hợp để nghỉ giải lao?"
 
-#: src/screens/Signup/index.tsx:229
-msgid "Your account"
-msgstr "Tài khoản của bạn"
-
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:177
 msgid "Your account has been deleted, see ya! ✌️"
 msgstr ""
@@ -13975,10 +14112,6 @@ msgstr ""
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
 msgstr "Khiếu nại của bạn đã được gửi. Nếu khiếu nại của bạn được chấp thuận, bạn sẽ nhận được một email."
 
-#: src/screens/Signup/StepInfo/index.tsx:259
-msgid "Your birth date"
-msgstr "Ngày sinh của bạn"
-
 #: src/screens/Messages/components/ChatDisabled.tsx:45
 msgid "Your chats have been disabled"
 msgstr "Chat của bạn đã bị vô hiệu hóa"
@@ -14015,7 +14148,7 @@ msgstr ""
 #: src/screens/Login/ForgotPasswordForm.tsx:52
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:84
 #: src/screens/Signup/state.ts:318
-#: src/screens/Signup/StepInfo/index.tsx:106
+#: src/screens/Signup/StepInfo/index.tsx:114
 msgid "Your email appears to be invalid."
 msgstr "Email của bạn có vẻ không hợp lệ."
 
@@ -14075,7 +14208,7 @@ msgstr ""
 msgid "Your password has been changed successfully! Please use your new password when you sign in to {0} from now on."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:133
+#: src/screens/Signup/StepInfo/index.tsx:141
 msgid "Your password must be at least 8 characters long."
 msgstr "Mật khẩu của bạn phải có ít nhất 8 ký tự."
 
@@ -14128,6 +14261,10 @@ msgstr ""
 
 #: src/view/com/composer/Composer.tsx:1504
 msgid "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
+msgstr ""
+
+#: src/screens/Signup/StepHandle/index.tsx:127
+msgid "Your username: @{fullDraftHandle}"
 msgstr ""
 
 #: src/components/verification/VerificationsDialog.tsx:63
