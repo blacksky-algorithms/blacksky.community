@@ -25,6 +25,7 @@ import {Loader} from '#/components/Loader'
 import {
   AppBar,
   Eyebrow,
+  FieldGroupCard,
   InputGroup,
   PrimaryButton,
 } from '#/components/onboarding-chrome'
@@ -187,11 +188,11 @@ export function StepInfo({
         </View>
       ) : state.serviceDescription ? (
         <>
-          <View style={[a.gap_md]}>
+          <FieldGroupCard>
             {state.serviceDescription.inviteCodeRequired && (
               <InputGroup
                 testID="inviteCodeInput"
-                position="single"
+                showDivider
                 label={l`Invite code`}
                 icon={Ticket}
                 value={inviteCode}
@@ -215,80 +216,71 @@ export function StepInfo({
               />
             )}
 
-            <View>
-              <InputGroup
-                testID="emailInput"
-                ref={emailInputRef}
-                position="top"
-                label={l`Email`}
-                icon={Envelope}
-                value={email}
-                placeholder={l`Enter your email address`}
-                onChangeText={value => {
-                  const next = value.trim()
-                  setEmail(next)
-                  if (hasWarnedEmail) {
-                    setHasWarnedEmail(false)
-                  }
-                  if (
-                    state.errorField === 'email' &&
-                    next.length > 0 &&
-                    EmailValidator.validate(next)
-                  ) {
-                    dispatch({type: 'clearError'})
-                  }
-                }}
-                errorText={
-                  state.errorField === 'email' ? state.error : undefined
+            <InputGroup
+              testID="emailInput"
+              ref={emailInputRef}
+              showDivider
+              label={l`Email`}
+              icon={Envelope}
+              value={email}
+              placeholder={l`Enter your email address`}
+              onChangeText={value => {
+                const next = value.trim()
+                setEmail(next)
+                if (hasWarnedEmail) {
+                  setHasWarnedEmail(false)
                 }
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                textContentType="emailAddress"
-                returnKeyType="next"
-                blurOnSubmit={false}
-                onSubmitEditing={native(() =>
-                  passwordInputRef.current?.focus(),
-                )}
-              />
-              <InputGroup
-                testID="passwordInput"
-                ref={passwordInputRef}
-                position="middle"
-                label={l`Password`}
-                icon={Lock}
-                value={password}
-                placeholder={l`Choose your password`}
-                onChangeText={value => {
-                  setPassword(value)
-                  if (state.errorField === 'password' && value.length >= 8) {
-                    dispatch({type: 'clearError'})
-                  }
-                }}
-                errorText={
-                  state.errorField === 'password' ? state.error : undefined
+                if (
+                  state.errorField === 'email' &&
+                  next.length > 0 &&
+                  EmailValidator.validate(next)
+                ) {
+                  dispatch({type: 'clearError'})
                 }
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password-new"
-                textContentType="newPassword"
-                returnKeyType="next"
-                onSubmitEditing={native(() =>
-                  birthdateInputRef.current?.focus(),
-                )}
-              />
-              <InputGroup
-                testID="dateInput"
-                position="bottom"
-                label={l`Date of birth`}
-                icon={CalendarDays}
-                value={i18n.date(state.dateOfBirth, {timeZone: 'UTC'})}
-                editable={false}
-                onPress={() => birthdateInputRef.current?.focus()}
-                onChangeText={() => {}}
-              />
-            </View>
-          </View>
+              }}
+              errorText={state.errorField === 'email' ? state.error : undefined}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={native(() => passwordInputRef.current?.focus())}
+            />
+            <InputGroup
+              testID="passwordInput"
+              ref={passwordInputRef}
+              showDivider
+              label={l`Password`}
+              icon={Lock}
+              value={password}
+              placeholder={l`Choose your password`}
+              onChangeText={value => {
+                setPassword(value)
+                if (state.errorField === 'password' && value.length >= 8) {
+                  dispatch({type: 'clearError'})
+                }
+              }}
+              errorText={
+                state.errorField === 'password' ? state.error : undefined
+              }
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password-new"
+              textContentType="newPassword"
+              returnKeyType="next"
+              onSubmitEditing={native(() => birthdateInputRef.current?.focus())}
+            />
+            <InputGroup
+              testID="dateInput"
+              label={l`Date of birth`}
+              icon={CalendarDays}
+              value={i18n.date(state.dateOfBirth, {timeZone: 'UTC'})}
+              editable={false}
+              onPress={() => birthdateInputRef.current?.focus()}
+              onChangeText={() => {}}
+            />
+          </FieldGroupCard>
 
           <View style={{height: 0, overflow: 'hidden'}}>
             <DateField.DateField

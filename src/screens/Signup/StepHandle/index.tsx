@@ -25,6 +25,7 @@ import {Check_Stroke2_Corner0_Rounded as Check} from '#/components/icons/Check'
 import {
   AppBar,
   Eyebrow,
+  FieldGroupCard,
   InputGroup,
   PrimaryButton,
 } from '#/components/onboarding-chrome'
@@ -212,33 +213,34 @@ export function StepHandle({
         </Text>
       </View>
 
-      <InputGroup
-        testID="handleInput"
-        position="single"
-        label={_(msg`Handle`)}
-        icon={At}
-        value={draftValue}
-        placeholder={_(msg`Enter your handle`)}
-        onChangeText={val => {
-          if (state.error) {
-            dispatch({type: 'setError', value: ''})
+      <FieldGroupCard>
+        <InputGroup
+          testID="handleInput"
+          label={_(msg`Handle`)}
+          icon={At}
+          value={draftValue}
+          placeholder={_(msg`Enter your handle`)}
+          onChangeText={val => {
+            if (state.error) {
+              dispatch({type: 'setError', value: ''})
+            }
+            setSubmitFoundTaken(false)
+            setDraftValue(val.toLowerCase())
+          }}
+          supportingText={supportingText}
+          errorText={errorText}
+          trailing={
+            isHandleAvailable?.available && draftValue.length > 0 ? (
+              <Check size="md" style={{color: t.palette.positive_600}} />
+            ) : undefined
           }
-          setSubmitFoundTaken(false)
-          setDraftValue(val.toLowerCase())
-        }}
-        supportingText={supportingText}
-        errorText={errorText}
-        trailing={
-          isHandleAvailable?.available && draftValue.length > 0 ? (
-            <Check size="md" style={{color: t.palette.positive_600}} />
-          ) : undefined
-        }
-        keyboardType="ascii-capable"
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoFocus
-        autoComplete="off"
-      />
+          keyboardType="ascii-capable"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoFocus
+          autoComplete="off"
+        />
+      </FieldGroupCard>
 
       {isHandleTaken &&
         validCheck.overall &&

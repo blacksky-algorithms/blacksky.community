@@ -22,6 +22,7 @@ function propsOf(node: {props: unknown}) {
 }
 
 const NEAR_WHITE = /#F8FAF9/i
+const DIVIDER_COLOR = '#464985'
 
 function collectColors(style: unknown, out: string[]) {
   if (Array.isArray(style)) {
@@ -30,6 +31,31 @@ function collectColors(style: unknown, out: string[]) {
     const color = (style as {color?: unknown}).color
     if (typeof color === 'string') out.push(color)
   }
+}
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  if (Array.isArray(style)) {
+    for (const s of style) Object.assign(out, flattenStyle(s))
+  } else if (style && typeof style === 'object') {
+    Object.assign(out, style as Record<string, unknown>)
+  }
+  return out
+}
+
+type JsonNode = {
+  type?: string
+  props?: {style?: unknown}
+  children?: JsonNode[] | null
+}
+
+function hasDivider(node: JsonNode | null): boolean {
+  if (!node || typeof node !== 'object') return false
+  const style = flattenStyle(node.props?.style)
+  if (style.height === 1 && style.backgroundColor === DIVIDER_COLOR) {
+    return true
+  }
+  return (node.children ?? []).some(child => hasDivider(child))
 }
 
 describe('InputGroup', () => {
@@ -156,6 +182,27 @@ describe('InputGroup', () => {
 
     fireEvent.press(getByLabelText('Date of birth'))
     expect(onPress).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not render a divider by default', () => {
+    const {toJSON} = renderWithI18n(
+      <InputGroup label="Email" value="" onChangeText={jest.fn()} />,
+    )
+
+    expect(hasDivider(toJSON() as JsonNode)).toBe(false)
+  })
+
+  it('renders a divider when showDivider is set', () => {
+    const {toJSON} = renderWithI18n(
+      <InputGroup
+        label="Email"
+        value=""
+        onChangeText={jest.fn()}
+        showDivider
+      />,
+    )
+
+    expect(hasDivider(toJSON() as JsonNode)).toBe(true)
   })
 
   it('forwards a ref to the underlying TextInput', () => {

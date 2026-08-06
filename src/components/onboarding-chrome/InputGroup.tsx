@@ -12,13 +12,11 @@ import {applyFonts, atoms as a, useAlf, useTheme} from '#/alf'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
 
-const FIELD_BG = '#262644'
-const FIELD_BORDER = '#464985'
+export const FIELD_BG = '#262644'
+export const FIELD_BORDER = '#464985'
 const PLACEHOLDER = '#7878A5'
 const INPUT_TEXT_COLOR = '#F8FAF9'
 const RADIUS = 8
-
-export type InputGroupPosition = 'top' | 'middle' | 'bottom' | 'single'
 
 export type InputGroupProps = {
   label: string
@@ -45,7 +43,7 @@ export type InputGroupProps = {
   uppercaseValue?: boolean
   supportingText?: string
   errorText?: string
-  position?: InputGroupPosition
+  showDivider?: boolean
   testID?: string
 }
 
@@ -76,7 +74,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
       uppercaseValue = false,
       supportingText,
       errorText,
-      position = 'single',
+      showDivider = false,
       testID,
     },
     ref,
@@ -85,15 +83,13 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
     const t = useTheme()
     const [focused, setFocused] = useState(false)
 
-    const isTop = position === 'top' || position === 'single'
-    const isBottom = position === 'bottom' || position === 'single'
     const hasError = errorText != null
 
     const borderColor = hasError
       ? t.palette.negative_500
       : focused
         ? t.palette.primary_500
-        : FIELD_BORDER
+        : 'transparent'
 
     const inputStyle = StyleSheet.flatten([
       a.flex_1,
@@ -115,11 +111,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
         backgroundColor: FIELD_BG,
         borderColor,
         borderWidth: 1,
-        borderBottomWidth: isBottom ? 1 : 0,
-        borderTopLeftRadius: isTop ? RADIUS : 0,
-        borderTopRightRadius: isTop ? RADIUS : 0,
-        borderBottomLeftRadius: isBottom ? RADIUS : 0,
-        borderBottomRightRadius: isBottom ? RADIUS : 0,
+        borderRadius: RADIUS,
         paddingHorizontal: 12,
         paddingVertical: 14,
       },
@@ -175,7 +167,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
         <Text
           style={[
             a.font_mono,
-            a.mb_xs,
+            a.mb_sm,
             t.atoms.text,
             {
               fontSize: 12,
@@ -215,6 +207,17 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
           <Text style={[a.mt_xs, t.atoms.text_contrast_medium, {fontSize: 12}]}>
             {supportingText}
           </Text>
+        ) : null}
+
+        {showDivider ? (
+          <View
+            style={{
+              height: 1,
+              marginTop: 16,
+              marginBottom: 16,
+              backgroundColor: FIELD_BORDER,
+            }}
+          />
         ) : null}
       </View>
     )
