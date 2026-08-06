@@ -67,15 +67,55 @@ describe('isOAuthCallbackUrl', () => {
 })
 
 describe('claimOAuthRedirect', () => {
-  test('only the first claimant of a URL may exchange it', () => {
+  test('only the first claimant of a redirect may exchange it', () => {
     const url = uniqueRedirect()
     expect(claimOAuthRedirect(url)).toBe(true)
     expect(claimOAuthRedirect(url)).toBe(false)
   })
 
-  test('claims are per-URL', () => {
+  test('distinct authorizations are claimed independently', () => {
     expect(claimOAuthRedirect(uniqueRedirect())).toBe(true)
     expect(claimOAuthRedirect(uniqueRedirect())).toBe(true)
+  })
+
+  // The two claimants read the URL from different native modules (RN's 'url'
+  // event vs Expo's getLinkingURL), so the strings can differ in shape for the
+  // same authorization. Keying on `state` is what makes the dedupe hold.
+  test('dedupes across slash forms of the same state', () => {
+    expect(
+      claimOAuthRedirect('community.blacksky:/oauth/callback?code=a&state=SS1'),
+    ).toBe(true)
+    expect(
+      claimOAuthRedirect(
+        'community.blacksky://oauth/callback?code=a&state=SS1',
+      ),
+    ).toBe(false)
+  })
+
+  test('dedupes when param order or extra params differ', () => {
+    expect(
+      claimOAuthRedirect('community.blacksky:/oauth/callback?code=b&state=SS2'),
+    ).toBe(true)
+    expect(
+      claimOAuthRedirect(
+        'community.blacksky:/oauth/callback?state=SS2&iss=https%3A%2F%2Fblacksky.app&code=b',
+      ),
+    ).toBe(false)
+  })
+
+  test('different states on the same path are not confused', () => {
+    expect(
+      claimOAuthRedirect('community.blacksky:/oauth/callback?code=c&state=SS3'),
+    ).toBe(true)
+    expect(
+      claimOAuthRedirect('community.blacksky:/oauth/callback?code=c&state=SS4'),
+    ).toBe(true)
+  })
+
+  test('a redirect with no state stays single-use', () => {
+    const url = 'community.blacksky:/oauth/callback?error=invalid_request'
+    expect(claimOAuthRedirect(url)).toBe(true)
+    expect(claimOAuthRedirect(url)).toBe(false)
   })
 })
 

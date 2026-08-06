@@ -20,16 +20,34 @@ export function isOAuthCallbackUrl(url: string): boolean {
   return OAUTH_CALLBACK_RE.test(url)
 }
 
+function redirectQuery(url: string): URLSearchParams {
+  return new URLSearchParams(
+    url.includes('?') ? url.slice(url.indexOf('?') + 1) : '',
+  )
+}
+
 // Exchanging a redirect consumes its one-time `state` entry from the OAuth
-// client's store, so exactly one handler may act on a given URL. Two are armed
-// whenever the app is alive: the in-flight `signInNativeAndroid` listener, and
-// the cold-start recovery in `useNativeOAuthRedirect`. Both claim here first;
-// the loser backs off instead of calling `callback()` on spent state.
-const claimedRedirects = new Set<string>()
+// client's store, so exactly one handler may act on a given redirect. Two are
+// armed whenever the app is alive: the in-flight `signInNativeAndroid`
+// listener, and the cold-start recovery in `useNativeOAuthRedirect`. Both claim
+// here first; the loser backs off instead of calling `callback()` on spent
+// state.
+//
+// Keyed on `state` rather than the URL because `state` *is* the contested
+// resource — it is what `callback()` deletes — and because the two claimants do
+// not read the URL from the same place: `signInNativeAndroid` takes React
+// Native's `'url'` event while the recovery hook takes Expo's separate
+// `getLinkingURL()`. Nothing guarantees those strings match byte for byte, and
+// this URI is already known to vary by a slash (see OAUTH_CALLBACK_RE above),
+// which URL-keyed dedupe would miss — letting both exchange the same code.
+const claimedStates = new Set<string>()
 
 export function claimOAuthRedirect(url: string): boolean {
-  if (claimedRedirects.has(url)) return false
-  claimedRedirects.add(url)
+  // No `state` should be impossible; treating the URL as its own key keeps a
+  // malformed redirect single-use rather than un-claimable.
+  const key = redirectQuery(url).get('state') ?? url
+  if (claimedStates.has(key)) return false
+  claimedStates.add(key)
   return true
 }
 
@@ -41,10 +59,8 @@ export function claimOAuthRedirect(url: string): boolean {
  */
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expo OAuth types do not resolve in Linux CI */
 export async function completeOAuthRedirect(client: any, url: string) {
-  const query = url.includes('?') ? url.slice(url.indexOf('?') + 1) : ''
-  const params = new URLSearchParams(query)
   /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- ditto */
-  const {session} = await client.callback(params, {
+  const {session} = await client.callback(redirectQuery(url), {
     redirect_uri: NATIVE_REDIRECT_URI,
   })
 

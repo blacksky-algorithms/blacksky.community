@@ -26,8 +26,14 @@ import {
  * `useLinkingURL()` reports the launch URL as well as later ones, so mounting
  * this recovers those sign-ins. The authorization state that `callback()` needs
  * outlives the process: @atproto/oauth-client-expo keeps it in MMKV for ten
- * minutes, which also bounds how long a detour can take before the user has to
- * start over.
+ * minutes.
+ *
+ * That MMKV TTL is not the real deadline, though. The PDS expires the
+ * authorization request after AUTHORIZATION_INACTIVITY_TIMEOUT — five minutes —
+ * refreshed only by requests to the authorization server, which a browser tab
+ * parked on the 2FA form does not make. A detour longer than five minutes comes
+ * back as `error=access_denied` no matter what the client does, so recovery here
+ * cannot be complete on its own.
  */
 export function useNativeOAuthRedirect() {
   const incomingUrl = Linking.useLinkingURL()
