@@ -2,6 +2,7 @@ import {useCallback, useMemo} from 'react'
 import {moderateProfile, type ModerationOpts} from '@atproto/api'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
@@ -52,10 +53,13 @@ export function useAutocomplete({
         // Going from "foo" to "foo." should not clear matches.
         q = q.toLowerCase().trim().replace(/\.$/, '')
 
-        const res = await agent.searchActorsTypeahead({
-          q,
-          limit: limit || 8,
-        })
+        const res = await agent.searchActorsTypeahead(
+          {
+            q,
+            limit: limit || 8,
+          },
+          searchAppviewOpts(),
+        )
 
         return (res?.data.actors || []).map(profile => ({
           key: profile.did,
