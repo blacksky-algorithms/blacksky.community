@@ -22,6 +22,7 @@ import {
 } from '@tanstack/react-query'
 
 import {getProxyHeadersForFeed} from '#/lib/api/feed/utils'
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {useBrand} from '#/lib/community/BrandContext'
 import {DEFAULT_DISCOVERY_FEEDS} from '#/lib/community/configGenerator'
 import {DISCOVER_FEED_URI, DISCOVER_SAVED_FEED} from '#/lib/constants'
@@ -270,10 +271,13 @@ export function useGetPopularFeedsQuery(options?: GetPopularFeedsOptions) {
     enabled: Boolean(moderationOpts) && options?.enabled !== false,
     queryKey: createGetPopularFeedsQueryKey(options),
     queryFn: async ({pageParam}) => {
-      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators({
-        limit,
-        cursor: pageParam,
-      })
+      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators(
+        {
+          limit,
+          cursor: pageParam,
+        },
+        searchAppviewOpts(),
+      )
 
       // precache feeds
       for (const feed of res.data.feeds) {
@@ -451,10 +455,13 @@ export function useSearchPopularFeedsMutation() {
 
   return useMutation({
     mutationFn: async (query: string) => {
-      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators({
-        limit: 10,
-        query: query,
-      })
+      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators(
+        {
+          limit: 10,
+          query: query,
+        },
+        searchAppviewOpts(),
+      )
 
       if (moderationOpts) {
         return res.data.feeds.filter(feed => {
@@ -489,10 +496,13 @@ export function usePopularFeedsSearch({
     enabled: enabledInner,
     queryKey: createPopularFeedsSearchQueryKey(query),
     queryFn: async () => {
-      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators({
-        limit: 15,
-        query: query,
-      })
+      const res = await agent.app.bsky.unspecced.getPopularFeedGenerators(
+        {
+          limit: 15,
+          query: query,
+        },
+        searchAppviewOpts(),
+      )
 
       return res.data.feeds
     },
