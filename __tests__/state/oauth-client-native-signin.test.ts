@@ -44,6 +44,11 @@ beforeEach(() => {
 
 const REDIRECT = 'community.blacksky:/oauth/callback'
 
+// A real `state` is a fresh nonce per authorize(), and the redirect claim
+// registry is keyed on it to stay single-use, so each test needs its own.
+let stateSeq = 0
+const nextState = () => `st${++stateSeq}`
+
 test('completes via redirect deep-link, ignoring the browser dismiss', async () => {
   const client = makeClient()
   const promise = signInNativeAndroid(client, 'alice.test')
@@ -57,7 +62,7 @@ test('completes via redirect deep-link, ignoring the browser dismiss', async () 
   })
   expect(mockUrlHandler).toBeTruthy()
 
-  mockUrlHandler!({url: `${REDIRECT}?code=xyz&state=st`})
+  mockUrlHandler!({url: `${REDIRECT}?code=xyz&state=${nextState()}`})
 
   const session = await promise
   expect(session).toEqual({sub: 'did:plc:abc'})
@@ -75,7 +80,7 @@ test('ignores unrelated deep-links', async () => {
   mockUrlHandler!({url: 'community.blacksky:/intent/compose?text=hi'})
   expect(client.callback).not.toHaveBeenCalled()
 
-  mockUrlHandler!({url: `${REDIRECT}?code=ok&state=st`})
+  mockUrlHandler!({url: `${REDIRECT}?code=ok&state=${nextState()}`})
   await expect(promise).resolves.toEqual({sub: 'did:plc:abc'})
 })
 
@@ -100,7 +105,7 @@ test('surfaces an error redirect (Kind 2) via callback throwing', async () => {
   const promise = signInNativeAndroid(client, 'alice.test')
   await new Promise(r => setImmediate(r))
 
-  mockUrlHandler!({url: `${REDIRECT}?error=access_denied&state=st`})
+  mockUrlHandler!({url: `${REDIRECT}?error=access_denied&state=${nextState()}`})
   await expect(promise).rejects.toThrow('access_denied')
 })
 
@@ -109,7 +114,9 @@ test('completes via a double-slash redirect deep-link', async () => {
   const promise = signInNativeAndroid(client, 'alice.test')
   await new Promise(r => setImmediate(r))
 
-  mockUrlHandler!({url: 'community.blacksky://oauth/callback?code=ds&state=st'})
+  mockUrlHandler!({
+    url: `community.blacksky://oauth/callback?code=ds&state=${nextState()}`,
+  })
 
   const session = await promise
   expect(session).toEqual({sub: 'did:plc:abc'})

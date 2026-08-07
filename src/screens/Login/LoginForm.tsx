@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
 import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
@@ -53,6 +53,13 @@ export const LoginForm = ({
   const t = useTheme()
   const {_} = useLingui()
   const {login} = useSessionApi()
+
+  // Drop any pending sign-in when the screen goes away. Hardware back and the
+  // header back button pop this form without routing through onPressBack, so
+  // anything hung off a press handler would leave the redirect listener armed —
+  // and a stale listener matches on URL shape alone, so it would swallow the
+  // *next* attempt's redirect and spend its authorization state.
+  useEffect(() => () => abortRef.current?.abort(), [])
 
   const onPressNext = async () => {
     if (isProcessing || processingRef.current) return
