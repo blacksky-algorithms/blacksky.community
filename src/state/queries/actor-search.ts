@@ -7,6 +7,7 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {STALE} from '#/state/queries'
 import {useAgent} from '#/state/session'
 
@@ -39,11 +40,14 @@ export function useActorSearch({
     staleTime: STALE.MINUTES.FIVE,
     queryKey: RQKEY(query, limit),
     queryFn: async ({pageParam}) => {
-      const res = await agent.searchActors({
-        q: query,
-        limit,
-        cursor: pageParam,
-      })
+      const res = await agent.searchActors(
+        {
+          q: query,
+          limit,
+          cursor: pageParam,
+        },
+        searchAppviewOpts(),
+      )
       return res.data
     },
     enabled: enabled && !!query,

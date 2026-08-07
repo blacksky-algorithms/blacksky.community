@@ -230,6 +230,10 @@ export const HOME_APPVIEW_PINNED_OPTS = {
   headers: {'atproto-proxy': HOME_PROXY_HEADER},
 }
 
+export const BLUESKY_APPVIEW_PINNED_OPTS = {
+  headers: {'atproto-proxy': BLUESKY_FALLBACK_PROXY_HEADER},
+}
+
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 
 // temp hack for e2e - esb
