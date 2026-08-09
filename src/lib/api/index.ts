@@ -26,7 +26,12 @@ import {CID} from 'multiformats/cid'
 import * as Hasher from 'multiformats/hashes/hasher'
 
 import {communityXrpc} from '#/lib/api/community'
-import {admitFeedPost, fetchCommunityFeedTarget} from '#/lib/api/community-feed'
+import {
+  admitFeedPost,
+  fetchCommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
+import {postToSpace} from '#/lib/api/space-post'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -80,6 +85,14 @@ export async function post(
     opts = {...opts, thread}
   }
   opts.onStateChange?.(t`Processing...`)
+
+  // A space-backed feed keeps its content in the author's permissioned repo,
+  // so it takes an entirely different write path and must be checked before
+  // the community routing below, which would otherwise claim it.
+  const config = thread.communityFeed?.config
+  if (isSpaceBackedFeed(config)) {
+    return postToSpace(agent, queryClient, config.space, opts)
+  }
 
   // Route to community post endpoint if the user explicitly toggled
   // Blacksky-Only, is replying to a community post, or is quoting one.
@@ -354,9 +367,6 @@ async function postCommunity(
       text: rt.text,
       createdAt,
       expectedCid: cid, // Appview will verify this matches
-    }
-    if (!reply && thread.communityFeed) {
-      submitBody.feed = thread.communityFeed.feed
     }
     if (rt.facets?.length) {
       submitBody.facets = rt.facets
