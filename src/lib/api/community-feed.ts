@@ -1,6 +1,7 @@
 import {type AtpAgent, AtUri} from '@atproto/api'
 
 import {getServiceAuthToken} from '#/lib/api/service-auth'
+import {isSpaceUri} from '#/lib/api/space-uri'
 
 export const COMMUNITY_FEED_CONFIG_COLLECTION = 'community.blacksky.feed.config'
 export const CHECK_FEED_PERMISSIONS = 'community.blacksky.feed.checkPermissions'
@@ -27,9 +28,28 @@ export type CommunityFeedConfig = {
     method?: string
   }
   policyMode?: 'memberList' | 'managingApp' | 'public'
-  contentStore?: string
+  /**
+   * Present when the feed's content lives in a permissioned space rather than
+   * in an appview table. A plain string, never `format: at-uri` — a space URI
+   * is not a valid at-uri.
+   */
+  space?: string
   group: string
   createdAt: string
+}
+
+/**
+ * Whether this feed's content lives in a permissioned space.
+ *
+ * This is the discriminator, and the only one. `visibility: 'gated'` is an
+ * invariant the config must satisfy to parse at all, not an input to the
+ * decision; access itself is always decided by the space authority, never read
+ * off the record.
+ */
+export function isSpaceBackedFeed(
+  config: CommunityFeedConfig | null | undefined,
+): config is CommunityFeedConfig & {space: string} {
+  return !!config?.space && isSpaceUri(config.space)
 }
 
 export type CommunityFeedTarget = {
@@ -58,7 +78,8 @@ function parseCommunityFeedConfig(value: unknown): CommunityFeedConfig | null {
     (authorization !== undefined &&
       typeof authorization.serviceDid !== 'string') ||
     typeof config.group !== 'string' ||
-    typeof config.createdAt !== 'string'
+    typeof config.createdAt !== 'string' ||
+    (config.space !== undefined && typeof config.space !== 'string')
   ) {
     return null
   }

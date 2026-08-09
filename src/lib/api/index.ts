@@ -53,7 +53,7 @@ export {uploadBlob}
 
 const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 
-interface PostOpts {
+export interface PostOpts {
   thread: ThreadDraft
   replyTo?: string
   onStateChange?: (state: string) => void
@@ -399,10 +399,11 @@ async function postCommunity(
       const submitRes = await communityXrpc(
         agent,
         'community.blacksky.feed.submitPost',
-        {
-          body: submitBody,
-          serviceDid: thread.communityFeed?.config.contentStore,
-        },
+        // No serviceDid: submitPost serves the Blacksky community feed, whose
+        // content lives on the home appview. `contentStore` named a per-feed
+        // appview for the retired multi-tenant path and was always undefined
+        // here, so the proxy target is unchanged.
+        {body: submitBody},
       )
       if (!submitRes.ok) {
         const errBody = (await submitRes.json().catch(() => ({}))) as {
@@ -502,7 +503,7 @@ async function postCommunity(
   return {uris}
 }
 
-async function resolveRT(agent: AtpAgent, richtext: RichText) {
+export async function resolveRT(agent: AtpAgent, richtext: RichText) {
   const trimmedText = richtext.text
     // Trim leading whitespace-only lines (but don't break ASCII art).
     .replace(/^(\s*\n)+/, '')
@@ -591,7 +592,7 @@ async function resolveReply(agent: AtpAgent, replyTo: string) {
   }
 }
 
-async function resolveEmbed(
+export async function resolveEmbed(
   agent: AtpAgent,
   queryClient: QueryClient,
   draft: PostDraft,
