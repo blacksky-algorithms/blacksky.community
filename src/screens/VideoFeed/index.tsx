@@ -43,7 +43,7 @@ import {
 } from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
-import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
 import {HITSLOP_20} from '#/lib/constants'
 import {useHaptics} from '#/lib/haptics'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
@@ -773,7 +773,7 @@ function Overlay({
         author: post.author,
         embed: post.embed,
         langs: record?.langs,
-        communityFeed: getCommunityFeedUri(post),
+        communitySpace: getCommunitySpaceUri(post),
       },
       logContext: 'PostReply',
     })

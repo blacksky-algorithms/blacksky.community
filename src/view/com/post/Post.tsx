@@ -10,7 +10,7 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {postPermalink} from '#/lib/routes/links'
@@ -140,7 +140,7 @@ function PostInner({
         embed: post.embed,
         moderation,
         langs: record.langs,
-        communityFeed: getCommunityFeedUri(post),
+        communitySpace: getCommunitySpaceUri(post),
       },
       logContext: 'PostReply',
     })

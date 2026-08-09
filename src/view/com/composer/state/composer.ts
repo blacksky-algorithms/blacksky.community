@@ -106,6 +106,12 @@ export type ThreadDraft = {
   blackskyOnly: boolean
   communityFeed?: CommunityFeedTarget
   communityFeedUri?: string
+  /**
+   * The space a parent post lives in, inherited when replying to or quoting
+   * one. Distinct from `communityFeedUri`, which names a feed the author
+   * chose to post into: a space is where content goes, a feed is a view.
+   */
+  communitySpaceUri?: string
 }
 
 export type ComposerState = {
@@ -229,6 +235,7 @@ export function composerReducer(
           blackskyOnly: !state.thread.blackskyOnly,
           communityFeed: undefined,
           communityFeedUri: undefined,
+          communitySpaceUri: undefined,
         },
       }
     }
@@ -654,7 +661,7 @@ export function createComposerState({
   initQuoteUri,
   initInteractionSettings,
   initBlackskyOnly,
-  initCommunityFeedUri,
+  initCommunitySpaceUri,
 }: {
   initText: string | undefined
   initMention: string | undefined
@@ -664,7 +671,7 @@ export function createComposerState({
     | AppBskyActorDefs.PostInteractionSettingsPref
     | undefined
   initBlackskyOnly?: boolean
-  initCommunityFeedUri?: string
+  initCommunitySpaceUri?: string
 }): ComposerState {
   let media: ImagesMedia | GalleryMedia | undefined
   if (initImageUris?.length) {
@@ -786,7 +793,7 @@ export function createComposerState({
         allow: initInteractionSettings?.threadgateAllowRules,
       }),
       blackskyOnly: !!initBlackskyOnly,
-      communityFeedUri: initCommunityFeedUri,
+      communitySpaceUri: initCommunitySpaceUri,
     },
   }
 }

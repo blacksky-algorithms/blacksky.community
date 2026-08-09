@@ -61,7 +61,10 @@ import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
 import {isSpaceBackedFeed} from '#/lib/api/community-feed'
-import {getCommunityFeedUri, isCommunityPostUri} from '#/lib/api/community-post'
+import {
+  getCommunitySpaceUri,
+  isCommunityPostUri,
+} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
 import {SpaceUnsupportedError} from '#/lib/api/space-write'
@@ -376,11 +379,11 @@ export const ComposePost = ({
   // quote of either must stay inside the community it came from.
   const isCommunityReply = isCommunityPostUri(replyTo?.uri)
   const isCommunityQuote = isCommunityPostUri(initQuote?.uri)
-  const replyCommunityFeed = replyTo?.communityFeed
-  const quoteCommunityFeed = getCommunityFeedUri(initQuote)
+  const replyCommunitySpace = replyTo?.communitySpace
+  const quoteCommunitySpace = getCommunitySpaceUri(initQuote)
   const isForcedBlackskyOnly =
-    (isCommunityReply && !replyCommunityFeed) ||
-    (isCommunityQuote && !quoteCommunityFeed)
+    (isCommunityReply && !replyCommunitySpace) ||
+    (isCommunityQuote && !quoteCommunitySpace)
   const isForcedCommunityTarget = isCommunityReply || isCommunityQuote
 
   const [composerState, composerDispatch] = useReducer(
@@ -391,7 +394,7 @@ export const ComposePost = ({
       initText,
       initMention,
       initInteractionSettings: preferences?.postInteractionSettings,
-      initCommunityFeedUri: replyCommunityFeed ?? quoteCommunityFeed,
+      initCommunitySpaceUri: replyCommunitySpace ?? quoteCommunitySpace,
       // Replies inherit their parent's audience: forced on for community
       // parents, forced off for public parents. The sticky default only
       // applies to top-level posts, and only for community members.
@@ -2035,7 +2038,8 @@ function ComposerPills({
     !hasMedia &&
     !hasLink &&
     !isForcedBlackskyOnly &&
-    !thread.communityFeedUri
+    !thread.communityFeedUri &&
+    !thread.communitySpaceUri
   ) {
     return null
   }
@@ -2093,7 +2097,9 @@ function ComposerPills({
       </ScrollView>
       {(thread.blackskyOnly || thread.communityFeedUri) && (
         <View style={[a.justify_end, a.pl_sm, a.align_end]}>
-          <CommunityOnlyBadge communityFeed={thread.communityFeedUri} />
+          <CommunityOnlyBadge
+            communitySpace={thread.communitySpaceUri ?? thread.communityFeedUri}
+          />
         </View>
       )}
     </Animated.View>

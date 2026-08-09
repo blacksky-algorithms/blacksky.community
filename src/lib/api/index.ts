@@ -73,6 +73,11 @@ export async function post(
   opts: PostOpts,
 ) {
   let thread = opts.thread
+  // Replying to or quoting a space post: the parent's space is the target, and
+  // no feed needs resolving — a feed is only a view over the space.
+  if (thread.communitySpaceUri) {
+    return postToSpace(agent, queryClient, thread.communitySpaceUri, opts)
+  }
   if (!thread.communityFeed && thread.communityFeedUri) {
     const target = await fetchCommunityFeedTarget(
       agent,

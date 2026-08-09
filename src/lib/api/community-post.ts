@@ -1,12 +1,7 @@
-import {
-  type AppBskyFeedDefs,
-  AtUri,
-  type BskyAgent,
-  jsonToLex,
-} from '@atproto/api'
+import {type AppBskyFeedDefs, type BskyAgent, jsonToLex} from '@atproto/api'
 
 import {communityXrpc} from '#/lib/api/community'
-import {isSpaceRecordUri} from '#/lib/api/space-uri'
+import {isSpaceRecordUri, parseSpaceUri} from '#/lib/api/space-uri'
 
 export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'
 
@@ -24,23 +19,23 @@ export function isCommunityPostUri(uri: string | undefined): boolean {
 }
 
 export type CommunityPostView = AppBskyFeedDefs.PostView & {
-  communityFeed?: string
+  communitySpace?: string
 }
 
-export function getCommunityFeedUri(
+/**
+ * The permissioned space a post lives in, which is its authorization
+ * boundary. A feed is only a view over a space, so the post view carries the
+ * space; never fed to `AtUri`, which misparses a space URI.
+ */
+export function getCommunitySpaceUri(
   post: AppBskyFeedDefs.PostView | undefined,
 ): string | undefined {
-  const feed = (post as unknown as {communityFeed?: unknown} | undefined)
-    ?.communityFeed
-  if (typeof feed !== 'string') return undefined
-  try {
-    const uri = new AtUri(feed)
-    return uri.collection === 'app.bsky.feed.generator' && uri.rkey
-      ? feed
-      : undefined
-  } catch {
-    return undefined
-  }
+  const space = (post as unknown as {communitySpace?: unknown} | undefined)
+    ?.communitySpace
+  // The 4-segment pointer only: a record inside a space is not the space.
+  return typeof space === 'string' && parseSpaceUri(space) !== null
+    ? space
+    : undefined
 }
 
 /**

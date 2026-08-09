@@ -9,7 +9,7 @@ import {
 } from '@atproto/api'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
-import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -260,7 +260,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
         embed: post.embed,
         moderation,
         langs: record.langs,
-        communityFeed: getCommunityFeedUri(post),
+        communitySpace: getCommunitySpaceUri(post),
       },
       onPostSuccess: onPostSuccess,
       logContext: 'PostReply',

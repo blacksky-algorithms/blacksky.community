@@ -11,11 +11,15 @@ import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Gr
 import * as Tooltip from '#/components/Tooltip'
 import {Text} from '#/components/Typography'
 
-export function CommunityOnlyBadge({communityFeed}: {communityFeed?: string}) {
+export function CommunityOnlyBadge({
+  communitySpace,
+}: {
+  communitySpace?: string
+}) {
   const t = useTheme()
   const {_} = useLingui()
   const [visible, setVisible] = useState(false)
-  const isTenant = !!communityFeed
+  const isTenant = !!communitySpace
   const label = isTenant
     ? _(msg`Community-only post`)
     : _(msg`Blacksky-only post`)

@@ -9,7 +9,10 @@ import {
 import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 
-import {getCommunityFeedUri, isCommunityPostUri} from '#/lib/api/community-post'
+import {
+  getCommunitySpaceUri,
+  isCommunityPostUri,
+} from '#/lib/api/community-post'
 import {CountWheel} from '#/lib/custom-animations/CountWheel'
 import {AnimatedLikeIcon} from '#/lib/custom-animations/LikeIcon'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -322,7 +325,7 @@ let PostControls = ({
           secondaryControlSpacingStyles,
         ]}>
         {isCommunityPostUri(post.uri) && (
-          <CommunityOnlyBadge communityFeed={getCommunityFeedUri(post)} />
+          <CommunityOnlyBadge communitySpace={getCommunitySpaceUri(post)} />
         )}
         <HideButton
           post={post}
