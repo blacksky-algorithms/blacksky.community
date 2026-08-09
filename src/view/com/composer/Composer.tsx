@@ -64,11 +64,13 @@ import {isSpaceBackedFeed} from '#/lib/api/community-feed'
 import {getCommunityFeedUri} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
+import {SpaceUnsupportedError} from '#/lib/api/space-write'
 import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
 import {until} from '#/lib/async/until'
 import {useBrand} from '#/lib/community/BrandContext'
 import {
+  ACCOUNT_MIGRATION_URL,
   MAX_DRAFT_GRAPHEME_LENGTH,
   MAX_GRAPHEME_LENGTH,
   SUPPORTED_MIME_TYPES,
@@ -140,6 +142,7 @@ import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfoIcon} from '#/components
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiSmileIcon} from '#/components/icons/Emoji'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
+import {SimpleInlineLinkText} from '#/components/Link'
 import {LazyQuoteEmbed} from '#/components/Post/Embed/LazyQuoteEmbed'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
@@ -300,6 +303,10 @@ export const ComposePost = ({
   const [isPublishing, setIsPublishing] = useState(false)
   const [publishingStage, setPublishingStage] = useState('')
   const [error, setError] = useState('')
+  // A write refused because the account's server has no space support: the
+  // only fix is moving the account, so the banner offers that rather than a
+  // failure the user cannot act on.
+  const [needsMigration, setNeedsMigration] = useState(false)
 
   /**
    * Track when a draft was created so we can measure draft age in metrics.
@@ -1072,6 +1079,9 @@ export const ComposePost = ({
         err = l`We're sorry! The post you are replying to has been deleted.`
       } else if (e instanceof EmbeddingDisabledError) {
         err = l`This post's author has disabled quote posts.`
+      } else if (e instanceof SpaceUnsupportedError) {
+        err = l`Your account is hosted elsewhere, so it cannot post to a private community feed. You can read it, but posting needs an account hosted here.`
+        setNeedsMigration(true)
       }
       setError(err)
       setIsPublishing(false)
@@ -1392,8 +1402,12 @@ export const ComposePost = ({
             {missingAltError && <AltTextReminder error={missingAltError} />}
             <ErrorBanner
               error={error}
+              needsMigration={needsMigration}
               videoState={erroredVideo}
-              clearError={() => setError('')}
+              clearError={() => {
+                setError('')
+                setNeedsMigration(false)
+              }}
               clearVideo={
                 erroredVideoPostId
                   ? () => clearVideo(erroredVideoPostId)
@@ -2530,11 +2544,13 @@ const styles = StyleSheet.create({
 
 function ErrorBanner({
   error: standardError,
+  needsMigration,
   videoState,
   clearError,
   clearVideo,
 }: {
   error: string
+  needsMigration?: boolean
   videoState: VideoState | NoVideoState
   clearError: () => void
   clearVideo: () => void
@@ -2585,6 +2601,15 @@ function ErrorBanner({
             <ButtonIcon icon={XIcon} />
           </Button>
         </View>
+        {needsMigration && (
+          <Text style={[{paddingLeft: 28}, a.leading_snug]}>
+            <SimpleInlineLinkText
+              label={l`Move your account to Blacksky`}
+              to={ACCOUNT_MIGRATION_URL}>
+              <Trans>Move your account to Blacksky</Trans>
+            </SimpleInlineLinkText>
+          </Text>
+        )}
         {videoError && videoState.jobId && (
           <Text
             style={[
