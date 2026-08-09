@@ -2,6 +2,7 @@ import {AtUri} from '@atproto/api'
 import {parse} from 'psl'
 import TLDs from 'tlds'
 
+import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {BSKY_SERVICE} from '#/lib/constants'
 import {isInvalidHandle} from '#/lib/strings/handles'
@@ -284,6 +285,13 @@ export function postUriToRelativePath(
   uri: string,
   options?: {handle?: string},
 ): string | undefined {
+  // A space record URI has seven segments and misparses in AtUri. Its author
+  // and rkey come out of the URI itself; the space rides in the query, which
+  // is what rebuilds it on the way back.
+  const spaceRef = parseSpaceRecordUri(uri)
+  if (spaceRef) {
+    return `/profile/${spaceRef.authorDid}/post/${spaceRef.rkey}?space=${encodeURIComponent(spaceUriOf(spaceRef))}`
+  }
   try {
     const {hostname, rkey, collection} = new AtUri(uri)
     const handleOrDid =

@@ -48,3 +48,29 @@ export async function fetchCommunityThread(
     hasOtherReplies: !!data.hasOtherReplies,
   }
 }
+
+export const SET_THREAD_MUTE = 'community.blacksky.feed.setThreadMute'
+
+/**
+ * Mute or unmute a thread rooted at a space record.
+ *
+ * The standard mute methods take an at-uri, which a space URI is not. Mute
+ * state itself is keyed by plain URI on both sides, so nothing else differs.
+ */
+export async function setSpaceThreadMute(
+  agent: BskyAgent,
+  root: string,
+  mute: boolean,
+): Promise<{}> {
+  const res = await communityXrpc(agent, SET_THREAD_MUTE, {
+    body: {root, mute},
+  })
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as {
+      message?: string
+      error?: string
+    }
+    throw new Error(body.message || body.error || `HTTP ${res.status}`)
+  }
+  return {}
+}

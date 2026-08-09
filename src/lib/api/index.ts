@@ -31,6 +31,7 @@ import {
   fetchCommunityFeedTarget,
   isSpaceBackedFeed,
 } from '#/lib/api/community-feed'
+import {fetchCommunityPostView} from '#/lib/api/community-post'
 import {postToSpace} from '#/lib/api/space-post'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
@@ -538,7 +539,22 @@ export class ReplyDeletedError extends Error {
   }
 }
 
-async function resolveReply(agent: AtpAgent, replyTo: string) {
+export async function resolveReply(agent: AtpAgent, replyTo: string) {
+  // Space records first: they are not at-uris, so AtUri would misparse one.
+  // The parent is read back through the appview, which is the only read path
+  // the client has into a space, and carries the root of its own thread.
+  if (isSpaceRecordUri(replyTo)) {
+    const post = await fetchCommunityPostView(agent, replyTo)
+    const parent = {uri: post.uri, cid: post.cid}
+    const root = (
+      post.record as {reply?: {root?: {uri?: string; cid?: string}}}
+    )?.reply?.root
+    return {
+      root: root?.uri && root?.cid ? {uri: root.uri, cid: root.cid} : parent,
+      parent,
+    }
+  }
+
   const replyToUrip = new AtUri(replyTo)
 
   // Community posts are fetched from the appview, not the standard feed API.

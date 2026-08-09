@@ -7,6 +7,9 @@ import {
 import {AtUri, jsonToLex} from '@atproto/api'
 
 import {communityXrpc} from '#/lib/api/community'
+import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {spacePostUriFromRoute} from '#/lib/api/space-permalink'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {DM_SERVICE_HEADERS, IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
 import {getLinkMeta, type LinkMeta} from '#/lib/link-meta/link-meta'
 import {resolveShortLink} from '#/lib/link-meta/resolve-short-link'
@@ -100,12 +103,17 @@ const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 // Pull the path portion (without ?query) and the collection from a bsky-style
 // post URL. Community posts share the /profile/<x>/post/<rkey> shape with a
 // ?collection=community.blacksky.feed.post tail.
-function splitPostUrl(url: string): {path: string; collection: string} {
+function splitPostUrl(url: string): {
+  path: string
+  collection: string
+  space?: string
+} {
   const stripped = convertBskyAppUrlIfNeeded(url)
   try {
     const u = new URL(stripped, 'http://_')
     const collection = u.searchParams.get('collection') || 'app.bsky.feed.post'
-    return {path: u.pathname, collection}
+    const space = u.searchParams.get('space') || undefined
+    return {path: u.pathname, collection, space}
   } catch {
     const [path] = stripped.split('?')
     return {path, collection: 'app.bsky.feed.post'}
@@ -116,6 +124,10 @@ async function getCommunityPost(
   agent: AtpAgent,
   uri: string,
 ): Promise<AppBskyFeedDefs.PostView> {
+  // A space record URI is already fully qualified — and would misparse here.
+  if (isSpaceRecordUri(uri)) {
+    return fetchCommunityPostView(agent, uri)
+  }
   const urip = new AtUri(uri)
   if (!urip.host.startsWith('did:')) {
     const res = await agent.resolveHandle({handle: urip.host})
@@ -145,11 +157,14 @@ export async function resolveLink(
     uri = await resolveShortLink(uri)
   }
   if (isBskyPostUrl(uri)) {
-    const {path, collection} = splitPostUrl(uri)
+    const {path, collection, space} = splitPostUrl(uri)
     const [_0, user, _1, rkey] = path.split('/').filter(Boolean)
-    const recordUri = makeRecordUri(user, collection, rkey)
+    // A `?space=` link addresses a record inside a permissioned space, which
+    // is read back through the appview like any other community post.
+    const spaceUri = spacePostUriFromRoute(space, user, rkey, collection)
+    const recordUri = spaceUri ?? makeRecordUri(user, collection, rkey)
     const post =
-      collection === COMMUNITY_POST_COLLECTION
+      spaceUri || collection === COMMUNITY_POST_COLLECTION
         ? await getCommunityPost(agent, recordUri)
         : await getPost({uri: recordUri})
     if (post.viewer?.embeddingDisabled) {

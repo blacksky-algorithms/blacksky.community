@@ -61,7 +61,7 @@ import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
 import {isSpaceBackedFeed} from '#/lib/api/community-feed'
-import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {getCommunityFeedUri, isCommunityPostUri} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
 import {SpaceUnsupportedError} from '#/lib/api/space-write'
@@ -372,10 +372,10 @@ export const ComposePost = ({
   const setBlackskyOnlyDefault = useSetBlackskyOnlyDefault()
   const {data: isCommunityMember = false} = useCommunityMembership()
 
-  const isCommunityReply =
-    !!replyTo?.uri && replyTo.uri.includes('community.blacksky.feed.post')
-  const isCommunityQuote =
-    !!initQuote?.uri && initQuote.uri.includes('community.blacksky.feed.post')
+  // Both the appview-stored stub and any record inside a space: a reply or
+  // quote of either must stay inside the community it came from.
+  const isCommunityReply = isCommunityPostUri(replyTo?.uri)
+  const isCommunityQuote = isCommunityPostUri(initQuote?.uri)
   const replyCommunityFeed = replyTo?.communityFeed
   const quoteCommunityFeed = getCommunityFeedUri(initQuote)
   const isForcedBlackskyOnly =

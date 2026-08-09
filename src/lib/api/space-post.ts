@@ -2,7 +2,12 @@ import {type AppBskyFeedPost, type AtpAgent} from '@atproto/api'
 import {t} from '@lingui/core/macro'
 import {type QueryClient} from '@tanstack/react-query'
 
-import {type PostOpts, resolveEmbed, resolveRT} from '#/lib/api/index'
+import {
+  type PostOpts,
+  resolveEmbed,
+  resolveReply,
+  resolveRT,
+} from '#/lib/api/index'
 import {POST_COLLECTION, spaceCreateRecord} from '#/lib/api/space-write'
 
 /**
@@ -32,6 +37,16 @@ export async function postToSpace(
   // returned for the post before it, so they cannot be batched.
   let root: {uri: string; cid: string} | undefined
   let parent: {uri: string; cid: string} | undefined
+
+  // Replying into the space: the first draft hangs off the post being replied
+  // to, and everything after it hangs off its predecessor as usual.
+  if (opts.replyTo) {
+    const replyRef = await resolveReply(agent, opts.replyTo)
+    if (replyRef) {
+      root = replyRef.root
+      parent = replyRef.parent
+    }
+  }
 
   for (const draft of thread.posts) {
     const rt = await resolveRT(agent, draft.richtext)

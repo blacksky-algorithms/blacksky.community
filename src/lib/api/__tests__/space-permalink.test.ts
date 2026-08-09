@@ -1,4 +1,5 @@
 import {postPermalink} from '#/lib/routes/links'
+import {postUriToRelativePath} from '#/lib/strings/url-helpers'
 import {spacePostUriFromRoute} from '../space-permalink'
 
 const SPACE = 'at://did:plc:community/space/community.blacksky.feed/private'
@@ -51,5 +52,24 @@ describe('space permalinks', () => {
     ['an unresolved handle', SPACE, 'alice.test'],
   ])('refuses %s', (_name, space, author) => {
     expect(spacePostUriFromRoute(space, author, '3kabc')).toBeNull()
+  })
+})
+
+describe('space post urls survive the composer round trip', () => {
+  it('encodes and decodes back to the same record uri', () => {
+    const path = postUriToRelativePath(SPACE_POST)
+    expect(path).toBe(
+      `/profile/did:plc:alice/post/3kabc?space=${encodeURIComponent(SPACE)}`,
+    )
+    // What resolveLink does on the way back: read the parts out of the url.
+    const url = new URL(path!, 'http://_')
+    const [, user, , rkey] = url.pathname.split('/').filter(Boolean)
+    expect(
+      spacePostUriFromRoute(
+        url.searchParams.get('space') ?? undefined,
+        user,
+        rkey,
+      ),
+    ).toBe(SPACE_POST)
   })
 })

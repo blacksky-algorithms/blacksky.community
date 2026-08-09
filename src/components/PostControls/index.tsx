@@ -10,7 +10,6 @@ import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 
 import {getCommunityFeedUri, isCommunityPostUri} from '#/lib/api/community-post'
-import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {CountWheel} from '#/lib/custom-animations/CountWheel'
 import {AnimatedLikeIcon} from '#/lib/custom-animations/LikeIcon'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -265,10 +264,7 @@ let PostControls = ({
             onRepost={() => void onRepost()}
             onQuote={onQuote}
             big={big}
-            embeddingDisabled={
-              Boolean(post.viewer?.embeddingDisabled) ||
-              isSpaceRecordUri(post.uri)
-            }
+            embeddingDisabled={Boolean(post.viewer?.embeddingDisabled)}
             repostDisabled={isCommunityPostUri(post.uri)}
           />
         </View>

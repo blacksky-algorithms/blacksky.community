@@ -86,3 +86,22 @@ describe('post routing', () => {
     expect(applyWrites).toHaveBeenCalled()
   })
 })
+
+describe('space replies', () => {
+  it('passes the reply target down to the space write path', async () => {
+    const {agent} = mockAgent()
+    const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
+
+    await post(agent, queryClient, {
+      thread: threadWith(SPACE),
+      replyTo: parent,
+    })
+
+    // postToSpace resolves the parent itself; what matters here is that the
+    // reply is routed into the space at all rather than posted publicly.
+    expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
+      thread: threadWith(SPACE),
+      replyTo: parent,
+    })
+  })
+})

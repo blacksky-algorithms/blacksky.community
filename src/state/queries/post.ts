@@ -9,6 +9,7 @@ import {
 
 import {communityXrpc} from '#/lib/api/community'
 import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {setSpaceThreadMute} from '#/lib/api/community-thread'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {
   spaceDeleteIfSpace,
@@ -465,7 +466,10 @@ function useThreadMuteMutation() {
     Error,
     {uri: string} // the root post's uri
   >({
-    mutationFn: ({uri}) => {
+    mutationFn: async ({uri}) => {
+      if (isSpaceRecordUri(uri)) {
+        return setSpaceThreadMute(agent, uri, true)
+      }
       return agent.api.app.bsky.graph.muteThread({root: uri})
     },
   })
@@ -474,7 +478,10 @@ function useThreadMuteMutation() {
 function useThreadUnmuteMutation() {
   const agent = useAgent()
   return useMutation<{}, Error, {uri: string}>({
-    mutationFn: ({uri}) => {
+    mutationFn: async ({uri}) => {
+      if (isSpaceRecordUri(uri)) {
+        return setSpaceThreadMute(agent, uri, false)
+      }
       return agent.api.app.bsky.graph.unmuteThread({root: uri})
     },
   })
