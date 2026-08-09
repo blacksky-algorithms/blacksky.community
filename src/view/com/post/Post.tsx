@@ -13,7 +13,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {getCommunityFeedUri} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
 import {
   POST_TOMBSTONE,
@@ -123,11 +123,7 @@ function PostInner({
   const [limitLines, setLimitLines] = useState(
     () => countLines(richText?.text) >= MAX_POST_LINES,
   )
-  const itemUrip = new AtUri(post.uri)
-  const isCommunityPost = itemUrip.collection === 'community.blacksky.feed.post'
-  const itemHref = isCommunityPost
-    ? `${makeProfileLink(post.author, 'post', itemUrip.rkey)}?collection=${itemUrip.collection}`
-    : makeProfileLink(post.author, 'post', itemUrip.rkey)
+  const itemHref = postPermalink(post.author, post.uri)
   let replyAuthorDid = ''
   if (record.reply) {
     const urip = new AtUri(record.reply.parent?.uri || record.reply.root.uri)

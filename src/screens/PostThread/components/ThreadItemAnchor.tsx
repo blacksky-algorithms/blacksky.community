@@ -10,9 +10,10 @@ import {
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
@@ -203,11 +204,11 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
 
   const statHref = useCallback(
     (suffix: string) => {
-      const urip = new AtUri(post.uri)
-      const link = makeProfileLink(post.author, 'post', urip.rkey, suffix)
-      return urip.collection === 'community.blacksky.feed.post'
-        ? `${link}?collection=${urip.collection}`
-        : link
+      // Space posts have no liked-by / reposted-by / quotes screens: those
+      // endpoints take at-uris, and reposts and quotes are deferred there
+      // anyway. The counts still show, they just do not link anywhere.
+      if (isSpaceRecordUri(post.uri)) return undefined
+      return postPermalink(post.author, post.uri, suffix)
     },
     [post.uri, post.author],
   )
@@ -448,7 +449,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   t.atoms.border_contrast_low,
                 ]}>
                 {post.repostCount != null && post.repostCount !== 0 ? (
-                  <Link to={repostsHref} label={l`Reposts of this post`}>
+                  <StatLink to={repostsHref} label={l`Reposts of this post`}>
                     <Text
                       testID="repostCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -464,12 +465,12 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.quoteCount != null &&
                 post.quoteCount !== 0 &&
                 !post.viewer?.embeddingDisabled ? (
-                  <Link to={quotesHref} label={l`Quotes of this post`}>
+                  <StatLink to={quotesHref} label={l`Quotes of this post`}>
                     <Text
                       testID="quoteCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -485,10 +486,10 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.likeCount != null && post.likeCount !== 0 ? (
-                  <Link to={likesHref} label={l`Likes on this post`}>
+                  <StatLink to={likesHref} label={l`Likes on this post`}>
                     <Text
                       testID="likeCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -504,7 +505,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.bookmarkCount != null && post.bookmarkCount !== 0 ? (
                   <Text
@@ -705,5 +706,28 @@ export function ThreadItemAnchorSkeleton() {
 
       <PostControlsSkeleton big />
     </View>
+  )
+}
+
+/**
+ * A stat that links to its own screen when there is one to link to.
+ *
+ * Space posts have no liked-by / reposted-by / quotes screens, so the count
+ * renders as plain text rather than a link that would 400.
+ */
+function StatLink({
+  to,
+  label,
+  children,
+}: {
+  to?: string
+  label: string
+  children: React.ReactElement
+}) {
+  if (!to) return children
+  return (
+    <Link to={to} label={label}>
+      {children}
+    </Link>
   )
 }

@@ -1,6 +1,14 @@
-import {type AppBskyFeedDefs, AtUri} from '@atproto/api'
+import {
+  type AppBskyFeedDefs,
+  AtUri,
+  type BskyAgent,
+  jsonToLex,
+} from '@atproto/api'
 
+import {communityXrpc} from '#/lib/api/community'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
+
+export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'
 
 const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 
@@ -33,4 +41,28 @@ export function getCommunityFeedUri(
   } catch {
     return undefined
   }
+}
+
+/**
+ * Read one community post by URI.
+ *
+ * The standard `getPosts` cannot serve these: its `uris` are at-uris, and a
+ * space record URI is not one. This endpoint takes a plain string, and gates
+ * on membership before returning anything.
+ */
+export async function fetchCommunityPostView(
+  agent: BskyAgent,
+  uri: string,
+): Promise<AppBskyFeedDefs.PostView> {
+  const res = await communityXrpc(agent, GET_COMMUNITY_POST, {params: {uri}})
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as {
+      message?: string
+      error?: string
+    }
+    throw new Error(body.message || body.error || `HTTP ${res.status}`)
+  }
+  const data = jsonToLex(await res.json()) as {post?: AppBskyFeedDefs.PostView}
+  if (!data.post) throw new Error('Community post not found')
+  return data.post
 }

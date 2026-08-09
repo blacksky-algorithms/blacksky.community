@@ -16,7 +16,7 @@ import {type ReasonFeedSource} from '#/lib/api/feed/types'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
 import {
   POST_TOMBSTONE,
@@ -175,12 +175,8 @@ let FeedItemInner = ({
 
   const [href] = useMemo(() => {
     const urip = new AtUri(post.uri)
-    const link = makeProfileLink(post.author, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return [
-      isCommunity ? `${link}?collection=${urip.collection}` : link,
-      urip.rkey,
-    ]
+    const link = postPermalink(post.author, post.uri)
+    return [link, urip.rkey]
   }, [post.uri, post.author])
   const {sendInteraction, feedSourceInfo, feedDescriptor} =
     useFeedFeedbackContext()

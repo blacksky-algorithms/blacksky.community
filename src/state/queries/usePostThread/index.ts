@@ -1,6 +1,8 @@
 import {useCallback, useMemo, useState} from 'react'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 
+import {fetchCommunityThread} from '#/lib/api/community-thread'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useThreadPreferences} from '#/state/queries/preferences/useThreadPreferences'
 import {
@@ -71,12 +73,24 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: isThreadPreferencesLoaded && !!anchor && !!moderationOpts,
     queryKey: postThreadQueryKey,
     async queryFn(ctx) {
-      const {data} = await agent.app.bsky.unspecced.getPostThreadV2({
-        anchor: anchor!,
-        branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
-        below,
-        sort: sort,
-      })
+      const branchingFactor = view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF
+      // A space record cannot be an anchor on the standard endpoint: that
+      // parameter is an at-uri and a space URI is not one. The community
+      // endpoint answers with the same item shape.
+      const data = isSpaceRecordUri(anchor)
+        ? await fetchCommunityThread(agent, {
+            anchor: anchor!,
+            branchingFactor,
+            below,
+          })
+        : (
+            await agent.app.bsky.unspecced.getPostThreadV2({
+              anchor: anchor!,
+              branchingFactor,
+              below,
+              sort: sort,
+            })
+          ).data
 
       /*
        * Initialize `ctx.meta` to track if we know we have additional replies

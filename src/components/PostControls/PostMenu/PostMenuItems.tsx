@@ -19,7 +19,7 @@ import {useNavigation} from '@react-navigation/native'
 
 import {getCommunityFeedUri} from '#/lib/api/community-post'
 import {getCurrentRoute} from '#/lib/routes/helpers'
-import {makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -190,10 +190,7 @@ let PostMenuItems = ({
   })
 
   const href = useMemo(() => {
-    const urip = new AtUri(postUri)
-    const link = makeProfileLink(postAuthor, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return isCommunity ? `${link}?collection=${urip.collection}` : link
+    return postPermalink(postAuthor, postUri)
   }, [postUri, postAuthor])
 
   const onDeletePost = () => {

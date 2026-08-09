@@ -8,6 +8,8 @@ import {
 } from '@tanstack/react-query'
 
 import {communityXrpc} from '#/lib/api/community'
+import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {
   spaceDeleteIfSpace,
   spaceLikeIfSpace,
@@ -32,6 +34,12 @@ export function usePostQuery(uri: string | undefined) {
     queryKey: RQKEY(uri || ''),
     queryFn: async () => {
       if (!uri) throw new Error('[unreachable] No URI provided')
+
+      // Checked before AtUri, which misparses a space URI, and before
+      // getPosts, whose uris are at-uris.
+      if (isSpaceRecordUri(uri)) {
+        return fetchCommunityPostView(agent, uri)
+      }
 
       const urip = new AtUri(uri)
 
@@ -70,6 +78,9 @@ export function useGetPost() {
       return queryClient.fetchQuery({
         queryKey: RQKEY(uri || ''),
         async queryFn() {
+          if (isSpaceRecordUri(uri)) {
+            return fetchCommunityPostView(agent, uri)
+          }
           const urip = new AtUri(uri)
 
           if (!urip.host.startsWith('did:')) {
