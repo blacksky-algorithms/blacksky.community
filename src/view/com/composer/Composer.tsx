@@ -60,6 +60,7 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
+import {isSpaceBackedFeed} from '#/lib/api/community-feed'
 import {getCommunityFeedUri} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
@@ -2035,7 +2036,7 @@ function ComposerPills({
         bounces={false}
         keyboardShouldPersistTaps="always"
         showsHorizontalScrollIndicator={false}>
-        {isReply ? null : (
+        {isReply || isSpaceBackedFeed(thread.communityFeed?.config) ? null : (
           <ThreadgateBtn
             postgate={thread.postgate}
             onChangePostgate={nextPostgate => {

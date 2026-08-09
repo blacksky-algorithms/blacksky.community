@@ -11,12 +11,6 @@ import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Gr
 import * as Tooltip from '#/components/Tooltip'
 import {Text} from '#/components/Typography'
 
-const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
-
-export function isCommunityPostUri(uri: string | undefined): boolean {
-  return !!uri && uri.includes(COMMUNITY_POST_COLLECTION)
-}
-
 export function CommunityOnlyBadge({communityFeed}: {communityFeed?: string}) {
   const t = useTheme()
   const {_} = useLingui()

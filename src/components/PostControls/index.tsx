@@ -9,7 +9,8 @@ import {
 import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 
-import {getCommunityFeedUri} from '#/lib/api/community-post'
+import {getCommunityFeedUri, isCommunityPostUri} from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {CountWheel} from '#/lib/custom-animations/CountWheel'
 import {AnimatedLikeIcon} from '#/lib/custom-animations/LikeIcon'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -25,10 +26,7 @@ import {
   useProgressGuideControls,
 } from '#/state/shell/progress-guide'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
-import {
-  CommunityOnlyBadge,
-  isCommunityPostUri,
-} from '#/components/CommunityOnlyBadge'
+import {CommunityOnlyBadge} from '#/components/CommunityOnlyBadge'
 import {Reply as Bubble} from '#/components/icons/Reply'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import * as Skele from '#/components/Skeleton'
@@ -267,8 +265,11 @@ let PostControls = ({
             onRepost={() => void onRepost()}
             onQuote={onQuote}
             big={big}
-            embeddingDisabled={Boolean(post.viewer?.embeddingDisabled)}
-            repostDisabled={post.uri.includes('community.blacksky.feed.post')}
+            embeddingDisabled={
+              Boolean(post.viewer?.embeddingDisabled) ||
+              isSpaceRecordUri(post.uri)
+            }
+            repostDisabled={isCommunityPostUri(post.uri)}
           />
         </View>
         <View style={[a.flex_1, a.align_start]}>

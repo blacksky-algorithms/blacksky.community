@@ -32,6 +32,7 @@ import {
   isSpaceBackedFeed,
 } from '#/lib/api/community-feed'
 import {postToSpace} from '#/lib/api/space-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -115,10 +116,14 @@ export async function post(
 
   // A public post must never carry a community post in its embed; the
   // routing above sends those to postCommunity, so reaching here with one
-  // is a bug we refuse rather than leak community content publicly.
+  // is a bug we refuse rather than leak community content publicly. A space
+  // record is refused for the same reason, and its URI would leak the space
+  // even if the appview declined to hydrate it.
   if (
-    thread.posts.some(p =>
-      p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION),
+    thread.posts.some(
+      p =>
+        p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION) ||
+        isSpaceRecordUri(p.embed.quote?.uri),
     )
   ) {
     throw new Error('Public posts cannot embed a community post')
