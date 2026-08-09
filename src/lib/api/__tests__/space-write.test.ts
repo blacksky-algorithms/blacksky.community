@@ -5,9 +5,12 @@ import {
   LIKE_COLLECTION,
   POST_COLLECTION,
   spaceCreateRecord,
+  spaceDeleteIfSpace,
   spaceDeleteRecord,
   spaceLike,
+  spaceLikeIfSpace,
   spaceUnlike,
+  spaceUnlikeIfSpace,
   SpaceUnsupportedError,
 } from '#/lib/api/space-write'
 
@@ -136,5 +139,54 @@ describe('space writes', () => {
     await expect(
       spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
     ).rejects.toThrow(/no record reference/)
+  })
+})
+
+const PUBLIC_POST = 'at://did:plc:alice/app.bsky.feed.post/3kabc'
+const PUBLIC_LIKE = 'at://did:plc:alice/app.bsky.feed.like/3klike'
+
+describe('interaction routing', () => {
+  it('likes a space post into its own space', async () => {
+    const {agent, calls} = agentWith()
+
+    await spaceLikeIfSpace(agent, SUBJECT.uri, SUBJECT.cid)
+
+    // The leak this prevents: a like in the public repo whose subject is a
+    // space URI announces that the private post exists.
+    expect(calls[0].path).toBe('/xrpc/com.atproto.space.createRecord')
+    expect(bodyOf(calls[0])).toMatchObject({
+      space: SPACE,
+      collection: LIKE_COLLECTION,
+    })
+  })
+
+  it('unlikes and deletes within the space the record belongs to', async () => {
+    const {agent, calls} = agentWith({body: {}})
+
+    await spaceUnlikeIfSpace(
+      agent,
+      `${SPACE}/did:plc:alice/${LIKE_COLLECTION}/3klike`,
+    )
+    await spaceDeleteIfSpace(
+      agent,
+      `${SPACE}/did:plc:alice/${POST_COLLECTION}/3kpost`,
+    )
+
+    expect(calls.map(bodyOf)).toEqual([
+      {space: SPACE, collection: LIKE_COLLECTION, rkey: '3klike'},
+      {space: SPACE, collection: POST_COLLECTION, rkey: '3kpost'},
+    ])
+  })
+
+  it.each([
+    ['like', (a: BskyAgent) => spaceLikeIfSpace(a, PUBLIC_POST, 'bafy')],
+    ['unlike', (a: BskyAgent) => spaceUnlikeIfSpace(a, PUBLIC_LIKE)],
+    ['delete', (a: BskyAgent) => spaceDeleteIfSpace(a, PUBLIC_POST)],
+  ])('leaves a public %s to the public repo', (_name, run) => {
+    const {agent, calls} = agentWith()
+
+    // null means "not mine" — the caller falls back to the ordinary agent call.
+    expect(run(agent)).toBeNull()
+    expect(calls).toHaveLength(0)
   })
 })

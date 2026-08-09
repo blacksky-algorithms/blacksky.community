@@ -8,6 +8,11 @@ import {
 } from '@tanstack/react-query'
 
 import {communityXrpc} from '#/lib/api/community'
+import {
+  spaceDeleteIfSpace,
+  spaceLikeIfSpace,
+  spaceUnlikeIfSpace,
+} from '#/lib/api/space-write'
 import {useToggleMutationQueue} from '#/lib/hooks/useToggleMutationQueue'
 import {updatePostShadow} from '#/state/cache/post-shadow'
 import {type Shadow} from '#/state/cache/types'
@@ -216,7 +221,10 @@ function usePostLikeMutation(
             : undefined,
         feedDescriptor: feedDescriptor,
       })
-      return agent.like(uri, cid, via)
+      // A like on a permissioned post is written into the space, never the
+      // public repo: a public like naming a space URI would announce that the
+      // private post exists, and who can see it.
+      return spaceLikeIfSpace(agent, uri, cid) ?? agent.like(uri, cid, via)
     },
   })
 }
@@ -236,7 +244,7 @@ function usePostUnlikeMutation(
         logContext,
         feedDescriptor,
       })
-      return agent.deleteLike(likeUri)
+      return spaceUnlikeIfSpace(agent, likeUri) ?? agent.deleteLike(likeUri)
     },
   })
 }
@@ -356,6 +364,12 @@ export function usePostDeleteMutation() {
   const agent = useAgent()
   return useMutation<void, Error, {uri: string}>({
     mutationFn: async ({uri}) => {
+      // Checked before AtUri sees the URI: a space URI misparses there.
+      const spaceDelete = spaceDeleteIfSpace(agent, uri)
+      if (spaceDelete) {
+        await spaceDelete
+        return
+      }
       const parsedUri = new AtUri(uri)
       if (parsedUri.collection === COMMUNITY_POST_COLLECTION) {
         // Both deletes are idempotent, so ordering is safe and a retry after

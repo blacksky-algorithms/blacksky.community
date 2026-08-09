@@ -1,5 +1,7 @@
 import {type BskyAgent} from '@atproto/api'
 
+import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
+
 /**
  * Writes into a permissioned space.
  *
@@ -128,4 +130,40 @@ export async function spaceUnlike(
   const rkey = likeUri.split('/').pop()
   if (!rkey) throw new Error(`Unusable like uri: ${likeUri}`)
   return spaceDeleteRecord(agent, space, LIKE_COLLECTION, rkey)
+}
+
+/*
+ * The three interactions below answer `null` for anything that is not a space
+ * record, so a caller reads as `spaceX(...) ?? publicX(...)`. The routing lives
+ * here rather than in the mutation hooks so it can be tested without them.
+ */
+
+/** Like `uri` in its own space, or null if it is not a space record. */
+export function spaceLikeIfSpace(
+  agent: BskyAgent,
+  uri: string,
+  cid: string,
+): Promise<SpaceWriteResult> | null {
+  const ref = parseSpaceRecordUri(uri)
+  return ref ? spaceLike(agent, spaceUriOf(ref), {uri, cid}) : null
+}
+
+/** Undo a like held in a space, or null if `likeUri` is not a space record. */
+export function spaceUnlikeIfSpace(
+  agent: BskyAgent,
+  likeUri: string,
+): Promise<void> | null {
+  const ref = parseSpaceRecordUri(likeUri)
+  return ref ? spaceUnlike(agent, spaceUriOf(ref), likeUri) : null
+}
+
+/** Delete one's own space record, or null if `uri` is not one. */
+export function spaceDeleteIfSpace(
+  agent: BskyAgent,
+  uri: string,
+): Promise<void> | null {
+  const ref = parseSpaceRecordUri(uri)
+  return ref
+    ? spaceDeleteRecord(agent, spaceUriOf(ref), ref.collection, ref.rkey)
+    : null
 }
