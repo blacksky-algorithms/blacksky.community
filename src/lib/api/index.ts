@@ -66,7 +66,7 @@ export async function post(
   opts: PostOpts,
 ) {
   let thread = opts.thread
-  if (!opts.replyTo && !thread.communityFeed && thread.communityFeedUri) {
+  if (!thread.communityFeed && thread.communityFeedUri) {
     const target = await fetchCommunityFeedTarget(
       agent,
       thread.communityFeedUri,
