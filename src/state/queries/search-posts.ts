@@ -13,9 +13,8 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
-import {searchAppviewOpts} from '#/lib/api/search-routing'
+import {searchAppviewOpts, useSearchAgent} from '#/lib/api/search-routing'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
-import {useAgent} from '#/state/session'
 import {
   didOrHandleUriMatches,
   embedViewRecordToPostView,
@@ -38,7 +37,7 @@ export function useSearchPostsQuery({
   sort?: 'top' | 'latest'
   enabled?: boolean
 }) {
-  const agent = useAgent()
+  const agent = useSearchAgent()
   const moderationOpts = useModerationOpts()
   const selectArgs = useMemo(
     () => ({

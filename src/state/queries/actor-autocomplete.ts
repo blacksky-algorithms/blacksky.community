@@ -6,11 +6,10 @@ import {
 } from '@atproto/api'
 import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
 
-import {searchAppviewOpts} from '#/lib/api/search-routing'
+import {searchAppviewOpts, useSearchAgent} from '#/lib/api/search-routing'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from './preferences'
 
@@ -28,7 +27,7 @@ export function useActorAutocompleteQuery(
   limit?: number,
 ) {
   const moderationOpts = useModerationOpts()
-  const agent = useAgent()
+  const agent = useSearchAgent()
 
   prefix = prefix.toLowerCase().trim()
   if (prefix.endsWith('.')) {
@@ -69,7 +68,7 @@ export type ActorAutocompleteFn = ReturnType<typeof useActorAutocompleteFn>
 export function useActorAutocompleteFn() {
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
-  const agent = useAgent()
+  const agent = useSearchAgent()
 
   return useCallback(
     async ({query, limit = 8}: {query: string; limit?: number}) => {

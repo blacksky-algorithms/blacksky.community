@@ -4,6 +4,7 @@ import {
   aggregateUserInterests,
   createBskyTopicsHeader,
 } from '#/lib/api/feed/utils'
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {getContentLanguages} from '#/state/preferences/languages'
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
@@ -30,6 +31,7 @@ export function useGetSuggestedFeedsQuery({enabled}: {enabled?: boolean}) {
         },
         {
           headers: {
+            ...searchAppviewOpts().headers,
             ...createBskyTopicsHeader(aggregateUserInterests(preferences)),
             'Accept-Language': contentLangs,
           },
