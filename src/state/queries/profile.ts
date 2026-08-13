@@ -95,7 +95,8 @@ export function useProfileQuery({
 
       // Prefer Bluesky's counts and known followers to avoid flickering
       // between our appview's counts and Bluesky's
-      if (bskyRes?.data) {
+      // Overlay disabled on this branch: 1:1 appview testing needs raw counts.
+      if (false && bskyRes?.data) {
         profile.followersCount =
           bskyRes.data.followersCount ?? profile.followersCount
         profile.followsCount = bskyRes.data.followsCount ?? profile.followsCount
@@ -210,7 +211,8 @@ export function usePrefetchProfileQuery() {
           ])
           const profile = profileRes.data
 
-          if (bskyRes?.data) {
+          // Overlay disabled on this branch: 1:1 appview testing needs raw counts.
+          if (false && bskyRes?.data) {
             profile.followersCount =
               bskyRes.data.followersCount ?? profile.followersCount
             profile.followsCount =
