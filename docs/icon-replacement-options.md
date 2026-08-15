@@ -52,16 +52,11 @@ friendly and consumer. Bluesky's set is deliberately the friendly one — `corne
 This is where most of the "space station instrument panel" feeling actually comes from, and no
 individual icon looks themed. **This is the highest-leverage decision on the list.**
 
-### Layer 2 — the hero icons (~15–20 files, unlimited personality)
+### Layer 2 — the hero icons (~20 files, unlimited personality)
 
-Identity marks don't need to parse in 100ms and are seen large:
-
-```
-logo / logomark / logotype     verified + verifier checks
-starter pack mark              "newskie" equivalent (new-account badge)
-moderation + labeler marks     achievement / badge art
-empty-state and error glyphs   feed / community identity marks
-```
+See [Hero icons — the actual inventory](#hero-icons--the-actual-inventory) below for the full
+file-by-file list. The short version: identity marks, trust badges, achievement art, and
+large-format state icons — everything seen at 24px+ that nobody has to parse in a hurry.
 
 Go as far as you want here. Orbital rings, scanlines, glyphic sci-fi — this is the right place for
 it, and it's also where the Bluesky trademarks currently still sit (audit §3), so this work is
@@ -171,6 +166,121 @@ write `scripts/generate-icons.mjs`:
 
 Pair it with a `/icons` gallery route or a Storybook page to eyeball all 209 at 16/20/24px in light,
 dim, and dark before merging. A set that looks great at 32px can fall apart at 16px.
+
+## Hero icons — the actual inventory
+
+"Hero icon" isn't a formal category in the codebase; it's the set of marks that are seen **large,
+seen rarely, and carry meaning rather than affordance**. The test is practical: if a user has to
+find it in a toolbar and act on it in under a second, it's a workhorse and it should stay boring.
+If it's something they *look at* — an identity, a status, an achievement, an empty screen — it's a
+hero and it can carry as much character as you want.
+
+By that test, here is what's actually in this repo.
+
+### The precedent: this fork already built one
+
+`src/components/badges/art.tsx` is 449 lines of Blacksky-original badge art, generated from
+"Blacksky Branding/Badges/Light Purple/SVG". Six badges — Peer Moderator, Community Builder, three
+Financial Supporter tiers, Tech Support — registered in `src/components/badges/index.tsx`.
+
+It is the model for everything below, because it demonstrates the whole approach already works:
+
+- **Bypasses `TEMPLATE.tsx` entirely.** Raw `<Svg>` with `Defs`, `LinearGradient`, `Mask`, `G`, and
+  multiple `Path` elements. The monochrome-single-fill constraint that governs the workhorse icons
+  simply does not apply here.
+- **Multi-color and gradient-native.** `#DCDCFF` card ground, a `#6D6DF6 → #F4F4FF` gradient border
+  stroke, black glyph, 32px corner radius on a 360×360 board.
+- **Comes from a real brand library**, not from upstream. There is already a Blacksky Branding
+  source of truth producing these.
+
+`src/components/icons/PeerModerator.tsx` is the same emblem reduced to a single monochrome path on
+the same 360×360 grid — so the pattern of "hero art + workhorse reduction of the same mark" is
+established too.
+
+Two notes on it. The art is fixed-palette with no `useTheme()` — reasonable for card-style art with
+its own ground, but the `Light Purple` in the source path implies the brand library has other
+variants, so it's worth confirming the cards were checked against dim and dark. And they render at
+`width={36}` in one of three call sites, which is small for 360×360 art with a 6px gradient border —
+worth eyeballing.
+
+### Tier 1 — Identity marks
+
+Mostly converted to the `useBrand()` system already; two are still Bluesky's.
+
+| File | Rendered at | Status |
+|---|---|---|
+| `src/view/icons/Logo.tsx` | 25–76px across 20 sites — bottom bar, splash, sign-in, QR cards, deactivated/takendown screens | ✅ on `useBrand()` |
+| `src/view/icons/Logotype.tsx` | 72–161px — `SplashScreen.web.tsx` renders it at **161px** | ✅ on `useBrand()` |
+| `src/view/icons/Logomark.tsx` | — | ✅ on `useBrand()` |
+| `src/view/icons/LogomarkWithType.tsx` | `JoinRequest.tsx:242` | ❌ **still Bluesky's butterfly + wordmark** |
+| `bskyembed/assets/logo_full_name.svg` | `bskyembed/src/components/post.tsx` | ❌ **still Bluesky's wordmark** |
+
+`src/components/CommunityOnlyBadge.tsx` composes `Logo` into a "Blacksky-only post" pill — a
+Blacksky-original identity surface that inherits whatever the logo becomes.
+
+### Tier 2 — Trust and status marks
+
+**Every one of these is still Bluesky's artwork** (audit §3), so this tier is required work, not
+optional polish.
+
+| File | Where | Notes |
+|---|---|---|
+| `VerifiedCheck.tsx` | `VerificationCheck.tsx`, `VerificationCreatePrompt.tsx` (18px), notifications | Blue circle + check |
+| `VerifierCheck.tsx` | `VerifierDialog.tsx` (14px) | Scalloped "verifier" variant |
+| `Verified.tsx` | verification surfaces | |
+| `Newskie.tsx` | `NewskieDialog.tsx` — two sites, one large in the dialog body, reached from `Profile/Header/Handle.tsx` | The "new account" sun badge |
+| `StarterPack.tsx` | `StarterPackCard.tsx` (40px, `gradient="sky"`), `ProfileSubpageHeader.tsx` (58px, `gradient="primary"`), `NotificationFeedItem.tsx` (30px) | Already gradient-driven — the closest thing to a hero icon in the upstream set |
+
+`StarterPack` is the useful one to study: it's a workhorse-shaped icon that upstream already treats
+as a hero by feeding it a gradient at large sizes. That's Layer 3 and Layer 2 meeting.
+
+### Tier 3 — Blacksky-original marks
+
+Already exist, already off the upstream dependency: the six badge cards in `badges/art.tsx`,
+`PeerModerator.tsx`, and the `CommunityOnlyBadge` pill. The work here is **extending the set**, not
+replacing it — a labeler/moderation mark, feed and community identity marks, and whatever new badge
+tiers the community program adds.
+
+### Tier 4 — Large-format state icons (the cheapest win)
+
+These are generic Iconists UI glyphs blown up to 32–48px and used as the entire visual content of
+an empty or error screen:
+
+| Icon | Size | Where |
+|---|---|---|
+| `EditIcon` | `2xl` | `EmptyState.tsx` default placeholder — feeds **31 call sites** |
+| `ChainLinkBrokenIcon` | `3xl` | `GroupChatJoinDialog.tsx`, `InviteLinkDialog.tsx`, `JoinRequest.tsx` |
+| `ErrorIcon` | `3xl` | `JoinRequests.tsx` |
+| `WarningIcon` | `3xl` | `GroupChatJoinDialog.tsx` |
+| `ListIcon` | `2xl` | `MyLists.tsx` |
+
+**This is the highest character-per-hour in the whole project.** They are large, they are the only
+thing on the screen, they appear at emotionally loaded moments (nothing here yet, this link is
+broken, something went wrong), and nobody is speed-reading them. A handful of purpose-drawn
+Blacksky state illustrations would do more for the app's personality than restyling two hundred
+toolbar glyphs — and unlike the toolbar, there is no legibility risk in trying.
+
+`EmptyState` already accepts `icon` as either a component or an element, so richer art drops in
+without an API change.
+
+### Tier 5 — Application marks
+
+App icons, favicons, splash screens, notification icons, social cards. **Already replaced** — see
+the audit's ✅ section. No action.
+
+### Summary
+
+| Tier | Files | Status |
+|---|---|---|
+| 1 — Identity | 5 | 3 done, **2 still Bluesky's** |
+| 2 — Trust/status | 5 | **all still Bluesky's** |
+| 3 — Blacksky-original | 8 | done; extend as the community program grows |
+| 4 — Large-format state | ~5 | licensed-clean once Layer 1 lands, but **the best character opportunity** |
+| 5 — Application marks | ~40 | done |
+
+**~12 files are genuinely required work** (tiers 1 and 2), and ~5 more (tier 4) are optional but
+disproportionately valuable. That is a commission an illustrator can scope in weeks, not months,
+and it's the same work the trademark cleanup demands anyway.
 
 ## Suggested sequence
 
