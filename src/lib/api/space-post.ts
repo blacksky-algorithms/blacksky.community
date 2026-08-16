@@ -4,6 +4,7 @@ import {type QueryClient} from '@tanstack/react-query'
 
 import {
   type PostOpts,
+  quotedSpace,
   resolveEmbed,
   resolveReply,
   resolveRT,
@@ -32,6 +33,25 @@ export async function postToSpace(
   const thread = opts.thread
   const langs = opts.langs?.slice(0, 3)
   const uris: string[] = []
+
+  if (thread.posts.some(draft => draft.embed.media)) {
+    throw new Error(
+      t`Photos, videos, and GIFs are not available in private spaces yet.`,
+    )
+  }
+
+  // Read access is uniform within a space but not across spaces, so quoting
+  // another space's post here would name a private post to people who cannot
+  // see it. Same space is fine — everyone reading this record can already read
+  // the quoted one.
+  const foreign = thread.posts
+    .map(p => quotedSpace(p.embed.quote?.uri))
+    .find(quoted => quoted && quoted !== space)
+  if (foreign) {
+    throw new Error(
+      t`This is a private post from another space. You can only quote it in a post to that space.`,
+    )
+  }
 
   // Threads are written in order: each reply refers to the space URI the host
   // returned for the post before it, so they cannot be batched.
@@ -81,6 +101,8 @@ export async function postToSpace(
       space,
       POST_COLLECTION,
       record,
+      undefined,
+      draft.id,
     )
 
     uris.push(written.uri)

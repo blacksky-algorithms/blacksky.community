@@ -67,6 +67,11 @@ import {
 } from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
+import {
+  isSpaceRecordUri,
+  parseSpaceRecordUri,
+  spaceUriOf,
+} from '#/lib/api/space-uri'
 import {SpaceUnsupportedError} from '#/lib/api/space-write'
 import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
@@ -406,6 +411,39 @@ export const ComposePost = ({
   )
 
   const thread = composerState.thread
+  const spaceTarget =
+    thread.communitySpaceUri ??
+    (isSpaceBackedFeed(thread.communityFeed?.config)
+      ? thread.communityFeed.config.space
+      : undefined)
+
+  useEffect(() => {
+    if (!spaceTarget) return
+    for (const post of thread.posts) {
+      const media = post.embed.media
+      if (media?.type === 'images' || media?.type === 'gallery') {
+        for (const image of media.images) {
+          composerDispatch({
+            type: 'update_post',
+            postId: post.id,
+            postAction: {type: 'embed_remove_image', image},
+          })
+        }
+      } else if (media?.type === 'video') {
+        composerDispatch({
+          type: 'update_post',
+          postId: post.id,
+          postAction: {type: 'embed_remove_video'},
+        })
+      } else if (media?.type === 'gif') {
+        composerDispatch({
+          type: 'update_post',
+          postId: post.id,
+          postAction: {type: 'embed_remove_gif'},
+        })
+      }
+    }
+  }, [spaceTarget, thread.posts])
 
   // Clear error when composer content changes, but only if all posts are
   // back within the character limit.
@@ -1154,7 +1192,7 @@ export const ComposePost = ({
       })
     }
     setLangPrefs.savePostLanguageToHistory()
-    if (initQuote) {
+    if (initQuote && !isSpaceRecordUri(initQuote.uri)) {
       // We want to wait for the quote count to update before we call `onPost`, which will refetch data
       void whenAppViewReady(agent, initQuote.uri, res => {
         const anchor = res.data.thread.at(0)
@@ -1188,17 +1226,33 @@ export const ComposePost = ({
             <Toast.Action
               label={l`View post`}
               onPress={() => {
-                const urip = new AtUri(postUri)
                 const params: {
                   name: string
                   rkey: string
                   collection?: string
-                } = {
-                  name: urip.host,
-                  rkey: urip.rkey,
-                }
-                if (urip.collection !== 'app.bsky.feed.post') {
-                  params.collection = urip.collection
+                  space?: string
+                } = (() => {
+                  // A space record uri is not an at-uri, so its parts come
+                  // from the space parser and the space itself travels as a
+                  // route param rather than in the path.
+                  const inSpace = parseSpaceRecordUri(postUri)
+                  if (inSpace) {
+                    return {
+                      name: inSpace.authorDid,
+                      rkey: inSpace.rkey,
+                      collection: inSpace.collection,
+                      space: spaceUriOf(inSpace),
+                    }
+                  }
+                  const urip = new AtUri(postUri)
+                  return {
+                    name: urip.host,
+                    rkey: urip.rkey,
+                    collection: urip.collection,
+                  }
+                })()
+                if (params.collection === 'app.bsky.feed.post') {
+                  delete params.collection
                 }
                 navigation.navigate('PostThread', params)
               }}>
@@ -1368,6 +1422,7 @@ export const ComposePost = ({
         languageNudgeAt={languageNudgeAt}
         openGallery={openGallery}
         textInputRef={textInputRef}
+        spaceMediaDisabled={!!spaceTarget}
       />
     </>
   )
@@ -2095,7 +2150,9 @@ function ComposerPills({
           />
         ) : null}
       </ScrollView>
-      {(thread.blackskyOnly || thread.communityFeedUri) && (
+      {(thread.blackskyOnly ||
+        thread.communityFeedUri ||
+        thread.communitySpaceUri) && (
         <View style={[a.justify_end, a.pl_sm, a.align_end]}>
           <CommunityOnlyBadge
             communitySpace={thread.communitySpaceUri ?? thread.communityFeedUri}
@@ -2117,6 +2174,7 @@ function ComposerFooter({
   languageNudgeAt,
   openGallery,
   textInputRef,
+  spaceMediaDisabled,
 }: {
   post: PostDraft
   dispatch: (action: PostAction) => void
@@ -2129,6 +2187,7 @@ function ComposerFooter({
   languageNudgeAt: number
   openGallery?: boolean
   textInputRef: React.RefObject<TextInputRef | null>
+  spaceMediaDisabled: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -2165,9 +2224,10 @@ function ComposerFooter({
 
   const onSelectGif = useCallback(
     (gif: Gif) => {
+      if (spaceMediaDisabled) return
       dispatch({type: 'embed_add_gif', gif})
     },
-    [dispatch],
+    [dispatch, spaceMediaDisabled],
   )
 
   /*
@@ -2179,6 +2239,7 @@ function ComposerFooter({
 
   const onSelectAssets = useCallback<SelectMediaButtonProps['onSelectAssets']>(
     async ({type, assets, errors}) => {
+      if (spaceMediaDisabled) return
       setSelectedAssetsType(type)
 
       if (assets.length) {
@@ -2215,7 +2276,7 @@ function ComposerFooter({
         })
       })
     },
-    [post.id, onSelectVideo, onImageAdd],
+    [post.id, onSelectVideo, onImageAdd, spaceMediaDisabled],
   )
 
   return (
@@ -2237,7 +2298,7 @@ function ComposerFooter({
           ) : (
             <ToolbarWrapper style={[a.flex_row, a.align_center, a.gap_xs]}>
               <SelectMediaButton
-                disabled={isMediaSelectionDisabled}
+                disabled={spaceMediaDisabled || isMediaSelectionDisabled}
                 allowedAssetTypes={selectedAssetsType}
                 selectedAssetsCount={selectedAssetsCount}
                 onSelectAssets={onSelectAssets}
@@ -2245,13 +2306,18 @@ function ComposerFooter({
               />
               <OpenCameraBtn
                 disabled={
-                  media?.type === 'images' || media?.type === 'gallery'
-                    ? isMaxImages
-                    : !!media
+                  spaceMediaDisabled
+                    ? true
+                    : media?.type === 'images' || media?.type === 'gallery'
+                      ? isMaxImages
+                      : !!media
                 }
                 onAdd={onImageAdd}
               />
-              <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
+              <SelectGifBtn
+                onSelectGif={onSelectGif}
+                disabled={spaceMediaDisabled || !!media}
+              />
               {IS_WEB && gtPhone ? (
                 <EmojiPicker.Root nextFocusRef={textInputRef}>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
@@ -2273,6 +2339,11 @@ function ComposerFooter({
             </ToolbarWrapper>
           )}
         </LayoutAnimationConfig>
+        {spaceMediaDisabled ? (
+          <Text style={[t.atoms.text_contrast_medium, a.text_sm, a.ml_sm]}>
+            <Trans>Media isn’t available in private spaces yet.</Trans>
+          </Text>
+        ) : null}
       </View>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         {showAddButton && (

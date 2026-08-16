@@ -11,8 +11,9 @@
  *
  * Deliberately dependency-free: the appview, the client and both syncers need
  * the same parser, and a copy that imports nothing can be vendored verbatim.
- * Kept byte-identical to the appview's copy at
- * `packages/bsky/src/api/community/blacksky/space-uri.ts` — change both.
+ * The appview keeps the same parser at
+ * `packages/bsky/src/api/community/blacksky/space-uri.ts`; the two differ only
+ * where each repo's formatter differs. Any behavioral change goes in both.
  */
 
 /** The literal segment that marks a URI as addressing permissioned data. */

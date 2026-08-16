@@ -18,6 +18,7 @@ import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
 import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {
@@ -177,6 +178,10 @@ let PostMenuItems = ({
   })
   const isReplyHiddenByThreadgate = threadgateHiddenReplies.has(postUri)
   const isPinned = post.viewer?.pinned
+  // Pinning writes the post's URI into the public profile record, so a space
+  // post cannot be pinned: the URI alone publishes that the private post
+  // exists, and who wrote it.
+  const canPin = !isSpaceRecordUri(postUri)
 
   const {mutateAsync: toggleQuoteDetachment, isPending: isDetachPending} =
     useToggleQuoteDetachmentMutation()
@@ -490,7 +495,7 @@ let PostMenuItems = ({
   return (
     <>
       <Menu.Outer>
-        {isAuthor && (
+        {isAuthor && canPin && (
           <>
             <Menu.Group>
               <Menu.Item

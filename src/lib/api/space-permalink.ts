@@ -9,6 +9,28 @@ import {POST_COLLECTION} from '#/lib/api/space-write'
  * the pieces do not add up — including when `author` is still a handle, which
  * the caller must resolve to a DID first, since the URI form admits only DIDs.
  */
+/**
+ * True when a link addresses a post inside a permissioned space.
+ *
+ * A space permalink is an ordinary-looking post URL — the space rides in
+ * `?space=`, so nothing about the path distinguishes it. Anything that decides
+ * where a post is written has to test the link form as well as the at:// form,
+ * because a pasted link is still a link when it reaches the composer.
+ */
+export function spaceOfPostUrl(url?: string | null): string | null {
+  if (!url) return null
+  try {
+    const space = new URL(url, 'http://_').searchParams.get('space')
+    return parseSpaceUri(space) ? space : null
+  } catch {
+    return null
+  }
+}
+
+export function isSpacePostUrl(url?: string | null): boolean {
+  return !!spaceOfPostUrl(url)
+}
+
 export function spacePostUriFromRoute(
   space: string | undefined,
   author: string,

@@ -32,8 +32,9 @@ import {
   isSpaceBackedFeed,
 } from '#/lib/api/community-feed'
 import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {spaceOfPostUrl} from '#/lib/api/space-permalink'
 import {postToSpace} from '#/lib/api/space-post'
-import {isSpaceRecordUri} from '#/lib/api/space-uri'
+import {isSpaceRecordUri, spaceOfRecordUri} from '#/lib/api/space-uri'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -60,6 +61,25 @@ export {uploadBlob}
 
 const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 
+/**
+ * The space a quote belongs to, whichever form it is in — a pasted permalink
+ * carries the space in `?space=` and is only expanded to its at:// form at
+ * publish, long after routing has decided where the post goes.
+ */
+export function quotedSpace(uri?: string | null): string | null {
+  return spaceOfRecordUri(uri) ?? spaceOfPostUrl(uri)
+}
+
+function embedNamesSpaceRecord(embed: unknown): boolean {
+  if (!embed || typeof embed !== 'object') return false
+  const record = (embed as {record?: unknown}).record
+  if (!record || typeof record !== 'object') return false
+  const uri =
+    (record as {uri?: unknown}).uri ??
+    (record as {record?: {uri?: unknown}}).record?.uri
+  return typeof uri === 'string' && isSpaceRecordUri(uri)
+}
+
 export interface PostOpts {
   thread: ThreadDraft
   replyTo?: string
@@ -78,6 +98,7 @@ export async function post(
   if (thread.communitySpaceUri) {
     return postToSpace(agent, queryClient, thread.communitySpaceUri, opts)
   }
+
   if (!thread.communityFeed && thread.communityFeedUri) {
     const target = await fetchCommunityFeedTarget(
       agent,
@@ -99,6 +120,19 @@ export async function post(
   const config = thread.communityFeed?.config
   if (isSpaceBackedFeed(config)) {
     return postToSpace(agent, queryClient, config.space, opts)
+  }
+
+  // Past this point the post is going to a public or community repo, not into
+  // any space, so nothing it carries may name one. A quote reaches the composer
+  // as a pasted link and is only expanded to its at:// form at publish, by
+  // which time the routing decision is made — so both forms are refused here,
+  // together. Without this a pasted space permalink rides `postCommunity`'s
+  // stub embed into the author's public repo, publishing the existence of a
+  // private post.
+  if (thread.posts.some(p => quotedSpace(p.embed.quote?.uri))) {
+    throw new Error(
+      t`This is a private post. You can only quote it in a post to that space.`,
+    )
   }
 
   // Route to community post endpoint if the user explicitly toggled
@@ -466,6 +500,14 @@ async function postCommunity(
     // stub so external-thumb / image / video / gallery blobs stay alive for
     // the post's lifetime. Text / facets / langs / reply remain appview-only.
     if (embed) {
+      // The stub goes to the author's public repo, so it is the last place a
+      // space URI could leak from. The routing guard in `post` already refuses
+      // these; this is the invariant restated where the write happens.
+      if (embedNamesSpaceRecord(embed)) {
+        throw new Error(
+          t`This is a private post. You can only quote it in a post to that space.`,
+        )
+      }
       stubRecord.embed = embed
     }
 
@@ -544,6 +586,23 @@ export class ReplyDeletedError extends Error {
   }
 }
 
+/**
+ * The reply refs a caller gets back from the non-space branches go straight
+ * into a public `app.bsky.feed.post`, so a thread root that turns out to name a
+ * space has to stop here: the space branch above is the only one allowed to
+ * return one.
+ */
+function refusePublicSpaceRefs<
+  T extends {root: {uri: string}; parent: {uri: string}},
+>(refs: T): T {
+  if (isSpaceRecordUri(refs.root.uri) || isSpaceRecordUri(refs.parent.uri)) {
+    throw new Error(
+      t`This is a private post. You can only reply to it in that space.`,
+    )
+  }
+  return refs
+}
+
 export async function resolveReply(agent: AtpAgent, replyTo: string) {
   // Space records first: they are not at-uris, so AtUri would misparse one.
   // The parent is read back through the appview, which is the only read path
@@ -591,7 +650,7 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
         parentRootRef?.uri && parentRootRef?.cid
           ? {uri: parentRootRef.uri, cid: parentRootRef.cid}
           : parentRef
-      return {root: rootRef, parent: parentRef}
+      return refusePublicSpaceRefs({root: rootRef, parent: parentRef})
     }
     return undefined
   }
@@ -622,10 +681,10 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
     }
   }
 
-  return {
+  return refusePublicSpaceRefs({
     root: rootRef,
     parent: parentRef,
-  }
+  })
 }
 
 export async function resolveEmbed(

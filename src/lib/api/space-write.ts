@@ -20,7 +20,6 @@ import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 
 export const SPACE_CREATE_RECORD = 'com.atproto.space.createRecord'
 export const SPACE_DELETE_RECORD = 'com.atproto.space.deleteRecord'
-export const SPACE_UPLOAD_BLOB = 'com.atproto.space.uploadBlob'
 
 export const POST_COLLECTION = 'app.bsky.feed.post'
 export const LIKE_COLLECTION = 'app.bsky.feed.like'
@@ -72,12 +71,14 @@ export async function spaceCreateRecord(
   collection: string,
   record: Record<string, unknown>,
   rkey?: string,
+  idempotencyKey?: string,
 ): Promise<SpaceWriteResult> {
   const response = await spaceXrpc(agent, SPACE_CREATE_RECORD, {
     space,
     collection,
     record,
     ...(rkey ? {rkey} : {}),
+    ...(idempotencyKey ? {idempotencyKey} : {}),
   })
   if (!response.ok) return failure(response)
   const data = (await response.json()) as Partial<SpaceWriteResult>
