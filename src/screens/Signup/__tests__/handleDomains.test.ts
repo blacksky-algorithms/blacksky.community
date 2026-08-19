@@ -42,7 +42,23 @@ describe('filterUserDomains', () => {
     ).toEqual(['.medsky.network'])
   })
 
-  it('returns nothing when no advertised domain matches the community', () => {
-    expect(filterUserDomains(['.blacksky.app'], ['.latinsky.app'])).toEqual([])
+  it('falls back to the advertised domains when nothing intersects', () => {
+    expect(filterUserDomains(['.blacksky.app'], ['.latinsky.app'])).toEqual([
+      '.blacksky.app',
+    ])
+  })
+
+  it('never returns an empty list while the PDS advertises a domain', () => {
+    // Reachable today: picking a community and then switching the hosting
+    // provider leaves the community slug and the PDS pointing at different
+    // servers, so the two lists can disagree entirely.
+    const cases: [string[], string[]][] = [
+      [['.bsky.social'], ['.latinsky.app', '.afrolatinsky.app']],
+      [['.medsky.network'], ['.blacksky.app']],
+    ]
+
+    for (const [domains, allowed] of cases) {
+      expect(filterUserDomains(domains, allowed)).toEqual(domains)
+    }
   })
 })
