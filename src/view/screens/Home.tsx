@@ -1,7 +1,19 @@
-import {useCallback, useEffect, useLayoutEffect, useMemo, useRef} from 'react'
-import {ActivityIndicator, StyleSheet} from 'react-native'
-import {Trans} from '@lingui/react/macro'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import {
+  ActivityIndicator,
+  BackHandler,
+  Pressable,
+  StyleSheet,
+} from 'react-native'
 import {withSpring} from 'react-native-reanimated'
+import {Trans} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
@@ -23,12 +35,13 @@ import {type FeedDescriptor, type FeedParams} from '#/state/queries/post-feed'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {type UsePreferencesQueryResponse} from '#/state/queries/preferences/types'
 import {useSession} from '#/state/session'
+import {useHomeView} from '#/state/shell'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
-import {useHomeView} from '#/state/shell'
 import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
 import {FeedPage} from '#/view/com/feeds/FeedPage'
 import {HomeHeader} from '#/view/com/home/HomeHeader'
+import {TileBoard} from '#/view/com/home/TileBoard'
 import {
   Pager,
   type PagerRef,
@@ -43,6 +56,7 @@ import {
 } from '#/view/com/util/MainScrollProvider'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import * as Layout from '#/components/Layout'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_LIQUID_GLASS, IS_WEB} from '#/env'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
@@ -111,12 +125,14 @@ export function HomeScreen(props: Props) {
 function HomeScreenReady({
   preferences,
   pinnedFeedInfos,
+  navigation,
 }: Props & {
   preferences: UsePreferencesQueryResponse
   pinnedFeedInfos: SavedFeedSourceInfo[]
 }) {
   const ax = useAnalytics()
   const homeView = useHomeView()
+  const [feedOpen, setFeedOpen] = useState(false)
   const brand = useBrand()
   const allFeeds = useMemo(
     () => pinnedFeedInfos.map(f => f.feedDescriptor),
@@ -260,11 +276,33 @@ function HomeScreenReady({
     }
   }, [preferences])
 
-  if (!IS_WEB && homeView === 'board') {
+  const openFeed = useCallback(
+    (feedInfo: SavedFeedSourceInfo) => {
+      setSelectedFeed(feedInfo.feedDescriptor)
+      setFeedOpen(true)
+    },
+    [setSelectedFeed],
+  )
+
+  useEffect(() => {
+    if (IS_WEB || homeView !== 'board' || !feedOpen) return
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        setFeedOpen(false)
+        return true
+      },
+    )
+    return () => subscription.remove()
+  }, [feedOpen, homeView])
+
+  if (!IS_WEB && homeView === 'board' && !feedOpen) {
     return (
-      <Layout.Center>
-        <Trans>Home board</Trans>
-      </Layout.Center>
+      <TileBoard
+        feeds={pinnedFeedInfos}
+        onSelectFeed={openFeed}
+        onDiscover={() => navigation.navigate('Feeds')}
+      />
     )
   }
 
@@ -297,58 +335,70 @@ function HomeScreenReady({
   }
 
   return hasSession ? (
-    <Pager
-      key={allFeeds.join(',')}
-      ref={pagerRef}
-      testID="homeScreen"
-      initialPage={selectedIndex}
-      onPageSelected={onPageSelected}
-      onPageScrollStateChanged={onPageScrollStateChanged}
-      renderTabBar={renderTabBar}>
-      {pinnedFeedInfos.length ? (
-        pinnedFeedInfos.map((feedInfo, index) => {
-          const feed = feedInfo.feedDescriptor
-          if (feed === 'following') {
+    <>
+      {!IS_WEB && homeView === 'board' && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setFeedOpen(false)}
+          style={styles.backToTiles}>
+          <Text>
+            <Trans>Back to tiles</Trans>
+          </Text>
+        </Pressable>
+      )}
+      <Pager
+        key={allFeeds.join(',')}
+        ref={pagerRef}
+        testID="homeScreen"
+        initialPage={selectedIndex}
+        onPageSelected={onPageSelected}
+        onPageScrollStateChanged={onPageScrollStateChanged}
+        renderTabBar={renderTabBar}>
+        {pinnedFeedInfos.length ? (
+          pinnedFeedInfos.map((feedInfo, index) => {
+            const feed = feedInfo.feedDescriptor
+            if (feed === 'following') {
+              return (
+                <FeedPage
+                  key={feed}
+                  testID="followingFeedPage"
+                  isPageFocused={maybeSelectedFeed === feed}
+                  isPageAdjacent={Math.abs(selectedIndex - index) === 1}
+                  feed={feed}
+                  feedParams={homeFeedParams}
+                  renderEmptyState={renderFollowingEmptyState}
+                  renderEndOfFeed={FollowingEndOfFeed}
+                  feedInfo={feedInfo}
+                />
+              )
+            }
+            if (feed === 'community') {
+              return (
+                <CommunityFeedPage
+                  key={feed}
+                  isPageFocused={maybeSelectedFeed === feed}
+                />
+              )
+            }
+            const savedFeedConfig = feedInfo.savedFeed
             return (
               <FeedPage
                 key={feed}
-                testID="followingFeedPage"
+                testID="customFeedPage"
                 isPageFocused={maybeSelectedFeed === feed}
                 isPageAdjacent={Math.abs(selectedIndex - index) === 1}
                 feed={feed}
-                feedParams={homeFeedParams}
-                renderEmptyState={renderFollowingEmptyState}
-                renderEndOfFeed={FollowingEndOfFeed}
+                renderEmptyState={renderCustomFeedEmptyState}
+                savedFeedConfig={savedFeedConfig}
                 feedInfo={feedInfo}
               />
             )
-          }
-          if (feed === 'community') {
-            return (
-              <CommunityFeedPage
-                key={feed}
-                isPageFocused={maybeSelectedFeed === feed}
-              />
-            )
-          }
-          const savedFeedConfig = feedInfo.savedFeed
-          return (
-            <FeedPage
-              key={feed}
-              testID="customFeedPage"
-              isPageFocused={maybeSelectedFeed === feed}
-              isPageAdjacent={Math.abs(selectedIndex - index) === 1}
-              feed={feed}
-              renderEmptyState={renderCustomFeedEmptyState}
-              savedFeedConfig={savedFeedConfig}
-              feedInfo={feedInfo}
-            />
-          )
-        })
-      ) : (
-        <NoFeedsPinned preferences={preferences} />
-      )}
-    </Pager>
+          })
+        ) : (
+          <NoFeedsPinned preferences={preferences} />
+        )}
+      </Pager>
+    </>
   ) : (
     <Pager
       testID="homeScreen"
@@ -387,5 +437,9 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     paddingBottom: 100,
+  },
+  backToTiles: {
+    alignSelf: 'center',
+    marginVertical: 8,
   },
 })
