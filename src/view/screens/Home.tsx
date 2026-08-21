@@ -28,6 +28,7 @@ import {
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {emitSoftReset, listenSoftReset} from '#/state/events'
+import * as persisted from '#/state/persisted'
 import {useCommunityMembership} from '#/state/queries/community-membership'
 import {
   type SavedFeedSourceInfo,
@@ -41,7 +42,6 @@ import {
 import {type UsePreferencesQueryResponse} from '#/state/queries/preferences/types'
 import {useSession} from '#/state/session'
 import {useHomeView} from '#/state/shell'
-import * as persisted from '#/state/persisted'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
 import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
@@ -349,7 +349,29 @@ function HomeScreenReady({
       <TileBoard
         feeds={pinnedFeedInfos}
         onSelectFeed={openFeed}
+        onReorderFeeds={reordered => {
+          if (overwriteSavedFeeds.isPending) return
+          const byId = new Map(preferences.savedFeeds.map(sf => [sf.id, sf]))
+          const pinnedInOrder = reordered.flatMap(f => {
+            const saved = byId.get(f.savedFeed.id)
+            return saved ? [saved] : []
+          })
+          const unpinned = preferences.savedFeeds.filter(sf => !sf.pinned)
+          overwriteSavedFeeds.mutate([...pinnedInOrder, ...unpinned])
+        }}
+        onUnpinFeed={feed => {
+          if (overwriteSavedFeeds.isPending) return
+          const target = preferences.savedFeeds.find(
+            sf => sf.id === feed.savedFeed.id,
+          )
+          if (!target) return
+          overwriteSavedFeeds.mutate([
+            ...preferences.savedFeeds.filter(sf => sf.id !== target.id),
+            {...target, pinned: false},
+          ])
+        }}
         onDiscover={() => navigation.navigate('Feeds')}
+        onManageFeeds={() => navigation.navigate('SavedFeeds')}
       />
     )
   }
