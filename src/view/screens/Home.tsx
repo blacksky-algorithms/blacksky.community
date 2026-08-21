@@ -319,10 +319,15 @@ function HomeScreenReady({
 
   const openFeed = useCallback(
     (feedInfo: SavedFeedSourceInfo) => {
+      if (feedInfo.route.name !== 'Home') {
+        // @ts-ignore dynamic route name, not statically checkable
+        navigation.navigate(feedInfo.route.name, feedInfo.route.params)
+        return
+      }
       setSelectedFeed(feedInfo.feedDescriptor)
       setFeedOpen(true)
     },
-    [setSelectedFeed],
+    [navigation, setSelectedFeed],
   )
 
   useEffect(() => {
