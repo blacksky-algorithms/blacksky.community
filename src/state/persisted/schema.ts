@@ -146,6 +146,7 @@ const schema = z.object({
   showLinkInHandle: z.boolean().optional(),
   blackskyOnlyDefault: z.boolean().optional(),
   homeView: z.enum(['pager', 'board']).optional(),
+  communityFeedMigrated: z.boolean().optional(),
 
   /** @deprecated */
   mutedThreads: z.array(z.string()),
@@ -207,6 +208,7 @@ export const defaults: Schema = {
   hideFollowNotifications: false,
   showLinkInHandle: false,
   homeView: 'pager',
+  communityFeedMigrated: false,
 }
 
 export function tryParse(rawData: string): Schema | undefined {

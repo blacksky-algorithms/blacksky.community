@@ -13,6 +13,7 @@ import {
   StyleSheet,
 } from 'react-native'
 import {withSpring} from 'react-native-reanimated'
+import {TID} from '@atproto/common-web'
 import {Trans} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
@@ -26,16 +27,21 @@ import {
   type HomeTabNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
-import {emitSoftReset} from '#/state/events'
+import {emitSoftReset, listenSoftReset} from '#/state/events'
+import {useCommunityMembership} from '#/state/queries/community-membership'
 import {
   type SavedFeedSourceInfo,
   usePinnedFeedsInfos,
 } from '#/state/queries/feed'
 import {type FeedDescriptor, type FeedParams} from '#/state/queries/post-feed'
-import {usePreferencesQuery} from '#/state/queries/preferences'
+import {
+  useOverwriteSavedFeedsMutation,
+  usePreferencesQuery,
+} from '#/state/queries/preferences'
 import {type UsePreferencesQueryResponse} from '#/state/queries/preferences/types'
 import {useSession} from '#/state/session'
 import {useHomeView} from '#/state/shell'
+import * as persisted from '#/state/persisted'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
 import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
@@ -133,6 +139,11 @@ function HomeScreenReady({
   const ax = useAnalytics()
   const homeView = useHomeView()
   const [feedOpen, setFeedOpen] = useState(false)
+  const [communityFeedMigrated, setCommunityFeedMigrated] = useState(
+    () => persisted.get('communityFeedMigrated') ?? false,
+  )
+  const {data: isCommunityMember = false} = useCommunityMembership()
+  const overwriteSavedFeeds = useOverwriteSavedFeedsMutation()
   const brand = useBrand()
   const allFeeds = useMemo(
     () => pinnedFeedInfos.map(f => f.feedDescriptor),
@@ -152,6 +163,36 @@ function HomeScreenReady({
   useEffect(() => {
     requestNotificationsPermission('Home')
   }, [requestNotificationsPermission])
+
+  useEffect(() => {
+    if (
+      !COMMUNITY_FEED_URI ||
+      !isCommunityMember ||
+      communityFeedMigrated ||
+      overwriteSavedFeeds.isPending ||
+      preferences.savedFeeds.some(feed => feed.value === COMMUNITY_FEED_URI)
+    ) {
+      return
+    }
+    const savedFeeds = [...preferences.savedFeeds]
+    savedFeeds.splice(Math.min(1, savedFeeds.length), 0, {
+      id: TID.nextStr(),
+      type: 'feed',
+      value: COMMUNITY_FEED_URI,
+      pinned: true,
+    })
+    overwriteSavedFeeds.mutate(savedFeeds, {
+      onSuccess: () => {
+        setCommunityFeedMigrated(true)
+        void persisted.write('communityFeedMigrated', true)
+      },
+    })
+  }, [
+    communityFeedMigrated,
+    isCommunityMember,
+    overwriteSavedFeeds,
+    preferences.savedFeeds,
+  ])
 
   const pagerRef = useRef<PagerRef>(null)
   const lastPagerReportedIndexRef = useRef(selectedIndex)
@@ -294,6 +335,13 @@ function HomeScreenReady({
       },
     )
     return () => subscription.remove()
+  }, [feedOpen, homeView])
+
+  useEffect(() => {
+    if (IS_WEB || homeView !== 'board') return
+    return listenSoftReset(() => {
+      if (feedOpen) setFeedOpen(false)
+    })
   }, [feedOpen, homeView])
 
   if (!IS_WEB && homeView === 'board' && !feedOpen) {
