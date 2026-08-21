@@ -439,7 +439,7 @@ export async function pollLatest(page: FeedPage | undefined) {
   return false
 }
 
-function createApi({
+export function createApi({
   feedDesc,
   feedParams,
   feedTuners,

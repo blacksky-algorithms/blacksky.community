@@ -5,6 +5,7 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {type SavedFeedSourceInfo} from '#/state/queries/feed'
+import {useFeedPeekQuery} from '#/state/queries/feed-peek'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 import {deriveTileSpan, layoutHeight, packLayout} from './layout'
@@ -67,12 +68,7 @@ export function TileBoard({
               <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
                 {feed.displayName}
               </Text>
-              <Text
-                style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
-                numberOfLines={2}
-                maxFontSizeMultiplier={1.3}>
-                <Trans>Open feed</Trans>
-              </Text>
+              <TilePreview feed={feed} enabled={index < 4} />
             </Pressable>
           )
         })}
@@ -97,5 +93,41 @@ export function TileBoard({
         )}
       </View>
     </View>
+  )
+}
+
+function TilePreview({
+  feed,
+  enabled,
+}: {
+  feed: SavedFeedSourceInfo
+  enabled: boolean
+}) {
+  const t = useTheme()
+  const query = useFeedPeekQuery(feed.feedDescriptor, enabled)
+  if (query.isError) {
+    return (
+      <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
+        <Trans>Unable to load this feed.</Trans>
+      </Text>
+    )
+  }
+  const post = query.data?.[0]
+  if (query.isSuccess && !post) {
+    return (
+      <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
+        <Trans>Quiet feed</Trans>
+      </Text>
+    )
+  }
+  return (
+    <Text
+      style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
+      numberOfLines={2}
+      maxFontSizeMultiplier={1.3}>
+      {post && 'text' in post.record
+        ? String(post.record.text)
+        : <Trans>Open feed</Trans>}
+    </Text>
   )
 }
