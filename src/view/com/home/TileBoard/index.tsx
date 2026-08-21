@@ -16,18 +16,11 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
-import {HITSLOP_10} from '#/lib/constants'
-import {emitSoftReset} from '#/state/events'
 import {type SavedFeedSourceInfo} from '#/state/queries/feed'
 import {useFeedPeekQuery} from '#/state/queries/feed-peek'
-import {useSession} from '#/state/session'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
-import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
-import {ButtonIcon} from '#/components/Button'
-import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
-import {Link} from '#/components/Link'
 import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
@@ -102,13 +95,12 @@ export function TileBoard({
 
   return (
     <View style={a.flex_1}>
-      <BoardHeader />
       <Animated.ScrollView
       ref={scrollRef}
       style={a.flex_1}
       scrollEnabled={!isDragging}
       contentContainerStyle={[a.pt_md, a.pb_3xl]}>
-      <Layout.Center style={a.px_lg}>
+      <View style={[a.px_lg, a.w_full]}>
       <View
         style={a.w_full}
         onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}
@@ -210,49 +202,9 @@ export function TileBoard({
           </Pressable>
         )}
       </View>
-    </Layout.Center>
+    </View>
     </Animated.ScrollView>
     </View>
-  )
-}
-
-function BoardHeader() {
-  const {_} = useLingui()
-  const {hasSession} = useSession()
-  return (
-    <Layout.Header.Outer noBottomBorder>
-      <Layout.Header.Slot>
-        <Layout.Header.MenuButton />
-      </Layout.Header.Slot>
-      <View style={[a.flex_1, a.align_center]}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={_(msg`Scroll to top`)}
-          accessibilityHint=""
-          onPress={() => emitSoftReset()}>
-          <Logo width={30} />
-        </Pressable>
-      </View>
-      <Layout.Header.Slot>
-        {hasSession && (
-          <Link
-            to={{screen: 'Feeds'}}
-            hitSlop={HITSLOP_10}
-            label={_(msg`View your feeds and explore more`)}
-            size="small"
-            variant="ghost"
-            color="secondary"
-            shape="square"
-            style={[
-              a.justify_center,
-              {marginRight: -Layout.BUTTON_VISUAL_ALIGNMENT_OFFSET},
-              a.bg_transparent,
-            ]}>
-            <ButtonIcon icon={FeedsIcon} size="lg" />
-          </Link>
-        )}
-      </Layout.Header.Slot>
-    </Layout.Header.Outer>
   )
 }
 
