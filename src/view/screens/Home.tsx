@@ -47,7 +47,7 @@ import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
 import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
 import {FeedPage} from '#/view/com/feeds/FeedPage'
-import {HomeHeader} from '#/view/com/home/HomeHeader'
+import {HomeHeader, HomeHeaderShell} from '#/view/com/home/HomeHeader'
 import {TileBoard} from '#/view/com/home/TileBoard'
 import {
   Pager,
@@ -358,46 +358,53 @@ function HomeScreenReady({
 
   if (homeView === 'board' && !feedOpen) {
     return (
-      <TileBoard
-        feeds={pinnedFeedInfos}
-        onSelectFeed={openFeed}
-        onSelectVideo={(feed, postUri) => {
-          const [descriptorType, feedUri] = feed.feedDescriptor.split('|')
-          if (descriptorType !== 'feedgen' || !feedUri) {
-            openFeed(feed)
-            return
-          }
-          navigation.navigate('VideoFeed', {
-            type: 'feedgen',
-            uri: feedUri,
-            sourceInterstitial: 'none',
-            initialPostUri: postUri,
-          })
-        }}
-        onReorderFeeds={reordered => {
-          if (overwriteSavedFeeds.isPending) return
-          const byId = new Map(preferences.savedFeeds.map(sf => [sf.id, sf]))
-          const pinnedInOrder = reordered.flatMap(f => {
-            const saved = byId.get(f.savedFeed.id)
-            return saved ? [saved] : []
-          })
-          const unpinned = preferences.savedFeeds.filter(sf => !sf.pinned)
-          overwriteSavedFeeds.mutate([...pinnedInOrder, ...unpinned])
-        }}
-        onUnpinFeed={feed => {
-          if (overwriteSavedFeeds.isPending) return
-          const target = preferences.savedFeeds.find(
-            sf => sf.id === feed.savedFeed.id,
-          )
-          if (!target) return
-          overwriteSavedFeeds.mutate([
-            ...preferences.savedFeeds.filter(sf => sf.id !== target.id),
-            {...target, pinned: false},
-          ])
-        }}
-        onDiscover={() => navigation.navigate('Feeds')}
-        onManageFeeds={() => navigation.navigate('SavedFeeds')}
-      />
+      <>
+        <HomeHeaderShell />
+        <Layout.Center style={{flex: 1}}>
+          <TileBoard
+            feeds={pinnedFeedInfos}
+            onSelectFeed={openFeed}
+            onSelectVideo={(feed, postUri) => {
+              const [descriptorType, feedUri] = feed.feedDescriptor.split('|')
+              if (descriptorType !== 'feedgen' || !feedUri) {
+                openFeed(feed)
+                return
+              }
+              navigation.navigate('VideoFeed', {
+                type: 'feedgen',
+                uri: feedUri,
+                sourceInterstitial: 'none',
+                initialPostUri: postUri,
+              })
+            }}
+            onReorderFeeds={reordered => {
+              if (overwriteSavedFeeds.isPending) return
+              const byId = new Map(
+                preferences.savedFeeds.map(sf => [sf.id, sf]),
+              )
+              const pinnedInOrder = reordered.flatMap(f => {
+                const saved = byId.get(f.savedFeed.id)
+                return saved ? [saved] : []
+              })
+              const unpinned = preferences.savedFeeds.filter(sf => !sf.pinned)
+              overwriteSavedFeeds.mutate([...pinnedInOrder, ...unpinned])
+            }}
+            onUnpinFeed={feed => {
+              if (overwriteSavedFeeds.isPending) return
+              const target = preferences.savedFeeds.find(
+                sf => sf.id === feed.savedFeed.id,
+              )
+              if (!target) return
+              overwriteSavedFeeds.mutate([
+                ...preferences.savedFeeds.filter(sf => sf.id !== target.id),
+                {...target, pinned: false},
+              ])
+            }}
+            onDiscover={() => navigation.navigate('Feeds')}
+            onManageFeeds={() => navigation.navigate('SavedFeeds')}
+          />
+        </Layout.Center>
+      </>
     )
   }
 
@@ -467,7 +474,7 @@ function HomeScreenReady({
                 />
               )
             }
-          if (feed === 'community' && !COMMUNITY_FEED_URI) {
+            if (feed === 'community' && !COMMUNITY_FEED_URI) {
               return (
                 <CommunityFeedPage
                   key={feed}

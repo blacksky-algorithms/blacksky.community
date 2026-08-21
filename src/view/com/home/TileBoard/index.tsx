@@ -36,7 +36,6 @@ import {deriveTileSpan, layoutHeight, packLayout, type TileSpan} from './layout'
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
 const TILE_RADIUS = 18
-const WEB_BOARD_MAX_WIDTH = 600
 
 export function TileBoard({
   feeds,
@@ -59,7 +58,7 @@ export function TileBoard({
   const {_} = useLingui()
   const t = useTheme()
   const [boardWidth, setBoardWidth] = useState(() =>
-    Math.min(width - 32, IS_WEB ? WEB_BOARD_MAX_WIDTH - 32 : Infinity),
+    Math.min(width - 32, Layout.CENTER_COLUMN_WIDTH - 32),
   )
   const [firstBatchDone, setFirstBatchDone] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -108,12 +107,8 @@ export function TileBoard({
       ref={scrollRef}
       style={a.flex_1}
       scrollEnabled={!isDragging}
-      contentContainerStyle={[
-        a.px_lg,
-        a.pt_md,
-        a.pb_3xl,
-        IS_WEB && [a.w_full, a.self_center, {maxWidth: WEB_BOARD_MAX_WIDTH}],
-      ]}>
+      contentContainerStyle={[a.pt_md, a.pb_3xl]}>
+      <Layout.Center style={a.px_lg}>
       <View
         style={a.w_full}
         onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}
@@ -215,6 +210,7 @@ export function TileBoard({
           </Pressable>
         )}
       </View>
+    </Layout.Center>
     </Animated.ScrollView>
     </View>
   )
