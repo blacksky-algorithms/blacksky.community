@@ -1,3 +1,5 @@
+import {AppBskyFeedDefs} from '@atproto/api'
+
 import {type SavedFeedSourceInfo} from '#/state/queries/feed'
 
 export type TileSpan = 1 | 2
@@ -14,7 +16,9 @@ export function deriveTileSpan(
   index: number,
   feed: Pick<SavedFeedSourceInfo, 'contentMode'>,
 ): TileSpan {
-  return index === 0 || feed.contentMode === 'video' ? 2 : 1
+  return index === 0 || feed.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO
+    ? 2
+    : 1
 }
 
 export function packLayout(

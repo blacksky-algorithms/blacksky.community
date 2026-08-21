@@ -1,3 +1,5 @@
+import {AppBskyFeedDefs} from '@atproto/api'
+
 import {deriveTileSpan, layoutHeight, packLayout} from '../layout'
 
 describe('packLayout', () => {
@@ -20,7 +22,9 @@ describe('packLayout', () => {
 describe('deriveTileSpan', () => {
   it('makes the first and video feeds wide', () => {
     expect(deriveTileSpan(0, {contentMode: undefined})).toBe(2)
-    expect(deriveTileSpan(2, {contentMode: 'video'})).toBe(2)
+    expect(
+      deriveTileSpan(2, {contentMode: AppBskyFeedDefs.CONTENTMODEVIDEO}),
+    ).toBe(2)
     expect(deriveTileSpan(2, {contentMode: undefined})).toBe(1)
   })
 })

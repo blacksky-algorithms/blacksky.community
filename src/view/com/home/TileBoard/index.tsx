@@ -10,6 +10,8 @@ import Animated, {
   useAnimatedRef,
   useScrollViewOffset,
 } from 'react-native-reanimated'
+import {Image} from 'expo-image'
+import {AppBskyEmbedVideo, AppBskyFeedDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -29,6 +31,7 @@ const TILE_HEIGHT = 160
 export function TileBoard({
   feeds,
   onSelectFeed,
+  onSelectVideo,
   onReorderFeeds,
   onUnpinFeed,
   onDiscover,
@@ -36,6 +39,7 @@ export function TileBoard({
 }: {
   feeds: SavedFeedSourceInfo[]
   onSelectFeed: (feed: SavedFeedSourceInfo) => void
+  onSelectVideo: (feed: SavedFeedSourceInfo, postUri: string) => void
   onReorderFeeds: (feeds: SavedFeedSourceInfo[]) => void
   onUnpinFeed: (feed: SavedFeedSourceInfo) => void
   onDiscover: () => void
@@ -133,6 +137,9 @@ export function TileBoard({
               onPress={() => {
                 if (!isEditing) onSelectFeed(feed)
               }}
+              onPressVideo={postUri => {
+                if (!isEditing) onSelectVideo(feed, postUri)
+              }}
               onLongPress={() => setIsEditing(true)}
               onUnpin={() => onUnpinFeed(feed)}
             />
@@ -173,6 +180,7 @@ function Tile({
   isEditing,
   enabled,
   onPress,
+  onPressVideo,
   onLongPress,
   onUnpin,
 }: {
@@ -180,6 +188,7 @@ function Tile({
   isEditing: boolean
   enabled: boolean
   onPress: () => void
+  onPressVideo: (postUri: string) => void
   onLongPress: () => void
   onUnpin: () => void
 }) {
@@ -205,7 +214,12 @@ function Tile({
       <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
         {feed.displayName}
       </Text>
-      <TilePreview feed={feed} enabled={enabled} />
+      <TilePreview
+        feed={feed}
+        enabled={enabled}
+        isEditing={isEditing}
+        onPressVideo={onPressVideo}
+      />
       {isEditing && (
         <Pressable
           accessibilityRole="button"
@@ -231,9 +245,13 @@ function Tile({
 function TilePreview({
   feed,
   enabled,
+  isEditing,
+  onPressVideo,
 }: {
   feed: SavedFeedSourceInfo
   enabled: boolean
+  isEditing: boolean
+  onPressVideo: (postUri: string) => void
 }) {
   const t = useTheme()
   const query = useFeedPeekQuery(feed.feedDescriptor, enabled)
@@ -251,6 +269,20 @@ function TilePreview({
         <Trans>Quiet feed</Trans>
       </Text>
     )
+  }
+  if (feed.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO) {
+    const videoPosts = (query.data ?? []).filter(p =>
+      AppBskyEmbedVideo.isView(p.embed),
+    )
+    if (videoPosts.length > 0) {
+      return (
+        <VideoTilePreview
+          posts={videoPosts}
+          isEditing={isEditing}
+          onPressVideo={onPressVideo}
+        />
+      )
+    }
   }
   return (
     <View style={[a.mt_sm, a.gap_xs]}>
@@ -274,6 +306,44 @@ function TilePreview({
           <Trans>Open feed</Trans>
         )}
       </Text>
+    </View>
+  )
+}
+
+function VideoTilePreview({
+  posts,
+  isEditing,
+  onPressVideo,
+}: {
+  posts: AppBskyFeedDefs.PostView[]
+  isEditing: boolean
+  onPressVideo: (postUri: string) => void
+}) {
+  const {_} = useLingui()
+  const t = useTheme()
+  return (
+    <View style={[a.flex_row, a.gap_sm, a.mt_sm, a.flex_1]}>
+      {posts.slice(0, 2).map(post => {
+        const embed = post.embed
+        if (!AppBskyEmbedVideo.isView(embed)) return null
+        return (
+          <Pressable
+            key={post.uri}
+            accessibilityRole="button"
+            accessibilityLabel={_(msg`Video by ${post.author.handle}`)}
+            accessibilityHint={_(msg`Opens this video`)}
+            disabled={isEditing}
+            onPress={() => onPressVideo(post.uri)}
+            style={[a.flex_1, a.rounded_sm, a.overflow_hidden, t.atoms.bg_contrast_100]}>
+            <Image
+              source={{uri: embed.thumbnail}}
+              style={[a.flex_1]}
+              contentFit="cover"
+              accessibilityIgnoresInvertColors
+            />
+          </Pressable>
+        )
+      })}
     </View>
   )
 }

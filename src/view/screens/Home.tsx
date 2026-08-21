@@ -349,6 +349,19 @@ function HomeScreenReady({
       <TileBoard
         feeds={pinnedFeedInfos}
         onSelectFeed={openFeed}
+        onSelectVideo={(feed, postUri) => {
+          const [descriptorType, feedUri] = feed.feedDescriptor.split('|')
+          if (descriptorType !== 'feedgen' || !feedUri) {
+            openFeed(feed)
+            return
+          }
+          navigation.navigate('VideoFeed', {
+            type: 'feedgen',
+            uri: feedUri,
+            sourceInterstitial: 'none',
+            initialPostUri: postUri,
+          })
+        }}
         onReorderFeeds={reordered => {
           if (overwriteSavedFeeds.isPending) return
           const byId = new Map(preferences.savedFeeds.map(sf => [sf.id, sf]))
