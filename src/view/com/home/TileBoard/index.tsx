@@ -27,6 +27,8 @@ import {deriveTileSpan, layoutHeight, packLayout} from './layout'
 
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
+const TILE_RADIUS = 18
+const WEB_BOARD_MAX_WIDTH = 600
 
 export function TileBoard({
   feeds,
@@ -48,7 +50,9 @@ export function TileBoard({
   const {width} = useWindowDimensions()
   const {_} = useLingui()
   const t = useTheme()
-  const [boardWidth, setBoardWidth] = useState(width)
+  const [boardWidth, setBoardWidth] = useState(() =>
+    Math.min(width - 32, IS_WEB ? WEB_BOARD_MAX_WIDTH - 32 : Infinity),
+  )
   const [firstBatchDone, setFirstBatchDone] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -91,8 +95,20 @@ export function TileBoard({
       ref={scrollRef}
       style={a.flex_1}
       scrollEnabled={!isDragging}
-      contentContainerStyle={[a.px_lg, a.pt_md, a.pb_3xl]}
-      onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}>
+      contentContainerStyle={[
+        a.px_lg,
+        a.pt_md,
+        a.pb_3xl,
+        IS_WEB && [
+          a.w_full,
+          a.self_center,
+          {maxWidth: WEB_BOARD_MAX_WIDTH},
+        ],
+      ]}>
+      <View
+        style={a.w_full}
+        onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}
+      />
       {IS_WEB && !isEditing && (
         <View style={[a.flex_row, a.justify_end, a.pb_md]}>
           <Pressable
@@ -165,11 +181,14 @@ export function TileBoard({
             accessibilityHint={_(msg`Opens the feed explorer`)}
             onPress={onDiscover}
             style={[
-              a.rounded_md,
               a.p_md,
               a.absolute,
+              a.border,
               t.atoms.bg_contrast_25,
+              t.atoms.border_contrast_medium,
               {
+                borderRadius: TILE_RADIUS,
+                borderStyle: 'dashed',
                 left: rects[feeds.length].x,
                 top: rects[feeds.length].y,
                 width: rects[feeds.length].w - TILE_GAP,
@@ -220,10 +239,16 @@ function Tile({
       disabled={isEditing}
       style={[
         a.flex_1,
-        a.rounded_md,
         a.p_md,
+        a.border,
+        a.overflow_hidden,
         t.atoms.bg_contrast_25,
-        {marginRight: TILE_GAP, marginBottom: TILE_GAP},
+        t.atoms.border_contrast_medium,
+        {
+          borderRadius: TILE_RADIUS,
+          marginRight: TILE_GAP,
+          marginBottom: TILE_GAP,
+        },
       ]}>
       <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
         {feed.displayName}
@@ -299,7 +324,14 @@ function TilePreview({
     }
   }
   return (
-    <View style={[a.mt_sm, a.gap_xs]}>
+    <View
+      style={[
+        a.mt_sm,
+        a.pt_sm,
+        a.gap_xs,
+        a.border_t,
+        t.atoms.border_contrast_low,
+      ]}>
       {post && (
         <View style={[a.flex_row, a.align_center, a.gap_sm]}>
           <UserAvatar type="user" size={20} avatar={post.author.avatar} />
@@ -336,7 +368,16 @@ function VideoTilePreview({
   const {_} = useLingui()
   const t = useTheme()
   return (
-    <View style={[a.flex_row, a.gap_sm, a.mt_sm, a.flex_1]}>
+    <View
+      style={[
+        a.flex_row,
+        a.gap_sm,
+        a.mt_sm,
+        a.pt_sm,
+        a.flex_1,
+        a.border_t,
+        t.atoms.border_contrast_low,
+      ]}>
       {posts.slice(0, 2).map(post => {
         const embed = post.embed
         if (!AppBskyEmbedVideo.isView(embed)) return null
