@@ -19,6 +19,7 @@ import {
 
 import {AuthorFeedAPI} from '#/lib/api/feed/author'
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
+import {CommunityFeedAPI} from '#/lib/api/feed/community'
 import {DemoFeedAPI} from '#/lib/api/feed/demo'
 import {FollowingFeedAPI} from '#/lib/api/feed/following'
 import {HomeFeedAPI} from '#/lib/api/feed/home'
@@ -29,7 +30,7 @@ import {PostListFeedAPI} from '#/lib/api/feed/posts'
 import {type FeedAPI, type ReasonFeedSource} from '#/lib/api/feed/types'
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
 import {FeedTuner, type FeedTunerFn} from '#/lib/api/feed-manip'
-import {DISCOVER_FEED_URI} from '#/lib/constants'
+import {COMMUNITY_FEED_URI, DISCOVER_FEED_URI} from '#/lib/constants'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences/const'
@@ -475,6 +476,11 @@ export function createApi({
   } else if (feedDesc.startsWith('likes')) {
     const [__, actor] = feedDesc.split('|')
     return new LikesFeedAPI({agent, feedParams: {actor}})
+  } else if (
+    COMMUNITY_FEED_URI &&
+    feedDesc === `feedgen|${COMMUNITY_FEED_URI}`
+  ) {
+    return new CommunityFeedAPI(agent)
   } else if (feedDesc.startsWith('feedgen')) {
     const [__, feed] = feedDesc.split('|')
     return new CustomFeedAPI({

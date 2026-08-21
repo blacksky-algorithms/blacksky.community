@@ -17,7 +17,7 @@ import {Trans} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
+import {COMMUNITY_FEED_URI, PROD_DEFAULT_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'
@@ -372,7 +372,7 @@ function HomeScreenReady({
                 />
               )
             }
-            if (feed === 'community') {
+          if (feed === 'community' && !COMMUNITY_FEED_URI) {
               return (
                 <CommunityFeedPage
                   key={feed}
