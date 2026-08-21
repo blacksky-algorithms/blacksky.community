@@ -27,6 +27,7 @@ import {
   type HomeTabNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
+import {isInvalidHandle} from '#/lib/strings/handles'
 import {emitSoftReset, listenSoftReset} from '#/state/events'
 import * as persisted from '#/state/persisted'
 import {useCommunityMembership} from '#/state/queries/community-membership'
@@ -320,8 +321,14 @@ function HomeScreenReady({
   const openFeed = useCallback(
     (feedInfo: SavedFeedSourceInfo) => {
       if (feedInfo.route.name !== 'Home') {
+        const params =
+          feedInfo.route.params.name &&
+          feedInfo.creatorHandle &&
+          !isInvalidHandle(feedInfo.creatorHandle)
+            ? {...feedInfo.route.params, name: feedInfo.creatorHandle}
+            : feedInfo.route.params
         // @ts-ignore dynamic route name, not statically checkable
-        navigation.navigate(feedInfo.route.name, feedInfo.route.params)
+        navigation.navigate(feedInfo.route.name, params)
         return
       }
       setSelectedFeed(feedInfo.feedDescriptor)
