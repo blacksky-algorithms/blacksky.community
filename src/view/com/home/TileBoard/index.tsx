@@ -93,6 +93,18 @@ export function TileBoard({
       scrollEnabled={!isDragging}
       contentContainerStyle={[a.px_lg, a.pt_md, a.pb_3xl]}
       onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}>
+      {IS_WEB && !isEditing && (
+        <View style={[a.flex_row, a.justify_end, a.pb_md]}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onManageFeeds}
+            style={[a.rounded_full, a.px_md, a.py_sm, t.atoms.bg_contrast_25]}>
+            <Text style={[a.text_sm, a.font_bold]}>
+              <Trans>Edit</Trans>
+            </Text>
+          </Pressable>
+        </View>
+      )}
       {isEditing && (
         <View style={[a.flex_row, a.justify_between, a.align_center, a.pb_md]}>
           <Pressable
@@ -140,7 +152,9 @@ export function TileBoard({
               onPressVideo={postUri => {
                 if (!isEditing) onSelectVideo(feed, postUri)
               }}
-              onLongPress={() => setIsEditing(true)}
+              onLongPress={() => {
+                if (!IS_WEB) setIsEditing(true)
+              }}
               onUnpin={() => onUnpinFeed(feed)}
             />
           )}

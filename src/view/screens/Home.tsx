@@ -338,13 +338,13 @@ function HomeScreenReady({
   }, [feedOpen, homeView])
 
   useEffect(() => {
-    if (IS_WEB || homeView !== 'board') return
+    if (homeView !== 'board') return
     return listenSoftReset(() => {
       if (feedOpen) setFeedOpen(false)
     })
   }, [feedOpen, homeView])
 
-  if (!IS_WEB && homeView === 'board' && !feedOpen) {
+  if (homeView === 'board' && !feedOpen) {
     return (
       <TileBoard
         feeds={pinnedFeedInfos}
@@ -419,7 +419,7 @@ function HomeScreenReady({
 
   return hasSession ? (
     <>
-      {!IS_WEB && homeView === 'board' && (
+      {homeView === 'board' && (
         <Pressable
           accessibilityRole="button"
           onPress={() => setFeedOpen(false)}
