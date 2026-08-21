@@ -1,6 +1,7 @@
 import {Provider as ColorModeProvider} from './color-mode'
 import {Provider as DrawerOpenProvider} from './drawer-open'
 import {Provider as DrawerSwipableProvider} from './drawer-swipe-disabled'
+import {Provider as HomeViewProvider} from './home-view'
 import {Provider as MinimalModeProvider} from './minimal-mode'
 import {Provider as ShellLayoutProvder} from './shell-layout'
 import {Provider as TickEveryMinuteProvider} from './tick-every-minute'
@@ -17,6 +18,7 @@ export {
 } from './minimal-mode'
 export {useOnboardingDispatch, useOnboardingState} from './onboarding'
 export {useTickEveryMinute} from './tick-every-minute'
+export {useHomeView, useSetHomeView} from './home-view'
 
 export function Provider({children}: React.PropsWithChildren<{}>) {
   return (
@@ -24,9 +26,11 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       <DrawerOpenProvider>
         <DrawerSwipableProvider>
           <MinimalModeProvider>
-            <ColorModeProvider>
-              <TickEveryMinuteProvider>{children}</TickEveryMinuteProvider>
-            </ColorModeProvider>
+            <HomeViewProvider>
+              <ColorModeProvider>
+                <TickEveryMinuteProvider>{children}</TickEveryMinuteProvider>
+              </ColorModeProvider>
+            </HomeViewProvider>
           </MinimalModeProvider>
         </DrawerSwipableProvider>
       </DrawerOpenProvider>

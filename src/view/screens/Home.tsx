@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef} from 'react'
 import {ActivityIndicator, StyleSheet} from 'react-native'
+import {Trans} from '@lingui/react/macro'
 import {withSpring} from 'react-native-reanimated'
 import {useFocusEffect} from '@react-navigation/native'
 
@@ -24,6 +25,7 @@ import {type UsePreferencesQueryResponse} from '#/state/queries/preferences/type
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
+import {useHomeView} from '#/state/shell'
 import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
 import {FeedPage} from '#/view/com/feeds/FeedPage'
 import {HomeHeader} from '#/view/com/home/HomeHeader'
@@ -114,6 +116,7 @@ function HomeScreenReady({
   pinnedFeedInfos: SavedFeedSourceInfo[]
 }) {
   const ax = useAnalytics()
+  const homeView = useHomeView()
   const brand = useBrand()
   const allFeeds = useMemo(
     () => pinnedFeedInfos.map(f => f.feedDescriptor),
@@ -256,6 +259,14 @@ function HomeScreenReady({
         : [],
     }
   }, [preferences])
+
+  if (!IS_WEB && homeView === 'board') {
+    return (
+      <Layout.Center>
+        <Trans>Home board</Trans>
+      </Layout.Center>
+    )
+  }
 
   if (demoMode) {
     return (
