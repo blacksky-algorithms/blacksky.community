@@ -172,18 +172,16 @@ export function AppearanceSettingsScreen({}: Props) {
                 onChange={onChangeFontScale}
               />
 
-              {IS_NATIVE && (
-                <AppearanceToggleButtonGroup
-                  title={_(msg`Home view`)}
-                  icon={PhoneIcon}
-                  items={[
-                    {label: _(msg`Pager`), name: 'pager'},
-                    {label: _(msg`Board`), name: 'board'},
-                  ]}
-                  value={homeView}
-                  onChange={setHomeView}
-                />
-              )}
+              <AppearanceToggleButtonGroup
+                title={_(msg`Home view`)}
+                icon={PhoneIcon}
+                items={[
+                  {label: _(msg`Pager`), name: 'pager'},
+                  {label: _(msg`Board`), name: 'board'},
+                ]}
+                value={homeView}
+                onChange={setHomeView}
+              />
 
               {IS_NATIVE && IS_INTERNAL && (
                 <>
