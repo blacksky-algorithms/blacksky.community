@@ -14,7 +14,7 @@ export function Provider({children}: React.PropsWithChildren) {
   const setValue = useMemo(
     () => (value: HomeView) => {
       setHomeView(value)
-      persisted.write('homeView', value)
+      void persisted.write('homeView', value)
     },
     [],
   )

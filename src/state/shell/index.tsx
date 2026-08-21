@@ -12,13 +12,13 @@ export {
   useIsDrawerSwipeDisabled,
   useSetDrawerSwipeDisabled,
 } from './drawer-swipe-disabled'
+export {useHomeView, useSetHomeView} from './home-view'
 export {
   useEnableMinimalShellMode,
   useEnableMinimalShellModeForScreen,
 } from './minimal-mode'
 export {useOnboardingDispatch, useOnboardingState} from './onboarding'
 export {useTickEveryMinute} from './tick-every-minute'
-export {useHomeView, useSetHomeView} from './home-view'
 
 export function Provider({children}: React.PropsWithChildren<{}>) {
   return (
