@@ -23,7 +23,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
-import {deriveTileSpan, layoutHeight, packLayout} from './layout'
+import {deriveTileSpan, layoutHeight, packLayout, type TileSpan} from './layout'
 
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
@@ -83,10 +83,13 @@ export function TileBoard({
 
   useEffect(() => {
     if (IS_WEB || !isEditing) return
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      setIsEditing(false)
-      return true
-    })
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        setIsEditing(false)
+        return true
+      },
+    )
     return () => subscription.remove()
   }, [isEditing])
 
@@ -99,11 +102,7 @@ export function TileBoard({
         a.px_lg,
         a.pt_md,
         a.pb_3xl,
-        IS_WEB && [
-          a.w_full,
-          a.self_center,
-          {maxWidth: WEB_BOARD_MAX_WIDTH},
-        ],
+        IS_WEB && [a.w_full, a.self_center, {maxWidth: WEB_BOARD_MAX_WIDTH}],
       ]}>
       <View
         style={a.w_full}
@@ -135,7 +134,8 @@ export function TileBoard({
             accessibilityRole="button"
             onPress={() => setIsEditing(false)}
             style={[a.rounded_full, a.px_md, a.py_sm, t.atoms.bg_contrast_25]}>
-            <Text style={[a.text_sm, a.font_bold, {color: t.palette.primary_500}]}>
+            <Text
+              style={[a.text_sm, a.font_bold, {color: t.palette.primary_500}]}>
               <Trans>Done</Trans>
             </Text>
           </Pressable>
@@ -154,13 +154,14 @@ export function TileBoard({
           onReorder={onReorderFeeds}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
-          renderItem={feed => (
+          renderItem={(feed, index) => (
             <Tile
               feed={feed}
+              span={deriveTileSpan(index, feed)}
               isEditing={isEditing}
               enabled={
-                feeds.findIndex(f => f.savedFeed.id === feed.savedFeed.id) < 4 ||
-                firstBatchDone
+                feeds.findIndex(f => f.savedFeed.id === feed.savedFeed.id) <
+                  4 || firstBatchDone
               }
               onPress={() => {
                 if (!isEditing) onSelectFeed(feed)
@@ -210,6 +211,7 @@ export function TileBoard({
 
 function Tile({
   feed,
+  span,
   isEditing,
   enabled,
   onPress,
@@ -218,6 +220,7 @@ function Tile({
   onUnpin,
 }: {
   feed: SavedFeedSourceInfo
+  span: TileSpan
   isEditing: boolean
   enabled: boolean
   onPress: () => void
@@ -250,11 +253,21 @@ function Tile({
           marginBottom: TILE_GAP,
         },
       ]}>
-      <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
-        {feed.displayName}
-      </Text>
+      {span === 1 ? (
+        <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+          <UserAvatar type="algo" size={28} avatar={feed.avatar} />
+          <Text style={[a.text_md, a.font_bold, a.flex_1]} numberOfLines={1}>
+            {feed.displayName}
+          </Text>
+        </View>
+      ) : (
+        <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
+          {feed.displayName}
+        </Text>
+      )}
       <TilePreview
         feed={feed}
+        span={span}
         enabled={enabled}
         isEditing={isEditing}
         onPressVideo={onPressVideo}
@@ -283,11 +296,13 @@ function Tile({
 
 function TilePreview({
   feed,
+  span,
   enabled,
   isEditing,
   onPressVideo,
 }: {
   feed: SavedFeedSourceInfo
+  span: TileSpan
   enabled: boolean
   isEditing: boolean
   onPressVideo: (postUri: string) => void
@@ -296,7 +311,9 @@ function TilePreview({
   const query = useFeedPeekQuery(feed.feedDescriptor, enabled)
   if (query.isError) {
     return (
-      <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
+      <Text
+        style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
+        numberOfLines={1}>
         <Trans>Unable to load this feed.</Trans>
       </Text>
     )
@@ -304,9 +321,40 @@ function TilePreview({
   const post = query.data?.[0]
   if (query.isSuccess && !post) {
     return (
-      <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
+      <Text
+        style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
+        numberOfLines={1}>
         <Trans>Quiet feed</Trans>
       </Text>
+    )
+  }
+  if (span === 1) {
+    const authors = Array.from(
+      new Map(
+        (query.data ?? []).map(post => [post.author.did, post.author]),
+      ).values(),
+    ).slice(0, 3)
+    return (
+      <View style={[a.flex_row, a.align_center, a.mt_lg]}>
+        <View style={[a.flex_row, a.align_center]}>
+          {authors.map((author, index) => (
+            <View
+              key={author.did}
+              style={[
+                a.relative,
+                {
+                  left: index * -8,
+                  zIndex: authors.length - index,
+                  borderWidth: 2,
+                  borderColor: t.atoms.bg_contrast_25.backgroundColor,
+                  borderRadius: 999,
+                },
+              ]}>
+              <UserAvatar type="user" size={28} avatar={author.avatar} />
+            </View>
+          ))}
+        </View>
+      </View>
     )
   }
   if (feed.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO) {
@@ -389,7 +437,12 @@ function VideoTilePreview({
             accessibilityHint={_(msg`Opens this video`)}
             disabled={isEditing}
             onPress={() => onPressVideo(post.uri)}
-            style={[a.flex_1, a.rounded_sm, a.overflow_hidden, t.atoms.bg_contrast_100]}>
+            style={[
+              a.flex_1,
+              a.rounded_sm,
+              a.overflow_hidden,
+              t.atoms.bg_contrast_100,
+            ]}>
             <Image
               source={{uri: embed.thumbnail}}
               style={[a.flex_1]}

@@ -1,5 +1,9 @@
 import {useMemo} from 'react'
-import {type AppBskyFeedDefs, moderatePost, type ModerationOpts} from '@atproto/api'
+import {
+  type AppBskyFeedDefs,
+  moderatePost,
+  type ModerationOpts,
+} from '@atproto/api'
 import {useQuery} from '@tanstack/react-query'
 
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
@@ -24,8 +28,10 @@ export function selectPeekPosts({
   return new FeedTuner(feedTuners)
     .tune(feed)
     .flatMap(slice => slice.items)
-    .filter(item => !moderatePost(item.post, moderationOpts).ui('contentList').filter)
-    .slice(0, 2)
+    .filter(
+      item => !moderatePost(item.post, moderationOpts).ui('contentList').filter,
+    )
+    .slice(0, 3)
     .map(item => item.post)
 }
 
@@ -41,7 +47,8 @@ export function useFeedPeekQuery(feedDesc: FeedDescriptor, enabled = true) {
 
   return useQuery({
     queryKey: FEED_PEEK_RQKEY(feedDesc),
-    enabled: enabled && Boolean(input.moderationOpts) && Boolean(input.preferences),
+    enabled:
+      enabled && Boolean(input.moderationOpts) && Boolean(input.preferences),
     staleTime: 60_000,
     gcTime: 15 * 60_000,
     refetchOnWindowFocus: false,
