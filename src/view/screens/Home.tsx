@@ -9,12 +9,10 @@ import {
 import {
   ActivityIndicator,
   BackHandler,
-  Pressable,
   StyleSheet,
 } from 'react-native'
 import {withSpring} from 'react-native-reanimated'
 import {TID} from '@atproto/common-web'
-import {Trans} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
@@ -63,7 +61,6 @@ import {
 } from '#/view/com/util/MainScrollProvider'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import * as Layout from '#/components/Layout'
-import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_LIQUID_GLASS, IS_WEB} from '#/env'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
@@ -408,6 +405,55 @@ function HomeScreenReady({
     )
   }
 
+  if (homeView === 'board' && feedOpen) {
+    const feedInfo = pinnedFeedInfos[selectedIndex]
+    const feed = feedInfo?.feedDescriptor
+    return (
+      <>
+        <Layout.Header.Outer noBottomBorder>
+          <Layout.Header.Slot>
+            <Layout.Header.BackButton
+              onPress={e => {
+                e.preventDefault()
+                setFeedOpen(false)
+              }}
+            />
+          </Layout.Header.Slot>
+          <Layout.Header.Content>
+            <Layout.Header.TitleText>
+              {feedInfo?.displayName ?? ''}
+            </Layout.Header.TitleText>
+          </Layout.Header.Content>
+          <Layout.Header.Slot />
+        </Layout.Header.Outer>
+        {feed === 'community' ? (
+          <CommunityFeedPage isPageFocused />
+        ) : feed === 'following' ? (
+          <FeedPage
+            testID="followingFeedPage"
+            isPageFocused
+            isPageAdjacent={false}
+            feed="following"
+            feedParams={homeFeedParams}
+            renderEmptyState={renderFollowingEmptyState}
+            renderEndOfFeed={FollowingEndOfFeed}
+            feedInfo={feedInfo}
+          />
+        ) : feed ? (
+          <FeedPage
+            testID="customFeedPage"
+            isPageFocused
+            isPageAdjacent={false}
+            feed={feed}
+            savedFeedConfig={feedInfo.savedFeed}
+            renderEmptyState={renderCustomFeedEmptyState}
+            feedInfo={feedInfo}
+          />
+        ) : null}
+      </>
+    )
+  }
+
   if (demoMode) {
     return (
       <Pager
@@ -438,16 +484,6 @@ function HomeScreenReady({
 
   return hasSession ? (
     <>
-      {homeView === 'board' && (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setFeedOpen(false)}
-          style={styles.backToTiles}>
-          <Text>
-            <Trans>Back to tiles</Trans>
-          </Text>
-        </Pressable>
-      )}
       <Pager
         key={allFeeds.join(',')}
         ref={pagerRef}
@@ -539,9 +575,5 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     paddingBottom: 100,
-  },
-  backToTiles: {
-    alignSelf: 'center',
-    marginVertical: 8,
   },
 })
