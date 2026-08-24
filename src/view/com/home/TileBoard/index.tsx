@@ -24,7 +24,7 @@ import * as Layout from '#/components/Layout'
 import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
-import {deriveTileSpan, layoutHeight, packLayout, type TileSpan} from './layout'
+import {deriveTileSpan, layoutHeight, packLayout} from './layout'
 
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
@@ -96,121 +96,140 @@ export function TileBoard({
   return (
     <View style={a.flex_1}>
       <Animated.ScrollView
-      ref={scrollRef}
-      style={a.flex_1}
-      scrollEnabled={!isDragging}
-      contentContainerStyle={[a.pt_md, a.pb_3xl]}>
-      <View style={[a.px_lg, a.w_full]}>
-      <View
-        style={a.w_full}
-        onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}
-      />
-      {IS_WEB && !isEditing && (
-        <View style={[a.flex_row, a.justify_end, a.pb_md]}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onManageFeeds}
-            style={[a.rounded_full, a.px_md, a.py_sm, t.atoms.bg_contrast_25]}>
-            <Text style={[a.text_sm, a.font_bold]}>
-              <Trans>Edit</Trans>
-            </Text>
-          </Pressable>
-        </View>
-      )}
-      {isEditing && (
-        <View style={[a.flex_row, a.justify_between, a.align_center, a.pb_md]}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onManageFeeds}
-            style={[a.rounded_full, a.px_md, a.py_sm, t.atoms.bg_contrast_25]}>
-            <Text style={[a.text_sm, a.font_bold]}>
-              <Trans>Add a tile</Trans>
-            </Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => setIsEditing(false)}
-            style={[a.rounded_full, a.px_md, a.py_sm, t.atoms.bg_contrast_25]}>
-            <Text
-              style={[a.text_sm, a.font_bold, {color: t.palette.primary_500}]}>
-              <Trans>Done</Trans>
-            </Text>
-          </Pressable>
-        </View>
-      )}
-      <View style={{height}}>
-        <SortableGrid
-          data={feeds}
-          keyExtractor={feed => feed.savedFeed.id}
-          spanExtractor={(feed, index) => deriveTileSpan(index, feed)}
-          editable={isEditing}
-          colW={colW + TILE_GAP}
-          rowH={rowH + TILE_GAP}
-          scrollRef={scrollRef}
-          scrollOffset={scrollOffset}
-          onReorder={onReorderFeeds}
-          onDragStart={() => setIsDragging(true)}
-          onDragEnd={() => setIsDragging(false)}
-          renderItem={(feed, index) => (
-            <Tile
-              feed={feed}
-              span={deriveTileSpan(index, feed)}
-              isEditing={isEditing}
-              enabled={
-                feeds.findIndex(f => f.savedFeed.id === feed.savedFeed.id) <
-                  4 || firstBatchDone
-              }
-              onPress={() => {
-                if (!isEditing) onSelectFeed(feed)
-              }}
-              onPressVideo={postUri => {
-                if (!isEditing) onSelectVideo(feed, postUri)
-              }}
-              onLongPress={() => {
-                if (!IS_WEB) setIsEditing(true)
-              }}
-              onUnpin={() => onUnpinFeed(feed)}
-            />
+        ref={scrollRef}
+        style={a.flex_1}
+        scrollEnabled={!isDragging}
+        contentContainerStyle={[a.pt_md, a.pb_3xl]}>
+        <View style={[a.px_lg, a.w_full]}>
+          <View
+            style={a.w_full}
+            onLayout={event => setBoardWidth(event.nativeEvent.layout.width)}
+          />
+          {IS_WEB && !isEditing && (
+            <View style={[a.flex_row, a.justify_end, a.pb_md]}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onManageFeeds}
+                style={[
+                  a.rounded_full,
+                  a.px_md,
+                  a.py_sm,
+                  t.atoms.bg_contrast_25,
+                ]}>
+                <Text style={[a.text_sm, a.font_bold]}>
+                  <Trans>Edit</Trans>
+                </Text>
+              </Pressable>
+            </View>
           )}
-        />
-        {showDiscovery && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityHint={_(msg`Opens the feed explorer`)}
-            onPress={onDiscover}
-            style={[
-              a.p_md,
-              a.absolute,
-              a.border,
-              t.atoms.bg_contrast_25,
-              t.atoms.border_contrast_medium,
-              {
-                borderRadius: TILE_RADIUS,
-                borderStyle: 'dashed',
-                left: rects[feeds.length].x,
-                top: rects[feeds.length].y,
-                width: rects[feeds.length].w - TILE_GAP,
-                height: rects[feeds.length].h - TILE_GAP,
-              },
-            ]}>
-            <Text style={[a.text_md, a.font_bold]}>
-              <Trans>Find feeds</Trans>
-            </Text>
-            <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
-              <Trans>Explore more feeds to pin here.</Trans>
-            </Text>
-          </Pressable>
-        )}
-      </View>
-    </View>
-    </Animated.ScrollView>
+          {isEditing && (
+            <View
+              style={[a.flex_row, a.justify_between, a.align_center, a.pb_md]}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onManageFeeds}
+                style={[
+                  a.rounded_full,
+                  a.px_md,
+                  a.py_sm,
+                  t.atoms.bg_contrast_25,
+                ]}>
+                <Text style={[a.text_sm, a.font_bold]}>
+                  <Trans>Add a tile</Trans>
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setIsEditing(false)}
+                style={[
+                  a.rounded_full,
+                  a.px_md,
+                  a.py_sm,
+                  t.atoms.bg_contrast_25,
+                ]}>
+                <Text
+                  style={[
+                    a.text_sm,
+                    a.font_bold,
+                    {color: t.palette.primary_500},
+                  ]}>
+                  <Trans>Done</Trans>
+                </Text>
+              </Pressable>
+            </View>
+          )}
+          <View style={{height}}>
+            <SortableGrid
+              data={feeds}
+              keyExtractor={feed => feed.savedFeed.id}
+              spanExtractor={(feed, index) => deriveTileSpan(index, feed)}
+              editable={isEditing}
+              colW={colW + TILE_GAP}
+              rowH={rowH + TILE_GAP}
+              scrollRef={scrollRef}
+              scrollOffset={scrollOffset}
+              onReorder={onReorderFeeds}
+              onDragStart={() => setIsDragging(true)}
+              onDragEnd={() => setIsDragging(false)}
+              renderItem={feed => (
+                <Tile
+                  feed={feed}
+                  isEditing={isEditing}
+                  enabled={
+                    feeds.findIndex(f => f.savedFeed.id === feed.savedFeed.id) <
+                      4 || firstBatchDone
+                  }
+                  onPress={() => {
+                    if (!isEditing) onSelectFeed(feed)
+                  }}
+                  onPressVideo={postUri => {
+                    if (!isEditing) onSelectVideo(feed, postUri)
+                  }}
+                  onLongPress={() => {
+                    if (!IS_WEB) setIsEditing(true)
+                  }}
+                  onUnpin={() => onUnpinFeed(feed)}
+                />
+              )}
+            />
+            {showDiscovery && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityHint={_(msg`Opens the feed explorer`)}
+                onPress={onDiscover}
+                style={[
+                  a.p_md,
+                  a.absolute,
+                  a.border,
+                  t.atoms.bg_contrast_25,
+                  t.atoms.border_contrast_medium,
+                  {
+                    borderRadius: TILE_RADIUS,
+                    borderStyle: 'dashed',
+                    left: rects[feeds.length].x,
+                    top: rects[feeds.length].y,
+                    width: rects[feeds.length].w - TILE_GAP,
+                    height: rects[feeds.length].h - TILE_GAP,
+                  },
+                ]}>
+                <Text style={[a.text_md, a.font_bold]}>
+                  <Trans>Find feeds</Trans>
+                </Text>
+                <Text
+                  style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}>
+                  <Trans>Explore more feeds to pin here.</Trans>
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      </Animated.ScrollView>
     </View>
   )
 }
 
 function Tile({
   feed,
-  span,
   isEditing,
   enabled,
   onPress,
@@ -219,7 +238,6 @@ function Tile({
   onUnpin,
 }: {
   feed: SavedFeedSourceInfo
-  span: TileSpan
   isEditing: boolean
   enabled: boolean
   onPress: () => void
@@ -252,21 +270,11 @@ function Tile({
           marginBottom: TILE_GAP,
         },
       ]}>
-      {span === 1 ? (
-        <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-          <UserAvatar type="algo" size={28} avatar={feed.avatar} />
-          <Text style={[a.text_md, a.font_bold, a.flex_1]} numberOfLines={1}>
-            {feed.displayName}
-          </Text>
-        </View>
-      ) : (
-        <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
-          {feed.displayName}
-        </Text>
-      )}
+      <Text style={[a.text_md, a.font_bold]} numberOfLines={1}>
+        {feed.displayName}
+      </Text>
       <TilePreview
         feed={feed}
-        span={span}
         enabled={enabled}
         isEditing={isEditing}
         onPressVideo={onPressVideo}
@@ -295,13 +303,11 @@ function Tile({
 
 function TilePreview({
   feed,
-  span,
   enabled,
   isEditing,
   onPressVideo,
 }: {
   feed: SavedFeedSourceInfo
-  span: TileSpan
   enabled: boolean
   isEditing: boolean
   onPressVideo: (postUri: string) => void
@@ -325,35 +331,6 @@ function TilePreview({
         numberOfLines={1}>
         <Trans>Quiet feed</Trans>
       </Text>
-    )
-  }
-  if (span === 1) {
-    const authors = Array.from(
-      new Map(
-        (query.data ?? []).map(post => [post.author.did, post.author]),
-      ).values(),
-    ).slice(0, 3)
-    return (
-      <View style={[a.flex_row, a.align_center, a.mt_lg]}>
-        <View style={[a.flex_row, a.align_center]}>
-          {authors.map((author, index) => (
-            <View
-              key={author.did}
-              style={[
-                a.relative,
-                {
-                  left: index * -8,
-                  zIndex: authors.length - index,
-                  borderWidth: 2,
-                  borderColor: t.atoms.bg_contrast_25.backgroundColor,
-                  borderRadius: 999,
-                },
-              ]}>
-              <UserAvatar type="user" size={28} avatar={author.avatar} />
-            </View>
-          ))}
-        </View>
-      </View>
     )
   }
   if (feed.contentMode === AppBskyFeedDefs.CONTENTMODEVIDEO) {
