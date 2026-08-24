@@ -352,65 +352,42 @@ function TilePreview({
       )
     }
   }
-  const otherAuthors = Array.from(
-    new Map(
-      (query.data ?? [])
-        .filter(item => item.author.did !== post?.author.did)
-        .map(item => [item.author.did, item.author]),
-    ).values(),
-  ).slice(0, 3)
-
+  const posts = query.data ?? (post ? [post] : [])
   return (
-    <View style={[a.mt_sm, a.gap_xs]}>
-      <View
-        style={[
-          a.p_sm,
-          a.border,
-          a.rounded_sm,
-          t.atoms.border_contrast_low,
-          t.atoms.bg,
-        ]}>
-        {post && (
-          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-            <UserAvatar type="user" size={20} avatar={post.author.avatar} />
+    <View style={a.mt_sm}>
+      {posts.map((post, index) => (
+        <View
+          key={post.uri}
+          style={[
+            a.flex_row,
+            a.gap_sm,
+            index > 0 && [a.pt_sm, a.border_t, t.atoms.border_contrast_low],
+          ]}>
+          <UserAvatar type="user" size={20} avatar={post.author.avatar} />
+          <View style={a.flex_1}>
             <Text
-              style={[a.text_sm, t.atoms.text_contrast_medium, a.flex_1]}
+              style={[
+                a.text_xs,
+                a.font_bold,
+                t.atoms.text_contrast_medium,
+                a.mb_2xs,
+              ]}
               numberOfLines={1}>
               {post.author.handle}
             </Text>
+            <Text
+              style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium]}
+              numberOfLines={2}
+              maxFontSizeMultiplier={1.3}>
+              {'text' in post.record ? (
+                String(post.record.text)
+              ) : (
+                <Trans>Open feed</Trans>
+              )}
+            </Text>
           </View>
-        )}
-        <Text
-          style={[a.text_sm, t.atoms.text_contrast_medium]}
-          numberOfLines={2}
-          maxFontSizeMultiplier={1.3}>
-          {post && 'text' in post.record ? (
-            String(post.record.text)
-          ) : (
-            <Trans>Open feed</Trans>
-          )}
-        </Text>
-      </View>
-      {otherAuthors.length > 0 && (
-        <View style={[a.flex_row, a.align_center]}>
-          {otherAuthors.map((author, index) => (
-            <View
-              key={author.did}
-              style={[
-                a.relative,
-                {
-                  left: index * -6,
-                  zIndex: otherAuthors.length - index,
-                  borderWidth: 2,
-                  borderColor: t.atoms.bg_contrast_25.backgroundColor,
-                  borderRadius: 999,
-                },
-              ]}>
-              <UserAvatar type="user" size={20} avatar={author.avatar} />
-            </View>
-          ))}
         </View>
-      )}
+      ))}
     </View>
   )
 }
