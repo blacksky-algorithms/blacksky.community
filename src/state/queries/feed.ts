@@ -25,11 +25,7 @@ import {getProxyHeadersForFeed} from '#/lib/api/feed/utils'
 import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {useBrand} from '#/lib/community/BrandContext'
 import {DEFAULT_DISCOVERY_FEEDS} from '#/lib/community/configGenerator'
-import {
-  COMMUNITY_FEED_URI,
-  DISCOVER_FEED_URI,
-  DISCOVER_SAVED_FEED,
-} from '#/lib/constants'
+import {DISCOVER_FEED_URI, DISCOVER_SAVED_FEED} from '#/lib/constants'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {GCTIME, STALE} from '#/state/queries'
@@ -604,7 +600,7 @@ export function usePinnedFeedsInfos() {
   // applied as a derived view so gate changes surface without a refetch.
   const injectCommunity = useCallback(
     (feeds: SavedFeedSourceInfo[]) => {
-      if (COMMUNITY_FEED_URI || !isCommunityMember) return feeds
+      if (!isCommunityMember) return feeds
       const result = [...feeds]
       result.splice(Math.min(1, result.length), 0, COMMUNITY_FEED_STUB)
       return result

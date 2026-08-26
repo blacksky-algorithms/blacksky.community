@@ -12,11 +12,10 @@ import {
   StyleSheet,
 } from 'react-native'
 import {withSpring} from 'react-native-reanimated'
-import {TID} from '@atproto/common-web'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {COMMUNITY_FEED_URI, PROD_DEFAULT_FEED} from '#/lib/constants'
+import {PROD_DEFAULT_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'
@@ -27,8 +26,6 @@ import {
 } from '#/lib/routes/types'
 import {isInvalidHandle} from '#/lib/strings/handles'
 import {emitSoftReset, listenSoftReset} from '#/state/events'
-import * as persisted from '#/state/persisted'
-import {useCommunityMembership} from '#/state/queries/community-membership'
 import {
   type SavedFeedSourceInfo,
   usePinnedFeedsInfos,
@@ -137,10 +134,6 @@ function HomeScreenReady({
   const ax = useAnalytics()
   const homeView = useHomeView()
   const [feedOpen, setFeedOpen] = useState(false)
-  const [communityFeedMigrated, setCommunityFeedMigrated] = useState(
-    () => persisted.get('communityFeedMigrated') ?? false,
-  )
-  const {data: isCommunityMember = false} = useCommunityMembership()
   const overwriteSavedFeeds = useOverwriteSavedFeedsMutation()
   const brand = useBrand()
   const allFeeds = useMemo(
@@ -161,36 +154,6 @@ function HomeScreenReady({
   useEffect(() => {
     requestNotificationsPermission('Home')
   }, [requestNotificationsPermission])
-
-  useEffect(() => {
-    if (
-      !COMMUNITY_FEED_URI ||
-      !isCommunityMember ||
-      communityFeedMigrated ||
-      overwriteSavedFeeds.isPending ||
-      preferences.savedFeeds.some(feed => feed.value === COMMUNITY_FEED_URI)
-    ) {
-      return
-    }
-    const savedFeeds = [...preferences.savedFeeds]
-    savedFeeds.splice(Math.min(1, savedFeeds.length), 0, {
-      id: TID.nextStr(),
-      type: 'feed',
-      value: COMMUNITY_FEED_URI,
-      pinned: true,
-    })
-    overwriteSavedFeeds.mutate(savedFeeds, {
-      onSuccess: () => {
-        setCommunityFeedMigrated(true)
-        void persisted.write('communityFeedMigrated', true)
-      },
-    })
-  }, [
-    communityFeedMigrated,
-    isCommunityMember,
-    overwriteSavedFeeds,
-    preferences.savedFeeds,
-  ])
 
   const pagerRef = useRef<PagerRef>(null)
   const lastPagerReportedIndexRef = useRef(selectedIndex)
@@ -510,7 +473,7 @@ function HomeScreenReady({
                 />
               )
             }
-            if (feed === 'community' && !COMMUNITY_FEED_URI) {
+            if (feed === 'community') {
               return (
                 <CommunityFeedPage
                   key={feed}

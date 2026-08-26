@@ -12,7 +12,7 @@ import {cleanError} from '#/lib/strings/errors'
 import {createFullHandle} from '#/lib/strings/handles'
 import {getAge} from '#/lib/strings/time'
 import {useSessionApi} from '#/state/session'
-import {useOnboardingDispatch, useSetHomeView} from '#/state/shell'
+import {useOnboardingDispatch} from '#/state/shell'
 import {type AnalyticsContextType, useAnalytics} from '#/analytics'
 
 export type ServiceDescription = ComAtprotoServerDescribeServer.OutputSchema
@@ -300,7 +300,6 @@ export function useSubmitSignup() {
   const {t: l} = useLingui()
   const {createAccount} = useSessionApi()
   const onboardingDispatch = useOnboardingDispatch()
-  const setHomeView = useSetHomeView()
 
   return useCallback(
     async (state: SignupState, dispatch: (action: SignupAction) => void) => {
@@ -375,8 +374,6 @@ export function useSubmitSignup() {
           },
         )
 
-        setHomeView('board')
-
         /*
          * Must happen last so that if the user has multiple tabs open and
          * createAccount fails, one tab is not stuck in onboarding — Eric
@@ -415,6 +412,6 @@ export function useSubmitSignup() {
         dispatch({type: 'setIsLoading', value: false})
       }
     },
-    [l, ax.logger, createAccount, onboardingDispatch, setHomeView],
+    [l, ax.logger, createAccount, onboardingDispatch],
   )
 }

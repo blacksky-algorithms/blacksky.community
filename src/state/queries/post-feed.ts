@@ -30,7 +30,7 @@ import {PostListFeedAPI} from '#/lib/api/feed/posts'
 import {type FeedAPI, type ReasonFeedSource} from '#/lib/api/feed/types'
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
 import {FeedTuner, type FeedTunerFn} from '#/lib/api/feed-manip'
-import {COMMUNITY_FEED_URI, DISCOVER_FEED_URI} from '#/lib/constants'
+import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences/const'
@@ -478,8 +478,6 @@ export function createApi({
     return new LikesFeedAPI({agent, feedParams: {actor}})
   } else if (feedDesc === 'community') {
     return new CommunityFeedAPI(agent)
-  } else if (isCommunityFeedDescriptor(feedDesc)) {
-    return new CommunityFeedAPI(agent)
   } else if (feedDesc.startsWith('feedgen')) {
     const [__, feed] = feedDesc.split('|')
     return new CustomFeedAPI({
@@ -499,14 +497,6 @@ export function createApi({
     // shouldnt happen
     return new FollowingFeedAPI({agent})
   }
-}
-
-function isCommunityFeedDescriptor(feedDesc: FeedDescriptor) {
-  return (
-    COMMUNITY_FEED_URI !== '' &&
-    feedDesc.startsWith('feedgen|') &&
-    feedDesc.slice('feedgen|'.length) === COMMUNITY_FEED_URI
-  )
 }
 
 export function* findAllPostsInQueryData(

@@ -146,7 +146,6 @@ export const VIDEO_FEED_URI =
 export const STAGING_VIDEO_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-videos'
 export const VIDEO_FEED_URIS = [VIDEO_FEED_URI, STAGING_VIDEO_FEED_URI]
-export const COMMUNITY_FEED_URI = ''
 export const DISCOVER_SAVED_FEED = {
   type: 'feed',
   value: DISCOVER_FEED_URI,
