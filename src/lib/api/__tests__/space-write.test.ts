@@ -20,15 +20,29 @@ const SUBJECT = {
   cid: 'bafyreisubject',
 }
 
-type Call = {path: string; headers: Record<string, string>; body: string}
+type Call = {
+  path: string
+  method?: string
+  headers: Record<string, string>
+  body: string
+}
+type MockResponse = {status?: number; body?: unknown}
 
-function agentWith(response: {status?: number; body?: unknown} = {}) {
+function agentWith(
+  response: MockResponse | MockResponse[] = {},
+  signedIn = true,
+) {
   const calls: Call[] = []
-  const status = response.status ?? 200
+  const responses = Array.isArray(response) ? response : [response]
+  let responseIndex = 0
   const agent = {
+    ...(signedIn ? {session: {did: 'did:plc:me'}} : {}),
     fetchHandler(path: string, init: RequestInit) {
+      const current = responses[Math.min(responseIndex++, responses.length - 1)]
+      const status = current.status ?? 200
       calls.push({
         path,
+        method: init.method,
         headers: (init.headers ?? {}) as Record<string, string>,
         body: typeof init.body === 'string' ? init.body : '',
       })
@@ -37,7 +51,7 @@ function agentWith(response: {status?: number; body?: unknown} = {}) {
         status,
         json: () =>
           Promise.resolve(
-            response.body ?? {uri: 'at://space/record', cid: 'bafyreinew'},
+            current.body ?? {uri: 'at://space/record', cid: 'bafyreinew'},
           ),
       } as unknown as Response)
     },
@@ -63,18 +77,62 @@ describe('space writes', () => {
     expect(calls[0].headers['atproto-proxy']).toBeUndefined()
     expect(bodyOf(calls[0])).toEqual({
       space: SPACE,
+      repo: 'did:plc:me',
       collection: POST_COLLECTION,
       record: {$type: POST_COLLECTION, text: 'hello'},
+      rkey: expect.any(String),
     })
   })
 
-  it('passes an explicit rkey through and omits it otherwise', async () => {
+  it('uses an explicit stable rkey or generates a protocol key', async () => {
     const {agent, calls} = agentWith()
     await spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}, '3kxyz')
     expect(bodyOf(calls[0]).rkey).toBe('3kxyz')
 
     await spaceCreateRecord(agent, SPACE, POST_COLLECTION, {})
-    expect(bodyOf(calls[1])).not.toHaveProperty('rkey')
+    expect(bodyOf(calls[1]).rkey).toEqual(expect.any(String))
+  })
+
+  it('recovers a same-rkey retry from RecordExists by authoritative readback', async () => {
+    const record = {
+      $type: POST_COLLECTION,
+      text: 'hello',
+      createdAt: '2026-08-26T12:00:00.000Z',
+    }
+    const original = {uri: 'at://space/original', cid: 'bafyreioriginal'}
+    const {agent, calls} = agentWith([
+      {body: original},
+      {status: 400, body: {error: 'RecordExists'}},
+      {body: {...original, value: record}},
+    ])
+
+    const first = await spaceCreateRecord(
+      agent,
+      SPACE,
+      POST_COLLECTION,
+      {...record, createdAt: '2026-08-26T12:00:01.000Z'},
+      '3mstablekey',
+    )
+    const retry = await spaceCreateRecord(
+      agent,
+      SPACE,
+      POST_COLLECTION,
+      record,
+      '3mstablekey',
+    )
+
+    expect(retry).toEqual(first)
+    expect(bodyOf(calls[0]).rkey).toBe('3mstablekey')
+    expect(bodyOf(calls[1]).rkey).toBe('3mstablekey')
+    expect(calls[2].method).toBe('GET')
+    const readback = new URL(calls[2].path, 'https://pds.example')
+    expect(readback.pathname).toBe('/xrpc/com.atproto.space.getRecord')
+    expect(Object.fromEntries(readback.searchParams)).toEqual({
+      space: SPACE,
+      repo: 'did:plc:me',
+      collection: POST_COLLECTION,
+      rkey: '3mstablekey',
+    })
   })
 
   it('writes a like into the permissioned repo, never the public one', async () => {
@@ -103,6 +161,7 @@ describe('space writes', () => {
     expect(calls[0].path).toBe('/xrpc/com.atproto.space.deleteRecord')
     expect(bodyOf(calls[0])).toEqual({
       space: SPACE,
+      repo: 'did:plc:me',
       collection: LIKE_COLLECTION,
       rkey: '3klike',
     })
@@ -112,6 +171,19 @@ describe('space writes', () => {
     const {agent, calls} = agentWith({body: {}})
     await spaceDeleteRecord(agent, SPACE, POST_COLLECTION, '3kpost')
     expect(bodyOf(calls[0]).rkey).toBe('3kpost')
+    expect(bodyOf(calls[0]).repo).toBe('did:plc:me')
+  })
+
+  it('fails before issuing a request when the agent is signed out', async () => {
+    const {agent, calls} = agentWith({}, false)
+
+    await expect(
+      spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
+    ).rejects.toThrow(/sign in/i)
+    await expect(
+      spaceDeleteRecord(agent, SPACE, POST_COLLECTION, '3kpost'),
+    ).rejects.toThrow(/sign in/i)
+    expect(calls).toHaveLength(0)
   })
 
   it('reads a 404 as “this pds has no space support”', async () => {
@@ -173,8 +245,18 @@ describe('interaction routing', () => {
     )
 
     expect(calls.map(bodyOf)).toEqual([
-      {space: SPACE, collection: LIKE_COLLECTION, rkey: '3klike'},
-      {space: SPACE, collection: POST_COLLECTION, rkey: '3kpost'},
+      {
+        space: SPACE,
+        repo: 'did:plc:me',
+        collection: LIKE_COLLECTION,
+        rkey: '3klike',
+      },
+      {
+        space: SPACE,
+        repo: 'did:plc:me',
+        collection: POST_COLLECTION,
+        rkey: '3kpost',
+      },
     ])
   })
 

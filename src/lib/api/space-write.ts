@@ -1,4 +1,5 @@
 import {type BskyAgent} from '@atproto/api'
+import {TID} from '@atproto/common-web'
 
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 
@@ -20,6 +21,7 @@ import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 
 export const SPACE_CREATE_RECORD = 'com.atproto.space.createRecord'
 export const SPACE_DELETE_RECORD = 'com.atproto.space.deleteRecord'
+export const SPACE_GET_RECORD = 'com.atproto.space.getRecord'
 
 export const POST_COLLECTION = 'app.bsky.feed.post'
 export const LIKE_COLLECTION = 'app.bsky.feed.like'
@@ -60,17 +62,60 @@ async function spaceXrpc(
   })
 }
 
-async function failure(response: Response): Promise<never> {
+async function spaceQuery(
+  agent: BskyAgent,
+  method: string,
+  params: Record<string, string>,
+): Promise<Response> {
+  const path = `/xrpc/${method}?${new URLSearchParams(params)}`
+  const url = LOCAL_SPACE_XRPC_ORIGIN
+    ? `${LOCAL_SPACE_XRPC_ORIGIN}${path}`
+    : path
+  return agent.fetchHandler(url, {method: 'GET'})
+}
+
+function authenticatedRepo(agent: BskyAgent): string {
+  const repo = agent.session?.did
+  if (!repo) {
+    throw new Error('Sign in before writing to a private space')
+  }
+  return repo
+}
+
+type XrpcErrorBody = {message?: string; error?: string}
+
+async function errorBody(response: Response): Promise<XrpcErrorBody> {
+  return (await response.json().catch(() => ({}))) as XrpcErrorBody
+}
+
+function failure(response: Response, body: XrpcErrorBody): never {
   // A PDS that has never heard of the space methods answers 404 rather than an
   // XRPC error, which is how a foreign-PDS account is recognised.
   if (response.status === 404) {
     throw new SpaceUnsupportedError()
   }
-  const body = (await response.json().catch(() => ({}))) as {
-    message?: string
-    error?: string
-  }
   throw new Error(body.message || body.error || `HTTP ${response.status}`)
+}
+
+async function existingRecord(
+  agent: BskyAgent,
+  space: string,
+  repo: string,
+  collection: string,
+  rkey: string,
+): Promise<SpaceWriteResult> {
+  const response = await spaceQuery(agent, SPACE_GET_RECORD, {
+    space,
+    repo,
+    collection,
+    rkey,
+  })
+  if (!response.ok) return failure(response, await errorBody(response))
+  const data = (await response.json()) as Partial<SpaceWriteResult>
+  if (!data.uri || !data.cid) {
+    throw new Error('Space host returned no record reference')
+  }
+  return {uri: data.uri, cid: data.cid}
 }
 
 /** Create a record in the caller's permissioned repo within `space`. */
@@ -80,16 +125,23 @@ export async function spaceCreateRecord(
   collection: string,
   record: Record<string, unknown>,
   rkey?: string,
-  idempotencyKey?: string,
 ): Promise<SpaceWriteResult> {
+  const repo = authenticatedRepo(agent)
+  const recordKey = rkey ?? TID.nextStr()
   const response = await spaceXrpc(agent, SPACE_CREATE_RECORD, {
     space,
+    repo,
     collection,
     record,
-    ...(rkey ? {rkey} : {}),
-    ...(idempotencyKey ? {idempotencyKey} : {}),
+    rkey: recordKey,
   })
-  if (!response.ok) return failure(response)
+  if (!response.ok) {
+    const body = await errorBody(response)
+    if (body.error === 'RecordExists') {
+      return existingRecord(agent, space, repo, collection, recordKey)
+    }
+    return failure(response, body)
+  }
   const data = (await response.json()) as Partial<SpaceWriteResult>
   if (!data.uri || !data.cid) {
     throw new Error('Space host returned no record reference')
@@ -104,12 +156,14 @@ export async function spaceDeleteRecord(
   collection: string,
   rkey: string,
 ): Promise<void> {
+  const repo = authenticatedRepo(agent)
   const response = await spaceXrpc(agent, SPACE_DELETE_RECORD, {
     space,
+    repo,
     collection,
     rkey,
   })
-  if (!response.ok) return failure(response)
+  if (!response.ok) return failure(response, await errorBody(response))
 }
 
 /**

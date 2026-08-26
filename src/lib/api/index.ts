@@ -82,6 +82,7 @@ function embedNamesSpaceRecord(embed: unknown): boolean {
 
 export interface PostOpts {
   thread: ThreadDraft
+  draftId?: string
   replyTo?: string
   onStateChange?: (state: string) => void
   langs?: string[]

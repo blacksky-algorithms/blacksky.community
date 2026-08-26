@@ -1,6 +1,10 @@
-import {describe, expect, it} from '@jest/globals'
+import {describe, expect, it, jest} from '@jest/globals'
 
-import {stripAppviewProxyForPdsLocalMethods} from '../agent'
+import {
+  Agent,
+  stripAppviewProxyForPdsLocalMethods,
+  stripAppviewProxyForSpaceMethods,
+} from '../agent'
 
 const PROXY = 'atproto-proxy'
 const PROXY_VALUE = 'did:web:api.blacksky.community#bsky_appview'
@@ -19,6 +23,11 @@ function headerValue(
 const GET_PREFS = 'https://pds.example.com/xrpc/app.bsky.actor.getPreferences'
 const PUT_PREFS = 'https://pds.example.com/xrpc/app.bsky.actor.putPreferences'
 const TIMELINE = 'https://pds.example.com/xrpc/app.bsky.feed.getTimeline'
+const SPACE_CREATE =
+  'https://pds.example.com/xrpc/com.atproto.space.createRecord'
+const SPACE_DELETE =
+  'https://pds.example.com/xrpc/com.atproto.space.deleteRecord'
+const SPACE_GET = 'https://pds.example.com/xrpc/com.atproto.space.getRecord'
 
 describe('stripAppviewProxyForPdsLocalMethods', () => {
   it('strips the appview proxy header on getPreferences', () => {
@@ -60,5 +69,56 @@ describe('stripAppviewProxyForPdsLocalMethods', () => {
       getInit({[PROXY]: PROXY_VALUE}),
     )
     expect(headerValue(out, PROXY)).toBeNull()
+  })
+
+  it.each([SPACE_CREATE, SPACE_DELETE, SPACE_GET])(
+    'strips the appview proxy header on %s',
+    url => {
+      const out = stripAppviewProxyForPdsLocalMethods(
+        url,
+        getInit({[PROXY]: PROXY_VALUE, authorization: 'DPoP tok'}),
+      )
+      expect(headerValue(out, PROXY)).toBeNull()
+      expect(headerValue(out, 'authorization')).toBe('DPoP tok')
+    },
+  )
+
+  it('uses the same space-only stripping on the bearer/session fetch path', () => {
+    const out = stripAppviewProxyForSpaceMethods(
+      SPACE_CREATE,
+      getInit({[PROXY]: PROXY_VALUE, authorization: 'DPoP tok'}),
+    )
+    expect(headerValue(out, PROXY)).toBeNull()
+    expect(headerValue(out, 'authorization')).toBe('DPoP tok')
+    expect(
+      stripAppviewProxyForSpaceMethods(
+        GET_PREFS,
+        getInit({[PROXY]: PROXY_VALUE}),
+      ),
+    ).toEqual(getInit({[PROXY]: PROXY_VALUE}))
+  })
+
+  it('strips configureProxy headers in the OAuth agent before session fetch', async () => {
+    const fetchHandler = jest.fn<
+      (url: string, init?: RequestInit) => Promise<Response>
+    >(() => Promise.resolve(new Response('{}')))
+    const agent = new Agent(PROXY_VALUE, {
+      fetchHandler(url, init) {
+        return fetchHandler(
+          url,
+          stripAppviewProxyForPdsLocalMethods(url, init) ?? init,
+        )
+      },
+    })
+
+    await agent.fetchHandler(SPACE_CREATE, {
+      method: 'POST',
+      headers: {authorization: 'DPoP tok', dpop: 'proof'},
+    })
+
+    const init = fetchHandler.mock.calls[0][1]
+    expect(headerValue(init, PROXY)).toBeNull()
+    expect(headerValue(init, 'authorization')).toBe('DPoP tok')
+    expect(headerValue(init, 'dpop')).toBe('proof')
   })
 })

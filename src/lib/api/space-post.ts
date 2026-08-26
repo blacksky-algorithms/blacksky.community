@@ -1,4 +1,5 @@
 import {type AppBskyFeedPost, type AtpAgent} from '@atproto/api'
+import {ensureValidRecordKey} from '@atproto/syntax'
 import {t} from '@lingui/core/macro'
 import {type QueryClient} from '@tanstack/react-query'
 
@@ -68,7 +69,7 @@ export async function postToSpace(
     }
   }
 
-  for (const draft of thread.posts) {
+  for (const [index, draft] of thread.posts.entries()) {
     const rt = await resolveRT(agent, draft.richtext)
     const embed = await resolveEmbed(
       agent,
@@ -96,13 +97,14 @@ export async function postToSpace(
     }
 
     opts.onStateChange?.(t`Posting to the private feed...`)
+    const rkey = opts.draftId ? `${opts.draftId}-${index}` : draft.id
+    ensureValidRecordKey(rkey)
     const written = await spaceCreateRecord(
       agent,
       space,
       POST_COLLECTION,
       record,
-      undefined,
-      draft.id,
+      rkey,
     )
 
     uris.push(written.uri)

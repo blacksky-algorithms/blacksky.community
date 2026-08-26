@@ -1054,6 +1054,7 @@ export const ComposePost = ({
       postUri = (
         await apilib.post(agent, queryClient, {
           thread: filteredThread,
+          draftId: composerState.draftId,
           replyTo: replyTo?.uri,
           onStateChange: setPublishingStage,
           langs: currentLanguages,
