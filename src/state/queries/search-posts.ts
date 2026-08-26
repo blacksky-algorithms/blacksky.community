@@ -13,6 +13,7 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useAgent} from '#/state/session'
 import {
@@ -61,12 +62,15 @@ export function useSearchPostsQuery({
   >({
     queryKey: searchPostsQueryKey({query, sort}),
     queryFn: async ({pageParam}) => {
-      const res = await agent.app.bsky.feed.searchPosts({
-        q: query,
-        limit: 25,
-        cursor: pageParam,
-        sort,
-      })
+      const res = await agent.app.bsky.feed.searchPosts(
+        {
+          q: query,
+          limit: 25,
+          cursor: pageParam,
+          sort,
+        },
+        searchAppviewOpts(),
+      )
       return res.data
     },
     initialPageParam: undefined,

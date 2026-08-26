@@ -10,6 +10,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {until} from '#/lib/async/until'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
@@ -77,10 +78,13 @@ export function useGenerateStarterPackMutation({
         })(),
         (async () => {
           profiles = (
-            await agent.app.bsky.actor.searchActors({
-              q: encodeURIComponent('*'),
-              limit: 49,
-            })
+            await agent.app.bsky.actor.searchActors(
+              {
+                q: encodeURIComponent('*'),
+                limit: 49,
+              },
+              searchAppviewOpts(),
+            )
           ).data.actors.filter(p => p.viewer?.following)
         })(),
       ])
