@@ -7,10 +7,12 @@ import {
 
 import {
   type CommunityFeedConfig,
-  fetchCommunityFeedConfig,
+  fetchCommunityFeedConfigStrict,
   fetchFeedServiceDid,
+  isSpaceBackedFeed,
 } from '#/lib/api/community-feed'
 import {getServiceAuthToken} from '#/lib/api/service-auth'
+import {fetchSpaceFeed, signInRequiredError} from '#/lib/api/space-feed'
 import {
   getAppLanguageAsContentLanguage,
   getContentLanguages,
@@ -41,10 +43,15 @@ export class CustomFeedAPI implements FeedAPI {
     this.agent = agent
     this.params = feedParams
     this.userInterests = userInterests
-    this.communityConfig = fetchCommunityFeedConfig(agent, feedParams.feed)
-    this.feedServiceDid = this.communityConfig.then(config =>
-      config ? fetchFeedServiceDid(agent, feedParams.feed) : null,
+    this.communityConfig = fetchCommunityFeedConfigStrict(
+      agent,
+      feedParams.feed,
     )
+    this.feedServiceDid = this.communityConfig
+      .then(config =>
+        config ? fetchFeedServiceDid(agent, feedParams.feed) : null,
+      )
+      .catch(() => null)
   }
 
   async communityAuthHeaders(): Promise<Record<string, string>> {
@@ -62,7 +69,24 @@ export class CustomFeedAPI implements FeedAPI {
     return {Authorization: `Bearer ${token}`}
   }
 
+  /**
+   * A space-backed feed never reaches the standard route, in either method.
+   * `app.bsky.feed.getFeed` now refuses it outright, so a poller that skipped
+   * this branch would error on every tick, and the logged-out fallback below
+   * would ask the public appview for private content.
+   */
+  private async spaceFeed(): Promise<string | null> {
+    const config = await this.communityConfig
+    return isSpaceBackedFeed(config) ? this.params.feed : null
+  }
+
   async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
+    const spaceFeed = await this.spaceFeed()
+    if (spaceFeed) {
+      if (!this.agent.did) throw signInRequiredError()
+      const page = await fetchSpaceFeed(this.agent, spaceFeed, {limit: 1})
+      return page.feed[0]
+    }
     const contentLangs = getContentLanguages().join(',')
     const communityAuthHeaders = this.agent.did
       ? await this.communityAuthHeaders()
@@ -90,6 +114,16 @@ export class CustomFeedAPI implements FeedAPI {
     cursor: string | undefined
     limit: number
   }): Promise<FeedAPIResponse> {
+    const spaceFeed = await this.spaceFeed()
+    if (spaceFeed) {
+      if (!this.agent.did) throw signInRequiredError()
+      const page = await fetchSpaceFeed(this.agent, spaceFeed, {cursor, limit})
+      return {
+        cursor: page.feed.length ? page.cursor : undefined,
+        feed: page.feed,
+      }
+    }
+
     const contentLangs = getContentLanguages().join(',')
     const agent = this.agent
     const isBlueskyOwned = isBlueskyOwnedFeed(this.params.feed)

@@ -5,12 +5,12 @@ import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 /**
  * Writes into a permissioned space.
  *
- * A space record goes to the account's **own PDS**, which routes
- * `com.atproto.space.*` to the space host. That means **no `atproto-proxy`
- * header**: proxying would send the write to the appview, which is not where
- * this content lives. It also means the request is DPoP-signed by the agent
- * exactly like any other PDS write — the space host verifies that token
- * itself.
+ * A space record goes to the account's **own PDS**. The local stack does not
+ * implement the 0016 PDS methods yet, so development may point these requests
+ * at its same-origin edge instead. That means **no `atproto-proxy` header**:
+ * proxying would send the write to the appview, which is not where this
+ * content lives. The request remains DPoP-signed by the agent, and the space
+ * host verifies that token itself.
  *
  * Records are sent as raw JSON rather than through typed builders. A like or a
  * reply inside a space refers to other space records, whose URIs are not valid
@@ -23,6 +23,11 @@ export const SPACE_DELETE_RECORD = 'com.atproto.space.deleteRecord'
 
 export const POST_COLLECTION = 'app.bsky.feed.post'
 export const LIKE_COLLECTION = 'app.bsky.feed.like'
+
+const LOCAL_SPACE_XRPC_ORIGIN =
+  __DEV__ &&
+  process.env.NODE_ENV !== 'test' &&
+  process.env.EXPO_PUBLIC_SPACE_XRPC_ORIGIN
 
 export type SpaceWriteResult = {
   uri: string
@@ -42,7 +47,11 @@ async function spaceXrpc(
   method: string,
   body: unknown,
 ): Promise<Response> {
-  return agent.fetchHandler(`/xrpc/${method}`, {
+  const path = `/xrpc/${method}`
+  const url = LOCAL_SPACE_XRPC_ORIGIN
+    ? `${LOCAL_SPACE_XRPC_ORIGIN}${path}`
+    : path
+  return agent.fetchHandler(url, {
     method: 'POST',
     // Deliberately no `atproto-proxy`: this write belongs to the account's own
     // PDS, not the appview.

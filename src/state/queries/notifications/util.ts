@@ -16,6 +16,7 @@ import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
 import {communityXrpc} from '#/lib/api/community'
+import {toPostView} from '#/lib/api/space-views'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {labelIsHideableOffense} from '#/lib/moderation'
 import * as bsky from '#/types/bsky'
@@ -253,10 +254,8 @@ async function fetchSubjects(
       })
         .then(async res => {
           if (!res.ok) return undefined
-          const data = jsonToLex(await res.json()) as {
-            post?: AppBskyFeedDefs.PostView
-          }
-          return data.post
+          const data = jsonToLex(await res.json()) as {post?: unknown}
+          return toPostView(data.post)
         })
         .catch(() => undefined),
     ),

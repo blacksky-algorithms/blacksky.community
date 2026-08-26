@@ -1,10 +1,11 @@
-import {type AtpAgent} from '@atproto/api'
+import {type AtpAgent, XRPCError} from '@atproto/api'
 
 import {
   ADMIT_FEED_POST,
   admitFeedPost,
   CHECK_FEED_PERMISSIONS,
   fetchCommunityFeedConfig,
+  fetchCommunityFeedConfigStrict,
   fetchCommunityFeedTarget,
   fetchFeedPermissions,
   fetchFeedServiceDid,
@@ -68,6 +69,20 @@ describe('community feed API', () => {
       collection: 'app.bsky.feed.generator',
       rkey: '3m2communityfeed',
     })
+  })
+
+  it('distinguishes an absent config from a failed config read', async () => {
+    const {agent, getRecord} = mockAgent()
+    getRecord.mockRejectedValueOnce(new XRPCError(400, 'RecordNotFound'))
+
+    await expect(
+      fetchCommunityFeedConfigStrict(agent, feed),
+    ).resolves.toBeNull()
+
+    getRecord.mockRejectedValueOnce(new XRPCError(503, 'UpstreamFailure'))
+    await expect(fetchCommunityFeedConfigStrict(agent, feed)).rejects.toThrow(
+      'UpstreamFailure',
+    )
   })
 
   it('checks self-scoped permissions with exact service auth and filters unknown values', async () => {

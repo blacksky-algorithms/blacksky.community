@@ -11,15 +11,17 @@ jest.mock('../index', () => ({
   ),
   resolveEmbed: jest.fn(),
   resolveReply: jest.fn(),
-  resolveRT: jest.fn(async (_agent, richtext) => richtext),
+  resolveRT: jest.fn((_agent, richtext) => Promise.resolve(richtext)),
 }))
 
 jest.mock('../space-write', () => ({
   POST_COLLECTION: 'app.bsky.feed.post',
-  spaceCreateRecord: jest.fn(async () => ({
-    uri: 'at://space/post',
-    cid: 'bafyspace',
-  })),
+  spaceCreateRecord: jest.fn(() =>
+    Promise.resolve({
+      uri: 'at://space/post',
+      cid: 'bafyspace',
+    }),
+  ),
 }))
 
 const SPACE = 'at://did:plc:space/space/community.blacksky.feed/private'

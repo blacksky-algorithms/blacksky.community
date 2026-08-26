@@ -59,13 +59,19 @@ describe('recognising a space link before it is expanded', () => {
   const encoded = encodeURIComponent(SPACE)
 
   it.each([
-    ['a full url', `https://blacksky.community/profile/did:plc:alice/post/3kabc?space=${encoded}`],
+    [
+      'a full url',
+      `https://blacksky.community/profile/did:plc:alice/post/3kabc?space=${encoded}`,
+    ],
     ['a relative path', `/profile/did:plc:alice/post/3kabc?space=${encoded}`],
     [
       'a suffix route',
       `https://bsky.app/profile/did:plc:alice/post/3kabc/liked-by?space=${encoded}`,
     ],
-    ['an unencoded space param', `/profile/did:plc:alice/post/3kabc?space=${SPACE}`],
+    [
+      'an unencoded space param',
+      `/profile/did:plc:alice/post/3kabc?space=${SPACE}`,
+    ],
   ])('spots %s', (_name, url) => {
     expect(isSpacePostUrl(url)).toBe(true)
   })
@@ -76,7 +82,10 @@ describe('recognising a space link before it is expanded', () => {
       'a community stub url',
       '/profile/did:plc:alice/post/3kabc?collection=community.blacksky.feed.post',
     ],
-    ['a space param that is not a space uri', '/profile/did:plc:alice/post/3kabc?space=nonsense'],
+    [
+      'a space param that is not a space uri',
+      '/profile/did:plc:alice/post/3kabc?space=nonsense',
+    ],
     ['nothing', undefined],
   ])('ignores %s', (_name, url) => {
     expect(isSpacePostUrl(url)).toBe(false)

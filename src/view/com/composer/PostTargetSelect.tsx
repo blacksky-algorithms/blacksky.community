@@ -49,7 +49,7 @@ export function PostTargetSelect({
   const selected = options.find(option => option.value === value)
 
   return (
-    <View style={{minWidth: 180}}>
+    <View>
       <Select.Root
         value={value}
         onValueChange={next => {

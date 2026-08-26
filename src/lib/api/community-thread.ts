@@ -1,6 +1,7 @@
 import {type BskyAgent} from '@atproto/api'
 
 import {communityXrpc} from '#/lib/api/community'
+import {toSpaceThreadBody} from '#/lib/api/space-views'
 
 export const GET_COMMUNITY_THREAD = 'community.blacksky.feed.getCommunityThread'
 
@@ -42,7 +43,11 @@ export async function fetchCommunityThread(
     }
     throw new Error(body.message || body.error || `HTTP ${res.status}`)
   }
-  const data = (await res.json()) as Partial<CommunityThreadResponse>
+  // The wire types are community.blacksky.feed.defs; the thread renderer
+  // consumes the standard threadItem shapes, which are structurally identical.
+  const data = toSpaceThreadBody(
+    await res.json(),
+  ) as Partial<CommunityThreadResponse>
   return {
     thread: data.thread ?? [],
     hasOtherReplies: !!data.hasOtherReplies,

@@ -1,7 +1,14 @@
-import {type AppBskyFeedDefs, type BskyAgent, jsonToLex} from '@atproto/api'
+import {
+  type AppBskyFeedDefs,
+  AppBskyFeedPost,
+  type BskyAgent,
+  jsonToLex,
+} from '@atproto/api'
 
 import {communityXrpc} from '#/lib/api/community'
 import {isSpaceRecordUri, parseSpaceUri} from '#/lib/api/space-uri'
+import {toPostView} from '#/lib/api/space-views'
+import * as bsky from '#/types/bsky'
 
 export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'
 
@@ -15,6 +22,27 @@ const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 export function isCommunityPostUri(uri: string | undefined): boolean {
   return (
     !!uri && (uri.includes(COMMUNITY_POST_COLLECTION) || isSpaceRecordUri(uri))
+  )
+}
+
+/**
+ * Space records use the same post record shape as public posts, but their
+ * reply and quote refs are permissioned-space URIs rather than AT-URIs. The
+ * public lexicon validator therefore cannot validate those otherwise valid
+ * records. Space responses are already validated by the AppView endpoint;
+ * retain the fields the renderer requires here while keeping strict lexicon
+ * validation for public posts.
+ */
+export function isRenderablePostRecord(
+  post: AppBskyFeedDefs.PostView,
+): post is AppBskyFeedDefs.PostView & {record: AppBskyFeedPost.Record} {
+  if (!AppBskyFeedPost.isRecord(post.record)) return false
+  if (!isSpaceRecordUri(post.uri)) {
+    return bsky.validate(post.record, AppBskyFeedPost.validateRecord)
+  }
+  return (
+    typeof post.record.text === 'string' &&
+    typeof post.record.createdAt === 'string'
   )
 }
 
@@ -57,7 +85,8 @@ export async function fetchCommunityPostView(
     }
     throw new Error(body.message || body.error || `HTTP ${res.status}`)
   }
-  const data = jsonToLex(await res.json()) as {post?: AppBskyFeedDefs.PostView}
-  if (!data.post) throw new Error('Community post not found')
-  return data.post
+  const data = jsonToLex(await res.json()) as {post?: unknown}
+  const post = toPostView(data.post)
+  if (!post) throw new Error('Community post not found')
+  return post
 }

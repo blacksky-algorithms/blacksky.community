@@ -10,7 +10,10 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {
+  getCommunitySpaceUri,
+  isRenderablePostRecord,
+} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {postPermalink} from '#/lib/routes/links'
@@ -40,7 +43,6 @@ import {TranslatedPost} from '#/components/Post/Translated'
 import {PostControls} from '#/components/PostControls'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
-import * as bsky from '#/types/bsky'
 
 export function Post({
   post,
@@ -57,10 +59,7 @@ export function Post({
 }) {
   const moderationOpts = useModerationOpts()
   const record = useMemo<AppBskyFeedPost.Record | undefined>(
-    () =>
-      bsky.validate(post.record, AppBskyFeedPost.validateRecord)
-        ? post.record
-        : undefined,
+    () => (isRenderablePostRecord(post) ? post.record : undefined),
     [post],
   )
   const postShadowed = usePostShadow(post)

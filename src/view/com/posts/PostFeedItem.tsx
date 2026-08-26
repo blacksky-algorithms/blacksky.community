@@ -11,7 +11,10 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {
+  getCommunitySpaceUri,
+  isRenderablePostRecord,
+} from '#/lib/api/community-post'
 import {type ReasonFeedSource} from '#/lib/api/feed/types'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -480,10 +483,7 @@ let PostContent = ({
   )
 
   const record = useMemo<AppBskyFeedPost.Record | undefined>(
-    () =>
-      bsky.validate(post.record, AppBskyFeedPost.validateRecord)
-        ? post.record
-        : undefined,
+    () => (isRenderablePostRecord(post) ? post.record : undefined),
     [post],
   )
 

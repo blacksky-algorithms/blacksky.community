@@ -1,4 +1,4 @@
-import {type AtpAgent, AtUri} from '@atproto/api'
+import {type AtpAgent, AtUri, XRPCError} from '@atproto/api'
 
 import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {isSpaceUri} from '#/lib/api/space-uri'
@@ -91,16 +91,40 @@ export async function fetchCommunityFeedConfig(
   feed: string,
 ): Promise<CommunityFeedConfig | null> {
   try {
-    const uri = new AtUri(feed)
-    if (!uri.rkey) return null
+    return await fetchCommunityFeedConfigStrict(agent, feed)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Distinguishes "no config record exists" (null) from a failed read (throws).
+ * The feed dispatch must not treat a transient config-read failure as "not
+ * space-backed" and route a private feed down the standard path.
+ */
+export async function fetchCommunityFeedConfigStrict(
+  agent: AtpAgent,
+  feed: string,
+): Promise<CommunityFeedConfig | null> {
+  let uri: AtUri
+  try {
+    uri = new AtUri(feed)
+  } catch {
+    return null
+  }
+  if (!uri.rkey) return null
+  try {
     const {data} = await agent.com.atproto.repo.getRecord({
       repo: uri.hostname,
       collection: COMMUNITY_FEED_CONFIG_COLLECTION,
       rkey: uri.rkey,
     })
     return parseCommunityFeedConfig(data.value)
-  } catch {
-    return null
+  } catch (e) {
+    if (e instanceof XRPCError && e.error === 'RecordNotFound') {
+      return null
+    }
+    throw e
   }
 }
 

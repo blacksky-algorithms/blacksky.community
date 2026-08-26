@@ -113,30 +113,39 @@ describe('quoting a space post from outside the space', () => {
   it.each([
     ['a pasted permalink', permalink],
     ['an at:// space record uri', SPACE_POST],
-  ])('refuses %s rather than writing it to the public repo', async (_n, uri) => {
-    const {agent, applyWrites, fetchHandler} = mockAgent()
+  ])(
+    'refuses %s rather than writing it to the public repo',
+    async (_n, uri) => {
+      const {agent, applyWrites, fetchHandler} = mockAgent()
 
-    await expect(
-      post(agent, queryClient, {thread: threadQuoting(uri)}),
-    ).rejects.toThrow(/private post/)
+      await expect(
+        post(agent, queryClient, {thread: threadQuoting(uri)}),
+      ).rejects.toThrow(/private post/)
 
-    expect(applyWrites).not.toHaveBeenCalled()
-    expect(fetchHandler).not.toHaveBeenCalled()
-    expect(postToSpace).not.toHaveBeenCalled()
-  })
+      expect(applyWrites).not.toHaveBeenCalled()
+      expect(fetchHandler).not.toHaveBeenCalled()
+      expect(postToSpace).not.toHaveBeenCalled()
+    },
+  )
 
   it.each([
     ['opened from the space post', {communitySpaceUri: SPACE}],
     ['composing into the space-backed feed', {}],
-  ])('allows the quote when the post goes into that space (%s)', async (_n, extra) => {
-    const {agent} = mockAgent()
+  ])(
+    'allows the quote when the post goes into that space (%s)',
+    async (_n, extra) => {
+      const {agent} = mockAgent()
 
-    await post(agent, queryClient, {
-      thread: {...(threadQuoting(permalink, SPACE) as object), ...extra} as never,
-    })
+      await post(agent, queryClient, {
+        thread: {
+          ...(threadQuoting(permalink, SPACE) as object),
+          ...extra,
+        } as never,
+      })
 
-    expect(postToSpace).toHaveBeenCalled()
-  })
+      expect(postToSpace).toHaveBeenCalled()
+    },
+  )
 })
 
 describe('quotedSpace', () => {

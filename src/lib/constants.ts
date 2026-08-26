@@ -9,7 +9,9 @@ export const LOCAL_DEV_SERVICE =
 export const STAGING_SERVICE = 'https://staging.bsky.dev'
 export const BSKY_SERVICE = 'https://blacksky.app'
 export const BSKY_SERVICE_DID = 'did:web:bsky.social'
-export const PUBLIC_BSKY_SERVICE = 'https://api.blacksky.community'
+export const PUBLIC_BSKY_SERVICE =
+  (__DEV__ && process.env.EXPO_PUBLIC_APPVIEW_URL) ||
+  'https://api.blacksky.community'
 export const DEFAULT_SERVICE = BSKY_SERVICE
 
 // Handle suffixes that identify a Latinsky-community account living on the shared
