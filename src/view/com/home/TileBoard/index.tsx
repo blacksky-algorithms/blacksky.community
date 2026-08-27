@@ -25,6 +25,7 @@ import {useFeedPeekQuery} from '#/state/queries/feed-peek'
 import {useShellLayout} from '#/state/shell/shell-layout'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
+import {ChevronRight_Stroke2_Corner0_Rounded as ChevronRightIcon} from '#/components/icons/Chevron'
 import * as Layout from '#/components/Layout'
 import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
@@ -341,11 +342,15 @@ function Tile({
             numberOfLines={1}>
             {feed.displayName}
           </Text>
+          {!isEditing && (
+            <ChevronRightIcon size="xs" style={{color: tint.body}} />
+          )}
         </View>
         <TilePreview
           feed={feed}
           isHero={isHero}
           tint={tint}
+          isDark={isDark}
           enabled={enabled}
           isEditing={isEditing}
           onPressVideo={onPressVideo}
@@ -377,6 +382,7 @@ function TilePreview({
   feed,
   isHero,
   tint,
+  isDark,
   enabled,
   isEditing,
   onPressVideo,
@@ -384,6 +390,7 @@ function TilePreview({
   feed: SavedFeedSourceInfo
   isHero: boolean
   tint: TileTint
+  isDark: boolean
   enabled: boolean
   isEditing: boolean
   onPressVideo: (postUri: string) => void
@@ -430,7 +437,7 @@ function TilePreview({
       new Map(
         (query.data ?? []).map(item => [item.author.did, item.author]),
       ).values(),
-    ).slice(0, 4)
+    ).slice(0, 3)
     const description = feed.description?.text?.trim()
     return (
       <>
@@ -442,7 +449,7 @@ function TilePreview({
             {description}
           </Text>
         ) : null}
-        <View style={[a.flex_row, a.align_end, a.flex_1, a.pb_2xs, a.mt_sm]}>
+        <View style={[a.flex_row, a.align_end, a.flex_1, a.pb_xs, a.mt_sm]}>
         {authors.map((author, index) => (
           <View
             key={author.did}
@@ -459,6 +466,32 @@ function TilePreview({
             <UserAvatar type="user" size={44} avatar={author.avatar} />
           </View>
         ))}
+          {authors.length > 0 && (
+            <View
+              style={[
+                a.relative,
+                a.align_center,
+                a.justify_center,
+                {
+                  left: authors.length * -10,
+                  zIndex: 0,
+                  width: 44,
+                  height: 44,
+                  borderWidth: 2.5,
+                  borderColor: tint.ring,
+                  borderRadius: 999,
+                  backgroundColor: isDark
+                    ? 'rgba(255,255,255,0.10)'
+                    : 'rgba(0,0,0,0.06)',
+                },
+              ]}>
+              <Text
+                style={[a.text_lg, {color: tint.body, lineHeight: 20}]}
+                maxFontSizeMultiplier={1.2}>
+                +
+              </Text>
+            </View>
+          )}
         </View>
       </>
     )
