@@ -390,7 +390,7 @@ function HomeScreenReady({
           <Layout.Header.Slot />
         </Layout.Header.Outer>
         {feed === 'community' ? (
-          <CommunityFeedPage isPageFocused />
+          <CommunityFeedPage isPageFocused headerOffset={0} />
         ) : feed === 'following' ? (
           <FeedPage
             testID="followingFeedPage"

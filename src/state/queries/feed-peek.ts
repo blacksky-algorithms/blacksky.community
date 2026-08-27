@@ -31,7 +31,7 @@ export function selectPeekPosts({
     .filter(
       item => !moderatePost(item.post, moderationOpts).ui('contentList').filter,
     )
-    .slice(0, 2)
+    .slice(0, 5)
     .map(item => item.post)
 }
 

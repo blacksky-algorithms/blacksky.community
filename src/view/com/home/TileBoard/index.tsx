@@ -8,6 +8,7 @@ import {
 } from 'react-native'
 import Animated, {
   useAnimatedRef,
+  useAnimatedStyle,
   useScrollViewOffset,
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
@@ -18,6 +19,7 @@ import {Trans} from '@lingui/react/macro'
 
 import {type SavedFeedSourceInfo} from '#/state/queries/feed'
 import {useFeedPeekQuery} from '#/state/queries/feed-peek'
+import {useShellLayout} from '#/state/shell/shell-layout'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import * as Layout from '#/components/Layout'
@@ -58,6 +60,10 @@ export function TileBoard({
   const [isDragging, setIsDragging] = useState(false)
   const scrollRef = useAnimatedRef<Animated.ScrollView>()
   const scrollOffset = useScrollViewOffset(scrollRef)
+  const {footerHeight} = useShellLayout()
+  const footerOffset = useAnimatedStyle(() => ({
+    marginBottom: footerHeight.get(),
+  }))
 
   const colW = (boardWidth - TILE_GAP) / 2
   const rowH = TILE_HEIGHT * PixelRatio.getFontScale()
@@ -97,7 +103,7 @@ export function TileBoard({
     <View style={a.flex_1}>
       <Animated.ScrollView
         ref={scrollRef}
-        style={a.flex_1}
+        style={[a.flex_1, footerOffset]}
         scrollEnabled={!isDragging}
         contentContainerStyle={[a.pt_md, a.pb_3xl]}>
         <View style={[a.px_lg, a.w_full]}>
@@ -171,9 +177,10 @@ export function TileBoard({
               onReorder={onReorderFeeds}
               onDragStart={() => setIsDragging(true)}
               onDragEnd={() => setIsDragging(false)}
-              renderItem={feed => (
+              renderItem={(feed, index) => (
                 <Tile
                   feed={feed}
+                  isHero={index === 0}
                   isEditing={isEditing}
                   enabled={
                     feeds.findIndex(f => f.savedFeed.id === feed.savedFeed.id) <
@@ -230,6 +237,7 @@ export function TileBoard({
 
 function Tile({
   feed,
+  isHero,
   isEditing,
   enabled,
   onPress,
@@ -238,6 +246,7 @@ function Tile({
   onUnpin,
 }: {
   feed: SavedFeedSourceInfo
+  isHero: boolean
   isEditing: boolean
   enabled: boolean
   onPress: () => void
@@ -280,6 +289,7 @@ function Tile({
       </View>
       <TilePreview
         feed={feed}
+        isHero={isHero}
         enabled={enabled}
         isEditing={isEditing}
         onPressVideo={onPressVideo}
@@ -308,11 +318,13 @@ function Tile({
 
 function TilePreview({
   feed,
+  isHero,
   enabled,
   isEditing,
   onPressVideo,
 }: {
   feed: SavedFeedSourceInfo
+  isHero: boolean
   enabled: boolean
   isEditing: boolean
   onPressVideo: (postUri: string) => void
@@ -352,42 +364,60 @@ function TilePreview({
       )
     }
   }
-  const posts = query.data ?? (post ? [post] : [])
+  if (!isHero) {
+    const authors = Array.from(
+      new Map(
+        (query.data ?? []).map(item => [item.author.did, item.author]),
+      ).values(),
+    ).slice(0, 5)
+    return (
+      <View style={[a.flex_row, a.align_center, a.mt_md]}>
+        {authors.map((author, index) => (
+          <View
+            key={author.did}
+            style={[
+              a.relative,
+              {
+                left: index * -7,
+                zIndex: authors.length - index,
+                borderWidth: 2,
+                borderColor: t.atoms.bg_contrast_25.backgroundColor,
+                borderRadius: 999,
+              },
+            ]}>
+            <UserAvatar type="user" size={28} avatar={author.avatar} />
+          </View>
+        ))}
+      </View>
+    )
+  }
   return (
     <View style={a.mt_sm}>
-      {posts.map((post, index) => (
-        <View
-          key={post.uri}
-          style={[
-            a.flex_row,
-            a.gap_sm,
-            index > 0 && [a.pt_sm, a.border_t, t.atoms.border_contrast_low],
-          ]}>
-          <UserAvatar type="user" size={20} avatar={post.author.avatar} />
-          <View style={a.flex_1}>
-            <Text
-              style={[
-                a.text_xs,
-                a.font_bold,
-                t.atoms.text_contrast_medium,
-                a.mb_2xs,
-              ]}
-              numberOfLines={1}>
-              {post.author.handle}
-            </Text>
-            <Text
-              style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium]}
-              numberOfLines={2}
-              maxFontSizeMultiplier={1.3}>
-              {'text' in post.record ? (
-                String(post.record.text)
-              ) : (
-                <Trans>Open feed</Trans>
-              )}
-            </Text>
-          </View>
+      <View style={[a.flex_row, a.gap_sm]}>
+        <UserAvatar type="user" size={20} avatar={post!.author.avatar} />
+        <View style={a.flex_1}>
+          <Text
+            style={[
+              a.text_xs,
+              a.font_bold,
+              t.atoms.text_contrast_medium,
+              a.mb_2xs,
+            ]}
+            numberOfLines={1}>
+            {post!.author.handle}
+          </Text>
+          <Text
+            style={[a.text_sm, a.leading_snug]}
+            numberOfLines={3}
+            maxFontSizeMultiplier={1.3}>
+            {'text' in post!.record ? (
+              String(post!.record.text)
+            ) : (
+              <Trans>Open feed</Trans>
+            )}
+          </Text>
         </View>
-      ))}
+      </View>
     </View>
   )
 }
