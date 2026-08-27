@@ -372,26 +372,37 @@ function TilePreview({
       new Map(
         (query.data ?? []).map(item => [item.author.did, item.author]),
       ).values(),
-    ).slice(0, 5)
+    ).slice(0, 4)
+    const description = feed.description?.text?.trim()
     return (
-      <View style={[a.flex_row, a.align_center, a.mt_md]}>
+      <>
+        {description ? (
+          <Text
+            style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium, a.mt_2xs]}
+            numberOfLines={2}
+            maxFontSizeMultiplier={1.3}>
+            {description}
+          </Text>
+        ) : null}
+        <View style={[a.flex_row, a.align_end, a.flex_1, a.pb_2xs, a.mt_sm]}>
         {authors.map((author, index) => (
           <View
             key={author.did}
             style={[
               a.relative,
               {
-                left: index * -7,
+                left: index * -10,
                 zIndex: authors.length - index,
                 borderWidth: 2,
                 borderColor: t.atoms.bg_contrast_25.backgroundColor,
                 borderRadius: 999,
               },
             ]}>
-            <UserAvatar type="user" size={28} avatar={author.avatar} />
+            <UserAvatar type="user" size={44} avatar={author.avatar} />
           </View>
         ))}
-      </View>
+        </View>
+      </>
     )
   }
   return (
