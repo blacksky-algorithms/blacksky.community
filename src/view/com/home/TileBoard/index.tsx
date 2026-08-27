@@ -341,7 +341,10 @@ function TilePreview({
     )
   }
   const post = query.data?.[0]
-  if (query.isSuccess && !post) {
+  if (!post) {
+    if (!query.isSuccess) {
+      return null
+    }
     return (
       <Text
         style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
@@ -394,7 +397,7 @@ function TilePreview({
   return (
     <View style={a.mt_sm}>
       <View style={[a.flex_row, a.gap_sm]}>
-        <UserAvatar type="user" size={20} avatar={post!.author.avatar} />
+        <UserAvatar type="user" size={20} avatar={post.author.avatar} />
         <View style={a.flex_1}>
           <Text
             style={[
@@ -404,14 +407,14 @@ function TilePreview({
               a.mb_2xs,
             ]}
             numberOfLines={1}>
-            {post!.author.handle}
+            {post.author.handle}
           </Text>
           <Text
             style={[a.text_sm, a.leading_snug]}
             numberOfLines={3}
             maxFontSizeMultiplier={1.3}>
-            {'text' in post!.record ? (
-              String(post!.record.text)
+            {'text' in post.record ? (
+              String(post.record.text)
             ) : (
               <Trans>Open feed</Trans>
             )}
