@@ -621,6 +621,10 @@ export function usePinnedFeedsInfos() {
     gcTime: GCTIME.INFINITY,
     staleTime: STALE.INFINITY,
     enabled: !isLoadingPrefs,
+    // The key contains the pinned URIs in order, so reordering produces a cold
+    // key. Without this the screen falls back to its full-screen spinner on
+    // every drag-reorder commit.
+    placeholderData: keepPreviousData,
     select: injectCommunity,
     queryFn: async () => {
       if (!hasSession) {
