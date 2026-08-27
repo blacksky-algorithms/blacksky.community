@@ -449,52 +449,38 @@ export class Agent extends BaseAgent {
 // our appview, which 501s - breaking app load for accounts hosted elsewhere
 // (e.g. bsky.network).
 //
-// Preferences are stripped only on OAuth. Space methods are stripped on both
-// OAuth and Bearer/session agents because they are always PDS-local writes.
-// The Bearer path deliberately keeps the proxy on preferences: removing it
-// produced a bare 401 on fresh signups.
+// This is only used by the OAuth agent, which is the only path a foreign PDS is
+// ever reached on. Accounts on our own PDS never need this: that PDS serves the
+// methods locally and its gatekeeper strips the header server-side anyway.
+// (The Bearer agent - account creation + legacy resume, always on our PDS -
+// deliberately does NOT strip; doing so produced a bare 401 on fresh signups.)
 const PDS_LOCAL_PROXY_EXEMPT_METHODS = [
   'app.bsky.actor.getPreferences',
   'app.bsky.actor.putPreferences',
-  'com.atproto.space.',
+  'com.atproto.space.createRecord',
+  'com.atproto.space.deleteRecord',
+  'com.atproto.space.getRecord',
 ]
-
-const SPACE_PDS_LOCAL_METHOD = 'com.atproto.space.'
-
-function requestUrl(input: string | URL | Request): string {
-  return typeof input === 'string'
-    ? input
-    : input instanceof URL
-      ? input.href
-      : input.url
-}
-
-function stripAppviewProxy(
-  input: string | URL | Request,
-  init: RequestInit | undefined,
-  methods: string[],
-): RequestInit | undefined {
-  const url = requestUrl(input)
-  if (!url || !methods.some(method => url.includes(method))) {
-    return init
-  }
-  const headers = new Headers(init?.headers)
-  headers.delete('atproto-proxy')
-  return {...init, headers}
-}
 
 export function stripAppviewProxyForPdsLocalMethods(
   input: string | URL | Request,
   init: RequestInit | undefined,
 ): RequestInit | undefined {
-  return stripAppviewProxy(input, init, PDS_LOCAL_PROXY_EXEMPT_METHODS)
-}
-
-export function stripAppviewProxyForSpaceMethods(
-  input: string | URL | Request,
-  init: RequestInit | undefined,
-): RequestInit | undefined {
-  return stripAppviewProxy(input, init, [SPACE_PDS_LOCAL_METHOD])
+  const url =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+        ? input.href
+        : input.url
+  if (
+    !url ||
+    !PDS_LOCAL_PROXY_EXEMPT_METHODS.some(method => url.includes(method))
+  ) {
+    return init
+  }
+  const headers = new Headers(init?.headers)
+  headers.delete('atproto-proxy')
+  return {...init, headers}
 }
 
 let realFetch = globalThis.fetch
@@ -506,16 +492,23 @@ class BskyAppAgent extends BskyAgent {
     super({
       service,
       async fetch(input: RequestInfo | URL, init?: RequestInit) {
-        const finalInit = stripAppviewProxyForSpaceMethods(input, init) ?? init
+        // NOTE: the appview proxy header is deliberately NOT stripped here.
+        // This (Bearer) agent is only ever used for account creation and legacy
+        // session resume - both always on this deployment's own PDS, whose home
+        // appview is ours, so it serves getPreferences/putPreferences locally
+        // (the PDS gatekeeper also strips the header server-side). Stripping it
+        // client-side here instead produced a bare 401 on fresh signups. The
+        // strip is only needed for foreign PDSes, which are only ever reached
+        // via the OAuth agent - see stripAppviewProxyForPdsLocalMethods.
         let success = false
         try {
-          const result = await realFetch(input, finalInit)
+          const result = await realFetch(input, init)
           success = true
-          reportProxiedFetch(finalInit, result.status)
+          reportProxiedFetch(init, result.status)
           return result
         } catch (e) {
           success = false
-          reportProxiedFetch(finalInit, null)
+          reportProxiedFetch(init, null)
           throw e
         } finally {
           if (success) {
