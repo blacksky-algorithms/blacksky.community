@@ -16,6 +16,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {uploadBlob} from '#/lib/api'
 import {useBrand} from '#/lib/community/BrandContext'
 import {BLACKSKY_COMMUNITY_DID, BSKY_APP_ACCOUNT_DID} from '#/lib/constants'
+import {prioritizeForYouForMyAtprotoHandle} from '#/lib/default-feeds'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {logger} from '#/logger'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
@@ -122,7 +123,10 @@ export function StepFinished() {
           // the app, sourced from the active brand config so non-Blacksky
           // brands don't end up with Blacksky's feed URIs after onboarding.
           const feedsToSave: AppBskyActorDefs.SavedFeed[] =
-            brand.feeds.defaultPinned.map(f => ({
+            prioritizeForYouForMyAtprotoHandle(
+              brand.feeds.defaultPinned,
+              agent.session?.handle,
+            ).map(f => ({
               ...f,
               id: TID.nextStr(),
             }))

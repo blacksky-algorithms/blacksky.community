@@ -28,6 +28,7 @@ import {
   IS_PROD_SERVICE,
   PUBLIC_BSKY_SERVICE,
 } from '#/lib/constants'
+import {prioritizeForYouForMyAtprotoHandle} from '#/lib/default-feeds'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
 import {reportProxiedFetch} from '#/state/appview-health'
@@ -287,10 +288,10 @@ export async function createAgentAndCreateAccount(
         throw e
       }),
       networkRetry(1, () => {
-        const pinnedFeeds = DEFAULT_BRAND_CONFIG.feeds.defaultPinned.map(f => ({
-          ...f,
-          id: TID.nextStr(),
-        }))
+        const pinnedFeeds = prioritizeForYouForMyAtprotoHandle(
+          DEFAULT_BRAND_CONFIG.feeds.defaultPinned,
+          handle,
+        ).map(f => ({...f, id: TID.nextStr()}))
         return agent.overwriteSavedFeeds(pinnedFeeds)
       }).catch(e => {
         logger.info(`createAgentAndCreateAccount: failed to set initial feeds`)

@@ -143,6 +143,8 @@ export const DISCOVER_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-trend'
 export const VIDEO_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-videos'
+export const FOR_YOU_FEED_URI =
+  'at://did:plc:3guzzweuqraryl3rdkimjamk/app.bsky.feed.generator/for-you'
 export const STAGING_VIDEO_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-videos'
 export const VIDEO_FEED_URIS = [VIDEO_FEED_URI, STAGING_VIDEO_FEED_URI]
