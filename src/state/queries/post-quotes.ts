@@ -4,6 +4,7 @@ import {
   type AppBskyFeedDefs,
   type AppBskyFeedGetQuotes,
   AtUri,
+  type BskyAgent,
 } from '@atproto/api'
 import {
   type InfiniteData,
@@ -12,6 +13,8 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {getSpacePostQuotes} from '#/lib/api/community'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useAgent} from '#/state/session'
 import {
   didOrHandleUriMatches,
@@ -25,6 +28,26 @@ type RQPageParam = string | undefined
 const RQKEY_ROOT = 'post-quotes'
 export const RQKEY = (resolvedUri: string) => [RQKEY_ROOT, resolvedUri]
 
+export async function fetchPostQuotesPage(
+  agent: BskyAgent,
+  resolvedUri: string,
+  cursor?: string,
+): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+  if (isSpaceRecordUri(resolvedUri)) {
+    return getSpacePostQuotes(agent, {
+      uri: resolvedUri,
+      limit: PAGE_SIZE,
+      cursor,
+    })
+  }
+  const res = await agent.api.app.bsky.feed.getQuotes({
+    uri: resolvedUri,
+    limit: PAGE_SIZE,
+    cursor,
+  })
+  return res.data
+}
+
 export function usePostQuotesQuery(resolvedUri: string | undefined) {
   const agent = useAgent()
   return useInfiniteQuery<
@@ -36,12 +59,7 @@ export function usePostQuotesQuery(resolvedUri: string | undefined) {
   >({
     queryKey: RQKEY(resolvedUri || ''),
     async queryFn({pageParam}: {pageParam: RQPageParam}) {
-      const res = await agent.api.app.bsky.feed.getQuotes({
-        uri: resolvedUri || '',
-        limit: PAGE_SIZE,
-        cursor: pageParam,
-      })
-      return res.data
+      return fetchPostQuotesPage(agent, resolvedUri || '', pageParam)
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,

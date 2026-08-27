@@ -94,10 +94,21 @@ export async function post(
   opts: PostOpts,
 ) {
   let thread = opts.thread
+  const replySpace = spaceOfRecordUri(opts.replyTo)
   // Replying to or quoting a space post: the parent's space is the target, and
   // no feed needs resolving — a feed is only a view over the space.
-  if (thread.communitySpaceUri) {
-    return postToSpace(agent, queryClient, thread.communitySpaceUri, opts)
+  if (thread.communitySpaceUri || replySpace) {
+    const space = thread.communitySpaceUri ?? replySpace!
+    if (
+      thread.communitySpaceUri &&
+      replySpace &&
+      thread.communitySpaceUri !== replySpace
+    ) {
+      throw new Error(
+        t`This reply targets a different private space than its parent.`,
+      )
+    }
+    return postToSpace(agent, queryClient, space, opts)
   }
 
   if (!thread.communityFeed && thread.communityFeedUri) {

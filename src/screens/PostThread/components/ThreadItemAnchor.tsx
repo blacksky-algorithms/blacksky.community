@@ -4,12 +4,12 @@ import {
   AppBskyFeedDefs,
   AppBskyFeedPost,
   type AppBskyFeedThreadgate,
-  AtUri,
   RichText as RichTextAPI,
 } from '@atproto/api'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {postUriAuthor} from '#/lib/api/space-permalink'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -198,16 +198,16 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
     [record],
   )
 
-  const threadRootUri = record.reply?.root?.uri || post.uri
   const authorHref = makeProfileLink(post.author)
   const isThreadAuthor = getThreadAuthor(post, record) === currentAccount?.did
 
   const statHref = useCallback(
     (suffix: string) => {
-      // Space posts have no liked-by / reposted-by / quotes screens: those
-      // endpoints take at-uris, and reposts and quotes are deferred there
-      // anyway. The counts still show, they just do not link anywhere.
-      if (isSpaceRecordUri(post.uri)) return undefined
+      // Space likes and quotes have permission-aware endpoints. Reposts remain
+      // unsupported, so their count deliberately has no destination.
+      if (isSpaceRecordUri(post.uri) && suffix === 'reposted-by') {
+        return undefined
+      }
       return postPermalink(post.author, post.uri, suffix)
     },
     [post.uri, post.author],
@@ -221,8 +221,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   })
   const additionalPostAlerts: AppModerationCause[] = useMemo(() => {
     const isPostHiddenByThreadgate = threadgateHiddenReplies.has(post.uri)
-    const isControlledByViewer =
-      new AtUri(threadRootUri).host === currentAccount?.did
+    const isControlledByViewer = isThreadAuthor
     return isControlledByViewer && isPostHiddenByThreadgate
       ? [
           {
@@ -232,7 +231,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
           },
         ]
       : []
-  }, [post, currentAccount?.did, threadgateHiddenReplies, threadRootUri])
+  }, [post, currentAccount?.did, isThreadAuthor, threadgateHiddenReplies])
   const onlyFollowersCanReply = !!threadgateRecord?.allow?.find(
     rule => rule.$type === 'app.bsky.feed.threadgate#followerRule',
   )
@@ -678,11 +677,7 @@ function getThreadAuthor(
   if (!record.reply) {
     return post.author.did
   }
-  try {
-    return new AtUri(record.reply.root.uri).host
-  } catch {
-    return ''
-  }
+  return postUriAuthor(record.reply.root.uri) ?? ''
 }
 
 export function ThreadItemAnchorSkeleton() {

@@ -1,4 +1,10 @@
-import {parseSpaceUri, spaceRecordUri} from '#/lib/api/space-uri'
+import {AtUri} from '@atproto/api'
+
+import {
+  parseSpaceUri,
+  spaceRecordAuthor,
+  spaceRecordUri,
+} from '#/lib/api/space-uri'
 import {POST_COLLECTION} from '#/lib/api/space-write'
 
 /**
@@ -41,4 +47,15 @@ export function spacePostUriFromRoute(
   const ref = parseSpaceUri(space)
   if (!ref || !author.startsWith('did:')) return null
   return spaceRecordUri({...ref, authorDid: author, collection, rkey})
+}
+
+/** Read the author from either an ordinary post URI or a space record URI. */
+export function postUriAuthor(uri: string): string | null {
+  const spaceAuthor = spaceRecordAuthor(uri)
+  if (spaceAuthor) return spaceAuthor
+  try {
+    return new AtUri(uri).host
+  } catch {
+    return null
+  }
 }

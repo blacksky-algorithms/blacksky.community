@@ -1,6 +1,10 @@
 import {postPermalink} from '#/lib/routes/links'
 import {postUriToRelativePath} from '#/lib/strings/url-helpers'
-import {isSpacePostUrl, spacePostUriFromRoute} from '../space-permalink'
+import {
+  isSpacePostUrl,
+  postUriAuthor,
+  spacePostUriFromRoute,
+} from '../space-permalink'
 
 const SPACE = 'at://did:plc:community/space/community.blacksky.feed/private'
 const AUTHOR = {did: 'did:plc:alice', handle: 'alice.test'}
@@ -52,6 +56,28 @@ describe('space permalinks', () => {
     ['an unresolved handle', SPACE, 'alice.test'],
   ])('refuses %s', (_name, space, author) => {
     expect(spacePostUriFromRoute(space, author, '3kabc')).toBeNull()
+  })
+})
+
+describe('post uri authors', () => {
+  it.each([
+    [
+      'a public post',
+      'at://did:plc:public/app.bsky.feed.post/3kroot',
+      'did:plc:public',
+    ],
+    [
+      'a legacy community post',
+      'at://did:plc:community/community.blacksky.feed.post/3kroot',
+      'did:plc:community',
+    ],
+    ['a permissioned-space post', SPACE_POST, AUTHOR.did],
+  ])('finds the author of %s', (_name, uri, expected) => {
+    expect(postUriAuthor(uri)).toBe(expected)
+  })
+
+  it('does not feed malformed input through as an author', () => {
+    expect(postUriAuthor('not-an-at-uri')).toBeNull()
   })
 })
 

@@ -6,6 +6,7 @@ import {postToSpace} from '../space-post'
 
 // `post()`'s module graph reaches the image picker, which pulls in native UI
 // modules that cannot load under jest. Only the write routing is under test.
+jest.mock('react-native-uuid', () => ({default: {v4: () => 'test-device-id'}}))
 jest.mock('#/state/gallery', () => ({compressImage: jest.fn()}))
 jest.mock('#/state/queries/resolve-link', () => ({
   fetchResolveGifQuery: jest.fn(),
@@ -186,6 +187,19 @@ describe('space replies', () => {
     // reply is routed into the space at all rather than posted publicly.
     expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
       thread: threadWith(SPACE),
+      replyTo: parent,
+    })
+  })
+
+  it('reconstructs the space target when the reply view omitted it', async () => {
+    const {agent} = mockAgent()
+    const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
+    const thread = threadWith(undefined)
+
+    await post(agent, queryClient, {thread, replyTo: parent})
+
+    expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
+      thread,
       replyTo: parent,
     })
   })

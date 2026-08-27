@@ -1,6 +1,12 @@
-import {type BskyAgent} from '@atproto/api'
+import {
+  type AppBskyFeedGetLikes,
+  type AppBskyFeedGetQuotes,
+  type BskyAgent,
+  jsonToLex,
+} from '@atproto/api'
 
 import {HOME_PROXY_HEADER} from '#/lib/constants'
+import {toPostView} from './space-views'
 
 export async function communityXrpc(
   agent: BskyAgent,
@@ -30,4 +36,59 @@ export async function communityXrpc(
     init.body = JSON.stringify(opts.body)
   }
   return agent.fetchHandler(path, init)
+}
+
+export async function getSpacePostLikes(
+  agent: BskyAgent,
+  params: {uri: string; limit: number; cursor?: string},
+): Promise<AppBskyFeedGetLikes.OutputSchema> {
+  const response = await communityXrpc(
+    agent,
+    'community.blacksky.feed.getSpacePostLikes',
+    {
+      params: {
+        uri: params.uri,
+        limit: String(params.limit),
+        ...(params.cursor ? {cursor: params.cursor} : {}),
+      },
+    },
+  )
+  if (!response.ok) {
+    throw new Error(`getSpacePostLikes ${response.status}`)
+  }
+  return jsonToLex(await response.json()) as AppBskyFeedGetLikes.OutputSchema
+}
+
+export async function getSpacePostQuotes(
+  agent: BskyAgent,
+  params: {uri: string; limit: number; cursor?: string},
+): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+  const response = await communityXrpc(
+    agent,
+    'community.blacksky.feed.getSpacePostQuotes',
+    {
+      params: {
+        uri: params.uri,
+        limit: String(params.limit),
+        ...(params.cursor ? {cursor: params.cursor} : {}),
+      },
+    },
+  )
+  if (!response.ok) {
+    throw new Error(`getSpacePostQuotes ${response.status}`)
+  }
+  const data = jsonToLex(await response.json()) as {
+    cursor?: string
+    posts?: unknown[]
+  }
+  return {
+    uri: params.uri,
+    cursor: data.cursor,
+    posts: (data.posts ?? [])
+      .map(toPostView)
+      .filter(
+        (post): post is AppBskyFeedGetQuotes.OutputSchema['posts'][number] =>
+          Boolean(post),
+      ),
+  }
 }
