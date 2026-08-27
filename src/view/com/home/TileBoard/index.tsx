@@ -12,6 +12,7 @@ import Animated, {
   useScrollViewOffset,
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
+import {LinearGradient} from 'expo-linear-gradient'
 import {AppBskyEmbedVideo, AppBskyFeedDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -27,10 +28,11 @@ import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
 import {deriveTileSpan, layoutHeight, packLayout} from './layout'
+import {type TileTint, tintForFeed} from './tint'
 
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
-const TILE_RADIUS = 18
+const TILE_RADIUS = 28
 
 export function TileBoard({
   feeds,
@@ -256,6 +258,7 @@ function Tile({
 }) {
   const {_} = useLingui()
   const t = useTheme()
+  const tint = tintForFeed(feed.uri || feed.feedDescriptor, t.scheme === 'dark')
   return (
     <Pressable
       accessibilityRole="button"
@@ -268,32 +271,59 @@ function Tile({
       disabled={isEditing}
       style={[
         a.flex_1,
-        a.p_md,
-        a.border,
         a.overflow_hidden,
-        t.atoms.bg_contrast_25,
-        t.atoms.border_contrast_medium,
         {
           borderRadius: TILE_RADIUS,
           marginRight: TILE_GAP,
           marginBottom: TILE_GAP,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 6},
+          shadowOpacity: t.scheme === 'dark' ? 0.4 : 0.12,
+          shadowRadius: 14,
+          elevation: 4,
         },
       ]}>
-      <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-        {feed.avatar && (
-          <UserAvatar type="algo" size={22} avatar={feed.avatar} />
-        )}
-        <Text style={[a.text_md, a.font_bold, a.flex_1]} numberOfLines={1}>
-          {feed.displayName}
-        </Text>
-      </View>
-      <TilePreview
-        feed={feed}
-        isHero={isHero}
-        enabled={enabled}
-        isEditing={isEditing}
-        onPressVideo={onPressVideo}
+      <LinearGradient
+        colors={[tint.from, tint.to]}
+        start={{x: 0.1, y: 0}}
+        end={{x: 0.9, y: 1}}
+        style={[a.absolute, a.inset_0]}
       />
+      <View
+        style={[
+          a.absolute,
+          {
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 1,
+            backgroundColor:
+              t.scheme === 'dark'
+                ? 'rgba(255,255,255,0.10)'
+                : 'rgba(255,255,255,0.65)',
+          },
+        ]}
+      />
+      <View style={[a.flex_1, a.p_md]}>
+        <View style={[a.flex_row, a.align_center, a.gap_xs]}>
+          {feed.avatar && (
+            <UserAvatar type="algo" size={22} avatar={feed.avatar} />
+          )}
+          <Text
+            style={[a.text_md, a.font_bold, a.flex_1, {color: tint.title}]}
+            numberOfLines={1}>
+            {feed.displayName}
+          </Text>
+        </View>
+        <TilePreview
+          feed={feed}
+          isHero={isHero}
+          tint={tint}
+          enabled={enabled}
+          isEditing={isEditing}
+          onPressVideo={onPressVideo}
+        />
+      </View>
       {isEditing && (
         <Pressable
           accessibilityRole="button"
@@ -319,22 +349,23 @@ function Tile({
 function TilePreview({
   feed,
   isHero,
+  tint,
   enabled,
   isEditing,
   onPressVideo,
 }: {
   feed: SavedFeedSourceInfo
   isHero: boolean
+  tint: TileTint
   enabled: boolean
   isEditing: boolean
   onPressVideo: (postUri: string) => void
 }) {
-  const t = useTheme()
   const query = useFeedPeekQuery(feed.feedDescriptor, enabled)
   if (query.isError) {
     return (
       <Text
-        style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
+        style={[a.text_sm, a.mt_sm, {color: tint.body}]}
         numberOfLines={1}>
         <Trans>Unable to load this feed.</Trans>
       </Text>
@@ -347,7 +378,7 @@ function TilePreview({
     }
     return (
       <Text
-        style={[a.text_sm, t.atoms.text_contrast_medium, a.mt_sm]}
+        style={[a.text_sm, a.mt_sm, {color: tint.body}]}
         numberOfLines={1}>
         <Trans>Quiet feed</Trans>
       </Text>
@@ -378,7 +409,7 @@ function TilePreview({
       <>
         {description ? (
           <Text
-            style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium, a.mt_2xs]}
+            style={[a.text_xs, a.leading_snug, a.mt_2xs, {color: tint.body}]}
             numberOfLines={2}
             maxFontSizeMultiplier={1.3}>
             {description}
@@ -393,8 +424,8 @@ function TilePreview({
               {
                 left: index * -10,
                 zIndex: authors.length - index,
-                borderWidth: 2,
-                borderColor: t.atoms.bg_contrast_25.backgroundColor,
+                borderWidth: 2.5,
+                borderColor: tint.ring,
                 borderRadius: 999,
               },
             ]}>
@@ -414,14 +445,14 @@ function TilePreview({
             style={[
               a.text_xs,
               a.font_bold,
-              t.atoms.text_contrast_medium,
               a.mb_2xs,
+              {color: tint.body},
             ]}
             numberOfLines={1}>
             {post.author.handle}
           </Text>
           <Text
-            style={[a.text_sm, a.leading_snug]}
+            style={[a.text_sm, a.leading_snug, {color: tint.title}]}
             numberOfLines={3}
             maxFontSizeMultiplier={1.3}>
             {'text' in post.record ? (
