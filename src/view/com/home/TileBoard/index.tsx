@@ -10,6 +10,8 @@ import Animated, {
   useAnimatedRef,
   useAnimatedStyle,
   useScrollViewOffset,
+  useSharedValue,
+  withSpring,
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
 import {LinearGradient} from 'expo-linear-gradient'
@@ -28,7 +30,10 @@ import {SortableGrid} from '#/components/SortableGrid'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
 import {deriveTileSpan, layoutHeight, packLayout} from './layout'
+import {Gloss, Sheen, Twinkles} from './Sheen'
 import {type TileTint, tintForFeed} from './tint'
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 const TILE_GAP = 8
 const TILE_HEIGHT = 160
@@ -182,6 +187,10 @@ export function TileBoard({
               renderItem={(feed, index) => (
                 <Tile
                   feed={feed}
+                  index={index}
+                  tileWidth={
+                    deriveTileSpan(index, feed) === 2 ? boardWidth : colW
+                  }
                   isHero={index === 0}
                   isEditing={isEditing}
                   enabled={
@@ -239,6 +248,8 @@ export function TileBoard({
 
 function Tile({
   feed,
+  index,
+  tileWidth,
   isHero,
   isEditing,
   enabled,
@@ -248,6 +259,8 @@ function Tile({
   onUnpin,
 }: {
   feed: SavedFeedSourceInfo
+  index: number
+  tileWidth: number
   isHero: boolean
   isEditing: boolean
   enabled: boolean
@@ -259,8 +272,19 @@ function Tile({
   const {_} = useLingui()
   const t = useTheme()
   const tint = tintForFeed(feed.uri || feed.feedDescriptor, t.scheme === 'dark')
+  const isDark = t.scheme === 'dark'
+  const press = useSharedValue(0)
+  const pressStyle = useAnimatedStyle(() => ({
+    transform: [{scale: 1 - press.get() * 0.035}],
+  }))
   return (
-    <Pressable
+    <AnimatedPressable
+      onPressIn={() => {
+        press.set(withSpring(1, {mass: 0.4, damping: 14}))
+      }}
+      onPressOut={() => {
+        press.set(withSpring(0, {mass: 0.4, damping: 14}))
+      }}
       accessibilityRole="button"
       accessibilityLabel={feed.displayName}
       accessibilityHint={
@@ -282,6 +306,7 @@ function Tile({
           shadowRadius: 14,
           elevation: 4,
         },
+        pressStyle,
       ]}>
       <LinearGradient
         colors={[tint.from, tint.to]}
@@ -289,6 +314,7 @@ function Tile({
         end={{x: 0.9, y: 1}}
         style={[a.absolute, a.inset_0]}
       />
+      <Gloss isDark={isDark} />
       <View
         style={[
           a.absolute,
@@ -297,13 +323,14 @@ function Tile({
             left: 0,
             right: 0,
             height: 1,
-            backgroundColor:
-              t.scheme === 'dark'
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(255,255,255,0.65)',
+            backgroundColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(255,255,255,0.65)',
           },
         ]}
       />
+      {isHero && <Twinkles isDark={isDark} />}
+      <Sheen index={index} width={tileWidth} isDark={isDark} />
       <View style={[a.flex_1, a.p_md]}>
         <View style={[a.flex_row, a.align_center, a.gap_xs]}>
           {feed.avatar && (
@@ -342,7 +369,7 @@ function Tile({
           <Text style={[a.text_sm, a.font_bold]}>–</Text>
         </Pressable>
       )}
-    </Pressable>
+    </AnimatedPressable>
   )
 }
 
