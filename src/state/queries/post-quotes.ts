@@ -3,7 +3,6 @@ import {
   AppBskyEmbedRecord,
   type AppBskyFeedDefs,
   type AppBskyFeedGetQuotes,
-  AtUri,
   type BskyAgent,
 } from '@atproto/api'
 import {
@@ -17,9 +16,9 @@ import {getSpacePostQuotes} from '#/lib/api/community'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useAgent} from '#/state/session'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from './util'
 
 const PAGE_SIZE = 30
@@ -121,19 +120,19 @@ export function* findAllPostsInQueryData(
   >({
     queryKey: [RQKEY_ROOT],
   })
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
   for (const [_queryKey, queryData] of queryDatas) {
     if (!queryData?.pages) {
       continue
     }
     for (const page of queryData?.pages) {
       for (const post of page.posts) {
-        if (didOrHandleUriMatches(atUri, post)) {
+        if (matches(post)) {
           yield post
         }
 
         const quotedPost = getEmbeddedPost(post.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
       }

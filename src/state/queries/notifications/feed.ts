@@ -17,12 +17,7 @@
  */
 
 import {useCallback, useEffect, useMemo, useRef} from 'react'
-import {
-  AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AtUri,
-  moderatePost,
-} from '@atproto/api'
+import {AppBskyFeedDefs, AppBskyFeedPost, moderatePost} from '@atproto/api'
 import {
   type InfiniteData,
   type QueryClient,
@@ -38,9 +33,9 @@ import {useAgent} from '#/state/session'
 import {useThreadgateHiddenReplyUris} from '#/state/threadgate-hidden-replies'
 import type * as bsky from '#/types/bsky'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from '../util'
 import {type FeedPage} from './types'
 import {useUnreadNotificationsApi} from './unread'
@@ -280,7 +275,7 @@ export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
 ): Generator<AppBskyFeedDefs.PostView, void> {
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   const queryDatas = queryClient.getQueriesData<InfiniteData<FeedPage>>({
     queryKey: [RQKEY_ROOT],
@@ -293,14 +288,14 @@ export function* findAllPostsInQueryData(
     for (const page of queryData?.pages) {
       for (const item of page.items) {
         if (item.type !== 'starterpack-joined') {
-          if (item.subject && didOrHandleUriMatches(atUri, item.subject)) {
+          if (item.subject && matches(item.subject)) {
             yield item.subject
           }
         }
 
         if (AppBskyFeedDefs.isPostView(item.subject)) {
           const quotedPost = getEmbeddedPost(item.subject?.embed)
-          if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+          if (quotedPost && matches(quotedPost)) {
             yield embedViewRecordToPostView(quotedPost)
           }
         }
