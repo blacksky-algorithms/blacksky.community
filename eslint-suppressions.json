@@ -856,7 +856,7 @@
   },
   "src/lib/hooks/useIntentHandler.ts": {
     "@typescript-eslint/no-floating-promises": {
-      "count": 2
+      "count": 1
     }
   },
   "src/lib/hooks/useNonReactiveCallback.ts": {
