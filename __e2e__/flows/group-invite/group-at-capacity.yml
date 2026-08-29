@@ -1,0 +1,28 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: capacity
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteRetryButton
+    timeout: 30000
+- assertVisible: 'This group is currently at capacity.'
+- tapOn:
+    id: groupInviteRetryButton
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '1'
+      EXPECT_ACCEPT_WITH_BEARER: '1'
+      EXPECT_CLAIM_COUNT: '0'

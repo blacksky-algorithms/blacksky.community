@@ -44,7 +44,11 @@ import {
   type State,
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
-import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
+import {
+  CHAT_INVITE_CODE_REGEX,
+  getDeepLinkAnalyticsTarget,
+  GROUP_INVITE_CODE_REGEX,
+} from '#/lib/strings/url-helpers'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -849,7 +853,11 @@ const LINKING = {
     // react-navigation strips the `bluesky://` prefix and passes the path
     // without a leading slash, so normalize before matching.
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
-    if (CHAT_INVITE_CODE_REGEX.test(normalizedPath.split('?')[0])) {
+    const pathWithoutQuery = normalizedPath.split('?')[0]
+    if (
+      CHAT_INVITE_CODE_REGEX.test(pathWithoutQuery) ||
+      GROUP_INVITE_CODE_REGEX.test(pathWithoutQuery)
+    ) {
       if (IS_NATIVE) {
         return buildStateObject('HomeTab', 'Home', params)
       }
@@ -1033,7 +1041,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
       const referrerInfo = Referrer.getReferrerInfo()
       if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
         ax.metric('deepLink:referrerReceived', {
-          to: window.location.href,
+          to: getDeepLinkAnalyticsTarget(window.location.href),
           referrer: referrerInfo?.referrer,
           hostname: referrerInfo?.hostname,
         })

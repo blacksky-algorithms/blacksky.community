@@ -216,6 +216,53 @@ export function isBskyStarterPackUrl(url: string): boolean {
 // Invite codes are 7 alphanumeric characters long, supporting up to 10 here to future-proof.
 export const CHAT_INVITE_CODE_REGEX = /^\/chat\/([a-zA-Z0-9]{7,10})$/
 
+export const GROUP_INVITE_CODE_REGEX = /^\/join\/([A-Za-z0-9_-]{43})$/
+
+/**
+ * Linking can emit an already-seen URL again after a warm-app tap. The hook
+ * listener is the authoritative event source for that case; the URL-state
+ * effect must not process the same event a second time.
+ */
+export function shouldHandleIncomingIntentUrl(
+  url: string,
+  previousUrl: string,
+  fromLinkEvent: boolean,
+): boolean {
+  if (url !== previousUrl) return true
+  try {
+    const isGroupInvite = GROUP_INVITE_CODE_REGEX.test(
+      new URL(url, BSKY_APP_HOST).pathname,
+    )
+    return isGroupInvite && fromLinkEvent
+  } catch {
+    return false
+  }
+}
+
+export function getGroupInviteCodeFromUrl(url: string): string | undefined {
+  let pathname: string
+  if (isBskyAppUrl(url)) {
+    try {
+      pathname = new URL(url).pathname
+    } catch {
+      return undefined
+    }
+  } else if (url.startsWith('/')) {
+    pathname = url.split('?')[0].split('#')[0]
+  } else {
+    return undefined
+  }
+  return pathname.match(GROUP_INVITE_CODE_REGEX)?.[1]
+}
+
+export function isBskyGroupInviteUrl(url: string): boolean {
+  return getGroupInviteCodeFromUrl(url) !== undefined
+}
+
+export function getDeepLinkAnalyticsTarget(url: string): string {
+  return isBskyGroupInviteUrl(url) ? 'group-invite' : url
+}
+
 export function getChatInviteCodeFromUrl(url: string): string | undefined {
   let pathname: string
   if (isBskyAppUrl(url)) {

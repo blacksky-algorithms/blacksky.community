@@ -2,6 +2,7 @@ import {useState} from 'react'
 import {LogBox, Pressable, TextInput, View} from 'react-native'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {setGroupInviteE2EFailure} from '#/lib/api/group-invite-e2e'
 import {BLUESKY_PROXY_HEADER} from '#/lib/constants'
 import {useAgent, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -145,6 +146,24 @@ export function TestCtrls() {
         onPress={() => {
           onboardingDispatch({type: 'start'})
         }}
+        accessibilityRole="button"
+        style={BTN}
+      />
+      <Pressable
+        testID="e2eGroupInviteFailUpdate"
+        onPress={() => setGroupInviteE2EFailure('saved-feed-update')}
+        accessibilityRole="button"
+        style={BTN}
+      />
+      <Pressable
+        testID="e2eGroupInviteFailAdd"
+        onPress={() => setGroupInviteE2EFailure('saved-feed-add')}
+        accessibilityRole="button"
+        style={BTN}
+      />
+      <Pressable
+        testID="e2eGroupInviteFailNavigation"
+        onPress={() => setGroupInviteE2EFailure('navigation')}
         accessibilityRole="button"
         style={BTN}
       />

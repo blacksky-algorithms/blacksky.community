@@ -21,7 +21,28 @@ You will need to allow your device access to the port that the mock server is ru
 
 ```
 adb reverse tcp:3000 tcp:3000
+adb reverse tcp:1986 tcp:1986
+adb reverse tcp:8082 tcp:8082
 ```
+
+### Group invite Maestro suite
+
+The production-shaped group invite flows live in
+`__e2e__/flows/group-invite/`. They reset the existing dev-env manager with a
+scenario-specific local fixture and use real local feed-generator records.
+Point the client at that fixture while starting Metro; the value is read by
+the app at runtime and does not change the existing build commands.
+
+```sh
+EXPO_PUBLIC_ACORN_SERVICE_URL=http://localhost:1986 pnpm e2e:start
+EXPO_PUBLIC_ACORN_SERVICE_URL=http://localhost:1986 pnpm e2e:run __e2e__/flows/group-invite
+```
+
+Build the E2E app once with the existing `pnpm e2e:build` command. The local
+fixture checks that accept requests carry a Bearer header, but it does not
+validate the production service-auth signature. A disposable real Acorn,
+OpenFGA, and feed-service journey is still required for that enforcement
+boundary.
 
 ### Running Maestro tests
 
@@ -30,6 +51,7 @@ adb reverse tcp:3000 tcp:3000
 - In a third tab, run `pnpm e2e:run __e2e__`
 
 ## Using Flashlight for Performance Testing
+
 1. Make sure Maestro is installed (optional: only for automated testing) by following the instructions above
 2. Install Flashlight by following [these instructions](https://docs.flashlight.dev/)
 3. The simplest way to get started is by running `pnpm perf:measure` which will run a live preview of the performance test results. You can [see a demo here](https://github.com/bamlab/flashlight/assets/4534323/4038a342-f145-4c3b-8cde-17949bf52612)
