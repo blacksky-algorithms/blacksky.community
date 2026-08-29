@@ -1,13 +1,233 @@
 import {createServer as createHTTPServer} from 'node:http'
 import {parse} from 'node:url'
 
+import {
+  GroupInviteFixture,
+  type GroupInviteFixtureFeed,
+  type GroupInviteFixtureScenario,
+  isGroupInviteFixtureScenario,
+} from './group-invite-fixture.ts'
 import {createServer, type TestPDS} from './test-pds.ts'
 
 let server: TestPDS
+
+const GROUP_INVITE_COMMUNITY_DID = 'did:plc:e2e-community'
+
+async function ensureGroupInviteUsers(testPds: TestPDS) {
+  for (const name of ['alice', 'bob']) {
+    if (!testPds.mocker.users[name]) {
+      await testPds.mocker.createUser(name)
+    }
+  }
+}
+
+async function seedGroupInviteFixture(
+  testPds: TestPDS,
+  scenario: GroupInviteFixtureScenario,
+) {
+  await ensureGroupInviteUsers(testPds)
+
+  const post = await testPds.mocker.createPost(
+    'alice',
+    'Synthetic group invite feed post',
+  )
+  const postUris = [post.uri]
+  const readOnly = await testPds.mocker.createFeed(
+    'alice',
+    'e2e-group-read',
+    postUris,
+  )
+  const postable = await testPds.mocker.createFeed(
+    'alice',
+    'e2e-group-post',
+    postUris,
+  )
+  const inaccessible = await testPds.mocker.createFeed(
+    'alice',
+    'e2e-group-hidden',
+    postUris,
+  )
+
+  const feeds: GroupInviteFixtureFeed[] = [
+    {
+      uri: readOnly.uri,
+      name: 'Read only feed',
+      canView: scenario !== 'zero-readable',
+      canPost: false,
+    },
+    {
+      uri: postable.uri,
+      name: 'Postable feed',
+      canView: scenario !== 'zero-readable',
+      canPost: true,
+    },
+    {
+      uri: inaccessible.uri,
+      name: 'Inaccessible feed',
+      canView: false,
+      canPost: false,
+    },
+  ]
+
+  const fixture = new GroupInviteFixture(scenario)
+  fixture.configure({
+    scenario,
+    communityDid: GROUP_INVITE_COMMUNITY_DID,
+    feeds,
+  })
+  testPds.groupInviteFixture = fixture
+
+  if (
+    scenario === 'existing-unpinned' ||
+    scenario === 'pin-update' ||
+    scenario === 'pin-add'
+  ) {
+    await testPds.mocker.users.alice.agent.overwriteSavedFeeds([
+      {id: readOnly.uri, type: 'feed', value: readOnly.uri, pinned: false},
+    ])
+  }
+
+  // Ensure the local AppView has indexed the feed-generator records before a
+  // client can navigate to one from the invite dialog.
+  await testPds.mocker.testNet.processAll()
+}
+
+function decodeServiceAuthIssuer(authorization: string | undefined) {
+  if (!authorization || !/^Bearer\s+\S+$/.test(authorization)) {
+    return undefined
+  }
+  const token = authorization.split(/\s+/)[1]
+  const payload = token?.split('.')[1]
+  if (!payload) return undefined
+  try {
+    const parsed = JSON.parse(
+      Buffer.from(payload, 'base64url').toString('utf8'),
+    ) as {iss?: unknown; sub?: unknown}
+    if (typeof parsed.iss === 'string') return parsed.iss
+    if (typeof parsed.sub === 'string') return parsed.sub
+  } catch {
+    // The fixture intentionally treats an undecodable token as unauthenticated.
+  }
+  return undefined
+}
+
+async function readRequestBody(req: import('node:http').IncomingMessage) {
+  const chunks: Buffer[] = []
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+  }
+  return Buffer.concat(chunks).toString('utf8')
+}
+
+function sendJson(
+  res: import('node:http').ServerResponse,
+  status: number,
+  body: Record<string, unknown>,
+) {
+  res.writeHead(status, {'content-type': 'application/json'})
+  res.end(JSON.stringify(body))
+}
+
+function inputCode(value: unknown) {
+  if (!value || typeof value !== 'object') return undefined
+  const wrapped = (value as {json?: unknown}).json
+  const input = wrapped && typeof wrapped === 'object' ? wrapped : value
+  const code = (input as {code?: unknown}).code
+  return typeof code === 'string' ? code : undefined
+}
+
+async function handleGroupInviteRequest(
+  req: import('node:http').IncomingMessage,
+  res: import('node:http').ServerResponse,
+  procedure: 'preview' | 'accept',
+  query: Record<string, string | string[] | undefined>,
+) {
+  const fixture = server?.groupInviteFixture
+  if (!fixture) {
+    sendJson(res, 503, {
+      error: {
+        json: {
+          message: 'AuthorizationUnavailable',
+          data: {code: 'SERVICE_UNAVAILABLE'},
+        },
+      },
+    })
+    return
+  }
+
+  let input: unknown
+  if (req.method === 'GET') {
+    const rawInput = query.input
+    if (typeof rawInput === 'string') {
+      try {
+        input = JSON.parse(rawInput)
+      } catch {
+        input = undefined
+      }
+    }
+  } else {
+    try {
+      input = JSON.parse(await readRequestBody(req))
+    } catch {
+      input = undefined
+    }
+  }
+
+  const code = inputCode(input) ?? ''
+  const result =
+    procedure === 'preview'
+      ? fixture.preview(code)
+      : fixture.accept({
+          code,
+          authorization:
+            typeof req.headers.authorization === 'string'
+              ? req.headers.authorization
+              : undefined,
+          memberDid: decodeServiceAuthIssuer(
+            typeof req.headers.authorization === 'string'
+              ? req.headers.authorization
+              : undefined,
+          ),
+        })
+  sendJson(res, result.status, result.body)
+}
+
+async function handleGroupInviteState(res: import('node:http').ServerResponse) {
+  const fixture = server?.groupInviteFixture
+  if (!fixture) {
+    sendJson(res, 404, {error: 'No group invite fixture is active'})
+    return
+  }
+  const fixtureState = fixture.getState()
+  const savedFeeds = await server.mocker.getSavedFeedSummary(
+    'alice',
+    fixture.visibleFeedUris,
+    fixture.allFeedUris,
+  )
+  sendJson(res, 200, {...fixtureState, savedFeeds})
+}
+
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 createHTTPServer(async (req, res) => {
   const url = parse(req.url || '/', true)
-  if (req.method !== 'POST') {
+  const pathname = url.pathname || '/'
+  if (pathname === '/__e2e/group-invite/state' && req.method === 'GET') {
+    try {
+      await handleGroupInviteState(res)
+    } catch {
+      sendJson(res, 503, {error: 'Unable to read fixture state'})
+    }
+    return
+  }
+  if (pathname === '/api/trpc/groupInvites.preview') {
+    await handleGroupInviteRequest(req, res, 'preview', url.query)
+    return
+  }
+  if (pathname === '/api/trpc/groupInvites.accept') {
+    await handleGroupInviteRequest(req, res, 'accept', url.query)
+    return
+  }
+  if (req.method !== 'POST' || pathname !== '/') {
     return res.writeHead(200).end()
   }
   try {
@@ -18,6 +238,14 @@ createHTTPServer(async (req, res) => {
     server = await createServer({inviteRequired})
     console.log('Listening at', server.pdsUrl)
     if (url?.query) {
+      const requestedGroupInvite = url.query.groupInvite
+      if (
+        typeof requestedGroupInvite === 'string' &&
+        isGroupInviteFixtureScenario(requestedGroupInvite)
+      ) {
+        console.log('Generating group invite fixture')
+        await seedGroupInviteFixture(server, requestedGroupInvite)
+      }
       if ('users' in url.query) {
         console.log('Generating mock users')
         await server.mocker.createUser('alice')
@@ -97,8 +325,8 @@ createHTTPServer(async (req, res) => {
         await server.mocker.follow('alice', 'bob')
         await server.mocker.follow('alice', 'carla')
         console.log('Generating mock posts')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let posts: Record<string, any[]> = {
+
+        let posts: Record<string, {cid: string; uri: string}[]> = {
           alice: [],
           bob: [],
           carla: [],
@@ -501,6 +729,13 @@ createHTTPServer(async (req, res) => {
         JSON.stringify({
           pdsUrl: server.pdsUrl,
           appviewDid: server.appviewDid,
+          groupInvite: server.groupInviteFixture
+            ? {
+                scenario: server.groupInviteFixture.getState().scenario,
+                code: server.groupInviteFixture.inviteCode,
+                acornUrl: 'http://localhost:1986',
+              }
+            : undefined,
         }),
       )
   } catch (e) {

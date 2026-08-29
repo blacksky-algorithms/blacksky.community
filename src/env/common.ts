@@ -17,6 +17,7 @@ export const ENV: string = process.env.EXPO_PUBLIC_ENV as
   | 'production'
   | 'testflight'
   | 'development'
+  | 'staging'
   | 'e2e'
   | (string & {})
 
@@ -152,6 +153,21 @@ export const LIVE_EVENTS_URL = IS_DEV
 export const BRAND_SERVICE_URL: string =
   process.env.EXPO_PUBLIC_BRAND_SERVICE_URL ||
   'https://brand.acorn.blacksky.community'
+
+/** Acorn Web endpoint for community invitation previews and acceptance. */
+export const ACORN_SERVICE_URL: string =
+  process.env.EXPO_PUBLIC_ACORN_SERVICE_URL ||
+  (ENV === 'production' || ENV === 'testflight'
+    ? 'https://acorn.blacksky.community'
+    : ENV === 'e2e'
+      ? 'http://localhost:1986'
+      : ENV === 'staging'
+        ? (() => {
+            throw new Error(
+              'EXPO_PUBLIC_ACORN_SERVICE_URL is required for staging builds',
+            )
+          })()
+        : 'http://localhost:3000')
 
 /**
  * Stripe publishable key for embedded checkout

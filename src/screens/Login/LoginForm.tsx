@@ -26,22 +26,26 @@ import * as TextField from '#/components/forms/TextField'
 import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {IS_E2E} from '#/env'
 import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({
   error,
+  serviceUrl,
   serviceDescription,
   initialHandle,
   setError,
   onPressBack,
 }: {
   error: string
+  serviceUrl: string
   serviceDescription: ComAtprotoServerDescribeServer.OutputSchema | undefined
   initialHandle: string
   setError: (v: string) => void
   onPressBack: () => void
 }) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const [password, setPassword] = useState('')
   const [awaitingRedirect, setAwaitingRedirect] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
   const processingRef = useRef(false)
@@ -144,6 +148,31 @@ export const LoginForm = ({
   }
 
   const signInWithIdentifier = async (identifier: string) => {
+    if (IS_E2E) {
+      if (!password) {
+        setError(_(msg`Please enter your password`))
+        return
+      }
+      setIsProcessing(true)
+      try {
+        await login({service: serviceUrl, identifier, password}, 'LoginForm')
+      } catch (e) {
+        const errMsg = String(e)
+        if (isNetworkError(e)) {
+          setError(
+            _(
+              msg`Unable to contact your service. Please check your Internet connection.`,
+            ),
+          )
+        } else {
+          setError(cleanError(errMsg))
+        }
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
     const client = getOAuthClient()
     const controller = Platform.OS === 'android' ? new AbortController() : null
     if (controller) {
@@ -249,6 +278,27 @@ export const LoginForm = ({
         </View>
       </View>
       <FormError error={error} />
+      {IS_E2E && (
+        <View>
+          <TextField.LabelText>
+            <Trans>Password</Trans>
+          </TextField.LabelText>
+          <TextField.Root>
+            <TextField.Input
+              testID="loginPasswordInput"
+              label={_(msg`Password`)}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              onSubmitEditing={() => void onPressNext()}
+              editable={!isProcessing}
+            />
+          </TextField.Root>
+        </View>
+      )}
       {handleOptions && (
         <View style={[a.gap_xs]}>
           <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
