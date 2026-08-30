@@ -11,7 +11,7 @@ on:
         required: true
         type: string
       acceptance_criteria:
-        description: What Rishi should verify on staging
+        description: What behavior to verify on staging
         required: true
         type: string
       ttl_hours:
