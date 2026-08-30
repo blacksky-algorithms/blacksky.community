@@ -1,0 +1,24 @@
+appId: community.blacksky.app
+---
+- tapOn:
+    id: 'groupInviteLandingSignIn'
+- tapOn:
+    id: 'selectServiceButton'
+- tapOn: 'Custom'
+- tapOn:
+    id: 'customServerTextInput'
+- inputText: 'http://localhost:3000'
+- pressKey: Enter
+- tapOn:
+    id: 'doneBtn'
+- tapOn:
+    id: 'loginUsernameInput'
+- inputText: 'alice.test'
+- tapOn:
+    id: 'loginPasswordInput'
+- inputText: 'hunter2'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: 'groupInviteAcceptButton'
+    timeout: 30000

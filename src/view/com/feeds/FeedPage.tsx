@@ -67,7 +67,7 @@ export function FeedPage({
   const {_} = useLingui()
   const navigation = useNavigation<NavigationProp<AllNavigatorParams>>()
   const queryClient = useQueryClient()
-  const {openComposer} = useOpenComposer()
+  const {openComposer} = useOpenComposer(isPageFocused ? feed : undefined)
   const [isScrolledDown, setIsScrolledDown] = useState(false)
   const headerOffset = useHeaderOffset()
   const feedFeedback = useFeedFeedback(feedInfo, hasSession)

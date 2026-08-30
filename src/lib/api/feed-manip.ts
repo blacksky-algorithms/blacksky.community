@@ -6,7 +6,7 @@ import {
   AppBskyFeedPost,
 } from '@atproto/api'
 
-import * as bsky from '#/types/bsky'
+import {isRenderablePostRecord} from '#/lib/api/community-post'
 import {isPostInLanguage} from '../../locale/helpers'
 import {FALLBACK_MARKER_POST} from './feed/home'
 import {type ReasonFeedSource} from './feed/types'
@@ -68,10 +68,7 @@ export class FeedViewPostsSlice {
       this.isFallbackMarker = true
       return
     }
-    if (
-      !AppBskyFeedPost.isRecord(post.record) ||
-      !bsky.validate(post.record, AppBskyFeedPost.validateRecord)
-    ) {
+    if (!isRenderablePostRecord(post)) {
       return
     }
     const parent = reply?.parent
@@ -101,8 +98,7 @@ export class FeedViewPostsSlice {
     }
     if (
       !AppBskyFeedDefs.isPostView(parent) ||
-      !AppBskyFeedPost.isRecord(parent.record) ||
-      !bsky.validate(parent.record, AppBskyFeedPost.validateRecord)
+      !isRenderablePostRecord(parent)
     ) {
       this.isOrphan = true
       return
@@ -141,11 +137,7 @@ export class FeedViewPostsSlice {
       // Keep going, it might still have a root, and we need this for thread
       // de-deduping
     }
-    if (
-      !AppBskyFeedDefs.isPostView(root) ||
-      !AppBskyFeedPost.isRecord(root.record) ||
-      !bsky.validate(root.record, AppBskyFeedPost.validateRecord)
-    ) {
+    if (!AppBskyFeedDefs.isPostView(root) || !isRenderablePostRecord(root)) {
       this.isOrphan = true
       return
     }

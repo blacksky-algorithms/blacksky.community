@@ -60,13 +60,28 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
+import {
+  type CommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
+import {
+  getCommunitySpaceUri,
+  isCommunityPostUri,
+} from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
+import {
+  isSpaceRecordUri,
+  parseSpaceRecordUri,
+  spaceUriOf,
+} from '#/lib/api/space-uri'
+import {SpaceUnsupportedError} from '#/lib/api/space-write'
 import {useAppState} from '#/lib/appState'
 import {retry} from '#/lib/async/retry'
 import {until} from '#/lib/async/until'
 import {useBrand} from '#/lib/community/BrandContext'
 import {
+  ACCOUNT_MIGRATION_URL,
   MAX_DRAFT_GRAPHEME_LENGTH,
   MAX_GRAPHEME_LENGTH,
   SUPPORTED_MIME_TYPES,
@@ -119,6 +134,7 @@ import {LabelsBtn} from '#/view/com/composer/labels/LabelsBtn'
 import {Gallery} from '#/view/com/composer/photos/Gallery'
 import {OpenCameraBtn} from '#/view/com/composer/photos/OpenCameraBtn'
 import {SelectGifBtn} from '#/view/com/composer/photos/SelectGifBtn'
+import {PostTargetControls} from '#/view/com/composer/PostTargetControls'
 import {SuggestedLanguage} from '#/view/com/composer/select-language/SuggestedLanguage'
 // TODO: Prevent naming components that coincide with RN primitives
 // due to linting false positives
@@ -133,11 +149,11 @@ import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {CommunityOnlyBadge} from '#/components/CommunityOnlyBadge'
 import * as EmojiPicker from '#/components/EmojiPicker'
-import * as Toggle from '#/components/forms/Toggle'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfoIcon} from '#/components/icons/CircleInfo'
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiSmileIcon} from '#/components/icons/Emoji'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
+import {SimpleInlineLinkText} from '#/components/Link'
 import {LazyQuoteEmbed} from '#/components/Post/Embed/LazyQuoteEmbed'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
@@ -268,6 +284,7 @@ export const ComposePost = ({
   videoUri: initVideoUri,
   openGallery,
   logContext,
+  contextualCommunityFeedTarget,
   cancelRef,
 }: Props & {
   cancelRef?: React.RefObject<CancelRef | null>
@@ -298,6 +315,10 @@ export const ComposePost = ({
   const [isPublishing, setIsPublishing] = useState(false)
   const [publishingStage, setPublishingStage] = useState('')
   const [error, setError] = useState('')
+  // A write refused because the account's server has no space support: the
+  // only fix is moving the account, so the banner offers that rather than a
+  // failure the user cannot act on.
+  const [needsMigration, setNeedsMigration] = useState(false)
 
   /**
    * Track when a draft was created so we can measure draft age in metrics.
@@ -363,11 +384,18 @@ export const ComposePost = ({
   const setBlackskyOnlyDefault = useSetBlackskyOnlyDefault()
   const {data: isCommunityMember = false} = useCommunityMembership()
 
-  // Force Blacksky-Only when the thread targets a community post — replies
-  // and quotes of a community post can only land in the community.
+  // Both the appview-stored stub and any record inside a space: a reply or
+  // quote of either must stay inside the community it came from.
+  const isCommunityReply = isCommunityPostUri(replyTo?.uri)
+  const isCommunityQuote = isCommunityPostUri(initQuote?.uri)
+  const replyCommunitySpace = replyTo?.communitySpace
+  const quoteCommunitySpace = getCommunitySpaceUri(initQuote)
   const isForcedBlackskyOnly =
-    (!!replyTo?.uri && replyTo.uri.includes('community.blacksky.feed.post')) ||
-    (!!initQuote?.uri && initQuote.uri.includes('community.blacksky.feed.post'))
+    (isCommunityReply && !replyCommunitySpace) ||
+    (isCommunityQuote && !quoteCommunitySpace)
+  const isForcedCommunityTarget = isCommunityReply || isCommunityQuote
+  const hasEligibleContextualTarget =
+    !!contextualCommunityFeedTarget && !replyTo && !isForcedCommunityTarget
 
   const [composerState, composerDispatch] = useReducer(
     composerReducer,
@@ -377,17 +405,56 @@ export const ComposePost = ({
       initText,
       initMention,
       initInteractionSettings: preferences?.postInteractionSettings,
+      initCommunitySpaceUri: replyCommunitySpace ?? quoteCommunitySpace,
       // Replies inherit their parent's audience: forced on for community
       // parents, forced off for public parents. The sticky default only
-      // applies to top-level posts, and only for community members.
+      // applies to top-level posts for community members. A selected writable
+      // private feed starts public and supersedes that default for this
+      // composer instance without changing the persisted preference.
       initBlackskyOnly:
         isForcedBlackskyOnly ||
-        (!replyTo && isCommunityMember && blackskyOnlyDefault),
+        (!hasEligibleContextualTarget &&
+          !replyTo &&
+          isCommunityMember &&
+          blackskyOnlyDefault),
     },
     createComposerState,
   )
 
   const thread = composerState.thread
+  const spaceTarget =
+    thread.communitySpaceUri ??
+    (isSpaceBackedFeed(thread.communityFeed?.config)
+      ? thread.communityFeed.config.space
+      : undefined)
+
+  useEffect(() => {
+    if (!spaceTarget) return
+    for (const post of thread.posts) {
+      const media = post.embed.media
+      if (media?.type === 'images' || media?.type === 'gallery') {
+        for (const image of media.images) {
+          composerDispatch({
+            type: 'update_post',
+            postId: post.id,
+            postAction: {type: 'embed_remove_image', image},
+          })
+        }
+      } else if (media?.type === 'video') {
+        composerDispatch({
+          type: 'update_post',
+          postId: post.id,
+          postAction: {type: 'embed_remove_video'},
+        })
+      } else if (media?.type === 'gif') {
+        composerDispatch({
+          type: 'update_post',
+          postId: post.id,
+          postAction: {type: 'embed_remove_gif'},
+        })
+      }
+    }
+  }, [spaceTarget, thread.posts])
 
   // Clear error when composer content changes, but only if all posts are
   // back within the character limit.
@@ -998,6 +1065,7 @@ export const ComposePost = ({
       postUri = (
         await apilib.post(agent, queryClient, {
           thread: filteredThread,
+          draftId: composerState.draftId,
           replyTo: replyTo?.uri,
           onStateChange: setPublishingStage,
           langs: currentLanguages,
@@ -1064,6 +1132,9 @@ export const ComposePost = ({
         err = l`We're sorry! The post you are replying to has been deleted.`
       } else if (e instanceof EmbeddingDisabledError) {
         err = l`This post's author has disabled quote posts.`
+      } else if (e instanceof SpaceUnsupportedError) {
+        err = l`Your account is hosted elsewhere, so it cannot post to a private community feed. You can read it, but posting needs an account hosted here.`
+        setNeedsMigration(true)
       }
       setError(err)
       setIsPublishing(false)
@@ -1133,7 +1204,7 @@ export const ComposePost = ({
       })
     }
     setLangPrefs.savePostLanguageToHistory()
-    if (initQuote) {
+    if (initQuote && !isSpaceRecordUri(initQuote.uri)) {
       // We want to wait for the quote count to update before we call `onPost`, which will refetch data
       void whenAppViewReady(agent, initQuote.uri, res => {
         const anchor = res.data.thread.at(0)
@@ -1167,17 +1238,33 @@ export const ComposePost = ({
             <Toast.Action
               label={l`View post`}
               onPress={() => {
-                const urip = new AtUri(postUri)
                 const params: {
                   name: string
                   rkey: string
                   collection?: string
-                } = {
-                  name: urip.host,
-                  rkey: urip.rkey,
-                }
-                if (urip.collection !== 'app.bsky.feed.post') {
-                  params.collection = urip.collection
+                  space?: string
+                } = (() => {
+                  // A space record uri is not an at-uri, so its parts come
+                  // from the space parser and the space itself travels as a
+                  // route param rather than in the path.
+                  const inSpace = parseSpaceRecordUri(postUri)
+                  if (inSpace) {
+                    return {
+                      name: inSpace.authorDid,
+                      rkey: inSpace.rkey,
+                      collection: inSpace.collection,
+                      space: spaceUriOf(inSpace),
+                    }
+                  }
+                  const urip = new AtUri(postUri)
+                  return {
+                    name: urip.host,
+                    rkey: urip.rkey,
+                    collection: urip.collection,
+                  }
+                })()
+                if (params.collection === 'app.bsky.feed.post') {
+                  delete params.collection
                 }
                 navigation.navigate('PostThread', params)
               }}>
@@ -1326,7 +1413,9 @@ export const ComposePost = ({
         dispatch={composerDispatch}
         bottomBarAnimatedStyle={bottomBarAnimatedStyle}
         isForcedBlackskyOnly={isForcedBlackskyOnly}
+        isForcedCommunityTarget={isForcedCommunityTarget}
         setBlackskyOnlyDefault={setBlackskyOnlyDefault}
+        contextualCommunityFeedTarget={contextualCommunityFeedTarget}
       />
       <ComposerFooter
         post={activePost}
@@ -1346,6 +1435,7 @@ export const ComposePost = ({
         languageNudgeAt={languageNudgeAt}
         openGallery={openGallery}
         textInputRef={textInputRef}
+        spaceMediaDisabled={!!spaceTarget}
       />
     </>
   )
@@ -1383,8 +1473,12 @@ export const ComposePost = ({
             {missingAltError && <AltTextReminder error={missingAltError} />}
             <ErrorBanner
               error={error}
+              needsMigration={needsMigration}
               videoState={erroredVideo}
-              clearError={() => setError('')}
+              clearError={() => {
+                setError('')
+                setNeedsMigration(false)
+              }}
               clearVideo={
                 erroredVideoPostId
                   ? () => clearVideo(erroredVideoPostId)
@@ -1984,7 +2078,9 @@ function ComposerPills({
   dispatch,
   bottomBarAnimatedStyle,
   isForcedBlackskyOnly,
+  isForcedCommunityTarget,
   setBlackskyOnlyDefault,
+  contextualCommunityFeedTarget,
 }: {
   isReply: boolean
   thread: ThreadDraft
@@ -1992,10 +2088,11 @@ function ComposerPills({
   dispatch: (action: ComposerAction) => void
   bottomBarAnimatedStyle: StyleProp<ViewStyle>
   isForcedBlackskyOnly: boolean
+  isForcedCommunityTarget: boolean
   setBlackskyOnlyDefault: (v: boolean) => void
+  contextualCommunityFeedTarget?: CommunityFeedTarget
 }) {
   const t = useTheme()
-  const {t: l} = useLingui()
   const {data: isCommunityMember = false} = useCommunityMembership()
   const homeAppviewOutage = useHomeAppviewOutage()
   const media = post.embed.media
@@ -2006,7 +2103,14 @@ function ComposerPills({
     media?.type === 'video'
   const hasLink = !!post.embed.link
 
-  if (isReply && !hasMedia && !hasLink && !isForcedBlackskyOnly) {
+  if (
+    isReply &&
+    !hasMedia &&
+    !hasLink &&
+    !isForcedBlackskyOnly &&
+    !thread.communityFeedUri &&
+    !thread.communitySpaceUri
+  ) {
     return null
   }
 
@@ -2020,7 +2124,7 @@ function ComposerPills({
         bounces={false}
         keyboardShouldPersistTaps="always"
         showsHorizontalScrollIndicator={false}>
-        {isReply ? null : (
+        {isReply || isSpaceBackedFeed(thread.communityFeed?.config) ? null : (
           <ThreadgateBtn
             postgate={thread.postgate}
             onChangePostgate={nextPostgate => {
@@ -2036,28 +2140,17 @@ function ComposerPills({
             style={bottomBarAnimatedStyle}
           />
         )}
-        {!isCommunityMember || (isReply && !isForcedBlackskyOnly) ? null : (
-          <Toggle.Item
-            name="blacksky_only"
-            label={l`Blacksky Only`}
-            value={thread.blackskyOnly}
-            disabled={isForcedBlackskyOnly || homeAppviewOutage}
-            onChange={() => {
-              const next = !thread.blackskyOnly
-              dispatch({type: 'toggle_blacksky_only'})
-              setBlackskyOnlyDefault(next)
-            }}
-            style={[a.flex_row, a.align_center, a.gap_xs]}>
-            <Toggle.LabelText>
-              {homeAppviewOutage ? (
-                <Trans>Blacksky Only (temporarily unavailable)</Trans>
-              ) : (
-                <Trans>Blacksky Only</Trans>
-              )}
-            </Toggle.LabelText>
-            <Toggle.Switch />
-          </Toggle.Item>
-        )}
+        <PostTargetControls
+          thread={thread}
+          dispatch={dispatch}
+          isCommunityMember={isCommunityMember}
+          homeAppviewOutage={homeAppviewOutage}
+          setBlackskyOnlyDefault={setBlackskyOnlyDefault}
+          isReply={isReply}
+          isForcedBlackskyOnly={isForcedBlackskyOnly}
+          isForcedCommunityTarget={isForcedCommunityTarget}
+          contextualCommunityFeedTarget={contextualCommunityFeedTarget}
+        />
         {hasMedia || hasLink ? (
           <LabelsBtn
             labels={post.labels}
@@ -2074,9 +2167,13 @@ function ComposerPills({
           />
         ) : null}
       </ScrollView>
-      {thread.blackskyOnly && (
+      {(thread.blackskyOnly ||
+        thread.communityFeedUri ||
+        thread.communitySpaceUri) && (
         <View style={[a.justify_end, a.pl_sm, a.align_end]}>
-          <CommunityOnlyBadge />
+          <CommunityOnlyBadge
+            communitySpace={thread.communitySpaceUri ?? thread.communityFeedUri}
+          />
         </View>
       )}
     </Animated.View>
@@ -2094,6 +2191,7 @@ function ComposerFooter({
   languageNudgeAt,
   openGallery,
   textInputRef,
+  spaceMediaDisabled,
 }: {
   post: PostDraft
   dispatch: (action: PostAction) => void
@@ -2106,6 +2204,7 @@ function ComposerFooter({
   languageNudgeAt: number
   openGallery?: boolean
   textInputRef: React.RefObject<TextInputRef | null>
+  spaceMediaDisabled: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -2142,9 +2241,10 @@ function ComposerFooter({
 
   const onSelectGif = useCallback(
     (gif: Gif) => {
+      if (spaceMediaDisabled) return
       dispatch({type: 'embed_add_gif', gif})
     },
-    [dispatch],
+    [dispatch, spaceMediaDisabled],
   )
 
   /*
@@ -2156,6 +2256,7 @@ function ComposerFooter({
 
   const onSelectAssets = useCallback<SelectMediaButtonProps['onSelectAssets']>(
     async ({type, assets, errors}) => {
+      if (spaceMediaDisabled) return
       setSelectedAssetsType(type)
 
       if (assets.length) {
@@ -2192,7 +2293,7 @@ function ComposerFooter({
         })
       })
     },
-    [post.id, onSelectVideo, onImageAdd],
+    [post.id, onSelectVideo, onImageAdd, spaceMediaDisabled],
   )
 
   return (
@@ -2214,7 +2315,7 @@ function ComposerFooter({
           ) : (
             <ToolbarWrapper style={[a.flex_row, a.align_center, a.gap_xs]}>
               <SelectMediaButton
-                disabled={isMediaSelectionDisabled}
+                disabled={spaceMediaDisabled || isMediaSelectionDisabled}
                 allowedAssetTypes={selectedAssetsType}
                 selectedAssetsCount={selectedAssetsCount}
                 onSelectAssets={onSelectAssets}
@@ -2222,13 +2323,18 @@ function ComposerFooter({
               />
               <OpenCameraBtn
                 disabled={
-                  media?.type === 'images' || media?.type === 'gallery'
-                    ? isMaxImages
-                    : !!media
+                  spaceMediaDisabled
+                    ? true
+                    : media?.type === 'images' || media?.type === 'gallery'
+                      ? isMaxImages
+                      : !!media
                 }
                 onAdd={onImageAdd}
               />
-              <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
+              <SelectGifBtn
+                onSelectGif={onSelectGif}
+                disabled={spaceMediaDisabled || !!media}
+              />
               {IS_WEB && gtPhone ? (
                 <EmojiPicker.Root nextFocusRef={textInputRef}>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
@@ -2250,6 +2356,11 @@ function ComposerFooter({
             </ToolbarWrapper>
           )}
         </LayoutAnimationConfig>
+        {spaceMediaDisabled ? (
+          <Text style={[t.atoms.text_contrast_medium, a.text_sm, a.ml_sm]}>
+            <Trans>Media isn’t available in private spaces yet.</Trans>
+          </Text>
+        ) : null}
       </View>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         {showAddButton && (
@@ -2527,11 +2638,13 @@ const styles = StyleSheet.create({
 
 function ErrorBanner({
   error: standardError,
+  needsMigration,
   videoState,
   clearError,
   clearVideo,
 }: {
   error: string
+  needsMigration?: boolean
   videoState: VideoState | NoVideoState
   clearError: () => void
   clearVideo: () => void
@@ -2582,6 +2695,15 @@ function ErrorBanner({
             <ButtonIcon icon={XIcon} />
           </Button>
         </View>
+        {needsMigration && (
+          <Text style={[{paddingLeft: 28}, a.leading_snug]}>
+            <SimpleInlineLinkText
+              label={l`Move your account to Blacksky`}
+              to={ACCOUNT_MIGRATION_URL}>
+              <Trans>Move your account to Blacksky</Trans>
+            </SimpleInlineLinkText>
+          </Text>
+        )}
         {videoError && videoState.jobId && (
           <Text
             style={[

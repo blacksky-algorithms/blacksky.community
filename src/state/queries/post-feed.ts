@@ -5,7 +5,6 @@ import {
   AppBskyFeedDefs,
   type AppBskyFeedPost,
   type AtpAgent,
-  AtUri,
   moderatePost,
   type ModerationDecision,
   type ModerationPrefs,
@@ -40,9 +39,9 @@ import {useFeedTuners} from '../preferences/feed-tuners'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {usePreferencesQuery} from './preferences'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from './util'
 
 type ActorDid = string
@@ -500,7 +499,7 @@ export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
 ): Generator<AppBskyFeedDefs.PostView, undefined> {
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   const queryDatas = queryClient.getQueriesData<
     InfiniteData<FeedPageUnselected>
@@ -513,36 +512,33 @@ export function* findAllPostsInQueryData(
     }
     for (const page of queryData?.pages) {
       for (const item of page.feed) {
-        if (didOrHandleUriMatches(atUri, item.post)) {
+        if (matches(item.post)) {
           yield item.post
         }
 
         const quotedPost = getEmbeddedPost(item.post.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
 
         if (AppBskyFeedDefs.isPostView(item.reply?.parent)) {
-          if (didOrHandleUriMatches(atUri, item.reply.parent)) {
+          if (matches(item.reply.parent)) {
             yield item.reply.parent
           }
 
           const parentQuotedPost = getEmbeddedPost(item.reply.parent.embed)
-          if (
-            parentQuotedPost &&
-            didOrHandleUriMatches(atUri, parentQuotedPost)
-          ) {
+          if (parentQuotedPost && matches(parentQuotedPost)) {
             yield embedViewRecordToPostView(parentQuotedPost)
           }
         }
 
         if (AppBskyFeedDefs.isPostView(item.reply?.root)) {
-          if (didOrHandleUriMatches(atUri, item.reply.root)) {
+          if (matches(item.reply.root)) {
             yield item.reply.root
           }
 
           const rootQuotedPost = getEmbeddedPost(item.reply.root.embed)
-          if (rootQuotedPost && didOrHandleUriMatches(atUri, rootQuotedPost)) {
+          if (rootQuotedPost && matches(rootQuotedPost)) {
             yield embedViewRecordToPostView(rootQuotedPost)
           }
         }

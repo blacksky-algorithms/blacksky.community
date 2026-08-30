@@ -16,6 +16,8 @@ import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
 import {communityXrpc} from '#/lib/api/community'
+import {isCommunityPostUri} from '#/lib/api/community-post'
+import {toPostView} from '#/lib/api/space-views'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {labelIsHideableOffense} from '#/lib/moderation'
 import * as bsky from '#/types/bsky'
@@ -215,7 +217,7 @@ export function groupNotifications(
   return groupedNotifs
 }
 
-async function fetchSubjects(
+export async function fetchSubjects(
   agent: AtpAgent,
   groupedNotifs: FeedNotification[],
 ): Promise<{
@@ -226,10 +228,11 @@ async function fetchSubjects(
   const communityPostUris = new Set<string>()
   const packUris = new Set<string>()
   for (const notif of groupedNotifs) {
-    if (notif.subjectUri?.includes('community.blacksky.feed.post')) {
-      communityPostUris.add(notif.subjectUri)
-    } else if (notif.subjectUri?.includes('app.bsky.feed.post')) {
-      postUris.add(notif.subjectUri)
+    const subjectUri = notif.subjectUri
+    if (subjectUri && isCommunityPostUri(subjectUri)) {
+      communityPostUris.add(subjectUri)
+    } else if (subjectUri?.includes('app.bsky.feed.post')) {
+      postUris.add(subjectUri)
     } else if (
       notif.notification.reasonSubject?.includes('app.bsky.graph.starterpack')
     ) {
@@ -253,10 +256,8 @@ async function fetchSubjects(
       })
         .then(async res => {
           if (!res.ok) return undefined
-          const data = jsonToLex(await res.json()) as {
-            post?: AppBskyFeedDefs.PostView
-          }
-          return data.post
+          const data = jsonToLex(await res.json()) as {post?: unknown}
+          return toPostView(data.post)
         })
         .catch(() => undefined),
     ),

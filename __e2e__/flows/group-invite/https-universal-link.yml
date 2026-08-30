@@ -1,0 +1,19 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: mixed
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'https://blacksky.community/join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- assertVisible:
+    id: groupInviteAcceptButton
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '0'

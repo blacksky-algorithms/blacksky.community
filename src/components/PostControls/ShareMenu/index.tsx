@@ -4,13 +4,12 @@ import {
   type AppBskyFeedDefs,
   type AppBskyFeedPost,
   type AppBskyFeedThreadgate,
-  AtUri,
   type RichText as RichTextAPI,
 } from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
 import {type Shadow} from '#/state/cache/post-shadow'
@@ -85,10 +84,7 @@ let ShareMenuButton = ({
 
   const onNativeLongPress = () => {
     ax.metric('share:press:nativeShare', {})
-    const urip = new AtUri(post.uri)
-    const link = makeProfileLink(post.author, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    const href = isCommunity ? `${link}?collection=${urip.collection}` : link
+    const href = postPermalink(post.author, post.uri)
     const url = toShareUrl(href)
     shareUrl(url)
     onShare()

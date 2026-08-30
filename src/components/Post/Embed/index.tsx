@@ -4,14 +4,13 @@ import {
   type $Typed,
   type AppBskyFeedDefs,
   AppBskyFeedPost,
-  AtUri,
   moderatePost,
   RichText as RichTextAPI,
 } from '@atproto/api'
 import {Trans} from '@lingui/react/macro'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {getChatInviteCodeFromUrl} from '#/lib/strings/url-helpers'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useEmbedFallback} from '#/state/queries/embed-fallback'
@@ -326,12 +325,7 @@ export function QuoteEmbed({
 
   const t = useTheme()
   const queryClient = useQueryClient()
-  const itemUrip = new AtUri(quote.uri)
-  const isCommunityQuote =
-    itemUrip.collection === 'community.blacksky.feed.post'
-  const itemHref = isCommunityQuote
-    ? `${makeProfileLink(quote.author, 'post', itemUrip.rkey)}?collection=${itemUrip.collection}`
-    : makeProfileLink(quote.author, 'post', itemUrip.rkey)
+  const itemHref = postPermalink(quote.author, quote.uri)
   const itemTitle = `Post by ${quote.author.handle}`
 
   const richText = useMemo(() => {

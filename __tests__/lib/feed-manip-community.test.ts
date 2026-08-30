@@ -4,7 +4,7 @@ import {
   type AppBskyFeedPost,
 } from '@atproto/api'
 
-import {FeedTuner} from '#/lib/api/feed-manip'
+import {FeedTuner, FeedViewPostsSlice} from '#/lib/api/feed-manip'
 
 // The repo-wide manual mock stubs CID.parse away, which makes every
 // cid-format validation fail; these tests exercise real record validation.
@@ -20,6 +20,8 @@ const VIEWER_DID = 'did:plc:viewer'
 const MEMBER_DID = 'did:plc:member'
 const COLLECTION = 'community.blacksky.feed.post'
 const CID = 'bafyreihhl5mpvjkrhnnagen2fomozzhnhhdq2jr6cego2nzbvmwewv5rd4'
+const SPACE_URI =
+  'at://did:plc:community/space/community.blacksky.feed/aabbcc/did:plc:member/app.bsky.feed.post/root'
 
 function author(
   did: string,
@@ -77,6 +79,37 @@ function followingTuner() {
 }
 
 describe('FeedTuner with merged community posts', () => {
+  it('keeps a space quote whose embedded record uses a space URI', () => {
+    const post = communityPost({rkey: 'quote'})
+    post.uri =
+      'at://did:plc:community/space/community.blacksky.feed/aabbcc/did:plc:member/app.bsky.feed.post/quote'
+    post.record = {
+      $type: 'app.bsky.feed.post',
+      text: 'quoted',
+      createdAt: '2026-07-17T12:00:00.000Z',
+      embed: {
+        $type: 'app.bsky.embed.record',
+        record: {uri: SPACE_URI, cid: CID},
+      },
+    }
+    post.embed = {
+      $type: 'app.bsky.embed.record#view',
+      record: {
+        $type: 'app.bsky.embed.record#viewRecord',
+        uri: SPACE_URI,
+        cid: CID,
+        author: author(MEMBER_DID),
+        value: {text: 'root', createdAt: '2026-07-17T12:00:00.000Z'},
+        indexedAt: '2026-07-17T12:00:00.000Z',
+      },
+    }
+
+    const slice = new FeedViewPostsSlice({post})
+
+    expect(slice.items).toHaveLength(1)
+    expect(slice.isQuotePost).toBe(true)
+  })
+
   it('keeps a top-level community post', () => {
     const feed: AppBskyFeedDefs.FeedViewPost[] = [
       {post: communityPost({rkey: 'aaa'})},

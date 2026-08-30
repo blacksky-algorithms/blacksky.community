@@ -457,6 +457,9 @@ export class Agent extends BaseAgent {
 const PDS_LOCAL_PROXY_EXEMPT_METHODS = [
   'app.bsky.actor.getPreferences',
   'app.bsky.actor.putPreferences',
+  'com.atproto.space.createRecord',
+  'com.atproto.space.deleteRecord',
+  'com.atproto.space.getRecord',
 ]
 
 export function stripAppviewProxyForPdsLocalMethods(

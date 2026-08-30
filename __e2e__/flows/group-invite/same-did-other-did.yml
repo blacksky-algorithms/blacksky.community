@@ -1,0 +1,65 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: resumable
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptedMembership
+    timeout: 30000
+- tapOn:
+    id: groupInviteDialogHandle
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptedMembership
+    timeout: 30000
+- tapOn:
+    id: groupInviteDialogHandle
+- tapOn:
+    id: e2eSignOut
+- extendedWaitUntil:
+    visible:
+      id: e2eSignInAlice
+    timeout: 10000
+- tapOn:
+    id: e2eSignInBob
+- extendedWaitUntil:
+    visible:
+      id: bottomBarHomeBtn
+    timeout: 30000
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteRetryButton
+    timeout: 30000
+- assertVisible: 'This invite is no longer available.'
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '3'
+      EXPECT_ACCEPT_WITH_BEARER: '3'
+      EXPECT_CLAIM_COUNT: '1'
+      EXPECT_CLAIMANT_COUNT: '1'

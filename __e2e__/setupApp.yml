@@ -1,15 +1,15 @@
 appId: community.blacksky.app
 ---
 - launchApp:
-    appId: "community.blacksky.app"
+    appId: 'community.blacksky.app'
     clearState: true
     arguments:
-      "-EXDevMenuIsOnboardingFinished": true
+      '-EXDevMenuIsOnboardingFinished': true
 - runFlow:
     when:
       platform: iOS
     commands:
-      - openLink: "exp+blacksky://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8082"
+      - openLink: 'exp+blacksky://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8082'
       - runFlow:
           when:
             visible: 'Open in "Blacksky"'
@@ -19,11 +19,11 @@ appId: community.blacksky.app
     when:
       platform: Android
     commands:
-      - tapOn: 'http://localhost:8082'
+      - tapOn: 'http://10.0.2.2:8082'
       - runFlow:
-          label: "Dismiss Expo dev menu"
+          label: 'Dismiss Expo dev menu'
           when:
-            visible: "Continue"
+            visible: 'Continue'
           commands:
             - back
 - tapOn:

@@ -1,0 +1,20 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: consumed
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteRetryButton
+    timeout: 30000
+- assertVisible: 'This invite is no longer available.'
+- tapOn:
+    id: groupInviteRetryButton
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '0'

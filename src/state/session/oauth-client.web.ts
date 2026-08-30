@@ -9,6 +9,22 @@ import {
 import {type Metrics} from '#/analytics/metrics'
 import {OAUTH_SCOPE} from './oauth-config'
 
+const LOCAL_OAUTH_HANDLE_RESOLVER =
+  process.env.EXPO_PUBLIC_OAUTH_HANDLE_RESOLVER
+const LOCAL_OAUTH_PLC_DIRECTORY_URL =
+  process.env.EXPO_PUBLIC_OAUTH_PLC_DIRECTORY_URL
+const USE_LOCAL_OAUTH_RESOLUTION =
+  __DEV__ && !!LOCAL_OAUTH_HANDLE_RESOLVER && !!LOCAL_OAUTH_PLC_DIRECTORY_URL
+
+const oauthResolutionOptions = {
+  handleResolver: USE_LOCAL_OAUTH_RESOLUTION
+    ? LOCAL_OAUTH_HANDLE_RESOLVER
+    : 'https://blacksky.app',
+  ...(USE_LOCAL_OAUTH_RESOLUTION
+    ? {plcDirectoryUrl: LOCAL_OAUTH_PLC_DIRECTORY_URL, allowHttp: true}
+    : {}),
+}
+
 function getOAuthBaseUrl(): string {
   if (typeof window !== 'undefined') {
     return window.location.origin
@@ -162,7 +178,7 @@ function createWebOAuthClient() {
         application_type: 'web',
         dpop_bound_access_tokens: true,
       },
-      handleResolver: 'https://blacksky.app',
+      ...oauthResolutionOptions,
       fetch: oauthInstrumentedFetch,
       ...sessionHooks,
     })
@@ -184,7 +200,7 @@ function createWebOAuthClient() {
       application_type: 'web',
       dpop_bound_access_tokens: true,
     },
-    handleResolver: 'https://blacksky.app',
+    ...oauthResolutionOptions,
     fetch: oauthInstrumentedFetch,
     ...sessionHooks,
   })

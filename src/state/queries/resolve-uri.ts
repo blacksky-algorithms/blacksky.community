@@ -46,18 +46,21 @@ const resolvedDidQueryOptions = (
   })
 
 export function useResolveUriQuery(uri: string | undefined) {
-  const urip = new AtUri(uri || '')
-  const host = urip.host
+  const urip = uri ? new AtUri(uri) : undefined
+  const host = urip?.host
 
   const agent = useAgent()
   const {getUnstableProfile} = useUnstableProfileViewCache()
 
   return useQuery({
     ...resolvedDidQueryOptions(agent, getUnstableProfile, host),
-    select: did => ({
-      did,
-      uri: AtUri.make(did, urip.collection, urip.rkey).toString(),
-    }),
+    select: did => {
+      if (!urip) return undefined
+      return {
+        did,
+        uri: AtUri.make(did, urip.collection, urip.rkey).toString(),
+      }
+    },
   })
 }
 

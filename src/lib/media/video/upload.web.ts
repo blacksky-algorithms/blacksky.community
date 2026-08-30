@@ -3,10 +3,11 @@ import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 import {nanoid} from 'nanoid/non-secure'
 
+import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {AbortError} from '#/lib/async/cancelable'
 import {ServerError} from '#/lib/media/video/errors'
 import {type CompressedVideo} from '#/lib/media/video/types'
-import {getServiceAuthToken, getVideoUploadLimits} from './upload.shared'
+import {getVideoUploadLimits} from './upload.shared'
 import {createVideoEndpointUrl, mimeToExt} from './util'
 
 export async function uploadVideo({

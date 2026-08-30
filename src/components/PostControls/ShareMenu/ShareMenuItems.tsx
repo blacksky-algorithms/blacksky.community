@@ -1,13 +1,12 @@
 import {memo, useMemo} from 'react'
 import * as ExpoClipboard from 'expo-clipboard'
-import {AtUri} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {shareText, shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
@@ -46,10 +45,7 @@ let ShareMenuItems = ({
   const postAuthor = useProfileShadow(post.author)
 
   const href = useMemo(() => {
-    const urip = new AtUri(postUri)
-    const link = makeProfileLink(postAuthor, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return isCommunity ? `${link}?collection=${urip.collection}` : link
+    return postPermalink(postAuthor, postUri)
   }, [postUri, postAuthor])
 
   const hideInPWI = useMemo(() => {

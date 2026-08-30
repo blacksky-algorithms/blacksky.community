@@ -64,6 +64,13 @@ export function ProfileFeedScreen(props: Props) {
     refetch,
     isRefetching,
   } = useResolveUriQuery(uri)
+  const resolvedFeed = resolvedUri
+    ? (`feedgen|${resolvedUri.uri}` as FeedDescriptor)
+    : undefined
+
+  useEffect(() => {
+    props.navigation.setParams({resolvedFeed})
+  }, [props.navigation, resolvedFeed])
 
   if (error && !isRefetching) {
     return (
@@ -133,13 +140,13 @@ export function ProfileFeedScreenInner({
 }) {
   const {_} = useLingui()
   const {hasSession} = useSession()
-  const {openComposer} = useOpenComposer()
   const isScreenFocused = useIsFocused()
   const t = useTheme()
 
   useSetTitle(feedInfo?.displayName)
 
   const feed = `feedgen|${feedInfo.uri}` as FeedDescriptor
+  const {openComposer} = useOpenComposer(feed)
 
   const [hasNew, setHasNew] = useState(false)
   const [isScrolledDown, setIsScrolledDown] = useState(false)
