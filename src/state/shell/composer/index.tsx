@@ -9,6 +9,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {type CommunityFeedTarget} from '#/lib/api/community-feed'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {postUriToRelativePath, toBskyAppUrl} from '#/lib/strings/url-helpers'
 import {purgeTemporaryImageFiles} from '#/state/gallery'
@@ -56,6 +57,7 @@ export interface ComposerOpts {
   videoUri?: {uri: string; width: number; height: number}
   openGallery?: boolean
   logContext?: ComposerLogContext
+  contextualCommunityFeedTarget?: CommunityFeedTarget
 }
 
 type StateContext = ComposerOpts | undefined

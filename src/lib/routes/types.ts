@@ -35,6 +35,7 @@ export type CommonNavigatorParams = {
     name: string
     rkey: string
     feedCacheKey?: 'discover' | 'explore' | undefined
+    resolvedFeed?: string
   }
   ProfileFeedLikedBy: {name: string; rkey: string}
   ProfileLabelerLikedBy: {name: string}

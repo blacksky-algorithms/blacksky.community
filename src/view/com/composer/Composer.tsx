@@ -60,7 +60,10 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
-import {isSpaceBackedFeed} from '#/lib/api/community-feed'
+import {
+  type CommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
 import {
   getCommunitySpaceUri,
   isCommunityPostUri,
@@ -131,7 +134,7 @@ import {LabelsBtn} from '#/view/com/composer/labels/LabelsBtn'
 import {Gallery} from '#/view/com/composer/photos/Gallery'
 import {OpenCameraBtn} from '#/view/com/composer/photos/OpenCameraBtn'
 import {SelectGifBtn} from '#/view/com/composer/photos/SelectGifBtn'
-import {PostTargetSelect} from '#/view/com/composer/PostTargetSelect'
+import {PostTargetControls} from '#/view/com/composer/PostTargetControls'
 import {SuggestedLanguage} from '#/view/com/composer/select-language/SuggestedLanguage'
 // TODO: Prevent naming components that coincide with RN primitives
 // due to linting false positives
@@ -281,6 +284,7 @@ export const ComposePost = ({
   videoUri: initVideoUri,
   openGallery,
   logContext,
+  contextualCommunityFeedTarget,
   cancelRef,
 }: Props & {
   cancelRef?: React.RefObject<CancelRef | null>
@@ -390,6 +394,8 @@ export const ComposePost = ({
     (isCommunityReply && !replyCommunitySpace) ||
     (isCommunityQuote && !quoteCommunitySpace)
   const isForcedCommunityTarget = isCommunityReply || isCommunityQuote
+  const hasEligibleContextualTarget =
+    !!contextualCommunityFeedTarget && !replyTo && !isForcedCommunityTarget
 
   const [composerState, composerDispatch] = useReducer(
     composerReducer,
@@ -402,10 +408,15 @@ export const ComposePost = ({
       initCommunitySpaceUri: replyCommunitySpace ?? quoteCommunitySpace,
       // Replies inherit their parent's audience: forced on for community
       // parents, forced off for public parents. The sticky default only
-      // applies to top-level posts, and only for community members.
+      // applies to top-level posts for community members. A selected writable
+      // private feed starts public and supersedes that default for this
+      // composer instance without changing the persisted preference.
       initBlackskyOnly:
         isForcedBlackskyOnly ||
-        (!replyTo && isCommunityMember && blackskyOnlyDefault),
+        (!hasEligibleContextualTarget &&
+          !replyTo &&
+          isCommunityMember &&
+          blackskyOnlyDefault),
     },
     createComposerState,
   )
@@ -1404,6 +1415,7 @@ export const ComposePost = ({
         isForcedBlackskyOnly={isForcedBlackskyOnly}
         isForcedCommunityTarget={isForcedCommunityTarget}
         setBlackskyOnlyDefault={setBlackskyOnlyDefault}
+        contextualCommunityFeedTarget={contextualCommunityFeedTarget}
       />
       <ComposerFooter
         post={activePost}
@@ -2068,6 +2080,7 @@ function ComposerPills({
   isForcedBlackskyOnly,
   isForcedCommunityTarget,
   setBlackskyOnlyDefault,
+  contextualCommunityFeedTarget,
 }: {
   isReply: boolean
   thread: ThreadDraft
@@ -2077,6 +2090,7 @@ function ComposerPills({
   isForcedBlackskyOnly: boolean
   isForcedCommunityTarget: boolean
   setBlackskyOnlyDefault: (v: boolean) => void
+  contextualCommunityFeedTarget?: CommunityFeedTarget
 }) {
   const t = useTheme()
   const {data: isCommunityMember = false} = useCommunityMembership()
@@ -2126,15 +2140,17 @@ function ComposerPills({
             style={bottomBarAnimatedStyle}
           />
         )}
-        {isReply || isForcedCommunityTarget ? null : (
-          <PostTargetSelect
-            thread={thread}
-            dispatch={dispatch}
-            isCommunityMember={isCommunityMember}
-            homeAppviewOutage={homeAppviewOutage}
-            setBlackskyOnlyDefault={setBlackskyOnlyDefault}
-          />
-        )}
+        <PostTargetControls
+          thread={thread}
+          dispatch={dispatch}
+          isCommunityMember={isCommunityMember}
+          homeAppviewOutage={homeAppviewOutage}
+          setBlackskyOnlyDefault={setBlackskyOnlyDefault}
+          isReply={isReply}
+          isForcedBlackskyOnly={isForcedBlackskyOnly}
+          isForcedCommunityTarget={isForcedCommunityTarget}
+          contextualCommunityFeedTarget={contextualCommunityFeedTarget}
+        />
         {hasMedia || hasLink ? (
           <LabelsBtn
             labels={post.labels}
