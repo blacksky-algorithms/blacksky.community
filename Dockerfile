@@ -99,6 +99,9 @@ FROM golang:1.26-bookworm AS go-build
 
 WORKDIR /usr/src/social-app
 
+ARG EXPO_PUBLIC_RELEASE_VERSION
+ARG EXPO_PUBLIC_BUNDLE_IDENTIFIER
+
 ENV GODEBUG="netdns=go"
 ENV GOOS="linux"
 ENV GOARCH="amd64"
@@ -119,6 +122,7 @@ RUN cd bskyweb/ && \
     -v  \
     -trimpath \
     -tags timetzdata \
+    -ldflags "-X main.releaseCommit=$EXPO_PUBLIC_BUNDLE_IDENTIFIER -X main.releaseVersion=$EXPO_PUBLIC_RELEASE_VERSION" \
     -o /bskyweb \
     ./cmd/bskyweb
 
