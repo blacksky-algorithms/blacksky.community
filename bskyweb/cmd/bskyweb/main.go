@@ -11,6 +11,11 @@ import (
 
 var log = logging.Logger("bskyweb")
 
+var (
+	releaseCommit  = "unknown"
+	releaseVersion = "unknown"
+)
+
 func init() {
 	logging.SetAllLoggers(logging.LevelDebug)
 	//logging.SetAllLoggers(logging.LevelWarn)

@@ -1,6 +1,28 @@
 name: build-and-push-bskyweb-docr-staging
 on:
   workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number to validate
+        required: true
+        type: string
+      commit_sha:
+        description: Exact 40-character PR head SHA to deploy
+        required: true
+        type: string
+      acceptance_criteria:
+        description: What behavior to verify on staging
+        required: true
+        type: string
+      ttl_hours:
+        description: Hours before this staging claim expires
+        required: true
+        default: "72"
+        type: string
+
+concurrency:
+  group: blacksky-community-client-staging
+  cancel-in-progress: false
 
 jobs:
   bskyweb-container-docr-staging:
@@ -8,16 +30,43 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      deployments: write
+      pull-requests: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+
+      - name: Validate staging request
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          PULL_REQUEST: ${{ inputs.pull_request }}
+          ACCEPTANCE_CRITERIA: ${{ inputs.acceptance_criteria }}
+          TTL_HOURS: ${{ inputs.ttl_hours }}
+        with:
+          script: |
+            const sha = process.env.EXPECTED_SHA.trim().toLowerCase()
+            const prNumber = Number(process.env.PULL_REQUEST)
+            const ttlHours = Number(process.env.TTL_HOURS)
+            if (!/^[0-9a-f]{40}$/.test(sha)) throw new Error('commit_sha must be a full 40-character SHA')
+            if (!Number.isInteger(prNumber) || prNumber <= 0) throw new Error('pull_request must be a positive integer')
+            if (!Number.isFinite(ttlHours) || ttlHours < 1 || ttlHours > 168) throw new Error('ttl_hours must be between 1 and 168')
+            if (core.isDebug()) core.info(`Validating PR #${prNumber} at ${sha}`)
+            const pull = await github.rest.pulls.get({ owner: context.repo.owner, repo: context.repo.repo, pull_number: prNumber })
+            if (pull.data.state !== 'open') throw new Error(`PR #${prNumber} is ${pull.data.state}, not open`)
+            if (pull.data.head.sha.toLowerCase() !== sha) throw new Error(`PR #${prNumber} head is ${pull.data.head.sha}, not ${sha}`)
+            if (process.env.ACCEPTANCE_CRITERIA.trim().length === 0) throw new Error('acceptance_criteria must not be empty')
+
+            core.info(`Validated PR #${prNumber} at ${sha} with a ${ttlHours}-hour TTL`)
 
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -26,7 +75,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: |
             registry.digitalocean.com/blacksky/blacksky-community
@@ -42,7 +91,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
         with:
           context: .
           push: true
@@ -63,3 +112,106 @@ jobs:
             EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY=${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
             EXPO_PUBLIC_STRIPE_API_URL=${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
             EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+
+      - name: Create staging deployment record
+        id: deployment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          PULL_REQUEST: ${{ inputs.pull_request }}
+          ACCEPTANCE_CRITERIA: ${{ inputs.acceptance_criteria }}
+          TTL_HOURS: ${{ inputs.ttl_hours }}
+          IMAGE_DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        with:
+          script: |
+            const sha = process.env.EXPECTED_SHA.trim().toLowerCase()
+            const prNumber = Number(process.env.PULL_REQUEST)
+            const expiresAt = new Date(Date.now() + Number(process.env.TTL_HOURS) * 60 * 60 * 1000).toISOString()
+            const created = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+              auto_merge: false,
+              required_contexts: [],
+              environment: 'client-staging',
+              transient_environment: true,
+              production_environment: false,
+              description: `PR #${prNumber} staging validation`,
+              payload: {
+                schemaVersion: 1,
+                kind: 'client-staging-validation',
+                repository: `${context.repo.owner}/${context.repo.repo}`,
+                pullRequest: prNumber,
+                commitSha: sha,
+                requestedBy: context.actor,
+                expiresAt,
+                acceptanceCriteria: process.env.ACCEPTANCE_CRITERIA.trim(),
+                rollbackImage: `registry.digitalocean.com/blacksky/blacksky-community:staging-${sha}`,
+                imageDigest: process.env.IMAGE_DIGEST,
+              },
+            })
+            core.setOutput('id', String(created.data.id))
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: created.data.id,
+              state: 'in_progress',
+              description: 'Immutable image built; deploying to staging',
+              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              auto_inactive: false,
+            })
+
+      - name: Deploy immutable build to App Platform and verify live SHA
+        env:
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          STAGING_URL: https://staging.blacksky.community
+        run: |
+          set -euo pipefail
+          app_id="$(doctl apps list --format ID,Spec.Name --no-header | awk '$2 == "blacksky-community-staging" { print $1 }')"
+          test -n "$app_id"
+          deployment_id="$(doctl apps create-deployment "$app_id" --format ID --no-header)"
+          test -n "$deployment_id"
+
+          phase=""
+          for _ in $(seq 1 60); do
+            phase="$(doctl apps get-deployment "$app_id" "$deployment_id" --format Phase --no-header)"
+            case "$phase" in
+              ACTIVE) break ;;
+              ERROR|CANCELED|SUPERSEDED) echo "App Platform deployment ended in $phase" >&2; exit 1 ;;
+            esac
+            sleep 10
+          done
+          test "$phase" = "ACTIVE"
+
+          for _ in $(seq 1 30); do
+            if curl --fail --silent --show-error --header 'Cache-Control: no-cache' "$STAGING_URL/_release?expected=$EXPECTED_SHA" \
+              | jq --exit-status --arg sha "$EXPECTED_SHA" '.commitSha == $sha' >/dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Staging never reported expected SHA $EXPECTED_SHA" >&2
+          exit 1
+
+      - name: Record final staging status
+        if: always() && steps.deployment.outputs.id != ''
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.id }}
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          JOB_STATUS: ${{ job.status }}
+        with:
+          script: |
+            const success = process.env.JOB_STATUS === 'success'
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: Number(process.env.DEPLOYMENT_ID),
+              state: success ? 'success' : 'failure',
+              description: success
+                ? `Staging serves ${process.env.EXPECTED_SHA.slice(0, 12)}; needs human validation`
+                : `Staging verification failed for ${process.env.EXPECTED_SHA.slice(0, 12)}`,
+              environment_url: 'https://staging.blacksky.community',
+              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              auto_inactive: false,
+            })

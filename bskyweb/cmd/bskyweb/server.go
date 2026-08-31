@@ -309,6 +309,10 @@ func serve(cctx *cli.Context) error {
 	// PWA manifest (generated dynamically from brand config)
 	e.GET("/manifest.json", server.WebManifest)
 
+	// Immutable build identity used by deployment verification. This intentionally
+	// contains portable release data only; workflow and BB-local state stay elsewhere.
+	e.GET("/_release", server.ReleaseIdentity)
+
 	// OAuth client metadata (generated dynamically from request host)
 	e.GET("/oauth-client-metadata.json", server.OAuthClientMetadata)
 	e.GET("/oauth-client-metadata-native.json", server.OAuthClientMetadataNative)
@@ -482,6 +486,14 @@ func serve(cctx *cli.Context) error {
 	<-quit
 	log.Infof("graceful shutdown complete")
 	return nil
+}
+
+func (srv *Server) ReleaseIdentity(c echo.Context) error {
+	c.Response().Header().Set("Cache-Control", "no-store")
+	return c.JSON(http.StatusOK, map[string]string{
+		"commitSha": releaseCommit,
+		"version":   releaseVersion,
+	})
 }
 
 func newMetricsHTTPServer(address string) (*http.Server, net.Listener, error) {
