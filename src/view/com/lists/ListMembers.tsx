@@ -15,6 +15,7 @@ import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useListMembersQuery} from '#/state/queries/list-members'
+import {dedupeBy} from '#/state/queries/pagination'
 import {useSession} from '#/state/session'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
@@ -103,14 +104,15 @@ export function ListMembers({
       if (isEmpty) {
         items.push(EMPTY_ITEM)
       } else if (data) {
-        for (const page of data.pages) {
-          items.push(
-            ...page.items.map(item => ({
-              kind: 'list_item' as const,
-              listItem: item,
-            })),
-          )
-        }
+        items.push(
+          ...dedupeBy(
+            data.pages.flatMap(page => page.items),
+            item => item.subject.did,
+          ).map(item => ({
+            kind: 'list_item' as const,
+            listItem: item,
+          })),
+        )
       }
       if (!isEmpty && isError) {
         items.push(LOAD_MORE_ERROR_ITEM)

@@ -8,6 +8,7 @@ import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {type NavigationProp} from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
+import {dedupeBy} from '#/state/queries/pagination'
 import {useProfileFollowsQuery} from '#/state/queries/profile-follows'
 import {useResolveDidQuery} from '#/state/queries/resolve-uri'
 import {useSession} from '#/state/session'
@@ -80,7 +81,10 @@ export function ProfileFollows({name}: {name: string}) {
 
   const follows = useMemo(() => {
     if (data?.pages) {
-      return data.pages.flatMap(page => page.follows)
+      return dedupeBy(
+        data.pages.flatMap(page => page.follows),
+        profile => profile.did,
+      )
     }
     return []
   }, [data])

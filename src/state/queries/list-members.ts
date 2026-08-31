@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
+import {dedupeBy, getNextCursor} from '#/state/queries/pagination'
 import {useAgent} from '#/state/session'
 
 const PAGE_SIZE = 30
@@ -43,7 +44,8 @@ export function useListMembersQuery(uri?: string, limit: number = PAGE_SIZE) {
       return res.data
     },
     initialPageParam: undefined,
-    getNextPageParam: lastPage => lastPage.cursor,
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) =>
+      getNextCursor(lastPage.cursor, allPageParams),
     enabled: Boolean(uri),
   })
 }
@@ -64,6 +66,7 @@ export async function getAllListMembers(agent: AtpAgent, uri: string) {
   let hasMore = true
   let cursor: string | undefined
   const listItems: AppBskyGraphDefs.ListItemView[] = []
+  const pageParams: RQPageParam[] = []
   // We want to cap this at 6 pages, just for anything weird happening with the api
   let i = 0
   while (hasMore && i < 6) {
@@ -73,11 +76,13 @@ export async function getAllListMembers(agent: AtpAgent, uri: string) {
       cursor,
     })
     listItems.push(...res.data.items)
-    hasMore = Boolean(res.data.cursor)
-    cursor = res.data.cursor
+    pageParams.push(cursor)
+    const nextCursor = getNextCursor(res.data.cursor, pageParams)
+    hasMore = Boolean(nextCursor)
+    cursor = nextCursor
     i++
   }
-  return listItems
+  return dedupeBy(listItems, item => item.subject.did)
 }
 
 export async function invalidateListMembersQuery({
