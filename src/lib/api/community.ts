@@ -8,18 +8,31 @@ import {
 import {HOME_PROXY_HEADER} from '#/lib/constants'
 import {toPostView} from './space-views'
 
+export type CommunityXrpcParam = string | number | boolean
+
 export async function communityXrpc(
   agent: BskyAgent,
   method: string,
   opts?: {
-    params?: Record<string, string>
+    params?: Record<
+      string,
+      CommunityXrpcParam | readonly CommunityXrpcParam[] | undefined
+    >
     body?: unknown
     serviceDid?: string
   },
 ): Promise<Response> {
-  const qs = opts?.params
-    ? '?' + new URLSearchParams(opts.params).toString()
-    : ''
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(opts?.params ?? {})) {
+    const values = Array.isArray(value) ? value : [value]
+    for (const item of values) {
+      if (item !== undefined) {
+        searchParams.append(key, String(item))
+      }
+    }
+  }
+  const encodedParams = searchParams.toString()
+  const qs = encodedParams ? `?${encodedParams}` : ''
   const path = `/xrpc/${method}${qs}`
 
   const headers: Record<string, string> = {
