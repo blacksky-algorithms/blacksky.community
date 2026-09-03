@@ -14,6 +14,7 @@ import {logger} from '#/logger'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {
   type CommunityFeedSlice,
+  type CommunityTimelineSort,
   fetchCommunityTimelineHead,
   TIMELINE_RQKEY,
   useCommunityFeedSlices,
@@ -21,6 +22,8 @@ import {
 } from '#/state/queries/community-feed'
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useAgent, useSession} from '#/state/session'
+import {CommunityFeedSortMenu} from '#/view/com/feeds/CommunityFeedSortMenu'
+import {ComposerPrompt} from '#/view/com/feeds/ComposerPrompt'
 import {isThreadChildAt, isThreadParentAt} from '#/view/com/posts/PostFeed'
 import {PostFeedItem} from '#/view/com/posts/PostFeedItem'
 import {ViewFullThread} from '#/view/com/posts/ViewFullThread'
@@ -34,6 +37,7 @@ import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+import {useCommunityFeedSort} from '#/storage/hooks/community-feed-sort'
 
 type CommunityFeedRow =
   | {
@@ -64,6 +68,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
     openComposer({logContext: 'Fab'})
   }, [openComposer])
 
+  const [sort, setSort] = useCommunityFeedSort()
   const {
     data,
     isLoading,
@@ -73,7 +78,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-  } = useCommunityTimelineQuery(isPageFocused)
+  } = useCommunityTimelineQuery(isPageFocused, sort)
 
   const feedItems = useMemo(
     () => data?.pages.flatMap(page => page.feed ?? []) ?? [],
@@ -133,12 +138,25 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true)
     try {
-      await truncateAndInvalidate(queryClient, TIMELINE_RQKEY())
+      await truncateAndInvalidate(queryClient, TIMELINE_RQKEY(sort))
       setHasNew(false)
     } finally {
       setIsRefreshing(false)
     }
-  }, [queryClient])
+  }, [queryClient, sort])
+
+  const onChangeSort = useCallback(
+    (next: CommunityTimelineSort) => {
+      if (next === sort) return
+      setSort(next)
+      setHasNew(false)
+      scrollElRef.current?.scrollToOffset({
+        animated: false,
+        offset: -headerOffset,
+      })
+    },
+    [sort, setSort, headerOffset],
+  )
 
   // Refetching an infinite query replays every loaded page, so doing it on
   // a timer shifts content under the user's scroll position (see upstream
@@ -155,6 +173,8 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
         void refetch()
         return
       }
+      // The head probe only means something in chronological order.
+      if (sort !== 'recent') return
       const head = await fetchCommunityTimelineHead(agent)
       if (!head) return
       if (
@@ -186,8 +206,31 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
       offset: -headerOffset,
     })
     setHasNew(false)
-    void truncateAndInvalidate(queryClient, TIMELINE_RQKEY())
-  }, [scrollElRef, headerOffset, queryClient])
+    void truncateAndInvalidate(queryClient, TIMELINE_RQKEY(sort))
+  }, [scrollElRef, headerOffset, queryClient, sort])
+
+  const renderHeader = useCallback(
+    () => (
+      <>
+        <HomeAppviewOutageNotice />
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            a.border_b,
+            t.atoms.border_contrast_low,
+          ]}>
+          <View style={a.flex_1}>
+            <ComposerPrompt />
+          </View>
+          <View style={[a.pr_lg]}>
+            <CommunityFeedSortMenu sort={sort} onChange={onChangeSort} />
+          </View>
+        </View>
+      </>
+    ),
+    [sort, onChangeSort, t],
+  )
 
   const renderItem = useCallback(
     ({item, index}: ListRenderItemInfo<CommunityFeedRow>) => {
@@ -292,7 +335,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
           data={rows}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          ListHeaderComponent={HomeAppviewOutageNotice}
+          ListHeaderComponent={renderHeader}
           ListEmptyComponent={renderEmpty}
           ListFooterComponent={renderFooter}
           onEndReached={onEndReached}

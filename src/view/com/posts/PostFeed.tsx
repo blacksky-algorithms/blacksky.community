@@ -200,6 +200,7 @@ let PostFeed = ({
   savedFeedConfig,
   initialNumToRender: initialNumToRenderOverride,
   isVideoFeed = false,
+  showComposerPrompt = false,
 }: {
   feed: FeedDescriptor
   feedParams?: FeedParams
@@ -222,6 +223,7 @@ let PostFeed = ({
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
   initialNumToRender?: number
   isVideoFeed?: boolean
+  showComposerPrompt?: boolean
   lastFetchDate?: () => number
 }): React.ReactNode => {
   const ax = useAnalytics()
@@ -510,12 +512,7 @@ let PostFeed = ({
                       type: 'liveEventFeedsAndTrendingBanner',
                       key: 'liveEventFeedsAndTrendingBanner-' + sliceIndex,
                     })
-                    // Show composer prompt for Discover and Following feeds
-                    if (
-                      hasSession &&
-                      (feedUriOrActorDid === DISCOVER_FEED_URI ||
-                        feed === 'following')
-                    ) {
+                    if (hasSession && showComposerPrompt) {
                       arr.push({
                         type: 'composerPrompt',
                         key: 'composerPrompt-' + sliceIndex,
