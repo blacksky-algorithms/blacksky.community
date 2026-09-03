@@ -36,8 +36,13 @@ type RQPageParam = string | undefined
 export const RQKEY_ROOT = 'community-feed'
 export const RQKEY = (actor: string) => [RQKEY_ROOT, actor]
 
-const TIMELINE_RQKEY_ROOT = 'community-timeline'
-export const TIMELINE_RQKEY = () => [TIMELINE_RQKEY_ROOT]
+export type CommunityTimelineSort = 'recent' | 'hot'
+
+export const TIMELINE_RQKEY_ROOT = 'community-timeline'
+export const TIMELINE_RQKEY = (sort: CommunityTimelineSort = 'recent') => [
+  TIMELINE_RQKEY_ROOT,
+  sort,
+]
 
 // Server returns feedViewPost format with hydrated posts
 // Support both old 'posts' format (raw) and new 'feed' format (hydrated)
@@ -93,7 +98,36 @@ export function useCommunityFeedQuery(actor: string | undefined) {
  * Query for the global community timeline (all community posts).
  * Used on the Home screen Community tab.
  */
-export function useCommunityTimelineQuery(enabled: boolean) {
+export async function fetchCommunityTimelinePage(
+  agent: BskyAgent,
+  {
+    limit,
+    cursor,
+    sort,
+  }: {limit: number; cursor?: string; sort: CommunityTimelineSort},
+) {
+  const params: Record<string, string> = {limit: String(limit)}
+  if (cursor) {
+    params.cursor = cursor
+  }
+  if (sort !== 'recent') {
+    params.sort = sort
+  }
+  const res = await communityXrpc(
+    agent,
+    'community.blacksky.feed.getCommunityTimeline',
+    {params},
+  )
+  if (!res.ok) {
+    throw new Error(`getCommunityTimeline failed: ${res.status}`)
+  }
+  return toSpaceFeedPage(jsonToLex(await res.json()))
+}
+
+export function useCommunityTimelineQuery(
+  enabled: boolean,
+  sort: CommunityTimelineSort = 'recent',
+) {
   const agent = useAgent()
   return useInfiniteQuery<
     CommunityFeedPage,
@@ -102,23 +136,13 @@ export function useCommunityTimelineQuery(enabled: boolean) {
     QueryKey,
     RQPageParam
   >({
-    queryKey: TIMELINE_RQKEY(),
-    async queryFn({pageParam}: {pageParam: RQPageParam}) {
-      const params: Record<string, string> = {
-        limit: String(PAGE_SIZE),
-      }
-      if (pageParam) {
-        params.cursor = pageParam
-      }
-      const res = await communityXrpc(
-        agent,
-        'community.blacksky.feed.getCommunityTimeline',
-        {params},
-      )
-      if (!res.ok) {
-        throw new Error(`getCommunityTimeline failed: ${res.status}`)
-      }
-      return toSpaceFeedPage(jsonToLex(await res.json()))
+    queryKey: TIMELINE_RQKEY(sort),
+    queryFn({pageParam}: {pageParam: RQPageParam}) {
+      return fetchCommunityTimelinePage(agent, {
+        limit: PAGE_SIZE,
+        cursor: pageParam,
+        sort,
+      })
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -138,15 +162,10 @@ export function useCommunityTimelineQuery(enabled: boolean) {
 export async function fetchCommunityTimelineHead(
   agent: BskyAgent,
 ): Promise<AppBskyFeedDefs.FeedViewPost | undefined> {
-  const res = await communityXrpc(
-    agent,
-    'community.blacksky.feed.getCommunityTimeline',
-    {params: {limit: '10'}},
-  )
-  if (!res.ok) {
-    throw new Error(`getCommunityTimeline failed: ${res.status}`)
-  }
-  const page = toSpaceFeedPage(jsonToLex(await res.json()))
+  const page = await fetchCommunityTimelinePage(agent, {
+    limit: 10,
+    sort: 'recent',
+  })
   return page.feed.find(surfacesInCommunityFeed)
 }
 

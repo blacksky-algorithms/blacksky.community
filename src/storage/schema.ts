@@ -45,6 +45,11 @@ export type Account = {
   lastSelectedHomeFeed?: string
 
   /**
+   * Sort order for the Home screen's Community tab.
+   */
+  communityFeedSort?: 'recent' | 'hot'
+
+  /**
    * Recently selected GIFs in the GIF picker. Most recent first, capped at 20.
    */
   recentGifs?: Gif[]

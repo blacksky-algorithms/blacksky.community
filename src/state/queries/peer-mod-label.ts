@@ -5,7 +5,7 @@ import {communityXrpc} from '#/lib/api/community'
 import {
   COMMUNITY_POST_RQKEY,
   RQKEY_ROOT as COMMUNITY_FEED_RQKEY_ROOT,
-  TIMELINE_RQKEY,
+  TIMELINE_RQKEY_ROOT,
 } from '#/state/queries/community-feed'
 import {useAgent} from '#/state/session'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
@@ -133,7 +133,7 @@ function useInvalidateLabelState() {
       void queryClient.invalidateQueries({
         queryKey: COMMUNITY_POST_RQKEY(subjectUri),
       })
-      void queryClient.invalidateQueries({queryKey: TIMELINE_RQKEY()})
+      void queryClient.invalidateQueries({queryKey: [TIMELINE_RQKEY_ROOT]})
       void queryClient.invalidateQueries({
         queryKey: [COMMUNITY_FEED_RQKEY_ROOT],
       })

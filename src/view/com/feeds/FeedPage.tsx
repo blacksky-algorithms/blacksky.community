@@ -159,6 +159,7 @@ export function FeedPage({
             headerOffset={headerOffset}
             savedFeedConfig={savedFeedConfig}
             isVideoFeed={isVideoFeed}
+            showComposerPrompt={!isVideoFeed}
           />
         </FeedFeedbackProvider>
       </MainScrollProvider>
