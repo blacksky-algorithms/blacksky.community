@@ -16,9 +16,9 @@ import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
 import {communityXrpc} from '#/lib/api/community'
+import {listNotifications} from '#/lib/api/community-notifications'
 import {isCommunityPostUri} from '#/lib/api/community-post'
 import {toPostView} from '#/lib/api/space-views'
-import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {labelIsHideableOffense} from '#/lib/moderation'
 import * as bsky from '#/types/bsky'
 import {precacheProfile} from '../profile'
@@ -64,19 +64,12 @@ export async function fetchPage({
   page: FeedPage
   indexedAt: string | undefined
 }> {
-  const res = await agent.app.bsky.notification.listNotifications(
-    {
-      limit,
-      cursor,
-      reasons,
-    },
-    HOME_APPVIEW_PINNED_OPTS,
-  )
+  const data = await listNotifications(agent, {limit, cursor, reasons})
 
-  const indexedAt = res.data.notifications[0]?.indexedAt
+  const indexedAt = data.notifications[0]?.indexedAt
 
   // filter out notifs by mod rules
-  const notifs = res.data.notifications.filter(
+  const notifs = data.notifications.filter(
     notif => !shouldFilterNotif(notif, moderationOpts, hideFollowNotifications),
   )
 
@@ -106,17 +99,17 @@ export async function fetchPage({
     }
   }
 
-  let seenAt = res.data.seenAt ? new Date(res.data.seenAt) : new Date()
+  let seenAt = data.seenAt ? new Date(data.seenAt) : new Date()
   if (Number.isNaN(seenAt.getTime())) {
     seenAt = new Date()
   }
 
   return {
     page: {
-      cursor: res.data.cursor,
+      cursor: data.cursor,
       seenAt,
       items: notifsGrouped,
-      priority: res.data.priority ?? false,
+      priority: data.priority ?? false,
     },
     indexedAt,
   }
