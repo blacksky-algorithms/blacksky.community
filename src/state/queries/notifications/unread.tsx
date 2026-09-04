@@ -17,6 +17,7 @@ import {EventEmitter} from 'eventemitter3'
 import BroadcastChannel from '#/lib/broadcast'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {resetBadgeCount} from '#/lib/notifications/notifications'
+import {logger as notyLogger} from '#/lib/notifications/util'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useAgent, useSession} from '#/state/session'
@@ -84,11 +85,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     if (!hasSession || !checkUnreadRef.current) {
       return
     }
-    checkUnreadRef.current() // fire on init
-    const interval = setInterval(
-      () => checkUnreadRef.current?.({isPoll: true}),
-      UPDATE_INTERVAL,
-    )
+    void checkUnreadRef.current().catch(onUnreadCheckError) // fire on init
+    const interval = setInterval(() => {
+      void checkUnreadRef.current?.({isPoll: true}).catch(onUnreadCheckError)
+    }, UPDATE_INTERVAL)
     return () => clearInterval(interval)
   }, [hasSession])
 
@@ -218,6 +218,12 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       <apiContext.Provider value={api}>{children}</apiContext.Provider>
     </stateContext.Provider>
   )
+}
+
+function onUnreadCheckError(error: unknown) {
+  notyLogger.warn('Unread notification check failed', {
+    message: error instanceof Error ? error.message : String(error),
+  })
 }
 
 export function useUnreadNotifications() {
