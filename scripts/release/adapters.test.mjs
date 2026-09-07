@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {GitHub} from './github.mjs'
 import {OTA} from './ota.mjs'
-import {targets, deployWeb} from './web.mjs'
+import {targets, deployWeb, separateTargets} from './web.mjs'
 
 const sha = 'a'.repeat(40)
 function mock(t, handler) {
@@ -141,4 +141,29 @@ test('web deployment pins approved digest, disables autodeploy, and verifies liv
   })
   await deployWeb(target, web)
   assert.equal(updated, true)
+})
+
+test('QA refuses production components or hostnames as staging targets', () => {
+  const production = [
+    {
+      kind: 'app',
+      appId: 'prod',
+      component: 'web',
+      urls: ['https://prod.example'],
+    },
+  ]
+  assert.throws(
+    () => separateTargets(production, production),
+    /must be separate/,
+  )
+  assert.throws(
+    () => separateTargets([{...production[0], appId: 'stage'}], production),
+    /must be separate/,
+  )
+  assert.doesNotThrow(() =>
+    separateTargets(
+      [{...production[0], appId: 'stage', urls: ['https://qa.example']}],
+      production,
+    ),
+  )
 })

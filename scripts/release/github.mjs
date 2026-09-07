@@ -54,6 +54,34 @@ export class GitHub {
       value: JSON.parse(Buffer.from(response.content, 'base64').toString()),
     }
   }
+  async tag(name, commit) {
+    try {
+      await this.request('git/refs', {ref: `refs/tags/${name}`, sha: commit})
+    } catch (error) {
+      if (error.status !== 422) throw error
+      invariant(
+        (await this.request(`git/ref/tags/${name}`)).object.sha === commit,
+        'Release tag points to a different commit',
+      )
+    }
+  }
+  async commitFiles(parent, files, message) {
+    const commit = await this.request(`git/commits/${parent}`)
+    const tree = await this.request('git/trees', {
+      base_tree: commit.tree.sha,
+      tree: Object.entries(files).map(([path, value]) => ({
+        path,
+        mode: '100644',
+        type: 'blob',
+        content: JSON.stringify(value, null, 2) + '\n',
+      })),
+    })
+    return this.request('git/commits', {
+      message,
+      tree: tree.sha,
+      parents: [parent],
+    })
+  }
   async checks(commit) {
     const names = JSON.parse(required('RELEASE_REQUIRED_CHECKS'))
     invariant(

@@ -108,6 +108,11 @@ jobs:
             chmod 600 "$RUNNER_TEMP/release-kubeconfig"
             echo "KUBECONFIG=$RUNNER_TEMP/release-kubeconfig" >> "$GITHUB_ENV"
           fi
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
+        if: needs.inspect.outputs.mode == 'native'
+        with:
+          ruby-version: '3.4'
+          bundler: '4.0.11'
       - name: Install store tooling for native release
         if: needs.inspect.outputs.mode == 'native'
         run: |

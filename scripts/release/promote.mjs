@@ -1,16 +1,10 @@
 import {appendFileSync, mkdirSync, writeFileSync} from 'node:fs'
 import {GitHub} from './github.mjs'
-import {
-  assertCurrent,
-  digest,
-  invariant,
-  required,
-  output,
-  save,
-} from './core.mjs'
+import {assertCurrent, digest, invariant, required, output} from './core.mjs'
 import {OTA} from './ota.mjs'
 import {deployWeb, snapshotWeb, targets, verifyWeb} from './web.mjs'
-import {fastlane, releaseApple} from './stores.mjs'
+import {fastlane, releaseApple, submitNative} from './stores.mjs'
+import {rollbackRelease} from './rollback.mjs'
 
 const gh = new GitHub()
 const operation = required('RELEASE_OPERATION')
@@ -25,12 +19,29 @@ const key = p =>
 const published = await gh.succeeded('published', key)
 
 async function validate() {
-  assertCurrent(m, operation === 'rollback' ? m.sha : await gh.head(m.branch), hash)
+  assertCurrent(
+    m,
+    operation === 'rollback' ? m.sha : await gh.head(m.branch),
+    hash,
+  )
   if (operation !== 'rollback' && !published) {
     const latestQA = await gh.succeeded('qa', p => p.branch === m.branch)
-    invariant(latestQA && key(latestQA.payload) && latestQA.payload.assetName === asset, 'A newer candidate replaced this approval request')
-    invariant(!await gh.succeeded('published', p => p.branch === m.branch), 'This train already released another candidate')
-    invariant(!await gh.succeeded('discarded', p => p.branch === m.branch), 'This train was discarded')
+    invariant(
+      latestQA && key(latestQA.payload) && latestQA.payload.assetName === asset,
+      'A newer candidate replaced this approval request',
+    )
+    invariant(
+      !(await gh.succeeded('published', p => p.branch === m.branch)),
+      'This train already released another candidate',
+    )
+    invariant(
+      !(await gh.succeeded('discarded', p => p.branch === m.branch)),
+      'This train was discarded',
+    )
+    invariant(
+      !(await gh.succeeded('rolled-back', key)),
+      'This candidate was rolled back; prepare and approve a new candidate',
+    )
   }
   invariant(
     digest(m.config.production) ===
@@ -45,7 +56,13 @@ async function validate() {
     m.config.iosDestination === required('RELEASE_IOS_DESTINATION'),
     'Store destination changed since QA',
   )
-  invariant(m.config.stores.appId === required('ASC_APP_ID') && m.config.stores.appIdentifier === required('RELEASE_APP_IDENTIFIER') && m.config.stores.publicTestFlightGroup === (process.env.RELEASE_PUBLIC_TESTFLIGHT_GROUP || null), 'Store identity changed since candidate approval')
+  invariant(
+    m.config.stores.appId === required('ASC_APP_ID') &&
+      m.config.stores.appIdentifier === required('RELEASE_APP_IDENTIFIER') &&
+      m.config.stores.publicTestFlightGroup ===
+        (process.env.RELEASE_PUBLIC_TESTFLIGHT_GROUP || null),
+    'Store identity changed since candidate approval',
+  )
   if (!published && operation !== 'rollback') await gh.checks(m.sha)
 }
 async function preflight() {
@@ -88,7 +105,8 @@ async function execute() {
   }
   const ota = new OTA()
   if (operation !== 'rollback') {
-    if (m.mode === 'ota') {await ota.verify(m.ota, m.sha); await ota.verifyArtifacts(m.ota)}
+    await ota.verify(m.ota, m.sha)
+    await ota.verifyArtifacts(m.ota)
     for (const target of m.config.staging) await verifyWeb(target, m.web)
   }
   const receipt = {sha: m.sha, branch: m.branch, manifestHash: hash, releaseId}
@@ -97,19 +115,21 @@ async function execute() {
       m.mode === 'ota',
       'Native rollback requires a new binary or store rollout intervention',
     )
-    const latest = await gh.succeeded('published', () => true)
-    const snapshotReceipt = await gh.succeeded('rollback-snapshot', key)
-    const partial = (await gh.events('partial-promotion')).find(d => key(d.payload))
-    invariant((latest && key(latest.payload)) || (partial && snapshotReceipt && (!latest || latest.created_at < snapshotReceipt.created_at)), 'Rollback request is not for the current or partially promoted release')
+    if (await gh.succeeded('rolled-back', key)) return
+    const latest = await gh.succeeded('promotion-started', () => true)
+    invariant(
+      latest && key(latest.payload),
+      'A newer promotion owns production; rollback refused',
+    )
     const rollback = invariant(
       (await gh.succeeded('rollback-snapshot', key))?.payload.rollback,
       'Rollback snapshot missing',
     )
-    for (const {target, web} of rollback.web) await deployWeb(target, web)
-    await ota.map('production', rollback.ota.branchId)
+    await rollbackRelease(ota, m, rollback)
     await gh.event(receipt, 'rolled-back', 'success')
     return
   }
+  await gh.event(receipt, 'promotion-started', 'success')
   let snapshot = await gh.succeeded('rollback-snapshot', key)
   if (!snapshot) {
     const previous = []
@@ -140,46 +160,63 @@ async function execute() {
         },
       })
     }
+    for (const {target, web} of previous) await verifyWeb(target, web)
     const priorChannel = await ota.channel('production')
     invariant(
       priorChannel.branchId,
       'Production OTA channel must have a rollback branch',
     )
+    invariant(
+      previous.every(
+        p =>
+          p.web.sha === previous[0].web.sha &&
+          p.web.version === previous[0].web.version,
+      ),
+      'Production targets disagree before promotion',
+    )
+    const priorOTA = await ota.snapshot(
+      priorChannel.branchName,
+      previous[0].web.version,
+      previous[0].web.sha,
+    )
+    priorOTA.artifacts = await ota.artifacts(priorOTA, 'production')
     snapshot = await gh.event(
-      {...receipt, rollback: {web: previous, ota: priorChannel}},
+      {...receipt, rollback: {web: previous, ota: priorOTA}},
       'rollback-snapshot',
       'success',
     )
   }
-  if (m.mode === 'native') {
-    if (!(await gh.succeeded('native-submitted', key))) {
+  try {
+    if (m.mode === 'native') {
       mkdirSync('release-metadata/en-US', {recursive: true})
       writeFileSync('release-metadata/en-US/release_notes.txt', m.releaseNotes)
-      fastlane('submit_candidate', m)
-      await gh.event(receipt, 'native-submitted', 'success')
-    }
-    if (operation !== 'finish-native') {
-      console.log(
-        'Submitted native artifacts. After store review, run finish-native with storefront readiness evidence; the recorded approval is reused.',
-      )
-      return
-    }
-    const evidence = new URL(required('STORE_READY_EVIDENCE'))
-    invariant(
-      evidence.protocol === 'https:',
-      'Store readiness evidence must be an HTTPS link',
-    )
-    fastlane('verify_play', m)
-    if (m.config.iosDestination === 'app-store') {
-      if (!(await releaseApple(m))) {
+      await submitNative(gh, m, receipt, key)
+      if (operation !== 'finish-native') {
         console.log(
-          'iOS release requested or still processing; resume finish-native after availability is confirmed. Web remains held.',
+          'Submitted native artifacts. After store review, run finish-native with storefront readiness evidence; the recorded approval is reused.',
         )
         return
       }
-    } else fastlane('publish_testflight', m)
-  }
-  try {
+      const evidence = new URL(required('STORE_READY_EVIDENCE'))
+      invariant(
+        evidence.protocol === 'https:',
+        'Store readiness evidence must be an HTTPS link',
+      )
+      await gh.event(
+        {...receipt, evidence: evidence.href},
+        'store-readiness',
+        'success',
+      )
+      fastlane('verify_play', m)
+      if (m.config.iosDestination === 'app-store') {
+        if (!(await releaseApple(m))) {
+          console.log(
+            'iOS release requested or still processing; resume finish-native after availability is confirmed. Web remains held.',
+          )
+          return
+        }
+      } else fastlane('publish_testflight', m)
+    }
     await validate()
     for (const target of m.config.production) {
       if (!(await gh.succeeded(`web-${target.name}`, key))) {
@@ -187,10 +224,11 @@ async function execute() {
         await gh.event(receipt, `web-${target.name}`, 'success')
       } else await verifyWeb(target, m.web)
     }
-    if (m.mode === 'ota') {
+    {
       await ota.verify(m.ota, m.sha)
       await ota.verifyArtifacts(m.ota)
       await ota.map('production', m.ota.branchId)
+      await ota.verifyArtifacts(m.ota, 'production')
     }
     invariant(
       (await gh.head(m.branch)) === m.sha,
@@ -205,21 +243,9 @@ async function execute() {
             android: m.android,
           }
         : m.nativeBaseline
-    if (m.mode === 'native') {
-      try {
-        await gh.request('git/refs', {
-          ref: `refs/tags/blacksky-v${m.runtimeVersion}`,
-          sha: m.sha,
-        })
-      } catch (error) {
-        if (error.status !== 422) throw error
-        invariant(
-          (await gh.request(`git/ref/tags/blacksky-v${m.runtimeVersion}`))
-            .object.sha === m.sha,
-          'Native version tag collision',
-        )
-      }
-    }
+    if (m.mode === 'native')
+      await gh.tag(`blacksky-v${m.runtimeVersion}`, m.sha)
+    await gh.tag(`blacksky-release-${m.branch.slice(8)}`, m.sha)
     await gh.request(
       `releases/${releaseId}`,
       {

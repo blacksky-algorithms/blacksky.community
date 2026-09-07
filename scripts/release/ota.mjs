@@ -70,51 +70,105 @@ export class OTA {
       commit,
     )
     invariant(
-      digest(actual) === digest(Object.fromEntries(Object.entries(snapshot).filter(([key]) => key !== 'artifacts'))),
+      digest(actual) ===
+        digest(
+          Object.fromEntries(
+            Object.entries(snapshot).filter(([key]) => key !== 'artifacts'),
+          ),
+        ),
       'OTA candidate changed after QA',
     )
   }
   async hashAssets(assets) {
     const records = []
     for (const asset of assets) {
-      invariant(new URL(asset.url).origin === this.base, 'Unexpected OTA asset origin')
-      const response = await fetch(asset.url, {cache: 'no-store', signal: AbortSignal.timeout(120000)})
+      invariant(
+        new URL(asset.url).origin === this.base,
+        'Unexpected OTA asset origin',
+      )
+      const response = await fetch(asset.url, {
+        redirect: 'error',
+        cache: 'no-store',
+        signal: AbortSignal.timeout(120000),
+      })
       invariant(response.ok && response.body, 'OTA asset unavailable')
       const hash = createHash('sha256')
       let size = 0
       for await (const chunk of response.body) {
         size += chunk.length
-        invariant(size <= 256 * 1024 * 1024, 'OTA asset exceeds verification limit')
+        invariant(
+          size <= 256 * 1024 * 1024,
+          'OTA asset exceeds verification limit',
+        )
         hash.update(chunk)
       }
       const actual = hash.digest('base64url')
-      invariant(actual === asset.hash, 'OTA asset bytes differ from the tested hash')
+      invariant(
+        actual === asset.hash,
+        'OTA asset bytes differ from the tested hash',
+      )
       records.push({url: asset.url, hash: actual})
     }
     return records
   }
   async artifacts(snapshot, channel = 'release-qa') {
-    invariant((await this.channel(channel)).branchId === snapshot.branchId, 'QA channel no longer selects this candidate')
+    invariant(
+      (await this.channel(channel)).branchId === snapshot.branchId,
+      'QA channel no longer selects this candidate',
+    )
     const artifacts = {}
     for (const platform of ['ios', 'android']) {
-      const response = await fetch(`${this.base}/manifest`, {headers: {'expo-channel-name': channel, 'expo-runtime-version': snapshot.runtimeVersion, 'expo-platform': platform, 'expo-protocol-version': '1'}, signal: AbortSignal.timeout(60000)})
+      const response = await fetch(`${this.base}/manifest`, {
+        headers: {
+          'expo-channel-name': channel,
+          'expo-runtime-version': snapshot.runtimeVersion,
+          'expo-platform': platform,
+          'expo-protocol-version': '1',
+        },
+        signal: AbortSignal.timeout(60000),
+      })
       invariant(response.ok, 'OTA manifest unavailable')
-      const boundary = /boundary="?([^";]+)"?/.exec(response.headers.get('content-type') || '')?.[1]
+      const boundary = /boundary="?([^";]+)"?/.exec(
+        response.headers.get('content-type') || '',
+      )?.[1]
       invariant(boundary, 'Expected multipart OTA manifest')
-      const part = (await response.text()).split(`--${boundary}`).find(p => /name="manifest"/.test(p))
-      invariant(part, 'Expected update, received no-update or rollback directive')
-      const manifest = JSON.parse(part.slice(part.indexOf('\r\n\r\n') + 4).trim())
-      invariant(manifest.id === snapshot.updates[platform].updateUUID && manifest.runtimeVersion === snapshot.runtimeVersion, 'OTA manifest identity mismatch')
-      artifacts[platform] = {manifestHash: digest(manifest), assets: await this.hashAssets([manifest.launchAsset, ...manifest.assets])}
+      const part = (await response.text())
+        .split(`--${boundary}`)
+        .find(p => /name="manifest"/.test(p))
+      invariant(
+        part,
+        'Expected update, received no-update or rollback directive',
+      )
+      const manifest = JSON.parse(
+        part.slice(part.indexOf('\r\n\r\n') + 4).trim(),
+      )
+      invariant(
+        manifest.id === snapshot.updates[platform].updateUUID &&
+          manifest.runtimeVersion === snapshot.runtimeVersion,
+        'OTA manifest identity mismatch',
+      )
+      artifacts[platform] = {
+        manifestHash: digest(manifest),
+        assets: await this.hashAssets([
+          manifest.launchAsset,
+          ...manifest.assets,
+        ]),
+      }
     }
     return artifacts
   }
-  async verifyArtifacts(snapshot) {
+  async verifyArtifacts(snapshot, channel = 'release-qa') {
     for (const platform of ['ios', 'android']) {
-      invariant(snapshot.artifacts?.[platform]?.assets?.length, 'Missing tested OTA asset hashes')
+      invariant(
+        snapshot.artifacts?.[platform]?.assets?.length,
+        'Missing tested OTA asset hashes',
+      )
     }
-    const current = await this.artifacts(snapshot)
-    invariant(digest(current) === digest(snapshot.artifacts), 'OTA manifest changed after QA')
+    const current = await this.artifacts(snapshot, channel)
+    invariant(
+      digest(current) === digest(snapshot.artifacts),
+      'OTA manifest changed after QA',
+    )
   }
   async map(channelName, branchId) {
     const channel = await this.channel(channelName)

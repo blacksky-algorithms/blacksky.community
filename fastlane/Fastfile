@@ -2,7 +2,7 @@ def release_apple_key
   JSON.parse(File.read(ENV.fetch('ASC_API_KEY_PATH')), symbolize_names: true)
 end
 
-lane :submit_candidate do
+lane :submit_ios do
   if ENV.fetch('IOS_DESTINATION') == 'app-store'
     deliver(
       api_key: release_apple_key,
@@ -19,13 +19,24 @@ lane :submit_candidate do
       force: true
     )
   end
+end
+
+lane :submit_android do
+  codes = google_play_track_version_codes(
+    json_key: ENV.fetch('PLAY_JSON_PATH'),
+    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    track: 'production'
+  )
+  expected = ENV.fetch('ANDROID_VERSION_CODE').to_i
+  UI.user_error!('A newer Android build is already in production') if codes.any? { |code| code > expected }
+  next if codes.include?(expected)
   upload_to_play_store(
     json_key: ENV.fetch('PLAY_JSON_PATH'),
     package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
     track: 'internal',
     track_promote_to: 'production',
     version_code: ENV.fetch('ANDROID_VERSION_CODE').to_i,
-    release_status: 'completed',
+    track_promote_release_status: 'completed',
     skip_upload_aab: true,
     skip_upload_apk: true,
     skip_upload_metadata: true,

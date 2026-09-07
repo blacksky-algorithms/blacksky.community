@@ -34,6 +34,25 @@ export function targets(name) {
   }
   return value
 }
+export function separateTargets(staging, production) {
+  const identity = t =>
+    t.kind === 'app'
+      ? `app:${t.appId}:${t.component}`
+      : `kubernetes:${t.namespace}:${t.deployment}:${t.container}`
+  const productionIds = new Set(production.map(identity))
+  const productionOrigins = new Set(
+    production.flatMap(t => t.urls.map(u => new URL(u).origin)),
+  )
+  invariant(
+    staging.every(
+      t =>
+        !productionIds.has(identity(t)) &&
+        t.urls.every(u => !productionOrigins.has(new URL(u).origin)),
+    ),
+    'Staging and production targets must be separate',
+  )
+}
+
 export async function doRequest(path, body, method = body ? 'POST' : 'GET') {
   const response = await fetch(`https://api.digitalocean.com/v2/${path}`, {
     method,
@@ -80,6 +99,15 @@ export async function snapshotWeb(target) {
   return {target, image: container.image}
 }
 export async function verifyWeb(target, expected) {
+  const state = await snapshotWeb(target)
+  const image =
+    typeof state.image === 'string'
+      ? state.image
+      : `registry.digitalocean.com/${state.image.registry}/${state.image.repository}@${state.image.digest}`
+  invariant(
+    image === `${expected.repository}@${expected.digest}`,
+    'Deployed image differs from approved digest',
+  )
   for (const url of target.urls) {
     const response = await fetch(new URL('/_release', url), {
       cache: 'no-store',

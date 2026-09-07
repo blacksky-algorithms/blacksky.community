@@ -37,7 +37,12 @@ async function apple(path, body) {
   invariant(response.ok, `App Store Connect: HTTP ${response.status}`)
   return response.status === 204 ? null : response.json()
 }
-export async function appleVersion(m) {
+export async function appleVersion(m, optional = false) {
+  const app = await apple(`apps/${required('ASC_APP_ID')}`)
+  invariant(
+    app.data?.attributes.bundleId === m.config.stores.appIdentifier,
+    'App Store app ID belongs to a different bundle identifier',
+  )
   const query = new URLSearchParams({
     'filter[versionString]': m.runtimeVersion,
     'filter[platform]': 'IOS',
@@ -46,6 +51,7 @@ export async function appleVersion(m) {
   const result = await apple(
     `apps/${required('ASC_APP_ID')}/appStoreVersions?${query}`,
   )
+  if (optional && result.data?.length === 0) return null
   const version = invariant(
     result.data?.length === 1 && result.data[0],
     'Expected exact App Store version',
@@ -53,6 +59,16 @@ export async function appleVersion(m) {
   const build = result.included?.find(
     b => b.type === 'builds' && b.id === version.relationships.build.data?.id,
   )
+  if (
+    optional &&
+    [
+      'PREPARE_FOR_SUBMISSION',
+      'DEVELOPER_REJECTED',
+      'REJECTED',
+      'METADATA_REJECTED',
+    ].includes(version.attributes.appStoreState)
+  )
+    return null
   invariant(
     build?.attributes.version === String(m.ios.buildNumber),
     'App Store version references a different build',
@@ -116,5 +132,31 @@ export function fastlane(lane, m) {
     })
   } finally {
     rmSync(directory, {recursive: true, force: true})
+  }
+}
+
+export async function submitNative(gh, m, receipt, key, adapters = {}) {
+  const run = adapters.fastlane || fastlane
+  const getVersion = adapters.appleVersion || appleVersion
+  for (const platform of ['ios', 'android']) {
+    if (await gh.succeeded(`native-${platform}-submitted`, key)) continue
+    if (platform === 'ios' && m.config.iosDestination === 'app-store') {
+      const version = await getVersion(m, true)
+      if (!version) run('submit_ios', m)
+      else
+        invariant(
+          [
+            'WAITING_FOR_REVIEW',
+            'IN_REVIEW',
+            'PENDING_DEVELOPER_RELEASE',
+            'PROCESSING_FOR_DISTRIBUTION',
+            'READY_FOR_SALE',
+            'READY_FOR_DISTRIBUTION',
+            'PENDING_APPLE_RELEASE',
+          ].includes(version.attributes.appStoreState),
+          'Existing iOS submission requires manual reconciliation',
+        )
+    } else if (platform === 'android') run('submit_android', m)
+    await gh.event(receipt, `native-${platform}-submitted`, 'success')
   }
 }

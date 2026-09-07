@@ -8,6 +8,9 @@ on:
       build_number:
         type: string
         required: true
+      candidate_attempt:
+        type: string
+        default: ''
       profile:
         type: string
         default: release
@@ -52,10 +55,13 @@ jobs:
       EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
       CANDIDATE_SHA: ${{ inputs.sha }}
       NATIVE_BUILD_NUMBER: ${{ inputs.build_number }}
+      CANDIDATE_ATTEMPT: ${{ inputs.candidate_attempt }}
       BSKY_IOS_BUILD_NUMBER: ${{ inputs.build_number }}
       BSKY_ANDROID_VERSION_CODE: ${{ inputs.build_number }}
       NATIVE_PROFILE: ${{ inputs.profile }}
       EXPO_PUBLIC_ENV: production
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+      RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
@@ -74,14 +80,21 @@ jobs:
           bundletool-version: '1.17.2'
       - name: Verify binary identity
         run: |
+          export ACTUAL_APP_IDENTIFIER="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/@package')"
+          export ACTUAL_RUNTIME="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/application/meta-data[@android:name="expo.modules.updates.EXPO_RUNTIME_VERSION"]/@android:value')"
           export ACTUAL_VERSION="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/@android:versionName')"
           export ACTUAL_BUILD_NUMBER="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/@android:versionCode')"
+          if [[ "$ACTUAL_RUNTIME" == @* || "$ACTUAL_RUNTIME" == 0x* ]]; then
+            bundletool dump resources --bundle=candidate.aab --resource="${ACTUAL_RUNTIME#@}" --values > runtime-resources.txt
+            export ACTUAL_RUNTIME="$(node scripts/release/android-runtime.mjs runtime-resources.txt)"
+          fi
+          test "$ACTUAL_RUNTIME" = "$ACTUAL_VERSION"
           NATIVE_ARTIFACT=candidate.aab node scripts/release/build.mjs native-record android
       - name: Upload to Play internal testing
         run: pnpm exec eas submit -p android --profile release-qa --non-interactive --path candidate.aab
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: native-android-${{ inputs.sha }}
+          name: native-android-${{ inputs.sha }}-${{ github.run_attempt }}
           path: |
             native-android.json
             candidate.aab

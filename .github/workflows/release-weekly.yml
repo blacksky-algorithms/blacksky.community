@@ -56,6 +56,7 @@ jobs:
       release_id: ${{ steps.select.outputs.release_id }}
       ota_branch: ${{ steps.select.outputs.ota_branch }}
       build_number: ${{ steps.select.outputs.build_number }}
+      attempt: ${{ steps.select.outputs.attempt }}
     env:
       GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
       RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
@@ -99,6 +100,7 @@ jobs:
     with:
       sha: ${{ needs.select.outputs.sha }}
       build_number: ${{ needs.select.outputs.build_number }}
+      candidate_attempt: ${{ needs.select.outputs.attempt }}
   android:
     needs: [select, checks]
     if: needs.select.outputs.mode == 'native'
@@ -106,9 +108,10 @@ jobs:
     with:
       sha: ${{ needs.select.outputs.sha }}
       build_number: ${{ needs.select.outputs.build_number }}
+      candidate_attempt: ${{ needs.select.outputs.attempt }}
   ota:
     needs: [select, checks]
-    if: needs.select.outputs.mode == 'ota'
+    if: needs.select.outputs.sha != ''
     runs-on: ubuntu-latest
     environment: release-build
     env:
@@ -178,7 +181,8 @@ jobs:
     needs: [select, checks, ios, android, ota, web]
     if: >-
       always() && needs.web.result == 'success' && needs.checks.result == 'success' &&
-      ((needs.ota.result == 'success') || (needs.ios.result == 'success' && needs.android.result == 'success'))
+      needs.ota.result == 'success' &&
+      (needs.select.outputs.mode == 'ota' || (needs.ios.result == 'success' && needs.android.result == 'success'))
     runs-on: ubuntu-latest
     environment: release-build
     concurrency:
@@ -216,7 +220,7 @@ jobs:
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         if: needs.select.outputs.mode == 'native'
         with:
-          pattern: native-*-${{ needs.select.outputs.sha }}
+          pattern: native-*-${{ needs.select.outputs.sha }}-${{ github.run_attempt }}
           merge-multiple: true
       - name: Prepare Kubernetes access when configured
         run: |

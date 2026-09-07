@@ -50,17 +50,28 @@ export function nextVersion(current, baseline) {
 }
 export function requiresNative(paths) {
   return paths.some(path => {
-    if (/\.(swift|m|mm|h|c|cpp|kt|java|podspec|gradle|plist|entitlements)$/.test(path)) return true
+    if (
+      /\.(swift|m|mm|h|c|cpp|kt|java|podspec|gradle|plist|entitlements)$/.test(
+        path,
+      )
+    )
+      return true
     return !(
-      /^(src|bskyweb|bskyembed|docs|scripts\/release|\.github|\.release)\//.test(path) ||
+      /^(src|bskyweb|bskyembed|docs|scripts\/release|\.github|\.release)\//.test(
+        path,
+      ) ||
       /\.(md|mdx)$/.test(path) ||
       /^(LICENSE|\.gitignore|\.prettierignore)$/.test(path) ||
-      /^assets\/(?!app-icons\/|fonts\/|.*splash).+\.(png|jpg|jpeg|webp|gif|svg)$/.test(path)
+      /^assets\/(?!app-icons\/|fonts\/|.*splash).+\.(png|jpg|jpeg|webp|gif|svg)$/.test(
+        path,
+      )
     )
   })
 }
 export function nativeChanges(base, head) {
-  const paths = git('diff', '--name-only', base, head).split('\n').filter(Boolean)
+  const paths = git('diff', '--name-only', base, head)
+    .split('\n')
+    .filter(Boolean)
   if (paths.includes('package.json')) {
     const before = JSON.parse(git('show', `${base}:package.json`))
     const after = JSON.parse(git('show', `${head}:package.json`))
@@ -80,7 +91,7 @@ export function chooseChecks(runs, names) {
     return latest.conclusion === 'success' ? 'success' : 'failure'
   })
 }
-export function validateManifest(m) {
+export function validateManifest(m, requireArtifacts = true) {
   invariant(m.schema === 1, 'Unsupported candidate manifest')
   sha(m.sha)
   releaseBranch(m.branch)
@@ -91,8 +102,22 @@ export function validateManifest(m) {
     'Missing immutable web digest',
   )
   invariant(m.web.sha === m.sha, 'Web candidate SHA mismatch')
-  if (m.mode === 'ota') {
+  invariant(
+    m.web.version === m.runtimeVersion,
+    'Web candidate runtime mismatch',
+  )
+  {
+    invariant(
+      m.ota.runtimeVersion === m.runtimeVersion,
+      'OTA candidate runtime mismatch',
+    )
     for (const platform of ['ios', 'android']) {
+      if (requireArtifacts)
+        invariant(
+          m.ota.artifacts?.[platform]?.assets?.length &&
+            /^[a-f0-9]{64}$/.test(m.ota.artifacts[platform].manifestHash),
+          'Missing tested OTA asset hashes',
+        )
       invariant(
         m.ota.updates[platform]?.commitHash === m.sha,
         `Missing ${platform} OTA identity`,
@@ -102,8 +127,13 @@ export function validateManifest(m) {
         `Missing ${platform} update ID`,
       )
     }
-  } else {
+  }
+  if (m.mode === 'native') {
     for (const platform of ['ios', 'android']) {
+      invariant(
+        m[platform]?.appIdentifier === m.config.stores.appIdentifier,
+        `Wrong ${platform} app identifier`,
+      )
       invariant(m[platform]?.sha === m.sha, `Missing ${platform} binary`)
       invariant(
         m[platform]?.version === m.runtimeVersion,
@@ -127,4 +157,33 @@ export function assertCurrent(m, head, manifestHash) {
     digest(m) === manifestHash,
     'Candidate manifest changed after approval request',
   )
+}
+
+export function androidRuntimeResource(text) {
+  const rows = text.split('\n').filter(line => line.startsWith('\t'))
+  invariant(
+    rows.length === 1,
+    'Expected one unqualified Android runtime string',
+  )
+  return invariant(
+    /^\t\(default\) - \[STR\] "([0-9]+\.[0-9]+\.[0-9]+)"\s*$/.exec(
+      rows[0],
+    )?.[1],
+    'Invalid Android runtime resource',
+  )
+}
+
+export function allocateBuildNumber(base, run, attempt) {
+  const values = [base, run, attempt].map(Number)
+  invariant(
+    values.every(Number.isSafeInteger) &&
+      values[0] >= 0 &&
+      values[1] > 0 &&
+      values[2] > 0 &&
+      values[2] < 100,
+    'Invalid native build number allocation',
+  )
+  const number = values[0] + values[1] * 100 + values[2]
+  invariant(number < 2100000000, 'Native build number exhausted')
+  return number
 }

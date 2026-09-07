@@ -73,6 +73,11 @@ if (command === 'environment') {
     },
   )
 } else if (command === 'native-config') {
+  invariant(
+    !process.env.CANDIDATE_ATTEMPT ||
+      process.env.CANDIDATE_ATTEMPT === process.env.GITHUB_RUN_ATTEMPT,
+    'Use Re-run all jobs to allocate a fresh native build number',
+  )
   sha(required('CANDIDATE_SHA'))
   invariant(
     git('rev-parse', 'HEAD') === process.env.CANDIDATE_SHA,
@@ -89,6 +94,10 @@ if (command === 'environment') {
     'Invalid native profile',
   )
   const config = json('eas.json')
+  invariant(
+    String(config.submit['release-qa'].ios.ascAppId) === required('ASC_APP_ID'),
+    'EAS submission app differs from approved store app',
+  )
   config.cli.appVersionSource = 'local'
   config.build[profile].ios = {
     ...config.build[profile].ios,
@@ -113,10 +122,15 @@ if (command === 'environment') {
     actual === required('NATIVE_BUILD_NUMBER'),
     'Build system changed allocated native number',
   )
+  invariant(
+    required('ACTUAL_APP_IDENTIFIER') === required('RELEASE_APP_IDENTIFIER'),
+    'Binary app identifier differs from configured store app',
+  )
   const checksum = createHash('sha256').update(readFileSync(path)).digest('hex')
   save(`native-${platform}.json`, {
     sha: sha(required('CANDIDATE_SHA')),
     version,
+    appIdentifier: required('ACTUAL_APP_IDENTIFIER'),
     checksum,
     [platform === 'ios' ? 'buildNumber' : 'versionCode']: actual,
   })

@@ -8,6 +8,9 @@ on:
       build_number:
         type: string
         required: true
+      candidate_attempt:
+        type: string
+        default: ''
       profile:
         type: string
         default: release
@@ -53,10 +56,13 @@ jobs:
       EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
       CANDIDATE_SHA: ${{ inputs.sha }}
       NATIVE_BUILD_NUMBER: ${{ inputs.build_number }}
+      CANDIDATE_ATTEMPT: ${{ inputs.candidate_attempt }}
       BSKY_IOS_BUILD_NUMBER: ${{ inputs.build_number }}
       BSKY_ANDROID_VERSION_CODE: ${{ inputs.build_number }}
       NATIVE_PROFILE: ${{ inputs.profile }}
       EXPO_PUBLIC_ENV: production
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+      RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
@@ -85,6 +91,7 @@ jobs:
           cp "$ipa_path" candidate.ipa
           unzip -q candidate.ipa 'Payload/*.app/Info.plist' 'Payload/*.app/Expo.plist' -d ios-metadata
           plist="$(find ios-metadata -name Info.plist -print -quit)"
+          export ACTUAL_APP_IDENTIFIER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$plist")"
           export ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$plist")"
           export ACTUAL_BUILD_NUMBER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$plist")"
           expo_plist="$(find ios-metadata -name Expo.plist -print -quit)"
@@ -92,6 +99,10 @@ jobs:
           NATIVE_ARTIFACT=candidate.ipa node scripts/release/build.mjs native-record ios
       - name: Upload for TestFlight QA
         run: pnpm exec eas submit -p ios --profile release-qa --non-interactive --path candidate.ipa
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
+        with:
+          ruby-version: '3.4'
+          bundler: '4.0.11'
       - name: Install store tooling
         run: |
           bundle config set --local path "$RUNNER_TEMP/release-gems"
@@ -112,7 +123,7 @@ jobs:
           fi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: native-ios-${{ inputs.sha }}
+          name: native-ios-${{ inputs.sha }}-${{ github.run_attempt }}
           path: |
             native-ios.json
             candidate.ipa

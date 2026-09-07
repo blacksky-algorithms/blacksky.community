@@ -1,7 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  allocateBuildNumber,
   assertCurrent,
+  androidRuntimeResource,
   chooseChecks,
   compareVersions,
   digest,
@@ -18,8 +20,24 @@ const candidate = () => ({
   sha,
   mode: 'ota',
   runtimeVersion: '1.127.2',
-  web: {sha, digest: `sha256:${'b'.repeat(64)}`},
+  config: {stores: {appIdentifier: 'community.test'}},
+  web: {
+    sha,
+    appIdentifier: 'community.test',
+    version: '1.127.2',
+    digest: `sha256:${'b'.repeat(64)}`,
+  },
   ota: {
+    runtimeVersion: '1.127.2',
+    artifacts: Object.fromEntries(
+      ['ios', 'android'].map(p => [
+        p,
+        {
+          manifestHash: 'a'.repeat(64),
+          assets: [{url: 'https://ota.example/asset', hash: 'test'}],
+        },
+      ]),
+    ),
     updates: {
       ios: {commitHash: sha, updateId: 'ios-1'},
       android: {commitHash: sha, updateId: 'android-1'},
@@ -75,8 +93,18 @@ test('a candidate cannot pair different mobile/web SHAs or mutable images', () =
 test('native candidate must have both binaries and correct version', () => {
   const m = {...candidate(), mode: 'native'}
   assert.throws(() => validateManifest(m), /ios/)
-  m.ios = {sha, version: '1.127.2', checksum: 'f'.repeat(64)}
-  m.android = {sha, version: '1.127.1', checksum: 'f'.repeat(64)}
+  m.ios = {
+    sha,
+    appIdentifier: 'community.test',
+    version: '1.127.2',
+    checksum: 'f'.repeat(64),
+  }
+  m.android = {
+    sha,
+    appIdentifier: 'community.test',
+    version: '1.127.1',
+    checksum: 'f'.repeat(64),
+  }
   assert.throws(() => validateManifest(m), /version/)
   m.android.version = '1.127.2'
   assert.doesNotThrow(() => validateManifest(m))
@@ -112,4 +140,29 @@ test('release branch validation rejects shell and ref injection', () => {
   ])
     assert.throws(() => releaseBranch(bad))
   assert.equal(releaseBranch('release/2026-09-14'), 'release/2026-09-14')
+})
+
+test('Android compiled runtime references resolve only an unqualified string', () => {
+  const resource = `Package 'community.test':\n0x7f010001 - string/expo_runtime_version\n\t(default) - [STR] "1.2.3"\n`
+  assert.equal(androidRuntimeResource(resource), '1.2.3')
+  assert.throws(
+    () => androidRuntimeResource(resource + '\tfr - [STR] "1.2.4"\n'),
+    /one unqualified/,
+  )
+  assert.throws(
+    () => androidRuntimeResource('\t(default) - [REF] 0x7f000002\n'),
+    /Invalid/,
+  )
+})
+
+test('native build allocation distinguishes retries and rejects exhausted or overlapping ranges', () => {
+  assert.equal(allocateBuildNumber('1000', '10', '1'), 2001)
+  assert.equal(allocateBuildNumber('1000', '10', '2'), 2002)
+  for (const values of [
+    [0, 1, 100],
+    [0, 1, 0],
+    [2100000000, 1, 1],
+    ['invalid', 1, 1],
+  ])
+    assert.throws(() => allocateBuildNumber(...values))
 })

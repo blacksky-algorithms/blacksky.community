@@ -1,7 +1,9 @@
+import {createHash} from 'node:crypto'
 import {execFileSync} from 'node:child_process'
-import {appendFileSync, renameSync} from 'node:fs'
+import {appendFileSync, renameSync, readFileSync} from 'node:fs'
 import {GitHub} from './github.mjs'
 import {
+  allocateBuildNumber,
   digest,
   git,
   invariant,
@@ -11,13 +13,12 @@ import {
   releaseBranch,
   required,
   nativeChanges,
-  save,
   sha,
   compareVersions,
   validateManifest,
 } from './core.mjs'
 import {OTA} from './ota.mjs'
-import {deployWeb, targets, verifyWeb} from './web.mjs'
+import {deployWeb, targets, separateTargets} from './web.mjs'
 
 const gh = new GitHub()
 const event = process.env.GITHUB_EVENT_PATH
@@ -43,26 +44,6 @@ async function activeBranches() {
     'More than one unresolved release branch; resolve before continuing',
   )
   return active
-}
-async function putFile(branch, path, value, message) {
-  let existing
-  try {
-    existing = await gh.file(path, branch)
-  } catch (error) {
-    if (error.status !== 404) throw error
-  }
-  return gh.request(
-    `contents/${path}`,
-    {
-      branch,
-      message,
-      content: Buffer.from(JSON.stringify(value, null, 2) + '\n').toString(
-        'base64',
-      ),
-      ...(existing ? {sha: existing.blob} : {}),
-    },
-    'PUT',
-  )
 }
 async function baseline() {
   const published = await gh.succeeded('published', p => !!p.nativeBaseline)
@@ -103,33 +84,29 @@ async function schedule() {
     `release/${date}-${process.env.GITHUB_RUN_NUMBER}`,
   )
   const base = await baseline()
-  const native = nativeChanges(base.sha, selected) || process.env.INPUT_NATIVE === 'true'
+  const native =
+    nativeChanges(base.sha, selected) || process.env.INPUT_NATIVE === 'true'
   const pkg = (await gh.file('package.json', selected)).value
   const runtime = native
     ? nextVersion(pkg.version, base.runtimeVersion)
     : base.runtimeVersion
-  await gh.request('git/refs', {ref: `refs/heads/${branch}`, sha: selected})
-  await putFile(
-    branch,
-    '.release/train.json',
+  const commit = await gh.commitFiles(
+    selected,
     {
-      schema: 1,
-      branch,
-      sourceSha: selected,
-      previousReleaseSha: previous?.payload.sha || base.sha,
-      baseline: base,
-      runtimeVersion: runtime,
-      mode: native ? 'native' : 'ota',
+      '.release/train.json': {
+        schema: 1,
+        branch,
+        sourceSha: selected,
+        previousReleaseSha: previous?.payload.sha || base.sha,
+        baseline: base,
+        runtimeVersion: runtime,
+        mode: native ? 'native' : 'ota',
+      },
+      'package.json': {...pkg, version: runtime},
     },
-    'chore(release): record QA train',
+    `chore(release): cut QA train ${branch.slice(8)}`,
   )
-  if (pkg.version !== runtime)
-    await putFile(
-      branch,
-      'package.json',
-      {...pkg, version: runtime},
-      `chore(release): set candidate runtime ${runtime}`,
-    )
+  await gh.request('git/refs', {ref: `refs/heads/${branch}`, sha: commit.sha})
   await gh.request('releases', {
     tag_name: `qa-${branch.slice(8)}`,
     target_commitish: await gh.head(branch),
@@ -138,7 +115,6 @@ async function schedule() {
     draft: true,
     prerelease: true,
   })
-  await gh.dispatch('release-weekly.yml', {operation: 'prepare', branch})
   output('skip', 'true')
 }
 async function prepare() {
@@ -150,12 +126,12 @@ async function prepare() {
     (await activeBranches())[0] === branch,
     'Not the active release branch',
   )
-  let head = sha(await gh.head(branch))
+  const head = sha(await gh.head(branch))
   if (process.env.GITHUB_EVENT_NAME === 'push')
     invariant(head === event.after, 'Superseded release push')
   const train = (await gh.file('.release/train.json', head)).value
   invariant(train.branch === branch, 'Train metadata does not match branch')
-  let pkg = (await gh.file('package.json', head)).value
+  const pkg = (await gh.file('package.json', head)).value
   const native = nativeChanges(train.baseline.sha, head)
   if (train.mode === 'ota' && native) {
     train.mode = 'native'
@@ -163,41 +139,53 @@ async function prepare() {
       pkg.version,
       train.baseline.runtimeVersion,
     )
-    await putFile(
-      branch,
-      '.release/train.json',
-      train,
-      'chore(release): require native candidate',
+    const commit = await gh.commitFiles(
+      head,
+      {
+        '.release/train.json': train,
+        'package.json': {...pkg, version: train.runtimeVersion},
+      },
+      `chore(release): require native runtime ${train.runtimeVersion}`,
     )
-    await putFile(
-      branch,
-      'package.json',
-      {...pkg, version: train.runtimeVersion},
-      `chore(release): set native runtime ${train.runtimeVersion}`,
+    await gh.request(
+      `git/refs/heads/${branch}`,
+      {sha: commit.sha, force: false},
+      'PATCH',
     )
-    head = sha(await gh.head(branch))
-    pkg = (await gh.file('package.json', head)).value
+    console.log(
+      'Native runtime recorded; the resulting branch push will prepare the replacement',
+    )
+    return
   }
   invariant(
     pkg.version === train.runtimeVersion,
     'Do not independently bump the candidate runtime',
   )
   const releases = await gh.list('releases')
-  const release = invariant(
-    releases.find(r => r.tag_name === `qa-${branch.slice(8)}` && r.draft),
-    'QA record missing',
-  )
+  const release =
+    releases.find(r => r.tag_name === `qa-${branch.slice(8)}` && r.draft) ||
+    (await gh.request('releases', {
+      tag_name: `qa-${branch.slice(8)}`,
+      target_commitish: head,
+      name: `QA ${branch.slice(8)}`,
+      body: `QA release branch: ${branch}\nSource: ${train.sourceSha}`,
+      draft: true,
+      prerelease: true,
+    }))
   output('sha', head)
   output('branch', branch)
   output('mode', train.mode)
   output('runtime', train.runtimeVersion)
   output('release_id', release.id)
   output('ota_branch', `rc-${head}-${run}`)
+  output('attempt', required('GITHUB_RUN_ATTEMPT'))
   output(
     'build_number',
-    Number(required('RELEASE_BUILD_NUMBER_BASE')) +
-      Number(required('GITHUB_RUN_NUMBER')) * 100 +
-      Number(required('GITHUB_RUN_ATTEMPT')),
+    allocateBuildNumber(
+      required('RELEASE_BUILD_NUMBER_BASE'),
+      required('GITHUB_RUN_NUMBER'),
+      required('GITHUB_RUN_ATTEMPT'),
+    ),
   )
   for (const workflow of ['lint.yml', 'golang-test-lint.yml'])
     await gh.dispatch(workflow, {}, branch)
@@ -216,6 +204,10 @@ async function finish() {
     'Candidate superseded during build',
   )
   await gh.checks(head)
+  invariant(
+    (await activeBranches())[0] === branch,
+    'Not the active release branch',
+  )
   const train = (await gh.file('.release/train.json', head)).value
   const release = await gh.request(`releases/${required('RELEASE_ID')}`)
   const web = {
@@ -232,9 +224,20 @@ async function finish() {
     stores: {
       appId: required('ASC_APP_ID'),
       appIdentifier: required('RELEASE_APP_IDENTIFIER'),
-      publicTestFlightGroup: process.env.RELEASE_PUBLIC_TESTFLIGHT_GROUP || null,
+      publicTestFlightGroup:
+        process.env.RELEASE_PUBLIC_TESTFLIGHT_GROUP || null,
     },
   }
+  separateTargets(config.staging, config.production)
+  invariant(
+    ['app-store', 'testflight'].includes(config.iosDestination),
+    'Invalid iOS destination',
+  )
+  invariant(
+    config.iosDestination !== 'testflight' ||
+      config.stores.publicTestFlightGroup,
+    'Public TestFlight group required',
+  )
   const m = {
     schema: 1,
     branch,
@@ -247,10 +250,9 @@ async function finish() {
     web,
     config,
   }
-  if (m.mode === 'ota') {
-    const ota = new OTA()
-    m.ota = await ota.snapshot(required('OTA_BRANCH'), m.runtimeVersion, head)
-  } else {
+  const ota = new OTA()
+  m.ota = await ota.snapshot(required('OTA_BRANCH'), m.runtimeVersion, head)
+  if (m.mode === 'native') {
     m.ios = json('native-ios.json')
     m.android = json('native-android.json')
   }
@@ -259,6 +261,12 @@ async function finish() {
       ['ios', 'ipa'],
       ['android', 'aab'],
     ]) {
+      invariant(
+        createHash('sha256')
+          .update(readFileSync(`candidate.${extension}`))
+          .digest('hex') === m[platform].checksum,
+        'Native artifact bytes differ from recorded checksum',
+      )
       const filename = `native-${platform}-${head}-${run}.${extension}`
       renameSync(`candidate.${extension}`, filename)
       execFileSync(
@@ -269,20 +277,23 @@ async function finish() {
       m[platform].assetName = filename
     }
   }
-  const compare = await gh.request(`compare/${train.previousReleaseSha || train.baseline.sha}...${head}`)
-  const notes = compare.commits.filter(c => !c.commit.message.startsWith('chore(release):')).map(c => `- ${c.commit.message.split('\n')[0]}`).join('\n')
+  const compare = await gh.request(
+    `compare/${train.previousReleaseSha || train.baseline.sha}...${head}`,
+  )
+  const notes = compare.commits
+    .filter(c => !c.commit.message.startsWith('chore(release):'))
+    .map(c => `- ${c.commit.message.split('\n')[0]}`)
+    .join('\n')
   m.releaseNotes = notes || 'Maintenance release.'
-  validateManifest(m)
+  validateManifest(m, false)
   for (const target of config.staging) await deployWeb(target, web)
   invariant(
     (await gh.head(branch)) === head,
     'Release branch changed during QA deployment',
   )
-  if (m.mode === 'ota') {
-    const ota = new OTA()
-    await ota.map('release-qa', m.ota.branchId)
-    m.ota.artifacts = await ota.artifacts(m.ota)
-  }
+  await ota.map('release-qa', m.ota.branchId)
+  m.ota.artifacts = await ota.artifacts(m.ota)
+  validateManifest(m)
   const assetName = `candidate-${head}-${run}.json`
   await gh.upload(release, assetName, m)
   const body = `Candidate: ${head}\nRuntime: ${m.runtimeVersion}; lane: ${m.mode}\nManifest SHA-256: ${digest(m)}\n\n${notes}\n\nQA:\n- Sign in and restore an existing session.\n- Read feeds, open profiles, create and interact with posts.\n- Exercise changed behavior on iOS, Android, and web.\n- Verify Settings commit matches this candidate.\n\nStaging: ${config.staging.flatMap(t => t.urls).join(', ')}\nMobile: release-qa OTA or QA store builds.\nRun: ${currentRun}`
@@ -327,11 +338,25 @@ async function forwardportOne(pr) {
     return
   }
   let remote
-  try {remote = await gh.head(forwardBranch)} catch (error) {if (error.status !== 404) throw error}
+  try {
+    remote = await gh.head(forwardBranch)
+  } catch (error) {
+    if (error.status !== 404) throw error
+  }
   if (remote) {
     const existingCommit = await gh.request(`commits/${remote}`)
-    invariant(existingCommit.commit.message.includes(`(cherry picked from commit ${merge})`), 'Forward-port branch exists with a different patch')
-    const created = await gh.request('pulls', {base: 'main', head: forwardBranch, title: `fix: forward-port #${pr.number}`, body: `Forward-ports #${pr.number}. Original fix: ${merge}. Requires normal CI and review.`})
+    invariant(
+      existingCommit.commit.message.includes(
+        `(cherry picked from commit ${merge})`,
+      ),
+      'Forward-port branch exists with a different patch',
+    )
+    const created = await gh.request('pulls', {
+      base: 'main',
+      head: forwardBranch,
+      title: `fix: forward-port #${pr.number}`,
+      body: `Forward-ports #${pr.number}. Original fix: ${merge}. Requires normal CI and review.`,
+    })
     console.log(created.html_url)
     return
   }

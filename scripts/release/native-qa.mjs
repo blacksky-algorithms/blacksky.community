@@ -20,7 +20,9 @@ try {
   const build = json('native-ios.json')
   execFileSync(
     'bundle',
-    ['exec', 'fastlane',
+    [
+      'exec',
+      'fastlane',
       'run',
       'upload_to_testflight',
       `api_key_path:${path}`,
