@@ -1,0 +1,183 @@
+import {execFileSync} from 'node:child_process'
+import {invariant, required, sleep} from './core.mjs'
+
+export function targets(name) {
+  const value = JSON.parse(required(name))
+  invariant(
+    Array.isArray(value) && value.length > 0,
+    `${name} must list every target`,
+  )
+  const ids = new Set()
+  for (const target of value) {
+    invariant(
+      target.kind === 'app' || target.kind === 'kubernetes',
+      'Unknown deployment target',
+    )
+    invariant(
+      target.name && !ids.has(target.name),
+      'Target names must be unique',
+    )
+    ids.add(target.name)
+    invariant(
+      Array.isArray(target.urls) &&
+        target.urls.length > 0 &&
+        target.urls.every(u => new URL(u).protocol === 'https:'),
+      'Each target needs HTTPS verification URLs',
+    )
+    if (target.kind === 'app')
+      invariant(target.appId && target.component, 'Missing app target identity')
+    else
+      invariant(
+        target.namespace && target.deployment && target.container,
+        'Missing Kubernetes target identity',
+      )
+  }
+  return value
+}
+export async function doRequest(path, body, method = body ? 'POST' : 'GET') {
+  const response = await fetch(`https://api.digitalocean.com/v2/${path}`, {
+    method,
+    headers: {
+      authorization: `Bearer ${required('DIGITALOCEAN_ACCESS_TOKEN')}`,
+      'content-type': 'application/json',
+    },
+    ...(body ? {body: JSON.stringify(body)} : {}),
+    signal: AbortSignal.timeout(60000),
+  })
+  invariant(response.ok, `DigitalOcean ${method}: HTTP ${response.status}`)
+  return response.json()
+}
+function kube(...args) {
+  return execFileSync('kubectl', args, {encoding: 'utf8', timeout: 600000})
+}
+export async function snapshotWeb(target) {
+  if (target.kind === 'app') {
+    const {app} = await doRequest(`apps/${target.appId}`)
+    const service = invariant(
+      app.spec.services?.find(s => s.name === target.component),
+      'App component not found',
+    )
+    invariant(service.image?.registry_type === 'DOCR', 'Expected DOCR service')
+    return {target, image: service.image}
+  }
+  const deployment = JSON.parse(
+    kube(
+      '-n',
+      target.namespace,
+      'get',
+      'deployment',
+      target.deployment,
+      '-o',
+      'json',
+    ),
+  )
+  const container = invariant(
+    deployment.spec.template.spec.containers.find(
+      c => c.name === target.container,
+    ),
+    'Container not found',
+  )
+  return {target, image: container.image}
+}
+export async function verifyWeb(target, expected) {
+  for (const url of target.urls) {
+    const response = await fetch(new URL('/_release', url), {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(30000),
+    })
+    invariant(response.ok, `Release identity unavailable at ${url}`)
+    const identity = await response.json()
+    invariant(
+      identity.sha === expected.sha,
+      `Unexpected deployed SHA at ${url}`,
+    )
+    invariant(
+      identity.version === expected.version,
+      `Unexpected deployed version at ${url}`,
+    )
+    const health = await fetch(url, {signal: AbortSignal.timeout(30000)})
+    invariant(health.ok, `Health check failed at ${url}`)
+  }
+}
+export async function deployWeb(target, web) {
+  if (target.kind === 'app') {
+    const {app} = await doRequest(`apps/${target.appId}`)
+    const service = invariant(
+      app.spec.services?.find(s => s.name === target.component),
+      'App component missing',
+    )
+    const image = invariant(service.image, 'App is not image-based')
+    const currentRepo = `registry.digitalocean.com/${image.registry}/${image.repository}`
+    invariant(
+      currentRepo === web.repository,
+      'Target registry repository differs from approved artifact',
+    )
+    const oldDeployment = app.active_deployment?.id
+    service.image = {...image, digest: web.digest, deploy_on_push: false}
+    delete service.image.tag
+    const updated = await doRequest(
+      `apps/${target.appId}`,
+      {spec: app.spec},
+      'PUT',
+    )
+    let deploymentId =
+      updated.app.in_progress_deployment?.id ||
+      updated.app.pending_deployment?.id
+    if (!deploymentId) {
+      const created = await doRequest(`apps/${target.appId}/deployments`, {
+        force_build: false,
+      })
+      deploymentId = created.deployment.id
+    }
+    invariant(deploymentId !== oldDeployment, 'No new deployment identity')
+    let active = false
+    for (let i = 0; i < 120; i++) {
+      const {deployment} = await doRequest(
+        `apps/${target.appId}/deployments/${deploymentId}`,
+      )
+      invariant(
+        !['ERROR', 'CANCELED', 'SUPERSEDED'].includes(deployment.phase),
+        `Deployment ${deploymentId} ${deployment.phase}`,
+      )
+      if (deployment.phase === 'ACTIVE') {
+        active = true
+        break
+      }
+      await sleep(10000)
+    }
+    invariant(active, 'Deployment timed out')
+    const {app: live} = await doRequest(`apps/${target.appId}`)
+    invariant(
+      live.active_deployment?.id === deploymentId,
+      'Another deployment replaced the candidate',
+    )
+    invariant(
+      live.spec.services.find(s => s.name === target.component).image.digest ===
+        web.digest,
+      'App digest drift',
+    )
+  } else {
+    const image = `${web.repository}@${web.digest}`
+    kube(
+      '-n',
+      target.namespace,
+      'set',
+      'image',
+      `deployment/${target.deployment}`,
+      `${target.container}=${image}`,
+    )
+    kube(
+      '-n',
+      target.namespace,
+      'rollout',
+      'status',
+      `deployment/${target.deployment}`,
+      '--timeout=600s',
+    )
+    invariant(
+      (await snapshotWeb(target)).image === image,
+      'Kubernetes image drift',
+    )
+  }
+  await verifyWeb(target, web)
+}

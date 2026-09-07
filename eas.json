@@ -32,7 +32,9 @@
       "extends": "base",
       "ios": {
         "autoIncrement": true,
-        "buildArtifactPaths": ["ios/build/*"]
+        "buildArtifactPaths": [
+          "ios/build/*"
+        ]
       },
       "android": {
         "autoIncrement": true
@@ -47,7 +49,9 @@
       "environment": "production",
       "ios": {
         "autoIncrement": true,
-        "buildArtifactPaths": ["ios/build/*"]
+        "buildArtifactPaths": [
+          "ios/build/*"
+        ]
       },
       "android": {
         "autoIncrement": true
@@ -61,7 +65,9 @@
       "extends": "base",
       "ios": {
         "autoIncrement": true,
-        "buildArtifactPaths": ["ios/build/*"]
+        "buildArtifactPaths": [
+          "ios/build/*"
+        ]
       },
       "android": {
         "autoIncrement": true
@@ -76,6 +82,42 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "release": {
+      "extends": "production",
+      "environment": "production",
+      "channel": "production",
+      "ios": {
+        "autoIncrement": false,
+        "buildArtifactPaths": [
+          "ios/build/*"
+        ]
+      },
+      "android": {
+        "autoIncrement": false
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_UPDATE_CHANNEL": "production"
+      }
+    },
+    "release-qa": {
+      "extends": "production",
+      "environment": "production",
+      "channel": "release-qa",
+      "ios": {
+        "autoIncrement": false,
+        "buildArtifactPaths": [
+          "ios/build/*"
+        ]
+      },
+      "android": {
+        "autoIncrement": false
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_UPDATE_CHANNEL": "release-qa"
+      }
     }
   },
   "submit": {
@@ -88,6 +130,14 @@
       }
     },
     "testflight-android": {
+      "android": {
+        "track": "internal"
+      }
+    },
+    "release-qa": {
+      "ios": {
+        "ascAppId": "6776276281"
+      },
       "android": {
         "track": "internal"
       }

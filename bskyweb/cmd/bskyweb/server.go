@@ -308,6 +308,7 @@ func serve(cctx *cli.Context) error {
 
 	// PWA manifest (generated dynamically from brand config)
 	e.GET("/manifest.json", server.WebManifest)
+	e.GET("/_release", releaseIdentity)
 
 	// OAuth client metadata (generated dynamically from request host)
 	e.GET("/oauth-client-metadata.json", server.OAuthClientMetadata)

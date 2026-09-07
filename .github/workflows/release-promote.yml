@@ -1,0 +1,119 @@
+name: Approve mobile and web release
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: GitHub QA release record ID
+        type: string
+        required: true
+      asset:
+        description: Immutable candidate manifest asset name
+        type: string
+        required: true
+      manifest_hash:
+        description: Candidate manifest SHA-256
+        type: string
+        required: true
+      operation:
+        description: Release, resume after store review, or roll back current OTA/web release
+        type: choice
+        options: [release, finish-native, rollback]
+        default: release
+      store_ready_evidence:
+        description: Storefront/device verification link for finish-native
+        type: string
+permissions:
+  contents: read
+  deployments: read
+  checks: read
+env:
+  BUNDLE_GEMFILE: scripts/release/Gemfile
+  GH_TOKEN: ${{ github.token }}
+  RELEASE_OPERATION: ${{ inputs.operation }}
+  RELEASE_ID: ${{ inputs.release_id }}
+  CANDIDATE_ASSET: ${{ inputs.asset }}
+  MANIFEST_HASH: ${{ inputs.manifest_hash }}
+  RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
+  RELEASE_PRODUCTION_TARGETS: ${{ vars.RELEASE_PRODUCTION_TARGETS }}
+  RELEASE_IOS_DESTINATION: ${{ vars.RELEASE_IOS_DESTINATION }}
+  ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+  RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
+  RELEASE_PUBLIC_TESTFLIGHT_GROUP: ${{ vars.RELEASE_PUBLIC_TESTFLIGHT_GROUP }}
+  RELEASE_OTA_URL: ${{ vars.RELEASE_OTA_URL }}
+jobs:
+  inspect:
+    if: vars.RELEASE_TRAIN_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      needs_approval: ${{ steps.inspect.outputs.needs_approval }}
+      done: ${{ steps.inspect.outputs.done }}
+      mode: ${{ steps.inspect.outputs.mode }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+      - id: inspect
+        run: node scripts/release/promote.mjs preflight
+  approve:
+    needs: inspect
+    if: needs.inspect.outputs.needs_approval == 'true' && needs.inspect.outputs.done != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://github.com/${{ github.repository }}/releases
+    permissions:
+      contents: read
+      deployments: write
+      checks: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+      - run: node scripts/release/promote.mjs approve
+  publish:
+    needs: [inspect, approve]
+    if: >-
+      always() && needs.inspect.result == 'success' && needs.inspect.outputs.done != 'true' &&
+      (needs.approve.result == 'success' || needs.inspect.outputs.needs_approval == 'false')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: release-publishing
+    concurrency:
+      group: client-release-mutation
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      deployments: write
+      checks: read
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+      GPLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GPLAY_SERVICE_ACCOUNT_JSON }}
+      RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
+      RELEASE_PUBLIC_TESTFLIGHT_GROUP: ${{ vars.RELEASE_PUBLIC_TESTFLIGHT_GROUP }}
+      STORE_READY_EVIDENCE: ${{ inputs.store_ready_evidence }}
+      KUBECONFIG_CONTENT: ${{ secrets.RELEASE_KUBECONFIG }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+      - name: Prepare Kubernetes access when configured
+        run: |
+          if [ -n "$KUBECONFIG_CONTENT" ]; then
+            printf '%s' "$KUBECONFIG_CONTENT" > "$RUNNER_TEMP/release-kubeconfig"
+            chmod 600 "$RUNNER_TEMP/release-kubeconfig"
+            echo "KUBECONFIG=$RUNNER_TEMP/release-kubeconfig" >> "$GITHUB_ENV"
+          fi
+      - name: Install store tooling for native release
+        if: needs.inspect.outputs.mode == 'native'
+        run: |
+          bundle config set --local path "$RUNNER_TEMP/release-gems"
+          bundle install
+      - run: node scripts/release/promote.mjs execute
+      - name: Clean up credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release-kubeconfig"

@@ -1,0 +1,57 @@
+def release_apple_key
+  JSON.parse(File.read(ENV.fetch('ASC_API_KEY_PATH')), symbolize_names: true)
+end
+
+lane :submit_candidate do
+  if ENV.fetch('IOS_DESTINATION') == 'app-store'
+    deliver(
+      api_key: release_apple_key,
+      app_identifier: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+      app_version: ENV.fetch('RELEASE_VERSION'),
+      build_number: ENV.fetch('IOS_BUILD_NUMBER'),
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      metadata_path: 'release-metadata',
+      submit_for_review: true,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      force: true
+    )
+  end
+  upload_to_play_store(
+    json_key: ENV.fetch('PLAY_JSON_PATH'),
+    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    track: 'internal',
+    track_promote_to: 'production',
+    version_code: ENV.fetch('ANDROID_VERSION_CODE').to_i,
+    release_status: 'completed',
+    skip_upload_aab: true,
+    skip_upload_apk: true,
+    skip_upload_metadata: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true
+  )
+end
+
+lane :verify_play do
+  codes = google_play_track_version_codes(
+    json_key: ENV.fetch('PLAY_JSON_PATH'),
+    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    track: 'production'
+  )
+  UI.user_error!('Expected Android version is not on production track') unless codes.include?(ENV.fetch('ANDROID_VERSION_CODE').to_i)
+end
+
+lane :publish_testflight do
+  upload_to_testflight(
+    api_key: release_apple_key,
+    app_identifier: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    app_platform: 'ios',
+    app_version: ENV.fetch('RELEASE_VERSION'),
+    build_number: ENV.fetch('IOS_BUILD_NUMBER'),
+    distribute_only: true,
+    groups: ENV.fetch('RELEASE_PUBLIC_TESTFLIGHT_GROUP'),
+    notify_external_testers: true
+  )
+end

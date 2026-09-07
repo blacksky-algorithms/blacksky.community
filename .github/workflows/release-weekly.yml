@@ -1,0 +1,230 @@
+name: Weekly QA release
+on:
+  schedule:
+    - cron: '17 14 * * 1'
+  push:
+    branches: ['release/**']
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Cut a train or rebuild the active release branch
+        type: choice
+        options: [cut, prepare]
+        default: cut
+      branch:
+        description: Active release branch (prepare only)
+        type: string
+      sha:
+        description: Optional passing main SHA (cut only)
+        type: string
+      native:
+        description: Force a new native runtime when cutting
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  checks: read
+  actions: read
+jobs:
+  forwardport:
+    if: vars.RELEASE_TRAIN_ENABLED == 'true' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-forwardport
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - run: gh auth setup-git
+      - run: node scripts/release/train.mjs forwardport
+  select:
+    if: vars.RELEASE_TRAIN_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-selection
+      cancel-in-progress: false
+    outputs:
+      sha: ${{ steps.select.outputs.sha }}
+      branch: ${{ steps.select.outputs.branch }}
+      mode: ${{ steps.select.outputs.mode }}
+      runtime: ${{ steps.select.outputs.runtime }}
+      release_id: ${{ steps.select.outputs.release_id }}
+      ota_branch: ${{ steps.select.outputs.ota_branch }}
+      build_number: ${{ steps.select.outputs.build_number }}
+    env:
+      GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+      RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
+      RELEASE_NATIVE_BASELINE: ${{ vars.RELEASE_NATIVE_BASELINE }}
+      RELEASE_BUILD_NUMBER_BASE: ${{ vars.RELEASE_BUILD_NUMBER_BASE }}
+      INPUT_BRANCH: ${{ inputs.branch }}
+      INPUT_SHA: ${{ inputs.sha }}
+      INPUT_NATIVE: ${{ inputs.native }}
+      INPUT_OPERATION: ${{ inputs.operation }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - id: select
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$INPUT_OPERATION" = "prepare" ]; then
+            node scripts/release/train.mjs prepare
+          else
+            node scripts/release/train.mjs schedule
+          fi
+  checks:
+    needs: select
+    if: needs.select.outputs.sha != ''
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
+      CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: main
+          persist-credentials: false
+      - run: node scripts/release/train.mjs checks
+  ios:
+    needs: [select, checks]
+    if: needs.select.outputs.mode == 'native'
+    uses: ./.github/workflows/build-submit-ios.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    with:
+      sha: ${{ needs.select.outputs.sha }}
+      build_number: ${{ needs.select.outputs.build_number }}
+  android:
+    needs: [select, checks]
+    if: needs.select.outputs.mode == 'native'
+    uses: ./.github/workflows/build-submit-android.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    with:
+      sha: ${{ needs.select.outputs.sha }}
+      build_number: ${{ needs.select.outputs.build_number }}
+  ota:
+    needs: [select, checks]
+    if: needs.select.outputs.mode == 'ota'
+    runs-on: ubuntu-latest
+    environment: release-build
+    env:
+      CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
+      OTA_BRANCH: ${{ needs.select.outputs.ota_branch }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      ENV_TOKEN: ${{ secrets.ENV_TOKEN }}
+      GOOGLE_SERVICES_TOKEN: ${{ secrets.GOOGLE_SERVICES_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+      EXPO_PUBLIC_GCP_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}
+      EXPO_PUBLIC_METRICS_API_HOST: ${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_API_HOST: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
+      EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
+      EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.select.outputs.sha }}
+          persist-credentials: false
+      - uses: ./.github/actions/release-setup # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+      - run: node scripts/release/build.mjs ota
+      - if: always()
+        run: rm -f .env google-services.json
+  web:
+    needs: [select, checks]
+    runs-on: ubuntu-latest
+    environment: release-build
+    outputs:
+      digest: ${{ steps.image.outputs.digest }}
+    env:
+      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      RELEASE_IMAGE_REPOSITORY: ${{ vars.RELEASE_IMAGE_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.select.outputs.sha }}
+          persist-credentials: false
+      - name: Log into DOCR
+        run: |
+          printf '%s' "$DIGITALOCEAN_ACCESS_TOKEN" | docker login registry.digitalocean.com --username "$DIGITALOCEAN_ACCESS_TOKEN" --password-stdin
+      - id: image
+        env:
+          CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
+          CANDIDATE_VERSION: ${{ needs.select.outputs.runtime }}
+          EXPO_PUBLIC_METRICS_API_HOST: ${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}
+          EXPO_PUBLIC_GROWTHBOOK_API_HOST: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}
+          EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
+          EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
+          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+        run: |
+          tag="$RELEASE_IMAGE_REPOSITORY:rc-$CANDIDATE_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          docker buildx create --use
+          docker buildx build --platform linux/amd64 --push --metadata-file image.json --tag "$tag" \
+            --build-arg EXPO_PUBLIC_ENV=production \
+            --build-arg EXPO_PUBLIC_RELEASE_VERSION="$CANDIDATE_VERSION" \
+            --build-arg EXPO_PUBLIC_BUNDLE_IDENTIFIER="$CANDIDATE_SHA" \
+            --build-arg EXPO_PUBLIC_METRICS_API_HOST \
+            --build-arg EXPO_PUBLIC_GROWTHBOOK_API_HOST \
+            --build-arg EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY \
+            --build-arg EXPO_PUBLIC_STRIPE_API_URL \
+            --build-arg EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY .
+          echo "digest=$(jq -r '."containerimage.digest"' image.json)" >> "$GITHUB_OUTPUT"
+  ready:
+    needs: [select, checks, ios, android, ota, web]
+    if: >-
+      always() && needs.web.result == 'success' && needs.checks.result == 'success' &&
+      ((needs.ota.result == 'success') || (needs.ios.result == 'success' && needs.android.result == 'success'))
+    runs-on: ubuntu-latest
+    environment: release-build
+    concurrency:
+      group: client-release-mutation
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      deployments: write
+      actions: write
+      checks: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
+      RELEASE_IMAGE_REPOSITORY: ${{ vars.RELEASE_IMAGE_REPOSITORY }}
+      RELEASE_STAGING_TARGETS: ${{ vars.RELEASE_STAGING_TARGETS }}
+      RELEASE_PRODUCTION_TARGETS: ${{ vars.RELEASE_PRODUCTION_TARGETS }}
+      RELEASE_IOS_DESTINATION: ${{ vars.RELEASE_IOS_DESTINATION }}
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+      RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
+      RELEASE_PUBLIC_TESTFLIGHT_GROUP: ${{ vars.RELEASE_PUBLIC_TESTFLIGHT_GROUP }}
+      RELEASE_OTA_URL: ${{ vars.RELEASE_OTA_URL }}
+      RELEASE_BRANCH: ${{ needs.select.outputs.branch }}
+      RELEASE_ID: ${{ needs.select.outputs.release_id }}
+      CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
+      OTA_BRANCH: ${{ needs.select.outputs.ota_branch }}
+      WEB_DIGEST: ${{ needs.web.outputs.digest }}
+      KUBECONFIG_CONTENT: ${{ secrets.RELEASE_KUBECONFIG }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        if: needs.select.outputs.mode == 'native'
+        with:
+          pattern: native-*-${{ needs.select.outputs.sha }}
+          merge-multiple: true
+      - name: Prepare Kubernetes access when configured
+        run: |
+          if [ -n "$KUBECONFIG_CONTENT" ]; then
+            printf '%s' "$KUBECONFIG_CONTENT" > "$RUNNER_TEMP/release-kubeconfig"
+            chmod 600 "$RUNNER_TEMP/release-kubeconfig"
+            echo "KUBECONFIG=$RUNNER_TEMP/release-kubeconfig" >> "$GITHUB_ENV"
+          fi
+      - run: node scripts/release/train.mjs finish
+      - if: always()
+        run: rm -f "$RUNNER_TEMP/release-kubeconfig"

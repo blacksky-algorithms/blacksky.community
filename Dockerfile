@@ -97,6 +97,9 @@ RUN SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
 #
 FROM golang:1.26-bookworm AS go-build
 
+ARG EXPO_PUBLIC_BUNDLE_IDENTIFIER
+ARG EXPO_PUBLIC_RELEASE_VERSION
+
 WORKDIR /usr/src/social-app
 
 ENV GODEBUG="netdns=go"
@@ -118,6 +121,7 @@ RUN cd bskyweb/ && \
   go build \
     -v  \
     -trimpath \
+    -ldflags "-X main.releaseSHA=${EXPO_PUBLIC_BUNDLE_IDENTIFIER} -X main.releaseVersion=${EXPO_PUBLIC_RELEASE_VERSION}" \
     -tags timetzdata \
     -o /bskyweb \
     ./cmd/bskyweb

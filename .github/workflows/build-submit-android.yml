@@ -1,229 +1,92 @@
----
-name: Build and Submit Android
-
+name: Build QA Android
 on:
-  workflow_dispatch:
-    inputs:
-      profile:
-        type: choice
-        description: Build profile to use
-        options:
-          - testflight-android
-          - production
   workflow_call:
     inputs:
+      sha:
+        type: string
+        required: true
+      build_number:
+        type: string
+        required: true
       profile:
         type: string
-        description: Build profile to use
+        default: release
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Exact candidate SHA
+        type: string
         required: true
-    outputs:
-      package-version:
-        description: Version from package.json
-        value: ${{ jobs.build.outputs.package-version }}
-      version-code:
-        description: Android version code
-        value: ${{ jobs.build.outputs.version-code }}
-
-# Deploys happen via EAS using EXPO_TOKEN; the GITHUB_TOKEN only checks out code
+      build_number:
+        description: Unique unused native build number
+        type: string
+        required: true
+      profile:
+        description: Production candidate or dedicated OTA QA installation
+        type: choice
+        options: [release-qa, release]
+        default: release-qa
 permissions:
   contents: read
-
 jobs:
   build:
     if: github.repository == 'blacksky-algorithms/blacksky.community'
-    name: Build and Submit Android
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: release-build
     concurrency:
-      group: android-build
+      group: native-android
       cancel-in-progress: false
-    outputs:
-      package-version: ${{ steps.get-build-info.outputs.PACKAGE_VERSION }}
-      version-code: ${{ steps.get-build-info.outputs.BSKY_ANDROID_VERSION_CODE }}
-      apk-artifact-name: build-${{ steps.timestamp.outputs.time }}.apk
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      ENV_TOKEN: ${{ secrets.ENV_TOKEN }}
+      GOOGLE_SERVICES_TOKEN: ${{ secrets.GOOGLE_SERVICES_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+      EXPO_PUBLIC_GCP_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}
+      EXPO_PUBLIC_METRICS_API_HOST: ${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_API_HOST: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
+      EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
+      EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+      CANDIDATE_SHA: ${{ inputs.sha }}
+      NATIVE_BUILD_NUMBER: ${{ inputs.build_number }}
+      BSKY_IOS_BUILD_NUMBER: ${{ inputs.build_number }}
+      BSKY_ANDROID_VERSION_CODE: ${{ inputs.build_number }}
+      NATIVE_PROFILE: ${{ inputs.profile }}
+      EXPO_PUBLIC_ENV: production
     steps:
-      - name: Check for EXPO_TOKEN
-        run: >
-          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
-            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
-            exit 1
-          fi
-
-      - name: ⬇️ Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
-          fetch-depth: 5
-
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - name: 🔧 Setup Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+          ref: ${{ inputs.sha }}
+          persist-credentials: false
+      - uses: ./.github/actions/release-setup # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+      - run: node scripts/release/build.mjs native-config
+      - uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287
         with:
-          node-version-file: package.json
-          cache: pnpm
-
-      - name: 🪛 Setup jq
-        uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
-
-      - name: ⚙️ Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🔨 Setup Expo CLI
-        uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385 # 9.0.0
+          distribution: temurin
+          java-version: '17'
+      - name: Build AAB
+        run: pnpm exec eas build -p android --profile "$NATIVE_PROFILE" --local --output candidate.aab --non-interactive
+      - uses: amyu/setup-bundletool@cc2e1857284660bd625e43f2c8a45626f034302f
         with:
-          eas-version: '19.0.5'
-          packager: 'pnpm --allow-build=dtrace-provider'
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
-        with:
-          distribution: "temurin"
-          java-version: "17"
-
-      - name: 🔤 Compile translations
-        run: pnpm intl:build 2>&1 | tee i18n.log
-
-      - name: Check for i18n compilation errors
-        run: if grep -q "invalid syntax" "i18n.log"; then echo "\n\nFound compilation
-          errors!\n\n" && exit 1; else echo "\n\nNo compilation errors!\n\n"; fi
-
-      # EXPO_PUBLIC_ENV is handled in eas.json
-      - name: Env
-        id: env
+          bundletool-version: '1.17.2'
+      - name: Verify binary identity
         run: |
-          export json='${{ secrets.GOOGLE_SERVICES_TOKEN }}'
-          echo "${{ secrets.ENV_TOKEN }}" > .env
-          echo "EXPO_PUBLIC_RELEASE_VERSION=$(jq -r '.version' package.json)" >> .env
-          echo "EXPO_PUBLIC_RELEASE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
-          echo "EXPO_PUBLIC_BUNDLE_IDENTIFIER=$(git rev-parse HEAD)" >> .env
-          echo "EXPO_PUBLIC_BUNDLE_IDENTIFIER=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "EXPO_PUBLIC_BUNDLE_DATE=$(date -u +"%y%m%d%H")" >> .env
-          echo "EXPO_PUBLIC_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
-          echo "EXPO_PUBLIC_BITDRIFT_API_KEY=${{ secrets.BITDRIFT_API_KEY }}" >> .env
-          echo "EXPO_PUBLIC_GCP_PROJECT_ID=${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}" >> .env
-          echo "EXPO_PUBLIC_METRICS_API_HOST=${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}" >> .env
-          echo "EXPO_PUBLIC_GROWTHBOOK_API_HOST=${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}" >> .env
-          echo "EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY=${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}" >> .env
-          echo "$json" > google-services.json
-
-      - name: 🏗️ EAS Build
-        env:
-          PROFILE: ${{ inputs.profile || 'testflight-android' }}
-        run: >
-          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_RELEASE=${{ steps.env.outputs.EXPO_PUBLIC_RELEASE_VERSION }}
-          SENTRY_DIST=${{ steps.env.outputs.EXPO_PUBLIC_BUNDLE_IDENTIFIER }}
-          pnpm use-build-number-with-bump
-          pnpm eas build -p android
-          --profile $PROFILE
-          --local --output build.aab --non-interactive
-
-      - name: 📚 Get version from package.json
-        id: get-build-info
-        run: bash scripts/setGitHubOutput.sh
-
-      - name: 🚀 Submit to Google Play
-        env:
-          PROFILE: ${{ inputs.profile || 'testflight-android' }}
-        run: pnpm eas submit -p android --profile $PROFILE --non-interactive --path build.aab
-
-      - name: 🔧 Setup bundletool
-        uses: amyu/setup-bundletool@cc2e1857284660bd625e43f2c8a45626f034302f # v1.1
+          export ACTUAL_VERSION="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/@android:versionName')"
+          export ACTUAL_BUILD_NUMBER="$(bundletool dump manifest --bundle=candidate.aab --xpath='/manifest/@android:versionCode')"
+          NATIVE_ARTIFACT=candidate.aab node scripts/release/build.mjs native-record android
+      - name: Upload to Play internal testing
+        run: pnpm exec eas submit -p android --profile release-qa --non-interactive --path candidate.aab
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          bundletool-version: "1.17.2"
-
-      - name: 🔑 Decode keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode >
-          keystore.jks
-
-      - name: 📦 Build signed universal APK
-        run: |
-          bundletool build-apks \
-            --bundle=build.aab \
-            --output=universal.apks \
-            --mode=universal \
-            --ks=keystore.jks \
-            --ks-pass=pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-            --ks-key-alias=${{ secrets.ANDROID_KEY_ALIAS }} \
-            --key-pass=pass:${{ secrets.ANDROID_KEY_PASSWORD }}
-
-      - name: 📋 Rename to .zip for extraction
-        run: mv universal.apks universal.zip
-
-      - name: 📦 Extract universal APK
-        run: unzip -p universal.zip universal.apk > build.apk
-
-      - name: ⏰ Get a timestamp
-        id: timestamp
-        run: echo "time=$(date -u +'%m-%d-%H-%M-%S')" >> "$GITHUB_OUTPUT"
-
-      - name: 🚀 Upload APK Artifact
-        id: upload-artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          retention-days: 30
-          compression-level: 6
-          name: build-${{ steps.timestamp.outputs.time }}.apk
-          path: build.apk
-
-      - name: ⬇️ Restore Cache
-        id: get-base-commit
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        if: ${{ inputs.profile == 'testflight-android' }}
-        with:
-          path: most-recent-testflight-commit.txt
-          key: most-recent-testflight-commit
-
-      - name: ✏️ Write commit hash to cache
-        if: ${{ inputs.profile == 'testflight-android' }}
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-        run: echo $GITHUB_SHA > most-recent-testflight-commit.txt
-
-  # Releases are cut from tags named after the version (e.g. "1.124.0"), so when a production
-  # build is dispatched against such a tag we attach the APK to the matching release. This runs
-  # as a separate job so that `contents: write` is isolated here and the build job stays read-only.
-  attachToRelease:
-    name: Attach APK to GitHub Release
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: ${{ inputs.profile == 'production' && github.ref_type == 'tag' && github.repository == 'blacksky-algorithms/blacksky.community' }}
-    permissions:
-      contents: write
-    steps:
-      # We only attach to a release that already exists — never create one.
-      - name: 🔎 Check for matching GitHub Release
-        id: release-check
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          status=$(curl -sS -o /dev/null -w '%{http_code}' \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}")
-          if [ "$status" = "200" ]; then
-            echo "Found GitHub Release for tag $TAG"
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No GitHub Release found for tag $TAG (HTTP $status); skipping APK attachment."
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: ⬇️ Download APK artifact
-        if: ${{ steps.release-check.outputs.exists == 'true' }}
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: ${{ needs.build.outputs.apk-artifact-name }}
-
-      - name: 🏷️ Rename APK for release
-        if: ${{ steps.release-check.outputs.exists == 'true' }}
-        run: cp build.apk "Bluesky-${{ needs.build.outputs.package-version }}.apk"
-
-      - name: 📎 Attach APK to GitHub Release
-        id: attach
-        if: ${{ steps.release-check.outputs.exists == 'true' }}
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: Bluesky-${{ needs.build.outputs.package-version }}.apk
-          fail_on_unmatched_files: true
+          name: native-android-${{ inputs.sha }}
+          path: |
+            native-android.json
+            candidate.aab
+          retention-days: 90
+          if-no-files-found: error
+      - name: Remove credentials
+        if: always()
+        run: rm -f .env google-services.json

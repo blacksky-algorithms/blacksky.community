@@ -1,0 +1,21 @@
+name: Release dependencies
+description: Install the pinned client toolchain and dependencies
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+      with:
+        node-version-file: package.json
+        cache: pnpm
+    - run: pnpm install --frozen-lockfile
+      shell: bash
+    - uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385
+      with:
+        eas-version: '19.0.5'
+        packager: 'pnpm --allow-build=dtrace-provider'
+        token: ${{ env.EXPO_TOKEN }}
+    - run: node scripts/release/build.mjs environment
+      shell: bash
+    - run: pnpm intl:build
+      shell: bash

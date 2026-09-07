@@ -250,7 +250,9 @@ module.exports = function (_config) {
         // brick-recovery safety net, so it is kept off in production builds only.
         disableAntiBrickingMeasures: !IS_PRODUCTION,
         requestHeaders: {
-          'expo-channel-name': IS_TESTFLIGHT ? 'testflight' : 'production',
+          'expo-channel-name':
+            process.env.EXPO_PUBLIC_UPDATE_CHANNEL ||
+            (IS_TESTFLIGHT ? 'testflight' : 'production'),
         },
       },
       plugins: [
