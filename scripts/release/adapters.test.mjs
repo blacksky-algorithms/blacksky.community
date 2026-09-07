@@ -115,20 +115,20 @@ test('web deployment pins approved digest, disables autodeploy, and verifies liv
         name: 'web',
         image: {
           registry_type: 'DOCR',
-          registry: 'registry',
           repository: 'image',
           tag: 'latest',
-          deploy_on_push: true,
+          deploy_on_push: {enabled: true},
         },
       },
     ],
   }
   let updated = false
   mock(t, (url, options) => {
+    if (url.endsWith('/v2/registry')) return {registry: {name: 'registry'}}
     if (url.endsWith('/apps/app') && options.method === 'PUT') {
       spec = JSON.parse(options.body).spec
       assert.equal(spec.services[0].image.digest, web.digest)
-      assert.equal(spec.services[0].image.deploy_on_push, false)
+      assert.deepEqual(spec.services[0].image.deploy_on_push, {enabled: false})
       assert.equal(spec.services[0].image.tag, undefined)
       updated = true
       return {app: {in_progress_deployment: {id: 'new'}}}

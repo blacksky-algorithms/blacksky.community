@@ -15,10 +15,7 @@ export async function rollbackRelease(ota, candidate, rollback, adapters = {}) {
   )
   for (const {target, web} of rollback.web) {
     const state = await snapshot(target)
-    const image =
-      typeof state.image === 'string'
-        ? state.image
-        : `registry.digitalocean.com/${state.image.registry}/${state.image.repository}@${state.image.digest}`
+    const image = state.image
     invariant(
       [
         `${web.repository}@${web.digest}`,

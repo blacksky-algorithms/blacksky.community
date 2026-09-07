@@ -90,11 +90,13 @@ jobs:
           test -n "$ipa_path"
           cp "$ipa_path" candidate.ipa
           unzip -q candidate.ipa 'Payload/*.app/Info.plist' 'Payload/*.app/Expo.plist' -d ios-metadata
-          plist="$(find ios-metadata -name Info.plist -print -quit)"
+          set -- ios-metadata/Payload/*.app
+          test "$#" -eq 1
+          plist="$1/Info.plist"
           export ACTUAL_APP_IDENTIFIER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$plist")"
           export ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$plist")"
           export ACTUAL_BUILD_NUMBER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$plist")"
-          expo_plist="$(find ios-metadata -name Expo.plist -print -quit)"
+          expo_plist="$1/Expo.plist"
           test "$(/usr/libexec/PlistBuddy -c 'Print EXUpdatesRuntimeVersion' "$expo_plist")" = "$ACTUAL_VERSION"
           NATIVE_ARTIFACT=candidate.ipa node scripts/release/build.mjs native-record ios
       - name: Upload for TestFlight QA

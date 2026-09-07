@@ -66,6 +66,11 @@ export async function doRequest(path, body, method = body ? 'POST' : 'GET') {
   invariant(response.ok, `DigitalOcean ${method}: HTTP ${response.status}`)
   return response.json()
 }
+async function imageReference(image) {
+  invariant(image.registry_type === 'DOCR', 'Expected DOCR service')
+  const registry = image.registry || (await doRequest('registry')).registry.name
+  return `registry.digitalocean.com/${registry}/${image.repository}@${image.digest}`
+}
 function kube(...args) {
   return execFileSync('kubectl', args, {encoding: 'utf8', timeout: 600000})
 }
@@ -76,8 +81,7 @@ export async function snapshotWeb(target) {
       app.spec.services?.find(s => s.name === target.component),
       'App component not found',
     )
-    invariant(service.image?.registry_type === 'DOCR', 'Expected DOCR service')
-    return {target, image: service.image}
+    return {target, image: await imageReference(service.image)}
   }
   const deployment = JSON.parse(
     kube(
@@ -100,10 +104,7 @@ export async function snapshotWeb(target) {
 }
 export async function verifyWeb(target, expected) {
   const state = await snapshotWeb(target)
-  const image =
-    typeof state.image === 'string'
-      ? state.image
-      : `registry.digitalocean.com/${state.image.registry}/${state.image.repository}@${state.image.digest}`
+  const image = state.image
   invariant(
     image === `${expected.repository}@${expected.digest}`,
     'Deployed image differs from approved digest',
@@ -135,13 +136,17 @@ export async function deployWeb(target, web) {
       'App component missing',
     )
     const image = invariant(service.image, 'App is not image-based')
-    const currentRepo = `registry.digitalocean.com/${image.registry}/${image.repository}`
+    const currentRepo = (await imageReference(image)).split('@')[0]
     invariant(
       currentRepo === web.repository,
       'Target registry repository differs from approved artifact',
     )
     const oldDeployment = app.active_deployment?.id
-    service.image = {...image, digest: web.digest, deploy_on_push: false}
+    service.image = {
+      ...image,
+      digest: web.digest,
+      deploy_on_push: {enabled: false},
+    }
     delete service.image.tag
     const updated = await doRequest(
       `apps/${target.appId}`,

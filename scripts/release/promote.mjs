@@ -143,10 +143,7 @@ async function execute() {
         'Bootstrap production /_release before enabling automated promotion',
       )
       const identity = await response.json()
-      const previousDigest =
-        typeof state.image === 'string'
-          ? state.image.split('@')[1]
-          : state.image.digest
+      const previousDigest = state.image.split('@')[1]
       invariant(
         /^sha256:[a-f0-9]{64}$/.test(previousDigest || ''),
         'Pin the initial production digest before activation',
