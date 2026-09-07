@@ -182,7 +182,7 @@ jobs:
           echo "$json" > google-services.json
 
       - name: 🚀 Publish PR OTA Update (eoas)
-        run: >
+        run: > # zizmor: ignore[use-trusted-publishing] -- eoas app updates are outside npm trusted publishing.
           pnpm use-build-number pnpm exec eoas publish
           --branch=pull-request-${{ github.event.issue.number }}
           --platform=all
