@@ -1,60 +1,13 @@
 def release_apple_key
-  JSON.parse(File.read(ENV.fetch('ASC_API_KEY_PATH')), symbolize_names: true)
-end
-
-lane :submit_ios do
-  if ENV.fetch('IOS_DESTINATION') == 'app-store'
-    deliver(
-      api_key: release_apple_key,
-      app_identifier: ENV.fetch('RELEASE_APP_IDENTIFIER'),
-      app_version: ENV.fetch('RELEASE_VERSION'),
-      build_number: ENV.fetch('IOS_BUILD_NUMBER'),
-      skip_binary_upload: true,
-      skip_screenshots: true,
-      skip_metadata: false,
-      metadata_path: 'release-metadata',
-      submit_for_review: true,
-      automatic_release: false,
-      run_precheck_before_submit: false,
-      force: true
-    )
-  end
-end
-
-lane :submit_android do
-  codes = google_play_track_version_codes(
-    json_key: ENV.fetch('PLAY_JSON_PATH'),
-    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
-    track: 'production'
-  )
-  expected = ENV.fetch('ANDROID_VERSION_CODE').to_i
-  UI.user_error!('A newer Android build is already in production') if codes.any? { |code| code > expected }
-  next if codes.include?(expected)
-  upload_to_play_store(
-    json_key: ENV.fetch('PLAY_JSON_PATH'),
-    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
-    track: 'internal',
-    track_promote_to: 'production',
-    version_code: ENV.fetch('ANDROID_VERSION_CODE').to_i,
-    track_promote_release_status: 'completed',
-    skip_upload_aab: true,
-    skip_upload_apk: true,
-    skip_upload_metadata: true,
-    skip_upload_images: true,
-    skip_upload_screenshots: true
+  app_store_connect_api_key(
+    key_id: ENV.fetch('ASC_KEY_ID'),
+    issuer_id: ENV.fetch('ASC_ISSUER_ID'),
+    key_content: ENV.fetch('ASC_KEY_P8_BASE64'),
+    is_key_content_base64: true
   )
 end
 
-lane :verify_play do
-  codes = google_play_track_version_codes(
-    json_key: ENV.fetch('PLAY_JSON_PATH'),
-    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
-    track: 'production'
-  )
-  UI.user_error!('Expected Android version is not on production track') unless codes.include?(ENV.fetch('ANDROID_VERSION_CODE').to_i)
-end
-
-lane :publish_testflight do
+lane :distribute_testflight do
   upload_to_testflight(
     api_key: release_apple_key,
     app_identifier: ENV.fetch('RELEASE_APP_IDENTIFIER'),
@@ -62,7 +15,40 @@ lane :publish_testflight do
     app_version: ENV.fetch('RELEASE_VERSION'),
     build_number: ENV.fetch('IOS_BUILD_NUMBER'),
     distribute_only: true,
-    groups: ENV.fetch('RELEASE_PUBLIC_TESTFLIGHT_GROUP'),
+    groups: ENV.fetch('TESTFLIGHT_GROUP'),
     notify_external_testers: true
   )
+end
+
+lane :release_native do
+  if ENV.fetch('RELEASE_IOS_DESTINATION') == 'app-store'
+    release_apple_key
+    app = Spaceship::ConnectAPI::App.find(ENV.fetch('RELEASE_APP_IDENTIFIER'))
+    version = app.get_pending_release_app_store_version
+    UI.user_error!('Prepare the exact iOS build for manual release in App Store Connect before approval') unless version &&
+      version.app_version_state == 'PENDING_DEVELOPER_RELEASE' &&
+      version.version_string == ENV.fetch('RELEASE_VERSION') &&
+      version.get_build.version == ENV.fetch('IOS_BUILD_NUMBER')
+  end
+  codes = google_play_track_version_codes(
+    json_key_data: ENV.fetch('GPLAY_SERVICE_ACCOUNT_JSON'),
+    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    track: 'internal'
+  )
+  UI.user_error!('Expected QA Android build missing from internal track') unless codes.include?(ENV.fetch('ANDROID_VERSION_CODE').to_i)
+  upload_to_play_store(
+    json_key_data: ENV.fetch('GPLAY_SERVICE_ACCOUNT_JSON'),
+    package_name: ENV.fetch('RELEASE_APP_IDENTIFIER'),
+    track: 'internal',
+    track_promote_to: 'production',
+    version_code: ENV.fetch('ANDROID_VERSION_CODE').to_i,
+    track_promote_release_status: 'completed',
+    skip_upload_aab: true, skip_upload_apk: true, skip_upload_metadata: true,
+    skip_upload_images: true, skip_upload_screenshots: true
+  )
+  if ENV.fetch('RELEASE_IOS_DESTINATION') == 'app-store'
+    Spaceship::ConnectAPI.post_app_store_version_release_request(app_store_version_id: version.id)
+  else
+    distribute_testflight
+  end
 end

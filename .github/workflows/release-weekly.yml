@@ -53,15 +53,13 @@ jobs:
       branch: ${{ steps.select.outputs.branch }}
       mode: ${{ steps.select.outputs.mode }}
       runtime: ${{ steps.select.outputs.runtime }}
+      fingerprint: ${{ steps.select.outputs.fingerprint }}
       release_id: ${{ steps.select.outputs.release_id }}
       ota_branch: ${{ steps.select.outputs.ota_branch }}
-      build_number: ${{ steps.select.outputs.build_number }}
-      attempt: ${{ steps.select.outputs.attempt }}
     env:
       GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
       RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
       RELEASE_NATIVE_BASELINE: ${{ vars.RELEASE_NATIVE_BASELINE }}
-      RELEASE_BUILD_NUMBER_BASE: ${{ vars.RELEASE_BUILD_NUMBER_BASE }}
       INPUT_BRANCH: ${{ inputs.branch }}
       INPUT_SHA: ${{ inputs.sha }}
       INPUT_NATIVE: ${{ inputs.native }}
@@ -72,6 +70,10 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: false
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version-file: package.json
       - id: select
         run: |
           if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$INPUT_OPERATION" = "prepare" ]; then
@@ -79,38 +81,32 @@ jobs:
           else
             node scripts/release/train.mjs schedule
           fi
-  checks:
+  lint:
     needs: select
     if: needs.select.outputs.sha != ''
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
-      CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
-        with:
-          ref: main
-          persist-credentials: false
-      - run: node scripts/release/train.mjs checks
+    uses: ./.github/workflows/lint.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    with:
+      sha: ${{ needs.select.outputs.sha }}
+  golang:
+    needs: select
+    if: needs.select.outputs.sha != ''
+    uses: ./.github/workflows/golang-test-lint.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    with:
+      sha: ${{ needs.select.outputs.sha }}
   ios:
-    needs: [select, checks]
+    needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
     uses: ./.github/workflows/build-submit-ios.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
     with:
       sha: ${{ needs.select.outputs.sha }}
-      build_number: ${{ needs.select.outputs.build_number }}
-      candidate_attempt: ${{ needs.select.outputs.attempt }}
   android:
-    needs: [select, checks]
+    needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
     uses: ./.github/workflows/build-submit-android.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
     with:
       sha: ${{ needs.select.outputs.sha }}
-      build_number: ${{ needs.select.outputs.build_number }}
-      candidate_attempt: ${{ needs.select.outputs.attempt }}
   ota:
-    needs: [select, checks]
+    needs: [select, lint, golang]
     if: needs.select.outputs.sha != ''
     runs-on: ubuntu-latest
     environment: release-build
@@ -139,7 +135,7 @@ jobs:
       - if: always()
         run: rm -f .env google-services.json
   web:
-    needs: [select, checks]
+    needs: [select, lint, golang]
     runs-on: ubuntu-latest
     environment: release-build
     outputs:
@@ -178,26 +174,24 @@ jobs:
             --build-arg EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY .
           echo "digest=$(jq -r '."containerimage.digest"' image.json)" >> "$GITHUB_OUTPUT"
   ready:
-    needs: [select, checks, ios, android, ota, web]
+    needs: [select, lint, golang, ios, android, ota, web]
     if: >-
-      always() && needs.web.result == 'success' && needs.checks.result == 'success' &&
+      always() && needs.web.result == 'success' && needs.lint.result == 'success' && needs.golang.result == 'success' &&
       needs.ota.result == 'success' &&
       (needs.select.outputs.mode == 'ota' || (needs.ios.result == 'success' && needs.android.result == 'success'))
     runs-on: ubuntu-latest
     environment: release-build
     concurrency:
-      group: client-release-mutation
+      group: client-qa-deployment
       cancel-in-progress: false
     permissions:
       contents: write
-      deployments: write
       actions: write
       checks: read
     env:
       GH_TOKEN: ${{ github.token }}
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      RELEASE_REQUIRED_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
       RELEASE_IMAGE_REPOSITORY: ${{ vars.RELEASE_IMAGE_REPOSITORY }}
       RELEASE_STAGING_TARGETS: ${{ vars.RELEASE_STAGING_TARGETS }}
       RELEASE_PRODUCTION_TARGETS: ${{ vars.RELEASE_PRODUCTION_TARGETS }}
@@ -211,6 +205,7 @@ jobs:
       CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
       OTA_BRANCH: ${{ needs.select.outputs.ota_branch }}
       WEB_DIGEST: ${{ needs.web.outputs.digest }}
+      NATIVE_FINGERPRINT: ${{ needs.select.outputs.fingerprint }}
       KUBECONFIG_CONTENT: ${{ secrets.RELEASE_KUBECONFIG }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
@@ -222,6 +217,14 @@ jobs:
         with:
           pattern: native-*-${{ needs.select.outputs.sha }}-${{ github.run_attempt }}
           merge-multiple: true
+      - uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          version: '1.168.0'
+      - uses: azure/setup-kubectl@c0c8b32d33a5244f1e5947304550403b63930415
+        if: env.KUBECONFIG_CONTENT != ''
+        with:
+          version: 'v1.34.1'
       - name: Prepare Kubernetes access when configured
         run: |
           if [ -n "$KUBECONFIG_CONTENT" ]; then

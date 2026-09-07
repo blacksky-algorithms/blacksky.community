@@ -9,9 +9,21 @@ export function invariant(value, message) {
 export const json = path => JSON.parse(readFileSync(path, 'utf8'))
 export const save = (path, value) =>
   writeFileSync(path, JSON.stringify(value, null, 2) + '\n')
+const canonical = value =>
+  Array.isArray(value)
+    ? value.map(canonical)
+    : value && typeof value === 'object'
+      ? Object.fromEntries(
+          Object.keys(value)
+            .sort()
+            .map(key => [key, canonical(value[key])]),
+        )
+      : value
 export const digest = value =>
   createHash('sha256')
-    .update(typeof value === 'string' ? value : JSON.stringify(value))
+    .update(
+      typeof value === 'string' ? value : JSON.stringify(canonical(value)),
+    )
     .digest('hex')
 export const git = (...args) =>
   execFileSync('git', args, {encoding: 'utf8'}).trim()
@@ -47,39 +59,6 @@ export function nextVersion(current, baseline) {
   const version = compareVersions(current, baseline) > 0 ? current : baseline
   const [major, minor, patch] = version.split('.').map(Number)
   return `${major}.${minor}.${patch + 1}`
-}
-export function requiresNative(paths) {
-  return paths.some(path => {
-    if (
-      /\.(swift|m|mm|h|c|cpp|kt|java|podspec|gradle|plist|entitlements)$/.test(
-        path,
-      )
-    )
-      return true
-    return !(
-      /^(src|bskyweb|bskyembed|docs|scripts\/release|\.github|\.release)\//.test(
-        path,
-      ) ||
-      /\.(md|mdx)$/.test(path) ||
-      /^(LICENSE|\.gitignore|\.prettierignore)$/.test(path) ||
-      /^assets\/(?!app-icons\/|fonts\/|.*splash).+\.(png|jpg|jpeg|webp|gif|svg)$/.test(
-        path,
-      )
-    )
-  })
-}
-export function nativeChanges(base, head) {
-  const paths = git('diff', '--name-only', base, head)
-    .split('\n')
-    .filter(Boolean)
-  if (paths.includes('package.json')) {
-    const before = JSON.parse(git('show', `${base}:package.json`))
-    const after = JSON.parse(git('show', `${head}:package.json`))
-    delete before.version
-    delete after.version
-    if (digest(before) !== digest(after)) return true
-  }
-  return requiresNative(paths.filter(p => p !== 'package.json'))
 }
 export function chooseChecks(runs, names) {
   return names.map(name => {
@@ -159,31 +138,63 @@ export function assertCurrent(m, head, manifestHash) {
   )
 }
 
-export function androidRuntimeResource(text) {
-  const rows = text.split('\n').filter(line => line.startsWith('\t'))
-  invariant(
-    rows.length === 1,
-    'Expected one unqualified Android runtime string',
-  )
+export function candidatePointer(body) {
+  const asset = /^Manifest: (candidate-[a-f0-9-]+\.json)$/m.exec(
+    body || '',
+  )?.[1]
+  const hash = /^Manifest SHA-256: ([a-f0-9]{64})$/m.exec(body || '')?.[1]
   return invariant(
-    /^\t\(default\) - \[STR\] "([0-9]+\.[0-9]+\.[0-9]+)"\s*$/.exec(
-      rows[0],
-    )?.[1],
-    'Invalid Android runtime resource',
+    asset && hash && {asset, hash},
+    'Missing current candidate pointer',
   )
 }
 
-export function allocateBuildNumber(base, run, attempt) {
-  const values = [base, run, attempt].map(Number)
+export function assertSquashFix(commit, files, prFiles, changedFiles) {
+  const patches = rows =>
+    rows
+      .map(f => [f.filename, f.status, f.sha, f.previous_filename, f.patch])
+      .sort(([a], [b]) => a.localeCompare(b))
   invariant(
-    values.every(Number.isSafeInteger) &&
-      values[0] >= 0 &&
-      values[1] > 0 &&
-      values[2] > 0 &&
-      values[2] < 100,
-    'Invalid native build number allocation',
+    commit.parents.length === 1 &&
+      files?.length === changedFiles &&
+      prFiles.length === changedFiles &&
+      digest(patches(files)) === digest(patches(prFiles)),
+    'QA fix PRs must use squash merge; manually forward-port this entire PR',
   )
-  const number = values[0] + values[1] * 100 + values[2]
-  invariant(number < 2100000000, 'Native build number exhausted')
-  return number
+}
+
+export function nativeFingerprint() {
+  const hashes = ['ios', 'android'].map(platform =>
+    execFileSync(
+      'node',
+      [
+        '--input-type=module',
+        '-e',
+        `
+    import {createFingerprintAsync, SourceSkips} from '@expo/fingerprint';
+    const fingerprint = await createFingerprintAsync('.', {platforms: [process.env.EAS_BUILD_PLATFORM], silent: true,
+      sourceSkips: SourceSkips.ExpoConfigVersions | SourceSkips.PackageJsonAndroidAndIosScriptsIfNotContainRun,
+      extraSources: ['modules', 'plugins', 'assets'].map(filePath => ({type: 'dir', filePath, reasons: ['localNativeInputs']}))});
+    if (!fingerprint.sources.some(source => source.id === 'expoConfig')) throw new Error('Expo config fingerprint missing');
+    console.log(fingerprint.hash);
+  `,
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          EXPO_PUBLIC_ENV: 'production',
+          EXPO_PUBLIC_UPDATE_CHANNEL: 'production',
+          EAS_BUILD_PLATFORM: platform,
+          SENTRY_AUTH_TOKEN: 'fingerprint-presence-only',
+          EXPO_NO_DOTENV: '1',
+        },
+      },
+    ).trim(),
+  )
+  invariant(
+    hashes.every(hash => /^[a-f0-9]{40}$/.test(hash)),
+    'Invalid Expo fingerprint',
+  )
+  return digest(hashes)
 }

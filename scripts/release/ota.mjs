@@ -1,6 +1,9 @@
 import {createHash} from 'node:crypto'
 import {digest, invariant, required, sleep} from './core.mjs'
 
+const mappingPending = message =>
+  Object.assign(new Error(message), {code: 'OTA_MAPPING_PENDING'})
+
 export class OTA {
   constructor() {
     this.base = new URL(required('RELEASE_OTA_URL')).origin
@@ -49,12 +52,11 @@ export class OTA {
       )
       invariant(matching.length === 1, `Missing exact ${platform} OTA commit`)
       const update = matching[0]
-      const details = await this.request(
-        `${prefix}/${encodeURIComponent(update.updateId)}`,
-      )
-      const config = JSON.parse(details.expoConfig)
-      invariant(config.version === runtime, 'OTA runtime/config mismatch')
-      identities[platform] = {...update, detailsHash: digest(details)}
+      identities[platform] = {
+        updateId: update.updateId,
+        updateUUID: update.updateUUID,
+        commitHash: update.commitHash,
+      }
     }
     return {
       branch,
@@ -112,10 +114,8 @@ export class OTA {
     return records
   }
   async artifacts(snapshot, channel = 'release-qa') {
-    invariant(
-      (await this.channel(channel)).branchId === snapshot.branchId,
-      'QA channel no longer selects this candidate',
-    )
+    if ((await this.channel(channel)).branchId !== snapshot.branchId)
+      throw mappingPending('Channel no longer selects this candidate')
     const artifacts = {}
     for (const platform of ['ios', 'android']) {
       const response = await fetch(`${this.base}/manifest`, {
@@ -132,21 +132,25 @@ export class OTA {
         response.headers.get('content-type') || '',
       )?.[1]
       invariant(boundary, 'Expected multipart OTA manifest')
-      const part = (await response.text())
-        .split(`--${boundary}`)
-        .find(p => /name="manifest"/.test(p))
+      const parts = (await response.text()).split(`--${boundary}`)
+      const part = parts.find(p => /name="manifest"/.test(p))
+      const parsePart = value =>
+        JSON.parse(value.slice(value.indexOf('\r\n\r\n') + 4).trim())
+      if (!part) {
+        const directive = parts.find(p => /name="directive"/.test(p))
+        if (directive && parsePart(directive).type === 'noUpdateAvailable')
+          throw mappingPending('Candidate update not served yet')
+      }
       invariant(
         part,
         'Expected update, received no-update or rollback directive',
       )
-      const manifest = JSON.parse(
-        part.slice(part.indexOf('\r\n\r\n') + 4).trim(),
+      const manifest = parsePart(part)
+      if (
+        manifest.id !== snapshot.updates[platform].updateUUID ||
+        manifest.runtimeVersion !== snapshot.runtimeVersion
       )
-      invariant(
-        manifest.id === snapshot.updates[platform].updateUUID &&
-          manifest.runtimeVersion === snapshot.runtimeVersion,
-        'OTA manifest identity mismatch',
-      )
+        throw mappingPending('OTA manifest identity mismatch')
       artifacts[platform] = {
         manifestHash: digest(manifest),
         assets: await this.hashAssets([
@@ -157,14 +161,32 @@ export class OTA {
     }
     return artifacts
   }
-  async verifyArtifacts(snapshot, channel = 'release-qa') {
+  async waitForArtifacts(snapshot, channel = 'release-qa') {
+    const deadline = Date.now() + 90000
+    for (;;) {
+      try {
+        return await this.artifacts(snapshot, channel)
+      } catch (error) {
+        if (error.code !== 'OTA_MAPPING_PENDING' || Date.now() >= deadline)
+          throw error
+        await sleep(5000)
+      }
+    }
+  }
+  async verifyArtifacts(
+    snapshot,
+    channel = 'release-qa',
+    waitForMapping = false,
+  ) {
     for (const platform of ['ios', 'android']) {
       invariant(
         snapshot.artifacts?.[platform]?.assets?.length,
         'Missing tested OTA asset hashes',
       )
     }
-    const current = await this.artifacts(snapshot, channel)
+    const current = waitForMapping
+      ? await this.waitForArtifacts(snapshot, channel)
+      : await this.artifacts(snapshot, channel)
     invariant(
       digest(current) === digest(snapshot.artifacts),
       'OTA manifest changed after QA',
@@ -177,10 +199,5 @@ export class OTA {
       `branch/${encodeURIComponent(branchId)}/updateChannelBranchMapping`,
       {releaseChannel: channel.releaseChannelId},
     )
-    for (let i = 0; i < 12; i++) {
-      if ((await this.channel(channelName)).branchId === branchId) return
-      await sleep(5000)
-    }
-    throw new Error(`OTA ${channelName} mapping did not converge`)
   }
 }

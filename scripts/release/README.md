@@ -1,88 +1,52 @@
 # Weekly QA releases
 
-The train is disabled unless `RELEASE_TRAIN_ENABLED=true`. Merging these workflows does not configure credentials, approve a release, or activate the schedule.
+The weekly train freezes a passing main SHA onto one `release/YYYY-MM-DD-N` branch. Main remains open for next week's development; staging follows the QA candidate only. Nothing deploys until `RELEASE_TRAIN_ENABLED=true` is configured.
 
 ## Workflows
 
-- `release-weekly.yml` cuts one release branch on Mondays at 14:17 UTC (10:17 EDT / 09:17 EST), or on manual `cut`. It chooses the current passing main SHA, or an explicitly supplied passing main ancestor, and keeps an unresolved train instead of cutting another.
-- Pushes to the release branch prepare its exact head for QA: CI, an immutable OTA branch, a web image, and native binaries when required. Staging follows this candidate; main remains free for next week's features.
-- `build-submit-ios.yml` and `build-submit-android.yml` build the specified SHA and upload to TestFlight QA / Play internal testing. Native versions, build numbers, app identifiers, and binary checksums are recorded before approval.
-- `release-promote.yml` requests one `production` environment approval covering the manifest's mobile artifacts and web image. It rechecks the latest candidate, hashes the actual OTA assets, promotes the recorded image digest, and verifies the production channel and live web identity.
+- `release-weekly.yml`: Monday 14:17 UTC, or manual `cut` with an optional full main SHA. If a release branch exists, it leaves that train in QA. Otherwise it selects the current main head and requires its configured checks to have succeeded; it never silently picks an older commit. Release-branch pushes or manual `prepare` run reusable lint/Go checks, publish one candidate OTA branch, build one DOCR image, and build both store binaries only when native inputs changed. The final job deploys staging, hashes the OTA bytes actually served to QA, saves the manifest and native artifacts to a draft GitHub release, and requests production approval.
+- `release-promote.yml`: presents the exact candidate for one GitHub `production` environment approval. The publishing job itself is gated; it rechecks branch head, the current candidate pointer, configuration, staging image identity and OTA bytes, then promotes the recorded artifacts and publishes the GitHub release. It deletes the release branch on success. QA and production use separate concurrency groups so an approval wait cannot block QA fixes. There are no separate approval receipts or resume operations.
+- `build-submit-ios.yml` / `build-submit-android.yml`: reusable native QA builders, also manually dispatchable for a dedicated `release-qa` installation. EAS builds locally on GitHub runners, allocates remote build numbers, and submits to TestFlight / Play internal testing. The workflows record actual binary identity and checksums; production does not rebuild.
+- `lint.yml` / `golang-test-lint.yml`: continue checking PRs and main; the release workflow calls them once with the candidate SHA before building it.
 
-Native candidates include an OTA bundle for their new runtime. This gives the next OTA release a tested rollback target; promotion never rebuilds a bundle or binary.
+## QA and fixes
 
-## One-time setup
+1. Install the dedicated `release-qa` app for the current runtime; keep it for ordinary OTA QA. For a native train, also test the exact production-profile TestFlight and Play internal binaries. These use an unpublished runtime and initially run their embedded bundle, so the tested binary can ship unchanged. Dedicated QA installs exercise subsequent OTA updates.
+2. Test the candidate on iOS, Android and staging using the draft release checklist. Compare its commit identity with the app and staging `/_release` response.
+3. Squash-merge QA fix PRs into the release branch. Each push automatically prepares a replacement candidate; previous approval requests fail their head/pointer checks. Forward-port PRs to main are opened automatically, in merge order, and require normal CI/review. Conflicts, non-squash merges, and forward-ports closed without merging fail visibly and require manual repair.
+4. Approve the matching pending `production` job once QA passes, then hold further QA merges until publishing finishes. OTA and web use the same approved SHA. Native releases request distribution of the recorded binaries; app-store processing and client OTA adoption are asynchronous, so this is coordinated artifact selection, not an atomic switch on every device.
 
-Keep the train disabled until the initial production baseline and a complete QA rehearsal are verified.
+Expo fingerprints detect native inputs for both platforms, excluding version/build-number changes. Local modules, plugin templates and assets are explicit fingerprint inputs because custom config plugins copy files that Expo cannot discover automatically; asset changes conservatively require a binary. A native train bumps the app/runtime version before QA; OTA trains retain the last shipped native runtime. The latest published manifest supplies the next baseline, so main does not need release metadata or a version-only merge-back. Changes to credentials or build-environment configuration outside git require an explicitly forced native cut.
 
-1. Protect main and `release/**` with required CI and human review. Require squash merges for QA fixes; protect `.release/train.json` from manual edits and prohibit force pushes to release branches. Limit workflow edits and release credentials to trusted maintainers.
-2. Create GitHub environments: `production` with required human reviewers; `release-build` for trusted main/release branch builds; and `release-publishing`, restricted to main, for production credentials. `release-publishing` has no second reviewer gate because the controller checks the saved manifest-specific approval.
-3. Configure `RELEASE_BOT_TOKEN` as a repository secret with repository contents, workflows/actions, pull requests, deployments, and environment-read access. Use a dedicated bot token that triggers subsequent push workflows; the default `GITHUB_TOKEN` cannot replace it for release cuts and forward-port pushes.
-4. Create OTA channels `release-qa` and `production`. Configure the existing self-hosted OTA server and app update URL consistently, with production signing and same-origin HTTPS manifest/assets access.
-5. Bootstrap production with a digest-pinned image exposing `/_release`, and an immutable OTA branch containing exactly one iOS and one Android update for that same SHA/runtime. The controller refuses to promote without this rollback baseline.
-6. Install a `release-qa` profile build on the QA devices for OTA testing. After a native-runtime change, update the QA installation to that runtime as well as testing the exact production-profile binaries in the store QA tracks; a QA-profile binary is never promoted to production.
-7. Configure existing EAS signing/submission credentials, complete store listings/compliance, and create the QA TestFlight group. Verify native uploads, OTA signing, staging identity, approval, and rollback with the configured services before enabling the schedule.
+## Native store preparation
 
-Repository variables:
+Before approving a native train for the App Store, select its exact recorded iOS build in App Store Connect, complete metadata/review, and leave it in **Pending Developer Release**. Fastlane checks that exact version/build before releasing it. For public TestFlight distribution, configure the group and complete any required beta review before approval.
 
-| Variable | Value |
-| --- | --- |
-| `RELEASE_TRAIN_ENABLED` | `false` until activation is approved |
-| `RELEASE_REQUIRED_CHECKS` | JSON array of exact successful check names, e.g. `["Run linters","Run tests","Release controller tests","build-and-test","lint"]`; use checks that run on main and release branches |
-| `RELEASE_NATIVE_BASELINE` | Initial installed runtime and native-source SHA: `{"sha":"<40-character SHA>","runtimeVersion":"1.2.3"}`; later releases use the recorded published baseline |
-| `RELEASE_BUILD_NUMBER_BASE` | Integer offset above every previously uploaded iOS/Android build number; the workflow adds `run_number * 100 + run_attempt` |
-| `RELEASE_IMAGE_REPOSITORY` | Full DOCR repository without a tag |
-| `RELEASE_STAGING_TARGETS`, `RELEASE_PRODUCTION_TARGETS` | JSON arrays listing every deployment target (examples below) |
-| `RELEASE_OTA_URL` | HTTPS OTA origin or manifest URL matching the app's configured update server |
-| `ASC_APP_ID` | App Store Connect numeric app ID; must match `eas.json`'s `release-qa` submission profile |
-| `RELEASE_APP_IDENTIFIER` | Installed iOS bundle ID / Android package name |
-| `RELEASE_IOS_DESTINATION` | `app-store` or `testflight` |
-| `RELEASE_QA_TESTFLIGHT_GROUP` | QA tester group |
-| `RELEASE_PUBLIC_TESTFLIGHT_GROUP` | Public group, required for `testflight` destination |
+Android is uploaded to internal testing during QA, then Fastlane promotes the recorded version code to production after approval. Resolve any Play review, policy, or managed-publishing requirements in the console; the workflow does not poll or automate that process. Do not approve if store preparation is incomplete. Check storefront/device availability after native releases. There is no custom store-review queue, readiness-link receipt, or automatic recovery from a partially completed native release.
 
-Example target arrays (use real approved values):
+## Activation
 
-```json
-[{"kind":"app","name":"web","appId":"<app-id>","component":"web","urls":["https://example.com"]}]
-```
+Complete configuration and a supervised rehearsal before enabling the schedule:
 
-```json
-[{"kind":"kubernetes","name":"web","namespace":"<namespace>","deployment":"<deployment>","container":"<container>","urls":["https://example.com"]}]
-```
+- Repository variable `RELEASE_TRAIN_ENABLED`: initially `false`.
+- `RELEASE_REQUIRED_CHECKS`: JSON array of stable, mandatory GitHub Actions check names on main, e.g. `["Run linters","Run tests","Release controller tests","build-and-test","lint"]`. Optional/path-filtered checks must not be listed: missing, skipped, cancelled, or failed required checks block the cut.
+- `RELEASE_NATIVE_BASELINE`: initial production baseline JSON `{"sha":"<full SHA>","runtimeVersion":"1.2.3","fingerprint":"<hash>"}`. In a disposable checkout of the installed production binary's source, using the same pinned Linux/Node/pnpm toolchain as selection, install dependencies and run `node scripts/release/build.mjs fingerprint`; it prints that baseline JSON. Use the current fingerprint helper when measuring a source revision from before these workflows existed. Later baselines come from published manifests.
+- `RELEASE_IMAGE_REPOSITORY`: full `registry.digitalocean.com/<registry>/<repository>`.
+- `RELEASE_STAGING_TARGETS` / `RELEASE_PRODUCTION_TARGETS`: JSON arrays listing every web surface. They must have distinct components and HTTPS origins. Example App Platform target: `{"kind":"app","name":"web","appId":"<id>","component":"web","urls":["https://example.com"]}`. Example Kubernetes target: `{"kind":"kubernetes","name":"acorn-web","namespace":"<namespace>","deployment":"<deployment>","container":"<container>","urls":["https://community.example"]}`. Include Acorn when it is an active web target; both deploy workflows install kubectl when configured.
+- `RELEASE_OTA_URL`: self-hosted expo-open-ota URL. Create `release-qa` and `production` channels in that server. The pipeline uses its channel-mapping API, not EAS-hosted Update.
+- `RELEASE_IOS_DESTINATION`: `app-store` or `testflight`; `RELEASE_APP_IDENTIFIER`, `ASC_APP_ID`, `RELEASE_QA_TESTFLIGHT_GROUP`, and (for public TestFlight) `RELEASE_PUBLIC_TESTFLIGHT_GROUP`.
+- `RELEASE_BOT_TOKEN`: fine-grained repository bot token able to create release branches/PRs/releases and read CI checks/environment settings. It must trigger workflows when pushing branches. Configure Actions permissions to allow the final QA job to dispatch `release-promote.yml` using its GitHub token.
+- Environment **`release-build`**: build/OTA/staging credentials (`EXPO_TOKEN`, `DIGITALOCEAN_ACCESS_TOKEN`, optional `RELEASE_KUBECONFIG`), existing client build variables/secrets, and Apple API credentials for QA grouping. Configure EAS signing and the `release-qa` submit profile for the correct app and internal tracks. Initialize EAS remote build numbers above all previously uploaded store builds.
+- Environment **`production`**: required human reviewers and production credentials (`EXPO_TOKEN`, `DIGITALOCEAN_ACCESS_TOKEN`, optional `RELEASE_KUBECONFIG`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`, `GPLAY_SERVICE_ACCOUNT_JSON`). Restrict deployment branches to main. Publishing runs here directly; there is no `release-publishing` environment.
+- Protect main and release branches, require squash merges for QA fixes, and restrict release-branch writes to trusted maintainers/bot. Promotion checks out main; reusable QA build/check workflows must be present at the selected commit.
+- Bootstrap web images with the `/_release` endpoint and disable other image autodeploy mechanisms. Verify all configured staging and production targets, credentials, QA installs, initial runtime/fingerprint, and store destinations before activation.
 
-Target names must be unique. Include every public hostname requiring verification. Use separate staging and production targets, with image autodeploy disabled so only an approved digest changes production.
+The old nightly native builds, main-following staging deployment, ad-hoc `testflight` OTA workflow and universal APK output are not part of the train. Existing `testflight`-channel installs need a dedicated QA install; updates to older runtimes and signed sideload APKs remain manual operations.
 
-`release-build` secrets: `EXPO_TOKEN`, `DIGITALOCEAN_ACCESS_TOKEN`, existing build environment/signing values (`ENV_TOKEN`, `GOOGLE_SERVICES_TOKEN`, Sentry and other application variables referenced in the YAML), plus `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`. Add staging-scoped `RELEASE_KUBECONFIG` when Kubernetes targets are configured; the runner needs `kubectl`.
+## Failures and manual recovery
 
-`release-publishing` secrets: `EXPO_TOKEN`, `DIGITALOCEAN_ACCESS_TOKEN`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`, `GPLAY_SERVICE_ACCOUNT_JSON`, and production-scoped `RELEASE_KUBECONFIG` when needed. Store credentials must be able to act on the configured app; do not put secrets in target JSON or candidate manifests.
+Before production starts, re-run all QA jobs or dispatch `prepare` to create a fresh candidate, then repeat affected QA and approve that candidate. Cancel obsolete pending approval runs. A failed forward-port must be resolved on main before dependent fixes. To abandon a train, cancel its runs and delete its release branch/draft manually.
 
-## QA fixes and approval
+If promotion fails after any production change, stop and inspect the stores, OTA channel and every web target. Do not assume re-running the workflow is safe or that rollback covers native binaries. Reconcile the release manually, including GitHub release/tag/branch cleanup, before starting another train.
 
-Open fix PRs against the active release branch and squash-merge them. Each resulting push prepares a replacement QA candidate and creates forward-port PRs to main for merged fixes; review and merge those PRs normally, resolving conflicts before dependent fixes. Do not merge the entire release branch back to main: its train metadata and runtime bookkeeping stay on the release branch.
-
-The QA release page lists the SHA, runtime, notes, checklist, staging URLs, and manifest hash. Approve the pending `production` environment job only after checking mobile and web together. New QA artifacts invalidate previous approval requests even if their source SHA is unchanged.
-
-For native releases, the approved workflow submits existing builds and holds web until store readiness. Resume `release-promote.yml` on main with the same release ID, asset name and hash, operation `finish-native`, and an HTTPS storefront/device verification evidence link. The original approval is reused; iOS release processing may require another resume. Store review/availability and device update adoption are asynchronous, so one approval does not imply simultaneous availability on all devices. Keep cross-version behavior compatible during rollout.
-
-## Recovery
-
-- Failed cut after branch creation: manually run `release-weekly.yml` with `operation=prepare` and the active branch. Train metadata and runtime are committed together before the branch exists, and preparation recreates a missing draft QA record.
-- Failed native preparation: use **Re-run all jobs** or dispatch a new `prepare` run, which allocates a fresh build number. Re-running only failed jobs is rejected when it would reuse an earlier native number. Manual bootstrap builds require an explicitly unused number.
-- Failed promotion: rerun the promotion workflow for the same manifest. Per-store and per-target receipts preserve completed work; store reconciliation handles success followed by a lost receipt. If QA changed, prepare and approve its replacement instead.
-- Failed forward-port PR creation: the next release-branch push reconciles merged fixes and reuses the already-pushed patch branch. For a conflict, manually cherry-pick the indicated fix to main and resolve it before subsequent dependent fixes; close the corresponding forward-port PR when superseded manually.
-- OTA/web rollback: dispatch `release-promote.yml` with `operation=rollback` and the affected manifest identity, then approve. It restores the prior recorded image and OTA artifacts, including after partial promotion, without requiring staging to still run the old candidate. It refuses unrelated production drift or a newer promotion. Keep the old OTA branch/assets and DOCR digest available.
-- Native rollback requires store intervention or a replacement binary. The automated rollback operation deliberately refuses native candidates.
-- After an unpublished candidate is rolled back, prepare a replacement and approve it again. Do not delete receipt records or mutate candidate assets to reuse an approval.
-
-All automation runs in GitHub runners and the existing build/update/store services. Human work is QA, one release approval, store readiness confirmation when needed, conflict resolution, and exceptional recovery; no laptop daemon is required.
-
-## Local checks
-
-```sh
-node --test scripts/release/*.test.mjs
-pnpm exec prettier --check scripts/release/*.mjs app.config.js
-ruby -c fastlane/Fastfile
-actionlint .github/workflows/release-weekly.yml .github/workflows/release-promote.yml .github/workflows/build-submit-ios.yml .github/workflows/build-submit-android.yml
-```
-
-The controller tests exercise simulated service responses and failures. They do not replace signed device builds or a configured staging/store rehearsal.
+For OTA/web rollback, cancel active release runs, choose the previous published manifest, manually repoint the production OTA channel to its recorded branch ID and restore each web target to its recorded DOCR digest. Verify served OTA bytes, web `/_release` and health, and confirm native runtime compatibility. Post-map OTA verification waits up to 90 seconds for the server channel cache to converge; a persistent mismatch still fails. Store rollout intervention or a new native build is manual. There is no automatic rollback or recovery controller.

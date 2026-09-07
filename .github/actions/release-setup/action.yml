@@ -17,5 +17,7 @@ runs:
         token: ${{ env.EXPO_TOKEN }}
     - run: node scripts/release/build.mjs environment
       shell: bash
-    - run: pnpm intl:build
+    - run: |
+        pnpm intl:build 2>&1 | tee "$RUNNER_TEMP/release-intl.log"
+        ! grep -q 'invalid syntax' "$RUNNER_TEMP/release-intl.log"
       shell: bash

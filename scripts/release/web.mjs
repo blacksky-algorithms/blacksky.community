@@ -1,5 +1,5 @@
-import {execFileSync} from 'node:child_process'
-import {invariant, required, sleep} from './core.mjs'
+import childProcess from 'node:child_process'
+import {invariant, required} from './core.mjs'
 
 export function targets(name) {
   const value = JSON.parse(required(name))
@@ -72,7 +72,10 @@ async function imageReference(image) {
   return `registry.digitalocean.com/${registry}/${image.repository}@${image.digest}`
 }
 function kube(...args) {
-  return execFileSync('kubectl', args, {encoding: 'utf8', timeout: 600000})
+  return childProcess.execFileSync('kubectl', args, {
+    encoding: 'utf8',
+    timeout: 600000,
+  })
 }
 export async function snapshotWeb(target) {
   if (target.kind === 'app') {
@@ -141,53 +144,20 @@ export async function deployWeb(target, web) {
       currentRepo === web.repository,
       'Target registry repository differs from approved artifact',
     )
-    const oldDeployment = app.active_deployment?.id
     service.image = {
       ...image,
       digest: web.digest,
       deploy_on_push: {enabled: false},
     }
     delete service.image.tag
-    const updated = await doRequest(
-      `apps/${target.appId}`,
-      {spec: app.spec},
-      'PUT',
-    )
-    let deploymentId =
-      updated.app.in_progress_deployment?.id ||
-      updated.app.pending_deployment?.id
-    if (!deploymentId) {
-      const created = await doRequest(`apps/${target.appId}/deployments`, {
-        force_build: false,
-      })
-      deploymentId = created.deployment.id
-    }
-    invariant(deploymentId !== oldDeployment, 'No new deployment identity')
-    let active = false
-    for (let i = 0; i < 120; i++) {
-      const {deployment} = await doRequest(
-        `apps/${target.appId}/deployments/${deploymentId}`,
-      )
-      invariant(
-        !['ERROR', 'CANCELED', 'SUPERSEDED'].includes(deployment.phase),
-        `Deployment ${deploymentId} ${deployment.phase}`,
-      )
-      if (deployment.phase === 'ACTIVE') {
-        active = true
-        break
-      }
-      await sleep(10000)
-    }
-    invariant(active, 'Deployment timed out')
-    const {app: live} = await doRequest(`apps/${target.appId}`)
-    invariant(
-      live.active_deployment?.id === deploymentId,
-      'Another deployment replaced the candidate',
-    )
-    invariant(
-      live.spec.services.find(s => s.name === target.component).image.digest ===
-        web.digest,
-      'App digest drift',
+    childProcess.execFileSync(
+      'doctl',
+      ['apps', 'update', target.appId, '--spec', '-', '--wait'],
+      {
+        input: JSON.stringify(app.spec),
+        timeout: 1200000,
+        stdio: ['pipe', 'ignore', 'inherit'],
+      },
     )
   } else {
     const image = `${web.repository}@${web.digest}`

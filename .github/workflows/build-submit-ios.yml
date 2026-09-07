@@ -5,12 +5,6 @@ on:
       sha:
         type: string
         required: true
-      build_number:
-        type: string
-        required: true
-      candidate_attempt:
-        type: string
-        default: ''
       profile:
         type: string
         default: release
@@ -18,10 +12,6 @@ on:
     inputs:
       sha:
         description: Exact candidate SHA
-        type: string
-        required: true
-      build_number:
-        description: Unique unused native build number
         type: string
         required: true
       profile:
@@ -55,10 +45,6 @@ jobs:
       EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
       EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
       CANDIDATE_SHA: ${{ inputs.sha }}
-      NATIVE_BUILD_NUMBER: ${{ inputs.build_number }}
-      CANDIDATE_ATTEMPT: ${{ inputs.candidate_attempt }}
-      BSKY_IOS_BUILD_NUMBER: ${{ inputs.build_number }}
-      BSKY_ANDROID_VERSION_CODE: ${{ inputs.build_number }}
       NATIVE_PROFILE: ${{ inputs.profile }}
       EXPO_PUBLIC_ENV: production
       ASC_APP_ID: ${{ vars.ASC_APP_ID }}
@@ -69,7 +55,6 @@ jobs:
           ref: ${{ inputs.sha }}
           persist-credentials: false
       - uses: ./.github/actions/release-setup # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
-      - run: node scripts/release/build.mjs native-config
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90
         with:
           xcode-version: '26.4'
@@ -116,13 +101,15 @@ jobs:
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
           RELEASE_QA_TESTFLIGHT_GROUP: ${{ vars.RELEASE_QA_TESTFLIGHT_GROUP }}
           RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
-        run: node scripts/release/native-qa.mjs
+        run: |
+          export RELEASE_VERSION="$(jq -r .version native-ios.json)"
+          export IOS_BUILD_NUMBER="$(jq -r .buildNumber native-ios.json)"
+          TESTFLIGHT_GROUP="$RELEASE_QA_TESTFLIGHT_GROUP" bundle exec fastlane distribute_testflight
       - name: Upload symbols
         run: |
           dsym="$(find ios-build -name '*.app.dSYM.zip' -print -quit)"
-          if [ -n "$dsym" ]; then
+          test -n "$dsym"
             SENTRY_ORG=blacksky-algorithms SENTRY_PROJECT=social-app pnpm exec sentry-cli debug-files upload "$dsym" --include-sources
-          fi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: native-ios-${{ inputs.sha }}-${{ github.run_attempt }}

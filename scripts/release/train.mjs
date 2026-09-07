@@ -3,7 +3,6 @@ import {execFileSync} from 'node:child_process'
 import {appendFileSync, renameSync, readFileSync} from 'node:fs'
 import {GitHub} from './github.mjs'
 import {
-  allocateBuildNumber,
   digest,
   git,
   invariant,
@@ -12,10 +11,12 @@ import {
   output,
   releaseBranch,
   required,
-  nativeChanges,
   sha,
   compareVersions,
   validateManifest,
+  candidatePointer,
+  assertSquashFix,
+  nativeFingerprint,
 } from './core.mjs'
 import {OTA} from './ota.mjs'
 import {deployWeb, targets, separateTargets} from './web.mjs'
@@ -29,36 +30,55 @@ const currentRun = `${process.env.GITHUB_SERVER_URL}/${gh.repo}/actions/runs/${p
 
 async function activeBranches() {
   const branches = await gh.list('branches')
-  const active = []
-  for (const branch of branches.filter(b =>
-    /^release\/\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(b.name),
-  )) {
-    if (
-      !(await gh.succeeded('published', p => p.branch === branch.name)) &&
-      !(await gh.succeeded('discarded', p => p.branch === branch.name))
-    )
-      active.push(branch.name)
-  }
+  const active = branches
+    .filter(b => /^release\/\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(b.name))
+    .map(b => b.name)
   invariant(
     active.length <= 1,
     'More than one unresolved release branch; resolve before continuing',
   )
   return active
 }
-async function baseline() {
-  const published = await gh.succeeded('published', p => !!p.nativeBaseline)
-  const value =
-    published?.payload.nativeBaseline ||
-    JSON.parse(required('RELEASE_NATIVE_BASELINE'))
+async function previousRelease() {
+  const release = (await gh.list('releases'))
+    .sort((a, b) => (b.published_at || '').localeCompare(a.published_at || ''))
+    .find(
+      r =>
+        !r.draft && !r.prerelease && r.tag_name.startsWith('blacksky-release-'),
+    )
+  if (!release) return null
+  const pointer = candidatePointer(release.body)
+  const m = await gh.asset(release.id, pointer.asset)
+  invariant(digest(m) === pointer.hash, 'Previous release manifest changed')
+  return validateManifest(m)
+}
+async function baseline(previous) {
+  const value = previous
+    ? previous.mode === 'native'
+      ? {
+          sha: previous.sha,
+          runtimeVersion: previous.runtimeVersion,
+          fingerprint: previous.fingerprint,
+        }
+      : previous.nativeBaseline
+    : JSON.parse(required('RELEASE_NATIVE_BASELINE'))
   sha(value.sha)
   compareVersions(value.runtimeVersion, value.runtimeVersion)
+  invariant(
+    /^[a-f0-9]{64}$/.test(value.fingerprint || ''),
+    'Configure the production native fingerprint before cutting',
+  )
   return value
+}
+async function fingerprint(commit) {
+  git('checkout', '--detach', commit)
+  execFileSync('pnpm', ['install', '--frozen-lockfile'], {stdio: 'inherit'})
+  return nativeFingerprint()
 }
 async function schedule() {
   await gh.protectEnvironment()
   const active = await activeBranches()
   if (active.length) {
-    output('skip', 'true')
     console.log(`Keeping unresolved candidate ${active[0]}`)
     return
   }
@@ -69,9 +89,8 @@ async function schedule() {
     'Selected SHA must belong to main',
   )
   await gh.checks(selected)
-  const previous = await gh.succeeded('published', () => true)
-  if (previous?.payload.sourceSha === selected) {
-    output('skip', 'true')
+  const previous = await previousRelease()
+  if (previous?.sourceSha === selected) {
     return
   }
   const date = new Intl.DateTimeFormat('en-CA', {
@@ -83,9 +102,10 @@ async function schedule() {
   const branch = releaseBranch(
     `release/${date}-${process.env.GITHUB_RUN_NUMBER}`,
   )
-  const base = await baseline()
+  const base = await baseline(previous)
+  const fingerprintHash = await fingerprint(selected)
   const native =
-    nativeChanges(base.sha, selected) || process.env.INPUT_NATIVE === 'true'
+    fingerprintHash !== base.fingerprint || process.env.INPUT_NATIVE === 'true'
   const pkg = (await gh.file('package.json', selected)).value
   const runtime = native
     ? nextVersion(pkg.version, base.runtimeVersion)
@@ -97,8 +117,9 @@ async function schedule() {
         schema: 1,
         branch,
         sourceSha: selected,
-        previousReleaseSha: previous?.payload.sha || base.sha,
+        previousReleaseSha: previous?.sha || base.sha,
         baseline: base,
+        fingerprint: fingerprintHash,
         runtimeVersion: runtime,
         mode: native ? 'native' : 'ota',
       },
@@ -107,15 +128,6 @@ async function schedule() {
     `chore(release): cut QA train ${branch.slice(8)}`,
   )
   await gh.request('git/refs', {ref: `refs/heads/${branch}`, sha: commit.sha})
-  await gh.request('releases', {
-    tag_name: `qa-${branch.slice(8)}`,
-    target_commitish: await gh.head(branch),
-    name: `QA ${branch.slice(8)}`,
-    body: `QA release branch: ${branch}\nSource: ${selected}`,
-    draft: true,
-    prerelease: true,
-  })
-  output('skip', 'true')
 }
 async function prepare() {
   await gh.protectEnvironment()
@@ -132,7 +144,8 @@ async function prepare() {
   const train = (await gh.file('.release/train.json', head)).value
   invariant(train.branch === branch, 'Train metadata does not match branch')
   const pkg = (await gh.file('package.json', head)).value
-  const native = nativeChanges(train.baseline.sha, head)
+  const fingerprintHash = await fingerprint(head)
+  const native = fingerprintHash !== train.baseline.fingerprint
   if (train.mode === 'ota' && native) {
     train.mode = 'native'
     train.runtimeVersion = nextVersion(
@@ -176,25 +189,9 @@ async function prepare() {
   output('branch', branch)
   output('mode', train.mode)
   output('runtime', train.runtimeVersion)
+  output('fingerprint', fingerprintHash)
   output('release_id', release.id)
   output('ota_branch', `rc-${head}-${run}`)
-  output('attempt', required('GITHUB_RUN_ATTEMPT'))
-  output(
-    'build_number',
-    allocateBuildNumber(
-      required('RELEASE_BUILD_NUMBER_BASE'),
-      required('GITHUB_RUN_NUMBER'),
-      required('GITHUB_RUN_ATTEMPT'),
-    ),
-  )
-  for (const workflow of ['lint.yml', 'golang-test-lint.yml'])
-    await gh.dispatch(workflow, {}, branch)
-  for (const pending of await gh.list(
-    'actions/workflows/release-promote.yml/runs?status=waiting',
-    'workflow_runs',
-  )) {
-    await gh.request(`actions/runs/${pending.id}/cancel`, {})
-  }
 }
 async function finish() {
   const branch = releaseBranch(required('RELEASE_BRANCH'))
@@ -203,7 +200,6 @@ async function finish() {
     (await gh.head(branch)) === head,
     'Candidate superseded during build',
   )
-  await gh.checks(head)
   invariant(
     (await activeBranches())[0] === branch,
     'Not the active release branch',
@@ -246,6 +242,7 @@ async function finish() {
     runtimeVersion: train.runtimeVersion,
     mode: train.mode,
     nativeBaseline: train.baseline,
+    fingerprint: required('NATIVE_FINGERPRINT'),
     run: currentRun,
     web,
     config,
@@ -292,24 +289,18 @@ async function finish() {
     'Release branch changed during QA deployment',
   )
   await ota.map('release-qa', m.ota.branchId)
-  m.ota.artifacts = await ota.artifacts(m.ota)
+  m.ota.artifacts = await ota.waitForArtifacts(m.ota)
   validateManifest(m)
   const assetName = `candidate-${head}-${run}.json`
   await gh.upload(release, assetName, m)
-  const body = `Candidate: ${head}\nRuntime: ${m.runtimeVersion}; lane: ${m.mode}\nManifest SHA-256: ${digest(m)}\n\n${notes}\n\nQA:\n- Sign in and restore an existing session.\n- Read feeds, open profiles, create and interact with posts.\n- Exercise changed behavior on iOS, Android, and web.\n- Verify Settings commit matches this candidate.\n\nStaging: ${config.staging.flatMap(t => t.urls).join(', ')}\nMobile: release-qa OTA or QA store builds.\nRun: ${currentRun}`
+  const body = `Candidate: ${head}\nRuntime: ${m.runtimeVersion}; lane: ${m.mode}\nManifest: ${assetName}\nManifest SHA-256: ${digest(m)}\n\n${notes}\n\nQA:\n- Sign in and restore an existing session.\n- Read feeds, open profiles, create and interact with posts.\n- Exercise changed behavior on iOS, Android, and web.\n- Verify Settings commit matches this candidate.\n\nStaging: ${config.staging.flatMap(t => t.urls).join(', ')}\nMobile: release-qa OTA or QA store builds.\nRun: ${currentRun}`
   await gh.request(`releases/${release.id}`, {body}, 'PATCH')
   if (process.env.GITHUB_STEP_SUMMARY)
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, body + '\n')
-  await gh.event(
-    {...m, manifestHash: digest(m), assetName, releaseId: release.id},
-    'qa',
-    'success',
-  )
   await gh.dispatch('release-promote.yml', {
     release_id: String(release.id),
     asset: assetName,
     manifest_hash: digest(m),
-    operation: 'release',
   })
 }
 async function forwardportOne(pr) {
@@ -320,11 +311,10 @@ async function forwardportOne(pr) {
   const branch = releaseBranch(pr.base.ref)
   const merge = sha(pr.merge_commit_sha)
   const commit = await gh.request(`commits/${merge}`)
-  invariant(
-    commit.parents.length === 1,
-    'QA fix PRs must use squash merge; manually forward-port this PR',
-  )
-  const fixFiles = await gh.list(`pulls/${pr.number}/files`)
+  const diff = await gh.request(`compare/${commit.parents[0].sha}...${merge}`)
+  const prFiles = await gh.list(`pulls/${pr.number}/files`)
+  assertSquashFix(commit, diff.files, prFiles, pr.changed_files)
+  const fixFiles = prFiles
   invariant(
     !fixFiles.some(f => f.filename === '.release/train.json'),
     'Train metadata is not a QA fix',
@@ -334,30 +324,11 @@ async function forwardportOne(pr) {
     `pulls?state=all&head=${gh.repo.split('/')[0]}:${forwardBranch}`,
   )
   if (existing.length) {
-    console.log(`Forward-port already recorded: ${existing[0].html_url}`)
-    return
-  }
-  let remote
-  try {
-    remote = await gh.head(forwardBranch)
-  } catch (error) {
-    if (error.status !== 404) throw error
-  }
-  if (remote) {
-    const existingCommit = await gh.request(`commits/${remote}`)
     invariant(
-      existingCommit.commit.message.includes(
-        `(cherry picked from commit ${merge})`,
-      ),
-      'Forward-port branch exists with a different patch',
+      existing[0].state === 'open' || existing[0].merged_at,
+      `Forward-port was closed without merging: ${existing[0].html_url}. Forward-port manually.`,
     )
-    const created = await gh.request('pulls', {
-      base: 'main',
-      head: forwardBranch,
-      title: `fix: forward-port #${pr.number}`,
-      body: `Forward-ports #${pr.number}. Original fix: ${merge}. Requires normal CI and review.`,
-    })
-    console.log(created.html_url)
+    console.log(`Forward-port: ${existing[0].html_url}`)
     return
   }
   git('fetch', 'origin', 'main', branch)
@@ -373,12 +344,6 @@ async function forwardportOne(pr) {
   } catch {
     const files = git('diff', '--name-only', '--diff-filter=U')
     git('cherry-pick', '--abort')
-    await gh.event(
-      {sha: merge, branch, pr: pr.number, files},
-      'forwardport-conflict',
-      'failure',
-      'Resolve forward-port conflict manually',
-    )
     throw new Error(
       `Forward-port #${pr.number} conflicts: ${files}. Apply this fix to main before later dependent fixes.`,
     )
@@ -411,5 +376,4 @@ if (operation === 'schedule') await schedule()
 else if (operation === 'prepare') await prepare()
 else if (operation === 'finish') await finish()
 else if (operation === 'forwardport') await forwardport()
-else if (operation === 'checks') await gh.checks(sha(required('CANDIDATE_SHA')))
 else throw new Error('Unknown train operation')

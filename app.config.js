@@ -200,7 +200,6 @@ module.exports = function (_config) {
         },
         googleServicesFile: './google-services.json',
         package: 'community.blacksky.app',
-        versionCode: Number(process.env.BSKY_ANDROID_VERSION_CODE ?? '1'),
         intentFilters: [
           {
             action: 'VIEW',

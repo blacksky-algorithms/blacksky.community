@@ -1,4 +1,4 @@
-import {required, invariant, sleep, chooseChecks} from './core.mjs'
+import {required, invariant, chooseChecks} from './core.mjs'
 
 export class GitHub {
   constructor(
@@ -90,20 +90,16 @@ export class GitHub {
         names.every(n => typeof n === 'string'),
       'Configure required check names',
     )
-    for (let attempt = 0; attempt < 60; attempt++) {
-      const statuses = chooseChecks(
-        await this.list(`commits/${commit}/check-runs`, 'check_runs'),
-        names,
-      )
-      invariant(
-        !statuses.includes('failure'),
-        'Required CI failed for selected SHA; no older fallback',
-      )
-      if (statuses.every(s => s === 'success')) return
-      await sleep(20000)
-    }
-    throw new Error('Timed out waiting for required CI')
+    const statuses = chooseChecks(
+      await this.list(`commits/${commit}/check-runs`, 'check_runs'),
+      names,
+    )
+    invariant(
+      statuses.every(s => s === 'success'),
+      'Selected main SHA must have passing required CI; no older fallback',
+    )
   }
+
   async dispatch(workflow, inputs = {}, ref = 'main') {
     return this.request(`actions/workflows/${workflow}/dispatches`, {
       ref,
@@ -118,35 +114,6 @@ export class GitHub {
       ),
       'production environment must have required reviewers before enabling releases',
     )
-  }
-  async event(m, task, state, description = '') {
-    const deployment = await this.request('deployments', {
-      ref: m.sha,
-      auto_merge: false,
-      required_contexts: [],
-      environment: `release-${task}`,
-      task,
-      transient_environment: task !== 'published',
-      production_environment: task === 'published',
-      payload: m,
-    })
-    await this.request(`deployments/${deployment.id}/statuses`, {
-      state,
-      description: description.slice(0, 140),
-      auto_inactive: false,
-    })
-    return deployment
-  }
-  async events(task) {
-    return this.list(`deployments?task=${encodeURIComponent(task)}`)
-  }
-  async succeeded(task, predicate) {
-    for (const deployment of await this.events(task)) {
-      if (!predicate(deployment.payload)) continue
-      const statuses = await this.list(`deployments/${deployment.id}/statuses`)
-      if (statuses[0]?.state === 'success') return deployment
-    }
-    return null
   }
   async upload(release, name, data) {
     invariant(

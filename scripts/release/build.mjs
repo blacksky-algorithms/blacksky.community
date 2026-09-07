@@ -2,13 +2,23 @@ import {loadEnvFile} from 'node:process'
 import {createHash} from 'node:crypto'
 import {readFileSync, writeFileSync} from 'node:fs'
 import {execFileSync} from 'node:child_process'
-import {git, invariant, json, required, save, sha} from './core.mjs'
+import {
+  git,
+  invariant,
+  json,
+  required,
+  save,
+  sha,
+  nativeFingerprint,
+} from './core.mjs'
 
 const command = process.argv[2]
 if (command === 'environment') {
   const values = {
     EXPO_PUBLIC_ENV: 'production',
     EXPO_PUBLIC_RELEASE_VERSION: json('package.json').version,
+    SENTRY_RELEASE: json('package.json').version,
+    SENTRY_DIST: git('rev-parse', 'HEAD'),
     EXPO_PUBLIC_BUNDLE_IDENTIFIER: git('rev-parse', 'HEAD'),
     EXPO_PUBLIC_BUNDLE_DATE: new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/New_York',
@@ -46,6 +56,14 @@ if (command === 'environment') {
     writeFileSync('google-services.json', process.env.GOOGLE_SERVICES_TOKEN, {
       mode: 0o600,
     })
+} else if (command === 'fingerprint') {
+  console.log(
+    JSON.stringify({
+      sha: git('rev-parse', 'HEAD'),
+      runtimeVersion: json('package.json').version,
+      fingerprint: nativeFingerprint(),
+    }),
+  )
 } else if (command === 'ota') {
   loadEnvFile('.env')
   execFileSync(
@@ -72,45 +90,14 @@ if (command === 'environment') {
       },
     },
   )
-} else if (command === 'native-config') {
-  invariant(
-    !process.env.CANDIDATE_ATTEMPT ||
-      process.env.CANDIDATE_ATTEMPT === process.env.GITHUB_RUN_ATTEMPT,
-    'Use Re-run all jobs to allocate a fresh native build number',
-  )
-  sha(required('CANDIDATE_SHA'))
-  invariant(
-    git('rev-parse', 'HEAD') === process.env.CANDIDATE_SHA,
-    'Native checkout mismatch',
-  )
-  const number = Number(required('NATIVE_BUILD_NUMBER'))
-  invariant(
-    Number.isInteger(number) && number > 0 && number < 2100000000,
-    'Invalid allocated native build number',
-  )
-  const profile = process.env.NATIVE_PROFILE || 'release'
-  invariant(
-    ['release', 'release-qa'].includes(profile),
-    'Invalid native profile',
-  )
-  const config = json('eas.json')
-  invariant(
-    String(config.submit['release-qa'].ios.ascAppId) === required('ASC_APP_ID'),
-    'EAS submission app differs from approved store app',
-  )
-  config.cli.appVersionSource = 'local'
-  config.build[profile].ios = {
-    ...config.build[profile].ios,
-    autoIncrement: false,
-  }
-  config.build[profile].android = {
-    ...config.build[profile].android,
-    autoIncrement: false,
-  }
-  save('eas.json', config)
 } else if (command === 'native-record') {
   const platform = process.argv[3]
   invariant(['ios', 'android'].includes(platform), 'Invalid native platform')
+  invariant(
+    String(json('eas.json').submit['release-qa'].ios.ascAppId) ===
+      required('ASC_APP_ID'),
+    'QA submit profile targets another store app',
+  )
   const path = required('NATIVE_ARTIFACT')
   const version = required('ACTUAL_VERSION')
   const actual = required('ACTUAL_BUILD_NUMBER')
@@ -119,12 +106,13 @@ if (command === 'environment') {
     'Binary version differs from candidate',
   )
   invariant(
-    actual === required('NATIVE_BUILD_NUMBER'),
-    'Build system changed allocated native number',
-  )
-  invariant(
     required('ACTUAL_APP_IDENTIFIER') === required('RELEASE_APP_IDENTIFIER'),
     'Binary app identifier differs from configured store app',
+  )
+  invariant(/^[0-9]+(?:\.[0-9]+)*$/.test(actual), 'Invalid binary build number')
+  invariant(
+    git('rev-parse', 'HEAD') === sha(required('CANDIDATE_SHA')),
+    'Native checkout mismatch',
   )
   const checksum = createHash('sha256').update(readFileSync(path)).digest('hex')
   save(`native-${platform}.json`, {

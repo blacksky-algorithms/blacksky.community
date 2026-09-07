@@ -88,13 +88,13 @@
       "environment": "production",
       "channel": "production",
       "ios": {
-        "autoIncrement": false,
+        "autoIncrement": true,
         "buildArtifactPaths": [
           "ios/build/*"
         ]
       },
       "android": {
-        "autoIncrement": false
+        "autoIncrement": true
       },
       "env": {
         "EXPO_PUBLIC_ENV": "production",
@@ -106,13 +106,13 @@
       "environment": "production",
       "channel": "release-qa",
       "ios": {
-        "autoIncrement": false,
+        "autoIncrement": true,
         "buildArtifactPaths": [
           "ios/build/*"
         ]
       },
       "android": {
-        "autoIncrement": false
+        "autoIncrement": true
       },
       "env": {
         "EXPO_PUBLIC_ENV": "production",

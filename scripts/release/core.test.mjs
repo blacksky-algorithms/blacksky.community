@@ -1,15 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  allocateBuildNumber,
   assertCurrent,
-  androidRuntimeResource,
+  candidatePointer,
+  assertSquashFix,
   chooseChecks,
   compareVersions,
   digest,
   nextVersion,
   releaseBranch,
-  requiresNative,
   validateManifest,
 } from './core.mjs'
 
@@ -45,29 +44,6 @@ const candidate = () => ({
   },
 })
 
-test('RN source and web fixes use OTA; native configuration or unknown inputs require binary', () => {
-  assert.equal(
-    requiresNative([
-      'src/view/Foo.tsx',
-      'src/state/bar.ts',
-      'assets/photos/card.png',
-      'bskyweb/cmd/bskyweb/server.go',
-    ]),
-    false,
-  )
-  for (const path of [
-    'app.config.js',
-    'eas.json',
-    'package.json',
-    'pnpm-lock.yaml',
-    'modules/foo/ios/View.swift',
-    'android/app/build.gradle',
-    'assets/fonts/font.otf',
-    'patches/expo.patch',
-    'unknown-config',
-  ])
-    assert.equal(requiresNative([path]), true, path)
-})
 test('future trains cannot reuse an older main native version', () => {
   assert.equal(nextVersion('1.127.2', '1.127.5'), '1.127.6')
   assert.equal(nextVersion('1.130.0', '1.127.5'), '1.130.1')
@@ -142,27 +118,37 @@ test('release branch validation rejects shell and ref injection', () => {
   assert.equal(releaseBranch('release/2026-09-14'), 'release/2026-09-14')
 })
 
-test('Android compiled runtime references resolve only an unqualified string', () => {
-  const resource = `Package 'community.test':\n0x7f010001 - string/expo_runtime_version\n\t(default) - [STR] "1.2.3"\n`
-  assert.equal(androidRuntimeResource(resource), '1.2.3')
-  assert.throws(
-    () => androidRuntimeResource(resource + '\tfr - [STR] "1.2.4"\n'),
-    /one unqualified/,
-  )
-  assert.throws(
-    () => androidRuntimeResource('\t(default) - [REF] 0x7f000002\n'),
-    /Invalid/,
-  )
+test('manifest hashing is independent of object key ordering but binds values and array order', () => {
+  assert.equal(digest({a: 1, b: {c: 2, d: 3}}), digest({b: {d: 3, c: 2}, a: 1}))
+  assert.notEqual(digest([1, 2]), digest([2, 1]))
+  assert.notEqual(digest({a: 1}), digest({a: 2}))
+})
+test('current candidate pointer includes immutable asset and hash', () => {
+  const body = `Manifest: candidate-${sha}-12-1.json\nManifest SHA-256: ${'b'.repeat(64)}`
+  assert.deepEqual(candidatePointer(body), {
+    asset: `candidate-${sha}-12-1.json`,
+    hash: 'b'.repeat(64),
+  })
+  assert.throws(() => candidatePointer('old draft'), /pointer/)
 })
 
-test('native build allocation distinguishes retries and rejects exhausted or overlapping ranges', () => {
-  assert.equal(allocateBuildNumber('1000', '10', '1'), 2001)
-  assert.equal(allocateBuildNumber('1000', '10', '2'), 2002)
-  for (const values of [
-    [0, 1, 100],
-    [0, 1, 0],
-    [2100000000, 1, 1],
-    ['invalid', 1, 1],
-  ])
-    assert.throws(() => allocateBuildNumber(...values))
+test('forward-port refuses a rebase tail or truncated PR diff', () => {
+  const first = {filename: 'a.ts', status: 'modified', sha, patch: 'first fix'}
+  const last = {filename: 'b.ts', status: 'modified', sha, patch: 'second fix'}
+  const commit = {parents: [{sha}]}
+  assert.doesNotThrow(() =>
+    assertSquashFix(commit, [last, first], [first, last], 2),
+  )
+  assert.throws(
+    () => assertSquashFix(commit, [last], [first, last], 2),
+    /entire PR/,
+  )
+  assert.throws(
+    () => assertSquashFix(commit, [first], [first], 301),
+    /entire PR/,
+  )
+  assert.throws(
+    () => assertSquashFix(commit, [{...last, patch: 'tail only'}], [last], 1),
+    /entire PR/,
+  )
 })
