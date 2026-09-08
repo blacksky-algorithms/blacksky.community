@@ -215,6 +215,11 @@ export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
 export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
+export const CHAT_RELAY_ENABLED =
+  process.env.EXPO_PUBLIC_CHAT_RELAY_ENABLED === 'true'
+export const CHAT_NOTIF_PROXY_HEADER =
+  `${PUBLIC_APPVIEW_DID}#chatNotif` as ProxyHeaderValue
+
 export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
 
 export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'

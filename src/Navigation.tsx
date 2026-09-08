@@ -809,6 +809,7 @@ const LINKING = {
   prefixes: [
     'bsky://',
     'blacksky://',
+    'community.blacksky:',
     'https://bsky.app',
     'https://blacksky.community',
     'https://staging.blacksky.community',

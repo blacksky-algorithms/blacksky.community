@@ -58,13 +58,13 @@ export type NotificationPayload =
   | {
       reason: 'chat-message'
       convoId: string
-      messageId: string
+      messageId?: string
       recipientDid: string
     }
   | {
       reason: 'chat-reaction'
       convoId: string
-      messageId: string
+      messageId?: string
       recipientDid: string
     }
   | {

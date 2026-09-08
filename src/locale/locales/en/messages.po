@@ -923,6 +923,10 @@ msgstr ""
 msgid "A selected recipient is not followed by the sender."
 msgstr "A selected recipient is not followed by the sender."
 
+#: src/screens/Messages/Settings.tsx:374
+msgid "A sign-in page will ask you to let Blacksky check your chats, then bring you back here. Alerts may take a few minutes to arrive."
+msgstr "A sign-in page will ask you to let Blacksky check your chats, then bring you back here. Alerts may take a few minutes to arrive."
+
 #: src/Navigation.tsx:492
 #: src/screens/Settings/AboutSettings.tsx:76
 #: src/screens/Settings/Settings.tsx:257
@@ -1417,13 +1421,13 @@ msgstr ""
 msgid "Allow anyone to reply"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:130
-#: src/screens/Messages/Settings.tsx:145
+#: src/screens/Messages/Settings.tsx:140
+#: src/screens/Messages/Settings.tsx:155
 msgid "Allow direct messages from"
 msgstr "Allow direct messages from"
 
-#: src/screens/Messages/Settings.tsx:176
-#: src/screens/Messages/Settings.tsx:198
+#: src/screens/Messages/Settings.tsx:186
+#: src/screens/Messages/Settings.tsx:208
 msgid "Allow group chat invites from"
 msgstr "Allow group chat invites from"
 
@@ -2523,6 +2527,18 @@ msgstr ""
 msgid "Chat not found."
 msgstr "Chat not found."
 
+#: src/screens/Messages/Settings.tsx:348
+msgid "Chat notifications"
+msgstr "Chat notifications"
+
+#: src/screens/Messages/Settings.tsx:364
+msgid "Chat notifications are disabled."
+msgstr "Chat notifications are disabled."
+
+#: src/screens/Messages/Settings.tsx:362
+msgid "Chat notifications need to be reconnected."
+msgstr "Chat notifications need to be reconnected."
+
 #: src/components/moderation/BlockDialog.tsx:293
 msgid "Chat owners cannot leave a group chat."
 msgstr "Chat owners cannot leave a group chat."
@@ -2536,8 +2552,13 @@ msgid "Chat request inbox"
 msgstr ""
 
 #: src/screens/Messages/Inbox.tsx:94
+#: src/screens/Messages/Settings.tsx:457
 msgid "Chat requests"
 msgstr ""
+
+#: src/screens/Messages/Settings.tsx:472
+msgid "Chat requests from"
+msgstr "Chat requests from"
 
 #: src/components/dms/ConvoMenu.tsx:88
 #: src/Navigation.tsx:533
@@ -2546,7 +2567,7 @@ msgstr ""
 msgid "Chat settings"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:121
+#: src/screens/Messages/Settings.tsx:131
 msgid "Chat Settings"
 msgstr ""
 
@@ -2948,6 +2969,10 @@ msgstr "Confirm with your account password"
 msgid "Confirmation code"
 msgstr ""
 
+#: src/screens/Messages/Settings.tsx:356
+msgid "Connected. Blacksky checks your Bluesky chats while this app is closed. Alerts say “New message” and may take a few minutes to arrive."
+msgstr "Connected. Blacksky checks your Bluesky chats while this app is closed. Alerts say “New message” and may take a few minutes to arrive."
+
 #: src/screens/Signup/index.tsx:284
 #: src/screens/Signup/index.tsx:287
 msgid "Contact support"
@@ -3205,6 +3230,10 @@ msgstr ""
 msgid "Could not capture QR code"
 msgstr "Could not capture QR code"
 
+#: src/screens/Messages/Settings.tsx:323
+msgid "Could not connect chat notifications"
+msgstr "Could not connect chat notifications"
+
 #: src/view/com/feeds/MissingFeed.tsx:42
 msgid "Could not connect to custom feed"
 msgstr ""
@@ -3216,6 +3245,10 @@ msgstr ""
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:121
 msgid "Could not copy – please try again"
 msgstr "Could not copy – please try again"
+
+#: src/screens/Messages/Settings.tsx:329
+msgid "Could not disconnect chat notifications"
+msgstr "Could not disconnect chat notifications"
 
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:75
 msgid "Could not download – please try again"
@@ -3249,6 +3282,10 @@ msgstr ""
 #: src/components/moderation/BlockDialog.tsx:285
 msgid "Could not leave chat."
 msgstr "Could not leave chat."
+
+#: src/screens/Messages/Settings.tsx:354
+msgid "Could not load chat notification settings."
+msgstr "Could not load chat notification settings."
 
 #: src/screens/Profile/ProfileFeed/index.tsx:73
 msgid "Could not load feed"
@@ -3284,6 +3321,10 @@ msgstr ""
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:61
 msgid "Could not share – please try again"
 msgstr "Could not share – please try again"
+
+#: src/screens/Messages/Settings.tsx:337
+msgid "Could not update chat notification settings"
+msgstr "Could not update chat notification settings"
 
 #: src/state/queries/notifications/settings.ts:55
 msgid "Could not update notification settings"
@@ -3804,6 +3845,14 @@ msgstr ""
 msgid "Discard post?"
 msgstr ""
 
+#: src/screens/Messages/Settings.tsx:507
+msgid "Disconnect"
+msgstr "Disconnect"
+
+#: src/screens/Messages/Settings.tsx:501
+msgid "Disconnect chat notifications"
+msgstr "Disconnect chat notifications"
+
 #: src/screens/Profile/components/GermButton.tsx:262
 #: src/screens/Profile/components/GermButton.tsx:269
 msgid "Disconnect Germ DM"
@@ -4248,6 +4297,7 @@ msgstr "Embedding"
 
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:101
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:108
+#: src/screens/Messages/Settings.tsx:406
 #: src/screens/Settings/components/Email2FAToggle.tsx:31
 msgid "Enable"
 msgstr ""
@@ -4264,6 +4314,14 @@ msgstr ""
 #: src/components/Post/Embed/VideoEmbed/VideoEmbedInner/web-controls/VideoControls.tsx:415
 msgid "Enable captions"
 msgstr "Enable captions"
+
+#: src/screens/Messages/Settings.tsx:396
+msgid "Enable chat notifications"
+msgstr "Enable chat notifications"
+
+#: src/screens/Messages/Settings.tsx:366
+msgid "Enable chat notifications to receive alerts when a Bluesky chat arrives while the app is closed."
+msgstr "Enable chat notifications to receive alerts when a Bluesky chat arrives while the app is closed."
 
 #: src/components/dialogs/EmailDialog/screens/Manage2FA/Enable.tsx:91
 msgid "Enable email 2FA"
@@ -4444,17 +4502,21 @@ msgstr ""
 msgid "Everybody can reply to this post."
 msgstr ""
 
+#: src/screens/Messages/Settings.tsx:436
+#: src/screens/Messages/Settings.tsx:439
+#: src/screens/Messages/Settings.tsx:480
+#: src/screens/Messages/Settings.tsx:483
 #: src/screens/Settings/NotificationSettings/components/PreferenceControls.tsx:171
 #: src/screens/Settings/NotificationSettings/components/PreferenceControls.tsx:174
 msgid "Everyone"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:67
+#: src/screens/Messages/Settings.tsx:77
 msgctxt "allow group chat invites from"
 msgid "Everyone"
 msgstr "Everyone"
 
-#: src/screens/Messages/Settings.tsx:52
+#: src/screens/Messages/Settings.tsx:62
 msgctxt "allow messages from"
 msgid "Everyone"
 msgstr "Everyone"
@@ -4549,8 +4611,8 @@ msgstr ""
 msgid "Explore the app"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:254
-#: src/screens/Messages/Settings.tsx:264
+#: src/screens/Messages/Settings.tsx:265
+#: src/screens/Messages/Settings.tsx:275
 #: src/screens/Settings/components/ExportCarDialog.tsx:129
 msgid "Export my chat data"
 msgstr "Export my chat data"
@@ -4875,7 +4937,7 @@ msgstr ""
 msgid "Failed to update notification declaration"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:84
+#: src/screens/Messages/Settings.tsx:94
 msgid "Failed to update settings"
 msgstr ""
 
@@ -5621,7 +5683,7 @@ msgctxt "toast"
 msgid "Group chat unmuted"
 msgstr "Group chat unmuted"
 
-#: src/screens/Messages/Settings.tsx:186
+#: src/screens/Messages/Settings.tsx:196
 msgid "Group chats are only available to users 18 and over."
 msgstr "Group chats are only available to users 18 and over."
 
@@ -6777,6 +6839,10 @@ msgstr ""
 msgid "Load new posts"
 msgstr ""
 
+#: src/screens/Messages/Settings.tsx:352
+msgid "Loading chat notification settings..."
+msgstr "Loading chat notification settings..."
+
 #: src/screens/Messages/components/MessageComposer.tsx:245
 #: src/screens/Messages/components/MessageInput.tsx:258
 #: src/screens/Messages/components/MessageInput.web.tsx:228
@@ -7045,8 +7111,13 @@ msgid "Message options"
 msgstr ""
 
 #: src/Navigation.tsx:788
+#: src/screens/Messages/Settings.tsx:413
 msgid "Messages"
 msgstr ""
+
+#: src/screens/Messages/Settings.tsx:428
+msgid "Messages from"
+msgstr "Messages from"
 
 #: src/components/dms/MessageItem.tsx:715
 msgid "Messages from this person are hidden while they are blocking you."
@@ -7609,12 +7680,12 @@ msgstr ""
 msgid "No notifications yet!"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:78
+#: src/screens/Messages/Settings.tsx:88
 msgctxt "allow group chat invites from"
 msgid "No one"
 msgstr "No one"
 
-#: src/screens/Messages/Settings.tsx:60
+#: src/screens/Messages/Settings.tsx:70
 msgctxt "allow messages from"
 msgid "No one"
 msgstr ""
@@ -7792,8 +7863,8 @@ msgstr ""
 msgid "Notification settings"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:231
-#: src/screens/Messages/Settings.tsx:244
+#: src/screens/Messages/Settings.tsx:241
+#: src/screens/Messages/Settings.tsx:254
 msgid "Notification sounds"
 msgstr ""
 
@@ -8403,12 +8474,12 @@ msgstr ""
 msgid "People I follow"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:71
+#: src/screens/Messages/Settings.tsx:81
 msgctxt "allow group chat invites from"
 msgid "People I follow"
 msgstr "People I follow"
 
-#: src/screens/Messages/Settings.tsx:56
+#: src/screens/Messages/Settings.tsx:66
 msgctxt "allow messages from"
 msgid "People I follow"
 msgstr "People I follow"
@@ -8422,6 +8493,10 @@ msgid "People I follow can request to join"
 msgstr "People I follow can request to join"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:510
+#: src/screens/Messages/Settings.tsx:446
+#: src/screens/Messages/Settings.tsx:450
+#: src/screens/Messages/Settings.tsx:490
+#: src/screens/Messages/Settings.tsx:494
 msgid "People you follow"
 msgstr ""
 
@@ -8981,9 +9056,19 @@ msgstr ""
 msgid "Push"
 msgstr ""
 
+#: src/screens/Messages/Settings.tsx:422
+#: src/screens/Messages/Settings.tsx:466
 #: src/screens/Settings/NotificationSettings/components/PreferenceControls.tsx:134
 msgid "Push notifications"
 msgstr ""
+
+#: src/screens/Messages/Settings.tsx:460
+msgid "Push notifications for chat requests"
+msgstr "Push notifications for chat requests"
+
+#: src/screens/Messages/Settings.tsx:416
+msgid "Push notifications for messages"
+msgstr "Push notifications for messages"
 
 #: src/screens/Settings/NotificationSettings/index.tsx:373
 msgid "Push, everyone"
@@ -9148,8 +9233,13 @@ msgid "Recommended"
 msgstr ""
 
 #: src/screens/Messages/components/MessageListError.tsx:19
+#: src/screens/Messages/Settings.tsx:404
 msgid "Reconnect"
 msgstr ""
+
+#: src/screens/Messages/Settings.tsx:395
+msgid "Reconnect chat notifications"
+msgstr "Reconnect chat notifications"
 
 #. Reject a chat request, this opens a menu with options
 #: src/screens/Messages/components/RequestButtons.tsx:136
@@ -9772,6 +9862,7 @@ msgstr ""
 #: src/screens/Messages/components/MessageListError.tsx:24
 #: src/screens/Messages/Inbox.tsx:208
 #: src/screens/Messages/JoinRequests.tsx:351
+#: src/screens/Messages/Settings.tsx:388
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:268
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:271
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:104
@@ -9784,6 +9875,10 @@ msgstr ""
 #: src/view/screens/Storybook/Admonitions.tsx:64
 msgid "Retry"
 msgstr ""
+
+#: src/screens/Messages/Settings.tsx:382
+msgid "Retry chat notification settings"
+msgstr "Retry chat notification settings"
 
 #: src/components/moderation/ReportDialog/index.tsx:294
 #: src/view/screens/Storybook/Admonitions.tsx:61
@@ -13575,8 +13670,8 @@ msgstr ""
 msgid "You can choose whether chat notifications have sound in the chat settings within the app"
 msgstr ""
 
-#: src/screens/Messages/Settings.tsx:139
-#: src/screens/Messages/Settings.tsx:190
+#: src/screens/Messages/Settings.tsx:149
+#: src/screens/Messages/Settings.tsx:200
 msgid "You can continue ongoing conversations regardless of which setting you choose."
 msgstr ""
 

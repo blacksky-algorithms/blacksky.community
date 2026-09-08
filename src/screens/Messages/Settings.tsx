@@ -1,14 +1,24 @@
-import {useCallback} from 'react'
+import {useCallback, useEffect} from 'react'
 import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
+import {useIsFocused} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
+import {useAppState} from '#/lib/appState'
+import {CHAT_RELAY_ENABLED} from '#/lib/constants'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {useUpdateActorDeclaration} from '#/state/queries/messages/actor-declaration'
+import {
+  useChatRelayDisconnectMutation,
+  useChatRelayEnrollmentMutation,
+  useChatRelayPreferencesMutation,
+  useChatRelayStatusQuery,
+} from '#/state/queries/notifications/chat-relay'
 import {useProfileQuery} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {ExportCarDialog} from '#/screens/Settings/components/ExportCarDialog'
 import {atoms as a, useTheme} from '#/alf'
+import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {Divider} from '#/components/Divider'
 import {resolveAllowGroupInvites} from '#/components/dms/util'
@@ -249,6 +259,7 @@ export function MessagesSettingsScreenInner({}: Props) {
               <Divider style={{marginVertical: 10}} />
             </>
           )}
+          {CHAT_RELAY_ENABLED && <ChatRelaySettings />}
           <View style={[a.px_xl]}>
             <Toggle.Item
               label={l`Export my chat data`}
@@ -271,5 +282,239 @@ export function MessagesSettingsScreenInner({}: Props) {
       </Layout.Content>
       <ExportCarDialog control={exportCarControl} />
     </Layout.Screen>
+  )
+}
+
+function ChatRelaySettings() {
+  const t = useTheme()
+  const {t: l} = useLingui()
+  const {currentAccount} = useSession()
+  const {
+    data: relay,
+    error: relayError,
+    isError,
+    isFetching,
+    isPending,
+    refetch,
+  } = useChatRelayStatusQuery()
+  const enrollment = useChatRelayEnrollmentMutation()
+  const disconnect = useChatRelayDisconnectMutation()
+  const update = useChatRelayPreferencesMutation()
+  const isFocused = useIsFocused()
+  const appState = useAppState()
+
+  useEffect(() => {
+    if (isFocused && appState === 'active') {
+      void refetch().catch(() => undefined)
+    }
+  }, [appState, isFocused, refetch])
+
+  const busy = enrollment.isPending || disconnect.isPending || update.isPending
+  const retry = () => {
+    void refetch().catch(() => undefined)
+  }
+
+  const preferences = relay?.preferences
+  const connected = relay?.status === 'active' && !!preferences
+  const enroll = () => {
+    if (!currentAccount?.did || !currentAccount.handle) return
+    void enrollment
+      .mutateAsync({did: currentAccount.did, handle: currentAccount.handle})
+      .catch(() => {
+        Toast.show(l`Could not connect chat notifications`, {type: 'error'})
+      })
+  }
+  const disconnectRelay = () => {
+    if (!currentAccount?.did) return
+    void disconnect.mutateAsync({did: currentAccount.did}).catch(() => {
+      Toast.show(l`Could not disconnect chat notifications`, {type: 'error'})
+    })
+  }
+  const updatePreferences = (
+    patch: Parameters<typeof update.mutate>[0]['patch'],
+  ) => {
+    if (!currentAccount?.did) return
+    void update.mutateAsync({did: currentAccount.did, patch}).catch(() => {
+      Toast.show(l`Could not update chat notification settings`, {
+        type: 'error',
+      })
+    })
+  }
+
+  return (
+    <>
+      <Divider style={{marginVertical: 10}} />
+      <View style={[a.px_xl, a.gap_sm]}>
+        <Text style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+          <Trans>Chat notifications</Trans>
+        </Text>
+        <Text style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_high]}>
+          {isPending ? (
+            <Trans>Loading chat notification settings...</Trans>
+          ) : isError ? (
+            __DEV__ && relayError instanceof Error ? (
+              relayError.message
+            ) : (
+              <Trans>Could not load chat notification settings.</Trans>
+            )
+          ) : connected ? (
+            <Trans>
+              Connected. Blacksky checks your Bluesky chats while this app is
+              closed. Alerts say “New message” and may take a few minutes to
+              arrive.
+            </Trans>
+          ) : relay?.status === 'reauth_required' ? (
+            <Trans>Chat notifications need to be reconnected.</Trans>
+          ) : relay?.status === 'disconnected' ? (
+            <Trans>Chat notifications are disabled.</Trans>
+          ) : (
+            <Trans>
+              Enable chat notifications to receive alerts when a Bluesky chat
+              arrives while the app is closed.
+            </Trans>
+          )}
+        </Text>
+        {!isPending && !isError && !connected ? (
+          <Text style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_high]}>
+            <Trans>
+              A sign-in page will ask you to let Blacksky check your chats, then
+              bring you back here. Alerts may take a few minutes to arrive.
+            </Trans>
+          </Text>
+        ) : null}
+        {isPending ? null : isError ? (
+          <Button
+            label={l`Retry chat notification settings`}
+            color="secondary"
+            variant="outline"
+            onPress={retry}
+            disabled={isFetching || busy}>
+            <ButtonText>
+              <Trans>Retry</Trans>
+            </ButtonText>
+          </Button>
+        ) : !connected ? (
+          <Button
+            label={
+              relay?.status === 'reauth_required'
+                ? l`Reconnect chat notifications`
+                : l`Enable chat notifications`
+            }
+            color="primary"
+            variant="solid"
+            onPress={enroll}
+            disabled={busy}>
+            <ButtonText>
+              {relay?.status === 'reauth_required' ? (
+                <Trans>Reconnect</Trans>
+              ) : (
+                <Trans>Enable</Trans>
+              )}
+            </ButtonText>
+          </Button>
+        ) : (
+          <>
+            <Text style={[a.text_sm, a.font_semi_bold, t.atoms.text]}>
+              <Trans>Messages</Trans>
+            </Text>
+            <Toggle.Item
+              label={l`Push notifications for messages`}
+              name="relay-chat-push"
+              value={preferences.chat.push}
+              disabled={busy}
+              onChange={push => updatePreferences({chat: {push}})}>
+              <Toggle.LabelText>
+                <Trans>Push notifications</Trans>
+              </Toggle.LabelText>
+              <Toggle.Switch />
+            </Toggle.Item>
+            <Toggle.Group
+              type="radio"
+              label={l`Messages from`}
+              values={[preferences.chat.include]}
+              disabled={busy}
+              onChange={([include]) => {
+                if (include === 'all' || include === 'follows') {
+                  updatePreferences({chat: {include}})
+                }
+              }}>
+              <Toggle.Item highlightRow label={l`Everyone`} name="all">
+                {({selected}) => (
+                  <Toggle.RadioWithLabel
+                    label={l`Everyone`}
+                    selected={selected}
+                  />
+                )}
+              </Toggle.Item>
+              <Toggle.Item
+                highlightRow
+                label={l`People you follow`}
+                name="follows">
+                {({selected}) => (
+                  <Toggle.RadioWithLabel
+                    label={l`People you follow`}
+                    selected={selected}
+                  />
+                )}
+              </Toggle.Item>
+            </Toggle.Group>
+            <Text style={[a.text_sm, a.font_semi_bold, t.atoms.text]}>
+              <Trans>Chat requests</Trans>
+            </Text>
+            <Toggle.Item
+              label={l`Push notifications for chat requests`}
+              name="relay-chat-request-push"
+              value={preferences.chatRequest.push}
+              disabled={busy}
+              onChange={push => updatePreferences({chatRequest: {push}})}>
+              <Toggle.LabelText>
+                <Trans>Push notifications</Trans>
+              </Toggle.LabelText>
+              <Toggle.Switch />
+            </Toggle.Item>
+            <Toggle.Group
+              type="radio"
+              label={l`Chat requests from`}
+              values={[preferences.chatRequest.include]}
+              disabled={busy}
+              onChange={([include]) => {
+                if (include === 'all' || include === 'follows') {
+                  updatePreferences({chatRequest: {include}})
+                }
+              }}>
+              <Toggle.Item highlightRow label={l`Everyone`} name="all">
+                {({selected}) => (
+                  <Toggle.RadioWithLabel
+                    label={l`Everyone`}
+                    selected={selected}
+                  />
+                )}
+              </Toggle.Item>
+              <Toggle.Item
+                highlightRow
+                label={l`People you follow`}
+                name="follows">
+                {({selected}) => (
+                  <Toggle.RadioWithLabel
+                    label={l`People you follow`}
+                    selected={selected}
+                  />
+                )}
+              </Toggle.Item>
+            </Toggle.Group>
+            <Button
+              label={l`Disconnect chat notifications`}
+              color="secondary"
+              variant="outline"
+              onPress={disconnectRelay}
+              disabled={busy}>
+              <ButtonText>
+                <Trans>Disconnect</Trans>
+              </ButtonText>
+            </Button>
+          </>
+        )}
+      </View>
+    </>
   )
 }
