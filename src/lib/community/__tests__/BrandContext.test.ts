@@ -5,6 +5,7 @@ import {
   BRAND_DOMAIN,
   DEFAULT_BRAND_CONFIG,
   ensureFollowingPinned,
+  isBlackskyBrand,
 } from '../BrandContext'
 
 describe('BrandContext defaults', () => {
@@ -75,6 +76,19 @@ describe('BrandContext defaults', () => {
     })
     expect(DEFAULT_BRAND_CONFIG.theme.css.selectionLight).toBe('#D2FC51')
     expect(DEFAULT_BRAND_CONFIG.theme.css.selectionDark).toBe('#464985')
+  })
+
+  it('identifies only the Blacksky brand', () => {
+    expect(isBlackskyBrand(DEFAULT_BRAND_CONFIG)).toBe(true)
+    expect(
+      isBlackskyBrand({
+        ...DEFAULT_BRAND_CONFIG,
+        metadata: {
+          ...DEFAULT_BRAND_CONFIG.metadata,
+          slug: 'medsky',
+        },
+      }),
+    ).toBe(false)
   })
 })
 
