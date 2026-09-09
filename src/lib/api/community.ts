@@ -1,31 +1,44 @@
-import {type BskyAgent} from '@atproto/api'
+import {
+  type AppBskyFeedGetLikes,
+  type AppBskyFeedGetQuotes,
+  type BskyAgent,
+  jsonToLex,
+} from '@atproto/api'
 
 import {HOME_PROXY_HEADER} from '#/lib/constants'
+import {toPostView} from './space-views'
 
-/**
- * Make an XRPC call to a community.blacksky.feed.* endpoint.
- *
- * Calls through the PDS using the agent's session auth and atproto-proxy
- * header. The PDS validates the user's credentials, creates a service auth
- * JWT signed by the user's keypair, and forwards the request to the appview.
- *
- * Pinned: community.blacksky.* endpoints only exist on the home appview.
- */
+export type CommunityXrpcParam = string | number | boolean
+
 export async function communityXrpc(
   agent: BskyAgent,
   method: string,
   opts?: {
-    params?: Record<string, string>
+    params?: Record<
+      string,
+      CommunityXrpcParam | readonly CommunityXrpcParam[] | undefined
+    >
     body?: unknown
+    serviceDid?: string
   },
 ): Promise<Response> {
-  const qs = opts?.params
-    ? '?' + new URLSearchParams(opts.params).toString()
-    : ''
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(opts?.params ?? {})) {
+    const values = Array.isArray(value) ? value : [value]
+    for (const item of values) {
+      if (item !== undefined) {
+        searchParams.append(key, String(item))
+      }
+    }
+  }
+  const encodedParams = searchParams.toString()
+  const qs = encodedParams ? `?${encodedParams}` : ''
   const path = `/xrpc/${method}${qs}`
 
   const headers: Record<string, string> = {
-    'atproto-proxy': HOME_PROXY_HEADER,
+    'atproto-proxy': opts?.serviceDid
+      ? `${opts.serviceDid}#bsky_appview`
+      : HOME_PROXY_HEADER,
   }
   const init: RequestInit = {
     method: opts?.body ? 'POST' : 'GET',
@@ -36,4 +49,59 @@ export async function communityXrpc(
     init.body = JSON.stringify(opts.body)
   }
   return agent.fetchHandler(path, init)
+}
+
+export async function getSpacePostLikes(
+  agent: BskyAgent,
+  params: {uri: string; limit: number; cursor?: string},
+): Promise<AppBskyFeedGetLikes.OutputSchema> {
+  const response = await communityXrpc(
+    agent,
+    'community.blacksky.feed.getSpacePostLikes',
+    {
+      params: {
+        uri: params.uri,
+        limit: String(params.limit),
+        ...(params.cursor ? {cursor: params.cursor} : {}),
+      },
+    },
+  )
+  if (!response.ok) {
+    throw new Error(`getSpacePostLikes ${response.status}`)
+  }
+  return jsonToLex(await response.json()) as AppBskyFeedGetLikes.OutputSchema
+}
+
+export async function getSpacePostQuotes(
+  agent: BskyAgent,
+  params: {uri: string; limit: number; cursor?: string},
+): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+  const response = await communityXrpc(
+    agent,
+    'community.blacksky.feed.getSpacePostQuotes',
+    {
+      params: {
+        uri: params.uri,
+        limit: String(params.limit),
+        ...(params.cursor ? {cursor: params.cursor} : {}),
+      },
+    },
+  )
+  if (!response.ok) {
+    throw new Error(`getSpacePostQuotes ${response.status}`)
+  }
+  const data = jsonToLex(await response.json()) as {
+    cursor?: string
+    posts?: unknown[]
+  }
+  return {
+    uri: params.uri,
+    cursor: data.cursor,
+    posts: (data.posts ?? [])
+      .map(toPostView)
+      .filter(
+        (post): post is AppBskyFeedGetQuotes.OutputSchema['posts'][number] =>
+          Boolean(post),
+      ),
+  }
 }

@@ -32,6 +32,7 @@ type Controls = {
       | 'new'
       | 'starterpack'
       | 'groupchat'
+      | 'groupinvite'
   }) => void
   /**
    * Clears the requested account so that next time the logged out view is
@@ -64,6 +65,8 @@ function getRequestedAccountFromLanding(
       return IS_WEB ? 'starterpack' : 'new'
     case 'groupchat':
       return 'groupchat'
+    case 'groupinvite':
+      return 'groupinvite'
     default:
       return undefined
   }

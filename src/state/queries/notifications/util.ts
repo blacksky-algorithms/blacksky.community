@@ -16,7 +16,9 @@ import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
 import {communityXrpc} from '#/lib/api/community'
-import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
+import {listNotifications} from '#/lib/api/community-notifications'
+import {isCommunityPostUri} from '#/lib/api/community-post'
+import {toPostView} from '#/lib/api/space-views'
 import {labelIsHideableOffense} from '#/lib/moderation'
 import * as bsky from '#/types/bsky'
 import {precacheProfile} from '../profile'
@@ -62,19 +64,12 @@ export async function fetchPage({
   page: FeedPage
   indexedAt: string | undefined
 }> {
-  const res = await agent.app.bsky.notification.listNotifications(
-    {
-      limit,
-      cursor,
-      reasons,
-    },
-    HOME_APPVIEW_PINNED_OPTS,
-  )
+  const data = await listNotifications(agent, {limit, cursor, reasons})
 
-  const indexedAt = res.data.notifications[0]?.indexedAt
+  const indexedAt = data.notifications[0]?.indexedAt
 
   // filter out notifs by mod rules
-  const notifs = res.data.notifications.filter(
+  const notifs = data.notifications.filter(
     notif => !shouldFilterNotif(notif, moderationOpts, hideFollowNotifications),
   )
 
@@ -104,17 +99,17 @@ export async function fetchPage({
     }
   }
 
-  let seenAt = res.data.seenAt ? new Date(res.data.seenAt) : new Date()
+  let seenAt = data.seenAt ? new Date(data.seenAt) : new Date()
   if (Number.isNaN(seenAt.getTime())) {
     seenAt = new Date()
   }
 
   return {
     page: {
-      cursor: res.data.cursor,
+      cursor: data.cursor,
       seenAt,
       items: notifsGrouped,
-      priority: res.data.priority ?? false,
+      priority: data.priority ?? false,
     },
     indexedAt,
   }
@@ -215,7 +210,7 @@ export function groupNotifications(
   return groupedNotifs
 }
 
-async function fetchSubjects(
+export async function fetchSubjects(
   agent: AtpAgent,
   groupedNotifs: FeedNotification[],
 ): Promise<{
@@ -226,10 +221,11 @@ async function fetchSubjects(
   const communityPostUris = new Set<string>()
   const packUris = new Set<string>()
   for (const notif of groupedNotifs) {
-    if (notif.subjectUri?.includes('community.blacksky.feed.post')) {
-      communityPostUris.add(notif.subjectUri)
-    } else if (notif.subjectUri?.includes('app.bsky.feed.post')) {
-      postUris.add(notif.subjectUri)
+    const subjectUri = notif.subjectUri
+    if (subjectUri && isCommunityPostUri(subjectUri)) {
+      communityPostUris.add(subjectUri)
+    } else if (subjectUri?.includes('app.bsky.feed.post')) {
+      postUris.add(subjectUri)
     } else if (
       notif.notification.reasonSubject?.includes('app.bsky.graph.starterpack')
     ) {
@@ -253,10 +249,8 @@ async function fetchSubjects(
       })
         .then(async res => {
           if (!res.ok) return undefined
-          const data = jsonToLex(await res.json()) as {
-            post?: AppBskyFeedDefs.PostView
-          }
-          return data.post
+          const data = jsonToLex(await res.json()) as {post?: unknown}
+          return toPostView(data.post)
         })
         .catch(() => undefined),
     ),

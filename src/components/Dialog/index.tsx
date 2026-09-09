@@ -396,9 +396,11 @@ export function FlatListFooter({
 export function Handle({
   difference = false,
   fill,
+  testID,
 }: {
   difference?: boolean
   fill?: string
+  testID?: string
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -408,6 +410,7 @@ export function Handle({
   return (
     <View style={[a.absolute, a.w_full, a.align_center, a.z_10, {height: 20}]}>
       <Pressable
+        testID={testID}
         accessible={screenReaderEnabled}
         onPress={() => close()}
         accessibilityLabel={_(msg`Dismiss`)}

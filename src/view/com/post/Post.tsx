@@ -10,9 +10,13 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {
+  getCommunitySpaceUri,
+  isRenderablePostRecord,
+} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
 import {
   POST_TOMBSTONE,
@@ -39,7 +43,6 @@ import {TranslatedPost} from '#/components/Post/Translated'
 import {PostControls} from '#/components/PostControls'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
-import * as bsky from '#/types/bsky'
 
 export function Post({
   post,
@@ -56,10 +59,7 @@ export function Post({
 }) {
   const moderationOpts = useModerationOpts()
   const record = useMemo<AppBskyFeedPost.Record | undefined>(
-    () =>
-      bsky.validate(post.record, AppBskyFeedPost.validateRecord)
-        ? post.record
-        : undefined,
+    () => (isRenderablePostRecord(post) ? post.record : undefined),
     [post],
   )
   const postShadowed = usePostShadow(post)
@@ -122,11 +122,7 @@ function PostInner({
   const [limitLines, setLimitLines] = useState(
     () => countLines(richText?.text) >= MAX_POST_LINES,
   )
-  const itemUrip = new AtUri(post.uri)
-  const isCommunityPost = itemUrip.collection === 'community.blacksky.feed.post'
-  const itemHref = isCommunityPost
-    ? `${makeProfileLink(post.author, 'post', itemUrip.rkey)}?collection=${itemUrip.collection}`
-    : makeProfileLink(post.author, 'post', itemUrip.rkey)
+  const itemHref = postPermalink(post.author, post.uri)
   let replyAuthorDid = ''
   if (record.reply) {
     const urip = new AtUri(record.reply.parent?.uri || record.reply.root.uri)
@@ -143,6 +139,7 @@ function PostInner({
         embed: post.embed,
         moderation,
         langs: record.langs,
+        communitySpace: getCommunitySpaceUri(post),
       },
       logContext: 'PostReply',
     })

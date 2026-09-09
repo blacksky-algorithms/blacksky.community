@@ -1,0 +1,14 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: misconfigured
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteLandingRetry
+    timeout: 30000
+- assertVisible: 'This invite is temporarily unavailable.'
+- tapOn:
+    id: groupInviteLandingRetry

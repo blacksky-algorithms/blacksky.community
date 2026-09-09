@@ -17,8 +17,10 @@ import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {getCurrentRoute} from '#/lib/routes/helpers'
-import {makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -162,7 +164,8 @@ let PostMenuItems = ({
     [postUri],
   )
   const {data: peerModPerms} = useMyPeerModPermissions()
-  const canLabelPost = !!peerModPerms?.isPeerMod && isCommunityPost
+  const canLabelPost =
+    !!peerModPerms?.isPeerMod && isCommunityPost && !getCommunitySpaceUri(post)
   const [isThreadMuted, muteThread, unmuteThread] = useThreadMuteMutationQueue(
     post,
     rootUri,
@@ -175,6 +178,10 @@ let PostMenuItems = ({
   })
   const isReplyHiddenByThreadgate = threadgateHiddenReplies.has(postUri)
   const isPinned = post.viewer?.pinned
+  // Pinning writes the post's URI into the public profile record, so a space
+  // post cannot be pinned: the URI alone publishes that the private post
+  // exists, and who wrote it.
+  const canPin = !isSpaceRecordUri(postUri)
 
   const {mutateAsync: toggleQuoteDetachment, isPending: isDetachPending} =
     useToggleQuoteDetachmentMutation()
@@ -188,10 +195,7 @@ let PostMenuItems = ({
   })
 
   const href = useMemo(() => {
-    const urip = new AtUri(postUri)
-    const link = makeProfileLink(postAuthor, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return isCommunity ? `${link}?collection=${urip.collection}` : link
+    return postPermalink(postAuthor, postUri)
   }, [postUri, postAuthor])
 
   const onDeletePost = () => {
@@ -491,7 +495,7 @@ let PostMenuItems = ({
   return (
     <>
       <Menu.Outer>
-        {isAuthor && (
+        {isAuthor && canPin && (
           <>
             <Menu.Group>
               <Menu.Item

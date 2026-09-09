@@ -4,14 +4,16 @@ import {
   AppBskyFeedDefs,
   AppBskyFeedPost,
   type AppBskyFeedThreadgate,
-  AtUri,
   RichText as RichTextAPI,
 } from '@atproto/api'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {postUriAuthor} from '#/lib/api/space-permalink'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {niceDate} from '#/lib/strings/time'
@@ -196,17 +198,17 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
     [record],
   )
 
-  const threadRootUri = record.reply?.root?.uri || post.uri
   const authorHref = makeProfileLink(post.author)
   const isThreadAuthor = getThreadAuthor(post, record) === currentAccount?.did
 
   const statHref = useCallback(
     (suffix: string) => {
-      const urip = new AtUri(post.uri)
-      const link = makeProfileLink(post.author, 'post', urip.rkey, suffix)
-      return urip.collection === 'community.blacksky.feed.post'
-        ? `${link}?collection=${urip.collection}`
-        : link
+      // Space likes and quotes have permission-aware endpoints. Reposts remain
+      // unsupported, so their count deliberately has no destination.
+      if (isSpaceRecordUri(post.uri) && suffix === 'reposted-by') {
+        return undefined
+      }
+      return postPermalink(post.author, post.uri, suffix)
     },
     [post.uri, post.author],
   )
@@ -219,8 +221,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   })
   const additionalPostAlerts: AppModerationCause[] = useMemo(() => {
     const isPostHiddenByThreadgate = threadgateHiddenReplies.has(post.uri)
-    const isControlledByViewer =
-      new AtUri(threadRootUri).host === currentAccount?.did
+    const isControlledByViewer = isThreadAuthor
     return isControlledByViewer && isPostHiddenByThreadgate
       ? [
           {
@@ -230,7 +231,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
           },
         ]
       : []
-  }, [post, currentAccount?.did, threadgateHiddenReplies, threadRootUri])
+  }, [post, currentAccount?.did, isThreadAuthor, threadgateHiddenReplies])
   const onlyFollowersCanReply = !!threadgateRecord?.allow?.find(
     rule => rule.$type === 'app.bsky.feed.threadgate#followerRule',
   )
@@ -258,6 +259,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
         embed: post.embed,
         moderation,
         langs: record.langs,
+        communitySpace: getCommunitySpaceUri(post),
       },
       onPostSuccess: onPostSuccess,
       logContext: 'PostReply',
@@ -446,7 +448,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   t.atoms.border_contrast_low,
                 ]}>
                 {post.repostCount != null && post.repostCount !== 0 ? (
-                  <Link to={repostsHref} label={l`Reposts of this post`}>
+                  <StatLink to={repostsHref} label={l`Reposts of this post`}>
                     <Text
                       testID="repostCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -462,12 +464,12 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.quoteCount != null &&
                 post.quoteCount !== 0 &&
                 !post.viewer?.embeddingDisabled ? (
-                  <Link to={quotesHref} label={l`Quotes of this post`}>
+                  <StatLink to={quotesHref} label={l`Quotes of this post`}>
                     <Text
                       testID="quoteCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -483,10 +485,10 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.likeCount != null && post.likeCount !== 0 ? (
-                  <Link to={likesHref} label={l`Likes on this post`}>
+                  <StatLink to={likesHref} label={l`Likes on this post`}>
                     <Text
                       testID="likeCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -502,7 +504,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                         />
                       </Trans>
                     </Text>
-                  </Link>
+                  </StatLink>
                 ) : null}
                 {post.bookmarkCount != null && post.bookmarkCount !== 0 ? (
                   <Text
@@ -675,11 +677,7 @@ function getThreadAuthor(
   if (!record.reply) {
     return post.author.did
   }
-  try {
-    return new AtUri(record.reply.root.uri).host
-  } catch {
-    return ''
-  }
+  return postUriAuthor(record.reply.root.uri) ?? ''
 }
 
 export function ThreadItemAnchorSkeleton() {
@@ -703,5 +701,28 @@ export function ThreadItemAnchorSkeleton() {
 
       <PostControlsSkeleton big />
     </View>
+  )
+}
+
+/**
+ * A stat that links to its own screen when there is one to link to.
+ *
+ * Space posts have no liked-by / reposted-by / quotes screens, so the count
+ * renders as plain text rather than a link that would 400.
+ */
+function StatLink({
+  to,
+  label,
+  children,
+}: {
+  to?: string
+  label: string
+  children: React.ReactElement
+}) {
+  if (!to) return children
+  return (
+    <Link to={to} label={label}>
+      {children}
+    </Link>
   )
 }

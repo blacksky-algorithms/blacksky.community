@@ -17,12 +17,7 @@
  */
 
 import {useCallback, useEffect, useMemo, useRef} from 'react'
-import {
-  AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AtUri,
-  moderatePost,
-} from '@atproto/api'
+import {AppBskyFeedDefs, AppBskyFeedPost, moderatePost} from '@atproto/api'
 import {
   type InfiniteData,
   type QueryClient,
@@ -38,10 +33,11 @@ import {useAgent} from '#/state/session'
 import {useThreadgateHiddenReplyUris} from '#/state/threadgate-hidden-replies'
 import type * as bsky from '#/types/bsky'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from '../util'
+import {nextAutoPaginationAttemptCount, shouldAutoPaginate} from './pagination'
 import {type FeedPage} from './types'
 import {useUnreadNotificationsApi} from './unread'
 import {fetchPage} from './util'
@@ -252,6 +248,13 @@ export function useNotificationFeedQuery(opts: {
     if (isLoading || isRefetching) {
       // During the initial fetch, we want to get an entire page's worth of items.
       wantedItemCount.current = PAGE_SIZE
+      autoPaginationAttemptCount.current = nextAutoPaginationAttemptCount({
+        attemptCount: autoPaginationAttemptCount.current,
+        hasNextPage: !!hasNextPage,
+        isLoading,
+        isRefetching,
+        requestNextPage: false,
+      })
     } else if (isFetchingNextPage) {
       if (itemCount > wantedItemCount.current) {
         // We have more items than wantedItemCount, so wantedItemCount must be out of date.
@@ -263,13 +266,33 @@ export function useNotificationFeedQuery(opts: {
       // At this point we're not fetching anymore, so it's time to make a decision.
       // If we didn't receive enough items from the server, paginate again until we do.
       if (itemCount < wantedItemCount.current) {
-        autoPaginationAttemptCount.current++
-        if (autoPaginationAttemptCount.current < 50 /* failsafe */) {
+        const requestNextPage = shouldAutoPaginate({
+          hasNextPage,
+          itemCount,
+          wantedItemCount: wantedItemCount.current,
+          attemptCount: autoPaginationAttemptCount.current,
+        })
+        autoPaginationAttemptCount.current = nextAutoPaginationAttemptCount({
+          attemptCount: autoPaginationAttemptCount.current,
+          hasNextPage,
+          isLoading,
+          isRefetching,
+          requestNextPage,
+        })
+        if (requestNextPage) {
           query.fetchNextPage()
         }
       } else {
         autoPaginationAttemptCount.current = 0
       }
+    } else {
+      autoPaginationAttemptCount.current = nextAutoPaginationAttemptCount({
+        attemptCount: autoPaginationAttemptCount.current,
+        hasNextPage: false,
+        isLoading,
+        isRefetching,
+        requestNextPage: false,
+      })
     }
   }, [query])
 
@@ -280,7 +303,7 @@ export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
 ): Generator<AppBskyFeedDefs.PostView, void> {
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   const queryDatas = queryClient.getQueriesData<InfiniteData<FeedPage>>({
     queryKey: [RQKEY_ROOT],
@@ -293,14 +316,14 @@ export function* findAllPostsInQueryData(
     for (const page of queryData?.pages) {
       for (const item of page.items) {
         if (item.type !== 'starterpack-joined') {
-          if (item.subject && didOrHandleUriMatches(atUri, item.subject)) {
+          if (item.subject && matches(item.subject)) {
             yield item.subject
           }
         }
 
         if (AppBskyFeedDefs.isPostView(item.subject)) {
           const quotedPost = getEmbeddedPost(item.subject?.embed)
-          if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+          if (quotedPost && matches(quotedPost)) {
             yield embedViewRecordToPostView(quotedPost)
           }
         }

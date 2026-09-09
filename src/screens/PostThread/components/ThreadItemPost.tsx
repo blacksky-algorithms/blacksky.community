@@ -8,9 +8,10 @@ import {
 } from '@atproto/api'
 import {Trans} from '@lingui/react/macro'
 
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
 import {
   POST_TOMBSTONE,
@@ -211,10 +212,7 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
   )
   const threadRootUri = record.reply?.root?.uri || post.uri
   const postHref = useMemo(() => {
-    const urip = new AtUri(post.uri)
-    const link = makeProfileLink(post.author, 'post', urip.rkey)
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return isCommunity ? `${link}?collection=${urip.collection}` : link
+    return postPermalink(post.author, post.uri)
   }, [post.uri, post.author])
   const threadgateHiddenReplies = useMergedThreadgateHiddenReplies({
     threadgateRecord,
@@ -244,6 +242,7 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
         embed: post.embed,
         moderation,
         langs: post.record.langs,
+        communitySpace: getCommunitySpaceUri(post),
       },
       onPostSuccess: onPostSuccess,
       logContext: 'PostReply',
