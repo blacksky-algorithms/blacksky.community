@@ -8,6 +8,8 @@ def release_apple_key
 end
 
 lane :distribute_testflight do
+  group = ENV.fetch('TESTFLIGHT_GROUP', '')
+  UI.user_error!('TESTFLIGHT_GROUP must name a configured TestFlight group') if group.empty?
   upload_to_testflight(
     api_key: release_apple_key,
     app_identifier: ENV.fetch('RELEASE_APP_IDENTIFIER'),
@@ -15,7 +17,7 @@ lane :distribute_testflight do
     app_version: ENV.fetch('RELEASE_VERSION'),
     build_number: ENV.fetch('IOS_BUILD_NUMBER'),
     distribute_only: true,
-    groups: ENV.fetch('TESTFLIGHT_GROUP'),
+    groups: group,
     notify_external_testers: true
   )
 end

@@ -33,6 +33,9 @@ jobs:
   inspect:
     if: vars.RELEASE_TRAIN_ENABLED == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      checks: read
     outputs:
       mode: ${{ steps.inspect.outputs.mode }}
     steps:

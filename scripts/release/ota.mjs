@@ -41,17 +41,19 @@ export class OTA {
     )
     const prefix = `branch/${encodeURIComponent(branch)}/runtimeVersion/${encodeURIComponent(runtime)}/updates`
     const updates = await this.request(prefix)
-    invariant(
-      updates.length === 2,
-      'Candidate OTA branch must contain exactly one update per platform',
-    )
     const identities = {}
     for (const platform of ['ios', 'android']) {
-      const matching = updates.filter(
-        u => u.platform === platform && u.commitHash === commit,
+      const matching = updates
+        .filter(u => u.platform === platform && u.commitHash === commit)
+        .sort((a, b) =>
+          String(b.updateId).localeCompare(String(a.updateId), undefined, {
+            numeric: true,
+          }),
+        )
+      const update = invariant(
+        matching[0],
+        `Missing exact ${platform} OTA commit`,
       )
-      invariant(matching.length === 1, `Missing exact ${platform} OTA commit`)
-      const update = matching[0]
       identities[platform] = {
         updateId: update.updateId,
         updateUUID: update.updateUUID,

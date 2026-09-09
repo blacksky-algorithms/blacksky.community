@@ -50,6 +50,10 @@ jobs:
       ASC_APP_ID: ${{ vars.ASC_APP_ID }}
       RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
     steps:
+      - name: Require QA TestFlight group
+        env:
+          RELEASE_QA_TESTFLIGHT_GROUP: ${{ vars.RELEASE_QA_TESTFLIGHT_GROUP }}
+        run: test -n "$RELEASE_QA_TESTFLIGHT_GROUP"
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           ref: ${{ inputs.sha }}
@@ -112,12 +116,13 @@ jobs:
             SENTRY_ORG=blacksky-algorithms SENTRY_PROJECT=social-app pnpm exec sentry-cli debug-files upload "$dsym" --include-sources
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: native-ios-${{ inputs.sha }}-${{ github.run_attempt }}
+          name: native-ios-${{ inputs.sha }}
           path: |
             native-ios.json
             candidate.ipa
           retention-days: 90
           if-no-files-found: error
+          overwrite: true
       - name: Remove credentials
         if: always()
         run: rm -f .env google-services.json

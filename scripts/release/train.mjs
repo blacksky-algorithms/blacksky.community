@@ -89,7 +89,7 @@ async function schedule() {
   )
   await gh.checks(selected)
   const previous = await previousRelease()
-  if (previous?.sourceSha === selected) {
+  if (previous?.sourceSha === selected && process.env.INPUT_NATIVE !== 'true') {
     return
   }
   const date = new Intl.DateTimeFormat('en-CA', {

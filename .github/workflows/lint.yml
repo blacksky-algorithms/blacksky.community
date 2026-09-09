@@ -12,7 +12,7 @@ on:
     branches:
       - main
 concurrency:
-  group: 'lint-${{ inputs.sha || github.head_ref || github.ref }}'
+  group: 'lint-${{ inputs.sha && github.run_id || github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 # These jobs only check out the repo and run checks, so read access to the

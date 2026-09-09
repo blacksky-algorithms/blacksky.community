@@ -197,7 +197,7 @@ jobs:
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         if: needs.select.outputs.mode == 'native'
         with:
-          pattern: native-*-${{ needs.select.outputs.sha }}-${{ github.run_attempt }}
+          pattern: native-*-${{ needs.select.outputs.sha }}
           merge-multiple: true
       - uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f
         with:

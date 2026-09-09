@@ -73,12 +73,13 @@ jobs:
         run: pnpm exec eas submit -p android --profile release-qa --non-interactive --path candidate.aab
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: native-android-${{ inputs.sha }}-${{ github.run_attempt }}
+          name: native-android-${{ inputs.sha }}
           path: |
             native-android.json
             candidate.aab
           retention-days: 90
           if-no-files-found: error
+          overwrite: true
       - name: Remove credentials
         if: always()
         run: rm -f .env google-services.json

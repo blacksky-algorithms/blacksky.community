@@ -73,7 +73,7 @@ test('OTA verification rejects another upload even if branch name is unchanged',
   const snapshot = await ota.snapshot('candidate', '1.0.0', sha)
   await ota.verify(snapshot, sha)
   extra = true
-  await assert.rejects(() => ota.verify(snapshot, sha), /exactly one/)
+  await assert.rejects(() => ota.verify(snapshot, sha), /changed after QA/)
 })
 test('missing approval environment reviewers fails closed', async t => {
   mock(t, () => ({protection_rules: []}))

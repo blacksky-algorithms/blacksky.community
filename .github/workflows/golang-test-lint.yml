@@ -13,7 +13,7 @@ on:
       - main
 
 concurrency:
-  group: "golang-${{ inputs.sha || github.head_ref || github.ref }}"
+  group: "golang-${{ inputs.sha && github.run_id || github.head_ref || github.ref }}"
   cancel-in-progress: true
 
 permissions:

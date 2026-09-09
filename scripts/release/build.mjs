@@ -111,6 +111,10 @@ if (command === 'environment') {
   )
   invariant(/^[0-9]+(?:\.[0-9]+)*$/.test(actual), 'Invalid binary build number')
   invariant(
+    actual !== '1',
+    'Build number 1 means the EAS remote counter did not resolve during --local build',
+  )
+  invariant(
     git('rev-parse', 'HEAD') === sha(required('CANDIDATE_SHA')),
     'Native checkout mismatch',
   )
