@@ -107,25 +107,26 @@ export function CaptchaWebView({
 
   const wasSuccessful = useRef(false)
 
-  const onShouldStartLoadWithRequest = (event: ShouldStartLoadRequest) => {
-    const urlp = new URL(event.url)
-    return ALLOWED_HOSTS.includes(urlp.host)
-  }
+  const handleCallbackUrl = (candidateUrl: string): boolean => {
+    if (wasSuccessful.current) return false
 
-  const onNavigationStateChange = (e: WebViewNavigation) => {
-    if (wasSuccessful.current) return
+    let urlp: URL
+    try {
+      urlp = new URL(candidateUrl)
+    } catch {
+      return false
+    }
 
-    const urlp = new URL(e.url)
     // Ignore navigations that are still on a gate page (the captcha or the
     // attestation page). We only act on the final redirect back to the app,
     // which carries the verification code.
     if (urlp.host !== redirectHost || urlp.pathname.startsWith('/gate/signup'))
-      return
+      return false
 
     const code = urlp.searchParams.get('code')
     if (urlp.searchParams.get('state') !== stateParam || !code) {
       onError({error: 'Invalid state or code'})
-      return
+      return true
     }
 
     // We want to delay the completion of this screen ever so slightly so that it doesn't appear to be a glitch if it completes too fast
@@ -140,6 +141,24 @@ export function CaptchaWebView({
     } else {
       onSuccess(code)
     }
+
+    return true
+  }
+
+  const onShouldStartLoadWithRequest = (event: ShouldStartLoadRequest) => {
+    // Consume the callback before loading it. An immediate server redirect may
+    // not publish a navigation-state change before the WebView settles.
+    if (handleCallbackUrl(event.url)) return false
+
+    try {
+      return ALLOWED_HOSTS.includes(new URL(event.url).host)
+    } catch {
+      return false
+    }
+  }
+
+  const onNavigationStateChange = (e: WebViewNavigation) => {
+    handleCallbackUrl(e.url)
   }
 
   return (
