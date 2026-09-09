@@ -13,6 +13,7 @@ import {createFullHandle} from '#/lib/strings/handles'
 import {getAge} from '#/lib/strings/time'
 import {useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
+import {filterUserDomains} from '#/screens/Signup/handleDomains'
 import {type AnalyticsContextType, useAnalytics} from '#/analytics'
 
 export type ServiceDescription = ComAtprotoServerDescribeServer.OutputSchema
@@ -192,11 +193,7 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
 
       const domains = a.value?.availableUserDomains ?? []
-      const allowed = a.availableHandles
-      const filtered =
-        allowed && allowed.length > 0
-          ? domains.filter(d => allowed.includes(d))
-          : domains
+      const filtered = filterUserDomains(domains, a.availableHandles)
 
       next.serviceDescription = a.value
         ? {...a.value, availableUserDomains: filtered}

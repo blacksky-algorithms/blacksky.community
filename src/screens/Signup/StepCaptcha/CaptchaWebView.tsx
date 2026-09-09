@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef} from 'react'
+import {useCallback, useEffect, useMemo, useRef} from 'react'
 import {WebView, type WebViewNavigation} from 'react-native-webview'
 import {type ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes'
 
@@ -15,6 +15,25 @@ const ALLOWED_HOSTS = [
   'newassets.hcaptcha.com',
   'api2.hcaptcha.com',
 ]
+
+/**
+ * The gate page lives on whichever PDS signup is pointed at, so the static list
+ * can't cover community PDSes. Derive that host from the same `serviceUrl` the
+ * captcha URL is built from — an unset or malformed value adds nothing, leaving
+ * the static list as-is.
+ */
+export function buildAllowedHosts(serviceUrl?: string): string[] {
+  if (!serviceUrl) return ALLOWED_HOSTS
+
+  try {
+    const {host} = new URL(serviceUrl)
+    return ALLOWED_HOSTS.includes(host)
+      ? ALLOWED_HOSTS
+      : [...ALLOWED_HOSTS, host]
+  } catch {
+    return ALLOWED_HOSTS
+  }
+}
 
 const MIN_DELAY = 3_500
 
@@ -55,10 +74,18 @@ export function CaptchaWebView({
 
   const wasSuccessful = useRef(false)
 
-  const onShouldStartLoadWithRequest = (event: ShouldStartLoadRequest) => {
-    const urlp = new URL(event.url)
-    return ALLOWED_HOSTS.includes(urlp.host)
-  }
+  const allowedHosts = useMemo(
+    () => buildAllowedHosts(state?.serviceUrl),
+    [state?.serviceUrl],
+  )
+
+  const onShouldStartLoadWithRequest = useCallback(
+    (event: ShouldStartLoadRequest) => {
+      const urlp = new URL(event.url)
+      return allowedHosts.includes(urlp.host)
+    },
+    [allowedHosts],
+  )
 
   const onNavigationStateChange = (e: WebViewNavigation) => {
     if (wasSuccessful.current) return
