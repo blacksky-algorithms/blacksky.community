@@ -35,6 +35,7 @@ export function CaptchaWebView({
   fallbackUrl,
   stateParam,
   state,
+  onFallback,
   onComplete,
   onSuccess,
   onError,
@@ -48,6 +49,7 @@ export function CaptchaWebView({
   fallbackUrl?: string
   stateParam: string
   state?: SignupState
+  onFallback?: (statusCode?: number) => void
   onComplete: () => void
   onSuccess: (code: string) => void
   onError: (error: unknown) => void
@@ -73,7 +75,10 @@ export function CaptchaWebView({
   // Attempt to recover from a failed load of the primary (attestation) URL by
   // silently reloading the fallback (captcha) URL. Returns true if it handled
   // the error, false if the caller should surface it.
-  const tryFallback = (failedUrl: string | undefined): boolean => {
+  const tryFallback = (
+    failedUrl: string | undefined,
+    statusCode?: number,
+  ): boolean => {
     if (
       fallbackUrl &&
       !usedFallback.current &&
@@ -84,6 +89,7 @@ export function CaptchaWebView({
         'Signup captcha: primary gate endpoint failed, falling back to captcha',
       )
       usedFallback.current = true
+      onFallback?.(statusCode)
       setUri(fallbackUrl)
       return true
     }
@@ -153,7 +159,7 @@ export function CaptchaWebView({
         onError(e.nativeEvent)
       }}
       onHttpError={e => {
-        if (tryFallback(e.nativeEvent.url)) return
+        if (tryFallback(e.nativeEvent.url, e.nativeEvent.statusCode)) return
         onError(e.nativeEvent)
       }}
     />

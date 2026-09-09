@@ -27,6 +27,7 @@ export function StepCaptcha() {
 }
 
 export function StepCaptchaNative() {
+  const ax = useAnalytics()
   const [token, setToken] = useState<string>()
   const [payload, setPayload] = useState<string>()
   const [ready, setReady] = useState(false)
@@ -34,26 +35,32 @@ export function StepCaptchaNative() {
   useEffect(() => {
     void (async () => {
       logger.debug('trying to generate attestation token...')
+      let succeeded = false
       try {
         if (IS_IOS) {
           logger.debug('starting to generate devicecheck token...')
           const token = await ReactNativeDeviceAttest.getDeviceCheckToken()
           setToken(token)
-          logger.debug(`generated devicecheck token: ${token}`)
+          succeeded = Boolean(token)
         } else {
           const {token, payload} =
             await ReactNativeDeviceAttest.getIntegrityToken('signup')
           setToken(token)
           setPayload(base64UrlEncode(payload))
+          succeeded = Boolean(token)
         }
       } catch (err) {
         const e = err as Error
         logger.error(e)
       } finally {
+        ax.metric('signup:attestationToken', {
+          platform: IS_IOS ? 'ios' : 'android',
+          succeeded,
+        })
         setReady(true)
       }
     })()
-  }, [])
+  }, [ax])
 
   if (!ready) {
     return <View />
@@ -131,6 +138,24 @@ function StepCaptchaInner({
   const url = attestUrl ?? captchaUrl
   const fallbackUrl = attestUrl ? captchaUrl : undefined
 
+  useEffect(() => {
+    if (!IS_NATIVE) return
+    ax.metric('signup:attestationGate', {
+      platform: IS_IOS ? 'ios' : 'android',
+      selected: attestUrl ? 'attestation' : 'captcha',
+    })
+  }, [ax, attestUrl])
+
+  const onFallback = useCallback(
+    (statusCode?: number) => {
+      ax.metric('signup:attestationFallback', {
+        platform: IS_IOS ? 'ios' : 'android',
+        statusCode,
+      })
+    },
+    [ax],
+  )
+
   const onSuccess = useCallback(
     (code: string) => {
       setCompleted(true)
@@ -185,6 +210,7 @@ function StepCaptchaInner({
               fallbackUrl={fallbackUrl}
               stateParam={stateParam}
               state={state}
+              onFallback={onFallback}
               onComplete={() => setCompleted(true)}
               onSuccess={onSuccess}
               onError={onError}

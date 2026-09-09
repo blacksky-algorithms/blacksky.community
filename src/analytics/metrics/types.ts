@@ -174,6 +174,18 @@ export type Events = {
   }
   'signup:captchaSuccess': {}
   'signup:captchaFailure': {}
+  'signup:attestationToken': {
+    platform: 'ios' | 'android'
+    succeeded: boolean
+  }
+  'signup:attestationGate': {
+    platform: 'ios' | 'android'
+    selected: 'attestation' | 'captcha'
+  }
+  'signup:attestationFallback': {
+    platform: 'ios' | 'android'
+    statusCode?: number
+  }
   'signup:fieldError': {
     field: string
     errorCount: number
