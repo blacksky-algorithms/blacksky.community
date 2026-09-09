@@ -1,5 +1,5 @@
-import {FOR_YOU_FEED_URI} from '#/lib/constants'
-import {prioritizeForYouForMyAtprotoHandle} from '#/lib/default-feeds'
+import {BSKY_SERVICE, FOR_YOU_FEED_URI} from '#/lib/constants'
+import {prioritizeForYouForBlackskyPds} from '#/lib/default-feeds'
 
 const defaults = [
   {
@@ -10,11 +10,9 @@ const defaults = [
   {type: 'timeline', value: 'following', pinned: true},
 ]
 
-describe('prioritizeForYouForMyAtprotoHandle', () => {
-  it('pins For You first for myatproto.social handles', () => {
-    expect(
-      prioritizeForYouForMyAtprotoHandle(defaults, 'alice.myatproto.social'),
-    ).toEqual([
+describe('prioritizeForYouForBlackskyPds', () => {
+  it('pins For You first for accounts on the Blacksky PDS', () => {
+    expect(prioritizeForYouForBlackskyPds(defaults, BSKY_SERVICE)).toEqual([
       {type: 'feed', value: FOR_YOU_FEED_URI, pinned: true},
       ...defaults,
     ])
@@ -22,9 +20,9 @@ describe('prioritizeForYouForMyAtprotoHandle', () => {
 
   it('moves an existing For You feed first without duplicating it', () => {
     expect(
-      prioritizeForYouForMyAtprotoHandle(
+      prioritizeForYouForBlackskyPds(
         [...defaults, {type: 'feed', value: FOR_YOU_FEED_URI, pinned: false}],
-        'alice.myatproto.social',
+        BSKY_SERVICE,
       ),
     ).toEqual([
       {type: 'feed', value: FOR_YOU_FEED_URI, pinned: true},
@@ -32,15 +30,15 @@ describe('prioritizeForYouForMyAtprotoHandle', () => {
     ])
   })
 
-  it('matches the handle domain case-insensitively', () => {
+  it('accepts the normalized Blacksky PDS URL', () => {
     expect(
-      prioritizeForYouForMyAtprotoHandle(defaults, 'Alice.MyAtproto.Social')[0],
+      prioritizeForYouForBlackskyPds(defaults, `${BSKY_SERVICE}/`)[0],
     ).toEqual({type: 'feed', value: FOR_YOU_FEED_URI, pinned: true})
   })
 
-  it('leaves other handle domains unchanged', () => {
+  it('leaves accounts on other PDSes unchanged', () => {
     expect(
-      prioritizeForYouForMyAtprotoHandle(defaults, 'alice.blacksky.app'),
+      prioritizeForYouForBlackskyPds(defaults, 'https://pds.example.com'),
     ).toBe(defaults)
   })
 })

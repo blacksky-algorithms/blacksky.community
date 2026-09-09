@@ -1,4 +1,4 @@
-import {FOR_YOU_FEED_URI} from '#/lib/constants'
+import {BSKY_SERVICE, FOR_YOU_FEED_URI} from '#/lib/constants'
 
 export type DefaultPinnedFeed = {
   type: string
@@ -6,11 +6,11 @@ export type DefaultPinnedFeed = {
   pinned: boolean
 }
 
-export function prioritizeForYouForMyAtprotoHandle(
+export function prioritizeForYouForBlackskyPds(
   feeds: DefaultPinnedFeed[],
-  handle?: string,
+  service?: string,
 ): DefaultPinnedFeed[] {
-  if (!handle?.toLowerCase().endsWith('.myatproto.social')) {
+  if (!service || new URL(service).origin !== new URL(BSKY_SERVICE).origin) {
     return feeds
   }
 
