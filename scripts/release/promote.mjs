@@ -8,6 +8,8 @@ import {
   invariant,
   required,
   output,
+  branchDate,
+  releaseTag,
 } from './core.mjs'
 import {OTA} from './ota.mjs'
 import {deployWeb, targets, verifyWeb} from './web.mjs'
@@ -77,13 +79,13 @@ if (process.argv[2] === 'preflight') {
   await ota.verifyArtifacts(m.ota, 'production', true)
   await validate()
   if (m.mode === 'native') await gh.tag(`blacksky-v${m.runtimeVersion}`, m.sha)
-  await gh.tag(`blacksky-release-${m.branch.slice(8)}`, m.sha)
+  await gh.tag(releaseTag(m.branch), m.sha)
   await gh.request(
     `releases/${releaseId}`,
     {
-      tag_name: `blacksky-release-${m.branch.slice(8)}`,
+      tag_name: releaseTag(m.branch),
       target_commitish: m.sha,
-      name: `Release ${m.branch.slice(8)}`,
+      name: `Release ${branchDate(m.branch)}`,
       draft: false,
       prerelease: false,
     },

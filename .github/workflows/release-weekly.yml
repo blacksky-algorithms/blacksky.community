@@ -56,6 +56,7 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version-file: package.json
+          cache: pnpm
       - id: select
         run: |
           if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$INPUT_OPERATION" = "prepare" ]; then
@@ -79,12 +80,14 @@ jobs:
     needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
     uses: ./.github/workflows/release-build-ios.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    secrets: inherit
     with:
       sha: ${{ needs.select.outputs.sha }}
   android:
     needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
     uses: ./.github/workflows/release-build-android.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    secrets: inherit
     with:
       sha: ${{ needs.select.outputs.sha }}
   ota:
@@ -146,6 +149,7 @@ jobs:
           tag="$RELEASE_IMAGE_REPOSITORY:rc-$CANDIDATE_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           docker buildx create --use
           docker buildx build --platform linux/amd64 --push --metadata-file image.json --tag "$tag" \
+            --cache-from type=gha --cache-to type=gha,mode=max \
             --build-arg EXPO_PUBLIC_ENV=production \
             --build-arg EXPO_PUBLIC_RELEASE_VERSION="$CANDIDATE_VERSION" \
             --build-arg EXPO_PUBLIC_BUNDLE_IDENTIFIER="$CANDIDATE_SHA" \

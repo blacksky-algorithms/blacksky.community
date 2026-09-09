@@ -10,9 +10,12 @@ import {
   nextVersion,
   output,
   releaseBranch,
+  isReleaseBranch,
+  branchDate,
+  qaTag,
   required,
   sha,
-  compareVersions,
+  version,
   validateManifest,
   candidatePointer,
   nativeFingerprint,
@@ -29,9 +32,7 @@ const currentRun = `${process.env.GITHUB_SERVER_URL}/${gh.repo}/actions/runs/${p
 
 async function activeBranches() {
   const branches = await gh.list('branches')
-  const active = branches
-    .filter(b => /^release\/\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(b.name))
-    .map(b => b.name)
+  const active = branches.filter(b => isReleaseBranch(b.name)).map(b => b.name)
   invariant(
     active.length <= 1,
     'More than one unresolved release branch; resolve before continuing',
@@ -62,7 +63,7 @@ async function baseline(previous) {
       : previous.nativeBaseline
     : JSON.parse(required('RELEASE_NATIVE_BASELINE'))
   sha(value.sha)
-  compareVersions(value.runtimeVersion, value.runtimeVersion)
+  version(value.runtimeVersion)
   invariant(
     /^[a-f0-9]{64}$/.test(value.fingerprint || ''),
     'Configure the production native fingerprint before cutting',
@@ -124,7 +125,7 @@ async function schedule() {
       },
       'package.json': {...pkg, version: runtime},
     },
-    `chore(release): cut QA train ${branch.slice(8)}`,
+    `chore(release): cut QA train ${branchDate(branch)}`,
   )
   await gh.request('git/refs', {ref: `refs/heads/${branch}`, sha: commit.sha})
 }
@@ -175,11 +176,11 @@ async function prepare() {
   )
   const releases = await gh.list('releases')
   const release =
-    releases.find(r => r.tag_name === `qa-${branch.slice(8)}` && r.draft) ||
+    releases.find(r => r.tag_name === qaTag(branch) && r.draft) ||
     (await gh.request('releases', {
-      tag_name: `qa-${branch.slice(8)}`,
+      tag_name: qaTag(branch),
       target_commitish: head,
-      name: `QA ${branch.slice(8)}`,
+      name: `QA ${branchDate(branch)}`,
       body: `QA release branch: ${branch}\nSource: ${train.sourceSha}`,
       draft: true,
       prerelease: true,
@@ -251,8 +252,6 @@ async function finish() {
   if (m.mode === 'native') {
     m.ios = json('native-ios.json')
     m.android = json('native-android.json')
-  }
-  if (m.mode === 'native') {
     for (const [platform, extension] of [
       ['ios', 'ipa'],
       ['android', 'aab'],

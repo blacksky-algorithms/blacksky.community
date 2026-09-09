@@ -38,20 +38,22 @@ export function sha(value) {
   invariant(/^[a-f0-9]{40}$/.test(value), 'Expected full commit SHA')
   return value
 }
+const RELEASE_BRANCH = /^release\/\d{4}-\d{2}-\d{2}(?:-\d+)?$/
+export const isReleaseBranch = name => RELEASE_BRANCH.test(name)
 export function releaseBranch(value) {
-  invariant(
-    /^release\/\d{4}-\d{2}-\d{2}(?:-\d+)?$/.test(value),
-    'Invalid release branch',
-  )
+  invariant(RELEASE_BRANCH.test(value), 'Invalid release branch')
+  return value
+}
+export const branchDate = branch => releaseBranch(branch).slice(8)
+export const qaTag = branch => `qa-${branchDate(branch)}`
+export const releaseTag = branch => `blacksky-release-${branchDate(branch)}`
+export function version(value) {
+  invariant(/^\d+\.\d+\.\d+$/.test(value), `Invalid runtime version: ${value}`)
   return value
 }
 export function compareVersions(a, b) {
-  const parse = v => {
-    invariant(/^\d+\.\d+\.\d+$/.test(v), `Invalid runtime version: ${v}`)
-    return v.split('.').map(Number)
-  }
-  const av = parse(a),
-    bv = parse(b)
+  const av = version(a).split('.').map(Number)
+  const bv = version(b).split('.').map(Number)
   for (let i = 0; i < 3; i++) if (av[i] !== bv[i]) return av[i] - bv[i]
   return 0
 }
@@ -75,7 +77,7 @@ export function validateManifest(m, requireArtifacts = true) {
   sha(m.sha)
   releaseBranch(m.branch)
   invariant(m.mode === 'ota' || m.mode === 'native', 'Invalid candidate mode')
-  compareVersions(m.runtimeVersion, m.runtimeVersion)
+  version(m.runtimeVersion)
   invariant(
     /^sha256:[a-f0-9]{64}$/.test(m.web.digest),
     'Missing immutable web digest',

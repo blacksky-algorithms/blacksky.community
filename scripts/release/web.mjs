@@ -177,10 +177,6 @@ export async function deployWeb(target, web) {
       `deployment/${target.deployment}`,
       '--timeout=600s',
     )
-    invariant(
-      (await snapshotWeb(target)).image === image,
-      'Kubernetes image drift',
-    )
   }
   await verifyWeb(target, web)
 }

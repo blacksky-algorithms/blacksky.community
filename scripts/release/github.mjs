@@ -100,9 +100,9 @@ export class GitHub {
     )
   }
 
-  async dispatch(workflow, inputs = {}, ref = 'main') {
+  async dispatch(workflow, inputs = {}) {
     return this.request(`actions/workflows/${workflow}/dispatches`, {
-      ref,
+      ref: 'main',
       inputs,
     })
   }

@@ -69,6 +69,11 @@ jobs:
             sudo gem install cocoapods -v 1.16.2
           fi
           test "$(pod --version)" = "1.16.2"
+      - name: Cache Pods
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ./ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build IPA
         run: pnpm exec eas build -p ios --profile "$NATIVE_PROFILE" --local --output build.tar.gz --non-interactive
       - name: Verify binary identity
