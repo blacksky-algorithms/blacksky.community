@@ -1,0 +1,123 @@
+name: Build QA iOS
+on:
+  workflow_call:
+    inputs:
+      sha:
+        type: string
+        required: true
+      profile:
+        type: string
+        default: release
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Exact candidate SHA
+        type: string
+        required: true
+      profile:
+        description: Production candidate or dedicated OTA QA installation
+        type: choice
+        options: [release-qa, release]
+        default: release-qa
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.repository == 'blacksky-algorithms/blacksky.community'
+    runs-on: macos-26-xlarge
+    timeout-minutes: 120
+    environment: release-build
+    concurrency:
+      group: native-ios
+      cancel-in-progress: false
+    env:
+      BUNDLE_GEMFILE: scripts/release/Gemfile
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      ENV_TOKEN: ${{ secrets.ENV_TOKEN }}
+      GOOGLE_SERVICES_TOKEN: ${{ secrets.GOOGLE_SERVICES_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+      EXPO_PUBLIC_GCP_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}
+      EXPO_PUBLIC_METRICS_API_HOST: ${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_API_HOST: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}
+      EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
+      EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
+      EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+      CANDIDATE_SHA: ${{ inputs.sha }}
+      NATIVE_PROFILE: ${{ inputs.profile }}
+      EXPO_PUBLIC_ENV: production
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+      RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ inputs.sha }}
+          persist-credentials: false
+      - uses: ./.github/actions/release-setup # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90
+        with:
+          xcode-version: '26.4'
+      - name: Pin CocoaPods
+        run: |
+          if [ "$(pod --version)" != "1.16.2" ]; then
+            sudo gem uninstall cocoapods --all --executables --ignore-dependencies
+            sudo gem install cocoapods -v 1.16.2
+          fi
+          test "$(pod --version)" = "1.16.2"
+      - name: Build IPA
+        run: pnpm exec eas build -p ios --profile "$NATIVE_PROFILE" --local --output build.tar.gz --non-interactive
+      - name: Verify binary identity
+        run: |
+          mkdir ios-build
+          tar -xzf build.tar.gz -C ios-build
+          ipa_path="$(find ios-build -name '*.ipa' -print -quit)"
+          test -n "$ipa_path"
+          cp "$ipa_path" candidate.ipa
+          unzip -q candidate.ipa 'Payload/*.app/Info.plist' 'Payload/*.app/Expo.plist' -d ios-metadata
+          set -- ios-metadata/Payload/*.app
+          test "$#" -eq 1
+          plist="$1/Info.plist"
+          export ACTUAL_APP_IDENTIFIER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$plist")"
+          export ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$plist")"
+          export ACTUAL_BUILD_NUMBER="$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$plist")"
+          expo_plist="$1/Expo.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print EXUpdatesRuntimeVersion' "$expo_plist")" = "$ACTUAL_VERSION"
+          NATIVE_ARTIFACT=candidate.ipa node scripts/release/build.mjs native-record ios
+      - name: Upload for TestFlight QA
+        run: pnpm exec eas submit -p ios --profile release-qa --non-interactive --path candidate.ipa
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
+        with:
+          ruby-version: '3.4'
+          bundler: '4.0.11'
+      - name: Install store tooling
+        run: |
+          bundle config set --local path "$RUNNER_TEMP/release-gems"
+          bundle install
+      - name: Assign exact build to QA group
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          RELEASE_QA_TESTFLIGHT_GROUP: ${{ vars.RELEASE_QA_TESTFLIGHT_GROUP }}
+          RELEASE_APP_IDENTIFIER: ${{ vars.RELEASE_APP_IDENTIFIER }}
+        run: |
+          export RELEASE_VERSION="$(jq -r .version native-ios.json)"
+          export IOS_BUILD_NUMBER="$(jq -r .buildNumber native-ios.json)"
+          TESTFLIGHT_GROUP="$RELEASE_QA_TESTFLIGHT_GROUP" bundle exec fastlane distribute_testflight
+      - name: Upload symbols
+        run: |
+          dsym="$(find ios-build -name '*.app.dSYM.zip' -print -quit)"
+          test -n "$dsym"
+            SENTRY_ORG=blacksky-algorithms SENTRY_PROJECT=social-app pnpm exec sentry-cli debug-files upload "$dsym" --include-sources
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: native-ios-${{ inputs.sha }}-${{ github.run_attempt }}
+          path: |
+            native-ios.json
+            candidate.ipa
+          retention-days: 90
+          if-no-files-found: error
+      - name: Remove credentials
+        if: always()
+        run: rm -f .env google-services.json

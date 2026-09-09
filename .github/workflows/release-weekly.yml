@@ -96,13 +96,13 @@ jobs:
   ios:
     needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
-    uses: ./.github/workflows/build-submit-ios.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    uses: ./.github/workflows/release-build-ios.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
     with:
       sha: ${{ needs.select.outputs.sha }}
   android:
     needs: [select, lint, golang]
     if: needs.select.outputs.mode == 'native'
-    uses: ./.github/workflows/build-submit-android.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    uses: ./.github/workflows/release-build-android.yml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
     with:
       sha: ${{ needs.select.outputs.sha }}
   ota:
