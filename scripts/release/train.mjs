@@ -15,7 +15,6 @@ import {
   compareVersions,
   validateManifest,
   candidatePointer,
-  assertSquashFix,
   nativeFingerprint,
 } from './core.mjs'
 import {OTA} from './ota.mjs'
@@ -303,77 +302,8 @@ async function finish() {
     manifest_hash: digest(m),
   })
 }
-async function forwardportOne(pr) {
-  invariant(
-    pr?.merged && pr.base.repo.full_name === gh.repo,
-    'Expected merged repository PR',
-  )
-  const branch = releaseBranch(pr.base.ref)
-  const merge = sha(pr.merge_commit_sha)
-  const commit = await gh.request(`commits/${merge}`)
-  const diff = await gh.request(`compare/${commit.parents[0].sha}...${merge}`)
-  const prFiles = await gh.list(`pulls/${pr.number}/files`)
-  assertSquashFix(commit, diff.files, prFiles, pr.changed_files)
-  const fixFiles = prFiles
-  invariant(
-    !fixFiles.some(f => f.filename === '.release/train.json'),
-    'Train metadata is not a QA fix',
-  )
-  const forwardBranch = `forwardport/qa-${pr.number}-${merge.slice(0, 12)}`
-  const existing = await gh.list(
-    `pulls?state=all&head=${gh.repo.split('/')[0]}:${forwardBranch}`,
-  )
-  if (existing.length) {
-    invariant(
-      existing[0].state === 'open' || existing[0].merged_at,
-      `Forward-port was closed without merging: ${existing[0].html_url}. Forward-port manually.`,
-    )
-    console.log(`Forward-port: ${existing[0].html_url}`)
-    return
-  }
-  git('fetch', 'origin', 'main', branch)
-  git('checkout', '-B', forwardBranch, 'origin/main')
-  git('config', 'user.name', 'github-actions[bot]')
-  git(
-    'config',
-    'user.email',
-    '41898282+github-actions[bot]@users.noreply.github.com',
-  )
-  try {
-    git('cherry-pick', '-x', merge)
-  } catch {
-    const files = git('diff', '--name-only', '--diff-filter=U')
-    git('cherry-pick', '--abort')
-    throw new Error(
-      `Forward-port #${pr.number} conflicts: ${files}. Apply this fix to main before later dependent fixes.`,
-    )
-  }
-  execFileSync('git', ['push', 'origin', `HEAD:refs/heads/${forwardBranch}`], {
-    stdio: 'inherit',
-  })
-  const created = await gh.request('pulls', {
-    base: 'main',
-    head: forwardBranch,
-    title: `fix: forward-port #${pr.number}`,
-    body: `Forward-ports #${pr.number} from \`${branch}\`.\n\nOriginal fix: ${merge}\n\nRequires normal CI and review.`,
-  })
-  console.log(created.html_url)
-}
-async function forwardport() {
-  const branch = releaseBranch(required('GITHUB_REF_NAME'))
-  const prs = await gh.list(
-    `pulls?state=closed&base=${encodeURIComponent(branch)}`,
-  )
-  for (const pr of prs
-    .filter(p => p.merged_at)
-    .sort((a, b) => a.merged_at.localeCompare(b.merged_at))) {
-    await forwardportOne(await gh.request(`pulls/${pr.number}`))
-  }
-}
-
 const operation = process.argv[2]
 if (operation === 'schedule') await schedule()
 else if (operation === 'prepare') await prepare()
 else if (operation === 'finish') await finish()
-else if (operation === 'forwardport') await forwardport()
 else throw new Error('Unknown train operation')

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import {
   assertCurrent,
   candidatePointer,
-  assertSquashFix,
   chooseChecks,
   compareVersions,
   digest,
@@ -130,25 +129,4 @@ test('current candidate pointer includes immutable asset and hash', () => {
     hash: 'b'.repeat(64),
   })
   assert.throws(() => candidatePointer('old draft'), /pointer/)
-})
-
-test('forward-port refuses a rebase tail or truncated PR diff', () => {
-  const first = {filename: 'a.ts', status: 'modified', sha, patch: 'first fix'}
-  const last = {filename: 'b.ts', status: 'modified', sha, patch: 'second fix'}
-  const commit = {parents: [{sha}]}
-  assert.doesNotThrow(() =>
-    assertSquashFix(commit, [last, first], [first, last], 2),
-  )
-  assert.throws(
-    () => assertSquashFix(commit, [last], [first, last], 2),
-    /entire PR/,
-  )
-  assert.throws(
-    () => assertSquashFix(commit, [first], [first], 301),
-    /entire PR/,
-  )
-  assert.throws(
-    () => assertSquashFix(commit, [{...last, patch: 'tail only'}], [last], 1),
-    /entire PR/,
-  )
 })

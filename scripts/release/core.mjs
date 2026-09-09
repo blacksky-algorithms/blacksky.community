@@ -149,20 +149,6 @@ export function candidatePointer(body) {
   )
 }
 
-export function assertSquashFix(commit, files, prFiles, changedFiles) {
-  const patches = rows =>
-    rows
-      .map(f => [f.filename, f.status, f.sha, f.previous_filename, f.patch])
-      .sort(([a], [b]) => a.localeCompare(b))
-  invariant(
-    commit.parents.length === 1 &&
-      files?.length === changedFiles &&
-      prFiles.length === changedFiles &&
-      digest(patches(files)) === digest(patches(prFiles)),
-    'QA fix PRs must use squash merge; manually forward-port this entire PR',
-  )
-}
-
 export function nativeFingerprint() {
   const hashes = ['ios', 'android'].map(platform =>
     execFileSync(
