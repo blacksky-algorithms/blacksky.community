@@ -4428,7 +4428,7 @@ msgstr ""
 msgid "Error occurred while saving file"
 msgstr ""
 
-#: src/screens/Signup/StepCaptcha/index.tsx:132
+#: src/screens/Signup/StepCaptcha/index.tsx:175
 msgid "Error receiving captcha response."
 msgstr ""
 
@@ -11052,7 +11052,7 @@ msgid "Sorry, we're unable to load account suggestions at this time."
 msgstr ""
 
 #: src/App.native.tsx:130
-#: src/App.web.tsx:152
+#: src/App.web.tsx:154
 msgid "Sorry! Your session expired. Please sign in again."
 msgstr ""
 
