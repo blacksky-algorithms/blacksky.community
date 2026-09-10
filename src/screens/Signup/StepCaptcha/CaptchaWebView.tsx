@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useMemo, useRef, useState} from 'react'
 import {WebView, type WebViewNavigation} from 'react-native-webview'
 import {type ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes'
 
@@ -16,8 +16,6 @@ const ALLOWED_HOSTS = [
   'newassets.hcaptcha.com',
   'api2.hcaptcha.com',
 ]
-
-const MIN_DELAY = 3_500
 
 /** True if the two URLs point at the same host + path (query ignored). */
 function isSameEndpoint(a: string, b: string): boolean {
@@ -54,23 +52,12 @@ export function CaptchaWebView({
   onSuccess: (code: string) => void
   onError: (error: unknown) => void
 }) {
-  const startedAt = useRef(Date.now())
-  const successTo = useRef<NodeJS.Timeout>(undefined)
-
   // The URL currently loaded in the WebView. Starts at `url` and switches to
   // `fallbackUrl` once if the primary endpoint fails to load. Callers should
   // key this component on `url` so a changed primary URL remounts and resets
   // both this state and `usedFallback`.
   const [uri, setUri] = useState(url)
   const usedFallback = useRef(false)
-
-  useEffect(() => {
-    return () => {
-      if (successTo.current) {
-        clearTimeout(successTo.current)
-      }
-    }
-  }, [])
 
   // Attempt to recover from a failed load of the primary (attestation) URL by
   // silently reloading the fallback (captcha) URL. Returns true if it handled
@@ -129,18 +116,9 @@ export function CaptchaWebView({
       return true
     }
 
-    // We want to delay the completion of this screen ever so slightly so that it doesn't appear to be a glitch if it completes too fast
     wasSuccessful.current = true
     onComplete()
-    const now = Date.now()
-    const timeTaken = now - startedAt.current
-    if (timeTaken < MIN_DELAY) {
-      successTo.current = setTimeout(() => {
-        onSuccess(code)
-      }, MIN_DELAY - timeTaken)
-    } else {
-      onSuccess(code)
-    }
+    onSuccess(code)
 
     return true
   }

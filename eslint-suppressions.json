@@ -1464,11 +1464,6 @@
       "count": 1
     }
   },
-  "src/screens/Signup/StepCaptcha/CaptchaWebView.tsx": {
-    "react-hooks/purity": {
-      "count": 1
-    }
-  },
   "src/screens/Signup/StepHandle/index.tsx": {
     "@typescript-eslint/no-misused-promises": {
       "count": 1
