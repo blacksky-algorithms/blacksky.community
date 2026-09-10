@@ -8,6 +8,7 @@ import {
   emitOauthTelemetry,
 } from '#/state/session/oauth-telemetry'
 import {OAUTH_BASE_URL, OAUTH_CLIENT_NAME, OAUTH_SCOPE} from './oauth-config'
+import {emitOauthLifecycleEvent} from './oauth-lifecycle'
 
 const LOCAL_OAUTH_HANDLE_RESOLVER =
   process.env.EXPO_PUBLIC_OAUTH_HANDLE_RESOLVER
@@ -71,6 +72,7 @@ const sessionHooks = {
           ? cause
           : undefined
     logger.warn('oauth: session deleted', {sub, cause: category, message})
+    emitOauthLifecycleEvent({type: 'deleted', did: sub})
     emitOauthTelemetry({
       type: 'oauth:sessionDeleted',
       payload: {cause: category, message: message?.slice(0, 200)},

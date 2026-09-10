@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Expo OAuth types do not resolve in Linux CI */
 import {
   Agent,
   type AtpSessionData,
@@ -15,6 +15,7 @@ import {
 } from './agent'
 import {configureModerationForAccount} from './moderation'
 import {getOAuthClient} from './oauth-client'
+import {restoreOAuthSession} from './oauth-restore'
 import {type SessionAccount} from './types'
 
 export async function oauthCreateAgent(session: OAuthSession) {
@@ -34,15 +35,11 @@ export async function oauthResumeSession(account: SessionAccount) {
   const client = getOAuthClient()
   let session: OAuthSession
   try {
-    session = await Promise.race([
-      client.restore(account.did),
-      new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('OAuth session restore timed out')),
-          OAUTH_RESTORE_TIMEOUT_MS,
-        ),
-      ),
-    ])
+    session = await restoreOAuthSession(
+      client,
+      account.did,
+      OAUTH_RESTORE_TIMEOUT_MS,
+    )
   } catch (e) {
     logger.error('oauthResumeSession: restore failed', {
       did: account.did,
