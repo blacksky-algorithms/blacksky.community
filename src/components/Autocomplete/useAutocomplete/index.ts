@@ -2,12 +2,11 @@ import {useCallback, useMemo} from 'react'
 import {moderateProfile, type ModerationOpts} from '@atproto/api'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
-import {searchAppviewOpts} from '#/lib/api/search-routing'
+import {searchAppviewOpts, useSearchAgent} from '#/lib/api/search-routing'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences'
-import {useAgent} from '#/state/session'
 import {
   type AutocompleteApi,
   type AutocompleteItem,
@@ -32,7 +31,7 @@ export function useAutocomplete({
   limit?: number
   showSearchFallback?: boolean
 }): AutocompleteApi {
-  const agent = useAgent()
+  const agent = useSearchAgent()
   const moderationOpts = useModerationOpts()
   const emojiSearch = useEmojiSearch()
 

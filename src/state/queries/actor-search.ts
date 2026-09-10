@@ -7,9 +7,8 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
-import {searchAppviewOpts} from '#/lib/api/search-routing'
+import {searchAppviewOpts, useSearchAgent} from '#/lib/api/search-routing'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
 
 export const RQKEY_ROOT = 'actor-search'
 export const RQKEY = (query: string, limit?: number) => [
@@ -29,7 +28,7 @@ export function useActorSearch({
   maintainData?: boolean
   limit?: number
 }) {
-  const agent = useAgent()
+  const agent = useSearchAgent()
   return useInfiniteQuery<
     AppBskyActorSearchActors.OutputSchema,
     Error,
