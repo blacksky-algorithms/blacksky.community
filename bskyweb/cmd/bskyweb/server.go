@@ -844,6 +844,11 @@ func (srv *Server) WebPost(c echo.Context) error {
 	// handle is unusable (template strips query/fragment).
 	canonicalURL := bskyPostURL(pv.Handle, rkey.String())
 
+	// DID-form AT-URI of the post record, emitted as <meta name="at:canonical">
+	// per the at-tags proposal (https://tangled.org/chrisshank.com/at-tags).
+	atURI := fmt.Sprintf("at://%s/app.bsky.feed.post/%s", pv.Did, rkey)
+	data["atURI"] = atURI
+
 	if !unauthedViewingOkay {
 		// Provide minimal OpenGraph data for auth-required posts
 		data["requestURI"] = requestURI
@@ -861,7 +866,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 	}
 
 	// then fetch the post thread (with extra context)
-	uri := fmt.Sprintf("at://%s/app.bsky.feed.post/%s", pv.Did, rkey)
+	uri := atURI
 	tpv, err := appbsky.FeedGetPostThread(ctx, srv.xrpcc, 1, 0, uri)
 	if err != nil {
 		log.Warnf("failed to fetch post: %s\t%v", uri, err)
@@ -944,6 +949,8 @@ func (srv *Server) WebStarterPack(c echo.Context) error {
 		return c.Render(http.StatusOK, "starterpack.html", data)
 	}
 	data["title"] = rec.Name
+	// DID-form AT-URI from the view (starterPackURI may be handle-form).
+	data["atURI"] = spv.StarterPack.Uri
 	if srv.cfg.ogcardHost != "" {
 		data["imgThumbUrl"] = fmt.Sprintf("%s/start/%s/%s", srv.cfg.ogcardHost, identifier, rkey)
 	}
@@ -1011,6 +1018,7 @@ func (srv *Server) WebProfile(c echo.Context) error {
 	data["profileView"] = pv
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 	data["requestHost"] = req.Host
+	data["atURI"] = fmt.Sprintf("at://%s/app.bsky.actor.profile/self", pv.Did)
 
 	// Prefer the handle-form URL so JSON-LD `url` and
 	// <link rel="canonical"> match. Template falls back to requestURI
@@ -1102,6 +1110,7 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	req := c.Request()
 	data["feedView"] = fgv.View
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
+	data["atURI"] = feedURI
 
 	return c.Render(http.StatusOK, "feed.html", data)
 }
