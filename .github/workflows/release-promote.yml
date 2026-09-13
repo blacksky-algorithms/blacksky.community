@@ -1,0 +1,102 @@
+---
+name: Promote release to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: Release description for the App Store and Play Store
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  ios:
+    if: github.repository == 'blacksky-algorithms/blacksky.community' && startsWith(github.ref, 'refs/heads/release/')
+    uses: ./.github/workflows/build-submit-ios.yml
+    secrets: inherit
+    with:
+      profile: production
+      submit: false
+
+  android:
+    if: github.repository == 'blacksky-algorithms/blacksky.community' && startsWith(github.ref, 'refs/heads/release/')
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-submit-android.yml
+    secrets: inherit
+    with:
+      profile: production
+      submit: false
+
+  publish:
+    name: Release to stores and production OTA
+    needs: [ios, android]
+    runs-on: macos-26
+    timeout-minutes: 120
+    concurrency:
+      group: release-promote
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_NOTES: ${{ inputs.notes }}
+      APP_VERSION: ${{ needs.ios.outputs.package-version }}
+      IOS_BUILD_NUMBER: ${{ needs.ios.outputs.build-number }}
+      ANDROID_VERSION_CODE: ${{ needs.android.outputs.version-code }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: ⬇️ Download release candidates
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: release-candidate-*
+          merge-multiple: true
+
+      - name: 🚀 Release to the App Store and Play Store
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          GPLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GPLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          trap 'rm -f asc_api_key.json' EXIT
+          key_content="$(echo "$ASC_KEY_P8_BASE64" | base64 --decode)"
+          jq -n \
+            --arg key_id "$ASC_KEY_ID" \
+            --arg issuer_id "$ASC_ISSUER_ID" \
+            --arg key "$key_content" \
+            '{key_id: $key_id, issuer_id: $issuer_id, key: $key, in_house: false}' \
+            > asc_api_key.json
+          ipa_path="$(find . -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -n "$ipa_path"
+          test -f build.aab
+          export ASC_API_KEY_PATH="$PWD/asc_api_key.json"
+          export IPA_PATH="$PWD/${ipa_path#./}"
+          export AAB_PATH="$PWD/build.aab"
+          fastlane release_stores
+
+      - name: 🚀 Publish production OTA for the tested JS
+        run: >
+          gh workflow run bundle-deploy-eas-update.yml
+          --ref "$GITHUB_REF_NAME"
+          -f channel=production
+          -f runtimeVersion="$APP_VERSION"
+
+      - name: 📝 Record GitHub release
+        run: |
+          gh release create "v$APP_VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "v$APP_VERSION" \
+            --notes "$RELEASE_NOTES"
+          {
+            echo "Released \`v$APP_VERSION\` from \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`."
+            echo "iOS build $IOS_BUILD_NUMBER submitted for App Store review (auto-release)."
+            echo "Android version code $ANDROID_VERSION_CODE released to Play production."
+            echo "Production OTA publish dispatched for runtime $APP_VERSION."
+          } >> "$GITHUB_STEP_SUMMARY"

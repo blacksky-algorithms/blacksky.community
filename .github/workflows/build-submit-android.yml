@@ -16,6 +16,10 @@ on:
         type: string
         description: Build profile to use
         required: true
+      submit:
+        type: boolean
+        description: Submit to Google Play (disable to only upload the AAB artifact)
+        default: true
     outputs:
       package-version:
         description: Version from package.json
@@ -122,9 +126,19 @@ jobs:
         run: bash scripts/setGitHubOutput.sh
 
       - name: 🚀 Submit to Google Play
+        if: ${{ inputs.submit != false }}
         env:
           PROFILE: ${{ inputs.profile || 'testflight-android' }}
         run: pnpm eas submit -p android --profile $PROFILE --non-interactive --path build.aab
+
+      - name: 📦 Upload release candidate AAB
+        if: ${{ inputs.submit == false }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-candidate-android
+          path: build.aab
+          retention-days: 7
+          if-no-files-found: error
 
       - name: 🔧 Setup bundletool
         uses: amyu/setup-bundletool@cc2e1857284660bd625e43f2c8a45626f034302f # v1.1
