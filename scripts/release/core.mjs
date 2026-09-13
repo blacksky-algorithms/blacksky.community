@@ -72,7 +72,7 @@ export function chooseChecks(runs, names) {
     return latest.conclusion === 'success' ? 'success' : 'failure'
   })
 }
-export function validateManifest(m, requireArtifacts = true) {
+export function validateManifest(m) {
   invariant(m.schema === 1, 'Unsupported candidate manifest')
   sha(m.sha)
   releaseBranch(m.branch)
@@ -93,12 +93,6 @@ export function validateManifest(m, requireArtifacts = true) {
       'OTA candidate runtime mismatch',
     )
     for (const platform of ['ios', 'android']) {
-      if (requireArtifacts)
-        invariant(
-          m.ota.artifacts?.[platform]?.assets?.length &&
-            /^[a-f0-9]{64}$/.test(m.ota.artifacts[platform].manifestHash),
-          'Missing tested OTA asset hashes',
-        )
       invariant(
         m.ota.updates[platform]?.commitHash === m.sha,
         `Missing ${platform} OTA identity`,

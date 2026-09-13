@@ -27,15 +27,6 @@ const candidate = () => ({
   },
   ota: {
     runtimeVersion: '1.127.2',
-    artifacts: Object.fromEntries(
-      ['ios', 'android'].map(p => [
-        p,
-        {
-          manifestHash: 'a'.repeat(64),
-          assets: [{url: 'https://ota.example/asset', hash: 'test'}],
-        },
-      ]),
-    ),
     updates: {
       ios: {commitHash: sha, updateId: 'ios-1'},
       android: {commitHash: sha, updateId: 'android-1'},

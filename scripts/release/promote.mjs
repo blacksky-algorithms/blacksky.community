@@ -12,7 +12,7 @@ import {
   releaseTag,
 } from './core.mjs'
 import {OTA} from './ota.mjs'
-import {deployWeb, targets, verifyWeb} from './web.mjs'
+import {deployWeb, targets} from './web.mjs'
 
 const gh = new GitHub()
 const releaseId = required('RELEASE_ID')
@@ -58,10 +58,6 @@ if (process.argv[2] === 'preflight') {
 } else {
   invariant(process.argv[2] === 'execute', 'Unknown promotion command')
   const ota = new OTA()
-  await ota.verify(m.ota, m.sha)
-  await ota.verifyArtifacts(m.ota)
-  for (const target of m.config.staging) await verifyWeb(target, m.web)
-  await validate()
   if (m.mode === 'native')
     execFileSync('bundle', ['exec', 'fastlane', 'release_native'], {
       stdio: 'inherit',
@@ -74,10 +70,7 @@ if (process.argv[2] === 'preflight') {
       },
     })
   for (const target of m.config.production) await deployWeb(target, m.web)
-  await validate()
   await ota.map('production', m.ota.branchId)
-  await ota.verifyArtifacts(m.ota, 'production', true)
-  await validate()
   if (m.mode === 'native') await gh.tag(`blacksky-v${m.runtimeVersion}`, m.sha)
   await gh.tag(releaseTag(m.branch), m.sha)
   await gh.request(

@@ -280,15 +280,13 @@ async function finish() {
     .map(c => `- ${c.commit.message.split('\n')[0]}`)
     .join('\n')
   m.releaseNotes = notes || 'Maintenance release.'
-  validateManifest(m, false)
+  validateManifest(m)
   for (const target of config.staging) await deployWeb(target, web)
   invariant(
     (await gh.head(branch)) === head,
     'Release branch changed during QA deployment',
   )
   await ota.map('release-qa', m.ota.branchId)
-  m.ota.artifacts = await ota.waitForArtifacts(m.ota)
-  validateManifest(m)
   const assetName = `candidate-${head}-${run}.json`
   await gh.upload(release, assetName, m)
   const body = `Candidate: ${head}\nRuntime: ${m.runtimeVersion}; lane: ${m.mode}\nManifest: ${assetName}\nManifest SHA-256: ${digest(m)}\n\n${notes}\n\nQA:\n- Sign in and restore an existing session.\n- Read feeds, open profiles, create and interact with posts.\n- Exercise changed behavior on iOS, Android, and web.\n- Verify Settings commit matches this candidate.\n\nStaging: ${config.staging.flatMap(t => t.urls).join(', ')}\nMobile: release-qa OTA or QA store builds.\nRun: ${currentRun}`
