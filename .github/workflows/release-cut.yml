@@ -1,0 +1,35 @@
+---
+name: Cut QA release branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA on main to release
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  cut:
+    if: github.repository == 'blacksky-algorithms/blacksky.community'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      INPUT_SHA: ${{ inputs.sha }}
+    steps:
+      - name: Create release branch and start the QA publish
+        run: |
+          [[ "$INPUT_SHA" =~ ^[a-f0-9]{40}$ ]]
+          status="$(gh api "repos/$GITHUB_REPOSITORY/compare/$INPUT_SHA...main" --jq .status)"
+          if [ "$status" != "ahead" ] && [ "$status" != "identical" ]; then
+            echo "Selected SHA must be a commit on main"
+            exit 1
+          fi
+          branch="release/$(TZ=America/New_York date +%Y-%m-%d)"
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/heads/$branch" -f sha="$INPUT_SHA"
+          gh workflow run bundle-deploy-eas-update.yml --ref "$branch"
+          echo "Cut \`$branch\` at \`$INPUT_SHA\` and started the QA OTA publish." >> "$GITHUB_STEP_SUMMARY"
