@@ -121,44 +121,12 @@ jobs:
         run: rm -f .env google-services.json
   web:
     needs: [select, lint, golang]
-    runs-on: ubuntu-latest
-    environment: release-build
-    outputs:
-      digest: ${{ steps.image.outputs.digest }}
-    env:
-      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      RELEASE_IMAGE_REPOSITORY: ${{ vars.RELEASE_IMAGE_REPOSITORY }}
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
-        with:
-          ref: ${{ needs.select.outputs.sha }}
-          persist-credentials: false
-      - name: Log into DOCR
-        run: |
-          printf '%s' "$DIGITALOCEAN_ACCESS_TOKEN" | docker login registry.digitalocean.com --username "$DIGITALOCEAN_ACCESS_TOKEN" --password-stdin
-      - id: image
-        env:
-          CANDIDATE_SHA: ${{ needs.select.outputs.sha }}
-          CANDIDATE_VERSION: ${{ needs.select.outputs.runtime }}
-          EXPO_PUBLIC_METRICS_API_HOST: ${{ secrets.EXPO_PUBLIC_METRICS_API_HOST }}
-          EXPO_PUBLIC_GROWTHBOOK_API_HOST: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_API_HOST }}
-          EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY: ${{ secrets.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY }}
-          EXPO_PUBLIC_STRIPE_API_URL: ${{ secrets.EXPO_PUBLIC_STRIPE_API_URL }}
-          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-        run: |
-          tag="$RELEASE_IMAGE_REPOSITORY:rc-$CANDIDATE_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
-          docker buildx create --use
-          docker buildx build --platform linux/amd64 --push --metadata-file image.json --tag "$tag" \
-            --cache-from type=gha --cache-to type=gha,mode=max \
-            --build-arg EXPO_PUBLIC_ENV=production \
-            --build-arg EXPO_PUBLIC_RELEASE_VERSION="$CANDIDATE_VERSION" \
-            --build-arg EXPO_PUBLIC_BUNDLE_IDENTIFIER="$CANDIDATE_SHA" \
-            --build-arg EXPO_PUBLIC_METRICS_API_HOST \
-            --build-arg EXPO_PUBLIC_GROWTHBOOK_API_HOST \
-            --build-arg EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY \
-            --build-arg EXPO_PUBLIC_STRIPE_API_URL \
-            --build-arg EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY .
-          echo "digest=$(jq -r '."containerimage.digest"' image.json)" >> "$GITHUB_OUTPUT"
+    if: needs.select.outputs.sha != ''
+    uses: ./.github/workflows/build-and-push-bskyweb-docr.yaml # zizmor: ignore[self-repository] -- actionlint does not yet support the new self-repository syntax.
+    secrets: inherit
+    with:
+      sha: ${{ needs.select.outputs.sha }}
+      tag: rc-${{ needs.select.outputs.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
   ready:
     needs: [select, lint, golang, ios, android, ota, web]
     if: >-
