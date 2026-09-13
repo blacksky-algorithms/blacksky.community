@@ -26,6 +26,7 @@ import {Deactivated} from '#/screens/Deactivated'
 import {Takendown} from '#/screens/Takendown'
 import {atoms as a, select, useTheme} from '#/alf'
 import {setSystemUITheme} from '#/alf/util/systemUI'
+import {AppStoreMigrationBanner} from '#/components/AppStoreMigrationBanner'
 import {EmailDialog} from '#/components/dialogs/EmailDialog'
 import {InAppBrowserConsentDialog} from '#/components/dialogs/InAppBrowserConsent'
 import {LinkWarningDialog} from '#/components/dialogs/LinkWarning'
@@ -99,6 +100,7 @@ function ShellInner() {
           <TabsNavigator layout={drawerLayout} />
         </ErrorBoundary>
       </View>
+      <AppStoreMigrationBanner />
       <AppviewFallbackController />
       <Composer />
       <MutedWordsDialog />

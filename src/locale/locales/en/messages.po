@@ -2024,6 +2024,10 @@ msgstr "Blacksky Community Posts"
 msgid "Blacksky is more fun with friends"
 msgstr "Blacksky is more fun with friends"
 
+#: src/components/AppStoreMigrationBanner.tsx:42
+msgid "Blacksky is now on the App Store!"
+msgstr "Blacksky is now on the App Store!"
+
 #: src/features/inviteFriends/InviteScannerScreen.tsx:106
 msgid "Blacksky needs camera access to scan QR codes from other profiles."
 msgstr "Blacksky needs camera access to scan QR codes from other profiles."
@@ -5442,6 +5446,10 @@ msgstr ""
 msgid "Get started"
 msgstr ""
 
+#: src/components/AppStoreMigrationBanner.tsx:52
+msgid "Get the App Store version"
+msgstr "Get the App Store version"
+
 #: src/components/MediaPreview.tsx:182
 #: src/components/Post/Embed/VideoEmbed/GifPresentationControls.tsx:69
 msgid "GIF"
@@ -7801,6 +7809,11 @@ msgstr "Not found"
 #: src/view/screens/Profile.tsx:147
 msgid "Not Found"
 msgstr ""
+
+#: src/components/AppStoreMigrationBanner.tsx:63
+#: src/components/AppStoreMigrationBanner.tsx:68
+msgid "Not now"
+msgstr "Not now"
 
 #: src/components/moderation/LabelDialog/index.tsx:216
 msgid "Note (limit 300 characters)"
@@ -12139,6 +12152,10 @@ msgstr ""
 msgid "This should create a domain record at:"
 msgstr ""
 
+#: src/components/AppStoreMigrationBanner.tsx:45
+msgid "This TestFlight beta will stop receiving updates. Switch to the App Store version — your account and data carry over automatically."
+msgstr "This TestFlight beta will stop receiving updates. Switch to the App Store version — your account and data carry over automatically."
+
 #: src/components/verification/VerificationCreatePrompt.tsx:94
 msgid "This user does not have a display name, and therefore cannot be verified."
 msgstr ""
@@ -12716,6 +12733,10 @@ msgstr "Update in Lists"
 #: src/screens/Messages/components/InviteLinkDialog.tsx:304
 msgid "Update invite link"
 msgstr "Update invite link"
+
+#: src/components/AppStoreMigrationBanner.tsx:59
+msgid "Update now"
+msgstr "Update now"
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:604
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:625
