@@ -1,5 +1,13 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Window_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM5 18v-6h14v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Zm0-8h14V6a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v4Zm6-3.5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-6ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+// lucide: app-window
+export const Window_Stroke2_Corner2_Rounded = createStrokeSVG({
+  paths: [
+    'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2z',
+    'M10 4v4',
+    'M2 8h20',
+    'M6 4v4',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

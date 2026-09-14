@@ -1,10 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG, createStrokeSVG} from './TEMPLATE'
 
-export const PaperPlane_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3.374 3.22a1 1 0 0 1 1.073-.114l16 8a1 1 0 0 1 0 1.788l-16 8a1 1 0 0 1-1.417-1.136L4.97 12 3.03 4.243a1 1 0 0 1 .344-1.023ZM6.781 13l-1.284 5.133L17.764 12 5.497 5.867 6.781 11H9a1 1 0 1 1 0 2H6.78Z',
-})
-
+// iconoir: send (fill weight)
 export const PaperPlaneVertical_Filled_Stroke2_Corner1_Rounded =
-  createSinglePathSVG({
-    path: 'M10.655 3.718c.55-1.116 2.14-1.116 2.69 0l7.548 15.317c.578 1.172-.515 2.471-1.768 2.103L13 19.336V15a1 1 0 0 0-2 0v4.336l-6.124 1.802c-1.254.369-2.346-.93-1.769-2.103l7.548-15.317Z',
+  createMultiPathSVG({
+    paths: [
+      'M3.29106 3.3088C3.00745 3.18938 2.67967 3.25533 2.4643 3.47514C2.24894 3.69495 2.1897 4.02401 2.31488 4.30512L5.40752 11.25H13C13.4142 11.25 13.75 11.5858 13.75 12C13.75 12.4142 13.4142 12.75 13 12.75H5.40754L2.31488 19.6949C2.1897 19.976 2.24894 20.3051 2.4643 20.5249C2.67967 20.7447 3.00745 20.8107 3.29106 20.6912L22.2911 12.6913C22.5692 12.5742 22.75 12.3018 22.75 12C22.75 11.6983 22.5692 11.4259 22.2911 11.3088L3.29106 3.3088Z',
+    ],
+    viewBox: '0 0 24 24',
   })
+
+// iconoir: send
+export const PaperPlane_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M22 12L3 20L6.5625 12L3 4L22 12Z', 'M6.5 12L22 12'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 1.5,
+})

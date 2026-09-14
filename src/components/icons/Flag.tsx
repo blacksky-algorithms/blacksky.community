@@ -1,5 +1,11 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Flag_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 4a2 2 0 0 1 2-2h13.131c1.598 0 2.55 1.78 1.665 3.11L18.202 9l2.594 3.89c.886 1.33-.067 3.11-1.665 3.11H6v5a1 1 0 1 1-2 0V4Zm2 10h13.131l-2.593-3.89a2 2 0 0 1 0-2.22L19.13 4H6v10Z',
+// tabler: flag
+export const Flag_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9',
+    'M5 21v-7',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
