@@ -16,6 +16,7 @@ import {
   checkHandleAvailability,
   useHandleAvailabilityQuery,
 } from '#/state/queries/handle-availability'
+import {Logomark} from '#/view/icons/Logomark'
 import {useSignupContext} from '#/screens/Signup/state'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -26,8 +27,10 @@ import {
   AppBar,
   Eyebrow,
   FieldGroupCard,
+  Footer,
   InputGroup,
   PrimaryButton,
+  SelectionRow,
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
@@ -45,8 +48,6 @@ export function StepHandle({
   const {state, dispatch} = useSignupContext()
   const [draftValue, setDraftValue] = useState(state.handle)
   const [submitFoundTaken, setSubmitFoundTaken] = useState(false)
-  // The handle domain is chosen on the "Choose your handle" step and delivered
-  // here via the selected community's serviceDescription.
   const selectedDomain =
     state.userDomain ||
     state.serviceDescription?.availableUserDomains?.[0] ||
@@ -195,21 +196,27 @@ export function StepHandle({
   }
 
   return (
-    <View style={[a.gap_lg]}>
+    <View style={[a.flex_1, a.gap_lg]}>
       <AppBar
         showBack
         onBack={onBackPress}
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow step={2} total={4} />
+      <Eyebrow step={2} total={3} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Create your profile</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
-          <Trans>Choose how you show up in the community.</Trans>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
+          <Trans>Choose your social experience.</Trans>
         </Text>
       </View>
 
@@ -241,6 +248,68 @@ export function StepHandle({
           autoComplete="off"
         />
       </FieldGroupCard>
+      <View style={a.gap_sm}>
+        {state.serviceDescription?.availableUserDomains
+          .filter(
+            domain =>
+              state.selectedBrandSlug !== 'blacksky' ||
+              ['blacksky.app', 'myatproto.social'].includes(
+                domain.replace(/^\./, ''),
+              ),
+          )
+          .sort(
+            (left, right) =>
+              Number(right.replace(/^\./, '') === 'blacksky.app') -
+              Number(left.replace(/^\./, '') === 'blacksky.app'),
+          )
+          .map(domain => {
+            const isBlacksky = domain.replace(/^\./, '') === 'blacksky.app'
+            const description = isBlacksky
+              ? _(msg`Open to the Black community`)
+              : _(msg`Open to everyone`)
+            return (
+              <View
+                key={domain}
+                style={[
+                  a.border,
+                  a.rounded_sm,
+                  t.atoms.border_contrast_medium,
+                ]}>
+                <SelectionRow
+                  testID={`handleDomainOption-${domain.replace(/^\./, '')}`}
+                  mode="radio"
+                  emphasize
+                  selected={domain === selectedDomain}
+                  title={description}
+                  subtitle={domain.replace(/^\./, '')}
+                  onPress={() => {
+                    dispatch({type: 'setUserDomain', value: domain})
+                    dispatch({type: 'clearError'})
+                    setSubmitFoundTaken(false)
+                  }}
+                  icon={
+                    <View
+                      style={[
+                        a.align_center,
+                        a.justify_center,
+                        a.rounded_sm,
+                        {
+                          width: 40,
+                          height: 40,
+                          backgroundColor: isBlacksky ? '#080e0f' : '#ffffff',
+                        },
+                      ]}>
+                      <Logomark
+                        width={24}
+                        fill={isBlacksky ? '#ffffff' : '#080e0f'}
+                      />
+                    </View>
+                  }
+                />
+              </View>
+            )
+          })}
+      </View>
 
       {isHandleTaken &&
         validCheck.overall &&
@@ -280,12 +349,14 @@ export function StepHandle({
         </View>
       )}
 
-      <PrimaryButton
-        testID="nextBtn"
-        label={_(msg`Continue`)}
-        onPress={onNextPress}
-        disabled={isNextDisabled || isNextLoading}
-      />
+      <Footer>
+        <PrimaryButton
+          testID="nextBtn"
+          label={_(msg`Continue`)}
+          onPress={onNextPress}
+          disabled={isNextDisabled || isNextLoading}
+        />
+      </Footer>
     </View>
   )
 }

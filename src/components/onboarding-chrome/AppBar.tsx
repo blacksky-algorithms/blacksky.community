@@ -24,7 +24,13 @@ export function AppBar({
   const canGoBack = showBack && onBack != null
 
   return (
-    <View style={[a.flex_row, a.justify_between, a.align_center, {padding: 4}]}>
+    <View
+      style={[
+        a.flex_row,
+        a.justify_between,
+        a.align_center,
+        {padding: 4, marginHorizontal: -20},
+      ]}>
       {canGoBack ? (
         <Pressable
           accessibilityRole="button"

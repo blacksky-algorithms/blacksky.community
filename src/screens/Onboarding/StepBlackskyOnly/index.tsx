@@ -3,20 +3,32 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {Logomark} from '#/view/icons/Logomark'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {atoms as a, useTheme} from '#/alf'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 
 export function StepBlackskyOnly() {
   const {_} = useLingui()
+  const openLink = useOpenLink()
   const t = useTheme()
   const {dispatch} = useOnboardingInternalState()
 
   return (
-    <View style={[a.gap_lg]}>
-      <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={() => dispatch({type: 'prev'})}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
+      />
 
       <Eyebrow label={_(msg`Blacksky-only posts`)} />
 
@@ -24,7 +36,13 @@ export function StepBlackskyOnly() {
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Keep it in the community</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>
             Share posts that only other members of the Blacksky community can
             see.
@@ -36,10 +54,12 @@ export function StepBlackskyOnly() {
         <SkeletonPostCard />
       </View>
 
-      <PrimaryButton
-        label={_(msg`Continue`)}
-        onPress={() => dispatch({type: 'next'})}
-      />
+      <Footer>
+        <PrimaryButton
+          label={_(msg`Continue`)}
+          onPress={() => dispatch({type: 'next'})}
+        />
+      </Footer>
     </View>
   )
 }
@@ -54,19 +74,19 @@ function SkeletonPostCard() {
         a.flex_row,
         a.gap_sm,
         a.p_md,
-        a.rounded_md,
+        {borderRadius: 18},
         a.border,
-        t.atoms.bg_contrast_25,
-        t.atoms.border_contrast_low,
+        {backgroundColor: '#211f36'},
+        {borderColor: '#8686ff'},
       ]}>
       <View
         style={[
           a.align_center,
           a.justify_center,
-          t.atoms.bg_contrast_100,
+          {backgroundColor: '#8686ff'},
           {width: 40, height: 40, borderRadius: 20},
         ]}>
-        <Logomark width={20} fill={t.atoms.text_contrast_medium.color} />
+        <Logomark width={20} fill="#161E27" />
       </View>
 
       <View style={[a.flex_1, a.gap_sm]}>
@@ -92,9 +112,9 @@ function SkeletonPostCard() {
               a.px_sm,
               a.py_2xs,
               a.rounded_full,
-              t.atoms.bg_contrast_50,
+              {backgroundColor: '#464985'},
             ]}>
-            <Logomark width={12} fill={t.atoms.text_contrast_medium.color} />
+            <Logomark width={12} fill="#161E27" />
             <Text
               style={[a.text_xs, a.leading_tight, t.atoms.text_contrast_high]}>
               {_(msg`Blacksky-Only`)}
@@ -113,12 +133,10 @@ function SkeletonBar({
   width?: number
   tone?: 'weak' | 'strong'
 }) {
-  const t = useTheme()
-
   return (
     <View
       style={[
-        tone === 'strong' ? t.atoms.bg_contrast_300 : t.atoms.bg_contrast_100,
+        {backgroundColor: tone === 'strong' ? '#F8FAF9' : '#9C9E9E'},
         {height: 10, borderRadius: 8, width: width ?? '100%'},
       ]}
     />

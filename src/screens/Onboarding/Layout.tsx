@@ -78,7 +78,7 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
         style={[a.h_full, a.w_full]}
         contentContainerStyle={{
           borderWidth: 0,
-          minHeight: '100%',
+          flexGrow: 1,
           paddingTop: gtMobile ? 40 : insets.top,
           paddingBottom: insets.bottom + tokens.space.xl,
         }}
@@ -88,9 +88,14 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
         dataSet={{'stable-gutters': 1}}
         centerContent={gtMobile}>
         <View
-          style={[a.flex_row, a.justify_center, gtMobile ? a.px_5xl : a.px_xl]}>
+          style={[
+            a.flex_1,
+            a.flex_row,
+            a.justify_center,
+            gtMobile ? a.px_5xl : {paddingHorizontal: 24},
+          ]}>
           <View style={[a.flex_1, web({maxWidth: ONBOARDING_COL_WIDTH})]}>
-            <View style={[a.w_full, a.py_md]}>{children}</View>
+            <View style={[a.flex_1, a.w_full, a.py_md]}>{children}</View>
           </View>
         </View>
       </ScrollView>

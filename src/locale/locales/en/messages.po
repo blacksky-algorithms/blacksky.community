@@ -206,11 +206,6 @@ msgstr "{0} All"
 msgid "{0} and {1} added to chat"
 msgstr "{0} and {1} added to chat"
 
-#. placeholder {0}: domains.length
-#: src/screens/Signup/StepCommunity/index.tsx:372
-msgid "{0} handles available"
-msgstr "{0} handles available"
-
 #. placeholder {0}: brand.metadata.displayName
 #: src/components/dialogs/ServerInput.tsx:221
 msgid "{0} is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
@@ -223,7 +218,7 @@ msgid "{0} is an open network where you can choose your own provider. If you're 
 msgstr "{0} is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default {1} option."
 
 #. placeholder {0}: brand.metadata.displayName
-#: src/components/ProgressGuide/List.tsx:118
+#: src/components/ProgressGuide/List.tsx:152
 msgid "{0} is better with friends!"
 msgstr "{0} is better with friends!"
 
@@ -618,7 +613,7 @@ msgstr "{followsCount, plural, one {following} other {following}}"
 msgid "{followsCount} following"
 msgstr "{followsCount} following"
 
-#: src/screens/Signup/StepHandle/index.tsx:93
+#: src/screens/Signup/StepHandle/index.tsx:94
 msgid "{fullDraftHandle} is not available"
 msgstr "{fullDraftHandle} is not available"
 
@@ -1140,7 +1135,7 @@ msgstr ""
 msgid "Add a note (optional)"
 msgstr "Add a note (optional)"
 
-#: src/screens/Onboarding/StepProfile/index.tsx:260
+#: src/screens/Onboarding/StepProfile/index.tsx:268
 msgid "Add a profile picture"
 msgstr "Add a profile picture"
 
@@ -1365,7 +1360,7 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:93
+#: src/screens/Onboarding/StepAssembly/index.tsx:113
 msgid "Agree"
 msgstr "Agree"
 
@@ -1675,7 +1670,7 @@ msgstr ""
 msgid "Animated GIF"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:39
+#: src/screens/Onboarding/StepBelong/index.tsx:59
 msgid "Anti-Black Harassment"
 msgstr "Anti-Black Harassment"
 
@@ -1710,6 +1705,10 @@ msgstr ""
 #: src/screens/Messages/components/InviteLinkDialog.tsx:480
 msgid "Anyone who has it will no longer be able to join or request to join. You can always create a new one."
 msgstr "Anyone who has it will no longer be able to join or request to join. You can always create a new one."
+
+#: src/screens/Onboarding/ConnectedApps.tsx:83
+msgid "App directory"
+msgstr "App directory"
 
 #: src/Navigation.tsx:504
 #: src/screens/Settings/AppIconSettings/index.tsx:62
@@ -1756,6 +1755,10 @@ msgstr ""
 #: src/screens/Settings/AppPasswords.tsx:143
 msgid "App Passwords"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:77
+msgid "App view"
+msgstr "App view"
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:155
 #: src/components/moderation/LabelsOnMeDialog.tsx:158
@@ -2022,7 +2025,7 @@ msgstr ""
 msgid "Begin Discussion"
 msgstr "Begin Discussion"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:26
+#: src/screens/Onboarding/StepBelong/index.tsx:40
 msgid "Belong, safely"
 msgstr "Belong, safely"
 
@@ -2034,10 +2037,6 @@ msgstr "Birthdate"
 #: src/screens/Settings/AccountSettings.tsx:165
 msgid "Birthday"
 msgstr "Birthday"
-
-#: src/screens/Signup/StepCommunity/index.tsx:103
-msgid "Black community"
-msgstr "Black community"
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:660
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
@@ -2077,7 +2076,7 @@ msgstr "Blacksky will follow the preferences you set here. We will share your pr
 msgid "Blacksky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
 msgstr "Blacksky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:100
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:120
 msgid "Blacksky-Only"
 msgstr "Blacksky-Only"
 
@@ -2085,7 +2084,7 @@ msgstr "Blacksky-Only"
 msgid "Blacksky-only post"
 msgstr "Blacksky-only post"
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:21
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:33
 msgid "Blacksky-only posts"
 msgstr "Blacksky-only posts"
 
@@ -2205,6 +2204,10 @@ msgstr ""
 #: src/components/moderation/BlockDialog.tsx:157
 msgid "Blocking will not prevent labels from being applied on your account, but it will stop this account from replying in your threads or interacting with you."
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:17
+msgid "Blogging"
+msgstr "Blogging"
 
 #: src/components/contacts/screens/GetContacts.tsx:235
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
@@ -2644,10 +2647,6 @@ msgstr ""
 msgid "Choose for me"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:212
-msgid "Choose how you show up in the community."
-msgstr "Choose how you show up in the community."
-
 #: src/components/dialogs/LanguageSelectDialog.tsx:199
 msgid "Choose languages"
 msgstr ""
@@ -2661,9 +2660,9 @@ msgstr ""
 msgid "Choose post languages"
 msgstr ""
 
-#: src/screens/Signup/StepCommunity/index.tsx:201
-msgid "Choose the community your account will live in. You can always use it across the network."
-msgstr "Choose the community your account will live in. You can always use it across the network."
+#: src/screens/Signup/StepCommunity/index.tsx:73
+msgid "Choose the community your account will live in. You can use it across the network."
+msgstr "Choose the community your account will live in. You can use it across the network."
 
 #: src/screens/Onboarding/StepProfile/AvatarCreatorItems.tsx:108
 msgid "Choose this color as your avatar"
@@ -2681,10 +2680,6 @@ msgstr ""
 msgid "Choose your account provider"
 msgstr ""
 
-#: src/screens/Signup/StepCommunity/index.tsx:198
-msgid "Choose your handle"
-msgstr "Choose your handle"
-
 #: src/view/screens/Feeds.tsx:726
 msgid "Choose your own timeline! Feeds built by the community help you find content you love."
 msgstr ""
@@ -2692,6 +2687,10 @@ msgstr ""
 #: src/screens/Signup/StepInfo/index.tsx:257
 msgid "Choose your password"
 msgstr ""
+
+#: src/screens/Signup/StepHandle/index.tsx:219
+msgid "Choose your social experience."
+msgstr "Choose your social experience."
 
 #: src/screens/Settings/Settings.tsx:496
 msgid "Clear all storage data"
@@ -2895,6 +2894,10 @@ msgstr ""
 msgid "Comics"
 msgstr ""
 
+#: src/screens/Signup/StepCommunity/index.tsx:61
+msgid "Communities"
+msgstr "Communities"
+
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:232
 #: src/view/screens/Profile.tsx:265
 msgid "Community"
@@ -2913,7 +2916,7 @@ msgstr "Community features are temporarily unavailable. We're working on it — 
 msgid "Community Guidelines"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:22
+#: src/screens/Onboarding/StepBelong/index.tsx:36
 msgid "Community moderation"
 msgstr "Community moderation"
 
@@ -2997,6 +3000,10 @@ msgstr ""
 msgid "Connect with people and conversations that match your interests."
 msgstr "Connect with people and conversations that match your interests."
 
+#: src/screens/Onboarding/StepFinished/index.tsx:292
+msgid "Connected apps"
+msgstr "Connected apps"
+
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:52
 #: src/screens/Settings/FindContactsSettings.tsx:167
 msgid "Contact sync is not available on this device, as the app is unable to access your contacts."
@@ -3063,20 +3070,20 @@ msgstr ""
 msgid "Context menu backdrop, click to close the menu."
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:40
-#: src/screens/Onboarding/StepBelong/index.tsx:50
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:40
+#: src/screens/Onboarding/StepAssembly/index.tsx:59
+#: src/screens/Onboarding/StepBelong/index.tsx:109
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
+#: src/screens/Onboarding/StepFinished/index.tsx:317
 #: src/screens/Onboarding/StepInterests/index.tsx:93
 #: src/screens/Onboarding/StepPinFeeds/index.tsx:105
-#: src/screens/Onboarding/StepProfile/index.tsx:327
+#: src/screens/Onboarding/StepProfile/index.tsx:356
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:305
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:129
 #: src/screens/Settings/AppPasswords.tsx:119
 #: src/screens/Settings/AppPasswords.tsx:126
-#: src/screens/Signup/StepCaptcha/index.tsx:252
-#: src/screens/Signup/StepCommunity/index.tsx:258
-#: src/screens/Signup/StepHandle/index.tsx:285
-#: src/screens/Signup/StepInfo/index.tsx:339
+#: src/screens/Signup/StepCommunity/index.tsx:130
+#: src/screens/Signup/StepHandle/index.tsx:355
+#: src/screens/Signup/StepInfo/index.tsx:340
 msgid "Continue"
 msgstr ""
 
@@ -3404,8 +3411,7 @@ msgstr ""
 #: src/screens/GroupInviteLanding.tsx:94
 #: src/screens/GroupInviteLanding.tsx:101
 #: src/screens/Messages/JoinRequest.tsx:310
-#: src/screens/Signup/StepInfo/index.tsx:166
-#: src/view/com/auth/SplashScreen.tsx:107
+#: src/view/com/auth/SplashScreen.tsx:116
 #: src/view/com/auth/SplashScreen.web.tsx:118
 #: src/view/shell/bottom-bar/BottomBar.tsx:340
 #: src/view/shell/bottom-bar/BottomBar.tsx:344
@@ -3415,10 +3421,6 @@ msgstr ""
 #: src/view/shell/NavSignupCard.tsx:55
 msgid "Create account"
 msgstr ""
-
-#: src/screens/Signup/index.tsx:161
-msgid "Create Account"
-msgstr "Create Account"
 
 #: src/components/dialogs/Signin.tsx:87
 #: src/components/dialogs/Signin.tsx:89
@@ -3432,8 +3434,8 @@ msgstr ""
 msgid "Create an account without using this starter pack"
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:308
 #: src/screens/Onboarding/StepProfile/index.tsx:320
+#: src/screens/Onboarding/StepProfile/index.tsx:332
 msgid "Create an avatar"
 msgstr "Create an avatar"
 
@@ -3489,7 +3491,7 @@ msgstr ""
 msgid "Create user list"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:209
+#: src/screens/Signup/StepHandle/index.tsx:210
 msgid "Create your profile"
 msgstr "Create your profile"
 
@@ -3831,7 +3833,7 @@ msgstr "Disable this invite link?"
 msgid "Disabled"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:97
+#: src/screens/Onboarding/StepAssembly/index.tsx:117
 msgid "Disagree"
 msgstr "Disagree"
 
@@ -3901,7 +3903,7 @@ msgstr ""
 msgid "Dismiss error"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:83
+#: src/components/ProgressGuide/List.tsx:117
 msgid "Dismiss getting started guide"
 msgstr ""
 
@@ -3921,6 +3923,10 @@ msgstr ""
 #: src/components/FeedInterstitials.tsx:349
 msgid "Dismiss this suggestion"
 msgstr ""
+
+#: src/components/ProgressGuide/List.tsx:78
+msgid "Dismiss welcome message"
+msgstr "Dismiss welcome message"
 
 #: src/features/inviteFriends/InviteScannerScreen.tsx:169
 msgid "Dismisses the QR scanner"
@@ -3992,8 +3998,8 @@ msgstr ""
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:147
 #: src/features/inviteFriends/InviteFriendsDialogInner.tsx:153
 #: src/lib/media/picker.tsx:37
-#: src/screens/Onboarding/StepProfile/index.tsx:362
-#: src/screens/Onboarding/StepProfile/index.tsx:365
+#: src/screens/Onboarding/StepProfile/index.tsx:391
+#: src/screens/Onboarding/StepProfile/index.tsx:394
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:225
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:232
 #: src/view/com/composer/labels/LabelsBtn.tsx:219
@@ -4365,6 +4371,10 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+#: src/screens/Onboarding/ConnectedApps.tsx:41
+msgid "Encrypted DMs"
+msgstr "Encrypted DMs"
+
 #: src/screens/Profile/Sections/CommunityFeed.tsx:156
 #: src/screens/Profile/Sections/Feed.tsx:131
 #: src/view/com/feeds/CommunityFeedPage.tsx:278
@@ -4418,7 +4428,7 @@ msgstr ""
 msgid "Enter your birthdate"
 msgstr "Enter your birthdate"
 
-#: src/screens/Signup/StepInfo/index.tsx:173
+#: src/screens/Signup/StepInfo/index.tsx:179
 msgid "Enter your details to create an account."
 msgstr "Enter your details to create an account."
 
@@ -4427,7 +4437,7 @@ msgstr "Enter your details to create an account."
 msgid "Enter your email address"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:222
+#: src/screens/Signup/StepHandle/index.tsx:229
 msgid "Enter your handle"
 msgstr "Enter your handle"
 
@@ -5041,7 +5051,7 @@ msgstr ""
 msgid "Feeds we think you might like."
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:29
+#: src/screens/Onboarding/StepBelong/index.tsx:49
 msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 msgstr "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 
@@ -5074,7 +5084,7 @@ msgstr ""
 msgid "Filter who you receive notifications from"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:296
+#: src/screens/Onboarding/StepFinished/index.tsx:317
 msgid "Finalizing"
 msgstr ""
 
@@ -5190,15 +5200,15 @@ msgstr "Follow {displayName}"
 msgid "Follow {handle}"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:232
+#: src/state/shell/progress-guide.tsx:244
 msgid "Follow 10 accounts"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:76
+#: src/components/ProgressGuide/List.tsx:110
 msgid "Follow 10 people to get started"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:116
+#: src/components/ProgressGuide/List.tsx:150
 msgid "Follow 7 accounts"
 msgstr ""
 
@@ -5434,7 +5444,7 @@ msgstr ""
 msgid "Germ DM reconnected"
 msgstr ""
 
-#: src/components/onboarding-chrome/AppBar.tsx:48
+#: src/components/onboarding-chrome/AppBar.tsx:54
 #: src/view/shell/Drawer.tsx:481
 msgid "Get help"
 msgstr ""
@@ -5525,7 +5535,7 @@ msgstr ""
 #: src/components/Layout/Header/index.tsx:133
 #: src/components/moderation/ScreenHider.tsx:161
 #: src/components/moderation/ScreenHider.tsx:170
-#: src/components/onboarding-chrome/AppBar.tsx:31
+#: src/components/onboarding-chrome/AppBar.tsx:37
 #: src/screens/Login/components/AuthLayout/Header/index.tsx:75
 #: src/screens/ProfileList/components/ErrorScreen.tsx:35
 #: src/screens/ProfileList/components/ErrorScreen.tsx:41
@@ -5727,14 +5737,14 @@ msgstr "Group name is too long. {MAX_GROUP_NAME_GRAPHEME_LENGTH, plural, other {
 msgid "Hacking or system attacks"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:221
-#: src/state/shell/progress-guide.tsx:231
+#: src/state/shell/progress-guide.tsx:233
+#: src/state/shell/progress-guide.tsx:243
 msgid "Half way there!"
 msgstr ""
 
 #: src/screens/Settings/AccountSettings.tsx:150
 #: src/screens/Settings/AccountSettings.tsx:155
-#: src/screens/Signup/StepHandle/index.tsx:219
+#: src/screens/Signup/StepHandle/index.tsx:226
 msgid "Handle"
 msgstr ""
 
@@ -5794,7 +5804,7 @@ msgstr ""
 msgid "Have a code? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:25
+#: src/screens/Onboarding/StepAssembly/index.tsx:37
 msgid "Have a say"
 msgstr "Have a say"
 
@@ -6003,6 +6013,14 @@ msgstr ""
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:150
 msgid "Human trafficking"
 msgstr ""
+
+#: src/screens/Onboarding/StepBelong/index.tsx:96
+msgid "I agree to the <0>Community Guidelines</0>."
+msgstr "I agree to the <0>Community Guidelines</0>."
+
+#: src/screens/Onboarding/StepBelong/index.tsx:75
+msgid "I agree to the Community Guidelines"
+msgstr "I agree to the Community Guidelines"
 
 #: src/components/contacts/screens/GetContacts.tsx:267
 msgid "I consent to Bluesky using my contacts for mutual friend discovery and to retain hashed data for matching until I opt out."
@@ -6286,7 +6304,7 @@ msgstr ""
 msgid "Invite code"
 msgstr ""
 
-#: src/screens/Signup/state.ts:387
+#: src/screens/Signup/state.ts:400
 msgid "Invite code not accepted. Check that you input it correctly and try again."
 msgstr ""
 
@@ -6362,7 +6380,7 @@ msgstr ""
 msgid "iOS 26 Crash Regression"
 msgstr "iOS 26 Crash Regression"
 
-#: src/screens/Signup/StepHandle/index.tsx:266
+#: src/screens/Signup/StepHandle/index.tsx:335
 msgid "Is this your account?"
 msgstr "Is this your account?"
 
@@ -6370,7 +6388,7 @@ msgstr "Is this your account?"
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:338
+#: src/screens/Signup/StepInfo/index.tsx:339
 msgid "It's correct"
 msgstr ""
 
@@ -6393,8 +6411,8 @@ msgstr ""
 msgid "Join"
 msgstr "Join"
 
-#: src/screens/Signup/StepCommunity/index.tsx:263
-#: src/screens/Signup/StepCommunity/index.tsx:274
+#: src/screens/Signup/StepCommunity/index.tsx:64
+#: src/screens/Signup/StepInfo/index.tsx:354
 msgid "Join another community"
 msgstr "Join another community"
 
@@ -6430,7 +6448,7 @@ msgstr ""
 msgid "Keep editing"
 msgstr ""
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:25
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:37
 msgid "Keep it in the community"
 msgstr "Keep it in the community"
 
@@ -6618,10 +6636,6 @@ msgstr ""
 msgid "Let's get your password reset!"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:296
-msgid "Let's go"
-msgstr "Let's go"
-
 #: src/components/dialogs/Embed.tsx:159
 #: src/components/dialogs/Embed.tsx:161
 #: src/screens/Settings/AppearanceSettings.tsx:89
@@ -6643,12 +6657,12 @@ msgstr ""
 msgid "Like ({0, plural, one {# like} other {# likes}})"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:110
+#: src/components/ProgressGuide/List.tsx:144
 msgid "Like 10 posts"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:217
-#: src/state/shell/progress-guide.tsx:222
+#: src/state/shell/progress-guide.tsx:229
+#: src/state/shell/progress-guide.tsx:234
 msgid "Like 10 posts to train the Discover feed"
 msgstr ""
 
@@ -6854,6 +6868,10 @@ msgstr ""
 msgid "Live link"
 msgstr ""
 
+#: src/screens/Onboarding/ConnectedApps.tsx:29
+msgid "Live streaming"
+msgstr "Live streaming"
+
 #: src/components/CommunityFeed.tsx:75
 msgid "Load more"
 msgstr "Load more"
@@ -6977,6 +6995,10 @@ msgstr ""
 #: src/components/dialogs/LinkWarning.tsx:101
 msgid "Make sure this is where you intend to go!"
 msgstr ""
+
+#: src/components/ProgressGuide/List.tsx:84
+msgid "Make your first post to announce your arrival."
+msgstr "Make your first post to announce your arrival."
 
 #: src/screens/Settings/ContentAndMediaSettings.tsx:62
 #: src/screens/Settings/ContentAndMediaSettings.tsx:65
@@ -7169,7 +7191,7 @@ msgstr ""
 msgid "Misleading"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:37
+#: src/screens/Onboarding/StepBelong/index.tsx:57
 msgid "Misogynoir"
 msgstr "Misogynoir"
 
@@ -7187,7 +7209,7 @@ msgstr ""
 msgid "Moderation and content filters"
 msgstr "Moderation and content filters"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:43
+#: src/screens/Onboarding/StepBelong/index.tsx:63
 msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr "Moderation and labels have been shaped by democratic, human community member input."
 
@@ -7985,6 +8007,10 @@ msgstr ""
 msgid "Onboarding reset"
 msgstr ""
 
+#: src/screens/Onboarding/StepFinished/index.tsx:296
+msgid "One account, a whole network"
+msgstr "One account, a whole network"
+
 #: src/components/dms/dialogs/NewChatDialog.tsx:117
 msgid "One of the selected recipients does not allow group chats."
 msgstr "One of the selected recipients does not allow group chats."
@@ -8219,9 +8245,13 @@ msgstr ""
 msgid "Open this group chat"
 msgstr "Open this group chat"
 
-#: src/screens/Signup/StepCommunity/index.tsx:108
+#: src/screens/Signup/StepHandle/index.tsx:269
 msgid "Open to everyone"
 msgstr "Open to everyone"
+
+#: src/screens/Signup/StepHandle/index.tsx:268
+msgid "Open to the Black community"
+msgstr "Open to the Black community"
 
 #: src/view/screens/Support.tsx:47
 msgid "OpenCollective"
@@ -8297,7 +8327,7 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr "Opens flow to sign in to your existing {0} account"
 
 #: src/screens/Messages/JoinRequest.tsx:291
-#: src/view/com/auth/SplashScreen.tsx:120
+#: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr "Opens flow to sign in to your existing Blacksky account"
 
@@ -8449,7 +8479,7 @@ msgstr ""
 msgid "Party GIFs"
 msgstr "Party GIFs"
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:101
+#: src/screens/Onboarding/StepAssembly/index.tsx:121
 msgid "Pass/Unsure"
 msgstr "Pass/Unsure"
 
@@ -8556,8 +8586,8 @@ msgstr ""
 msgid "People you mention"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:21
-#: src/screens/Onboarding/StepAssembly/index.tsx:64
+#: src/screens/Onboarding/StepAssembly/index.tsx:33
+#: src/screens/Onboarding/StepAssembly/index.tsx:84
 msgid "People's Assembly"
 msgstr "People's Assembly"
 
@@ -8568,6 +8598,10 @@ msgstr ""
 #: src/components/StarterPack/Wizard/WizardListCard.tsx:59
 msgid "Person toggle"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:35
+msgid "Personal homepage"
+msgstr "Personal homepage"
 
 #: src/components/contacts/components/InviteInfo.tsx:60
 msgid "Personalize the message"
@@ -8690,11 +8724,11 @@ msgstr ""
 msgid "Please add any content warning labels that are applicable for the media you are posting."
 msgstr ""
 
-#: src/screens/Signup/state.ts:333
+#: src/screens/Signup/state.ts:346
 msgid "Please choose your handle."
 msgstr ""
 
-#: src/screens/Signup/state.ts:325
+#: src/screens/Signup/state.ts:338
 #: src/screens/Signup/StepInfo/index.tsx:135
 msgid "Please choose your password."
 msgstr ""
@@ -8703,7 +8737,7 @@ msgstr ""
 msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 msgstr "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 
-#: src/screens/Signup/state.ts:348
+#: src/screens/Signup/state.ts:361
 msgid "Please complete the verification captcha."
 msgstr ""
 
@@ -8762,7 +8796,7 @@ msgstr ""
 msgid "Please enter your account password to manage app passwords."
 msgstr "Please enter your account password to manage app passwords."
 
-#: src/screens/Signup/state.ts:309
+#: src/screens/Signup/state.ts:322
 #: src/screens/Signup/StepInfo/index.tsx:108
 msgid "Please enter your email."
 msgstr ""
@@ -8848,6 +8882,10 @@ msgstr ""
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:220
 msgid "Politics"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:53
+msgid "Pop culture reviews"
+msgstr "Pop culture reviews"
 
 #: src/view/com/composer/labels/LabelsBtn.tsx:152
 msgid "Porn"
@@ -9072,7 +9110,6 @@ msgstr ""
 msgid "profile"
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:256
 #: src/screens/Profile/components/ProfileStatusError.tsx:144
 #: src/view/shell/bottom-bar/BottomBar.tsx:311
 #: src/view/shell/desktop/LeftNav.tsx:769
@@ -9131,6 +9168,10 @@ msgstr ""
 #: src/view/com/composer/Composer.tsx:1913
 msgid "Publish reply"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:47
+msgid "Publishing"
+msgstr "Publishing"
 
 #: src/screens/Settings/NotificationSettings/index.tsx:390
 msgid "Push"
@@ -9241,6 +9282,10 @@ msgstr "Reactivating will restore visibility of your profile and posts to other 
 #: src/screens/PostThread/components/ThreadItemReadMore.tsx:93
 msgid "Read {0, plural, one {# more reply} other {# more replies}}"
 msgstr ""
+
+#: src/screens/Onboarding/StepBelong/index.tsx:100
+msgid "Read Community Guidelines"
+msgstr "Read Community Guidelines"
 
 #: src/screens/VideoFeed/index.tsx:986
 msgid "Read less"
@@ -9864,6 +9909,10 @@ msgstr "Rescind request"
 msgid "Rescind request to join group chat"
 msgstr "Rescind request to join group chat"
 
+#: src/screens/Onboarding/ConnectedApps.tsx:65
+msgid "Research & collections"
+msgstr "Research & collections"
+
 #: src/components/dialogs/EmailDialog/components/ResendEmailText.tsx:39
 msgid "Resend"
 msgstr ""
@@ -9938,12 +9987,16 @@ msgstr ""
 #: src/screens/PostThread/components/ThreadError.tsx:81
 #: src/screens/PostThread/components/ThreadError.tsx:87
 #: src/screens/Signup/BackNextButtons.tsx:54
-#: src/screens/Signup/StepInfo/index.tsx:336
+#: src/screens/Signup/StepInfo/index.tsx:337
 #: src/view/com/util/error/ErrorMessage.tsx:55
 #: src/view/com/util/error/ErrorScreen.tsx:91
 #: src/view/screens/Storybook/Admonitions.tsx:64
 msgid "Retry"
 msgstr ""
+
+#: src/screens/Signup/StepCommunity/index.tsx:115
+msgid "Retry loading communities"
+msgstr "Retry loading communities"
 
 #: src/components/moderation/ReportDialog/index.tsx:294
 #: src/view/screens/Storybook/Admonitions.tsx:61
@@ -10221,6 +10274,10 @@ msgstr ""
 msgid "Searches for profiles"
 msgstr ""
 
+#: src/screens/Signup/StepCaptcha/index.tsx:209
+msgid "Security"
+msgstr "Security"
+
 #: src/components/dialogs/EmailDialog/screens/Update.tsx:240
 msgid "Security step required"
 msgstr ""
@@ -10309,7 +10366,7 @@ msgstr ""
 msgid "Select an app language"
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/AvatarCircle.tsx:66
+#: src/screens/Onboarding/StepProfile/AvatarCircle.tsx:45
 msgid "Select an avatar"
 msgstr ""
 
@@ -10680,7 +10737,7 @@ msgstr "Share my profile"
 msgid "Share post at:// URI"
 msgstr ""
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:28
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:46
 msgid "Share posts that only other members of the Blacksky community can see."
 msgstr "Share posts that only other members of the Blacksky community can see."
 
@@ -10719,6 +10776,11 @@ msgstr ""
 #: src/Navigation.tsx:339
 msgid "Shared Preferences Tester"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:23
+#: src/screens/Onboarding/ConnectedApps.tsx:59
+msgid "Short-form video"
+msgstr "Short-form video"
 
 #: src/components/moderation/ContentHider.tsx:220
 #: src/components/moderation/LabelPreference.tsx:143
@@ -10859,8 +10921,8 @@ msgstr ""
 #: src/screens/Messages/JoinRequest.tsx:290
 #: src/screens/Messages/JoinRequest.tsx:296
 #: src/screens/Search/SearchResults.tsx:303
-#: src/view/com/auth/SplashScreen.tsx:118
-#: src/view/com/auth/SplashScreen.tsx:124
+#: src/view/com/auth/SplashScreen.tsx:127
+#: src/view/com/auth/SplashScreen.tsx:137
 #: src/view/com/auth/SplashScreen.web.tsx:124
 #: src/view/com/auth/SplashScreen.web.tsx:132
 #: src/view/shell/bottom-bar/BottomBar.tsx:349
@@ -10877,7 +10939,7 @@ msgstr ""
 msgid "Sign in as {0}"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:277
+#: src/screens/Signup/StepHandle/index.tsx:346
 msgid "Sign in as {fullDraftHandle}"
 msgstr "Sign in as {fullDraftHandle}"
 
@@ -10897,7 +10959,7 @@ msgstr "Sign in code"
 msgid "Sign in failed. Please try again."
 msgstr "Sign in failed. Please try again."
 
-#: src/screens/Signup/StepHandle/index.tsx:270
+#: src/screens/Signup/StepHandle/index.tsx:339
 msgid "Sign in instead"
 msgstr "Sign in instead"
 
@@ -10982,6 +11044,7 @@ msgstr "Signing in..."
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:77
 #: src/screens/Onboarding/StepPinFeeds/index.tsx:87
 #: src/screens/Onboarding/StepPinFeeds/index.tsx:102
+#: src/screens/Onboarding/StepProfile/index.tsx:341
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:281
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:117
 #: src/screens/StarterPack/Wizard/index.tsx:206
@@ -11243,7 +11306,7 @@ msgstr "Starts the sign-in process"
 
 #. placeholder {0}: state.activeStepIndex + 1
 #. placeholder {1}: state.totalSteps
-#: src/screens/Onboarding/Layout.tsx:107
+#: src/screens/Onboarding/Layout.tsx:112
 msgid "Step {0} of {1}"
 msgstr ""
 
@@ -11437,7 +11500,7 @@ msgstr ""
 msgid "Synthetic content"
 msgstr "Synthetic content"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:38
+#: src/screens/Onboarding/StepBelong/index.tsx:58
 msgid "Synthetic Media"
 msgstr "Synthetic Media"
 
@@ -11529,25 +11592,21 @@ msgstr "Tap to view reactions"
 msgid "Targeted harassment"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:236
+#: src/state/shell/progress-guide.tsx:248
 msgid "Task complete - 10 follows!"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:226
+#: src/state/shell/progress-guide.tsx:238
 msgid "Task complete - 10 likes!"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:111
+#: src/components/ProgressGuide/List.tsx:145
 msgid "Teach our algorithm what you like"
 msgstr ""
 
 #: src/lib/interests.ts:73
 msgid "Tech"
 msgstr ""
-
-#: src/screens/Signup/StepCommunity/index.tsx:105
-msgid "Tech community"
-msgstr "Tech community"
 
 #: src/components/badges/index.tsx:55
 msgid "Tech Support"
@@ -11607,7 +11666,7 @@ msgstr ""
 msgid "That contains the following:"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:154
+#: src/screens/Signup/StepHandle/index.tsx:155
 msgid "That handle is already taken."
 msgstr "That handle is already taken."
 
@@ -11664,7 +11723,7 @@ msgstr ""
 msgid "The Copyright Policy has been moved to <0/>"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:227
+#: src/state/shell/progress-guide.tsx:239
 msgid "The Discover feed now knows what you like"
 msgstr ""
 
@@ -11782,7 +11841,7 @@ msgstr ""
 msgid "There was an issue fetching notifications. Tap here to try again."
 msgstr ""
 
-#: src/view/com/posts/PostFeed.tsx:752
+#: src/view/com/posts/PostFeed.tsx:754
 msgid "There was an issue fetching posts. Tap here to try again."
 msgstr ""
 
@@ -12067,7 +12126,7 @@ msgstr "This group is locked by a moderation action on the owner"
 msgid "This handle is reserved. Please try a different one."
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:137
+#: src/screens/Onboarding/StepProfile/index.tsx:144
 msgid "This image could not be used. Try a different format like .jpg or .png."
 msgstr "This image could not be used. Try a different format like .jpg or .png."
 
@@ -12510,7 +12569,7 @@ msgstr ""
 #: src/screens/Login/LoginForm.tsx:164
 #: src/screens/Login/LoginForm.tsx:220
 #: src/screens/Login/SetNewPasswordForm.tsx:83
-#: src/screens/Signup/index.tsx:110
+#: src/screens/Signup/index.tsx:109
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
 
@@ -12836,12 +12895,12 @@ msgstr ""
 msgid "Updating..."
 msgstr "Updating..."
 
-#: src/screens/Onboarding/StepProfile/index.tsx:307
-#: src/screens/Onboarding/StepProfile/index.tsx:318
+#: src/screens/Onboarding/StepProfile/index.tsx:319
+#: src/screens/Onboarding/StepProfile/index.tsx:330
 msgid "Upload a photo"
 msgstr "Upload a photo"
 
-#: src/screens/Onboarding/StepProfile/index.tsx:264
+#: src/screens/Onboarding/StepProfile/index.tsx:277
 msgid "Upload a photo to personalize your page."
 msgstr "Upload a photo to personalize your page."
 
@@ -12918,6 +12977,11 @@ msgstr ""
 msgid "Use this to sign in to the other app along with your handle."
 msgstr ""
 
+#. placeholder {0}: brand.metadata.displayName
+#: src/screens/Onboarding/StepFinished/index.tsx:305
+msgid "Use your {0} account to blog, live stream, post short videos, and more, across a growing ecosystem of apps."
+msgstr "Use your {0} account to blog, live stream, post short videos, and more, across a growing ecosystem of apps."
+
 #: src/screens/Settings/AIPreferencesSettings.tsx:236
 msgid "Use your data in AI search and recommendation systems. This is how AI finds similar accounts, groups users by interests, and decides what to show in personalized feeds (e.g. 'discover', 'for you', etc.)"
 msgstr "Use your data in AI search and recommendation systems. This is how AI finds similar accounts, groups users by interests, and decides what to show in personalized feeds (e.g. 'discover', 'for you', etc.)"
@@ -12986,19 +13050,19 @@ msgctxt "toast"
 msgid "User list updated"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:112
+#: src/screens/Signup/StepHandle/index.tsx:113
 msgid "Username cannot be longer than {MAX_SERVICE_HANDLE_LENGTH} characters"
 msgstr "Username cannot be longer than {MAX_SERVICE_HANDLE_LENGTH} characters"
 
-#: src/screens/Signup/StepHandle/index.tsx:99
+#: src/screens/Signup/StepHandle/index.tsx:100
 msgid "Username cannot begin or end with a hyphen"
 msgstr ""
 
-#: src/screens/Signup/StepHandle/index.tsx:115
+#: src/screens/Signup/StepHandle/index.tsx:116
 msgid "Username must be at least 3 characters"
 msgstr "Username must be at least 3 characters"
 
-#: src/screens/Signup/StepHandle/index.tsx:103
+#: src/screens/Signup/StepHandle/index.tsx:104
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
@@ -13350,7 +13414,7 @@ msgstr ""
 msgid "Volume"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:28
+#: src/screens/Onboarding/StepAssembly/index.tsx:46
 msgid "Vote on platform decisions, make proposals, and offer feedback through our People's Assembly."
 msgstr "Vote on platform decisions, make proposals, and offer feedback through our People's Assembly."
 
@@ -13533,13 +13597,14 @@ msgstr ""
 msgid "We're sorry! You can only subscribe to twenty labelers, and you've reached your limit of twenty."
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:277
-msgid "Welcome"
-msgstr "Welcome"
-
 #: src/screens/Deactivated.tsx:195
 msgid "Welcome back!"
 msgstr ""
+
+#. placeholder {0}: brand.metadata.displayName
+#: src/components/ProgressGuide/List.tsx:71
+msgid "Welcome to {0}"
+msgstr "Welcome to {0}"
 
 #: src/components/NewskieDialog.tsx:141
 msgid "Welcome, friend!"
@@ -13647,6 +13712,10 @@ msgstr ""
 #: src/lib/interests.ts:75
 msgid "Writers"
 msgstr ""
+
+#: src/screens/Onboarding/ConnectedApps.tsx:71
+msgid "Writing in community"
+msgstr "Writing in community"
 
 #. placeholder {0}: verifyError.did
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:428
@@ -14098,11 +14167,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:178
+#: src/screens/Signup/index.tsx:183
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:183
+#: src/screens/Signup/index.tsx:188
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -14128,10 +14197,6 @@ msgstr ""
 msgid "You'll stay updated with these feeds"
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:284
-msgid "You're all set. Your feeds are ready and your community is waiting."
-msgstr "You're all set. Your feeds are ready and your community is waiting."
-
 #: src/screens/SignupQueued.tsx:130
 msgid "You're in line"
 msgstr ""
@@ -14153,7 +14218,7 @@ msgstr ""
 msgid "You've denied access to your contacts"
 msgstr ""
 
-#: src/state/shell/progress-guide.tsx:237
+#: src/state/shell/progress-guide.tsx:249
 msgid "You've found some people to follow"
 msgstr ""
 
@@ -14269,7 +14334,7 @@ msgstr "Your device clock appears to be incorrect. Please check your system time
 
 #: src/screens/Login/ForgotPasswordForm.tsx:52
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:84
-#: src/screens/Signup/state.ts:317
+#: src/screens/Signup/state.ts:330
 #: src/screens/Signup/StepInfo/index.tsx:115
 msgid "Your email appears to be invalid."
 msgstr ""
@@ -14279,7 +14344,7 @@ msgstr ""
 msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of {0}."
 msgstr "Your email has not yet been verified. Please verify your email in order to enjoy all the features of {0}."
 
-#: src/state/shell/progress-guide.tsx:216
+#: src/state/shell/progress-guide.tsx:228
 msgid "Your first like!"
 msgstr ""
 
@@ -14385,7 +14450,7 @@ msgstr "Your support helps us maintain and improve the Blacksky community."
 msgid "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 msgstr "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 
-#: src/screens/Signup/StepHandle/index.tsx:122
+#: src/screens/Signup/StepHandle/index.tsx:123
 msgid "Your username: @{fullDraftHandle}"
 msgstr "Your username: @{fullDraftHandle}"
 

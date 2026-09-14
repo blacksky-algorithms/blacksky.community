@@ -28,12 +28,7 @@ export enum SignupStep {
   CAPTCHA,
 }
 
-/**
- * "Choose your handle" (the community picker) is the first step on every
- * platform: it carries the handle domain the rest of the flow depends on. Used
- * as the "floor" step for back/prev.
- */
-export const FIRST_SIGNUP_STEP = SignupStep.COMMUNITY
+export const FIRST_SIGNUP_STEP = SignupStep.INFO
 
 type SubmitTask = {
   verificationCode: string | undefined
@@ -155,7 +150,10 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
     case 'prev': {
       if (s.activeStep !== FIRST_SIGNUP_STEP) {
         next.screenTransitionDirection = 'Backward'
-        next.activeStep--
+        next.activeStep =
+          s.activeStep === SignupStep.COMMUNITY
+            ? SignupStep.INFO
+            : s.activeStep - 1
         next.error = ''
         next.errorField = undefined
       }
@@ -171,20 +169,33 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       break
     }
     case 'setStep': {
+      next.screenTransitionDirection =
+        a.value === SignupStep.COMMUNITY || a.value > s.activeStep
+          ? 'Forward'
+          : 'Backward'
       next.activeStep = a.value
       break
     }
     case 'setServiceUrl': {
+      next.selectedBrandSlug = undefined
+      if (s.serviceUrl === a.value) break
       next.serviceUrl = a.value
       next.userDomain = ''
+      next.serviceDescription = undefined
+      next.isLoading = true
+      next.error = ''
       break
     }
     case 'setCommunity': {
       // Selecting a community points signup at that community's PDS; the existing
       // describeServer pipeline then drives the available handle domains.
       next.selectedBrandSlug = a.slug
+      if (s.serviceUrl === a.serviceUrl) break
       next.serviceUrl = a.serviceUrl
       next.userDomain = ''
+      next.serviceDescription = undefined
+      next.isLoading = true
+      next.error = ''
       break
     }
     case 'setServiceDescription': {
@@ -200,9 +211,11 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       next.serviceDescription = a.value
         ? {...a.value, availableUserDomains: filtered}
         : a.value
-      if (filtered[0]) {
-        next.userDomain = filtered[0]
-      }
+      next.userDomain = filtered.includes(s.userDomain)
+        ? s.userDomain
+        : (filtered.find(d => d.replace(/^\./, '') === 'blacksky.app') ??
+          filtered[0] ??
+          '')
       next.isLoading = false
       break
     }
@@ -400,7 +413,10 @@ export function useSubmitSignup() {
           value: error,
           field: isHandleError ? 'handle' : undefined,
         })
-        dispatch({type: 'setStep', value: isHandleError ? 2 : 1})
+        dispatch({
+          type: 'setStep',
+          value: isHandleError ? SignupStep.HANDLE : SignupStep.INFO,
+        })
 
         ax.logger.error('Signup Flow Error', {
           errorMessage: error,

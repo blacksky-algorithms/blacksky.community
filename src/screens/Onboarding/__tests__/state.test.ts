@@ -9,7 +9,6 @@ import {
 
 const EXPECTED_ORDER = [
   'profile',
-  'pin-feeds',
   'belong',
   'blacksky-only',
   'assembly',
@@ -55,7 +54,7 @@ describe('onboarding state', () => {
     })
 
     it('prev walks backward and clamps at profile', () => {
-      let state = advance(createInitialOnboardingState(), 3)
+      let state = advance(createInitialOnboardingState(), 2)
       expect(state.activeStep).toBe('blacksky-only')
       state = reducer(state, {type: 'prev'})
       expect(state.activeStep).toBe('belong')

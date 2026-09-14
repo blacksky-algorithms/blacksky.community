@@ -19,7 +19,8 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
-import {IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
+import {FEEDBACK_FORM_URL, IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {usePhotoLibraryPermission} from '#/lib/hooks/usePermissions'
 import {compressIfNeeded} from '#/lib/media/manip'
 import {openCropper} from '#/lib/media/picker'
@@ -40,7 +41,12 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {useSheetWrapper} from '#/components/Dialog/sheet-wrapper'
 import {CircleInfo_Stroke2_Corner0_Rounded} from '#/components/icons/CircleInfo'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE, IS_WEB} from '#/env'
@@ -75,6 +81,7 @@ export function StepProfile() {
   const ax = useAnalytics()
   const {_} = useLingui()
   const t = useTheme()
+  const openLink = useOpenLink()
   const {gtMobile} = useBreakpoints()
   const {requestPhotoAccessIfNeeded} = usePhotoLibraryPermission()
   const requestNotificationsPermission = useRequestNotificationsPermission()
@@ -149,7 +156,7 @@ export function StepProfile() {
     // In the event that view-shot didn't load in time and the user pressed continue, this will just be undefined
     // and the default avatar will be used. We don't want to block getting through create if this fails for some
     // reason
-    if (!imageUri || avatar.useCreatedAvatar) {
+    if (avatar.useCreatedAvatar) {
       imageUri = await canvasRef.current?.capture()
     }
 
@@ -247,20 +254,26 @@ export function StepProfile() {
 
   return (
     <AvatarContext.Provider value={value}>
-      <View style={[a.gap_lg]}>
+      <View style={[a.flex_1, a.gap_lg]}>
         <AppBar
           showBack={state.canGoBack}
           onBack={() => dispatch({type: 'prev'})}
+          onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
         />
 
-        <Eyebrow label={_(msg`Profile`)} />
+        <Eyebrow step={3} total={3} />
 
         <View style={[a.gap_xs]}>
           <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
             <Trans>Add a profile picture</Trans>
           </Text>
           <Text
-            style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+            style={[
+              a.text_md,
+              a.leading_snug,
+              t.atoms.text,
+              {fontWeight: '300', fontSize: 14, lineHeight: 22},
+            ]}>
             <Trans>Upload a photo to personalize your page.</Trans>
           </Text>
         </View>
@@ -296,38 +309,54 @@ export function StepProfile() {
           )}
         </View>
 
-        <View style={[a.w_full, a.gap_md]}>
-          <Button
-            testID="onboardingAvatarCreator"
-            color="primary"
-            variant="outline"
-            size="large"
-            label={
-              avatar.useCreatedAvatar
-                ? _(msg`Upload a photo`)
-                : _(msg`Create an avatar`)
-            }
-            onPress={onSecondaryPress}
-            style={[a.w_full]}>
-            <ButtonText
-              style={[
-                a.font_mono,
-                {fontWeight: '300', fontSize: 14, textTransform: 'uppercase'},
-              ]}>
-              {avatar.useCreatedAvatar ? (
-                <Trans>Upload a photo</Trans>
-              ) : (
-                <Trans>Create an avatar</Trans>
-              )}
-            </ButtonText>
-          </Button>
+        <Button
+          testID="onboardingAvatarCreator"
+          color="primary"
+          variant="ghost"
+          size="small"
+          label={
+            avatar.useCreatedAvatar
+              ? _(msg`Upload a photo`)
+              : _(msg`Create an avatar`)
+          }
+          onPress={onSecondaryPress}
+          style={[a.w_full]}>
+          <ButtonText
+            style={[
+              a.font_mono,
+              {fontWeight: '300', fontSize: 14, textTransform: 'uppercase'},
+            ]}>
+            {avatar.useCreatedAvatar ? (
+              <Trans>Upload a photo</Trans>
+            ) : (
+              <Trans>Create an avatar</Trans>
+            )}
+          </ButtonText>
+        </Button>
 
+        <Footer>
+          <PrimaryButton
+            variant="outline"
+            testID="onboardingSkipAvatar"
+            label={_(msg`Skip`)}
+            onPress={() => {
+              dispatch({
+                type: 'setProfileStepResults',
+                image: undefined,
+                imageUri: undefined,
+                imageMime: '',
+                isCreatedAvatar: false,
+                creatorState: undefined,
+              })
+              dispatch({type: 'next'})
+            }}
+          />
           <PrimaryButton
             testID="onboardingContinue"
             label={_(msg`Continue`)}
             onPress={onContinue}
           />
-        </View>
+        </Footer>
       </View>
 
       <Dialog.Outer control={creatorControl}>

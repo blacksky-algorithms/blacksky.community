@@ -9,14 +9,13 @@ import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {isEmailMaybeInvalid} from '#/lib/strings/email'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
-import {useSignupContext} from '#/screens/Signup/state'
+import {SignupStep, useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
 import {atoms as a, native, useTheme} from '#/alf'
 import * as Admonition from '#/components/Admonition'
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
 import {FormError} from '#/components/forms/FormError'
-import {HostingProvider} from '#/components/forms/HostingProvider'
 import {CalendarDays_Stroke2_Corner0_Rounded as CalendarDays} from '#/components/icons/CalendarDays'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
@@ -26,6 +25,7 @@ import {
   AppBar,
   Eyebrow,
   FieldGroupCard,
+  Footer,
   InputGroup,
   PrimaryButton,
 } from '#/components/onboarding-chrome'
@@ -156,31 +156,31 @@ export function StepInfo({
   const showForm = !state.isLoading && !isLoadingStarterPack
 
   return (
-    <View style={[a.gap_lg]}>
+    <View style={[a.flex_1, a.gap_lg]}>
       <AppBar
         showBack
         onBack={onPressBack}
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow label={l`Create account`} />
+      <Eyebrow step={1} total={3} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Get started</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>Enter your details to create an account.</Trans>
         </Text>
       </View>
 
       <FormError error={state.errorField ? undefined : state.error} />
-
-      <HostingProvider
-        minimal
-        serviceUrl={state.serviceUrl}
-        onSelectServiceUrl={v => dispatch({type: 'setServiceUrl', value: v})}
-      />
 
       {!showForm ? (
         <View style={[a.align_center]}>
@@ -329,18 +329,38 @@ export function StepInfo({
         </>
       ) : undefined}
 
-      <PrimaryButton
-        testID="nextBtn"
-        label={
-          isServerError
-            ? l`Retry`
-            : hasWarnedEmail
-              ? l`It's correct`
-              : l`Continue`
-        }
-        onPress={isServerError ? refetchServer : onNextPress}
-        disabled={!isServerError && (!isOverAppMinAccessAge || state.isLoading)}
-      />
+      <Footer>
+        <PrimaryButton
+          testID="nextBtn"
+          label={
+            isServerError
+              ? l`Retry`
+              : hasWarnedEmail
+                ? l`It's correct`
+                : l`Continue`
+          }
+          onPress={isServerError ? refetchServer : onNextPress}
+          disabled={
+            !isServerError &&
+            (!isOverAppMinAccessAge ||
+              state.isLoading ||
+              isLoadingStarterPack ||
+              !state.serviceDescription)
+          }
+        />
+        <PrimaryButton
+          testID="joinAnotherCommunity"
+          variant="outline"
+          label={l`Join another community`}
+          onPress={() => {
+            dispatch({type: 'setEmail', value: email})
+            dispatch({type: 'setPassword', value: password})
+            dispatch({type: 'setInviteCode', value: inviteCode})
+            dispatch({type: 'clearError'})
+            dispatch({type: 'setStep', value: SignupStep.COMMUNITY})
+          }}
+        />
+      </Footer>
     </View>
   )
 }

@@ -1,23 +1,37 @@
-import {View} from 'react-native'
+import {Pressable, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {FEEDBACK_FORM_URL, webLinks} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {Logomark} from '#/view/icons/Logomark'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {atoms as a, useTheme} from '#/alf'
 import {Warning_Stroke2_Corner0_Rounded as Warning} from '#/components/icons/Warning'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {InlineLinkText} from '#/components/Link'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 
 export function StepBelong() {
   const {_} = useLingui()
+  const openLink = useOpenLink()
   const t = useTheme()
-  const {dispatch} = useOnboardingInternalState()
+  const {state, dispatch} = useOnboardingInternalState()
+  const agreed = state.guidelinesAccepted
 
   return (
-    <View style={[a.gap_lg]}>
-      <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={() => dispatch({type: 'prev'})}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
+      />
 
       <Eyebrow label={_(msg`Community moderation`)} />
 
@@ -25,7 +39,13 @@ export function StepBelong() {
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Belong, safely</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>
             Feel protected by the first social app to moderate for fatphobia,
             ableism, misogynoir, and anti-Black harassment.
@@ -46,37 +66,75 @@ export function StepBelong() {
         </Trans>
       </Text>
 
-      <PrimaryButton
-        label={_(msg`Continue`)}
-        onPress={() => dispatch({type: 'next'})}
-      />
+      <Footer>
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityHint=""
+          accessibilityState={{checked: agreed}}
+          aria-checked={agreed}
+          accessibilityLabel={_(msg`I agree to the Community Guidelines`)}
+          onPress={() =>
+            dispatch({type: 'setGuidelinesAccepted', value: !agreed})
+          }
+          style={[a.flex_row, a.align_center, a.gap_sm, {minHeight: 44}]}>
+          <View
+            style={[
+              a.border,
+              a.align_center,
+              a.justify_center,
+              {width: 18, height: 18, borderColor: '#D2FC51'},
+            ]}>
+            {agreed && <Text style={{color: '#D2FC51'}}>✓</Text>}
+          </View>
+          <Text
+            style={[
+              a.flex_1,
+              a.text_xs,
+              a.leading_snug,
+              t.atoms.text_contrast_medium,
+            ]}>
+            <Trans>
+              I agree to the{' '}
+              <InlineLinkText
+                to={webLinks.community}
+                label={_(msg`Read Community Guidelines`)}>
+                Community Guidelines
+              </InlineLinkText>
+              .
+            </Trans>
+          </Text>
+        </Pressable>
+        <PrimaryButton
+          disabled={!agreed}
+          label={_(msg`Continue`)}
+          onPress={() => dispatch({type: 'next'})}
+        />
+      </Footer>
     </View>
   )
 }
 
 function FlaggedPostCard({label, rotate}: {label: string; rotate: string}) {
-  const t = useTheme()
-
   return (
     <View
       style={[
         a.flex_row,
         a.gap_sm,
         a.p_md,
-        a.rounded_md,
+        {borderRadius: 18},
         a.border,
-        t.atoms.bg_contrast_25,
-        t.atoms.border_contrast_low,
+        {backgroundColor: '#211f36'},
+        {borderColor: '#8686ff'},
         {transform: [{rotate}]},
       ]}>
       <View
         style={[
           a.align_center,
           a.justify_center,
-          t.atoms.bg_contrast_100,
+          {backgroundColor: '#D2FC51'},
           {width: 40, height: 40, borderRadius: 20},
         ]}>
-        <Logomark width={20} fill={t.atoms.text_contrast_medium.color} />
+        <Logomark width={20} fill="#161E27" />
       </View>
 
       <View style={[a.flex_1, a.gap_sm]}>
@@ -95,11 +153,11 @@ function FlaggedPostCard({label, rotate}: {label: string; rotate: string}) {
             a.px_sm,
             a.py_xs,
             a.rounded_sm,
-            t.atoms.bg_contrast_50,
+            {backgroundColor: '#464985'},
           ]}>
-          <Warning size="xs" fill={t.atoms.text_contrast_medium.color} />
+          <Warning size="xs" fill="#161E27" />
           <Text
-            style={[a.flex_1, a.text_xs, a.leading_tight, t.atoms.text]}
+            style={[a.flex_1, a.text_xs, a.leading_tight, {color: '#F8FAF9'}]}
             numberOfLines={1}>
             {label}
           </Text>
@@ -118,12 +176,10 @@ function SkeletonBar({
   width?: number
   tone?: 'weak' | 'strong'
 }) {
-  const t = useTheme()
-
   return (
     <View
       style={[
-        tone === 'strong' ? t.atoms.bg_contrast_300 : t.atoms.bg_contrast_100,
+        {backgroundColor: tone === 'strong' ? '#F8FAF9' : '#9C9E9E'},
         {height: 10, borderRadius: 8, width: width ?? '100%'},
       ]}
     />

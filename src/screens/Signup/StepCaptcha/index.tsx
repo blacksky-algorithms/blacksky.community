@@ -14,7 +14,7 @@ import {useSignupContext} from '#/screens/Signup/state'
 import {CaptchaWebView} from '#/screens/Signup/StepCaptcha/CaptchaWebView'
 import {atoms as a, useTheme} from '#/alf'
 import {FormError} from '#/components/forms/FormError'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {AppBar, Eyebrow} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID, IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
@@ -199,14 +199,14 @@ function StepCaptchaInner({
   }, [dispatch, state.handle])
 
   return (
-    <View style={[a.gap_lg]}>
+    <View style={[a.flex_1, a.gap_lg]}>
       <AppBar
         showBack
         onBack={onBackPress}
         onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
       />
 
-      <Eyebrow step={3} total={4} />
+      <Eyebrow label={_(msg`Security`)} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
@@ -246,13 +246,6 @@ function StepCaptchaInner({
       </View>
 
       <FormError error={state.error} />
-
-      <PrimaryButton
-        testID="captchaContinueBtn"
-        label={_(msg`Continue`)}
-        onPress={() => {}}
-        disabled
-      />
     </View>
   )
 }

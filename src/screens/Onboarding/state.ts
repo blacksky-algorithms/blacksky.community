@@ -15,6 +15,7 @@ type OnboardingScreen =
   | 'finished'
 
 export type OnboardingState = {
+  guidelinesAccepted: boolean
   screens: Record<OnboardingScreen, boolean>
   activeStep: OnboardingScreen
   stepTransitionDirection: 'Forward' | 'Backward'
@@ -44,6 +45,7 @@ export type OnboardingState = {
 }
 
 export type OnboardingAction =
+  | {type: 'setGuidelinesAccepted'; value: boolean}
   | {
       type: 'next'
     }
@@ -80,7 +82,7 @@ export function createInitialOnboardingState(opts?: {
 }): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
-    'pin-feeds': true,
+    'pin-feeds': false,
     belong: true,
     'blacksky-only': opts?.blackskyOnly ?? true,
     assembly: true,
@@ -88,6 +90,7 @@ export function createInitialOnboardingState(opts?: {
   }
 
   return {
+    guidelinesAccepted: false,
     screens,
     activeStep: 'profile',
     stepTransitionDirection: 'Forward',
@@ -121,6 +124,10 @@ export function reducer(
   const stepOrder = getStepOrder(s)
 
   switch (a.type) {
+    case 'setGuidelinesAccepted': {
+      next.guidelinesAccepted = a.value
+      break
+    }
     case 'next': {
       const nextIndex = stepOrder.indexOf(next.activeStep) + 1
       const nextStep = stepOrder[nextIndex]

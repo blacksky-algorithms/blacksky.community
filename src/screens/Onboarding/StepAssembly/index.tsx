@@ -3,20 +3,32 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {Logomark} from '#/view/icons/Logomark'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {atoms as a, useTheme} from '#/alf'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 
 export function StepAssembly() {
   const {_} = useLingui()
+  const openLink = useOpenLink()
   const t = useTheme()
   const {dispatch} = useOnboardingInternalState()
 
   return (
-    <View style={[a.gap_lg]}>
-      <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={() => dispatch({type: 'prev'})}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
+      />
 
       <Eyebrow label={_(msg`People's Assembly`)} />
 
@@ -24,7 +36,13 @@ export function StepAssembly() {
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
           <Trans>Have a say</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>
             Vote on platform decisions, make proposals, and offer feedback
             through our People's Assembly.
@@ -36,10 +54,12 @@ export function StepAssembly() {
         <StatementCard />
       </View>
 
-      <PrimaryButton
-        label={_(msg`Continue`)}
-        onPress={() => dispatch({type: 'next'})}
-      />
+      <Footer>
+        <PrimaryButton
+          label={_(msg`Continue`)}
+          onPress={() => dispatch({type: 'next'})}
+        />
+      </Footer>
     </View>
   )
 }
@@ -53,14 +73,14 @@ function StatementCard() {
       style={[
         a.gap_md,
         a.p_md,
-        a.rounded_md,
+        {borderRadius: 18},
         a.border,
-        t.atoms.bg_contrast_25,
-        t.atoms.border_contrast_low,
+        {backgroundColor: '#211f36'},
+        {borderColor: '#8686ff'},
       ]}>
       <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-        <Logomark width={18} fill={t.atoms.text_contrast_medium.color} />
-        <Text style={[a.text_sm, a.font_bold, t.atoms.text]}>
+        <Logomark width={18} fill="#F8FAF9" />
+        <Text style={[a.text_sm, a.font_bold, {color: '#F8FAF9'}]}>
           <Trans>People's Assembly</Trans>
         </Text>
       </View>
@@ -71,13 +91,13 @@ function StatementCard() {
           a.p_md,
           a.rounded_sm,
           a.border,
-          t.atoms.bg_contrast_50,
-          t.atoms.border_contrast_low,
+          {backgroundColor: '#ffffff', marginLeft: 32},
+          {borderColor: '#8686ff'},
         ]}>
         <View style={[a.flex_row, a.align_center, a.gap_sm]}>
           <View
             style={[
-              t.atoms.bg_contrast_200,
+              {backgroundColor: '#9C9E9E'},
               {width: 24, height: 24, borderRadius: 12},
             ]}
           />
@@ -113,8 +133,6 @@ function VotePill({
   label: string
   borderStyle: ViewStyle
 }) {
-  const t = useTheme()
-
   return (
     <View
       style={[
@@ -128,7 +146,7 @@ function VotePill({
         borderStyle,
       ]}>
       <Text
-        style={[a.text_xs, a.leading_tight, t.atoms.text]}
+        style={[a.text_xs, a.leading_tight, {color: '#F8FAF9'}]}
         numberOfLines={1}>
         {label}
       </Text>
@@ -143,12 +161,10 @@ function SkeletonBar({
   width?: number
   tone?: 'weak' | 'strong'
 }) {
-  const t = useTheme()
-
   return (
     <View
       style={[
-        tone === 'strong' ? t.atoms.bg_contrast_300 : t.atoms.bg_contrast_100,
+        {backgroundColor: tone === 'strong' ? '#000000' : '#9C9E9E'},
         {height: 8, borderRadius: 8, width: width ?? '100%'},
       ]}
     />

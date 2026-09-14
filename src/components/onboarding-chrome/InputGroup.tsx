@@ -213,6 +213,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
           <View
             style={{
               height: 1,
+              marginHorizontal: -16,
               marginTop: 16,
               marginBottom: 16,
               backgroundColor: FIELD_BORDER,

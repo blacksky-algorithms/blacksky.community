@@ -12,7 +12,6 @@ import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
 import {useStarterPackQuery} from '#/state/queries/starter-packs'
 import {useActiveStarterPack} from '#/state/shell/landing'
-import {LoggedOutLayout} from '#/view/com/util/layouts/LoggedOutLayout'
 import {
   initialState,
   reducer,
@@ -24,8 +23,9 @@ import {StepCaptcha} from '#/screens/Signup/StepCaptcha'
 import {StepCommunity} from '#/screens/Signup/StepCommunity'
 import {StepHandle} from '#/screens/Signup/StepHandle'
 import {StepInfo} from '#/screens/Signup/StepInfo'
-import {atoms as a, native, useBreakpoints} from '#/alf'
+import {atoms as a, native} from '#/alf'
 import {LinearGradientBackground} from '#/components/LinearGradientBackground'
+import {Screen} from '#/components/onboarding-chrome'
 import {ScreenTransition} from '#/components/ScreenTransition'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
@@ -46,7 +46,6 @@ export function Signup({
     ...initialState,
     analytics: ax,
   })
-  const {gtMobile} = useBreakpoints()
   const submit = useSubmitSignup()
 
   useEffect(() => {
@@ -56,9 +55,6 @@ export function Signup({
     })
   }, [ax])
 
-  // Default the community picker to the served/bundled brand: point signup at
-  // its PDS (so describeServer runs) and pre-select its slug. Picking a
-  // different community in "Choose your handle" overrides both.
   useEffect(() => {
     if (brand.services.pds.url) {
       dispatch({
@@ -102,7 +98,10 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: undefined,
-        availableHandles: brand.services.pds.availableHandles,
+        availableHandles:
+          state.selectedBrandSlug === brand.metadata.slug
+            ? brand.services.pds.availableHandles
+            : undefined,
       })
       dispatch({
         type: 'setError',
@@ -114,11 +113,21 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: serviceInfo,
-        availableHandles: brand.services.pds.availableHandles,
+        availableHandles:
+          state.selectedBrandSlug === brand.metadata.slug
+            ? brand.services.pds.availableHandles
+            : undefined,
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [_, serviceInfo, isError, brand.services.pds.availableHandles])
+  }, [
+    _,
+    serviceInfo,
+    isError,
+    brand.services.pds.availableHandles,
+    brand.metadata.slug,
+    state.selectedBrandSlug,
+  ])
 
   useEffect(() => {
     if (state.pendingSubmit) {
@@ -156,11 +165,7 @@ export function Signup({
   return (
     <Animated.View exiting={native(FadeIn.duration(90))} style={a.flex_1}>
       <SignupContext.Provider value={{state, dispatch}}>
-        <LoggedOutLayout
-          leadin=""
-          title={_(msg`Create Account`)}
-          description={brand.messages.welcomeMessage}
-          scrollable>
+        <Screen>
           <View testID="createAccount" style={a.flex_1}>
             {showStarterPackCard &&
             bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
@@ -192,22 +197,16 @@ export function Signup({
             <LayoutAnimationConfig skipEntering>
               <ScreenTransition
                 key={state.activeStep}
-                direction={state.screenTransitionDirection}>
-                <View
-                  style={[
-                    a.flex_1,
-                    a.px_xl,
-                    a.pt_2xl,
-                    !gtMobile && {paddingBottom: 100},
-                  ]}>
+                direction={state.screenTransitionDirection}
+                style={a.flex_1}>
+                <View style={[a.flex_1]}>
                   {state.activeStep === SignupStep.COMMUNITY ? (
-                    // Each redesigned step owns its full chrome (top app bar,
-                    // eyebrow, heading and bottom action). "Choose your handle"
-                    // is the first step, so its back action exits signup.
-                    <StepCommunity onPressBack={onPressBack} />
+                    <StepCommunity
+                      onPressBack={() => dispatch({type: 'prev'})}
+                    />
                   ) : state.activeStep === SignupStep.INFO ? (
                     <StepInfo
-                      onPressBack={() => dispatch({type: 'prev'})}
+                      onPressBack={onPressBack}
                       isLoadingStarterPack={
                         isFetchingStarterPack && !isErrorStarterPack
                       }
@@ -223,7 +222,7 @@ export function Signup({
               </ScreenTransition>
             </LayoutAnimationConfig>
           </View>
-        </LoggedOutLayout>
+        </Screen>
       </SignupContext.Provider>
     </Animated.View>
   )

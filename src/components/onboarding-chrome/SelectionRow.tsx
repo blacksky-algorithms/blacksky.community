@@ -24,6 +24,7 @@ export function SelectionRow({
   subtitle,
   icon,
   testID,
+  emphasize,
 }: {
   mode: 'radio' | 'checkbox' | 'disclosure'
   selected: boolean
@@ -34,6 +35,7 @@ export function SelectionRow({
   subtitle?: string
   icon?: React.ReactNode
   testID?: string
+  emphasize?: boolean
 }) {
   const t = useTheme()
 
@@ -69,7 +71,13 @@ export function SelectionRow({
 
       <View style={[a.flex_1]}>
         <Text
-          style={[a.text_md, a.font_semi_bold, a.leading_tight, t.atoms.text]}>
+          style={[
+            a.text_md,
+            a.font_semi_bold,
+            a.leading_tight,
+            t.atoms.text,
+            emphasize && {color: LIME, fontWeight: '300', fontSize: 12},
+          ]}>
           {title}
         </Text>
         {description != null ? (

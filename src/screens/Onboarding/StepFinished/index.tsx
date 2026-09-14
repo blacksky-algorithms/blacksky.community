@@ -15,8 +15,13 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
 import {useBrand} from '#/lib/community/BrandContext'
-import {BLACKSKY_COMMUNITY_DID, BSKY_APP_ACCOUNT_DID} from '#/lib/constants'
+import {
+  BLACKSKY_COMMUNITY_DID,
+  BSKY_APP_ACCOUNT_DID,
+  FEEDBACK_FORM_URL,
+} from '#/lib/constants'
 import {prioritizeForYouForBlackskyPds} from '#/lib/default-feeds'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {logger} from '#/logger'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
@@ -30,7 +35,7 @@ import {
   useSetActiveStarterPack,
 } from '#/state/shell/landing'
 import {useProgressGuideControls} from '#/state/shell/progress-guide'
-import {Logomark} from '#/view/icons/Logomark'
+import {ConnectedApps} from '#/screens/Onboarding/ConnectedApps'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {
   bulkWriteFollows,
@@ -39,7 +44,12 @@ import {
   subscribeToBrandModerationServices,
 } from '#/screens/Onboarding/util'
 import {atoms as a, useTheme} from '#/alf'
-import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import * as bsky from '#/types/bsky'
@@ -208,7 +218,7 @@ export function StepFinished() {
     setSaving(false)
     setActiveStarterPack(undefined)
     setHasCheckedForStarterPack(true)
-    startProgressGuide('follow-10')
+    startProgressGuide('welcome')
     dispatch({type: 'finish'})
     onboardDispatch({type: 'finish'})
     ax.metric('onboarding:finished:nextPressed', {
@@ -267,36 +277,48 @@ function ValueProposition({
   dispatch: ReturnType<typeof useOnboardingInternalState>['dispatch']
 }) {
   const {_} = useLingui()
+  const openLink = useOpenLink()
   const t = useTheme()
   const brand = useBrand()
 
   return (
-    <View style={[a.gap_lg]}>
-      <AppBar showBack onBack={() => dispatch({type: 'prev'})} />
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={() => dispatch({type: 'prev'})}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
+      />
 
-      <Eyebrow label={_(msg`Welcome`)} />
+      <Eyebrow label={_(msg`Connected apps`)} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
-          {brand.messages.welcomeMessage}
+          <Trans>One account, a whole network</Trans>
         </Text>
-        <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>
-            You're all set. Your feeds are ready and your community is waiting.
+            Use your {brand.metadata.displayName} account to blog, live stream,
+            post short videos, and more, across a growing ecosystem of apps.
           </Trans>
         </Text>
       </View>
 
-      <View style={[a.w_full, a.align_center, a.py_5xl]}>
-        <Logomark width={96} fill={t.atoms.text.color} />
-      </View>
+      <ConnectedApps />
 
-      <PrimaryButton
-        testID="onboardingFinish"
-        label={saving ? _(msg`Finalizing`) : _(msg`Let's go`)}
-        disabled={saving}
-        onPress={() => finishOnboarding()}
-      />
+      <Footer>
+        <PrimaryButton
+          testID="onboardingFinish"
+          label={saving ? _(msg`Finalizing`) : _(msg`Continue`)}
+          disabled={saving}
+          onPress={() => finishOnboarding()}
+        />
+      </Footer>
     </View>
   )
 }
