@@ -14,6 +14,9 @@ export enum Features {
   ComposerLanguageDetectionEnable = 'composer:language_detection:enable',
   PostGalleryEmbedEnable = 'post_gallery_embed:enable',
   NotificationsExpandedProfileCardEnable = 'notifications:expanded_profile_card:enable',
+  AppviewFallbackMode = 'appview_fallback:mode',
+  AppviewFallbackThresholds = 'appview_fallback:thresholds',
+  SearchAppviewRoute = 'search_appview:route',
 
   AATest = 'aa-test',
 }

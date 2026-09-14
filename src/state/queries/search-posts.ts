@@ -3,7 +3,6 @@ import {
   type AppBskyActorDefs,
   type AppBskyFeedDefs,
   type AppBskyFeedSearchPosts,
-  AtUri,
   moderatePost,
 } from '@atproto/api'
 import {
@@ -13,12 +12,13 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useAgent} from '#/state/session'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from './util'
 
 const searchPostsQueryKeyRoot = 'search-posts'
@@ -61,12 +61,15 @@ export function useSearchPostsQuery({
   >({
     queryKey: searchPostsQueryKey({query, sort}),
     queryFn: async ({pageParam}) => {
-      const res = await agent.app.bsky.feed.searchPosts({
-        q: query,
-        limit: 25,
-        cursor: pageParam,
-        sort,
-      })
+      const res = await agent.app.bsky.feed.searchPosts(
+        {
+          q: query,
+          limit: 25,
+          cursor: pageParam,
+          sort,
+        },
+        searchAppviewOpts(),
+      )
       return res.data
     },
     initialPageParam: undefined,
@@ -150,7 +153,7 @@ export function* findAllPostsInQueryData(
   >({
     queryKey: [searchPostsQueryKeyRoot],
   })
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   for (const [_queryKey, queryData] of queryDatas) {
     if (!queryData?.pages) {
@@ -158,12 +161,12 @@ export function* findAllPostsInQueryData(
     }
     for (const page of queryData?.pages) {
       for (const post of page.posts) {
-        if (didOrHandleUriMatches(atUri, post)) {
+        if (matches(post)) {
           yield post
         }
 
         const quotedPost = getEmbeddedPost(post.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
       }

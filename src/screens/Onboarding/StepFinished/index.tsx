@@ -16,6 +16,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {uploadBlob} from '#/lib/api'
 import {useBrand} from '#/lib/community/BrandContext'
 import {BLACKSKY_COMMUNITY_DID, BSKY_APP_ACCOUNT_DID} from '#/lib/constants'
+import {prioritizeForYouForBlackskyPds} from '#/lib/default-feeds'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {logger} from '#/logger'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
@@ -121,7 +122,10 @@ export function StepFinished() {
                   pinned: true,
                   id: TID.nextStr(),
                 }))
-              : brand.feeds.defaultPinned.map(f => ({
+              : prioritizeForYouForBlackskyPds(
+                  brand.feeds.defaultPinned,
+                  agent.serviceUrl.toString(),
+                ).map(f => ({
                   ...f,
                   id: TID.nextStr(),
                 }))

@@ -72,6 +72,7 @@ function Inner({state}: {state: ComposerOpts}) {
             text={state.text}
             imageUris={state.imageUris}
             openGallery={state.openGallery}
+            contextualCommunityFeedTarget={state.contextualCommunityFeedTarget}
           />
         </View>
       </DismissableLayer.DismissableLayer>

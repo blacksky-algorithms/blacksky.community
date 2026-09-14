@@ -1,5 +1,6 @@
 import {createContext, useContext, useMemo} from 'react'
 
+import {isBlackskyBrand, useBrand} from '#/lib/community/BrandContext'
 import {useLanguagePrefs} from '#/state/preferences/languages'
 import {useServiceConfigQuery} from '#/state/queries/service-config'
 import {device} from '#/storage'
@@ -16,9 +17,14 @@ TrendingContext.displayName = 'TrendingContext'
 const CheckEmailConfirmedContext = createContext<boolean | null>(null)
 
 export function Provider({children}: {children: React.ReactNode}) {
+  const brand = useBrand()
   const langPrefs = useLanguagePrefs()
   const {data: config, isLoading: isInitialLoad} = useServiceConfigQuery()
   const trending = useMemo<TrendingContext>(() => {
+    if (!isBlackskyBrand(brand)) {
+      return {enabled: false}
+    }
+
     if (__DEV__) {
       return {enabled: true}
     }
@@ -47,7 +53,7 @@ export function Provider({children}: {children: React.ReactNode}) {
     device.set(['trendingBetaEnabled'], enabled)
 
     return {enabled}
-  }, [isInitialLoad, langPrefs.contentLanguages])
+  }, [brand, isInitialLoad, langPrefs.contentLanguages])
 
   // probably true, so default to true when loading
   // if the call fails, the query will set it to false for us

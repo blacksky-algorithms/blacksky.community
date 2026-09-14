@@ -11,6 +11,7 @@ import {useIntentHandler} from '#/lib/hooks/useIntentHandler'
 import {useNotificationsHandler} from '#/lib/hooks/useNotificationHandler'
 import {useNotificationsRegistration} from '#/lib/notifications/notifications'
 import {isStateAtTabRoot} from '#/lib/routes/helpers'
+import {AppviewFallbackController} from '#/state/appview-fallback-controller'
 import {useDialogFullyExpandedCountContext} from '#/state/dialogs'
 import {useProfileEnrichment} from '#/state/queries/profile-enrichment'
 import {useSession} from '#/state/session'
@@ -98,6 +99,7 @@ function ShellInner() {
           <TabsNavigator layout={drawerLayout} />
         </ErrorBoundary>
       </View>
+      <AppviewFallbackController />
       <Composer />
       <MutedWordsDialog />
       <SigninDialog />

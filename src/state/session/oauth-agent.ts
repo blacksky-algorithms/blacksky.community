@@ -8,6 +8,7 @@ import {type OAuthSession} from '@atproto/oauth-client'
 
 import {BLUESKY_PROXY_HEADER, BSKY_SERVICE} from '#/lib/constants'
 import {logger} from '#/logger'
+import {reportProxiedFetch} from '#/state/appview-health'
 import {
   sessionAccountToSession,
   stripAppviewProxyForPdsLocalMethods,
@@ -128,9 +129,16 @@ export class OauthBskyAppAgent extends Agent {
         return session.did
       },
       fetchHandler(url, init) {
-        return session.fetchHandler(
-          url,
-          stripAppviewProxyForPdsLocalMethods(url, init) ?? init,
+        const finalInit = stripAppviewProxyForPdsLocalMethods(url, init) ?? init
+        return session.fetchHandler(url, finalInit).then(
+          res => {
+            reportProxiedFetch(finalInit, res.status)
+            return res
+          },
+          err => {
+            reportProxiedFetch(finalInit, null)
+            throw err
+          },
         )
       },
     })

@@ -6,6 +6,7 @@ import {
 } from '@atproto/api'
 import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
 
+import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
@@ -40,10 +41,13 @@ export function useActorAutocompleteQuery(
     queryKey: RQKEY(prefix || ''),
     async queryFn() {
       const res = prefix
-        ? await agent.searchActorsTypeahead({
-            q: prefix,
-            limit: limit || 8,
-          })
+        ? await agent.searchActorsTypeahead(
+            {
+              q: prefix,
+              limit: limit || 8,
+            },
+            searchAppviewOpts(),
+          )
         : undefined
       return res?.data.actors || []
     },
@@ -77,10 +81,13 @@ export function useActorAutocompleteFn() {
             staleTime: STALE.MINUTES.ONE,
             queryKey: RQKEY(query || ''),
             queryFn: () =>
-              agent.searchActorsTypeahead({
-                q: query,
-                limit,
-              }),
+              agent.searchActorsTypeahead(
+                {
+                  q: query,
+                  limit,
+                },
+                searchAppviewOpts(),
+              ),
           })
         } catch (e) {
           logger.error('useActorSearch: searchActorsTypeahead failed', {

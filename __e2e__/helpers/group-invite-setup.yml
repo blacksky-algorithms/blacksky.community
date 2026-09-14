@@ -1,0 +1,8 @@
+appId: community.blacksky.app
+---
+- runScript:
+    file: ../setupServer.js
+    env:
+      SERVER_PATH: '?groupInvite=${SCENARIO}'
+- runFlow:
+    file: ../setupApp.yml

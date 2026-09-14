@@ -28,8 +28,10 @@ import {
   IS_PROD_SERVICE,
   PUBLIC_BSKY_SERVICE,
 } from '#/lib/constants'
+import {prioritizeForYouForBlackskyPds} from '#/lib/default-feeds'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
+import {reportProxiedFetch} from '#/state/appview-health'
 import {snoozeEmailConfirmationPrompt} from '#/state/shell/reminders'
 import {features} from '#/analytics'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
@@ -286,10 +288,10 @@ export async function createAgentAndCreateAccount(
         throw e
       }),
       networkRetry(1, () => {
-        const pinnedFeeds = DEFAULT_BRAND_CONFIG.feeds.defaultPinned.map(f => ({
-          ...f,
-          id: TID.nextStr(),
-        }))
+        const pinnedFeeds = prioritizeForYouForBlackskyPds(
+          DEFAULT_BRAND_CONFIG.feeds.defaultPinned,
+          service,
+        ).map(f => ({...f, id: TID.nextStr()}))
         return agent.overwriteSavedFeeds(pinnedFeeds)
       }).catch(e => {
         logger.info(`createAgentAndCreateAccount: failed to set initial feeds`)
@@ -456,6 +458,9 @@ export class Agent extends BaseAgent {
 const PDS_LOCAL_PROXY_EXEMPT_METHODS = [
   'app.bsky.actor.getPreferences',
   'app.bsky.actor.putPreferences',
+  'com.atproto.space.createRecord',
+  'com.atproto.space.deleteRecord',
+  'com.atproto.space.getRecord',
 ]
 
 export function stripAppviewProxyForPdsLocalMethods(
@@ -500,9 +505,11 @@ class BskyAppAgent extends BskyAgent {
         try {
           const result = await realFetch(input, init)
           success = true
+          reportProxiedFetch(init, result.status)
           return result
         } catch (e) {
           success = false
+          reportProxiedFetch(init, null)
           throw e
         } finally {
           if (success) {

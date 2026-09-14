@@ -9,6 +9,22 @@ import {
 } from '#/state/session/oauth-telemetry'
 import {OAUTH_BASE_URL, OAUTH_CLIENT_NAME, OAUTH_SCOPE} from './oauth-config'
 
+const LOCAL_OAUTH_HANDLE_RESOLVER =
+  process.env.EXPO_PUBLIC_OAUTH_HANDLE_RESOLVER
+const LOCAL_OAUTH_PLC_DIRECTORY_URL =
+  process.env.EXPO_PUBLIC_OAUTH_PLC_DIRECTORY_URL
+const USE_LOCAL_OAUTH_RESOLUTION =
+  __DEV__ && !!LOCAL_OAUTH_HANDLE_RESOLVER && !!LOCAL_OAUTH_PLC_DIRECTORY_URL
+
+const oauthResolutionOptions = {
+  handleResolver: USE_LOCAL_OAUTH_RESOLUTION
+    ? LOCAL_OAUTH_HANDLE_RESOLVER
+    : 'https://blacksky.app',
+  ...(USE_LOCAL_OAUTH_RESOLUTION
+    ? {plcDirectoryUrl: LOCAL_OAUTH_PLC_DIRECTORY_URL, allowHttp: true}
+    : {}),
+}
+
 export const NATIVE_REDIRECT_URI = 'community.blacksky:/oauth/callback'
 
 // The redirect deep-link can arrive with either a single (`:/oauth`) or double
@@ -79,7 +95,7 @@ const BSKY_OAUTH_CLIENT = new ExpoOAuthClient({
     application_type: 'native',
     dpop_bound_access_tokens: true,
   },
-  handleResolver: 'https://blacksky.app',
+  ...oauthResolutionOptions,
   fetch: debugFetch,
   ...sessionHooks,
 })

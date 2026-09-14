@@ -6,7 +6,6 @@ import {
   AppBskyUnspeccedDefs,
   type AppBskyUnspeccedGetPostThreadOtherV2,
   type AppBskyUnspeccedGetPostThreadV2,
-  AtUri,
 } from '@atproto/api'
 import {type QueryClient, useQueryClient} from '@tanstack/react-query'
 
@@ -32,9 +31,9 @@ import {
 import {getRootPostAtUri} from '#/state/queries/usePostThread/utils'
 import {postViewToThreadPlaceholder} from '#/state/queries/usePostThread/views'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from '#/state/queries/util'
 
 export function createCacheMutator({
@@ -277,7 +276,7 @@ export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
 ): Generator<AppBskyFeedDefs.PostView, void> {
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
   const queryDatas =
     queryClient.getQueriesData<AppBskyUnspeccedGetPostThreadV2.OutputSchema>({
       queryKey: [postThreadQueryKeyRoot],
@@ -290,12 +289,12 @@ export function* findAllPostsInQueryData(
 
     for (const item of thread) {
       if (AppBskyUnspeccedDefs.isThreadItemPost(item.value)) {
-        if (didOrHandleUriMatches(atUri, item.value.post)) {
+        if (matches(item.value.post)) {
           yield item.value.post
         }
 
         const qp = getEmbeddedPost(item.value.post.embed)
-        if (qp && didOrHandleUriMatches(atUri, qp)) {
+        if (qp && matches(qp)) {
           yield embedViewRecordToPostView(qp)
         }
       }

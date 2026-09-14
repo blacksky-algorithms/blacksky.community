@@ -9,7 +9,9 @@ export const LOCAL_DEV_SERVICE =
 export const STAGING_SERVICE = 'https://staging.bsky.dev'
 export const BSKY_SERVICE = 'https://blacksky.app'
 export const BSKY_SERVICE_DID = 'did:web:bsky.social'
-export const PUBLIC_BSKY_SERVICE = 'https://api.blacksky.community'
+export const PUBLIC_BSKY_SERVICE =
+  (__DEV__ && process.env.EXPO_PUBLIC_APPVIEW_URL) ||
+  'https://api.blacksky.community'
 export const DEFAULT_SERVICE = BSKY_SERVICE
 
 // Handle suffixes that identify a Latinsky-community account living on the shared
@@ -24,6 +26,7 @@ export const CHAT_SERVICE = 'https://api.bsky.chat'
 export const EMBED_SERVICE = 'https://embed.bsky.app'
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
 export const BSKY_DOWNLOAD_URL = 'https://blacksky.community/download'
+export const ACCOUNT_MIGRATION_URL = 'https://move.blacksky.community'
 export const STARTER_PACK_MAX_SIZE = 150
 export const CARD_ASPECT_RATIO = 1200 / 630
 
@@ -143,6 +146,8 @@ export const DISCOVER_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-trend'
 export const VIDEO_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-videos'
+export const FOR_YOU_FEED_URI =
+  'at://did:plc:3guzzweuqraryl3rdkimjamk/app.bsky.feed.generator/for-you'
 export const STAGING_VIDEO_FEED_URI =
   'at://did:plc:w4xbfzo7kqfes5zb7r6qv3rw/app.bsky.feed.generator/blacksky-videos'
 export const VIDEO_FEED_URIS = [VIDEO_FEED_URI, STAGING_VIDEO_FEED_URI]
@@ -214,6 +219,25 @@ export const PUBLIC_BSKY_API = 'https://public.api.bsky.app'
 export const PUBLIC_APPVIEW = 'https://api.blacksky.community'
 export const PUBLIC_APPVIEW_DID = 'did:web:api.blacksky.community'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
+
+export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
+
+export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'
+export const BLUESKY_FALLBACK_PROXY_HEADER =
+  `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
+// Immutable, unlike BLUESKY_PROXY_HEADER below — use for calls that must not
+// follow that mutable header.
+export const HOME_PROXY_HEADER =
+  `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+
+export const HOME_APPVIEW_PINNED_OPTS = {
+  headers: {'atproto-proxy': HOME_PROXY_HEADER},
+}
+
+export const BLUESKY_APPVIEW_PINNED_OPTS = {
+  headers: {'atproto-proxy': BLUESKY_FALLBACK_PROXY_HEADER},
+}
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 

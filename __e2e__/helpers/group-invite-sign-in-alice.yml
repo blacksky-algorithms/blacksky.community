@@ -1,0 +1,12 @@
+appId: community.blacksky.app
+---
+- extendedWaitUntil:
+    visible:
+      id: e2eSignInAlice
+    timeout: 10000
+- tapOn:
+    id: e2eSignInAlice
+- extendedWaitUntil:
+    visible:
+      id: bottomBarHomeBtn
+    timeout: 30000

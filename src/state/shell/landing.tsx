@@ -1,4 +1,4 @@
-import {createContext, useContext, useState} from 'react'
+import {createContext, useContext, useEffect, useState} from 'react'
 
 import {logger} from '#/logger'
 
@@ -14,9 +14,46 @@ type GroupChatJoinRequestLanding = {
   code: string
 }
 
-type LandingType = StarterPackLanding | GroupChatJoinRequestLanding | undefined
+type GroupInviteLanding = {
+  type: 'groupinvite'
+  uri: string
+  code: string
+}
+
+type LandingType =
+  | StarterPackLanding
+  | GroupChatJoinRequestLanding
+  | GroupInviteLanding
+  | undefined
 
 type SetContext = (v: LandingType) => void
+
+const PENDING_GROUP_INVITE_KEY = 'blacksky.pendingGroupInvite'
+
+function readPendingGroupInvite(): GroupInviteLanding | undefined {
+  if (typeof window === 'undefined') return undefined
+  try {
+    const value: unknown = JSON.parse(
+      window.sessionStorage.getItem(PENDING_GROUP_INVITE_KEY) ?? 'null',
+    )
+    const code =
+      value && typeof value === 'object'
+        ? (value as {code?: unknown}).code
+        : undefined
+    if (
+      value &&
+      typeof value === 'object' &&
+      (value as {type?: unknown}).type === 'groupinvite' &&
+      typeof code === 'string' &&
+      /^[A-Za-z0-9_-]{43}$/.test(code)
+    ) {
+      return {type: 'groupinvite', uri: '', code}
+    }
+  } catch {
+    // Session storage is a best-effort OAuth resume aid.
+  }
+  return undefined
+}
 
 const stateContext = createContext<LandingType>(undefined)
 stateContext.displayName = 'ActiveLandingStateContext'
@@ -24,7 +61,23 @@ const setContext = createContext<SetContext>((_: LandingType) => {})
 setContext.displayName = 'ActiveLandingSetContext'
 
 export function Provider({children}: {children: React.ReactNode}) {
-  const [state, setState] = useState<LandingType>()
+  const [state, setState] = useState<LandingType>(readPendingGroupInvite)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      if (state?.type === 'groupinvite') {
+        window.sessionStorage.setItem(
+          PENDING_GROUP_INVITE_KEY,
+          JSON.stringify({type: state.type, code: state.code}),
+        )
+      } else {
+        window.sessionStorage.removeItem(PENDING_GROUP_INVITE_KEY)
+      }
+    } catch {
+      // Session storage is never required for normal invite handling.
+    }
+  }, [state])
 
   return (
     <stateContext.Provider value={state}>
@@ -63,4 +116,9 @@ export const useSetActiveStarterPack = () => {
 export const useActiveGroupChatJoinRequest = () => {
   const landing = useActiveLanding()
   return landing?.type === 'groupchat' ? landing : undefined
+}
+
+export const useActiveGroupInvite = () => {
+  const landing = useActiveLanding()
+  return landing?.type === 'groupinvite' ? landing : undefined
 }

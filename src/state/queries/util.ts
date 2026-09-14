@@ -4,7 +4,7 @@ import {
   AppBskyEmbedRecordWithMedia,
   type AppBskyFeedDefs,
   AppBskyFeedPost,
-  type AtUri,
+  AtUri,
 } from '@atproto/api'
 import {
   type InfiniteData,
@@ -12,6 +12,7 @@ import {
   type QueryKey,
 } from '@tanstack/react-query'
 
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import * as bsky from '#/types/bsky'
 
 export type StructuredQueryKey<T extends Record<string, unknown>> = readonly [
@@ -100,6 +101,27 @@ export function didOrHandleUriMatches(
   }
 
   return atUri.host === record.author.handle && record.uri.endsWith(atUri.rkey)
+}
+
+/**
+ * A predicate matching cached posts against a target URI, for shadow-cache
+ * updates (like, delete, ...).
+ *
+ * A permissioned-space record URI is not an at-uri: `AtUri` misparses it, so
+ * its `host` becomes the space authority and its `rkey` the space type. The
+ * handle branch of `didOrHandleUriMatches` would then compare the wrong
+ * segments and could match a different post entirely, which is why the space
+ * form is matched by exact equality — it is always fully qualified — and never
+ * constructed as an `AtUri` at all.
+ */
+export function makeUriMatcher(uri: string) {
+  if (isSpaceRecordUri(uri)) {
+    return (record: {uri: string; author: AppBskyActorDefs.ProfileViewBasic}) =>
+      record.uri === uri
+  }
+  const atUri = new AtUri(uri)
+  return (record: {uri: string; author: AppBskyActorDefs.ProfileViewBasic}) =>
+    didOrHandleUriMatches(atUri, record)
 }
 
 export function getEmbeddedPost(
