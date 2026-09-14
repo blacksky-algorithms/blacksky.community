@@ -1,5 +1,15 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const CalendarClock_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M15.439 3.148a1 1 0 0 1 .41.645l.568 3.22a7 7 0 1 1-6.174 10.97L4.32 19.027a1 1 0 0 1-1.159-.811L1.078 6.398a1 1 0 0 1 .81-1.158l12.803-2.258a1 1 0 0 1 .748.166ZM9.325 16.114A7 7 0 0 1 9 14c0-1.56.51-3 1.372-4.164l-6.456 1.139 1.041 5.909 4.368-.77ZM3.568 9.005l10.833-1.91-.347-1.97L3.22 7.036l.347 1.97ZM16 9a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a1 1 0 0 1 1 1v1.586l1.374 1.374a1 1 0 0 1-1.414 1.414l-1.667-1.667A1 1 0 0 1 15 14v-2a1 1 0 0 1 1-1Z',
+// tabler: calendar-clock
+export const CalendarClock_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3',
+    'M16 3v4',
+    'M8 3v4',
+    'M4 11h10',
+    'M14 18a4 4 0 1 0 8 0a4 4 0 1 0 -8 0',
+    'M18 16.5v1.5l.5 .5',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
