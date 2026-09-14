@@ -15,8 +15,13 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
 import {useBrand} from '#/lib/community/BrandContext'
-import {BLACKSKY_COMMUNITY_DID, BSKY_APP_ACCOUNT_DID} from '#/lib/constants'
+import {
+  BLACKSKY_COMMUNITY_DID,
+  BSKY_APP_ACCOUNT_DID,
+  FEEDBACK_FORM_URL,
+} from '#/lib/constants'
 import {prioritizeForYouForBlackskyPds} from '#/lib/default-feeds'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {logger} from '#/logger'
 import {useSetHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
@@ -30,28 +35,24 @@ import {
   useSetActiveStarterPack,
 } from '#/state/shell/landing'
 import {useProgressGuideControls} from '#/state/shell/progress-guide'
-import {
-  OnboardingControls,
-  OnboardingHeaderSlot,
-} from '#/screens/Onboarding/Layout'
-import {
-  type OnboardingState,
-  useOnboardingInternalState,
-} from '#/screens/Onboarding/state'
+import {ConnectedApps} from '#/screens/Onboarding/ConnectedApps'
+import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {
   bulkWriteFollows,
   resolveFollowDids,
   resolveStarterPackUri,
   subscribeToBrandModerationServices,
 } from '#/screens/Onboarding/util'
-import {atoms as a, useBreakpoints} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
-import {ArrowRight_Stroke2_Corner0_Rounded as ArrowRight} from '#/components/icons/Arrow'
-import {Loader} from '#/components/Loader'
+import {atoms as a, useTheme} from '#/alf'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
+import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import * as bsky from '#/types/bsky'
-import {ValuePropositionPager} from './ValuePropositionPager'
 
 export function StepFinished() {
   const {state, dispatch} = useOnboardingInternalState()
@@ -99,8 +100,8 @@ export function StepFinished() {
     }
 
     try {
-      const {interestsStepResults, profileStepResults} = state
-      const {selectedInterests} = interestsStepResults
+      const {pinFeedsStepResults, profileStepResults} = state
+      const {selectedFeedUris} = pinFeedsStepResults
 
       await Promise.all([
         bulkWriteFollows(
@@ -116,17 +117,28 @@ export function StepFinished() {
         ),
         subscribeToBrandModerationServices(agent, agent.session?.did, brand),
         (async () => {
-          // Interests need to get saved first, then we can write the feeds to prefs
-          await agent.setInterestsPref({tags: selectedInterests})
+          // Preferences ordering: write interests before feeds so the two
+          // preference updates don't race.
+          await agent.setInterestsPref({tags: []})
 
+          // Feeds the user pinned in the pin-feeds step take priority; when
+          // they picked none, fall back to the active brand's default set so
+          // non-Blacksky brands don't end up with Blacksky's feed URIs.
           const feedsToSave: AppBskyActorDefs.SavedFeed[] =
-            prioritizeForYouForBlackskyPds(
-              brand.feeds.defaultPinned,
-              agent.serviceUrl.toString(),
-            ).map(f => ({
-              ...f,
-              id: TID.nextStr(),
-            }))
+            selectedFeedUris.length > 0
+              ? selectedFeedUris.map(uri => ({
+                  type: 'feed',
+                  value: uri,
+                  pinned: true,
+                  id: TID.nextStr(),
+                }))
+              : prioritizeForYouForBlackskyPds(
+                  brand.feeds.defaultPinned,
+                  agent.serviceUrl.toString(),
+                ).map(f => ({
+                  ...f,
+                  id: TID.nextStr(),
+                }))
 
           // Any starter pack feeds will be pinned _after_ the defaults
           if (starterPack && starterPack.feeds?.length) {
@@ -206,7 +218,7 @@ export function StepFinished() {
     setSaving(false)
     setActiveStarterPack(undefined)
     setHasCheckedForStarterPack(true)
-    startProgressGuide('follow-10')
+    startProgressGuide('welcome')
     dispatch({type: 'finish'})
     onboardDispatch({type: 'finish'})
     ax.metric('onboarding:finished:nextPressed', {
@@ -250,7 +262,7 @@ export function StepFinished() {
     <ValueProposition
       finishOnboarding={finishOnboarding}
       saving={saving}
-      state={state}
+      dispatch={dispatch}
     />
   )
 }
@@ -258,98 +270,55 @@ export function StepFinished() {
 function ValueProposition({
   finishOnboarding,
   saving,
-  state,
+  dispatch,
 }: {
   finishOnboarding: () => void
   saving: boolean
-  state: OnboardingState
+  dispatch: ReturnType<typeof useOnboardingInternalState>['dispatch']
 }) {
-  const [subStep, setSubStep] = useState<0 | 1 | 2>(0)
   const {_} = useLingui()
-  const ax = useAnalytics()
-  const {gtMobile} = useBreakpoints()
-
-  const onPress = () => {
-    if (subStep === 2) {
-      finishOnboarding() // has its own metrics
-    } else if (subStep === 1) {
-      setSubStep(2)
-      ax.metric('onboarding:valueProp:stepTwo:nextPressed', {})
-    } else if (subStep === 0) {
-      setSubStep(1)
-      ax.metric('onboarding:valueProp:stepOne:nextPressed', {})
-    }
-  }
+  const openLink = useOpenLink()
+  const t = useTheme()
+  const brand = useBrand()
 
   return (
-    <>
-      {!gtMobile && (
-        <OnboardingHeaderSlot.Portal>
-          <Button
-            disabled={saving}
-            variant="ghost"
-            color="secondary"
-            size="small"
-            label={_(msg`Skip introduction and start using your account`)}
-            onPress={() => {
-              ax.metric('onboarding:valueProp:skipPressed', {})
-              finishOnboarding()
-            }}
-            style={[a.bg_transparent]}>
-            <ButtonText>
-              <Trans>Skip</Trans>
-            </ButtonText>
-          </Button>
-        </OnboardingHeaderSlot.Portal>
-      )}
-
-      <ValuePropositionPager
-        step={subStep}
-        setStep={ss => setSubStep(ss)}
-        avatarUri={state.profileStepResults.imageUri}
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        showBack
+        onBack={() => dispatch({type: 'prev'})}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
       />
 
-      <OnboardingControls.Portal>
-        <View style={gtMobile && [a.gap_md, a.flex_row]}>
-          {gtMobile && (IS_WEB ? subStep !== 2 : true) && (
-            <Button
-              disabled={saving}
-              color="secondary"
-              size="large"
-              label={_(msg`Skip introduction and start using your account`)}
-              onPress={() => finishOnboarding()}>
-              <ButtonText>
-                <Trans>Skip</Trans>
-              </ButtonText>
-            </Button>
-          )}
-          <Button
-            testID="onboardingFinish"
-            disabled={saving}
-            key={state.activeStep} // remove focus state on nav
-            color="primary"
-            size="large"
-            label={
-              subStep === 2
-                ? _(msg`Complete onboarding and start using your account`)
-                : _(msg`Next`)
-            }
-            onPress={onPress}>
-            <ButtonText>
-              {saving ? (
-                <Trans>Finalizing</Trans>
-              ) : subStep === 2 ? (
-                <Trans>Let's go!</Trans>
-              ) : (
-                <Trans>Next</Trans>
-              )}
-            </ButtonText>
-            {subStep === 2 && (
-              <ButtonIcon icon={saving ? Loader : ArrowRight} />
-            )}
-          </Button>
-        </View>
-      </OnboardingControls.Portal>
-    </>
+      <Eyebrow label={_(msg`Connected apps`)} />
+
+      <View style={[a.gap_xs]}>
+        <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+          <Trans>One account, a whole network</Trans>
+        </Text>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
+          <Trans>
+            Use your {brand.metadata.displayName} account to blog, live stream,
+            post short videos, and more, across a growing ecosystem of apps.
+          </Trans>
+        </Text>
+      </View>
+
+      <ConnectedApps />
+
+      <Footer>
+        <PrimaryButton
+          testID="onboardingFinish"
+          label={saving ? _(msg`Finalizing`) : _(msg`Continue`)}
+          disabled={saving}
+          onPress={() => finishOnboarding()}
+        />
+      </Footer>
+    </View>
   )
 }

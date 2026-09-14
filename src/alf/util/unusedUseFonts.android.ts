@@ -17,5 +17,8 @@ export function DO_NOT_USE() {
     'Inter-SemiBoldItalic': require('../../../assets/fonts/inter/Inter-SemiBoldItalic.otf'),
     'Inter-Bold': require('../../../assets/fonts/inter/Inter-Bold.otf'),
     'Inter-BoldItalic': require('../../../assets/fonts/inter/Inter-BoldItalic.otf'),
+    AzeretMonoVariable: require('../../../assets/fonts/azeret_mono/AzeretMono-VariableFont_wght.ttf'),
+    'AzeretMonoVariable-Italic': require('../../../assets/fonts/azeret_mono/AzeretMono-Italic-VariableFont_wght.ttf'),
+    BasteB: require('../../../assets/fonts/baste_b/BasteB-Regular.otf'),
   })
 }

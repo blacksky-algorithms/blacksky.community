@@ -102,8 +102,17 @@ export const SplashScreen = ({
                 msg`Opens flow to create a new Blacksky account`,
               )}
               size="large"
-              color={isDarkMode ? 'secondary_inverted' : 'secondary'}>
-              <ButtonText>
+              color="primary"
+              style={{backgroundColor: '#D2FC51', borderRadius: 999}}>
+              <ButtonText
+                style={[
+                  a.font_mono,
+                  {
+                    color: '#080e0f',
+                    fontWeight: '300',
+                    textTransform: 'uppercase',
+                  },
+                ]}>
                 <Trans>Create account</Trans>
               </ButtonText>
             </Button>
@@ -120,7 +129,11 @@ export const SplashScreen = ({
               msg`Opens flow to sign in to your existing Blacksky account`,
             )}
             size="large">
-            <ButtonText style={{color: 'white'}}>
+            <ButtonText
+              style={[
+                a.font_mono,
+                {color: 'white', fontWeight: '300', textTransform: 'uppercase'},
+              ]}>
               <Trans>Sign in</Trans>
             </ButtonText>
           </Button>

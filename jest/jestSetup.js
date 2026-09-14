@@ -1,9 +1,17 @@
 /* global jest */
 import 'react-native-gesture-handler/jestSetup'
 
+import {Platform} from 'react-native'
 import {configure} from '@testing-library/react-native'
 
 configure({asyncUtilTimeout: 20000})
+
+// The jest-expo/ios preset sets Platform.OS but leaves Platform.Version
+// undefined; native modules that parse it (e.g. bottom-sheet) crash without it.
+Object.defineProperty(Platform, 'Version', {
+  value: '17.0',
+  configurable: true,
+})
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
@@ -23,6 +31,7 @@ jest.mock('react-native-safe-area-context', () => {
     SafeAreaProvider: jest.fn().mockImplementation(({children}) => children),
     SafeAreaConsumer: jest
       .fn()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       .mockImplementation(({children}) => children(inset)),
     useSafeAreaInsets: jest.fn().mockImplementation(() => inset),
   }

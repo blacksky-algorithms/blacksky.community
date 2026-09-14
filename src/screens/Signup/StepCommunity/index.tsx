@@ -5,219 +5,135 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 
-import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
+import {useBrand} from '#/lib/community/BrandContext'
 import {fetchBrandList} from '#/lib/community/resolveBrand'
-import {Logo} from '#/view/icons/Logo'
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
+import {Logomark} from '#/view/icons/Logomark'
 import {useSignupContext} from '#/screens/Signup/state'
 import {atoms as a, useTheme} from '#/alf'
-import {Button} from '#/components/Button'
-import * as TextField from '#/components/forms/TextField'
-import {CheckThick_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
+import {FormError} from '#/components/forms/FormError'
+import {HostingProvider} from '#/components/forms/HostingProvider'
+import {Loader} from '#/components/Loader'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+  SelectionRow,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
-import {useAnalytics} from '#/analytics'
-import {BackNextButtons} from '../BackNextButtons'
 
-type CommunityOption = {
-  slug: string
-  displayName: string
-  pds: string
-  logo: string
-  themeColor: string
-  isDefault: boolean
-}
-
-const ICON_SIZE = 48
-
-/**
- * First signup step: choose the community to create the account in, shown as an
- * account-switcher-style list (icon + name per row). Blacksky is the default and
- * always the first option (its config is bundled into the app, not served by the
- * brand service); other published communities follow, sourced from the brand
- * service. Selecting one points signup at that community's PDS and stamps its
- * slug so the client can resolve the brand deterministically later.
- */
 export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
-  const t = useTheme()
   const {_} = useLingui()
-  const ax = useAnalytics()
+  const t = useTheme()
+  const brand = useBrand()
+  const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
-
-  const {data: brands} = useQuery({
+  const {
+    data: brands,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['signup-brand-list'],
     queryFn: fetchBrandList,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 300000,
   })
-
-  const options = useMemo<CommunityOption[]>(() => {
-    const blacksky: CommunityOption = {
-      slug: DEFAULT_BRAND_CONFIG.metadata.slug,
-      displayName: DEFAULT_BRAND_CONFIG.metadata.displayName,
-      pds: DEFAULT_BRAND_CONFIG.services.pds.url,
-      logo: DEFAULT_BRAND_CONFIG.assets.logo,
-      themeColor: DEFAULT_BRAND_CONFIG.web.themeColor,
-      isDefault: true,
-    }
-    const others = (brands ?? [])
-      .filter(b => b.slug !== blacksky.slug)
-      .map(b => ({
-        slug: b.slug,
-        displayName: b.displayName || b.name,
-        pds: b.pds,
-        logo: b.logo,
-        themeColor: b.themeColor,
-        isDefault: false,
-      }))
-    return [blacksky, ...others]
-  }, [brands])
-
-  const selectedSlug =
-    state.selectedBrandSlug ?? DEFAULT_BRAND_CONFIG.metadata.slug
-
-  const onNextPress = () => {
-    dispatch({type: 'next'})
-    ax.metric('signup:nextPressed', {activeStep: state.activeStep})
-  }
-
+  const options = useMemo(
+    () => [
+      {
+        slug: brand.metadata.slug,
+        displayName: brand.metadata.displayName,
+        pds: brand.services.pds.url,
+        logo: brand.assets.logo,
+      },
+      ...(brands ?? []).filter(b => b.slug !== brand.metadata.slug),
+    ],
+    [brand, brands],
+  )
   return (
-    <>
-      <View style={[a.gap_md, a.pt_lg]}>
-        <Text style={[a.text_md, a.leading_snug]}>
+    <View style={[a.flex_1, a.gap_lg]}>
+      <AppBar
+        onBack={onPressBack}
+        onHelp={() => openLink(FEEDBACK_FORM_URL({email: state.email}))}
+      />
+      <Eyebrow label={_(msg`Communities`)} />
+      <View style={a.gap_sm}>
+        <Text style={[a.font_heading, a.text_3xl]}>
+          <Trans>Join another community</Trans>
+        </Text>
+        <Text
+          style={[
+            a.text_md,
+            a.leading_snug,
+            t.atoms.text,
+            {fontWeight: '300', fontSize: 14, lineHeight: 22},
+          ]}>
           <Trans>
-            Choose the community your account will live in. You can always use
-            it across the network.
+            Choose the community your account will live in. You can use it
+            across the network.
           </Trans>
         </Text>
-        <View style={[a.gap_xs]}>
-          <TextField.LabelText>
-            <Trans>Community</Trans>
-          </TextField.LabelText>
-          <View
-            style={[
-              a.rounded_lg,
-              a.overflow_hidden,
-              a.border,
-              t.atoms.border_contrast_low,
-            ]}>
-            {options.map((option, i) => (
-              <View key={option.slug}>
-                {i > 0 && (
-                  <View style={[a.border_b, t.atoms.border_contrast_low]} />
-                )}
-                <CommunityItem
-                  option={option}
-                  selected={option.slug === selectedSlug}
-                  onSelect={() =>
-                    dispatch({
-                      type: 'setCommunity',
-                      slug: option.slug,
-                      serviceUrl: option.pds,
-                    })
-                  }
-                  label={_(msg`Create your account in ${option.displayName}`)}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
       </View>
-      <BackNextButtons
-        isLoading={state.isLoading}
-        onBackPress={onPressBack}
-        onNextPress={onNextPress}
-      />
-    </>
-  )
-}
-
-function CommunityItem({
-  option,
-  selected,
-  onSelect,
-  label,
-}: {
-  option: CommunityOption
-  selected: boolean
-  onSelect: () => void
-  label: string
-}) {
-  const t = useTheme()
-  return (
-    <Button label={label} onPress={onSelect} style={[a.w_full]}>
-      {({hovered, pressed}) => (
-        <View
-          style={[
-            a.flex_1,
-            a.flex_row,
-            a.align_center,
-            a.p_lg,
-            a.gap_sm,
-            (hovered || pressed) && t.atoms.bg_contrast_25,
-          ]}>
+      <View style={a.gap_sm}>
+        {options.map(option => (
           <View
-            style={[
-              {width: ICON_SIZE, height: ICON_SIZE},
-              a.rounded_sm,
-              a.overflow_hidden,
-              a.justify_center,
-              a.align_center,
-              t.atoms.bg_contrast_25,
-            ]}>
-            {option.isDefault ? (
-              <Logo width={ICON_SIZE * 0.7} />
-            ) : option.logo ? (
-              <Image
-                accessibilityIgnoresInvertColors
-                source={{uri: option.logo}}
-                style={{width: ICON_SIZE, height: ICON_SIZE}}
-                resizeMode="cover"
-              />
-            ) : (
-              <View
-                style={[
-                  a.flex_1,
-                  a.w_full,
-                  a.justify_center,
-                  a.align_center,
-                  {backgroundColor: option.themeColor},
-                ]}>
-                <Text style={[a.text_lg, a.font_bold, {color: 'white'}]}>
-                  {option.displayName.slice(0, 1).toUpperCase()}
-                </Text>
-              </View>
-            )}
+            key={option.slug}
+            style={[a.border, a.rounded_sm, t.atoms.border_contrast_medium]}>
+            <SelectionRow
+              mode="radio"
+              testID={`communityOption-${option.slug}`}
+              selected={state.serviceUrl === option.pds}
+              title={option.displayName}
+              onPress={() =>
+                dispatch({
+                  type: 'setCommunity',
+                  slug: option.slug,
+                  serviceUrl: option.pds,
+                })
+              }
+              icon={
+                option.logo ? (
+                  <Image
+                    accessibilityIgnoresInvertColors
+                    source={{uri: option.logo}}
+                    style={{width: 32, height: 32}}
+                  />
+                ) : (
+                  <Logomark width={24} fill={t.atoms.text.color} />
+                )
+              }
+            />
           </View>
-
-          <View style={[a.flex_1, a.gap_2xs, a.pr_2xl]}>
-            <Text
-              emoji
-              style={[a.font_medium, a.leading_tight, a.text_md]}
-              numberOfLines={1}>
-              {option.displayName}
-            </Text>
-            <Text
-              style={[a.leading_tight, t.atoms.text_contrast_medium, a.text_sm]}
-              numberOfLines={1}>
-              {option.pds.replace(/^https?:\/\//, '')}
-            </Text>
-          </View>
-
-          {selected && (
-            <View
-              style={[
-                {
-                  width: 20,
-                  height: 20,
-                  backgroundColor: t.palette.positive_500,
-                },
-                a.rounded_full,
-                a.justify_center,
-                a.align_center,
-              ]}>
-              <CheckIcon size="xs" style={[{color: t.palette.white}]} />
-            </View>
-          )}
-        </View>
+        ))}
+      </View>
+      {isPending && <Loader size="lg" />}
+      {isError && (
+        <PrimaryButton
+          variant="outline"
+          label={_(msg`Retry loading communities`)}
+          onPress={() => {
+            void refetch()
+          }}
+        />
       )}
-    </Button>
+      <HostingProvider
+        minimal
+        serviceUrl={state.serviceUrl}
+        onSelectServiceUrl={value => dispatch({type: 'setServiceUrl', value})}
+      />
+      <FormError error={state.error} />
+      <Footer>
+        <PrimaryButton
+          testID="communityContinue"
+          label={_(msg`Continue`)}
+          onPress={() => dispatch({type: 'next'})}
+          disabled={
+            state.isLoading || !state.serviceDescription || !!state.error
+          }
+        />
+      </Footer>
+    </View>
   )
 }

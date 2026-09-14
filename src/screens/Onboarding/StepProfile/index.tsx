@@ -19,7 +19,8 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
-import {IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
+import {FEEDBACK_FORM_URL, IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {usePhotoLibraryPermission} from '#/lib/hooks/usePermissions'
 import {compressIfNeeded} from '#/lib/media/manip'
 import {openCropper} from '#/lib/media/picker'
@@ -27,12 +28,6 @@ import {getDataUriSize} from '#/lib/media/util'
 import {useRequestNotificationsPermission} from '#/lib/notifications/notifications'
 import {isCancelledError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
-import {
-  OnboardingControls,
-  OnboardingDescriptionText,
-  OnboardingPosition,
-  OnboardingTitleText,
-} from '#/screens/Onboarding/Layout'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {AvatarCircle} from '#/screens/Onboarding/StepProfile/AvatarCircle'
 import {AvatarCreatorCircle} from '#/screens/Onboarding/StepProfile/AvatarCreatorCircle'
@@ -46,6 +41,12 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {useSheetWrapper} from '#/components/Dialog/sheet-wrapper'
 import {CircleInfo_Stroke2_Corner0_Rounded} from '#/components/icons/CircleInfo'
+import {
+  AppBar,
+  Eyebrow,
+  Footer,
+  PrimaryButton,
+} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE, IS_WEB} from '#/env'
@@ -80,6 +81,7 @@ export function StepProfile() {
   const ax = useAnalytics()
   const {_} = useLingui()
   const t = useTheme()
+  const openLink = useOpenLink()
   const {gtMobile} = useBreakpoints()
   const {requestPhotoAccessIfNeeded} = usePhotoLibraryPermission()
   const requestNotificationsPermission = useRequestNotificationsPermission()
@@ -154,7 +156,7 @@ export function StepProfile() {
     // In the event that view-shot didn't load in time and the user pressed continue, this will just be undefined
     // and the default avatar will be used. We don't want to block getting through create if this fails for some
     // reason
-    if (!imageUri || avatar.useCreatedAvatar) {
+    if (avatar.useCreatedAvatar) {
       imageUri = await canvasRef.current?.capture()
     }
 
@@ -252,21 +254,36 @@ export function StepProfile() {
 
   return (
     <AvatarContext.Provider value={value}>
-      <View style={[a.align_start]}>
-        <View style={[a.gap_sm]}>
-          <OnboardingPosition />
-          <OnboardingTitleText>
-            <Trans>Give your profile a face</Trans>
-          </OnboardingTitleText>
-          <OnboardingDescriptionText>
-            <Trans>
-              Help people know you're not a bot by uploading a picture or
-              creating an avatar.
-            </Trans>
-          </OnboardingDescriptionText>
+      <View style={[a.flex_1, a.gap_lg]}>
+        <AppBar
+          showBack={state.canGoBack}
+          onBack={() => dispatch({type: 'prev'})}
+          onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
+        />
+
+        <Eyebrow step={3} total={3} />
+
+        <View style={[a.gap_xs]}>
+          <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
+            <Trans>Add a profile picture</Trans>
+          </Text>
+          <Text
+            style={[
+              a.text_md,
+              a.leading_snug,
+              t.atoms.text,
+              {fontWeight: '300', fontSize: 14, lineHeight: 22},
+            ]}>
+            <Trans>Upload a photo to personalize your page.</Trans>
+          </Text>
         </View>
+
         <View
-          style={[a.w_full, a.align_center, {paddingTop: gtMobile ? 80 : 60}]}>
+          style={[
+            a.w_full,
+            a.align_center,
+            {paddingVertical: gtMobile ? 48 : 32},
+          ]}>
           <AvatarCircle
             openLibrary={openLibrary}
             openCreator={creatorControl.open}
@@ -292,34 +309,54 @@ export function StepProfile() {
           )}
         </View>
 
-        <OnboardingControls.Portal>
-          <View style={[a.gap_md, gtMobile && a.flex_row_reverse]}>
-            <Button
-              testID="onboardingContinue"
-              color="primary"
-              size="large"
-              label={_(msg`Continue to next step`)}
-              onPress={onContinue}>
-              <ButtonText>
-                <Trans>Continue</Trans>
-              </ButtonText>
-            </Button>
-            <Button
-              testID="onboardingAvatarCreator"
-              color="primary_subtle"
-              size="large"
-              label={_(msg`Open avatar creator`)}
-              onPress={onSecondaryPress}>
-              <ButtonText>
-                {avatar.useCreatedAvatar ? (
-                  <Trans>Upload a photo instead</Trans>
-                ) : (
-                  <Trans>Create an avatar instead</Trans>
-                )}
-              </ButtonText>
-            </Button>
-          </View>
-        </OnboardingControls.Portal>
+        <Button
+          testID="onboardingAvatarCreator"
+          color="primary"
+          variant="ghost"
+          size="small"
+          label={
+            avatar.useCreatedAvatar
+              ? _(msg`Upload a photo`)
+              : _(msg`Create an avatar`)
+          }
+          onPress={onSecondaryPress}
+          style={[a.w_full]}>
+          <ButtonText
+            style={[
+              a.font_mono,
+              {fontWeight: '300', fontSize: 14, textTransform: 'uppercase'},
+            ]}>
+            {avatar.useCreatedAvatar ? (
+              <Trans>Upload a photo</Trans>
+            ) : (
+              <Trans>Create an avatar</Trans>
+            )}
+          </ButtonText>
+        </Button>
+
+        <Footer>
+          <PrimaryButton
+            variant="outline"
+            testID="onboardingSkipAvatar"
+            label={_(msg`Skip`)}
+            onPress={() => {
+              dispatch({
+                type: 'setProfileStepResults',
+                image: undefined,
+                imageUri: undefined,
+                imageMime: '',
+                isCreatedAvatar: false,
+                creatorState: undefined,
+              })
+              dispatch({type: 'next'})
+            }}
+          />
+          <PrimaryButton
+            testID="onboardingContinue"
+            label={_(msg`Continue`)}
+            onPress={onContinue}
+          />
+        </Footer>
       </View>
 
       <Dialog.Outer control={creatorControl}>

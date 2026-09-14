@@ -15,5 +15,6 @@ export function DO_NOT_USE() {
     'RubikVariable-Italic': require('../../../assets/fonts/rubik/Rubik-Italic-VariableFont_wght.ttf'),
     AzeretMonoVariable: require('../../../assets/fonts/azeret_mono/AzeretMono-VariableFont_wght.ttf'),
     'AzeretMonoVariable-Italic': require('../../../assets/fonts/azeret_mono/AzeretMono-Italic-VariableFont_wght.ttf'),
+    BasteB: require('../../../assets/fonts/baste_b/BasteB-Regular.woff2'),
   })
 }
