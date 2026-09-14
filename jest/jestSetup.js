@@ -106,3 +106,8 @@ jest.mock('expo-modules-core', () => ({
 jest.mock('expo-localization', () => ({
   getLocales: () => [],
 }))
+
+// Lingui throws on any `t` outside an activated locale, so a message string is
+// unreachable in tests until one is set — including the guard messages.
+const {i18n} = require('@lingui/core')
+i18n.loadAndActivate({locale: 'en', messages: {}})

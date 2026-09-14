@@ -1,0 +1,24 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: no-post
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteNoPostableFeeds
+    timeout: 30000
+- assertVisible:
+    id: groupInviteNoPostableFeeds
+- assertVisible:
+    id: groupInvitePinOpenButton
+- assertVisible: 'Please let your admins know if you think this is a mistake.'

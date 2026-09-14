@@ -3,6 +3,7 @@ import {type AppBskyActorDefs as ActorDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {cleanError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
@@ -38,11 +39,11 @@ export function PostRepostedBy({uri}: {uri: string}) {
 
   const [isPTRing, setIsPTRing] = useState(false)
 
-  const {
-    data: resolvedUri,
-    error: resolveError,
-    isLoading: isLoadingUri,
-  } = useResolveUriQuery(uri)
+  const isSpacePost = isSpaceRecordUri(uri)
+  const resolveQuery = useResolveUriQuery(isSpacePost ? undefined : uri)
+  const resolvedUri = isSpacePost ? {uri} : resolveQuery.data
+  const resolveError = isSpacePost ? undefined : resolveQuery.error
+  const isLoadingUri = isSpacePost ? false : resolveQuery.isLoading
   const {
     data,
     isLoading: isLoadingRepostedBy,

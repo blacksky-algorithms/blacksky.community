@@ -2,33 +2,10 @@ import {type AtpAgent} from '@atproto/api'
 import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 
+import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {VIDEO_SERVICE_DID} from '#/lib/constants'
 import {UploadLimitError} from '#/lib/media/video/errors'
-import {getServiceAuthAudFromUrl} from '#/lib/strings/url-helpers'
 import {createVideoAgent} from './util'
-
-export async function getServiceAuthToken({
-  agent,
-  aud,
-  lxm,
-  exp,
-}: {
-  agent: AtpAgent
-  aud?: string
-  lxm: string
-  exp?: number
-}) {
-  const pdsAud = getServiceAuthAudFromUrl(agent.dispatchUrl)
-  if (!pdsAud) {
-    throw new Error('Agent does not have a PDS URL')
-  }
-  const {data: serviceAuth} = await agent.com.atproto.server.getServiceAuth({
-    aud: aud ?? pdsAud,
-    lxm,
-    exp,
-  })
-  return serviceAuth.token
-}
 
 export async function getVideoUploadLimits(agent: AtpAgent, i18n: I18n) {
   const token = await getServiceAuthToken({

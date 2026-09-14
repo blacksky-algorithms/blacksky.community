@@ -18,13 +18,15 @@ import {
 
 import {communityXrpc} from '#/lib/api/community'
 import {FeedTuner} from '#/lib/api/feed-manip'
+import {spaceRecordAuthor} from '#/lib/api/space-uri'
+import {toPostView, toSpaceFeedPage} from '#/lib/api/space-views'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from '#/state/queries/util'
 import {useAgent} from '#/state/session'
 
@@ -79,7 +81,7 @@ export function useCommunityFeedQuery(actor: string | undefined) {
       if (!res.ok) {
         throw new Error(`getCommunityFeed failed: ${res.status}`)
       }
-      return jsonToLex(await res.json()) as CommunityFeedPage
+      return toSpaceFeedPage(jsonToLex(await res.json()))
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -116,7 +118,7 @@ export function useCommunityTimelineQuery(enabled: boolean) {
       if (!res.ok) {
         throw new Error(`getCommunityTimeline failed: ${res.status}`)
       }
-      return jsonToLex(await res.json()) as CommunityFeedPage
+      return toSpaceFeedPage(jsonToLex(await res.json()))
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -144,8 +146,8 @@ export async function fetchCommunityTimelineHead(
   if (!res.ok) {
     throw new Error(`getCommunityTimeline failed: ${res.status}`)
   }
-  const page = jsonToLex(await res.json()) as CommunityFeedPage
-  return page.feed?.find(surfacesInCommunityFeed)
+  const page = toSpaceFeedPage(jsonToLex(await res.json()))
+  return page.feed.find(surfacesInCommunityFeed)
 }
 
 // A reply only resurfaces its thread when the root author is
@@ -171,7 +173,11 @@ export function surfacesInCommunityFeed(
   if (!item.reason && !AppBskyFeedDefs.isPostView(item.reply?.parent)) {
     return false
   }
-  return new AtUri(reply.root.uri).host === item.post.author.did
+  // A space record URI names its author in its own segment; `AtUri` would
+  // report the space authority as the host and never match.
+  const rootAuthor =
+    spaceRecordAuthor(reply.root.uri) ?? new AtUri(reply.root.uri).host
+  return rootAuthor === item.post.author.did
 }
 
 const COMMUNITY_POST_RQKEY_ROOT = 'community-post'
@@ -193,10 +199,10 @@ export function useCommunityPostQuery(uri: string | undefined) {
       if (!res.ok) {
         throw new Error(`getCommunityPost failed: ${res.status}`)
       }
-      const data = jsonToLex(await res.json()) as {
-        post: AppBskyFeedDefs.PostView
-      }
-      return data.post
+      const data = jsonToLex(await res.json()) as {post?: unknown}
+      const post = toPostView(data.post)
+      if (!post) throw new Error('Community post not found')
+      return post
     },
     enabled: !!uri,
   })
@@ -321,7 +327,7 @@ export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
 ): Generator<AppBskyFeedDefs.PostView, void> {
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   // Search both actor feeds and timeline
   const queryDatas = [
@@ -345,25 +351,25 @@ export function* findAllPostsInQueryData(
         if (!item?.post) {
           continue
         }
-        if (didOrHandleUriMatches(atUri, item.post)) {
+        if (matches(item.post)) {
           yield item.post
         }
 
         // Check for quoted posts in embeds
         const quotedPost = getEmbeddedPost(item.post.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
 
         // Reply-context rows render in slices too; without these, likes on
         // a parent/root row never reach the shadow cache.
         if (AppBskyFeedDefs.isPostView(item.reply?.parent)) {
-          if (didOrHandleUriMatches(atUri, item.reply.parent)) {
+          if (matches(item.reply.parent)) {
             yield item.reply.parent
           }
         }
         if (AppBskyFeedDefs.isPostView(item.reply?.root)) {
-          if (didOrHandleUriMatches(atUri, item.reply.root)) {
+          if (matches(item.reply.root)) {
             yield item.reply.root
           }
         }

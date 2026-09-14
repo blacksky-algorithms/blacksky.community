@@ -1,0 +1,24 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: resumable
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteLanding
+    timeout: 30000
+- assertVisible: 'Members'
+- assertVisible: 'Test Community'
+- runFlow:
+    file: ../../helpers/group-invite-sign-in.yml
+- assertVisible:
+    id: groupInviteAcceptedMembership
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '1'
+      EXPECT_ACCEPT_WITH_BEARER: '1'
+      EXPECT_CLAIM_COUNT: '1'
+      EXPECT_CLAIMANT_COUNT: '1'

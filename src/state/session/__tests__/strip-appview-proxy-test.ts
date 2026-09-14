@@ -19,6 +19,12 @@ function headerValue(
 const GET_PREFS = 'https://pds.example.com/xrpc/app.bsky.actor.getPreferences'
 const PUT_PREFS = 'https://pds.example.com/xrpc/app.bsky.actor.putPreferences'
 const TIMELINE = 'https://pds.example.com/xrpc/app.bsky.feed.getTimeline'
+const SPACE_CREATE =
+  'https://pds.example.com/xrpc/com.atproto.space.createRecord'
+const SPACE_DELETE =
+  'https://pds.example.com/xrpc/com.atproto.space.deleteRecord'
+const SPACE_GET = 'https://pds.example.com/xrpc/com.atproto.space.getRecord'
+const SPACE_OTHER = 'https://pds.example.com/xrpc/com.atproto.space.listRecords'
 
 describe('stripAppviewProxyForPdsLocalMethods', () => {
   it('strips the appview proxy header on getPreferences', () => {
@@ -60,5 +66,24 @@ describe('stripAppviewProxyForPdsLocalMethods', () => {
       getInit({[PROXY]: PROXY_VALUE}),
     )
     expect(headerValue(out, PROXY)).toBeNull()
+  })
+
+  it.each([SPACE_CREATE, SPACE_DELETE, SPACE_GET])(
+    'strips the appview proxy header on %s',
+    url => {
+      const out = stripAppviewProxyForPdsLocalMethods(
+        url,
+        getInit({[PROXY]: PROXY_VALUE, authorization: 'DPoP tok'}),
+      )
+      expect(headerValue(out, PROXY)).toBeNull()
+      expect(headerValue(out, 'authorization')).toBe('DPoP tok')
+    },
+  )
+
+  it('does not strip unlisted space methods', () => {
+    const init = getInit({[PROXY]: PROXY_VALUE})
+    const out = stripAppviewProxyForPdsLocalMethods(SPACE_OTHER, init)
+    expect(out).toBe(init)
+    expect(headerValue(out, PROXY)).toBe(PROXY_VALUE)
   })
 })

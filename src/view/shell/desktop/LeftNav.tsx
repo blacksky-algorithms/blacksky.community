@@ -17,12 +17,15 @@ import {
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
+import {usePinnedFeedsInfos} from '#/state/queries/feed'
 import {useFetchHandle} from '#/state/queries/handle'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
+import {type FeedDescriptor} from '#/state/queries/post-feed'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
+import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {useCloseAllActiveElements} from '#/state/util'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {PressableWithHover} from '#/view/com/util/PressableWithHover'
@@ -543,7 +546,22 @@ function NavItem({
 function ComposeBtn({minimal}: {minimal: boolean}) {
   const {currentAccount} = useSession()
   const {getState} = useNavigation()
-  const {openComposer} = useOpenComposer()
+  const currentRoute = useNavigationState(state =>
+    state ? getCurrentRoute(state) : {name: 'Home'},
+  )
+  const selectedFeed = useSelectedFeed()
+  const {data: pinnedFeedInfos} = usePinnedFeedsInfos()
+  const contextualFeed =
+    currentRoute.name === 'Home'
+      ? (selectedFeed ?? pinnedFeedInfos?.[0]?.feedDescriptor)
+      : currentRoute.name === 'ProfileFeed'
+        ? ((
+            currentRoute.params as
+              | CommonNavigatorParams['ProfileFeed']
+              | undefined
+          )?.resolvedFeed as FeedDescriptor | undefined)
+        : undefined
+  const {openComposer} = useOpenComposer(contextualFeed)
   const {t: l} = useLingui()
   const brand = useBrand()
   const {leftNavMinimal} = useLayoutBreakpoints()

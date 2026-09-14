@@ -2,6 +2,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {logger} from '#/logger'
 import {RQKEY as FEED_RQKEY} from '#/state/queries/post-feed'
 import * as Toast from '#/components/Toast'
@@ -27,6 +28,12 @@ export function usePinnedPostMutation() {
       action: 'pin' | 'unpin'
     }) => {
       const pinCurrentPost = action === 'pin'
+      // The pin lands in the public profile record, so a space URI here would
+      // publish a private post's existence and author. The menu already hides
+      // the control; this is the invariant at the write.
+      if (isSpaceRecordUri(postUri)) {
+        throw new Error('A post in a private space cannot be pinned')
+      }
       let prevPinnedPost: string | undefined
       try {
         updatePostShadow(queryClient, postUri, {pinned: pinCurrentPost})

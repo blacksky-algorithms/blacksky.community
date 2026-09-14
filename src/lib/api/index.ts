@@ -26,6 +26,15 @@ import {CID} from 'multiformats/cid'
 import * as Hasher from 'multiformats/hashes/hasher'
 
 import {communityXrpc} from '#/lib/api/community'
+import {
+  admitFeedPost,
+  fetchCommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
+import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {spaceOfPostUrl} from '#/lib/api/space-permalink'
+import {postToSpace} from '#/lib/api/space-post'
+import {isSpaceRecordUri, spaceOfRecordUri} from '#/lib/api/space-uri'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -52,8 +61,28 @@ export {uploadBlob}
 
 const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 
-interface PostOpts {
+/**
+ * The space a quote belongs to, whichever form it is in — a pasted permalink
+ * carries the space in `?space=` and is only expanded to its at:// form at
+ * publish, long after routing has decided where the post goes.
+ */
+export function quotedSpace(uri?: string | null): string | null {
+  return spaceOfRecordUri(uri) ?? spaceOfPostUrl(uri)
+}
+
+function embedNamesSpaceRecord(embed: unknown): boolean {
+  if (!embed || typeof embed !== 'object') return false
+  const record = (embed as {record?: unknown}).record
+  if (!record || typeof record !== 'object') return false
+  const uri =
+    (record as {uri?: unknown}).uri ??
+    (record as {record?: {uri?: unknown}}).record?.uri
+  return typeof uri === 'string' && isSpaceRecordUri(uri)
+}
+
+export interface PostOpts {
   thread: ThreadDraft
+  draftId?: string
   replyTo?: string
   onStateChange?: (state: string) => void
   langs?: string[]
@@ -64,8 +93,59 @@ export async function post(
   queryClient: QueryClient,
   opts: PostOpts,
 ) {
-  const thread = opts.thread
+  let thread = opts.thread
+  const replySpace = spaceOfRecordUri(opts.replyTo)
+  // Replying to or quoting a space post: the parent's space is the target, and
+  // no feed needs resolving — a feed is only a view over the space.
+  if (thread.communitySpaceUri || replySpace) {
+    const space = thread.communitySpaceUri ?? replySpace!
+    if (
+      thread.communitySpaceUri &&
+      replySpace &&
+      thread.communitySpaceUri !== replySpace
+    ) {
+      throw new Error(
+        t`This reply targets a different private space than its parent.`,
+      )
+    }
+    return postToSpace(agent, queryClient, space, opts)
+  }
+
+  if (!thread.communityFeed && thread.communityFeedUri) {
+    const target = await fetchCommunityFeedTarget(
+      agent,
+      thread.communityFeedUri,
+    )
+    if (!target) {
+      throw new Error(
+        t`You no longer have permission to post to this community.`,
+      )
+    }
+    thread = {...thread, communityFeed: target}
+    opts = {...opts, thread}
+  }
   opts.onStateChange?.(t`Processing...`)
+
+  // A space-backed feed keeps its content in the author's permissioned repo,
+  // so it takes an entirely different write path and must be checked before
+  // the community routing below, which would otherwise claim it.
+  const config = thread.communityFeed?.config
+  if (isSpaceBackedFeed(config)) {
+    return postToSpace(agent, queryClient, config.space, opts)
+  }
+
+  // Past this point the post is going to a public or community repo, not into
+  // any space, so nothing it carries may name one. A quote reaches the composer
+  // as a pasted link and is only expanded to its at:// form at publish, by
+  // which time the routing decision is made — so both forms are refused here,
+  // together. Without this a pasted space permalink rides `postCommunity`'s
+  // stub embed into the author's public repo, publishing the existence of a
+  // private post.
+  if (thread.posts.some(p => quotedSpace(p.embed.quote?.uri))) {
+    throw new Error(
+      t`This is a private post. You can only quote it in a post to that space.`,
+    )
+  }
 
   // Route to community post endpoint if the user explicitly toggled
   // Blacksky-Only, is replying to a community post, or is quoting one.
@@ -74,17 +154,28 @@ export async function post(
   const isQuoteOfCommunityPost = thread.posts.some(p =>
     p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION),
   )
+  const selectedCommunityRecordFeed =
+    thread.communityFeed?.config.contentType === 'communityRecord'
 
-  if (thread.blackskyOnly || isReplyToCommunityPost || isQuoteOfCommunityPost) {
+  if (
+    thread.blackskyOnly ||
+    selectedCommunityRecordFeed ||
+    isReplyToCommunityPost ||
+    isQuoteOfCommunityPost
+  ) {
     return postCommunity(agent, queryClient, opts)
   }
 
   // A public post must never carry a community post in its embed; the
   // routing above sends those to postCommunity, so reaching here with one
-  // is a bug we refuse rather than leak community content publicly.
+  // is a bug we refuse rather than leak community content publicly. A space
+  // record is refused for the same reason, and its URI would leak the space
+  // even if the appview declined to hydrate it.
   if (
-    thread.posts.some(p =>
-      p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION),
+    thread.posts.some(
+      p =>
+        p.embed.quote?.uri?.includes(COMMUNITY_POST_COLLECTION) ||
+        isSpaceRecordUri(p.embed.quote?.uri),
     )
   ) {
     throw new Error('Public posts cannot embed a community post')
@@ -108,6 +199,7 @@ export async function post(
   const did = agent.assertDid
   const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
   const uris: string[] = []
+  const admissions: Array<{post: string; cid: string}> = []
 
   let now = new Date()
   let tid: TID | undefined
@@ -196,6 +288,9 @@ export async function post(
       cid: await computeCid(record),
       uri,
     }
+    if (thread.communityFeed?.config.contentType === 'publicRecord') {
+      admissions.push({post: uri, cid: ref.cid})
+    }
     replyPromise = {
       root: reply?.root ?? ref,
       parent: ref,
@@ -220,6 +315,14 @@ export async function post(
     } else {
       throw e
     }
+  }
+
+  if (thread.communityFeed?.config.contentType === 'publicRecord') {
+    await Promise.all(
+      admissions.map(({post, cid}) =>
+        admitFeedPost(agent, thread.communityFeed!, post, cid),
+      ),
+    )
   }
 
   return {uris}
@@ -248,6 +351,7 @@ async function postCommunity(
   const did = agent.assertDid
   const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
   const uris: string[] = []
+  const admissions: Array<{post: string; cid: string}> = []
 
   let now = new Date()
   let tid: TID | undefined
@@ -362,6 +466,10 @@ async function postCommunity(
       const submitRes = await communityXrpc(
         agent,
         'community.blacksky.feed.submitPost',
+        // No serviceDid: submitPost serves the Blacksky community feed, whose
+        // content lives on the home appview. `contentStore` named a per-feed
+        // appview for the retired multi-tenant path and was always undefined
+        // here, so the proxy target is unchanged.
         {body: submitBody},
       )
       if (!submitRes.ok) {
@@ -404,6 +512,14 @@ async function postCommunity(
     // stub so external-thumb / image / video / gallery blobs stay alive for
     // the post's lifetime. Text / facets / langs / reply remain appview-only.
     if (embed) {
+      // The stub goes to the author's public repo, so it is the last place a
+      // space URI could leak from. The routing guard in `post` already refuses
+      // these; this is the invariant restated where the write happens.
+      if (embedNamesSpaceRecord(embed)) {
+        throw new Error(
+          t`This is a private post. You can only quote it in a post to that space.`,
+        )
+      }
       stubRecord.embed = embed
     }
 
@@ -418,6 +534,9 @@ async function postCommunity(
     const ref = {
       cid: await computeCid(stubRecord as unknown as AppBskyFeedPost.Record),
       uri,
+    }
+    if (thread.communityFeed) {
+      admissions.push({post: uri, cid: ref.cid})
     }
     replyPromise = {
       root: reply?.root ?? ref,
@@ -445,13 +564,21 @@ async function postCommunity(
     }
   }
 
+  if (thread.communityFeed) {
+    await Promise.all(
+      admissions.map(({post, cid}) =>
+        admitFeedPost(agent, thread.communityFeed!, post, cid),
+      ),
+    )
+  }
+
   void queryClient.invalidateQueries({queryKey: ['community-timeline']})
   void queryClient.invalidateQueries({queryKey: ['community-feed']})
 
   return {uris}
 }
 
-async function resolveRT(agent: AtpAgent, richtext: RichText) {
+export async function resolveRT(agent: AtpAgent, richtext: RichText) {
   const trimmedText = richtext.text
     // Trim leading whitespace-only lines (but don't break ASCII art).
     .replace(/^(\s*\n)+/, '')
@@ -471,7 +598,39 @@ export class ReplyDeletedError extends Error {
   }
 }
 
-async function resolveReply(agent: AtpAgent, replyTo: string) {
+/**
+ * The reply refs a caller gets back from the non-space branches go straight
+ * into a public `app.bsky.feed.post`, so a thread root that turns out to name a
+ * space has to stop here: the space branch above is the only one allowed to
+ * return one.
+ */
+function refusePublicSpaceRefs<
+  T extends {root: {uri: string}; parent: {uri: string}},
+>(refs: T): T {
+  if (isSpaceRecordUri(refs.root.uri) || isSpaceRecordUri(refs.parent.uri)) {
+    throw new Error(
+      t`This is a private post. You can only reply to it in that space.`,
+    )
+  }
+  return refs
+}
+
+export async function resolveReply(agent: AtpAgent, replyTo: string) {
+  // Space records first: they are not at-uris, so AtUri would misparse one.
+  // The parent is read back through the appview, which is the only read path
+  // the client has into a space, and carries the root of its own thread.
+  if (isSpaceRecordUri(replyTo)) {
+    const post = await fetchCommunityPostView(agent, replyTo)
+    const parent = {uri: post.uri, cid: post.cid}
+    const root = (
+      post.record as {reply?: {root?: {uri?: string; cid?: string}}}
+    )?.reply?.root
+    return {
+      root: root?.uri && root?.cid ? {uri: root.uri, cid: root.cid} : parent,
+      parent,
+    }
+  }
+
   const replyToUrip = new AtUri(replyTo)
 
   // Community posts are fetched from the appview, not the standard feed API.
@@ -503,7 +662,7 @@ async function resolveReply(agent: AtpAgent, replyTo: string) {
         parentRootRef?.uri && parentRootRef?.cid
           ? {uri: parentRootRef.uri, cid: parentRootRef.cid}
           : parentRef
-      return {root: rootRef, parent: parentRef}
+      return refusePublicSpaceRefs({root: rootRef, parent: parentRef})
     }
     return undefined
   }
@@ -534,13 +693,13 @@ async function resolveReply(agent: AtpAgent, replyTo: string) {
     }
   }
 
-  return {
+  return refusePublicSpaceRefs({
     root: rootRef,
     parent: parentRef,
-  }
+  })
 }
 
-async function resolveEmbed(
+export async function resolveEmbed(
   agent: AtpAgent,
   queryClient: QueryClient,
   draft: PostDraft,

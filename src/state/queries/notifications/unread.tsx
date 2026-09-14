@@ -14,6 +14,7 @@ import {AppState} from 'react-native'
 import {useQueryClient} from '@tanstack/react-query'
 import {EventEmitter} from 'eventemitter3'
 
+import {getUnreadCount} from '#/lib/api/community-notifications'
 import BroadcastChannel from '#/lib/broadcast'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {resetBadgeCount} from '#/lib/notifications/notifications'
@@ -60,6 +61,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const [numUnread, setNumUnread] = useState('')
 
   const checkUnreadRef = useRef<ApiContext['checkUnread'] | null>(null)
+  const refreshGenerationRef = useRef(0)
   const cacheRef = useRef<CachedFeedPage>({
     usableInFeed: false,
     syncedAt: new Date(),
@@ -95,6 +97,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   // listen for broadcasts
   useEffect(() => {
     const listener = ({data}: MessageEvent) => {
+      refreshGenerationRef.current += 1
       cacheRef.current = {
         usableInFeed: false,
         syncedAt: new Date(),
@@ -120,13 +123,22 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const api = useMemo<ApiContext>(() => {
     return {
       async markAllRead() {
+        refreshGenerationRef.current += 1
+        const seenAt = cacheRef.current.syncedAt
+
         // update server
         await agent.app.bsky.notification.updateSeen(
-          {seenAt: cacheRef.current.syncedAt.toISOString()},
+          {seenAt: seenAt.toISOString()},
           HOME_APPVIEW_PINNED_OPTS,
         )
 
         // update & broadcast
+        cacheRef.current = {
+          ...cacheRef.current,
+          usableInFeed: false,
+          syncedAt: seenAt,
+          unreadCount: 0,
+        }
         setNumUnread('')
         broadcast.postMessage({event: ''})
         resetBadgeCount()
@@ -155,22 +167,53 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
           }
           // Do not move this without ensuring it gets a symmetrical reset in the finally block.
           isFetchingRef.current = true
+          const generation = ++refreshGenerationRef.current
 
-          // count
-          const {page, indexedAt: lastIndexed} = await fetchPage({
-            agent,
-            cursor: undefined,
-            limit: 40,
-            queryClient,
-            moderationOpts,
-            hideFollowNotifications: undefined,
-            reasons: [],
+          let nextCache: CachedFeedPage
+          if (invalidate) {
+            const [{count}, {page, indexedAt: lastIndexed}] = await Promise.all(
+              [
+                getUnreadCount(agent),
+                fetchPage({
+                  agent,
+                  cursor: undefined,
+                  limit: 40,
+                  queryClient,
+                  moderationOpts,
+                  hideFollowNotifications: undefined,
+                  reasons: [],
+                  fetchAdditionalData: true,
+                }),
+              ],
+            )
+            const now = new Date()
+            const lastIndexedDate = lastIndexed
+              ? new Date(lastIndexed)
+              : undefined
+            nextCache = {
+              usableInFeed: true,
+              data: page,
+              syncedAt:
+                !lastIndexedDate || now > lastIndexedDate
+                  ? now
+                  : lastIndexedDate,
+              unreadCount: count,
+            }
+          } else {
+            const {count} = await getUnreadCount(agent)
+            nextCache = {
+              ...cacheRef.current,
+              usableInFeed: false,
+              syncedAt: new Date(),
+              unreadCount: count,
+            }
+          }
 
-            // only fetch subjects when the page is going to be used
-            // in the notifications query, otherwise skip it
-            fetchAdditionalData: !!invalidate,
-          })
-          const unreadCount = countUnread(page)
+          if (generation !== refreshGenerationRef.current) {
+            return
+          }
+
+          const unreadCount = nextCache.unreadCount
           const unreadCountStr =
             unreadCount >= 30
               ? '30+'
@@ -178,18 +221,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                 ? ''
                 : String(unreadCount)
 
-          // track last sync
-          const now = new Date()
-          const lastIndexedDate = lastIndexed
-            ? new Date(lastIndexed)
-            : undefined
-          cacheRef.current = {
-            usableInFeed: !!invalidate, // will be used immediately
-            data: page,
-            syncedAt:
-              !lastIndexedDate || now > lastIndexedDate ? now : lastIndexedDate,
-            unreadCount,
-          }
+          cacheRef.current = nextCache
 
           // update & broadcast
           setNumUnread(unreadCountStr)
@@ -226,23 +258,6 @@ export function useUnreadNotifications() {
 
 export function useUnreadNotificationsApi() {
   return useContext(apiContext)
-}
-
-function countUnread(page: FeedPage) {
-  let num = 0
-  for (const item of page.items) {
-    if (!item.notification.isRead) {
-      num++
-    }
-    if (item.additional) {
-      for (const item2 of item.additional) {
-        if (!item2.isRead) {
-          num++
-        }
-      }
-    }
-  }
-  return num
 }
 
 export function invalidateCachedUnreadPage() {

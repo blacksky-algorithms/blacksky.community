@@ -856,7 +856,7 @@
   },
   "src/lib/hooks/useIntentHandler.ts": {
     "@typescript-eslint/no-floating-promises": {
-      "count": 2
+      "count": 1
     }
   },
   "src/lib/hooks/useNonReactiveCallback.ts": {
@@ -1461,11 +1461,6 @@
   },
   "src/screens/Settings/components/OTAInfo.tsx": {
     "@typescript-eslint/no-floating-promises": {
-      "count": 1
-    }
-  },
-  "src/screens/Signup/StepCaptcha/CaptchaWebView.tsx": {
-    "react-hooks/purity": {
       "count": 1
     }
   },

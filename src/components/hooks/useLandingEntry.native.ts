@@ -6,7 +6,10 @@ import {
   createStarterPackLinkFromAndroidReferrer,
   httpStarterPackUriToAtUri,
 } from '#/lib/strings/starter-pack'
-import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
+import {
+  CHAT_INVITE_CODE_REGEX,
+  GROUP_INVITE_CODE_REGEX,
+} from '#/lib/strings/url-helpers'
 import {useHasCheckedForStarterPack} from '#/state/preferences/used-starter-packs'
 import {
   useSetActiveLanding,
@@ -34,6 +37,18 @@ export function useLandingEntry() {
           type: 'groupchat',
           uri: linkingUrl,
           code: chatInviteMatch[1],
+        })
+        setReady(true)
+        return
+      }
+      const groupInviteMatch = urlp.pathname.match(GROUP_INVITE_CODE_REGEX)
+      if (groupInviteMatch) {
+        setActiveLanding({
+          type: 'groupinvite',
+          // The code is sufficient to resume this flow. Do not retain the
+          // bearer-bearing URL in landing state across auth transitions.
+          uri: '',
+          code: groupInviteMatch[1],
         })
         setReady(true)
         return

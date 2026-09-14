@@ -8,6 +8,7 @@ import {
 } from '@atproto/api'
 import {nanoid} from 'nanoid/non-secure'
 
+import {type CommunityFeedTarget} from '#/lib/api/community-feed'
 import {type SelfLabel} from '#/lib/moderation'
 import {insertMentionAt} from '#/lib/strings/mention-manip'
 import {shortenLinks} from '#/lib/strings/rich-text-manip'
@@ -103,6 +104,14 @@ export type ThreadDraft = {
   postgate: AppBskyFeedPostgate.Record
   threadgate: ThreadgateAllowUISetting[]
   blackskyOnly: boolean
+  communityFeed?: CommunityFeedTarget
+  communityFeedUri?: string
+  /**
+   * The space a parent post lives in, inherited when replying to or quoting
+   * one. Distinct from `communityFeedUri`, which names a feed the author
+   * chose to post into: a space is where content goes, a feed is a view.
+   */
+  communitySpaceUri?: string
 }
 
 export type ComposerState = {
@@ -123,6 +132,10 @@ export type ComposerAction =
   | {type: 'update_postgate'; postgate: AppBskyFeedPostgate.Record}
   | {type: 'update_threadgate'; threadgate: ThreadgateAllowUISetting[]}
   | {type: 'toggle_blacksky_only'}
+  | {
+      type: 'set_post_target'
+      target: 'public' | 'blacksky' | CommunityFeedTarget
+    }
   | {
       type: 'update_post'
       postId: string
@@ -220,6 +233,23 @@ export function composerReducer(
         thread: {
           ...state.thread,
           blackskyOnly: !state.thread.blackskyOnly,
+          communityFeed: undefined,
+          communityFeedUri: undefined,
+          communitySpaceUri: undefined,
+        },
+      }
+    }
+    case 'set_post_target': {
+      return {
+        ...state,
+        isDirty: true,
+        thread: {
+          ...state.thread,
+          blackskyOnly: action.target === 'blacksky',
+          communityFeed:
+            typeof action.target === 'string' ? undefined : action.target,
+          communityFeedUri:
+            typeof action.target === 'string' ? undefined : action.target.feed,
         },
       }
     }
@@ -631,6 +661,7 @@ export function createComposerState({
   initQuoteUri,
   initInteractionSettings,
   initBlackskyOnly,
+  initCommunitySpaceUri,
 }: {
   initText: string | undefined
   initMention: string | undefined
@@ -640,6 +671,7 @@ export function createComposerState({
     | AppBskyActorDefs.PostInteractionSettingsPref
     | undefined
   initBlackskyOnly?: boolean
+  initCommunitySpaceUri?: string
 }): ComposerState {
   let media: ImagesMedia | GalleryMedia | undefined
   if (initImageUris?.length) {
@@ -761,6 +793,7 @@ export function createComposerState({
         allow: initInteractionSettings?.threadgateAllowRules,
       }),
       blackskyOnly: !!initBlackskyOnly,
+      communitySpaceUri: initCommunitySpaceUri,
     },
   }
 }

@@ -48,6 +48,7 @@ export function Composer() {
         imageUris={state.imageUris}
         videoUri={state.videoUri}
         openGallery={state.openGallery}
+        contextualCommunityFeedTarget={state.contextualCommunityFeedTarget}
       />
     </Animated.View>
   )

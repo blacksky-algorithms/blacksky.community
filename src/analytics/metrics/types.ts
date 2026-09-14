@@ -57,6 +57,7 @@ export type Events = {
       | 'Deactivated'
       | 'Takendown'
       | 'AgeAssuranceNoAccessScreen'
+      | 'GroupInvite'
     scope: 'current' | 'every'
   }
   // OAuth session lifecycle. These are silent client-side events used to
@@ -173,6 +174,18 @@ export type Events = {
   }
   'signup:captchaSuccess': {}
   'signup:captchaFailure': {}
+  'signup:attestationToken': {
+    platform: 'ios' | 'android'
+    succeeded: boolean
+  }
+  'signup:attestationGate': {
+    platform: 'ios' | 'android'
+    selected: 'attestation' | 'captcha'
+  }
+  'signup:attestationFallback': {
+    platform: 'ios' | 'android'
+    statusCode?: number
+  }
   'signup:fieldError': {
     field: string
     errorCount: number
@@ -681,6 +694,19 @@ export type Events = {
     hasSession: boolean
   }
   'groupchat:inviteLink:redeem': {}
+
+  // Group invite deep links
+  'groupInvite:opened': {
+    hasSession: boolean
+  }
+  'groupInvite:signInRequested': {}
+  'groupInvite:acceptAttempted': {}
+  'groupInvite:joined': {
+    hasPosting: boolean
+  }
+  'groupInvite:failure': {
+    errorName: string
+  }
 
   // Group chat user interactions
   'groupchat:message:send': {

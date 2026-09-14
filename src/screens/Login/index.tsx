@@ -129,6 +129,7 @@ export const Login = ({
       content = (
         <LoginForm
           error={error}
+          serviceUrl={serviceUrl}
           serviceDescription={serviceDescription}
           initialHandle={initialHandle}
           setError={setError}

@@ -21,6 +21,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {
+  type CommunityFeedConfig,
+  fetchCommunityFeedConfig,
+} from '#/lib/api/community-feed'
 import {getProxyHeadersForFeed} from '#/lib/api/feed/utils'
 import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {useBrand} from '#/lib/community/BrandContext'
@@ -220,6 +224,20 @@ export function useFeedSourceInfoQuery({uri}: {uri: string}) {
 
       return view
     },
+  })
+}
+
+export const communityFeedConfigQueryKey = (uri: string) => [
+  'community-feed-config',
+  uri,
+]
+
+export function useCommunityFeedConfigQuery({uri}: {uri: string}) {
+  const agent = useAgent()
+  return useQuery<CommunityFeedConfig | null>({
+    queryKey: communityFeedConfigQueryKey(uri),
+    staleTime: STALE.INFINITY,
+    queryFn: () => fetchCommunityFeedConfig(agent, uri),
   })
 }
 

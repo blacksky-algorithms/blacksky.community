@@ -1,0 +1,36 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: read-only
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteNoPostableFeeds
+    timeout: 30000
+- assertVisible:
+    id: groupInviteFeedOption-0
+- assertVisible: '.*Read only.*'
+- assertVisible: "You joined the group, but you don't currently have access to a feed you can post in."
+- tapOn:
+    id: groupInvitePinOpenButton
+- extendedWaitUntil:
+    visible:
+      id: homeScreen
+    timeout: 30000
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '1'
+      EXPECT_CLAIM_COUNT: '1'
+      EXPECT_SAVED_TOTAL: '1'
+      EXPECT_SAVED_PINNED: '1'
