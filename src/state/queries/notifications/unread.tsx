@@ -24,8 +24,6 @@ import {RQKEY as RQKEY_NOTIFS} from './feed'
 import {type CachedFeedPage, type FeedPage} from './types'
 import {fetchPage} from './util'
 
-const MAX_UNREAD_PAGE_CONTINUATIONS = 3
-
 const UPDATE_INTERVAL = 30 * 1e3 // 30sec
 
 const broadcast = new BroadcastChannel('NOTIFS_BROADCAST_CHANNEL')
@@ -170,7 +168,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
           isFetchingRef.current = true
           const generation = ++refreshGenerationRef.current
 
-          let {page, indexedAt: lastIndexed} = await fetchPage({
+          const {page, indexedAt: lastIndexed} = await fetchPage({
             agent,
             cursor: undefined,
             limit: 40,
@@ -180,36 +178,6 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             reasons: [],
             fetchAdditionalData: !!invalidate,
           })
-          const visitedCursors = new Set<string>()
-          let attemptCount = 0
-          while (
-            countUnread(page) < 30 &&
-            page.cursor &&
-            page.items.length < 40 &&
-            attemptCount < MAX_UNREAD_PAGE_CONTINUATIONS
-          ) {
-            if (generation !== refreshGenerationRef.current) return
-            const cursor = page.cursor
-            if (visitedCursors.has(cursor)) break
-            visitedCursors.add(cursor)
-            const next = await fetchPage({
-              agent,
-              cursor,
-              limit: 40,
-              queryClient,
-              moderationOpts,
-              hideFollowNotifications: undefined,
-              reasons: [],
-              fetchAdditionalData: !!invalidate,
-            })
-            lastIndexed ||= next.indexedAt
-            page = {
-              ...page,
-              items: [...page.items, ...next.page.items],
-              cursor: next.page.cursor,
-            }
-            attemptCount++
-          }
           const now = new Date()
           const lastIndexedDate = lastIndexed
             ? new Date(lastIndexed)

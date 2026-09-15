@@ -167,52 +167,6 @@ describe('notification unread synchronization', () => {
     expect(mockTruncateAndInvalidate).toHaveBeenCalledTimes(2)
   })
 
-  it('continues empty and sparse pages before caching the visible results', async () => {
-    mockFetchPage
-      .mockResolvedValueOnce({page: {...page, cursor: 'empty'}, indexedAt: ''})
-      .mockResolvedValueOnce({
-        page: {...visiblePage, cursor: 'sparse'},
-        indexedAt: '2026-09-01T00:00:00.000Z',
-      })
-      .mockResolvedValueOnce({page: visiblePage, indexedAt: ''})
-    const {result} = setup()
-    await act(() => result.current.api.checkUnread({invalidate: true}))
-    expect(result.current.count).toBe('4')
-    for (const [index, cursor] of [undefined, 'empty', 'sparse'].entries()) {
-      expect(mockFetchPage).toHaveBeenNthCalledWith(
-        index + 1,
-        expect.objectContaining({cursor}),
-      )
-    }
-    expect(result.current.api.getCachedUnreadPage()?.items).toHaveLength(4)
-    expect(result.current.api.getCachedUnreadPage()?.cursor).toBeUndefined()
-  })
-
-  it('stops following a repeated cursor', async () => {
-    mockFetchPage.mockResolvedValue({
-      page: {...page, cursor: 'same'},
-      indexedAt: '',
-    })
-    const {result} = setup()
-    await act(() => result.current.api.checkUnread())
-    expect(mockFetchPage).toHaveBeenCalledTimes(2)
-    expect(result.current.count).toBe('')
-  })
-
-  it('bounds continuation through empty pages with unique cursors', async () => {
-    let cursor = 0
-    mockFetchPage.mockImplementation(() =>
-      Promise.resolve({
-        page: {...page, cursor: String(cursor++)},
-        indexedAt: '',
-      }),
-    )
-    const {result} = setup()
-    await act(() => result.current.api.checkUnread())
-    expect(mockFetchPage).toHaveBeenCalledTimes(4)
-    expect(result.current.count).toBe('')
-  })
-
   it('preserves the prior badge and cache when the page request fails', async () => {
     mockFetchPage.mockResolvedValueOnce({page: visiblePage, indexedAt: ''})
     const {result} = setup()
