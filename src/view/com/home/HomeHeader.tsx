@@ -66,3 +66,11 @@ export function HomeHeader(
     </HomeHeaderLayout>
   )
 }
+
+export function HomeHeaderShell() {
+  return (
+    <HomeHeaderLayout fixed={false} tabBarAnchor={null}>
+      {null}
+    </HomeHeaderLayout>
+  )
+}
