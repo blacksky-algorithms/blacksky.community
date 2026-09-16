@@ -84,7 +84,7 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
             <SelectionRow
               mode="radio"
               testID={`communityOption-${option.slug}`}
-              selected={state.serviceUrl === option.pds}
+              selected={state.selectedBrandSlug === option.slug}
               title={option.displayName}
               onPress={() =>
                 dispatch({

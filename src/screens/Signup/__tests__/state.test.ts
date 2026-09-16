@@ -98,6 +98,17 @@ it('keeps provider metadata when reselecting the current community', () => {
   expect(next.isLoading).toBe(false)
 })
 
+it('tracks the selected community even when communities share a PDS', () => {
+  const sharedPds = 'https://pds.example.com'
+  const latinsky = reducer(
+    {...initialState, serviceUrl: sharedPds, selectedBrandSlug: 'blacksky'},
+    {type: 'setCommunity', slug: 'latinsky', serviceUrl: sharedPds},
+  )
+
+  expect(latinsky.serviceUrl).toBe(sharedPds)
+  expect(latinsky.selectedBrandSlug).toBe('latinsky')
+})
+
 it('preserves a submission error when routing back to the field that needs correction', () => {
   const error = reducer(initialState, {
     type: 'setError',
