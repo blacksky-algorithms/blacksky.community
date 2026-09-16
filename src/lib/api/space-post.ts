@@ -35,12 +35,6 @@ export async function postToSpace(
   const langs = opts.langs?.slice(0, 3)
   const uris: string[] = []
 
-  if (thread.posts.some(draft => draft.embed.media)) {
-    throw new Error(
-      t`Photos, videos, and GIFs are not available in private spaces yet.`,
-    )
-  }
-
   // Read access is uniform within a space but not across spaces, so quoting
   // another space's post here would name a private post to people who cannot
   // see it. Same space is fine — everyone reading this record can already read
