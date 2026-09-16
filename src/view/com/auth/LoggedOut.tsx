@@ -16,6 +16,7 @@ import {
 } from '#/state/shell/logged-out'
 import {useEnableMinimalShellMode} from '#/state/shell/minimal-mode'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
+import {GroupInviteLanding} from '#/screens/GroupInviteLanding'
 import {Login} from '#/screens/Login'
 import {JoinRequest} from '#/screens/Messages/JoinRequest'
 import {Signup} from '#/screens/Signup'
@@ -32,6 +33,7 @@ enum ScreenState {
   S_CreateAccount,
   S_StarterPack,
   S_GroupChatJoinRequest,
+  S_GroupInvite,
 }
 export {ScreenState as LoggedOutScreenState}
 
@@ -43,6 +45,8 @@ function getInitialScreenState(requestedAccountSwitchTo?: string): ScreenState {
       return ScreenState.S_StarterPack
     case 'groupchat':
       return ScreenState.S_GroupChatJoinRequest
+    case 'groupinvite':
+      return ScreenState.S_GroupInvite
     case undefined:
       return ScreenState.S_LoginOrCreateAccount
     default:
@@ -124,6 +128,8 @@ export function LoggedOut({onDismiss}: {onDismiss?: () => void}) {
           <LandingScreen setScreenState={setScreenState} />
         ) : screenState === ScreenState.S_GroupChatJoinRequest ? (
           <JoinRequest setScreenState={setScreenState} />
+        ) : screenState === ScreenState.S_GroupInvite ? (
+          <GroupInviteLanding setScreenState={setScreenState} />
         ) : screenState === ScreenState.S_LoginOrCreateAccount ? (
           <SplashScreen
             onPressSignin={() => {

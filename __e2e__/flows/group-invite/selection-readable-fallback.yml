@@ -1,0 +1,37 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: mixed
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteFeedOption-1
+    timeout: 30000
+- tapOn:
+    id: groupInviteFeedOption-1
+- tapOn:
+    id: groupInvitePinOpenButton
+- extendedWaitUntil:
+    visible:
+      id: homeScreen
+    timeout: 30000
+- assertVisible: e2e-group-read
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '1'
+      EXPECT_CLAIM_COUNT: '1'
+      EXPECT_SAVED_TOTAL: '1'
+      EXPECT_SAVED_PINNED: '1'
+      EXPECT_SAVED_VISIBLE: '1'
+      EXPECT_VISIBLE_PINNED: '1'

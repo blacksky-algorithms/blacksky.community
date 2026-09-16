@@ -15,10 +15,8 @@ import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID, IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
 import {BackNextButtons} from '../BackNextButtons'
 
-const CAPTCHA_PATH =
-  IS_WEB || GCP_PROJECT_ID === 0
-    ? '/gate/signup'
-    : '/gate/signup/attempt-attest'
+const CAPTCHA_PATH = '/gate/signup'
+const ATTEST_PATH = '/gate/signup/attempt-attest'
 
 export function StepCaptcha() {
   if (IS_WEB) {
@@ -29,6 +27,7 @@ export function StepCaptcha() {
 }
 
 export function StepCaptchaNative() {
+  const ax = useAnalytics()
   const [token, setToken] = useState<string>()
   const [payload, setPayload] = useState<string>()
   const [ready, setReady] = useState(false)
@@ -36,26 +35,32 @@ export function StepCaptchaNative() {
   useEffect(() => {
     void (async () => {
       logger.debug('trying to generate attestation token...')
+      let succeeded = false
       try {
         if (IS_IOS) {
           logger.debug('starting to generate devicecheck token...')
           const token = await ReactNativeDeviceAttest.getDeviceCheckToken()
           setToken(token)
-          logger.debug(`generated devicecheck token: ${token}`)
+          succeeded = Boolean(token)
         } else {
           const {token, payload} =
             await ReactNativeDeviceAttest.getIntegrityToken('signup')
           setToken(token)
           setPayload(base64UrlEncode(payload))
+          succeeded = Boolean(token)
         }
       } catch (err) {
         const e = err as Error
         logger.error(e)
       } finally {
+        ax.metric('signup:attestationToken', {
+          platform: IS_IOS ? 'ios' : 'android',
+          succeeded,
+        })
         setReady(true)
       }
     })()
-  }, [])
+  }, [ax])
 
   if (!ready) {
     return <View />
@@ -79,30 +84,47 @@ function StepCaptchaInner({
   const [completed, setCompleted] = useState(false)
 
   const stateParam = useMemo(() => nanoid(15), [])
-  const url = useMemo(() => {
-    const newUrl = new URL(state.serviceUrl)
-    newUrl.pathname = CAPTCHA_PATH
-    newUrl.searchParams.set(
-      'handle',
-      createFullHandle(state.handle, state.userDomain),
-    )
-    newUrl.searchParams.set('state', stateParam)
-    newUrl.searchParams.set('colorScheme', theme.name)
 
-    if (IS_WEB) {
-      // @ts-ignore web only
-      newUrl.searchParams.set('redirect_url', window.location.origin)
-    }
+  // Build both the standard captcha URL and (when applicable) the
+  // attestation-first URL. We optimistically try attestation and fall back to
+  // the captcha URL if the attestation endpoint is unavailable on this PDS - so
+  // account creation never breaks on a PDS that lacks the attestation route or
+  // credentials. See CaptchaWebView's fallback handling.
+  const {captchaUrl, attestUrl} = useMemo(() => {
+    const build = (path: string, withAttestation: boolean) => {
+      const newUrl = new URL(state.serviceUrl)
+      newUrl.pathname = path
+      newUrl.searchParams.set(
+        'handle',
+        createFullHandle(state.handle, state.userDomain),
+      )
+      newUrl.searchParams.set('state', stateParam)
+      newUrl.searchParams.set('colorScheme', theme.name)
 
-    if (IS_NATIVE && token) {
-      newUrl.searchParams.set('platform', Platform.OS)
-      newUrl.searchParams.set('token', token)
-      if (IS_ANDROID && payload) {
-        newUrl.searchParams.set('payload', payload)
+      if (IS_WEB) {
+        // @ts-ignore web only
+        newUrl.searchParams.set('redirect_url', window.location.origin)
       }
+
+      if (withAttestation && IS_NATIVE && token) {
+        newUrl.searchParams.set('platform', Platform.OS)
+        newUrl.searchParams.set('token', token)
+        if (IS_ANDROID && payload) {
+          newUrl.searchParams.set('payload', payload)
+        }
+      }
+
+      return newUrl.href
     }
 
-    return newUrl.href
+    // Only attempt attestation on native, when a project is configured, and we
+    // actually managed to generate a token. Otherwise go straight to captcha.
+    const attestUrl =
+      IS_NATIVE && GCP_PROJECT_ID !== 0 && token
+        ? build(ATTEST_PATH, true)
+        : undefined
+
+    return {captchaUrl: build(CAPTCHA_PATH, false), attestUrl}
   }, [
     state.serviceUrl,
     state.handle,
@@ -112,6 +134,27 @@ function StepCaptchaInner({
     token,
     payload,
   ])
+
+  const url = attestUrl ?? captchaUrl
+  const fallbackUrl = attestUrl ? captchaUrl : undefined
+
+  useEffect(() => {
+    if (!IS_NATIVE) return
+    ax.metric('signup:attestationGate', {
+      platform: IS_IOS ? 'ios' : 'android',
+      selected: attestUrl ? 'attestation' : 'captcha',
+    })
+  }, [ax, attestUrl])
+
+  const onFallback = useCallback(
+    (statusCode?: number) => {
+      ax.metric('signup:attestationFallback', {
+        platform: IS_IOS ? 'ios' : 'android',
+        statusCode,
+      })
+    },
+    [ax],
+  )
 
   const onSuccess = useCallback(
     (code: string) => {
@@ -162,9 +205,12 @@ function StepCaptchaInner({
           ]}>
           {!completed ? (
             <CaptchaWebView
+              key={url}
               url={url}
+              fallbackUrl={fallbackUrl}
               stateParam={stateParam}
               state={state}
+              onFallback={onFallback}
               onComplete={() => setCompleted(true)}
               onSuccess={onSuccess}
               onError={onError}

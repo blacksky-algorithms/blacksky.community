@@ -72,6 +72,7 @@ export type GroupProps = React.PropsWithChildren<{
 }>
 
 export type ItemProps = ViewStyleProp & {
+  testID?: string
   type?: 'radio' | 'checkbox'
   name: string
   label: string

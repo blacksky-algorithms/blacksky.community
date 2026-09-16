@@ -3,7 +3,7 @@ import {
   AppBskyEmbedRecord,
   type AppBskyFeedDefs,
   type AppBskyFeedGetQuotes,
-  AtUri,
+  type BskyAgent,
 } from '@atproto/api'
 import {
   type InfiniteData,
@@ -12,11 +12,13 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {getSpacePostQuotes} from '#/lib/api/community'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {useAgent} from '#/state/session'
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from './util'
 
 const PAGE_SIZE = 30
@@ -24,6 +26,26 @@ type RQPageParam = string | undefined
 
 const RQKEY_ROOT = 'post-quotes'
 export const RQKEY = (resolvedUri: string) => [RQKEY_ROOT, resolvedUri]
+
+export async function fetchPostQuotesPage(
+  agent: BskyAgent,
+  resolvedUri: string,
+  cursor?: string,
+): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+  if (isSpaceRecordUri(resolvedUri)) {
+    return getSpacePostQuotes(agent, {
+      uri: resolvedUri,
+      limit: PAGE_SIZE,
+      cursor,
+    })
+  }
+  const res = await agent.api.app.bsky.feed.getQuotes({
+    uri: resolvedUri,
+    limit: PAGE_SIZE,
+    cursor,
+  })
+  return res.data
+}
 
 export function usePostQuotesQuery(resolvedUri: string | undefined) {
   const agent = useAgent()
@@ -36,12 +58,7 @@ export function usePostQuotesQuery(resolvedUri: string | undefined) {
   >({
     queryKey: RQKEY(resolvedUri || ''),
     async queryFn({pageParam}: {pageParam: RQPageParam}) {
-      const res = await agent.api.app.bsky.feed.getQuotes({
-        uri: resolvedUri || '',
-        limit: PAGE_SIZE,
-        cursor: pageParam,
-      })
-      return res.data
+      return fetchPostQuotesPage(agent, resolvedUri || '', pageParam)
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -103,19 +120,19 @@ export function* findAllPostsInQueryData(
   >({
     queryKey: [RQKEY_ROOT],
   })
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
   for (const [_queryKey, queryData] of queryDatas) {
     if (!queryData?.pages) {
       continue
     }
     for (const page of queryData?.pages) {
       for (const post of page.posts) {
-        if (didOrHandleUriMatches(atUri, post)) {
+        if (matches(post)) {
           yield post
         }
 
         const quotedPost = getEmbeddedPost(post.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
       }

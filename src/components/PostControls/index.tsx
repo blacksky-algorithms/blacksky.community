@@ -9,6 +9,10 @@ import {
 import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 
+import {
+  getCommunitySpaceUri,
+  isCommunityPostUri,
+} from '#/lib/api/community-post'
 import {CountWheel} from '#/lib/custom-animations/CountWheel'
 import {AnimatedLikeIcon} from '#/lib/custom-animations/LikeIcon'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -24,10 +28,7 @@ import {
   useProgressGuideControls,
 } from '#/state/shell/progress-guide'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
-import {
-  CommunityOnlyBadge,
-  isCommunityPostUri,
-} from '#/components/CommunityOnlyBadge'
+import {CommunityOnlyBadge} from '#/components/CommunityOnlyBadge'
 import {Reply as Bubble} from '#/components/icons/Reply'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import * as Skele from '#/components/Skeleton'
@@ -267,7 +268,7 @@ let PostControls = ({
             onQuote={onQuote}
             big={big}
             embeddingDisabled={Boolean(post.viewer?.embeddingDisabled)}
-            repostDisabled={post.uri.includes('community.blacksky.feed.post')}
+            repostDisabled={isCommunityPostUri(post.uri)}
           />
         </View>
         <View style={[a.flex_1, a.align_start]}>
@@ -323,7 +324,9 @@ let PostControls = ({
           a.align_center,
           secondaryControlSpacingStyles,
         ]}>
-        {isCommunityPostUri(post.uri) && <CommunityOnlyBadge />}
+        {isCommunityPostUri(post.uri) && (
+          <CommunityOnlyBadge communitySpace={getCommunitySpaceUri(post)} />
+        )}
         <HideButton
           post={post}
           big={big}

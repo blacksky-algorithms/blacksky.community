@@ -11,7 +11,7 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {type RouteProp, useNavigation, useRoute} from '@react-navigation/native'
 
 import {HITSLOP_20} from '#/lib/constants'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -216,8 +216,8 @@ function MessageInputPostEmbed({
       const isCommunityPost =
         itemUrip.collection === 'community.blacksky.feed.post'
       const itemHref = isCommunityPost
-        ? `${makeProfileLink(post.author, 'post', itemUrip.rkey)}?collection=${itemUrip.collection}`
-        : makeProfileLink(post.author, 'post', itemUrip.rkey)
+        ? postPermalink(post.author, post.uri)
+        : postPermalink(post.author, post.uri)
 
       if (!post || !moderation || !rt || !record) {
         return null

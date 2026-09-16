@@ -5,7 +5,12 @@ import * as WebBrowser from 'expo-web-browser'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
-import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
+import {
+  CHAT_INVITE_CODE_REGEX,
+  GROUP_INVITE_CODE_REGEX,
+  shouldHandleIncomingIntentUrl,
+} from '#/lib/strings/url-helpers'
+import {usePrefetchGroupInvitePreview} from '#/state/queries/group-invites'
 import {usePrefetchJoinLinkPreviews} from '#/state/queries/join-links'
 import {useSession} from '#/state/session'
 import {useSetActiveLanding} from '#/state/shell/landing'
@@ -30,6 +35,7 @@ export function useIntentHandler() {
   const composeIntent = useComposeIntent()
   const verifyEmailIntent = useVerifyEmailIntent()
   const groupChatJoinIntent = useGroupChatJoinIntent()
+  const groupInviteIntent = useGroupInviteIntent()
   const {currentAccount} = useSession()
   const {tryApplyUpdate} = useApplyPullRequestOTAUpdate()
 
@@ -40,19 +46,24 @@ export function useIntentHandler() {
         await WebBrowser.dismissBrowser().catch(() => {})
       }
 
-      const referrerInfo = Referrer.getReferrerInfo()
-      if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
-        ax.metric('deepLink:referrerReceived', {
-          to: url,
-          referrer: referrerInfo?.referrer,
-          hostname: referrerInfo?.hostname,
-        })
-      }
       const urlp = parseLinkingUrl(url)
       const chatInviteMatch = urlp.pathname.match(CHAT_INVITE_CODE_REGEX)
       if (chatInviteMatch) {
         groupChatJoinIntent(chatInviteMatch[1], url)
         return
+      }
+      const groupInviteMatch = urlp.pathname.match(GROUP_INVITE_CODE_REGEX)
+      if (groupInviteMatch) {
+        groupInviteIntent(groupInviteMatch[1])
+        return
+      }
+      const referrerInfo = Referrer.getReferrerInfo()
+      if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+        ax.metric('deepLink:referrerReceived', {
+          to: url,
+          referrer: referrerInfo.referrer,
+          hostname: referrerInfo.hostname,
+        })
       }
       const [, intent, intentType] = urlp.pathname.split('/')
 
@@ -97,22 +108,71 @@ export function useIntentHandler() {
       }
     }
 
-    if (incomingUrl) {
-      if (previousIntentUrl === incomingUrl) {
+    const processIncomingURL = (url: string, fromLinkEvent: boolean) => {
+      if (
+        !shouldHandleIncomingIntentUrl(url, previousIntentUrl, fromLinkEvent)
+      ) {
         return
       }
-      handleIncomingURL(incomingUrl)
-      previousIntentUrl = incomingUrl
+      previousIntentUrl = url
+      void handleIncomingURL(url)
     }
+
+    const subscription = Linking.addEventListener('url', event => {
+      processIncomingURL(event.url, true)
+    })
+    if (incomingUrl) processIncomingURL(incomingUrl, false)
+
+    return () => subscription.remove()
   }, [
     incomingUrl,
     ax,
     composeIntent,
     verifyEmailIntent,
     groupChatJoinIntent,
+    groupInviteIntent,
     currentAccount,
     tryApplyUpdate,
   ])
+}
+
+export function useGroupInviteIntent() {
+  const closeAllActiveElements = useCloseAllActiveElements()
+  const {hasSession} = useSession()
+  const {groupInviteDialogControl: control, setGroupInviteState: setState} =
+    useIntentDialogs()
+  const {requestSwitchToAccount} = useLoggedOutViewControls()
+  const setActiveLanding = useSetActiveLanding()
+  const prefetchGroupInvitePreview = usePrefetchGroupInvitePreview()
+
+  return useCallback(
+    (code: string) => {
+      closeAllActiveElements()
+      if (hasSession) {
+        setActiveLanding(undefined)
+        setState({code})
+        const prefetch = prefetchGroupInvitePreview(code)
+        void Promise.race([
+          prefetch,
+          new Promise(res => setTimeout(res, 200)),
+        ]).finally(() => control.open())
+      } else {
+        // The original URL contains the bearer code. It is not needed to
+        // resume the landing flow and must not be retained in redirect state.
+        setActiveLanding({type: 'groupinvite', uri: '', code})
+        requestSwitchToAccount({requestedAccount: 'groupinvite'})
+      }
+    },
+    [
+      closeAllActiveElements,
+      hasSession,
+      setState,
+      prefetchGroupInvitePreview,
+      control,
+      setActiveLanding,
+      requestSwitchToAccount,
+    ],
+  )
 }
 
 export function useComposeIntent() {

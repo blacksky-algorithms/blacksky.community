@@ -1,0 +1,45 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: navigation
+- runFlow:
+    file: ../../helpers/group-invite-sign-in-alice.yml
+- tapOn:
+    id: e2eGroupInviteFailNavigation
+- openLink: 'blacksky://join/${output.groupInviteCode}'
+- extendedWaitUntil:
+    visible:
+      id: groupInviteAcceptButton
+    timeout: 30000
+- tapOn:
+    id: groupInviteAcceptButton
+- extendedWaitUntil:
+    visible:
+      id: groupInvitePinOpenButton
+    timeout: 30000
+- tapOn:
+    id: groupInvitePinOpenButton
+- extendedWaitUntil:
+    visible:
+      id: groupInviteNavigationError
+    timeout: 30000
+- assertVisible: 'Your membership and saved feeds are preserved.'
+- assertVisible:
+    id: groupInviteNavigationRetryButton
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '1'
+      EXPECT_CLAIM_COUNT: '1'
+      EXPECT_SAVED_TOTAL: '2'
+      EXPECT_SAVED_PINNED: '2'
+      EXPECT_SAVED_VISIBLE: '2'
+      EXPECT_VISIBLE_PINNED: '2'
+- tapOn:
+    id: groupInviteNavigationRetryButton
+- extendedWaitUntil:
+    visible:
+      id: homeScreen
+    timeout: 30000

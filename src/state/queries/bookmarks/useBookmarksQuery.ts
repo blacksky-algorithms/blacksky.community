@@ -2,7 +2,6 @@ import {
   type $Typed,
   type AppBskyBookmarkGetBookmarks,
   AppBskyFeedDefs,
-  AtUri,
 } from '@atproto/api'
 import {
   type InfiniteData,
@@ -12,9 +11,9 @@ import {
 } from '@tanstack/react-query'
 
 import {
-  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
+  makeUriMatcher,
 } from '#/state/queries/util'
 import {useAgent} from '#/state/session'
 import * as bsky from '#/types/bsky'
@@ -129,7 +128,7 @@ export function* findAllPostsInQueryData(
   >({
     queryKey: [bookmarksQueryKeyRoot],
   })
-  const atUri = new AtUri(uri)
+  const matches = makeUriMatcher(uri)
 
   for (const [_queryKey, queryData] of queryDatas) {
     if (!queryData?.pages) {
@@ -145,12 +144,12 @@ export function* findAllPostsInQueryData(
         )
           continue
 
-        if (didOrHandleUriMatches(atUri, bookmark.item)) {
+        if (matches(bookmark.item)) {
           yield bookmark.item
         }
 
         const quotedPost = getEmbeddedPost(bookmark.item.embed)
-        if (quotedPost && didOrHandleUriMatches(atUri, quotedPost)) {
+        if (quotedPost && matches(quotedPost)) {
           yield embedViewRecordToPostView(quotedPost)
         }
       }

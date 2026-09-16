@@ -321,7 +321,7 @@ export function Close() {
   )
 }
 
-export function Handle() {
+export function Handle(_props?: {testID?: string}) {
   return null
 }
 

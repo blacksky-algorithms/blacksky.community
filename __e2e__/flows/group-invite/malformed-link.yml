@@ -1,0 +1,19 @@
+appId: community.blacksky.app
+---
+- runFlow:
+    file: ../../helpers/group-invite-setup.yml
+    env:
+      SCENARIO: mixed
+- openLink: 'blacksky://join/not-a-valid-group-code'
+- extendedWaitUntil:
+    visible:
+      id: mobileShellView
+    timeout: 10000
+- assertNotVisible:
+    id: groupInviteLanding
+- assertNotVisible:
+    id: groupInviteAcceptButton
+- runScript:
+    file: ../../helpers/assert-group-invite-state.js
+    env:
+      EXPECT_ACCEPT_REQUESTS: '0'
