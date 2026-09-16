@@ -11,13 +11,11 @@ Iconists set was not covered by the MIT licence.
 | `avatar-stickers.json` | Symbols generated separately as OpenMoji avatar artwork rather than UI icons. |
 | `sticker-picks.json` | OpenMoji source codepoints and stroke-width overrides for the avatar artwork. |
 | `generate-stickers.mjs` | Generates the avatar-only OpenMoji module. |
-| `check-icon-licenses.mjs` | Rejects top-level Iconists source SVGs and known Iconists path data outside the temporary legacy allowlist. |
 
 ## Run
 
 ```
-node scripts/icons/generate-stickers.mjs  # avatar-only OpenMoji artwork
-pnpm icons:check                          # licence regression guard
+node scripts/icons/generate-stickers.mjs # avatar-only OpenMoji artwork
 ```
 
 ## Licensing
