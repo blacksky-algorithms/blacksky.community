@@ -6,8 +6,10 @@ import {AppBskyGraphStarterpack} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
+import {useQuery} from '@tanstack/react-query'
 
 import {useBrand} from '#/lib/community/BrandContext'
+import {fetchBrandBySlug} from '#/lib/community/resolveBrand'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
 import {useStarterPackQuery} from '#/state/queries/starter-packs'
@@ -65,6 +67,18 @@ export function Signup({
     }
   }, [brand.services.pds.url, brand.metadata.slug])
 
+  const selectedCommunitySlug = state.selectedBrandSlug
+  const isCurrentBrand = selectedCommunitySlug === brand.metadata.slug
+  const {data: selectedCommunity} = useQuery({
+    queryKey: ['signup-selected-community', selectedCommunitySlug],
+    queryFn: () => fetchBrandBySlug(selectedCommunitySlug!),
+    enabled: Boolean(selectedCommunitySlug && !isCurrentBrand),
+    staleTime: 300000,
+  })
+  const availableHandles = isCurrentBrand
+    ? brand.services.pds.availableHandles
+    : selectedCommunity?.services.pds.availableHandles
+
   const activeStarterPack = useActiveStarterPack()
   const {
     data: starterPack,
@@ -98,10 +112,7 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: undefined,
-        availableHandles:
-          state.selectedBrandSlug === brand.metadata.slug
-            ? brand.services.pds.availableHandles
-            : undefined,
+        availableHandles,
       })
       dispatch({
         type: 'setError',
@@ -113,21 +124,11 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: serviceInfo,
-        availableHandles:
-          state.selectedBrandSlug === brand.metadata.slug
-            ? brand.services.pds.availableHandles
-            : undefined,
+        availableHandles,
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [
-    _,
-    serviceInfo,
-    isError,
-    brand.services.pds.availableHandles,
-    brand.metadata.slug,
-    state.selectedBrandSlug,
-  ])
+  }, [_, serviceInfo, isError, availableHandles])
 
   useEffect(() => {
     if (state.pendingSubmit) {

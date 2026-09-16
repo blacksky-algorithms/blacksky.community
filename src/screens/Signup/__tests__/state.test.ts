@@ -109,6 +109,30 @@ it('tracks the selected community even when communities share a PDS', () => {
   expect(latinsky.selectedBrandSlug).toBe('latinsky')
 })
 
+it('filters shared-PDS handles to the selected community', () => {
+  const latinsky = reducer(
+    {...initialState, serviceUrl: 'https://pds.example.com'},
+    {
+      type: 'setCommunity',
+      slug: 'latinsky',
+      serviceUrl: 'https://pds.example.com',
+    },
+  )
+  const next = reducer(latinsky, {
+    type: 'setServiceDescription',
+    value: {
+      did: 'did:web:example.com',
+      availableUserDomains: ['.blacksky.app', '.latinsky.app'],
+    },
+    availableHandles: ['.latinsky.app'],
+  })
+
+  expect(next.serviceDescription?.availableUserDomains).toEqual([
+    '.latinsky.app',
+  ])
+  expect(next.userDomain).toBe('.latinsky.app')
+})
+
 it('preserves a submission error when routing back to the field that needs correction', () => {
   const error = reducer(initialState, {
     type: 'setError',
