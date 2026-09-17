@@ -1,18 +1,33 @@
-import {useCallback} from 'react'
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {type BskyAgent} from '@atproto/api'
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import {communityXrpc} from '#/lib/api/community'
+import {timeout} from '#/lib/async/timeout'
+import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
+import {logger} from '#/logger'
 import {
   COMMUNITY_POST_RQKEY,
   RQKEY_ROOT as COMMUNITY_FEED_RQKEY_ROOT,
   TIMELINE_RQKEY,
 } from '#/state/queries/community-feed'
+import {RQKEY as postRQKey} from '#/state/queries/post'
+import {RQKEY_ROOT as POST_FEED_RQKEY_ROOT} from '#/state/queries/post-feed'
+import {postThreadQueryKeyRoot} from '#/state/queries/usePostThread/types'
 import {useAgent} from '#/state/session'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
 
 const APPLY_METHOD = 'community.blacksky.moderation.applyLabel'
 const REMOVE_METHOD = 'community.blacksky.moderation.removeLabel'
 const GET_MY_LABELS_METHOD = 'community.blacksky.moderation.getMyLabels'
+
+const RECONCILE_ATTEMPTS = 8
+const RECONCILE_INTERVAL_MS = 750
+const RECONCILE_REQUEST_TIMEOUT_MS = 3000
 
 export type ApplyLabelInput = {
   subjectUri: string
@@ -81,18 +96,97 @@ export function usePostBlackskyLabelsQuery(subjectUri: string | undefined) {
     enabled: !!subjectUri,
     queryFn: async () => {
       if (!subjectUri) return []
-      const res = await agent.com.atproto.label.queryLabels({
-        uriPatterns: [subjectUri],
-        sources: [BLACKSKY_LABELER],
-      })
-      return res.data.labels.filter(l => !l.neg).map(l => l.val)
+      return fetchBlackskyLabelVals(agent, subjectUri)
     },
   })
 }
 
+async function fetchBlackskyLabelVals(
+  agent: BskyAgent,
+  subjectUri: string,
+  signal?: AbortSignal,
+): Promise<string[]> {
+  const res = await agent.com.atproto.label.queryLabels(
+    {uriPatterns: [subjectUri], sources: [BLACKSKY_LABELER]},
+    {...HOME_APPVIEW_PINNED_OPTS, signal},
+  )
+  return res.data.labels.filter(l => !l.neg).map(l => l.val)
+}
+
+function withDeadline<T>(
+  run: (signal: AbortSignal) => Promise<T>,
+  ms: number,
+): Promise<T> {
+  const controller = new AbortController()
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort()
+      reject(new Error(`Timed out after ${ms}ms`))
+    }, ms)
+  })
+  return Promise.race([run(controller.signal), deadline]).finally(() =>
+    clearTimeout(timer),
+  )
+}
+
+/**
+ * Ozone accepting a label event does not mean the appview has ingested it
+ * yet, so the caches that render this post are refreshed once the appview
+ * reports the expected state, or after a bounded wait.
+ */
+export async function reconcileLabelState({
+  agent,
+  queryClient,
+  subjectUri,
+  val,
+  expectPresent,
+}: {
+  agent: BskyAgent
+  queryClient: QueryClient
+  subjectUri: string
+  val: string
+  expectPresent: boolean
+}): Promise<void> {
+  let converged = false
+  try {
+    for (let attempt = 1; attempt <= RECONCILE_ATTEMPTS; attempt++) {
+      try {
+        const vals = await withDeadline(
+          signal => fetchBlackskyLabelVals(agent, subjectUri, signal),
+          RECONCILE_REQUEST_TIMEOUT_MS,
+        )
+        if (vals.includes(val) === expectPresent) {
+          converged = true
+          break
+        }
+      } catch (e) {
+        logger.warn('peer-mod label reconcile attempt failed', {
+          attempt,
+          subjectUri,
+          val,
+          message: e instanceof Error ? e.message : String(e),
+        })
+      }
+      if (attempt < RECONCILE_ATTEMPTS) {
+        await timeout(RECONCILE_INTERVAL_MS)
+      }
+    }
+  } finally {
+    if (!converged) {
+      logger.warn('peer-mod label reconcile did not converge', {
+        subjectUri,
+        val,
+        expectPresent,
+      })
+    }
+    invalidateLabelState(queryClient, subjectUri)
+  }
+}
+
 export function useApplyLabelMutation() {
   const agent = useAgent()
-  const invalidate = useInvalidateLabelState()
+  const queryClient = useQueryClient()
   return useMutation<void, Error, ApplyLabelInput>({
     mutationFn: async input => {
       const res = await communityXrpc(agent, APPLY_METHOD, {body: input})
@@ -101,14 +195,20 @@ export function useApplyLabelMutation() {
       }
     },
     onSuccess: (_data, input) => {
-      invalidate(input.subjectUri)
+      void reconcileLabelState({
+        agent,
+        queryClient,
+        subjectUri: input.subjectUri,
+        val: input.val,
+        expectPresent: true,
+      })
     },
   })
 }
 
 export function useRemoveLabelMutation() {
   const agent = useAgent()
-  const invalidate = useInvalidateLabelState()
+  const queryClient = useQueryClient()
   return useMutation<void, Error, RemoveLabelInput>({
     mutationFn: async input => {
       const res = await communityXrpc(agent, REMOVE_METHOD, {body: input})
@@ -117,27 +217,28 @@ export function useRemoveLabelMutation() {
       }
     },
     onSuccess: (_data, input) => {
-      invalidate(input.subjectUri)
+      void reconcileLabelState({
+        agent,
+        queryClient,
+        subjectUri: input.subjectUri,
+        val: input.val,
+        expectPresent: false,
+      })
     },
   })
 }
 
-function useInvalidateLabelState() {
-  const queryClient = useQueryClient()
-  return useCallback(
-    (subjectUri: string) => {
-      void queryClient.invalidateQueries({queryKey: myLabelsRQKey(subjectUri)})
-      void queryClient.invalidateQueries({
-        queryKey: postLabelsRQKey(subjectUri),
-      })
-      void queryClient.invalidateQueries({
-        queryKey: COMMUNITY_POST_RQKEY(subjectUri),
-      })
-      void queryClient.invalidateQueries({queryKey: TIMELINE_RQKEY()})
-      void queryClient.invalidateQueries({
-        queryKey: [COMMUNITY_FEED_RQKEY_ROOT],
-      })
-    },
-    [queryClient],
-  )
+function invalidateLabelState(queryClient: QueryClient, subjectUri: string) {
+  for (const queryKey of [
+    myLabelsRQKey(subjectUri),
+    postLabelsRQKey(subjectUri),
+    COMMUNITY_POST_RQKEY(subjectUri),
+    postRQKey(subjectUri),
+    TIMELINE_RQKEY(),
+    [COMMUNITY_FEED_RQKEY_ROOT],
+    [POST_FEED_RQKEY_ROOT],
+    [postThreadQueryKeyRoot],
+  ]) {
+    void queryClient.invalidateQueries({queryKey})
+  }
 }
