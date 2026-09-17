@@ -2069,24 +2069,6 @@ function ComposerPills({
   const t = useTheme()
   const {data: isCommunityMember = false} = useCommunityMembership()
   const homeAppviewOutage = useHomeAppviewOutage()
-  const media = post.embed.media
-  const hasMedia =
-    media?.type === 'images' ||
-    media?.type === 'gallery' ||
-    media?.type === 'gif' ||
-    media?.type === 'video'
-  const hasLink = !!post.embed.link
-
-  if (
-    isReply &&
-    !hasMedia &&
-    !hasLink &&
-    !isForcedBlackskyOnly &&
-    !thread.communityFeedUri &&
-    !thread.communitySpaceUri
-  ) {
-    return null
-  }
 
   return (
     <Animated.View
@@ -2125,21 +2107,19 @@ function ComposerPills({
           isForcedCommunityTarget={isForcedCommunityTarget}
           contextualCommunityFeedTarget={contextualCommunityFeedTarget}
         />
-        {hasMedia || hasLink ? (
-          <LabelsBtn
-            labels={post.labels}
-            onChange={nextLabels => {
-              dispatch({
-                type: 'update_post',
-                postId: post.id,
-                postAction: {
-                  type: 'update_labels',
-                  labels: nextLabels,
-                },
-              })
-            }}
-          />
-        ) : null}
+        <LabelsBtn
+          labels={post.labels}
+          onChange={nextLabels => {
+            dispatch({
+              type: 'update_post',
+              postId: post.id,
+              postAction: {
+                type: 'update_labels',
+                labels: nextLabels,
+              },
+            })
+          }}
+        />
       </ScrollView>
       {(thread.blackskyOnly ||
         thread.communityFeedUri ||

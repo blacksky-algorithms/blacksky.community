@@ -6,7 +6,6 @@ import {Trans} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
-import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
@@ -48,8 +47,6 @@ export const SplashScreen = ({
     }
   }, [])
 
-  const kawaii = useKawaiiMode()
-
   return (
     <>
       {onDismiss && (
@@ -83,13 +80,11 @@ export const SplashScreen = ({
           ]}>
           <ErrorBoundary>
             <View style={[a.justify_center, a.align_center]}>
-              <Logo width={kawaii ? 300 : 92} fill={t.atoms.text.color} />
+              <Logo width={92} fill={t.atoms.text.color} />
 
-              {!kawaii && (
-                <View style={[a.pb_sm, a.pt_5xl]}>
-                  <Logotype width={161} fill={t.atoms.text.color} />
-                </View>
-              )}
+              <View style={[a.pb_sm, a.pt_5xl]}>
+                <Logotype width={161} fill={t.atoms.text.color} />
+              </View>
 
               <Text
                 style={[

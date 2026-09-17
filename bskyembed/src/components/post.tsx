@@ -145,7 +145,7 @@ export function Post({thread}: Props) {
           <Link
             href={href}
             className="transition-transform hover:scale-110 shrink-0">
-            <img src={logo} className="h-5 min-[400px]:h-7" />
+            <img src={logo} className="h-5 min-[400px]:h-7 dark:invert" />
           </Link>
         </div>
       </div>

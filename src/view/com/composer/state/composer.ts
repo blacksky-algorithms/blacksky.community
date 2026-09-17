@@ -500,7 +500,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
     }
     case 'embed_remove_image': {
       const prevMedia = state.embed.media
-      let nextLabels = state.labels
       if (prevMedia?.type === 'images' || prevMedia?.type === 'gallery') {
         const removedImage = action.image
         const remainingImages = prevMedia.images.filter(img => {
@@ -509,9 +508,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         let nextMedia: ImagesMedia | GalleryMedia | undefined
         if (remainingImages.length === 0) {
           nextMedia = undefined
-          if (!state.embed.link) {
-            nextLabels = []
-          }
         } else {
           // Re-pick the variant so a gallery that shrinks to <=4 demotes
           // back to the legacy `app.bsky.embed.images` shape - keeps old
@@ -520,7 +516,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         }
         return {
           ...state,
-          labels: nextLabels,
           embed: {
             ...state.embed,
             media: nextMedia,
@@ -571,13 +566,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         prevMedia.video.abortController.abort()
         nextMedia = undefined
       }
-      let nextLabels = state.labels
-      if (!state.embed.link) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           media: nextMedia,
@@ -614,13 +604,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_remove_link': {
-      let nextLabels = state.labels
-      if (!state.embed.media) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           link: undefined,

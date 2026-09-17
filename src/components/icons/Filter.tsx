@@ -1,5 +1,10 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Filter_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-.293.707L15 14.414V20a1 1 0 0 1-.758.97l-4 1A1 1 0 0 1 9 21v-6.586L3.293 8.707A1 1 0 0 1 3 8V4Zm2 1v2.586l5.707 5.707A1 1 0 0 1 11 14v5.72l2-.5V14a1 1 0 0 1 .293-.707L19 7.586V5H5Z',
+// tabler: filter
+export const Filter_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
