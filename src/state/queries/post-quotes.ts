@@ -14,6 +14,7 @@ import {
 
 import {getSpacePostQuotes} from '#/lib/api/community'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
+import {getNextCursor} from '#/state/queries/pagination'
 import {useAgent} from '#/state/session'
 import {
   embedViewRecordToPostView,
@@ -61,9 +62,11 @@ export function usePostQuotesQuery(resolvedUri: string | undefined) {
       return fetchPostQuotesPage(agent, resolvedUri || '', pageParam)
     },
     initialPageParam: undefined,
-    getNextPageParam: lastPage => lastPage.cursor,
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) =>
+      getNextCursor(lastPage.cursor, allPageParams),
     enabled: !!resolvedUri,
     select: data => {
+      const seen = new Set<string>()
       return {
         ...data,
         pages: data.pages.map(page => {
@@ -75,6 +78,8 @@ export function usePostQuotesQuery(resolvedUri: string | undefined) {
                   return false
                 }
               }
+              if (seen.has(post.uri)) return false
+              seen.add(post.uri)
               return true
             }),
           }
