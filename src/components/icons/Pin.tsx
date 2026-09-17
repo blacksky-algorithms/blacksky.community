@@ -1,9 +1,20 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG, createStrokeSVG} from './TEMPLATE'
 
-export const Pin_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M6.5 3a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v3.997a6.25 6.25 0 0 0 1.83 4.42l.377.376A1 1 0 0 1 20 12.5V15a1 1 0 0 1-1 1h-6v5a1 1 0 1 1-2 0v-5H5a1 1 0 0 1-1-1v-2.5a1 1 0 0 1 .293-.707l.376-.377A6.25 6.25 0 0 0 6.5 6.996V3.001Zm2 1v2.997a8.25 8.25 0 0 1-2.416 5.834L6 12.914V14h12v-1.086l-.084-.083A8.25 8.25 0 0 1 15.5 6.997V4h-7Z',
+// tabler: pin (fill weight)
+export const Pin_Filled_Corner0_Rounded = createMultiPathSVG({
+  paths: [
+    'M15.113 3.21l.094 .083l5.5 5.5a1 1 0 0 1 -1.175 1.59l-3.172 3.171l-1.424 3.797a1 1 0 0 1 -.158 .277l-.07 .08l-1.5 1.5a1 1 0 0 1 -1.32 .082l-.095 -.083l-2.793 -2.792l-3.793 3.792a1 1 0 0 1 -1.497 -1.32l.083 -.094l3.792 -3.793l-2.792 -2.793a1 1 0 0 1 -.083 -1.32l.083 -.094l1.5 -1.5a1 1 0 0 1 .258 -.187l.098 -.042l3.796 -1.425l3.171 -3.17a1 1 0 0 1 1.497 -1.26z',
+  ],
+  viewBox: '0 0 24 24',
 })
 
-export const Pin_Filled_Corner0_Rounded = createSinglePathSVG({
-  path: 'M7.5 2a1 1 0 0 0-1 1v3.997a6.25 6.25 0 0 1-1.83 4.42l-.377.376A1 1 0 0 0 4 12.5V15a1 1 0 0 0 1 1h6v5a1 1 0 1 0 2 0v-5h6a1 1 0 0 0 1-1v-2.5a1 1 0 0 0-.293-.707l-.376-.377a6.25 6.25 0 0 1-1.831-4.42V3.001a1 1 0 0 0-1-1h-9Z',
+// tabler: pin
+export const Pin_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4',
+    'M9 15l-4.5 4.5',
+    'M14.5 4l5.5 5.5',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

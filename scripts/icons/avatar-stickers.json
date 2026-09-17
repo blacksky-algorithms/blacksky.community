@@ -1,0 +1,15 @@
+{
+ "note": "avatar-creator stickers \u2014 decorative art, not UI icons. Pick an emoji set, not an icon library.",
+ "symbols": {
+  "Alien_Stroke2_Corner0_Rounded": "alien",
+  "Apple_Stroke2_Corner0_Rounded": "apple",
+  "EmojiHeartEyes_Stroke2_Corner0_Rounded": "heartEyes",
+  "Explosion_Stroke2_Corner0_Rounded": "explosion",
+  "GameController_Stroke2_Corner0_Rounded": "gameController",
+  "Lab_Stroke2_Corner0_Rounded": "lab",
+  "MusicNote_Stroke2_Corner0_Rounded": "musicNote",
+  "Rose_Stroke2_Corner0_Rounded": "rose",
+  "UFO_Stroke2_Corner0_Rounded": "ufo",
+  "Zap_Stroke2_Corner0_Rounded": "zap"
+ }
+}

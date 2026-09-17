@@ -354,12 +354,12 @@ module.exports = function (_config) {
           {
             ios: {
               enableFullScreenImage_legacy: true, // iOS only
-              backgroundColor: '#006AFF', // primary_500
+              backgroundColor: '#8686FF', // matches the splash gradient's top stop
               image: './assets/splash/splash.png',
               resizeMode: 'cover',
               dark: {
                 enableFullScreenImage_legacy: true, // iOS only
-                backgroundColor: '#002861', // primary_900
+                backgroundColor: '#8686FF', // matches the splash gradient's top stop
                 image: './assets/splash/splash-dark.png',
                 resizeMode: 'cover',
               },
