@@ -422,6 +422,12 @@ export const ComposePost = ({
   )
 
   const thread = composerState.thread
+  const spaceTarget =
+    thread.communitySpaceUri ??
+    (isSpaceBackedFeed(thread.communityFeed?.config)
+      ? thread.communityFeed.config.space
+      : undefined)
+  const isPrivateVideoTarget = !!spaceTarget
 
   // Clear error when composer content changes, but only if all posts are
   // back within the character limit.
@@ -471,9 +477,10 @@ export const ComposePost = ({
         currentDid,
         abortController.signal,
         i18n,
+        isPrivateVideoTarget,
       )
     },
-    [i18n, agent, currentDid, composerDispatch],
+    [i18n, agent, currentDid, composerDispatch, isPrivateVideoTarget],
   )
 
   const onInitVideo = useNonReactiveCallback(() => {
@@ -618,6 +625,7 @@ export const ComposePost = ({
           currentDid,
           abortController.signal,
           i18n,
+          isPrivateVideoTarget,
         )
       } catch (e) {
         logger.error('Failed to restore video from draft', {

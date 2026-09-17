@@ -17,6 +17,7 @@ export async function uploadVideo({
   setProgress,
   signal,
   i18n,
+  isPrivate,
 }: {
   video: CompressedVideo
   agent: AtpAgent
@@ -24,6 +25,7 @@ export async function uploadVideo({
   setProgress: (progress: number) => void
   signal: AbortSignal
   i18n: I18n
+  isPrivate: boolean
 }) {
   if (signal.aborted) {
     throw new AbortError()
@@ -33,6 +35,7 @@ export async function uploadVideo({
   const uri = createVideoEndpointUrl('/xrpc/app.bsky.video.uploadVideo', {
     did,
     name: `${nanoid(12)}.${mimeToExt(video.mimeType)}`,
+    ...(isPrivate ? {private: 'true'} : {}),
   })
 
   // Stream the Blob directly; loading the whole file as ArrayBuffer OOMs mobile Safari.

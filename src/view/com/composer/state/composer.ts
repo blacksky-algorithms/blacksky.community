@@ -8,7 +8,10 @@ import {
 } from '@atproto/api'
 import {nanoid} from 'nanoid/non-secure'
 
-import {type CommunityFeedTarget} from '#/lib/api/community-feed'
+import {
+  type CommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
 import {type SelfLabel} from '#/lib/moderation'
 import {insertMentionAt} from '#/lib/strings/mention-manip'
 import {shortenLinks} from '#/lib/strings/rich-text-manip'
@@ -175,6 +178,33 @@ export type ComposerAction =
       draftId: string
     }
 
+function hasSpaceVideoTarget(thread: ThreadDraft): boolean {
+  return (
+    !!thread.communitySpaceUri ||
+    isSpaceBackedFeed(thread.communityFeed?.config)
+  )
+}
+
+function clearVideosOnTargetChange(
+  state: ComposerState,
+  nextThread: ThreadDraft,
+): ComposerState {
+  if (hasSpaceVideoTarget(state.thread) === hasSpaceVideoTarget(nextThread)) {
+    return state
+  }
+
+  const posts = state.thread.posts.map(post =>
+    post.embed.media?.type === 'video'
+      ? postReducer(post, {type: 'embed_remove_video'})
+      : post,
+  )
+  return {
+    ...state,
+    isDirty: true,
+    thread: {...nextThread, posts},
+  }
+}
+
 /**
  * Threshold for picking between embed variants. <= this count uses the
  * legacy `app.bsky.embed.images` shape; > this count promotes to
@@ -227,31 +257,35 @@ export function composerReducer(
       }
     }
     case 'toggle_blacksky_only': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: !state.thread.blackskyOnly,
-          communityFeed: undefined,
-          communityFeedUri: undefined,
-          communitySpaceUri: undefined,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: !state.thread.blackskyOnly,
+        communityFeed: undefined,
+        communityFeedUri: undefined,
+        communitySpaceUri: undefined,
       }
+      return clearVideosOnTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'set_post_target': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: action.target === 'blacksky',
-          communityFeed:
-            typeof action.target === 'string' ? undefined : action.target,
-          communityFeedUri:
-            typeof action.target === 'string' ? undefined : action.target.feed,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: action.target === 'blacksky',
+        communityFeed:
+          typeof action.target === 'string' ? undefined : action.target,
+        communityFeedUri:
+          typeof action.target === 'string' ? undefined : action.target.feed,
       }
+      return clearVideosOnTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'update_post': {
       let nextPosts = state.thread.posts
