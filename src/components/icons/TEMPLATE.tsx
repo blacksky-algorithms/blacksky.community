@@ -52,18 +52,23 @@ export const IconTemplate_Stroke2_Corner0_Rounded = forwardRef(
 export function createSinglePathSVG({
   path,
   viewBox,
+  defaultFill,
   strokeWidth = 0,
   strokeLinecap = 'butt',
   strokeLinejoin = 'miter',
 }: {
   path: string
   viewBox?: string
+  defaultFill?: Props['fill']
   strokeWidth?: number
   strokeLinecap?: 'butt' | 'round' | 'square'
   strokeLinejoin?: 'miter' | 'round' | 'bevel'
 }) {
   const Icon = forwardRef<Svg, Props>(function LogoImpl(props, ref) {
-    const {fill, size, style, gradient, ...rest} = useCommonSVGProps(props)
+    const {fill, size, style, gradient, ...rest} = useCommonSVGProps({
+      ...props,
+      fill: props.fill ?? defaultFill,
+    })
 
     const hasStroke = strokeWidth > 0
 
