@@ -1,6 +1,7 @@
 import {useMemo} from 'react'
 import {AtpAgent, interpretLabelValueDefinitions} from '@atproto/api'
 
+import {withAdultContentBehavior} from '#/lib/moderation/adult-content-labels'
 import {isNonConfigurableModerationAuthority} from '#/state/session/additional-moderation-authorities'
 import {useLabelersDetailedInfoQuery} from '../labeler'
 import {usePreferencesQuery} from './index'
@@ -41,7 +42,7 @@ export function useLabelDefinitionsQuery() {
       labelDefs: Object.fromEntries(
         (labelers.data || []).map(labeler => [
           labeler.creator.did,
-          interpretLabelValueDefinitions(labeler),
+          withAdultContentBehavior(interpretLabelValueDefinitions(labeler)),
         ]),
       ),
       labelers: labelers.data || [],

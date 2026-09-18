@@ -14,7 +14,6 @@ import {AppState} from 'react-native'
 import {useQueryClient} from '@tanstack/react-query'
 import {EventEmitter} from 'eventemitter3'
 
-import {getUnreadCount} from '#/lib/api/community-notifications'
 import BroadcastChannel from '#/lib/broadcast'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {resetBadgeCount} from '#/lib/notifications/notifications'
@@ -169,44 +168,26 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
           isFetchingRef.current = true
           const generation = ++refreshGenerationRef.current
 
-          let nextCache: CachedFeedPage
-          if (invalidate) {
-            const [{count}, {page, indexedAt: lastIndexed}] = await Promise.all(
-              [
-                getUnreadCount(agent),
-                fetchPage({
-                  agent,
-                  cursor: undefined,
-                  limit: 40,
-                  queryClient,
-                  moderationOpts,
-                  hideFollowNotifications: undefined,
-                  reasons: [],
-                  fetchAdditionalData: true,
-                }),
-              ],
-            )
-            const now = new Date()
-            const lastIndexedDate = lastIndexed
-              ? new Date(lastIndexed)
-              : undefined
-            nextCache = {
-              usableInFeed: true,
-              data: page,
-              syncedAt:
-                !lastIndexedDate || now > lastIndexedDate
-                  ? now
-                  : lastIndexedDate,
-              unreadCount: count,
-            }
-          } else {
-            const {count} = await getUnreadCount(agent)
-            nextCache = {
-              ...cacheRef.current,
-              usableInFeed: false,
-              syncedAt: new Date(),
-              unreadCount: count,
-            }
+          const {page, indexedAt: lastIndexed} = await fetchPage({
+            agent,
+            cursor: undefined,
+            limit: 40,
+            queryClient,
+            moderationOpts,
+            hideFollowNotifications: undefined,
+            reasons: [],
+            fetchAdditionalData: !!invalidate,
+          })
+          const now = new Date()
+          const lastIndexedDate = lastIndexed
+            ? new Date(lastIndexed)
+            : undefined
+          const nextCache: CachedFeedPage = {
+            usableInFeed: !!invalidate,
+            data: page,
+            syncedAt:
+              !lastIndexedDate || now > lastIndexedDate ? now : lastIndexedDate,
+            unreadCount: countUnread(page),
           }
 
           if (generation !== refreshGenerationRef.current) {
@@ -258,6 +239,23 @@ export function useUnreadNotifications() {
 
 export function useUnreadNotificationsApi() {
   return useContext(apiContext)
+}
+
+function countUnread(page: FeedPage) {
+  let num = 0
+  for (const item of page.items) {
+    if (!item.notification.isRead) {
+      num++
+    }
+    if (item.additional) {
+      for (const item2 of item.additional) {
+        if (!item2.isRead) {
+          num++
+        }
+      }
+    }
+  }
+  return num
 }
 
 export function invalidateCachedUnreadPage() {

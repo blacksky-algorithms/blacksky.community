@@ -179,7 +179,7 @@ export const GLOBAL_LABEL_DEFS: ComAtprotoLabelDefs.LabelValueDefinition[] = [
   {
     identifier: 'porn',
     severity: 'none',
-    blurs: 'media',
+    blurs: 'content',
     defaultSetting: 'hide',
     adultOnly: true,
     locales: [
@@ -193,7 +193,7 @@ export const GLOBAL_LABEL_DEFS: ComAtprotoLabelDefs.LabelValueDefinition[] = [
   {
     identifier: 'sexual',
     severity: 'none',
-    blurs: 'media',
+    blurs: 'content',
     defaultSetting: 'warn',
     adultOnly: true,
     locales: [
@@ -207,7 +207,7 @@ export const GLOBAL_LABEL_DEFS: ComAtprotoLabelDefs.LabelValueDefinition[] = [
   {
     identifier: 'nudity',
     severity: 'none',
-    blurs: 'media',
+    blurs: 'content',
     defaultSetting: 'ignore',
     adultOnly: false,
     locales: [
@@ -221,7 +221,7 @@ export const GLOBAL_LABEL_DEFS: ComAtprotoLabelDefs.LabelValueDefinition[] = [
   {
     identifier: 'graphic-media',
     severity: 'none',
-    blurs: 'media',
+    blurs: 'content',
     defaultSetting: 'warn',
     adultOnly: true,
     locales: [

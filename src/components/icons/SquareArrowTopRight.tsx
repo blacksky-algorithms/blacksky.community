@@ -1,5 +1,12 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const SquareArrowTopRight_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M14 5a1 1 0 1 1 0-2h6a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V6.414l-7.293 7.293a1 1 0 0 1-1.414-1.414L17.586 5H14ZM3 6a1 1 0 0 1 1-1h5a1 1 0 0 1 0 2H5v12h12v-4a1 1 0 1 1 2 0v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6Z',
+// tabler: external-link
+export const SquareArrowTopRight_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6',
+    'M11 13l9 -9',
+    'M15 4h5v5',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

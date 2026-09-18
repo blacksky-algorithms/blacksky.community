@@ -1,5 +1,8 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const CircleX_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm6.293-3.707a1 1 0 0 1 1.414 0L12 10.586l2.293-2.293a1 1 0 1 1 1.414 1.414L13.414 12l2.293 2.293a1 1 0 0 1-1.414 1.414L12 13.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L10.586 12 8.293 9.707a1 1 0 0 1 0-1.414Z',
+// tabler: circle-x
+export const CircleX_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M10 10l4 4m0 -4l-4 4'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

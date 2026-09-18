@@ -8,7 +8,7 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 
-import {useBrand} from '#/lib/community/BrandContext'
+import {DEFAULT_BRAND_CONFIG, useBrand} from '#/lib/community/BrandContext'
 import {fetchBrandBySlug} from '#/lib/community/resolveBrand'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
@@ -67,18 +67,6 @@ export function Signup({
     }
   }, [brand.services.pds.url, brand.metadata.slug])
 
-  const selectedCommunitySlug = state.selectedBrandSlug
-  const isCurrentBrand = selectedCommunitySlug === brand.metadata.slug
-  const {data: selectedCommunity} = useQuery({
-    queryKey: ['signup-selected-community', selectedCommunitySlug],
-    queryFn: () => fetchBrandBySlug(selectedCommunitySlug!),
-    enabled: Boolean(selectedCommunitySlug && !isCurrentBrand),
-    staleTime: 300000,
-  })
-  const availableHandles = isCurrentBrand
-    ? brand.services.pds.availableHandles
-    : selectedCommunity?.services.pds.availableHandles
-
   const activeStarterPack = useActiveStarterPack()
   const {
     data: starterPack,
@@ -98,6 +86,30 @@ export function Signup({
     isError,
     refetch,
   } = useServiceQuery(state.serviceUrl)
+
+  /*
+   * The picked community's handle domains live in its published brand config,
+   * not in the ambient brand — which native signup pins to the bundled Blacksky
+   * copy while logged out. Fetch the live config for whichever community is
+   * selected (Blacksky included, since the bundle can be stale).
+   */
+  const communitySlug =
+    state.selectedBrandSlug ?? DEFAULT_BRAND_CONFIG.metadata.slug
+  const {data: communityConfig} = useQuery({
+    queryKey: ['signup-brand-config', communitySlug],
+    queryFn: () => fetchBrandBySlug(communitySlug),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  /*
+   * On a failed or pending fetch this falls back to the ambient brand: correct
+   * on web (injected by hostname) and empty on native, which leaves every
+   * domain the PDS advertises selectable. Showing an extra domain beats
+   * blocking signup on a brand-service blip.
+   */
+  const availableHandles =
+    communityConfig?.services.pds.availableHandles ??
+    brand.services.pds.availableHandles
 
   useEffect(() => {
     if (isFetching) {
