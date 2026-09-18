@@ -1,4 +1,4 @@
-import {getCommunitySpaceUri} from '../community-post'
+import {getCommunitySpaceUri, isPeerModLabelableUri} from '../community-post'
 
 const post = (communitySpace?: unknown) =>
   ({
@@ -25,5 +25,22 @@ describe(getCommunitySpaceUri, () => {
     'at://did:plc:c/space/community.blacksky.feed/main/did:plc:a/app.bsky.feed.post/3k',
   ])('rejects absent or invalid space context: %p', communitySpace => {
     expect(getCommunitySpaceUri(post(communitySpace))).toBeUndefined()
+  })
+})
+
+describe(isPeerModLabelableUri, () => {
+  it.each([
+    'at://did:plc:a/app.bsky.feed.post/3k',
+    'at://did:plc:a/community.blacksky.feed.post/3k',
+  ])('accepts %s', uri => {
+    expect(isPeerModLabelableUri(uri)).toBe(true)
+  })
+
+  it.each([
+    'at://did:plc:a/app.bsky.feed.generator/3k',
+    'at://did:plc:a/app.bsky.feed.repost/3k',
+    'at://did:plc:c/space/community.blacksky.feed/main/did:plc:a/app.bsky.feed.post/3k',
+  ])('rejects %s', uri => {
+    expect(isPeerModLabelableUri(uri)).toBe(false)
   })
 })

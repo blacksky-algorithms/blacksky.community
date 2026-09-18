@@ -1,9 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG} from './TEMPLATE'
 
-export const HomeOpen_Stoke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M11.37 1.724a1 1 0 0 1 1.26 0l8 6.5A1 1 0 0 1 21 9v11a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-5h-2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 .37-.776l8-6.5ZM5 9.476V19h4v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5h4V9.476l-7-5.688-7 5.688Z',
+// phosphor: house-fill (fill weight)
+export const HomeOpen_Filled_Corner0_Rounded = createMultiPathSVG({
+  paths: [
+    'M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z',
+  ],
+  viewBox: '0 0 256 256',
 })
 
-export const HomeOpen_Filled_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12.63 1.724a1 1 0 0 0-1.26 0l-8 6.5A1 1 0 0 0 3 9v11a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V9a1 1 0 0 0-.37-.776l-8-6.5Z',
+// phosphor: house
+export const HomeOpen_Stoke2_Corner0_Rounded = createMultiPathSVG({
+  paths: [
+    'M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z',
+  ],
+  viewBox: '0 0 256 256',
 })

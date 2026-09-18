@@ -28,7 +28,7 @@ export function useAccountSwitcher() {
       }
       try {
         setPendingDid(account.did)
-        if (account.accessJwt) {
+        if (account.isOauthSession || account.accessJwt) {
           if (IS_WEB) {
             // We're switching accounts, which remounts the entire app.
             // On mobile, this gets us Home, but on the web we also need reset the URL.

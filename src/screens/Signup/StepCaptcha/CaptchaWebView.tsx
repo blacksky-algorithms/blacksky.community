@@ -17,6 +17,19 @@ const ALLOWED_HOSTS = [
   'api2.hcaptcha.com',
 ]
 
+export function buildAllowedHosts(serviceUrl?: string): string[] {
+  if (!serviceUrl) return ALLOWED_HOSTS
+
+  try {
+    const {host} = new URL(serviceUrl)
+    return ALLOWED_HOSTS.includes(host)
+      ? ALLOWED_HOSTS
+      : [...ALLOWED_HOSTS, host]
+  } catch {
+    return ALLOWED_HOSTS
+  }
+}
+
 /** True if the two URLs point at the same host + path (query ignored). */
 function isSameEndpoint(a: string, b: string): boolean {
   try {
@@ -92,6 +105,11 @@ export function CaptchaWebView({
       : 'blacksky.community'
   }, [state?.serviceUrl])
 
+  const allowedHosts = useMemo(
+    () => buildAllowedHosts(state?.serviceUrl),
+    [state?.serviceUrl],
+  )
+
   const wasSuccessful = useRef(false)
 
   const handleCallbackUrl = (candidateUrl: string): boolean => {
@@ -129,7 +147,7 @@ export function CaptchaWebView({
     if (handleCallbackUrl(event.url)) return false
 
     try {
-      return ALLOWED_HOSTS.includes(new URL(event.url).host)
+      return allowedHosts.includes(new URL(event.url).host)
     } catch {
       return false
     }

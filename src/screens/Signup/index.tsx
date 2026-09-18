@@ -6,8 +6,10 @@ import {AppBskyGraphStarterpack} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
+import {useQuery} from '@tanstack/react-query'
 
-import {useBrand} from '#/lib/community/BrandContext'
+import {DEFAULT_BRAND_CONFIG, useBrand} from '#/lib/community/BrandContext'
+import {fetchBrandBySlug} from '#/lib/community/resolveBrand'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
@@ -98,6 +100,30 @@ export function Signup({
     refetch,
   } = useServiceQuery(state.serviceUrl)
 
+  /*
+   * The picked community's handle domains live in its published brand config,
+   * not in the ambient brand — which native signup pins to the bundled Blacksky
+   * copy while logged out. Fetch the live config for whichever community is
+   * selected (Blacksky included, since the bundle can be stale).
+   */
+  const communitySlug =
+    state.selectedBrandSlug ?? DEFAULT_BRAND_CONFIG.metadata.slug
+  const {data: communityConfig} = useQuery({
+    queryKey: ['signup-brand-config', communitySlug],
+    queryFn: () => fetchBrandBySlug(communitySlug),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  /*
+   * On a failed or pending fetch this falls back to the ambient brand: correct
+   * on web (injected by hostname) and empty on native, which leaves every
+   * domain the PDS advertises selectable. Showing an extra domain beats
+   * blocking signup on a brand-service blip.
+   */
+  const availableHandles =
+    communityConfig?.services.pds.availableHandles ??
+    brand.services.pds.availableHandles
+
   useEffect(() => {
     if (isFetching) {
       dispatch({type: 'setIsLoading', value: true})
@@ -111,7 +137,7 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: undefined,
-        availableHandles: brand.services.pds.availableHandles,
+        availableHandles,
       })
       dispatch({
         type: 'setError',
@@ -123,11 +149,11 @@ export function Signup({
       dispatch({
         type: 'setServiceDescription',
         value: serviceInfo,
-        availableHandles: brand.services.pds.availableHandles,
+        availableHandles,
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [_, serviceInfo, isError, brand.services.pds.availableHandles])
+  }, [_, serviceInfo, isError, availableHandles])
 
   useEffect(() => {
     if (state.pendingSubmit) {

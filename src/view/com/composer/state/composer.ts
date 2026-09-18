@@ -8,7 +8,10 @@ import {
 } from '@atproto/api'
 import {nanoid} from 'nanoid/non-secure'
 
-import {type CommunityFeedTarget} from '#/lib/api/community-feed'
+import {
+  type CommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
 import {type SelfLabel} from '#/lib/moderation'
 import {insertMentionAt} from '#/lib/strings/mention-manip'
 import {shortenLinks} from '#/lib/strings/rich-text-manip'
@@ -175,6 +178,33 @@ export type ComposerAction =
       draftId: string
     }
 
+function hasSpaceVideoTarget(thread: ThreadDraft): boolean {
+  return (
+    !!thread.communitySpaceUri ||
+    isSpaceBackedFeed(thread.communityFeed?.config)
+  )
+}
+
+function clearVideosOnTargetChange(
+  state: ComposerState,
+  nextThread: ThreadDraft,
+): ComposerState {
+  if (hasSpaceVideoTarget(state.thread) === hasSpaceVideoTarget(nextThread)) {
+    return state
+  }
+
+  const posts = state.thread.posts.map(post =>
+    post.embed.media?.type === 'video'
+      ? postReducer(post, {type: 'embed_remove_video'})
+      : post,
+  )
+  return {
+    ...state,
+    isDirty: true,
+    thread: {...nextThread, posts},
+  }
+}
+
 /**
  * Threshold for picking between embed variants. <= this count uses the
  * legacy `app.bsky.embed.images` shape; > this count promotes to
@@ -227,31 +257,35 @@ export function composerReducer(
       }
     }
     case 'toggle_blacksky_only': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: !state.thread.blackskyOnly,
-          communityFeed: undefined,
-          communityFeedUri: undefined,
-          communitySpaceUri: undefined,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: !state.thread.blackskyOnly,
+        communityFeed: undefined,
+        communityFeedUri: undefined,
+        communitySpaceUri: undefined,
       }
+      return clearVideosOnTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'set_post_target': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: action.target === 'blacksky',
-          communityFeed:
-            typeof action.target === 'string' ? undefined : action.target,
-          communityFeedUri:
-            typeof action.target === 'string' ? undefined : action.target.feed,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: action.target === 'blacksky',
+        communityFeed:
+          typeof action.target === 'string' ? undefined : action.target,
+        communityFeedUri:
+          typeof action.target === 'string' ? undefined : action.target.feed,
       }
+      return clearVideosOnTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'update_post': {
       let nextPosts = state.thread.posts
@@ -466,7 +500,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
     }
     case 'embed_remove_image': {
       const prevMedia = state.embed.media
-      let nextLabels = state.labels
       if (prevMedia?.type === 'images' || prevMedia?.type === 'gallery') {
         const removedImage = action.image
         const remainingImages = prevMedia.images.filter(img => {
@@ -475,9 +508,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         let nextMedia: ImagesMedia | GalleryMedia | undefined
         if (remainingImages.length === 0) {
           nextMedia = undefined
-          if (!state.embed.link) {
-            nextLabels = []
-          }
         } else {
           // Re-pick the variant so a gallery that shrinks to <=4 demotes
           // back to the legacy `app.bsky.embed.images` shape - keeps old
@@ -486,7 +516,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         }
         return {
           ...state,
-          labels: nextLabels,
           embed: {
             ...state.embed,
             media: nextMedia,
@@ -537,13 +566,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         prevMedia.video.abortController.abort()
         nextMedia = undefined
       }
-      let nextLabels = state.labels
-      if (!state.embed.link) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           media: nextMedia,
@@ -580,13 +604,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_remove_link': {
-      let nextLabels = state.labels
-      if (!state.embed.media) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           link: undefined,
