@@ -427,34 +427,7 @@ export const ComposePost = ({
     (isSpaceBackedFeed(thread.communityFeed?.config)
       ? thread.communityFeed.config.space
       : undefined)
-
-  useEffect(() => {
-    if (!spaceTarget) return
-    for (const post of thread.posts) {
-      const media = post.embed.media
-      if (media?.type === 'images' || media?.type === 'gallery') {
-        for (const image of media.images) {
-          composerDispatch({
-            type: 'update_post',
-            postId: post.id,
-            postAction: {type: 'embed_remove_image', image},
-          })
-        }
-      } else if (media?.type === 'video') {
-        composerDispatch({
-          type: 'update_post',
-          postId: post.id,
-          postAction: {type: 'embed_remove_video'},
-        })
-      } else if (media?.type === 'gif') {
-        composerDispatch({
-          type: 'update_post',
-          postId: post.id,
-          postAction: {type: 'embed_remove_gif'},
-        })
-      }
-    }
-  }, [spaceTarget, thread.posts])
+  const isPrivateVideoTarget = !!spaceTarget
 
   // Clear error when composer content changes, but only if all posts are
   // back within the character limit.
@@ -504,9 +477,10 @@ export const ComposePost = ({
         currentDid,
         abortController.signal,
         i18n,
+        isPrivateVideoTarget,
       )
     },
-    [i18n, agent, currentDid, composerDispatch],
+    [i18n, agent, currentDid, composerDispatch, isPrivateVideoTarget],
   )
 
   const onInitVideo = useNonReactiveCallback(() => {
@@ -651,6 +625,7 @@ export const ComposePost = ({
           currentDid,
           abortController.signal,
           i18n,
+          isPrivateVideoTarget,
         )
       } catch (e) {
         logger.error('Failed to restore video from draft', {
@@ -1435,7 +1410,6 @@ export const ComposePost = ({
         languageNudgeAt={languageNudgeAt}
         openGallery={openGallery}
         textInputRef={textInputRef}
-        spaceMediaDisabled={!!spaceTarget}
       />
     </>
   )
@@ -2171,7 +2145,6 @@ function ComposerFooter({
   languageNudgeAt,
   openGallery,
   textInputRef,
-  spaceMediaDisabled,
 }: {
   post: PostDraft
   dispatch: (action: PostAction) => void
@@ -2184,7 +2157,6 @@ function ComposerFooter({
   languageNudgeAt: number
   openGallery?: boolean
   textInputRef: React.RefObject<TextInputRef | null>
-  spaceMediaDisabled: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -2221,10 +2193,9 @@ function ComposerFooter({
 
   const onSelectGif = useCallback(
     (gif: Gif) => {
-      if (spaceMediaDisabled) return
       dispatch({type: 'embed_add_gif', gif})
     },
-    [dispatch, spaceMediaDisabled],
+    [dispatch],
   )
 
   /*
@@ -2236,7 +2207,6 @@ function ComposerFooter({
 
   const onSelectAssets = useCallback<SelectMediaButtonProps['onSelectAssets']>(
     async ({type, assets, errors}) => {
-      if (spaceMediaDisabled) return
       setSelectedAssetsType(type)
 
       if (assets.length) {
@@ -2273,7 +2243,7 @@ function ComposerFooter({
         })
       })
     },
-    [post.id, onSelectVideo, onImageAdd, spaceMediaDisabled],
+    [post.id, onSelectVideo, onImageAdd],
   )
 
   return (
@@ -2295,7 +2265,7 @@ function ComposerFooter({
           ) : (
             <ToolbarWrapper style={[a.flex_row, a.align_center, a.gap_xs]}>
               <SelectMediaButton
-                disabled={spaceMediaDisabled || isMediaSelectionDisabled}
+                disabled={isMediaSelectionDisabled}
                 allowedAssetTypes={selectedAssetsType}
                 selectedAssetsCount={selectedAssetsCount}
                 onSelectAssets={onSelectAssets}
@@ -2303,18 +2273,13 @@ function ComposerFooter({
               />
               <OpenCameraBtn
                 disabled={
-                  spaceMediaDisabled
-                    ? true
-                    : media?.type === 'images' || media?.type === 'gallery'
-                      ? isMaxImages
-                      : !!media
+                  media?.type === 'images' || media?.type === 'gallery'
+                    ? isMaxImages
+                    : !!media
                 }
                 onAdd={onImageAdd}
               />
-              <SelectGifBtn
-                onSelectGif={onSelectGif}
-                disabled={spaceMediaDisabled || !!media}
-              />
+              <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
               {IS_WEB && gtPhone ? (
                 <EmojiPicker.Root nextFocusRef={textInputRef}>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
@@ -2336,11 +2301,6 @@ function ComposerFooter({
             </ToolbarWrapper>
           )}
         </LayoutAnimationConfig>
-        {spaceMediaDisabled ? (
-          <Text style={[t.atoms.text_contrast_medium, a.text_sm, a.ml_sm]}>
-            <Trans>Media isn’t available in private spaces yet.</Trans>
-          </Text>
-        ) : null}
       </View>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         {showAddButton && (
