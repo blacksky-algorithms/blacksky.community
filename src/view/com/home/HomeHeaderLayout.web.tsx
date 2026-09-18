@@ -18,6 +18,7 @@ import {useAnalytics} from '#/analytics'
 export function HomeHeaderLayout(props: {
   children: React.ReactNode
   tabBarAnchor: JSX.Element | null | undefined
+  fixed?: boolean
 }) {
   const {gtMobile} = useBreakpoints()
   if (!gtMobile) {
@@ -33,6 +34,7 @@ function HomeHeaderLayoutDesktopAndTablet({
 }: {
   children: React.ReactNode
   tabBarAnchor: JSX.Element | null | undefined
+  fixed?: boolean
 }) {
   const t = useTheme()
   const {headerHeight} = useShellLayout()
@@ -69,13 +71,15 @@ function HomeHeaderLayoutDesktopAndTablet({
         </Layout.Center>
       )}
       {tabBarAnchor}
-      <Layout.Center
-        style={[a.sticky, a.z_10, a.align_center, t.atoms.bg, {top: 0}]}
-        onLayout={e => {
-          headerHeight.set(e.nativeEvent.layout.height)
-        }}>
-        {children}
-      </Layout.Center>
+      {children && (
+        <Layout.Center
+          style={[a.sticky, a.z_10, a.align_center, t.atoms.bg, {top: 0}]}
+          onLayout={e => {
+            headerHeight.set(e.nativeEvent.layout.height)
+          }}>
+          {children}
+        </Layout.Center>
+      )}
     </>
   )
 }
