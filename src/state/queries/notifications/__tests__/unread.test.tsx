@@ -76,10 +76,36 @@ function deferred<T>() {
 }
 
 const page: FeedPage = {
-  cursor: 'next',
+  cursor: undefined,
   seenAt: new Date('2026-09-01T00:00:00.000Z'),
   items: [],
   priority: false,
+}
+
+const unreadNotification = {
+  uri: 'at://did:plc:tenant/space/community.blacksky.feed/private/did:plc:alice/app.bsky.feed.post/3kprivate',
+  cid: 'bafyreiacsg6vsw7ppwbnowzsdgstulhrwftirtcnvkcbnfgvhwjrnzfmsu',
+  author: {did: 'did:plc:alice', handle: 'alice.test'},
+  reason: 'mention',
+  record: {$type: 'app.bsky.feed.post', text: 'private'},
+  isRead: false,
+  indexedAt: '2026-09-01T00:00:00.000Z',
+}
+const visiblePage: FeedPage = {
+  ...page,
+  items: [
+    {
+      _reactKey: 'private',
+      type: 'mention',
+      notification: unreadNotification,
+      additional: [unreadNotification, {...unreadNotification, isRead: true}],
+    },
+    {
+      _reactKey: 'read',
+      type: 'mention',
+      notification: {...unreadNotification, isRead: true},
+    },
+  ],
 }
 
 describe('notification unread synchronization', () => {
@@ -115,83 +141,48 @@ describe('notification unread synchronization', () => {
     )
   }
 
-  it('uses count-only polling without fetching or hydrating a page', async () => {
+  it('clears the badge when the filtered list is empty', async () => {
     mockGetUnreadCount.mockResolvedValue({count: 6})
+    mockFetchPage.mockResolvedValue({page, indexedAt: ''})
     const {result} = setup()
-
     await act(() => result.current.api.checkUnread())
-
-    expect(result.current.count).toBe('6')
-    expect(mockFetchPage).not.toHaveBeenCalled()
+    expect(result.current.count).toBe('')
+    expect(mockGetUnreadCount).not.toHaveBeenCalled()
+    expect(mockFetchPage).toHaveBeenCalledWith(
+      expect.objectContaining({fetchAdditionalData: false, reasons: []}),
+    )
     expect(result.current.api.getCachedUnreadPage()).toBeUndefined()
   })
 
-  it('commits an invalidating page and authoritative count only after both resolve', async () => {
-    const countRequest = deferred<{count: number}>()
-    const pageRequest = deferred<{page: FeedPage; indexedAt: string}>()
-    mockGetUnreadCount.mockReturnValue(countRequest.promise)
-    mockFetchPage.mockReturnValue(pageRequest.promise)
+  it('counts only unread entries and unread members of groups', async () => {
+    mockFetchPage.mockResolvedValue({page: visiblePage, indexedAt: ''})
     const {result} = setup()
-
-    let refresh!: Promise<void>
-    act(() => {
-      refresh = result.current.api.checkUnread({invalidate: true})
-    })
-    pageRequest.resolve({
-      page,
-      indexedAt: '2099-09-01T00:00:00.000Z',
-    })
-    await act(async () => Promise.resolve())
-    expect(result.current.count).toBe('')
-    expect(result.current.api.getCachedUnreadPage()).toBeUndefined()
-
-    countRequest.resolve({count: 7})
-    await act(() => refresh)
-
-    expect(result.current.count).toBe('7')
-    expect(result.current.api.getCachedUnreadPage()).toBe(page)
+    await act(() => result.current.api.checkUnread({invalidate: true}))
+    expect(result.current.count).toBe('2')
+    expect(result.current.api.getCachedUnreadPage()).toBe(visiblePage)
+    expect(mockGetUnreadCount).not.toHaveBeenCalled()
     expect(mockFetchPage).toHaveBeenCalledWith(
       expect.objectContaining({fetchAdditionalData: true, reasons: []}),
     )
     expect(mockTruncateAndInvalidate).toHaveBeenCalledTimes(2)
   })
 
-  it.each(['count', 'page'] as const)(
-    'preserves the prior badge and cache when the %s request fails',
-    async failure => {
-      mockGetUnreadCount.mockResolvedValueOnce({count: 3})
-      mockFetchPage.mockResolvedValueOnce({
-        page,
-        indexedAt: '2026-09-01T00:00:00.000Z',
-      })
-      const {result} = setup()
-      await act(() => result.current.api.checkUnread({invalidate: true}))
-      expect(result.current.count).toBe('3')
-
-      const error = new Error(`${failure} failed`)
-      mockGetUnreadCount.mockImplementationOnce(() =>
-        failure === 'count'
-          ? Promise.reject(error)
-          : Promise.resolve({count: 9}),
-      )
-      mockFetchPage.mockImplementationOnce(() =>
-        failure === 'page'
-          ? Promise.reject(error)
-          : Promise.resolve({page: {...page, cursor: 'new'}, indexedAt: ''}),
-      )
-
-      await expect(
-        act(() => result.current.api.checkUnread({invalidate: true})),
-      ).rejects.toBe(error)
-      expect(result.current.count).toBe('3')
-      expect(result.current.api.getCachedUnreadPage()).toBe(page)
-    },
-  )
+  it('preserves the prior badge and cache when the page request fails', async () => {
+    mockFetchPage.mockResolvedValueOnce({page: visiblePage, indexedAt: ''})
+    const {result} = setup()
+    await act(() => result.current.api.checkUnread({invalidate: true}))
+    expect(result.current.count).toBe('2')
+    const error = new Error('page failed')
+    mockFetchPage.mockRejectedValueOnce(error)
+    await expect(
+      act(() => result.current.api.checkUnread({invalidate: true})),
+    ).rejects.toBe(error)
+    expect(result.current.count).toBe('2')
+    expect(result.current.api.getCachedUnreadPage()).toBe(visiblePage)
+  })
 
   it('prevents an older refresh from resurrecting the badge after mark-all-read', async () => {
-    const countRequest = deferred<{count: number}>()
     const pageRequest = deferred<{page: FeedPage; indexedAt: string}>()
-    mockGetUnreadCount.mockReturnValue(countRequest.promise)
     mockFetchPage.mockReturnValue(pageRequest.promise)
     const {result} = setup()
 
@@ -200,9 +191,8 @@ describe('notification unread synchronization', () => {
       refresh = result.current.api.checkUnread({invalidate: true})
     })
     await act(() => result.current.api.markAllRead())
-    countRequest.resolve({count: 12})
     pageRequest.resolve({
-      page,
+      page: visiblePage,
       indexedAt: '2099-09-01T00:00:00.000Z',
     })
     await act(() => refresh)
@@ -217,9 +207,7 @@ describe('notification unread synchronization', () => {
   })
 
   it('prevents an older refresh from overwriting a broadcast badge', async () => {
-    const countRequest = deferred<{count: number}>()
     const pageRequest = deferred<{page: FeedPage; indexedAt: string}>()
-    mockGetUnreadCount.mockReturnValue(countRequest.promise)
     mockFetchPage.mockReturnValue(pageRequest.promise)
     const {result} = setup()
 
@@ -232,9 +220,8 @@ describe('notification unread synchronization', () => {
     })
     expect(result.current.count).toBe('4')
 
-    countRequest.resolve({count: 12})
     pageRequest.resolve({
-      page,
+      page: visiblePage,
       indexedAt: '2099-09-01T00:00:00.000Z',
     })
     await act(() => refresh)
