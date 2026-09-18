@@ -4,6 +4,15 @@ import {IS_ANDROID, IS_WEB} from '#/env'
 import {type Device, device} from '#/storage'
 
 const WEB_FONT_FAMILIES = `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
+const WEB_MONO_FONT_FAMILIES = `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`
+
+/**
+ * Bundled brand fonts that live outside the theme font. A caller opts into one
+ * of these via the `a.font_mono` / `a.font_heading` atoms; {@link applyFonts}
+ * honors the family instead of clobbering it with the theme font.
+ */
+export const MONO_FONT_FAMILY = 'AzeretMonoVariable'
+export const HEADING_FONT_FAMILY = 'BasteB'
 
 const factor = 0.0625 // 1 - (15/16)
 const fontScaleMultipliers: Record<Device['fontScale'], number> = {
@@ -38,6 +47,23 @@ export function setFontFamily(fontFamily: Device['fontFamily']) {
  * Unused fonts are commented out, but the files are there if we need them.
  */
 export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
+  /*
+   * A caller that explicitly opts into a bundled brand font keeps that family;
+   * the theme font must not overwrite it.
+   */
+  if (style.fontFamily === MONO_FONT_FAMILY) {
+    if (IS_WEB) {
+      style.fontFamily += `, ${WEB_MONO_FONT_FAMILIES}`
+    }
+    return
+  }
+  if (style.fontFamily === HEADING_FONT_FAMILY) {
+    if (IS_WEB) {
+      style.fontFamily += `, ${WEB_FONT_FAMILIES}`
+    }
+    return
+  }
+
   if (fontFamily === 'theme') {
     if (IS_ANDROID) {
       style.fontFamily =

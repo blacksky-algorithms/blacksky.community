@@ -8,20 +8,23 @@ import {
 
 type OnboardingScreen =
   | 'profile'
-  | 'interests'
-  | 'suggested-accounts'
-  | 'suggested-starterpacks'
-  | 'find-contacts-intro'
-  | 'find-contacts'
+  | 'pin-feeds'
+  | 'belong'
+  | 'blacksky-only'
+  | 'assembly'
   | 'finished'
 
 export type OnboardingState = {
+  guidelinesAccepted: boolean
   screens: Record<OnboardingScreen, boolean>
   activeStep: OnboardingScreen
   stepTransitionDirection: 'Forward' | 'Backward'
 
   interestsStepResults: {
     selectedInterests: string[]
+  }
+  pinFeedsStepResults: {
+    selectedFeedUris: string[]
   }
   profileStepResults: {
     isCreatedAvatar: boolean
@@ -42,6 +45,7 @@ export type OnboardingState = {
 }
 
 export type OnboardingAction =
+  | {type: 'setGuidelinesAccepted'; value: boolean}
   | {
       type: 'next'
     }
@@ -54,6 +58,10 @@ export type OnboardingAction =
   | {
       type: 'setInterestsStepResults'
       selectedInterests: string[]
+    }
+  | {
+      type: 'setPinFeedsStepResults'
+      selectedFeedUris: string[]
     }
   | {
       type: 'setProfileStepResults'
@@ -69,37 +77,28 @@ export type OnboardingAction =
         | undefined
     }
 
-export function createInitialOnboardingState(
-  {
-    suggestedAccountsStepEnabled,
-    starterPacksStepEnabled,
-    findContactsStepEnabled,
-  }: {
-    suggestedAccountsStepEnabled: boolean
-    starterPacksStepEnabled: boolean
-    findContactsStepEnabled: boolean
-  } = {
-    suggestedAccountsStepEnabled: true,
-    starterPacksStepEnabled: true,
-    findContactsStepEnabled: false,
-  },
-): OnboardingState {
+export function createInitialOnboardingState(opts?: {
+  blackskyOnly?: boolean
+}): OnboardingState {
   const screens: OnboardingState['screens'] = {
     profile: true,
-    interests: true,
-    'suggested-accounts': suggestedAccountsStepEnabled,
-    'suggested-starterpacks': starterPacksStepEnabled,
-    'find-contacts-intro': findContactsStepEnabled,
-    'find-contacts': findContactsStepEnabled,
+    'pin-feeds': false,
+    belong: true,
+    'blacksky-only': opts?.blackskyOnly ?? true,
+    assembly: true,
     finished: true,
   }
 
   return {
+    guidelinesAccepted: false,
     screens,
     activeStep: 'profile',
     stepTransitionDirection: 'Forward',
     interestsStepResults: {
       selectedInterests: [],
+    },
+    pinFeedsStepResults: {
+      selectedFeedUris: [],
     },
     profileStepResults: {
       isCreatedAvatar: false,
@@ -125,6 +124,10 @@ export function reducer(
   const stepOrder = getStepOrder(s)
 
   switch (a.type) {
+    case 'setGuidelinesAccepted': {
+      next.guidelinesAccepted = a.value
+      break
+    }
     case 'next': {
       const nextIndex = stepOrder.indexOf(next.activeStep) + 1
       const nextStep = stepOrder[nextIndex]
@@ -144,16 +147,18 @@ export function reducer(
       break
     }
     case 'finish': {
-      next = createInitialOnboardingState({
-        suggestedAccountsStepEnabled: s.screens['suggested-accounts'],
-        starterPacksStepEnabled: s.screens['suggested-starterpacks'],
-        findContactsStepEnabled: s.screens['find-contacts'],
-      })
+      next = createInitialOnboardingState()
       break
     }
     case 'setInterestsStepResults': {
       next.interestsStepResults = {
         selectedInterests: a.selectedInterests,
+      }
+      break
+    }
+    case 'setPinFeedsStepResults': {
+      next.pinFeedsStepResults = {
+        selectedFeedUris: a.selectedFeedUris,
       }
       break
     }
@@ -190,10 +195,13 @@ export function reducer(
   return state
 }
 
-function getStepOrder(s: OnboardingState): OnboardingScreen[] {
+export function getStepOrder(s: OnboardingState): OnboardingScreen[] {
   return [
     s.screens.profile && ('profile' as const),
-    s.screens.interests && ('interests' as const),
+    s.screens['pin-feeds'] && ('pin-feeds' as const),
+    s.screens.belong && ('belong' as const),
+    s.screens['blacksky-only'] && ('blacksky-only' as const),
+    s.screens.assembly && ('assembly' as const),
     s.screens.finished && ('finished' as const),
   ].filter(x => !!x)
 }

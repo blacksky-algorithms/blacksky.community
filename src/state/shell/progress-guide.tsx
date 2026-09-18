@@ -17,7 +17,7 @@ export enum ProgressGuideAction {
   Follow = 'follow',
 }
 
-type ProgressGuideName = 'like-10-and-follow-7' | 'follow-10'
+type ProgressGuideName = 'like-10-and-follow-7' | 'follow-10' | 'welcome'
 
 /**
  * Progress Guides that extend this interface must specify their name in the `guide` field, so it can be used as a discriminated union
@@ -39,7 +39,12 @@ export interface Follow10ProgressGuide extends BaseProgressGuide {
   numFollows: number
 }
 
+export interface WelcomeProgressGuide extends BaseProgressGuide {
+  guide: 'welcome'
+}
+
 export type ProgressGuide =
+  | WelcomeProgressGuide
   | Like10AndFollow7ProgressGuide
   | Follow10ProgressGuide
   | undefined
@@ -118,7 +123,14 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const controls = useMemo(() => {
     return {
       startProgressGuide(guide: ProgressGuideName) {
-        if (guide === 'like-10-and-follow-7') {
+        if (guide === 'welcome') {
+          const guideObj = {
+            guide: 'welcome',
+            isComplete: false,
+          } satisfies ProgressGuide
+          setLocalGuideState(guideObj)
+          void mutateAsync(guideObj)
+        } else if (guide === 'like-10-and-follow-7') {
           const guideObj = {
             guide: 'like-10-and-follow-7',
             numLikes: 0,
@@ -126,7 +138,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             isComplete: false,
           } satisfies ProgressGuide
           setLocalGuideState(guideObj)
-          mutateAsync(guideObj)
+          void mutateAsync(guideObj)
         } else if (guide === 'follow-10') {
           const guideObj = {
             guide: 'follow-10',
@@ -134,13 +146,13 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             isComplete: false,
           } satisfies ProgressGuide
           setLocalGuideState(guideObj)
-          mutateAsync(guideObj)
+          void mutateAsync(guideObj)
         }
       },
 
       endProgressGuide() {
         setLocalGuideState(undefined)
-        mutateAsync(undefined)
+        void mutateAsync(undefined)
         ax.metric('progressGuide:hide', {})
       },
 
@@ -200,7 +212,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         }
 
         setLocalGuideState(guide)
-        mutateAsync(guide?.isComplete ? undefined : guide)
+        void mutateAsync(guide?.isComplete ? undefined : guide)
       },
     }
   }, [ax, activeProgressGuide, mutateAsync, setLocalGuideState])

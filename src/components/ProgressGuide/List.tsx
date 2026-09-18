@@ -21,6 +21,7 @@ import {atoms as a, useBreakpoints, useLayoutBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'
 import {Person_Filled_Corner2_Rounded as PersonIcon} from '#/components/icons/Person'
 import {TimesLarge_Stroke2_Corner0_Rounded as Times} from '#/components/icons/Times'
+import {Eyebrow} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import type * as bsky from '#/types/bsky'
 import {ProgressGuideTask} from './Task'
@@ -34,6 +35,7 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
   const {gtPhone} = useBreakpoints()
   const {rightNavVisible} = useLayoutBreakpoints()
   const {currentAccount} = useSession()
+  const welcomeGuide = useProgressGuide('welcome')
   const followProgressGuide = useProgressGuide('follow-10')
   const followAndLikeProgressGuide = useProgressGuide('like-10-and-follow-7')
   const guide = followProgressGuide || followAndLikeProgressGuide
@@ -52,6 +54,38 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
       endProgressGuide()
     }
   }, [shouldEndGuide, endProgressGuide])
+
+  if (welcomeGuide) {
+    return (
+      <View
+        testID="onboardingWelcome"
+        style={[
+          a.p_lg,
+          a.gap_sm,
+          a.rounded_md,
+          {backgroundColor: '#211f36'},
+          style,
+        ]}>
+        <View style={[a.flex_row, a.justify_between, a.align_center]}>
+          <View style={a.flex_1}>
+            <Eyebrow label={_(msg`Welcome to ${brand.metadata.displayName}`)} />
+          </View>
+          <Button
+            variant="ghost"
+            size="tiny"
+            color="primary"
+            shape="round"
+            label={_(msg`Dismiss welcome message`)}
+            onPress={endProgressGuide}>
+            <ButtonIcon icon={Times} />
+          </Button>
+        </View>
+        <Text style={[a.text_sm, a.leading_snug, {color: '#F8FAF9'}]}>
+          <Trans>Make your first post to announce your arrival.</Trans>
+        </Text>
+      </View>
+    )
+  }
 
   if (shouldEndGuide) {
     return null
