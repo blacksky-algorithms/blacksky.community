@@ -274,7 +274,7 @@ msgid "{0} of {1}"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:196
+#: src/view/com/auth/SplashScreen.web.tsx:191
 msgid "{0} on GitHub"
 msgstr "{0} on GitHub"
 
@@ -285,7 +285,7 @@ msgid "{0} out of 50"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:191
+#: src/view/com/auth/SplashScreen.web.tsx:186
 msgid "{0} Privacy Policy"
 msgstr "{0} Privacy Policy"
 
@@ -298,7 +298,7 @@ msgstr ""
 #. placeholder {0}: brand.metadata.displayName
 #. placeholder {0}: brand.web.title
 #: src/screens/Takendown.tsx:216
-#: src/view/com/auth/SplashScreen.web.tsx:186
+#: src/view/com/auth/SplashScreen.web.tsx:181
 msgid "{0} Terms of Service"
 msgstr "{0} Terms of Service"
 
@@ -927,7 +927,7 @@ msgstr "A selected recipient is not followed by the sender."
 #: src/screens/Settings/AboutSettings.tsx:76
 #: src/screens/Settings/Settings.tsx:257
 #: src/screens/Settings/Settings.tsx:260
-#: src/view/com/auth/SplashScreen.web.tsx:183
+#: src/view/com/auth/SplashScreen.web.tsx:178
 msgid "About"
 msgstr ""
 
@@ -3369,7 +3369,7 @@ msgstr ""
 #: src/screens/GroupInviteLanding.tsx:101
 #: src/screens/Messages/JoinRequest.tsx:310
 #: src/view/com/auth/SplashScreen.tsx:107
-#: src/view/com/auth/SplashScreen.web.tsx:118
+#: src/view/com/auth/SplashScreen.web.tsx:113
 #: src/view/shell/bottom-bar/BottomBar.tsx:340
 #: src/view/shell/bottom-bar/BottomBar.tsx:344
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:232
@@ -3427,7 +3427,7 @@ msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:304
 #: src/view/com/auth/SplashScreen.tsx:100
-#: src/view/com/auth/SplashScreen.web.tsx:110
+#: src/view/com/auth/SplashScreen.web.tsx:105
 msgid "Create new account"
 msgstr ""
 
@@ -5455,7 +5455,7 @@ msgstr ""
 msgid "GIF uploaded"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:198
+#: src/view/com/auth/SplashScreen.web.tsx:193
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -6448,7 +6448,7 @@ msgid "Learn More"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:181
+#: src/view/com/auth/SplashScreen.web.tsx:176
 msgid "Learn more about {0}"
 msgstr "Learn more about {0}"
 
@@ -8210,7 +8210,7 @@ msgid "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {
 msgstr "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {# images}}, or a single video or GIF."
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:112
+#: src/view/com/auth/SplashScreen.web.tsx:107
 msgid "Opens flow to create a new {0} account"
 msgstr "Opens flow to create a new {0} account"
 
@@ -8220,7 +8220,7 @@ msgid "Opens flow to create a new Blacksky account"
 msgstr "Opens flow to create a new Blacksky account"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:126
+#: src/view/com/auth/SplashScreen.web.tsx:121
 msgid "Opens flow to sign in to your existing {0} account"
 msgstr "Opens flow to sign in to your existing {0} account"
 
@@ -8934,7 +8934,7 @@ msgstr ""
 msgid "Primary language"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:193
+#: src/view/com/auth/SplashScreen.web.tsx:188
 #: src/view/shell/desktop/RightNav.tsx:125
 #: src/view/shell/desktop/RightNav.tsx:126
 msgid "Privacy"
@@ -10768,8 +10768,8 @@ msgstr ""
 #: src/screens/Search/SearchResults.tsx:303
 #: src/view/com/auth/SplashScreen.tsx:118
 #: src/view/com/auth/SplashScreen.tsx:124
-#: src/view/com/auth/SplashScreen.web.tsx:124
-#: src/view/com/auth/SplashScreen.web.tsx:132
+#: src/view/com/auth/SplashScreen.web.tsx:119
+#: src/view/com/auth/SplashScreen.web.tsx:127
 #: src/view/shell/bottom-bar/BottomBar.tsx:349
 #: src/view/shell/bottom-bar/BottomBar.tsx:353
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:242
@@ -11473,7 +11473,7 @@ msgstr ""
 msgid "Temporarily deactivate your account"
 msgstr "Temporarily deactivate your account"
 
-#: src/view/com/auth/SplashScreen.web.tsx:188
+#: src/view/com/auth/SplashScreen.web.tsx:183
 #: src/view/shell/desktop/RightNav.tsx:132
 #: src/view/shell/desktop/RightNav.tsx:133
 msgid "Terms"
@@ -13206,7 +13206,7 @@ msgstr ""
 msgid "View your default post interaction settings"
 msgstr ""
 
-#: src/view/com/home/HomeHeaderLayout.web.tsx:59
+#: src/view/com/home/HomeHeaderLayout.web.tsx:57
 #: src/view/com/home/HomeHeaderLayoutMobile.tsx:84
 msgid "View your feeds and explore more"
 msgstr ""
