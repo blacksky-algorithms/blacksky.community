@@ -2,7 +2,7 @@ import {useEffect, useReducer, useState} from 'react'
 import {AppState, type AppStateStatus, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
-import {AppBskyGraphStarterpack} from '@atproto/api'
+import {AppBskyGraphStarterpack, XRPCError} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -84,6 +84,7 @@ export function Signup({
     data: serviceInfo,
     isFetching,
     isError,
+    error: serviceError,
     refetch,
   } = useServiceQuery(state.serviceUrl)
 
@@ -128,9 +129,13 @@ export function Signup({
       })
       dispatch({
         type: 'setError',
-        value: _(
-          msg`Unable to contact your service. Please check your Internet connection.`,
-        ),
+        value:
+          serviceError instanceof XRPCError &&
+          serviceError.error === 'RateLimitExceeded'
+            ? _(
+                msg`Your service is receiving too many requests. Please wait a few minutes and try again.`,
+              )
+            : _(msg`Unable to contact your service. Please try again shortly.`),
       })
     } else if (serviceInfo) {
       dispatch({
@@ -140,7 +145,7 @@ export function Signup({
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [_, serviceInfo, isError, availableHandles])
+  }, [_, serviceInfo, isError, serviceError, availableHandles])
 
   useEffect(() => {
     if (state.pendingSubmit) {
