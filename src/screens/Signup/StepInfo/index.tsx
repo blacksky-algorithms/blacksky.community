@@ -11,7 +11,7 @@ import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
 import {SignupStep, useSignupContext} from '#/screens/Signup/state'
 import {Policies} from '#/screens/Signup/StepInfo/Policies'
-import {atoms as a, native, useTheme} from '#/alf'
+import {atoms as a, native, useBreakpoints, useTheme} from '#/alf'
 import * as Admonition from '#/components/Admonition'
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
@@ -31,6 +31,7 @@ import {
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {IS_NATIVE} from '#/env'
 
 function sanitizeDate(date: Date): Date {
   if (!date || date.toString() === 'Invalid Date') {
@@ -55,6 +56,7 @@ export function StepInfo({
 }) {
   const {t: l, i18n} = useLingui()
   const t = useTheme()
+  const {gtMobile} = useBreakpoints()
   const ax = useAnalytics()
   const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
@@ -348,18 +350,20 @@ export function StepInfo({
               !state.serviceDescription)
           }
         />
-        <PrimaryButton
-          testID="joinAnotherCommunity"
-          variant="outline"
-          label={l`Join another community`}
-          onPress={() => {
-            dispatch({type: 'setEmail', value: email})
-            dispatch({type: 'setPassword', value: password})
-            dispatch({type: 'setInviteCode', value: inviteCode})
-            dispatch({type: 'clearError'})
-            dispatch({type: 'setStep', value: SignupStep.COMMUNITY})
-          }}
-        />
+        {(IS_NATIVE || !gtMobile) && (
+          <PrimaryButton
+            testID="joinAnotherCommunity"
+            variant="outline"
+            label={l`Join another community`}
+            onPress={() => {
+              dispatch({type: 'setEmail', value: email})
+              dispatch({type: 'setPassword', value: password})
+              dispatch({type: 'setInviteCode', value: inviteCode})
+              dispatch({type: 'clearError'})
+              dispatch({type: 'setStep', value: SignupStep.COMMUNITY})
+            }}
+          />
+        )}
       </Footer>
     </View>
   )
