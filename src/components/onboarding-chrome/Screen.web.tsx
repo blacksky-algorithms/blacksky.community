@@ -19,5 +19,5 @@ export function Screen({children}: React.PropsWithChildren) {
 }
 
 export function Footer({children}: React.PropsWithChildren) {
-  return <View style={[a.gap_md, a.pt_2xl]}>{children}</View>
+  return <View style={[a.gap_md, a.pt_2xl, a.mt_auto]}>{children}</View>
 }
