@@ -2684,7 +2684,7 @@ msgstr ""
 msgid "Choose your own timeline! Feeds built by the community help you find content you love."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:257
+#: src/screens/Signup/StepInfo/index.tsx:259
 msgid "Choose your password"
 msgstr ""
 
@@ -3087,7 +3087,7 @@ msgstr ""
 #: src/screens/Settings/AppPasswords.tsx:126
 #: src/screens/Signup/StepCommunity/index.tsx:130
 #: src/screens/Signup/StepHandle/index.tsx:355
-#: src/screens/Signup/StepInfo/index.tsx:340
+#: src/screens/Signup/StepInfo/index.tsx:342
 msgid "Continue"
 msgstr ""
 
@@ -3563,8 +3563,8 @@ msgstr ""
 msgid "Dark theme"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:276
-#: src/screens/Signup/StepInfo/index.tsx:296
+#: src/screens/Signup/StepInfo/index.tsx:278
+#: src/screens/Signup/StepInfo/index.tsx:298
 msgid "Date of birth"
 msgstr ""
 
@@ -4252,7 +4252,7 @@ msgid "Either the creator of this list has blocked you or you have blocked the c
 msgstr ""
 
 #: src/screens/Settings/AccountSettings.tsx:84
-#: src/screens/Signup/StepInfo/index.tsx:223
+#: src/screens/Signup/StepInfo/index.tsx:225
 msgid "Email"
 msgstr ""
 
@@ -4432,12 +4432,12 @@ msgstr ""
 msgid "Enter your birthdate"
 msgstr "Enter your birthdate"
 
-#: src/screens/Signup/StepInfo/index.tsx:179
+#: src/screens/Signup/StepInfo/index.tsx:181
 msgid "Enter your details to create an account."
 msgstr "Enter your details to create an account."
 
 #: src/screens/Login/ForgotPasswordForm.tsx:100
-#: src/screens/Signup/StepInfo/index.tsx:226
+#: src/screens/Signup/StepInfo/index.tsx:228
 msgid "Enter your email address"
 msgstr ""
 
@@ -5513,7 +5513,7 @@ msgstr ""
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:83
 #: src/screens/Messages/components/InviteLinkDialog.tsx:220
 #: src/screens/Messages/components/InviteLinkDialog.tsx:227
-#: src/screens/Signup/StepInfo/index.tsx:170
+#: src/screens/Signup/StepInfo/index.tsx:172
 msgid "Get started"
 msgstr ""
 
@@ -6057,7 +6057,7 @@ msgstr ""
 msgid "If none are selected, all languages will be shown in your feeds."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:321
+#: src/screens/Signup/StepInfo/index.tsx:323
 msgid "If you are not yet an adult according to the laws of your country, your parent or legal guardian must read these Terms on your behalf."
 msgstr ""
 
@@ -6304,7 +6304,7 @@ msgstr ""
 msgid "Invite {name} to join Bluesky"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:196
+#: src/screens/Signup/StepInfo/index.tsx:198
 msgid "Invite code"
 msgstr ""
 
@@ -6392,7 +6392,7 @@ msgstr "Is this your account?"
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:339
+#: src/screens/Signup/StepInfo/index.tsx:341
 msgid "It's correct"
 msgstr ""
 
@@ -6416,7 +6416,7 @@ msgid "Join"
 msgstr "Join"
 
 #: src/screens/Signup/StepCommunity/index.tsx:64
-#: src/screens/Signup/StepInfo/index.tsx:354
+#: src/screens/Signup/StepInfo/index.tsx:357
 msgid "Join another community"
 msgstr "Join another community"
 
@@ -8490,7 +8490,7 @@ msgstr "Pass/Unsure"
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:146
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:247
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:386
-#: src/screens/Signup/StepInfo/index.tsx:254
+#: src/screens/Signup/StepInfo/index.tsx:256
 msgid "Password"
 msgstr ""
 
@@ -8717,7 +8717,7 @@ msgid "Please choose your handle."
 msgstr ""
 
 #: src/screens/Signup/state.ts:335
-#: src/screens/Signup/StepInfo/index.tsx:135
+#: src/screens/Signup/StepInfo/index.tsx:137
 msgid "Please choose your password."
 msgstr ""
 
@@ -8733,7 +8733,7 @@ msgstr ""
 msgid "Please confirm your email address to upload videos."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:125
+#: src/screens/Signup/StepInfo/index.tsx:127
 msgid "Please double-check that you have entered your email address correctly."
 msgstr ""
 
@@ -8785,11 +8785,11 @@ msgid "Please enter your account password to manage app passwords."
 msgstr "Please enter your account password to manage app passwords."
 
 #: src/screens/Signup/state.ts:319
-#: src/screens/Signup/StepInfo/index.tsx:108
+#: src/screens/Signup/StepInfo/index.tsx:110
 msgid "Please enter your email."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:101
+#: src/screens/Signup/StepInfo/index.tsx:103
 msgid "Please enter your invite code."
 msgstr ""
 
@@ -9879,7 +9879,7 @@ msgstr ""
 msgid "Require an email code to sign in to your account."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:199
+#: src/screens/Signup/StepInfo/index.tsx:201
 msgid "Required for this provider"
 msgstr ""
 
@@ -9975,7 +9975,7 @@ msgstr ""
 #: src/screens/PostThread/components/ThreadError.tsx:81
 #: src/screens/PostThread/components/ThreadError.tsx:87
 #: src/screens/Signup/BackNextButtons.tsx:54
-#: src/screens/Signup/StepInfo/index.tsx:337
+#: src/screens/Signup/StepInfo/index.tsx:339
 #: src/view/com/util/error/ErrorMessage.tsx:55
 #: src/view/com/util/error/ErrorScreen.tsx:91
 #: src/view/screens/Storybook/Admonitions.tsx:64
@@ -10479,7 +10479,7 @@ msgstr ""
 msgid "Select which languages you want your subscribed feeds to include. If none are selected, all languages will be shown."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:297
+#: src/screens/Signup/StepInfo/index.tsx:299
 msgid "Select your date of birth"
 msgstr ""
 
@@ -14058,7 +14058,7 @@ msgstr ""
 msgid "You may only add up to 3 feeds"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:311
+#: src/screens/Signup/StepInfo/index.tsx:313
 msgid "You must be 13 years of age or older to create an account."
 msgstr "You must be 13 years of age or older to create an account."
 
@@ -14162,11 +14162,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:202
+#: src/screens/Signup/index.tsx:201
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:207
+#: src/screens/Signup/index.tsx:206
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -14330,7 +14330,7 @@ msgstr "Your device clock appears to be incorrect. Please check your system time
 #: src/screens/Login/ForgotPasswordForm.tsx:52
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:84
 #: src/screens/Signup/state.ts:327
-#: src/screens/Signup/StepInfo/index.tsx:115
+#: src/screens/Signup/StepInfo/index.tsx:117
 msgid "Your email appears to be invalid."
 msgstr ""
 
@@ -14390,7 +14390,7 @@ msgstr "Your name, avatar, the name of the group chat, and the number of members
 msgid "Your password has been changed successfully! Please use your new password when you sign in to {0} from now on."
 msgstr "Your password has been changed successfully! Please use your new password when you sign in to {0} from now on."
 
-#: src/screens/Signup/StepInfo/index.tsx:142
+#: src/screens/Signup/StepInfo/index.tsx:144
 msgid "Your password must be at least 8 characters long."
 msgstr ""
 
@@ -14433,7 +14433,7 @@ msgstr ""
 msgid "Your selected interests help us serve you content you care about."
 msgstr ""
 
-#: src/screens/Signup/index.tsx:135
+#: src/screens/Signup/index.tsx:136
 msgid "Your service is receiving too many requests. Please wait a few minutes and try again."
 msgstr "Your service is receiving too many requests. Please wait a few minutes and try again."
 
