@@ -1796,7 +1796,7 @@
       "count": 2
     },
     "@typescript-eslint/no-floating-promises": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 2
@@ -1834,7 +1834,7 @@
       "count": 3
     },
     "@typescript-eslint/no-floating-promises": {
-      "count": 3
+      "count": 2
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 3

@@ -119,7 +119,7 @@ export class CustomFeedAPI implements FeedAPI {
       if (!this.agent.did) throw signInRequiredError()
       const page = await fetchSpaceFeed(this.agent, spaceFeed, {cursor, limit})
       return {
-        cursor: page.feed.length ? page.cursor : undefined,
+        cursor: page.cursor,
         feed: page.feed,
       }
     }
@@ -159,7 +159,7 @@ export class CustomFeedAPI implements FeedAPI {
         res.data.feed = res.data.feed.slice(0, limit)
       }
       return {
-        cursor: res.data.feed.length ? res.data.cursor : undefined,
+        cursor: res.data.cursor,
         feed: res.data.feed,
       }
     }
@@ -227,7 +227,7 @@ async function loggedOutFetch({
   data = res.ok
     ? (jsonStringToLex(await res.text()) as GetCustomFeed.OutputSchema)
     : null
-  if (data?.feed?.length) {
+  if (data) {
     return {
       success: true,
       data,

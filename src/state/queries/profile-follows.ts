@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
+import {getNextCursor} from '#/state/queries/pagination'
 import {useAgent} from '#/state/session'
 
 const PAGE_SIZE = 30
@@ -45,7 +46,8 @@ export function useProfileFollowsQuery(
       return res.data
     },
     initialPageParam: undefined,
-    getNextPageParam: lastPage => lastPage.cursor,
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) =>
+      getNextCursor(lastPage.cursor, allPageParams),
     enabled: !!did,
   })
 }
