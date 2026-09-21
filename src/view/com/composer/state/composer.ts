@@ -190,7 +190,11 @@ function clearVideosOnTargetChange(
   nextThread: ThreadDraft,
 ): ComposerState {
   if (hasSpaceVideoTarget(state.thread) === hasSpaceVideoTarget(nextThread)) {
-    return state
+    return {
+      ...state,
+      isDirty: true,
+      thread: nextThread,
+    }
   }
 
   const posts = state.thread.posts.map(post =>
