@@ -1252,6 +1252,9 @@ export type Events = {
   // user dismisses the banner
   'contacts:nux:bannerDismissed': {}
 
+  'testflightMigration:bannerDisplayed': {}
+  'testflightMigration:updatePressed': {}
+
   // user lands on the contacts step
   'onboarding:contacts:presented': {}
   // user pressed "Import Contacts" button to begin flow
