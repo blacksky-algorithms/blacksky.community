@@ -34,6 +34,7 @@ import {SigninDialog} from '#/components/dialogs/Signin'
 import {Lightbox} from '#/components/Lightbox'
 import {GlobalReportDialog} from '#/components/moderation/ReportDialog'
 import {Outlet as PortalOutlet} from '#/components/Portal'
+import {TestFlightAppStoreMigrationBanner} from '#/components/TestFlightAppStoreMigrationBanner'
 import {PassiveAnalytics} from '#/analytics/PassiveAnalytics'
 import {IS_ANDROID, IS_IOS, IS_LIQUID_GLASS} from '#/env'
 import {RoutesContainer, TabsNavigator} from '#/Navigation'
@@ -94,6 +95,7 @@ function ShellInner() {
   return (
     <>
       <View style={[a.h_full]}>
+        <TestFlightAppStoreMigrationBanner />
         <ErrorBoundary
           style={{paddingTop: insets.top, paddingBottom: insets.bottom}}>
           <TabsNavigator layout={drawerLayout} />
