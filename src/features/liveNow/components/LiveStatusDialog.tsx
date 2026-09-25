@@ -82,6 +82,15 @@ function DialogInner({
     })
   }, [navigation, profile.handle, control])
 
+  const onPressWatch = useCallback(
+    (actor: string) => {
+      control.close(() => {
+        navigation.push('StreamplaceWatch', {actor})
+      })
+    },
+    [navigation, control],
+  )
+
   return (
     <Dialog.ScrollableInner
       label={l`${sanitizeHandle(profile.handle)} is live`}
@@ -92,6 +101,7 @@ function DialogInner({
         profile={profile}
         embed={embed}
         onPressOpenProfile={onPressOpenProfile}
+        onPressWatch={onPressWatch}
       />
       <Dialog.Close />
     </Dialog.ScrollableInner>
@@ -104,12 +114,14 @@ export function LiveStatus({
   embed,
   padding = 'xl',
   onPressOpenProfile,
+  onPressWatch,
 }: {
   status: AppBskyActorDefs.StatusView
   profile: bsky.profile.AnyProfileView
   embed: AppBskyEmbedExternal.View
   padding?: 'lg' | 'xl'
   onPressOpenProfile: () => void
+  onPressWatch: (actor: string) => void
 }) {
   const ax = useAnalytics()
   const {t: l} = useLingui()
@@ -119,7 +131,6 @@ export function LiveStatus({
   const moderationOpts = useModerationOpts()
   const reportDialogControl = useGlobalReportDialogControl()
   const dialogContext = Dialog.useDialogContext()
-  const navigation = useNavigation<NavigationProp>()
   const {hasSession} = useSession()
   const externalEmbedsPrefs = useExternalEmbedsPrefs()
   const streamplaceActor =
@@ -204,13 +215,7 @@ export function LiveStatus({
           onPress={() => {
             ax.metric('live:card:watch', {subject: profile.did})
             if (streamplaceActor) {
-              const watch = () =>
-                navigation.push('StreamplaceWatch', {actor: streamplaceActor})
-              if (dialogContext.isWithinDialog) {
-                dialogContext.close(watch)
-              } else {
-                watch()
-              }
+              onPressWatch(streamplaceActor)
             } else {
               openLink(embed.external.uri, false)
             }
