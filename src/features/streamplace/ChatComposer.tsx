@@ -9,12 +9,19 @@ import {Button, ButtonText} from '#/components/Button'
 
 const MAX_GRAPHEMES = 300
 
-export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
+export function ChatComposer({
+  onSend,
+  disabled: notReady,
+}: {
+  onSend: (text: string) => void
+  disabled?: boolean
+}) {
   const {_} = useLingui()
   const t = useTheme()
   const [text, setText] = useState('')
   const trimmed = text.trim()
-  const disabled = trimmed.length === 0 || countGraphemes(text) > MAX_GRAPHEMES
+  const disabled =
+    notReady || trimmed.length === 0 || countGraphemes(text) > MAX_GRAPHEMES
 
   const submit = () => {
     if (disabled) return
@@ -39,7 +46,6 @@ export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
         placeholder={_(msg`Send a message…`)}
         accessibilityLabel={_(msg`Chat message`)}
         accessibilityHint={_(msg`Press return to send`)}
-        maxLength={MAX_GRAPHEMES * 2}
         returnKeyType="send"
         submitBehavior="submit"
         placeholderTextColor={t.atoms.text_contrast_medium.color}

@@ -14,6 +14,7 @@ import {
 } from '#/lib/strings/embed-player'
 import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {useExternalEmbedsPrefs} from '#/state/preferences'
+import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
@@ -41,6 +42,7 @@ export const ExternalEmbed = ({
   const t = useTheme()
   const playHaptic = useHaptics()
   const externalEmbedPrefs = useExternalEmbedsPrefs()
+  const {hasSession} = useSession()
   const niceUrl = toNiceDomain(link.uri)
   const imageUri = link.thumb
   const embedPlayerParams = useMemo(() => {
@@ -52,7 +54,7 @@ export const ExternalEmbed = ({
     }
   }, [link.uri, externalEmbedPrefs])
   const streamplaceActor =
-    embedPlayerParams?.type === 'streamplace_stream'
+    hasSession && embedPlayerParams?.type === 'streamplace_stream'
       ? parseStreamplaceActor(link.uri)
       : undefined
   const hasMedia = Boolean(imageUri || (embedPlayerParams && !streamplaceActor))

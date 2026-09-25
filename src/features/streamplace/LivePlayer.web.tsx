@@ -1,5 +1,6 @@
-import {useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
+import {useFocusEffect} from '@react-navigation/native'
 
 import {atoms as a} from '#/alf'
 import {LiveOffline} from './LiveOffline'
@@ -7,11 +8,20 @@ import {livePlaylistUrl} from './url'
 
 const RETRY_MS = 2000
 const OFFLINE_AFTER_MS = 10_000
+const MAX_MEDIA_RECOVERIES = 2
 
 export function LivePlayer({actor}: {actor: string}) {
   const ref = useRef<HTMLVideoElement>(null)
   const [offline, setOffline] = useState(false)
   const [attempt, setAttempt] = useState(0)
+
+  useFocusEffect(
+    useCallback(() => {
+      const video = ref.current
+      if (video?.paused) void video.play().catch(() => undefined)
+      return () => video?.pause()
+    }, []),
+  )
 
   useEffect(() => {
     const video = ref.current
@@ -21,6 +31,7 @@ export function LivePlayer({actor}: {actor: string}) {
     let retry: ReturnType<typeof setTimeout> | undefined
     let offlineTimer: ReturnType<typeof setTimeout> | undefined
     let hls: {destroy: () => void} | undefined
+    let mediaRecoveries = 0
     setOffline(false)
 
     const onFailure = (reload: () => void) => {
@@ -33,43 +44,51 @@ export function LivePlayer({actor}: {actor: string}) {
       }, RETRY_MS)
     }
     const onPlaying = () => {
+      mediaRecoveries = 0
       clearTimeout(offlineTimer)
       offlineTimer = undefined
       setOffline(false)
     }
     video.addEventListener('playing', onPlaying)
 
-    void import('hls.js').then(({default: Hls}) => {
-      if (disposed) return
-      if (Hls.isSupported()) {
-        const instance = new Hls({
-          liveDurationInfinity: true,
-          backBufferLength: 10,
-        })
-        instance.on(Hls.Events.ERROR, (_e, data) => {
-          if (!data.fatal) return
-          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-            instance.recoverMediaError()
-            return
-          }
-          onFailure(() => {
-            instance.loadSource(src)
-            instance.startLoad()
+    void import('hls.js')
+      .then(({default: Hls}) => {
+        if (disposed) return
+        if (Hls.isSupported()) {
+          const instance = new Hls({
+            liveDurationInfinity: true,
+            backBufferLength: 10,
           })
-        })
-        instance.attachMedia(video)
-        instance.loadSource(src)
-        hls = instance
-      } else {
-        const load = () => {
-          video.src = src
-          video.load()
-          void video.play().catch(() => undefined)
+          instance.on(Hls.Events.ERROR, (_e, data) => {
+            if (!data.fatal) return
+            if (
+              data.type === Hls.ErrorTypes.MEDIA_ERROR &&
+              mediaRecoveries++ < MAX_MEDIA_RECOVERIES
+            ) {
+              instance.recoverMediaError()
+              return
+            }
+            onFailure(() => {
+              instance.loadSource(src)
+              instance.startLoad()
+            })
+          })
+          instance.attachMedia(video)
+          instance.loadSource(src)
+          hls = instance
+        } else {
+          const load = () => {
+            video.src = src
+            video.load()
+            void video.play().catch(() => undefined)
+          }
+          video.onerror = () => onFailure(load)
+          load()
         }
-        video.onerror = () => onFailure(load)
-        load()
-      }
-    })
+      })
+      .catch(() => {
+        if (!disposed) setOffline(true)
+      })
 
     return () => {
       disposed = true

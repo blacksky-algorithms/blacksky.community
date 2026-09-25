@@ -14,8 +14,10 @@ import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {type NavigationProp} from '#/lib/routes/types'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {toNiceDomain} from '#/lib/strings/url-helpers'
+import {useExternalEmbedsPrefs} from '#/state/preferences'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {unstableCacheProfileView} from '#/state/queries/profile'
+import {useSession} from '#/state/session'
 import {android, atoms as a, platform, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
@@ -118,7 +120,12 @@ export function LiveStatus({
   const reportDialogControl = useGlobalReportDialogControl()
   const dialogContext = Dialog.useDialogContext()
   const navigation = useNavigation<NavigationProp>()
-  const streamplaceActor = parseStreamplaceActor(embed.external.uri)
+  const {hasSession} = useSession()
+  const externalEmbedsPrefs = useExternalEmbedsPrefs()
+  const streamplaceActor =
+    hasSession && externalEmbedsPrefs?.streamplace !== 'hide'
+      ? parseStreamplaceActor(embed.external.uri)
+      : undefined
   const moderation = useMemo(() => {
     if (!moderationOpts) return undefined
     return moderateStatus(profile, moderationOpts)
@@ -197,9 +204,13 @@ export function LiveStatus({
           onPress={() => {
             ax.metric('live:card:watch', {subject: profile.did})
             if (streamplaceActor) {
-              dialogContext.close(() => {
-                navigation.push('StreamplaceWatch', {actor: profile.did})
-              })
+              const watch = () =>
+                navigation.push('StreamplaceWatch', {actor: streamplaceActor})
+              if (dialogContext.isWithinDialog) {
+                dialogContext.close(watch)
+              } else {
+                watch()
+              }
             } else {
               openLink(embed.external.uri, false)
             }

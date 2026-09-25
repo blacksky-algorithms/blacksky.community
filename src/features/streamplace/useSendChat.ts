@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {logger} from '#/logger'
 import {useAgent} from '#/state/session'
@@ -14,6 +14,7 @@ export function useSendChat(
 ) {
   const agent = useAgent()
   const [pending, setPending] = useState<PendingMessage[]>([])
+  const retrying = useRef(new Set<string>())
   const seenUris = useMemo(() => new Set(messages.map(m => m.uri)), [messages])
 
   useEffect(() => {
@@ -50,6 +51,10 @@ export function useSendChat(
   const send = useCallback(
     async (text: string, replacing?: PendingMessage) => {
       if (!streamerDid || !agent.session) return
+      if (replacing) {
+        if (retrying.current.has(replacing.localId)) return
+        retrying.current.add(replacing.localId)
+      }
       const localId = `${Date.now()}-${Math.random()}`
       setPending(prev => [
         ...prev.filter(m => m.localId !== replacing?.localId),
@@ -74,7 +79,9 @@ export function useSendChat(
         })
         setPending(prev =>
           prev.map(m =>
-            m.localId === localId ? {...m, uri: res.data.uri} : m,
+            m.localId === localId
+              ? {...m, uri: res.data.uri, sentAt: Date.now()}
+              : m,
           ),
         )
       } catch (err) {

@@ -21,6 +21,8 @@ describe('parseStreamplaceActor', () => {
     'https://stream.place/alice.bsky.social/video/3abc',
     'https://example.com/alice.bsky.social',
     'not a url',
+    'https://stream.place/%',
+    'https://stream.place/%E0%A4%A',
   ])('rejects %s', url => {
     expect(parseStreamplaceActor(url)).toBeUndefined()
   })

@@ -1,6 +1,7 @@
-import {useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
 import {useVideoPlayer, VideoView} from 'expo-video'
+import {useFocusEffect} from '@react-navigation/native'
 
 import {atoms as a} from '#/alf'
 import {LiveOffline} from './LiveOffline'
@@ -18,9 +19,17 @@ export function LivePlayer({actor}: {actor: string}) {
   const [offline, setOffline] = useState(false)
 
   const reload = () => {
+    failingSince.current = null
     player.replace(source)
     player.play()
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      player.play()
+      return () => player.pause()
+    }, [player]),
+  )
 
   useEffect(() => {
     let retry: ReturnType<typeof setTimeout> | undefined

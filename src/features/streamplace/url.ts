@@ -15,7 +15,12 @@ export function parseStreamplaceActor(url: string): string | undefined {
   const parts = urlp.pathname.split('/').filter(Boolean)
   if (parts[0] === 'embed') parts.shift()
   if (parts.length !== 1) return undefined
-  const actor = decodeURIComponent(parts[0]).replace(/^@/, '')
+  let actor: string
+  try {
+    actor = decodeURIComponent(parts[0]).replace(/^@/, '')
+  } catch {
+    return undefined
+  }
   if (!ACTOR_RE.test(actor)) return undefined
   return actor.startsWith('did:') ? actor : actor.toLowerCase()
 }

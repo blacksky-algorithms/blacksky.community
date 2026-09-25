@@ -76,8 +76,8 @@ function ConsentGate({hidden}: {hidden: boolean}) {
       <Text style={[a.text_md, a.text_center]}>
         {hidden ? (
           <Trans>
-            Streamplace media is turned off. Turn it on in Settings → Content &
-            media → External media.
+            Streamplace media is turned off. Turn it on in Settings → Content
+            and media → External media.
           </Trans>
         ) : (
           <Trans>Watch Streamplace media inside Blacksky.</Trans>
@@ -101,8 +101,9 @@ function Watch({actor}: {actor: string}) {
   const t = useTheme()
   const ax = useAnalytics()
   const navigation = useNavigation<NavigationProp>()
-  const live = useStreamplaceLive(actor)
   const {data: profile} = useProfileQuery({did: actor})
+  const did = actor.startsWith('did:') ? actor : profile?.did
+  const live = useStreamplaceLive(did)
   const profiles = useChatProfiles(
     live.messages.map(message => message.authorDid),
   )
@@ -114,7 +115,8 @@ function Watch({actor}: {actor: string}) {
         : [],
     [live.messages, moderationOpts, profiles],
   )
-  const {pending, send} = useSendChat(profile?.did, live.messages)
+  const visibleChat = useMemo(() => visible.map(v => v.message), [visible])
+  const {pending, send} = useSendChat(did, visibleChat)
 
   useEffect(() => {
     ax.metric('live:watch:open', {subject: actor})
@@ -133,13 +135,19 @@ function Watch({actor}: {actor: string}) {
         moderationOpts={moderationOpts}
         onRetry={message => void send(message.text, message)}
       />
-      <ChatComposer onSend={onSend} />
+      <ChatComposer onSend={onSend} disabled={!did} />
     </>
   ) : null
 
   return (
     <Layout.Center style={a.flex_1}>
-      <LivePlayer actor={actor} />
+      {did ? (
+        <LivePlayer actor={did} />
+      ) : (
+        <View
+          style={[a.w_full, {aspectRatio: 16 / 9, backgroundColor: 'black'}]}
+        />
+      )}
       <ProfileInfo
         actor={actor}
         profile={profile}

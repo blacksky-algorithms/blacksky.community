@@ -3,7 +3,7 @@ export type ChatMessage = {
   authorDid: string
   handle: string
   text: string
-  createdAt: string
+  indexedAt: string
 }
 
 export type LiveState = {
@@ -110,11 +110,10 @@ function onMessage(state: LiveState, e: Raw): LiveState {
     authorDid,
     handle: typeof author?.handle === 'string' ? author.handle : authorDid,
     text,
-    createdAt:
-      typeof record?.createdAt === 'string' ? record.createdAt : indexedAt,
+    indexedAt,
   }
   const messages = [...state.messages, message].sort((x, y) =>
-    x.createdAt < y.createdAt ? -1 : x.createdAt > y.createdAt ? 1 : 0,
+    x.indexedAt < y.indexedAt ? -1 : x.indexedAt > y.indexedAt ? 1 : 0,
   )
   return withMessages(state, messages.slice(-MAX_MESSAGES))
 }

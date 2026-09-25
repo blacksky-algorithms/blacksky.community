@@ -19,7 +19,7 @@ export function reconcilePending(
       changed = true
       continue
     }
-    if (m.status === 'sending' && now - m.sentAt > timeoutMs) {
+    if (m.status === 'sending' && m.uri && now - m.sentAt > timeoutMs) {
       changed = true
       next.push({...m, status: 'failed'})
       continue

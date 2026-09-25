@@ -30,3 +30,8 @@ it('leaves recent sends alone', () => {
   const list = [p({uri: 'at://me/1'})]
   expect(reconcilePending(list, new Set(), 5000, 10_000)).toBe(list)
 })
+
+it('does not time out a send whose record has not been created yet', () => {
+  const list = [p({})]
+  expect(reconcilePending(list, new Set(), 60_000, 10_000)).toBe(list)
+})

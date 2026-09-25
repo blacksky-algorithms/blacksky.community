@@ -18,8 +18,8 @@ export function visibleMessages(
   for (const message of messages) {
     const profile = profiles.get(message.authorDid)
     if (!profile) continue
-    if (moderateProfile(profile, moderationOpts).ui('contentList').filter)
-      continue
+    const ui = moderateProfile(profile, moderationOpts).ui('contentList')
+    if (ui.filter || ui.blur) continue
     out.push({message, profile})
   }
   return out

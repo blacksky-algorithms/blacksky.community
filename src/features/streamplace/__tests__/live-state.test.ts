@@ -33,6 +33,23 @@ it('keeps messages oldest-first even when the burst arrives newest-first', () =>
   expect(s.messages.map(m => m.text)).toEqual(['first', 'second'])
 })
 
+it('orders by server indexedAt, not the sender-controlled createdAt', () => {
+  const future = {
+    ...msg('at://a/1', 'did:a', 'spoofed', '2026-09-25T00:00:01Z'),
+    record: {
+      $type: 'place.stream.chat.message',
+      text: 'spoofed',
+      createdAt: '2099-01-01T00:00:00Z',
+      streamer: 'did:plc:s',
+    },
+  }
+  const s = apply([
+    future,
+    msg('at://a/2', 'did:a', 'later', '2026-09-25T00:00:02Z'),
+  ])
+  expect(s.messages.map(m => m.text)).toEqual(['spoofed', 'later'])
+})
+
 it('dedupes by uri across reconnect bursts', () => {
   const m = msg('at://a/1', 'did:a', 'hi', '2026-09-25T00:00:01Z')
   expect(apply([m, m]).messages).toHaveLength(1)
