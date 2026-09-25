@@ -30,6 +30,7 @@ import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {LiveIndicator} from '#/features/liveNow/components/LiveIndicator'
+import {parseStreamplaceActor} from '#/features/streamplace/url'
 import type * as bsky from '#/types/bsky'
 
 export function LiveStatusDialog({
@@ -116,6 +117,8 @@ export function LiveStatus({
   const moderationOpts = useModerationOpts()
   const reportDialogControl = useGlobalReportDialogControl()
   const dialogContext = Dialog.useDialogContext()
+  const navigation = useNavigation<NavigationProp>()
+  const streamplaceActor = parseStreamplaceActor(embed.external.uri)
   const moderation = useMemo(() => {
     if (!moderationOpts) return undefined
     return moderateStatus(profile, moderationOpts)
@@ -193,12 +196,18 @@ export function LiveStatus({
           variant="solid"
           onPress={() => {
             ax.metric('live:card:watch', {subject: profile.did})
-            openLink(embed.external.uri, false)
+            if (streamplaceActor) {
+              dialogContext.close(() => {
+                navigation.push('StreamplaceWatch', {actor: profile.did})
+              })
+            } else {
+              openLink(embed.external.uri, false)
+            }
           }}>
           <ButtonText>
             <Trans>Watch now</Trans>
           </ButtonText>
-          <ButtonIcon icon={SquareArrowTopRightIcon} />
+          {!streamplaceActor && <ButtonIcon icon={SquareArrowTopRightIcon} />}
         </Button>
         <View style={[t.atoms.border_contrast_low, a.border_t, a.w_full]} />
         {moderationOpts && (
