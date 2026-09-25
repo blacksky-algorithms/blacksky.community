@@ -14,13 +14,20 @@ export function useSendChat(streamerDid: string | undefined, messages: ChatMessa
   const seenUris = useMemo(() => new Set(messages.map(m => m.uri)), [messages])
 
   useEffect(() => {
-    setPending(prev => reconcilePending(prev, seenUris, Date.now(), CHAT_DELIVERY_TIMEOUT_MS))
+    const initial = setTimeout(
+      () =>
+        setPending(prev => reconcilePending(prev, seenUris, Date.now(), CHAT_DELIVERY_TIMEOUT_MS)),
+      0,
+    )
     const id = setInterval(
       () =>
         setPending(prev => reconcilePending(prev, seenUris, Date.now(), CHAT_DELIVERY_TIMEOUT_MS)),
       2000,
     )
-    return () => clearInterval(id)
+    return () => {
+      clearTimeout(initial)
+      clearInterval(id)
+    }
   }, [seenUris])
 
   const send = useCallback(

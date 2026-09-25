@@ -19,7 +19,7 @@ class FakeSocket {
 beforeEach(() => {
   FakeSocket.instances = []
   jest.useFakeTimers()
-  ;(global as any).WebSocket = FakeSocket
+  Object.assign(global, {WebSocket: FakeSocket})
 })
 afterEach(() => jest.useRealTimers())
 

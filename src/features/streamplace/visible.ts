@@ -1,4 +1,4 @@
-import {moderateProfile, type AppBskyActorDefs, type ModerationOpts} from '@atproto/api'
+import {type AppBskyActorDefs, moderateProfile, type ModerationOpts} from '@atproto/api'
 
 import {type ChatMessage} from './live-state'
 
