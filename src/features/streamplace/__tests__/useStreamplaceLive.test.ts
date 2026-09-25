@@ -30,7 +30,10 @@ it('connects by actor, applies frames, and reconnects after close', () => {
 
   act(() => {
     ws.onmessage?.({
-      data: JSON.stringify({$type: 'place.stream.livestream#viewerCount', count: 7}),
+      data: JSON.stringify({
+        $type: 'place.stream.livestream#viewerCount',
+        count: 7,
+      }),
     })
   })
   expect(result.current.viewerCount).toBe(7)

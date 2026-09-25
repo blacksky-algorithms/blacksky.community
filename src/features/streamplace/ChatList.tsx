@@ -1,5 +1,9 @@
 import {Pressable, View} from 'react-native'
-import {type AppBskyActorDefs, moderateProfile, type ModerationOpts} from '@atproto/api'
+import {
+  type AppBskyActorDefs,
+  moderateProfile,
+  type ModerationOpts,
+} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -43,10 +47,18 @@ export function ChatList({
       data={data}
       inverted
       keyExtractor={(item: ChatItem) =>
-        item.kind === 'message' ? item.item.message.uri : `pending:${item.item.localId}`
+        item.kind === 'message'
+          ? item.item.message.uri
+          : `pending:${item.item.localId}`
       }
       ListEmptyComponent={
-        <Text style={[a.px_md, a.py_lg, a.text_center, t.atoms.text_contrast_medium]}>
+        <Text
+          style={[
+            a.px_md,
+            a.py_lg,
+            a.text_center,
+            t.atoms.text_contrast_medium,
+          ]}>
           <Trans>No messages yet</Trans>
         </Text>
       }
@@ -57,10 +69,13 @@ export function ChatList({
             <Pressable
               disabled={!failed}
               onPress={() => onRetry(item.item)}
-              style={[a.px_md, a.py_xs, {opacity: 0.5}]}
+              style={[a.px_md, a.py_xs, !failed && {opacity: 0.5}]}
               accessibilityRole={failed ? 'button' : undefined}>
-              <Text style={failed ? {color: t.palette.negative_500} : undefined}>
-                {failed ? _(msg`Not delivered · Tap to retry`) : _(msg`sending…`)}
+              <Text
+                style={failed ? {color: t.palette.negative_500} : undefined}>
+                {failed
+                  ? _(msg`Not delivered · Tap to retry`)
+                  : _(msg`sending…`)}
               </Text>
               <Text>{item.item.text}</Text>
             </Pressable>
@@ -71,7 +86,8 @@ export function ChatList({
         const displayName = profile.displayName || profile.handle
         const moderation = moderateProfile(profile, moderationOpts)
         return (
-          <View style={[a.px_md, a.py_xs, a.flex_row, a.gap_sm, a.align_center]}>
+          <View
+            style={[a.px_md, a.py_xs, a.flex_row, a.gap_sm, a.align_center]}>
             <UserAvatar
               type="user"
               size={20}

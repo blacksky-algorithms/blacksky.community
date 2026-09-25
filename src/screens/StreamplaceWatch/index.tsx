@@ -50,7 +50,11 @@ export function StreamplaceWatchScreen({route}: Props) {
         </Layout.Header.Content>
         <Layout.Header.Slot />
       </Layout.Header.Outer>
-      {pref === 'show' ? <Watch actor={actor} /> : <ConsentGate hidden={pref === 'hide'} />}
+      {pref === 'show' ? (
+        <Watch actor={actor} />
+      ) : (
+        <ConsentGate hidden={pref === 'hide'} />
+      )}
     </Layout.Screen>
   )
 }
@@ -60,20 +64,28 @@ function ConsentGate({hidden}: {hidden: boolean}) {
   const control = Dialog.useDialogControl()
 
   return (
-    <View style={[a.flex_1, a.align_center, a.justify_center, a.px_lg, a.gap_lg]}>
-      <EmbedConsentDialog control={control} source="streamplace" onAccept={() => undefined} />
+    <View
+      style={[a.flex_1, a.align_center, a.justify_center, a.px_lg, a.gap_lg]}>
+      <EmbedConsentDialog
+        control={control}
+        source="streamplace"
+        onAccept={() => undefined}
+      />
       <Text style={[a.text_md, a.text_center]}>
         {hidden ? (
           <Trans>
-            Streamplace media is turned off. Turn it on in Settings → Content & media → External
-            media.
+            Streamplace media is turned off. Turn it on in Settings → Content &
+            media → External media.
           </Trans>
         ) : (
           <Trans>Watch Streamplace media inside Blacksky.</Trans>
         )}
       </Text>
       {!hidden && (
-        <Button label={_(msg`Watch on Blacksky`)} onPress={control.open} color="primary">
+        <Button
+          label={_(msg`Watch on Blacksky`)}
+          onPress={control.open}
+          color="primary">
           <ButtonText>
             <Trans>Watch on Blacksky</Trans>
           </ButtonText>
@@ -90,7 +102,9 @@ function Watch({actor}: {actor: string}) {
   const {gtMobile} = useBreakpoints()
   const live = useStreamplaceLive(actor)
   const {data: profile} = useProfileQuery({did: actor})
-  const profiles = useChatProfiles(live.messages.map(message => message.authorDid))
+  const profiles = useChatProfiles(
+    live.messages.map(message => message.authorDid),
+  )
   const moderationOpts = useModerationOpts()
   const visible = useMemo(
     () =>
@@ -127,9 +141,14 @@ function Watch({actor}: {actor: string}) {
     <View style={[a.flex_1, isWideWeb && a.flex_row]}>
       <View style={[a.flex_1, isWideWeb && a.pr_lg]}>
         <LivePlayer actor={actor} />
-        <ProfileInfo actor={actor} profile={profile} live={live} onPress={() => {
-          navigation.push('Profile', {name: profile?.did ?? actor})
-        }} />
+        <ProfileInfo
+          actor={actor}
+          profile={profile}
+          live={live}
+          onPress={() => {
+            navigation.push('Profile', {name: profile?.did ?? actor})
+          }}
+        />
         {!isWideWeb && (
           <Text style={[a.px_md, a.pt_md, a.font_semi_bold]}>
             <Trans>Live chat</Trans>
@@ -142,7 +161,13 @@ function Watch({actor}: {actor: string}) {
         )}
       </View>
       {isWideWeb && (
-        <View style={[a.w_full, a.border_l, t.atoms.border_contrast_low, web({width: 340})]}>
+        <View
+          style={[
+            a.w_full,
+            a.border_l,
+            t.atoms.border_contrast_low,
+            web({width: 340}),
+          ]}>
           <Text style={[a.px_md, a.pt_md, a.font_semi_bold]}>
             <Trans>Live chat</Trans>
           </Text>
@@ -167,9 +192,14 @@ function ProfileInfo({
   const {_} = useLingui()
   const t = useTheme()
   const moderationOpts = useModerationOpts()
-  const moderation = profile && moderationOpts ? moderateProfile(profile, moderationOpts) : undefined
+  const moderation =
+    profile && moderationOpts
+      ? moderateProfile(profile, moderationOpts)
+      : undefined
   const viewerText =
-    live.viewerCount === undefined ? undefined : _(msg`${live.viewerCount} watching`)
+    live.viewerCount === undefined
+      ? undefined
+      : _(msg`${live.viewerCount} watching`)
 
   return (
     <Pressable
@@ -188,14 +218,18 @@ function ProfileInfo({
       )}
       <View style={a.flex_1}>
         <Text>{profile?.displayName || profile?.handle || actor}</Text>
-        {live.title && <Text style={t.atoms.text_contrast_medium}>{live.title}</Text>}
+        {live.title && (
+          <Text style={t.atoms.text_contrast_medium}>{live.title}</Text>
+        )}
       </View>
       {live.isLive && (
         <Text style={[a.rounded_sm, a.px_xs, t.atoms.bg_contrast_500]}>
           <Trans>LIVE</Trans>
         </Text>
       )}
-      {viewerText && <Text style={t.atoms.text_contrast_medium}>{viewerText}</Text>}
+      {viewerText && (
+        <Text style={t.atoms.text_contrast_medium}>{viewerText}</Text>
+      )}
     </Pressable>
   )
 }

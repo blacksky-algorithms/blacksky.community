@@ -55,7 +55,7 @@ export const ExternalEmbed = ({
     embedPlayerParams?.type === 'streamplace_stream'
       ? parseStreamplaceActor(link.uri)
       : undefined
-  const hasMedia = Boolean(imageUri || embedPlayerParams)
+  const hasMedia = Boolean(imageUri || (embedPlayerParams && !streamplaceActor))
 
   const onPress = () => {
     playHaptic('Light')

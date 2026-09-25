@@ -1,7 +1,12 @@
 import {useEffect, useReducer, useState} from 'react'
 
 import {logger} from '#/logger'
-import {EMPTY_LIVE_STATE, isLiveAt, type LiveState, reduceLiveEvent} from './live-state'
+import {
+  EMPTY_LIVE_STATE,
+  isLiveAt,
+  type LiveState,
+  reduceLiveEvent,
+} from './live-state'
 import {liveSocketUrl} from './url'
 
 type Action = {raw: unknown; now: number}
@@ -28,7 +33,9 @@ export function useStreamplaceLive(actor: string | undefined) {
         try {
           dispatch({raw: JSON.parse(String(e.data)), now: Date.now()})
         } catch (err) {
-          logger.warn('streamplace: unparseable websocket frame', {safeMessage: err})
+          logger.warn('streamplace: unparseable websocket frame', {
+            safeMessage: err,
+          })
         }
       }
       ws.onclose = () => {

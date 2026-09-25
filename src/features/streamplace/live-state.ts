@@ -15,7 +15,10 @@ export type LiveState = {
   blockedDids: ReadonlySet<string>
 }
 
-export const EMPTY_LIVE_STATE: LiveState = {messages: [], blockedDids: new Set()}
+export const EMPTY_LIVE_STATE: LiveState = {
+  messages: [],
+  blockedDids: new Set(),
+}
 
 const MAX_MESSAGES = 200
 const SEGMENT_STALE_MS = 10_000
@@ -26,7 +29,11 @@ function isRecord(value: unknown): value is Raw {
   return typeof value === 'object' && value !== null
 }
 
-export function reduceLiveEvent(state: LiveState, raw: unknown, now: number): LiveState {
+export function reduceLiveEvent(
+  state: LiveState,
+  raw: unknown,
+  now: number,
+): LiveState {
   if (!raw || typeof raw !== 'object') return state
   const e = raw as Raw
   switch (e.$type) {
@@ -34,7 +41,10 @@ export function reduceLiveEvent(state: LiveState, raw: unknown, now: number): Li
       return onMessage(state, e)
     case 'place.stream.chat.gate':
       return typeof e.hiddenMessage === 'string'
-        ? withMessages(state, state.messages.filter(m => m.uri !== e.hiddenMessage))
+        ? withMessages(
+            state,
+            state.messages.filter(m => m.uri !== e.hiddenMessage),
+          )
         : state
     case 'place.stream.defs#blockView': {
       const did = isRecord(e.record) ? e.record.subject : undefined
@@ -48,17 +58,22 @@ export function reduceLiveEvent(state: LiveState, raw: unknown, now: number): Li
     }
     case 'place.stream.livestream#livestreamView': {
       const record = isRecord(e.record) ? e.record : undefined
-      const viewerCount = isRecord(e.viewerCount) ? e.viewerCount.count : undefined
+      const viewerCount = isRecord(e.viewerCount)
+        ? e.viewerCount.count
+        : undefined
       return {
         ...state,
         title: typeof record?.title === 'string' ? record.title : state.title,
-        endedAt: typeof record?.endedAt === 'string' ? record.endedAt : undefined,
+        endedAt:
+          typeof record?.endedAt === 'string' ? record.endedAt : undefined,
         viewerCount:
           typeof viewerCount === 'number' ? viewerCount : state.viewerCount,
       }
     }
     case 'place.stream.livestream#viewerCount':
-      return typeof e.count === 'number' ? {...state, viewerCount: e.count} : state
+      return typeof e.count === 'number'
+        ? {...state, viewerCount: e.count}
+        : state
     case 'place.stream.segment':
       return {...state, lastSegmentAt: now}
     default:
@@ -77,7 +92,10 @@ export function isLiveAt(state: LiveState, now: number) {
 function onMessage(state: LiveState, e: Raw): LiveState {
   if (typeof e.uri !== 'string') return state
   if (e.deleted === true) {
-    return withMessages(state, state.messages.filter(m => m.uri !== e.uri))
+    return withMessages(
+      state,
+      state.messages.filter(m => m.uri !== e.uri),
+    )
   }
   const author = isRecord(e.author) ? e.author : undefined
   const record = isRecord(e.record) ? e.record : undefined

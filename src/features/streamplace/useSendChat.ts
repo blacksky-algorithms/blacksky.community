@@ -8,7 +8,10 @@ import {type PendingMessage, reconcilePending} from './pending'
 const COLLECTION = 'place.stream.chat.message'
 export const CHAT_DELIVERY_TIMEOUT_MS = 10_000
 
-export function useSendChat(streamerDid: string | undefined, messages: ChatMessage[]) {
+export function useSendChat(
+  streamerDid: string | undefined,
+  messages: ChatMessage[],
+) {
   const agent = useAgent()
   const [pending, setPending] = useState<PendingMessage[]>([])
   const seenUris = useMemo(() => new Set(messages.map(m => m.uri)), [messages])
@@ -16,12 +19,26 @@ export function useSendChat(streamerDid: string | undefined, messages: ChatMessa
   useEffect(() => {
     const initial = setTimeout(
       () =>
-        setPending(prev => reconcilePending(prev, seenUris, Date.now(), CHAT_DELIVERY_TIMEOUT_MS)),
+        setPending(prev =>
+          reconcilePending(
+            prev,
+            seenUris,
+            Date.now(),
+            CHAT_DELIVERY_TIMEOUT_MS,
+          ),
+        ),
       0,
     )
     const id = setInterval(
       () =>
-        setPending(prev => reconcilePending(prev, seenUris, Date.now(), CHAT_DELIVERY_TIMEOUT_MS)),
+        setPending(prev =>
+          reconcilePending(
+            prev,
+            seenUris,
+            Date.now(),
+            CHAT_DELIVERY_TIMEOUT_MS,
+          ),
+        ),
       2000,
     )
     return () => {
@@ -56,7 +73,9 @@ export function useSendChat(streamerDid: string | undefined, messages: ChatMessa
           },
         })
         setPending(prev =>
-          prev.map(m => (m.localId === localId ? {...m, uri: res.data.uri} : m)),
+          prev.map(m =>
+            m.localId === localId ? {...m, uri: res.data.uri} : m,
+          ),
         )
       } catch (err) {
         logger.warn('streamplace: chat send failed', {safeMessage: err})

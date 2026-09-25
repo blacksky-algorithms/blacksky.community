@@ -1,7 +1,9 @@
 import {parseEmbedPlayerFromUrl} from '../embed-player'
 
 it('recognises stream.place channel links', () => {
-  expect(parseEmbedPlayerFromUrl('https://stream.place/alice.bsky.social')).toEqual({
+  expect(
+    parseEmbedPlayerFromUrl('https://stream.place/alice.bsky.social'),
+  ).toEqual({
     type: 'streamplace_stream',
     source: 'streamplace',
     playerUri: 'https://stream.place/embed/alice.bsky.social',

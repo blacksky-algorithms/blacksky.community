@@ -29,9 +29,10 @@ export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
         placeholder={_(msg`Send a message…`)}
         accessibilityLabel={_(msg`Chat message`)}
         accessibilityHint={_(msg`Press return to send`)}
-        multiline
         maxLength={MAX_GRAPHEMES * 2}
-        style={[a.flex_1, a.p_sm, {minHeight: 40, maxHeight: 100}]}
+        returnKeyType="send"
+        submitBehavior="submit"
+        style={[a.flex_1, a.p_sm, {minHeight: 40}]}
         onSubmitEditing={submit}
       />
       <Button

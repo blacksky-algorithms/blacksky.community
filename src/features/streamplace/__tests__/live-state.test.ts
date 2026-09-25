@@ -11,11 +11,19 @@ const msg = (uri: string, did: string, text: string, createdAt: string) => ({
   cid: 'bafy',
   indexedAt: createdAt,
   author: {did, handle: `${did}.test`},
-  record: {$type: 'place.stream.chat.message', text, createdAt, streamer: 'did:plc:s'},
+  record: {
+    $type: 'place.stream.chat.message',
+    text,
+    createdAt,
+    streamer: 'did:plc:s',
+  },
 })
 
 const apply = (events: unknown[], now = 1000): LiveState =>
-  events.reduce<LiveState>((s, e) => reduceLiveEvent(s, e, now), EMPTY_LIVE_STATE)
+  events.reduce<LiveState>(
+    (s, e) => reduceLiveEvent(s, e, now),
+    EMPTY_LIVE_STATE,
+  )
 
 it('keeps messages oldest-first even when the burst arrives newest-first', () => {
   const s = apply([
@@ -34,7 +42,8 @@ it('removes deleted and gated messages', () => {
   const m = msg('at://a/1', 'did:a', 'hi', '2026-09-25T00:00:01Z')
   expect(apply([m, {...m, deleted: true}]).messages).toHaveLength(0)
   expect(
-    apply([m, {$type: 'place.stream.chat.gate', hiddenMessage: 'at://a/1'}]).messages,
+    apply([m, {$type: 'place.stream.chat.gate', hiddenMessage: 'at://a/1'}])
+      .messages,
   ).toHaveLength(0)
 })
 
@@ -59,7 +68,10 @@ it('caps history at 200 messages', () => {
 it('tracks livestream title, end, viewer count and liveness', () => {
   const s = apply(
     [
-      {$type: 'place.stream.livestream#livestreamView', record: {title: 'Speedrun'}},
+      {
+        $type: 'place.stream.livestream#livestreamView',
+        record: {title: 'Speedrun'},
+      },
       {$type: 'place.stream.livestream#viewerCount', count: 12},
       {$type: 'place.stream.segment'},
     ],
@@ -71,15 +83,18 @@ it('tracks livestream title, end, viewer count and liveness', () => {
   expect(isLiveAt(s, 20000)).toBe(false)
   const ended = reduceLiveEvent(
     s,
-    {$type: 'place.stream.livestream#livestreamView', record: {title: 'Speedrun', endedAt: 'x'}},
+    {
+      $type: 'place.stream.livestream#livestreamView',
+      record: {title: 'Speedrun', endedAt: 'x'},
+    },
     5000,
   )
   expect(isLiveAt(ended, 6000)).toBe(false)
 })
 
 it('returns the same state for unknown or malformed events', () => {
-  expect(reduceLiveEvent(EMPTY_LIVE_STATE, {$type: 'place.stream.live.teleport'}, 0)).toBe(
-    EMPTY_LIVE_STATE,
-  )
+  expect(
+    reduceLiveEvent(EMPTY_LIVE_STATE, {$type: 'place.stream.live.teleport'}, 0),
+  ).toBe(EMPTY_LIVE_STATE)
   expect(reduceLiveEvent(EMPTY_LIVE_STATE, 'garbage', 0)).toBe(EMPTY_LIVE_STATE)
 })

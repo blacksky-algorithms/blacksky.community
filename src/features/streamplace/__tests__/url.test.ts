@@ -1,8 +1,4 @@
-import {
-  livePlaylistUrl,
-  liveSocketUrl,
-  parseStreamplaceActor,
-} from '../url'
+import {livePlaylistUrl, liveSocketUrl, parseStreamplaceActor} from '../url'
 
 describe('parseStreamplaceActor', () => {
   it.each([
@@ -10,7 +6,10 @@ describe('parseStreamplaceActor', () => {
     ['https://stream.place/@Alice.Bsky.Social', 'alice.bsky.social'],
     ['https://www.stream.place/alice.bsky.social/', 'alice.bsky.social'],
     ['https://stream.place/embed/alice.bsky.social', 'alice.bsky.social'],
-    ['https://stream.place/did:plc:7icioco6iksxt3nl2oxpkj2u', 'did:plc:7icioco6iksxt3nl2oxpkj2u'],
+    [
+      'https://stream.place/did:plc:7icioco6iksxt3nl2oxpkj2u',
+      'did:plc:7icioco6iksxt3nl2oxpkj2u',
+    ],
   ])('parses %s', (url, actor) => {
     expect(parseStreamplaceActor(url)).toBe(actor)
   })

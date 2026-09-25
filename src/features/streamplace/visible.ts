@@ -1,4 +1,8 @@
-import {type AppBskyActorDefs, moderateProfile, type ModerationOpts} from '@atproto/api'
+import {
+  type AppBskyActorDefs,
+  moderateProfile,
+  type ModerationOpts,
+} from '@atproto/api'
 
 import {type ChatMessage} from './live-state'
 
@@ -7,11 +11,15 @@ export function visibleMessages(
   profiles: ReadonlyMap<string, AppBskyActorDefs.ProfileViewDetailed>,
   moderationOpts: ModerationOpts,
 ) {
-  const out: {message: ChatMessage; profile: AppBskyActorDefs.ProfileViewDetailed}[] = []
+  const out: {
+    message: ChatMessage
+    profile: AppBskyActorDefs.ProfileViewDetailed
+  }[] = []
   for (const message of messages) {
     const profile = profiles.get(message.authorDid)
     if (!profile) continue
-    if (moderateProfile(profile, moderationOpts).ui('contentList').filter) continue
+    if (moderateProfile(profile, moderationOpts).ui('contentList').filter)
+      continue
     out.push({message, profile})
   }
   return out
