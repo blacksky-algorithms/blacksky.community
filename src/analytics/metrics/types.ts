@@ -1149,6 +1149,8 @@ export type Events = {
   'live:remove': {}
   'live:card:open': {subject: string; from: 'post' | 'profile'}
   'live:card:watch': {subject: string}
+  'live:watch:open': {subject: string}
+  'live:chat:send': {subject: string}
   'live:card:openProfile': {subject: string}
   'live:view:profile': {subject: string}
   'live:view:post': {subject: string; feed?: string}
