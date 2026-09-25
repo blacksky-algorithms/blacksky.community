@@ -20,6 +20,7 @@ import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+import {parseStreamplaceActor} from '#/features/streamplace/url'
 import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
@@ -50,6 +51,10 @@ export const ExternalEmbed = ({
       return params
     }
   }, [link.uri, externalEmbedPrefs])
+  const streamplaceActor =
+    embedPlayerParams?.type === 'streamplace_stream'
+      ? parseStreamplaceActor(link.uri)
+      : undefined
   const hasMedia = Boolean(imageUri || embedPlayerParams)
 
   const onPress = () => {
@@ -95,8 +100,8 @@ export const ExternalEmbed = ({
   return (
     <Link
       label={link.title || _(msg`Open link to ${niceUrl}`)}
-      to={link.uri}
-      shouldProxy={true}
+      to={streamplaceActor ? `/live/${streamplaceActor}` : link.uri}
+      shouldProxy={!streamplaceActor}
       peek
       style={[a.rounded_md]}
       onPress={onPress}
@@ -116,7 +121,7 @@ export const ExternalEmbed = ({
               ? t.atoms.border_contrast_high
               : t.atoms.border_contrast_low,
           ]}>
-          {imageUri && !embedPlayerParams ? (
+          {imageUri && (!embedPlayerParams || streamplaceActor) ? (
             <Image
               style={[a.aspect_card]}
               source={{uri: imageUri}}
@@ -128,7 +133,7 @@ export const ExternalEmbed = ({
 
           {embedPlayerParams?.isGif ? (
             <ExternalGif link={link} params={embedPlayerParams} />
-          ) : embedPlayerParams ? (
+          ) : embedPlayerParams && !streamplaceActor ? (
             <ExternalPlayer link={link} params={embedPlayerParams} />
           ) : undefined}
 
