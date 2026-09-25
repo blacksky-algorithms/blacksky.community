@@ -1,6 +1,10 @@
 import {Dimensions} from 'react-native'
 
 import {IS_WEB} from '#/env'
+import {
+  parseStreamplaceActor,
+  STREAMPLACE_ORIGIN,
+} from '#/features/streamplace/url'
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window')
 
@@ -27,6 +31,7 @@ export const embedPlayerSources = [
   'flickr',
   'assembly',
   'bandcamp',
+  'streamplace',
 ] as const
 
 export type EmbedPlayerSource = (typeof embedPlayerSources)[number]
@@ -51,6 +56,7 @@ export type EmbedPlayerType =
   | 'assembly_conversation'
   | 'bandcamp_album'
   | 'bandcamp_track'
+  | 'streamplace_stream'
 
 export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   youtube: 'YouTube',
@@ -66,6 +72,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   flickr: 'Flickr',
   assembly: "Blacksky People's Assembly",
   bandcamp: 'Bandcamp',
+  streamplace: 'Streamplace',
 }
 
 /**
@@ -517,6 +524,15 @@ export function parseEmbedPlayerFromUrl(
         playerUri: `https://assembly.blacksky.community/${match[1]}`,
         hideDetails: false,
       }
+    }
+  }
+
+  const streamplaceActor = parseStreamplaceActor(url)
+  if (streamplaceActor) {
+    return {
+      type: 'streamplace_stream',
+      source: 'streamplace',
+      playerUri: `${STREAMPLACE_ORIGIN}/embed/${streamplaceActor}`,
     }
   }
 
