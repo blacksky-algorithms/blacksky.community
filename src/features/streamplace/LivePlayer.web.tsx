@@ -42,7 +42,10 @@ export function LivePlayer({actor}: {actor: string}) {
     void import('hls.js').then(({default: Hls}) => {
       if (disposed) return
       if (Hls.isSupported()) {
-        const instance = new Hls()
+        const instance = new Hls({
+          liveDurationInfinity: true,
+          backBufferLength: 10,
+        })
         instance.on(Hls.Events.ERROR, (_e, data) => {
           if (!data.fatal) return
           if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
