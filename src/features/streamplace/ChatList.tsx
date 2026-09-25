@@ -1,4 +1,5 @@
-import {Pressable, View} from 'react-native'
+import {useRef} from 'react'
+import {FlatList, Pressable, View} from 'react-native'
 import {
   type AppBskyActorDefs,
   moderateProfile,
@@ -8,7 +9,6 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
-import {List} from '#/view/com/util/List'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
@@ -40,12 +40,24 @@ export function ChatList({
   const data: ChatItem[] = [
     ...messages.map(item => ({kind: 'message' as const, item})),
     ...pending.map(item => ({kind: 'pending' as const, item})),
-  ].reverse()
+  ]
+  const listRef = useRef<FlatList<ChatItem>>(null)
+  const atBottom = useRef(true)
 
   return (
-    <List
+    <FlatList
+      ref={listRef}
       data={data}
-      inverted
+      style={a.flex_1}
+      scrollEventThrottle={100}
+      onScroll={e => {
+        const {contentOffset, contentSize, layoutMeasurement} = e.nativeEvent
+        atBottom.current =
+          contentOffset.y + layoutMeasurement.height >= contentSize.height - 40
+      }}
+      onContentSizeChange={() => {
+        if (atBottom.current) listRef.current?.scrollToEnd({animated: false})
+      }}
       keyExtractor={(item: ChatItem) =>
         item.kind === 'message'
           ? item.item.message.uri
@@ -83,7 +95,11 @@ export function ChatList({
         }
 
         const {message, profile} = item.item
-        const displayName = profile.displayName || profile.handle
+        const displayName =
+          profile.displayName ||
+          (profile.handle === 'handle.invalid'
+            ? message.handle
+            : profile.handle)
         const moderation = moderateProfile(profile, moderationOpts)
         return (
           <View

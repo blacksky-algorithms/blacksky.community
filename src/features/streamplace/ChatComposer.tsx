@@ -4,13 +4,14 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
-import {atoms as a} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 
 const MAX_GRAPHEMES = 300
 
 export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
   const {_} = useLingui()
+  const t = useTheme()
   const [text, setText] = useState('')
   const trimmed = text.trim()
   const disabled = trimmed.length === 0 || countGraphemes(text) > MAX_GRAPHEMES
@@ -22,7 +23,16 @@ export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
   }
 
   return (
-    <View style={[a.p_sm, a.flex_row, a.gap_sm, a.align_end]}>
+    <View
+      style={[
+        a.px_md,
+        a.py_sm,
+        a.flex_row,
+        a.gap_sm,
+        a.align_center,
+        a.border_t,
+        t.atoms.border_contrast_low,
+      ]}>
       <TextInput
         value={text}
         onChangeText={setText}
@@ -32,7 +42,19 @@ export function ChatComposer({onSend}: {onSend: (text: string) => void}) {
         maxLength={MAX_GRAPHEMES * 2}
         returnKeyType="send"
         submitBehavior="submit"
-        style={[a.flex_1, a.p_sm, {minHeight: 40}]}
+        placeholderTextColor={t.atoms.text_contrast_medium.color}
+        style={[
+          a.flex_1,
+          a.px_md,
+          a.py_sm,
+          a.rounded_full,
+          a.border,
+          a.text_md,
+          t.atoms.bg_contrast_25,
+          t.atoms.border_contrast_low,
+          t.atoms.text,
+          {minHeight: 40},
+        ]}
         onSubmitEditing={submit}
       />
       <Button

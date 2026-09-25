@@ -16,14 +16,13 @@ import {useExternalEmbedsPrefs} from '#/state/preferences'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useProfileQuery} from '#/state/queries/profile'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {EmbedConsentDialog} from '#/components/dialogs/EmbedConsent'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {IS_WEB} from '#/env'
 import {ChatComposer} from '#/features/streamplace/ChatComposer'
 import {ChatList} from '#/features/streamplace/ChatList'
 import {LivePlayer} from '#/features/streamplace/LivePlayer'
@@ -40,7 +39,10 @@ export function StreamplaceWatchScreen({route}: Props) {
   const pref = prefs?.streamplace
 
   return (
-    <Layout.Screen testID="streamplaceWatchScreen">
+    <Layout.Screen
+      minimalShell
+      testID="streamplaceWatchScreen"
+      style={web([{minHeight: 0}, a.flex_1])}>
       <Layout.Header.Outer>
         <Layout.Header.BackButton />
         <Layout.Header.Content>
@@ -99,7 +101,6 @@ function Watch({actor}: {actor: string}) {
   const t = useTheme()
   const ax = useAnalytics()
   const navigation = useNavigation<NavigationProp>()
-  const {gtMobile} = useBreakpoints()
   const live = useStreamplaceLive(actor)
   const {data: profile} = useProfileQuery({did: actor})
   const profiles = useChatProfiles(
@@ -114,7 +115,6 @@ function Watch({actor}: {actor: string}) {
     [live.messages, moderationOpts, profiles],
   )
   const {pending, send} = useSendChat(profile?.did, live.messages)
-  const isWideWeb = IS_WEB && gtMobile
 
   useEffect(() => {
     ax.metric('live:watch:open', {subject: actor})
@@ -138,43 +138,32 @@ function Watch({actor}: {actor: string}) {
   ) : null
 
   return (
-    <View style={[a.flex_1, isWideWeb && a.flex_row]}>
-      <View style={[a.flex_1, isWideWeb && a.pr_lg]}>
-        <LivePlayer actor={actor} />
-        <ProfileInfo
-          actor={actor}
-          profile={profile}
-          live={live}
-          onPress={() => {
-            navigation.push('Profile', {name: profile?.did ?? actor})
-          }}
-        />
-        {!isWideWeb && (
-          <Text style={[a.px_md, a.pt_md, a.font_semi_bold]}>
-            <Trans>Live chat</Trans>
-          </Text>
-        )}
-        {!isWideWeb && (
-          <KeyboardAvoidingView behavior="padding" style={a.flex_1}>
-            {chat}
-          </KeyboardAvoidingView>
-        )}
-      </View>
-      {isWideWeb && (
-        <View
-          style={[
-            a.w_full,
-            a.border_l,
-            t.atoms.border_contrast_low,
-            web({width: 340}),
-          ]}>
-          <Text style={[a.px_md, a.pt_md, a.font_semi_bold]}>
-            <Trans>Live chat</Trans>
-          </Text>
-          <View style={a.flex_1}>{chat}</View>
-        </View>
-      )}
-    </View>
+    <Layout.Center style={a.flex_1}>
+      <LivePlayer actor={actor} />
+      <ProfileInfo
+        actor={actor}
+        profile={profile}
+        live={live}
+        onPress={() => {
+          navigation.push('Profile', {name: profile?.did ?? actor})
+        }}
+      />
+      <Text
+        style={[
+          a.px_md,
+          a.py_sm,
+          a.font_semi_bold,
+          a.border_t,
+          t.atoms.border_contrast_low,
+        ]}>
+        <Trans>Live chat</Trans>
+      </Text>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={[a.flex_1, {minHeight: 0}]}>
+        {chat}
+      </KeyboardAvoidingView>
+    </Layout.Center>
   )
 }
 
