@@ -20,6 +20,7 @@ import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
 import {parseStreamplaceActor} from '#/features/streamplace/url'
 import {AssemblyEmbed} from './AssemblyEmbed'
@@ -41,6 +42,7 @@ export const ExternalEmbed = ({
   const {_} = useLingui()
   const t = useTheme()
   const playHaptic = useHaptics()
+  const ax = useAnalytics()
   const externalEmbedPrefs = useExternalEmbedsPrefs()
   const {hasSession} = useSession()
   const niceUrl = toNiceDomain(link.uri)
@@ -48,11 +50,17 @@ export const ExternalEmbed = ({
   const embedPlayerParams = useMemo(() => {
     const params = parseEmbedPlayerFromUrl(link.uri)
     if (!params) return
+    if (
+      params.source === 'streamplace' &&
+      !ax.features.enabled(ax.features.StreamplaceWatchEnable)
+    ) {
+      return
+    }
     const canShow = externalEmbedPrefs?.[params.source] !== 'hide'
     if (canShow || exemptExternalEmbedSources.has(params.source)) {
       return params
     }
-  }, [link.uri, externalEmbedPrefs])
+  }, [link.uri, externalEmbedPrefs, ax])
   const streamplaceActor =
     hasSession && embedPlayerParams?.type === 'streamplace_stream'
       ? parseStreamplaceActor(link.uri)

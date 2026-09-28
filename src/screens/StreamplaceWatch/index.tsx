@@ -7,6 +7,7 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -26,6 +27,7 @@ import {useAnalytics} from '#/analytics'
 import {ChatComposer} from '#/features/streamplace/ChatComposer'
 import {ChatList} from '#/features/streamplace/ChatList'
 import {LivePlayer} from '#/features/streamplace/LivePlayer'
+import {STREAMPLACE_ORIGIN} from '#/features/streamplace/url'
 import {useChatProfiles} from '#/features/streamplace/useChatProfiles'
 import {useSendChat} from '#/features/streamplace/useSendChat'
 import {useStreamplaceLive} from '#/features/streamplace/useStreamplaceLive'
@@ -35,8 +37,10 @@ type Props = NativeStackScreenProps<CommonNavigatorParams, 'StreamplaceWatch'>
 
 export function StreamplaceWatchScreen({route}: Props) {
   const {actor} = route.params
+  const ax = useAnalytics()
   const prefs = useExternalEmbedsPrefs()
   const pref = prefs?.streamplace
+  const enabled = ax.features.enabled(ax.features.StreamplaceWatchEnable)
 
   return (
     <Layout.Screen
@@ -52,12 +56,36 @@ export function StreamplaceWatchScreen({route}: Props) {
         </Layout.Header.Content>
         <Layout.Header.Slot />
       </Layout.Header.Outer>
-      {pref === 'show' ? (
+      {!enabled ? (
+        <Unavailable actor={actor} />
+      ) : pref === 'show' ? (
         <Watch actor={actor} />
       ) : (
         <ConsentGate hidden={pref === 'hide'} />
       )}
     </Layout.Screen>
+  )
+}
+
+function Unavailable({actor}: {actor: string}) {
+  const {_} = useLingui()
+  const openLink = useOpenLink()
+
+  return (
+    <View
+      style={[a.flex_1, a.align_center, a.justify_center, a.px_lg, a.gap_lg]}>
+      <Text style={[a.text_md, a.text_center]}>
+        <Trans>Watching livestreams in Blacksky isn't available yet.</Trans>
+      </Text>
+      <Button
+        label={_(msg`Open on stream.place`)}
+        onPress={() => openLink(`${STREAMPLACE_ORIGIN}/${actor}`, false)}
+        color="primary">
+        <ButtonText>
+          <Trans>Open on stream.place</Trans>
+        </ButtonText>
+      </Button>
+    </View>
   )
 }
 

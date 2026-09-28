@@ -134,7 +134,9 @@ export function LiveStatus({
   const {hasSession} = useSession()
   const externalEmbedsPrefs = useExternalEmbedsPrefs()
   const streamplaceActor =
-    hasSession && externalEmbedsPrefs?.streamplace !== 'hide'
+    hasSession &&
+    externalEmbedsPrefs?.streamplace !== 'hide' &&
+    ax.features.enabled(ax.features.StreamplaceWatchEnable)
       ? parseStreamplaceActor(embed.external.uri)
       : undefined
   const moderation = useMemo(() => {
