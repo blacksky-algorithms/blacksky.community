@@ -423,6 +423,7 @@ func serve(cctx *cli.Context) error {
 
 	// bookmarks
 	e.GET("/saved", server.WebGenericNoindex)
+	e.GET("/live/:actor", server.WebGenericNoindex)
 
 	// ipcc
 	e.GET("/ipcc", server.WebIpCC)

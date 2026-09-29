@@ -132,6 +132,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {StreamplaceWatchScreen} from '#/screens/StreamplaceWatch'
 import TopicScreen from '#/screens/Topic'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {type Theme, useTheme} from '#/alf'
@@ -584,6 +585,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
           title: title(msg`Video Feed`),
           requireAuth: true,
         }}
+      />
+      <Stack.Screen
+        name="StreamplaceWatch"
+        getComponent={() => StreamplaceWatchScreen}
+        options={{title: title(msg`Live`), requireAuth: true}}
       />
       <Stack.Screen
         name="Bookmarks"

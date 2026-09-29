@@ -14,12 +14,15 @@ import {
 } from '#/lib/strings/embed-player'
 import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {useExternalEmbedsPrefs} from '#/state/preferences'
+import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
+import {parseStreamplaceActor} from '#/features/streamplace/url'
 import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
@@ -39,18 +42,30 @@ export const ExternalEmbed = ({
   const {_} = useLingui()
   const t = useTheme()
   const playHaptic = useHaptics()
+  const ax = useAnalytics()
   const externalEmbedPrefs = useExternalEmbedsPrefs()
+  const {hasSession} = useSession()
   const niceUrl = toNiceDomain(link.uri)
   const imageUri = link.thumb
   const embedPlayerParams = useMemo(() => {
     const params = parseEmbedPlayerFromUrl(link.uri)
     if (!params) return
+    if (
+      params.source === 'streamplace' &&
+      !ax.features.enabled(ax.features.StreamplaceWatchEnable)
+    ) {
+      return
+    }
     const canShow = externalEmbedPrefs?.[params.source] !== 'hide'
     if (canShow || exemptExternalEmbedSources.has(params.source)) {
       return params
     }
-  }, [link.uri, externalEmbedPrefs])
-  const hasMedia = Boolean(imageUri || embedPlayerParams)
+  }, [link.uri, externalEmbedPrefs, ax])
+  const streamplaceActor =
+    hasSession && embedPlayerParams?.type === 'streamplace_stream'
+      ? parseStreamplaceActor(link.uri)
+      : undefined
+  const hasMedia = Boolean(imageUri || (embedPlayerParams && !streamplaceActor))
 
   const onPress = () => {
     playHaptic('Light')
@@ -95,8 +110,8 @@ export const ExternalEmbed = ({
   return (
     <Link
       label={link.title || _(msg`Open link to ${niceUrl}`)}
-      to={link.uri}
-      shouldProxy={true}
+      to={streamplaceActor ? `/live/${streamplaceActor}` : link.uri}
+      shouldProxy={!streamplaceActor}
       peek
       style={[a.rounded_md]}
       onPress={onPress}
@@ -116,7 +131,7 @@ export const ExternalEmbed = ({
               ? t.atoms.border_contrast_high
               : t.atoms.border_contrast_low,
           ]}>
-          {imageUri && !embedPlayerParams ? (
+          {imageUri && (!embedPlayerParams || streamplaceActor) ? (
             <Image
               style={[a.aspect_card]}
               source={{uri: imageUri}}
@@ -128,7 +143,7 @@ export const ExternalEmbed = ({
 
           {embedPlayerParams?.isGif ? (
             <ExternalGif link={link} params={embedPlayerParams} />
-          ) : embedPlayerParams ? (
+          ) : embedPlayerParams && !streamplaceActor ? (
             <ExternalPlayer link={link} params={embedPlayerParams} />
           ) : undefined}
 

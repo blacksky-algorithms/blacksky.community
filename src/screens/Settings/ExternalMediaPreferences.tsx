@@ -19,6 +19,7 @@ import {atoms as a, native} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import * as Toggle from '#/components/forms/Toggle'
 import * as Layout from '#/components/Layout'
+import {useAnalytics} from '#/analytics'
 import * as SettingsList from './components/SettingsList'
 
 type Props = NativeStackScreenProps<
@@ -26,6 +27,10 @@ type Props = NativeStackScreenProps<
   'PreferencesExternalEmbeds'
 >
 export function ExternalMediaPreferencesScreen({}: Props) {
+  const ax = useAnalytics()
+  const streamplaceEnabled = ax.features.enabled(
+    ax.features.StreamplaceWatchEnable,
+  )
   return (
     <Layout.Screen testID="externalMediaPreferencesScreen">
       <Layout.Header.Outer>
@@ -57,7 +62,8 @@ export function ExternalMediaPreferencesScreen({}: Props) {
               {Object.entries(externalEmbedLabels)
                 .filter(
                   ([key]) =>
-                    !exemptExternalEmbedSources.has(key as EmbedPlayerSource),
+                    !exemptExternalEmbedSources.has(key as EmbedPlayerSource) &&
+                    (key !== 'streamplace' || streamplaceEnabled),
                 )
                 .map(([key, label]) => (
                   <Fragment key={key}>
