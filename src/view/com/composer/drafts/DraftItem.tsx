@@ -12,6 +12,7 @@ import {Button} from '#/components/Button'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {DotGrid3x1_Stroke2_Corner0_Rounded as DotsIcon} from '#/components/icons/DotGrid'
+import {Poll_Stroke2_Corner0_Rounded as PollIcon} from '#/components/icons/Poll'
 import {CloseQuote_Stroke2_Corner0_Rounded as CloseQuoteIcon} from '#/components/icons/Quote'
 import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import * as MediaPreview from '#/components/MediaPreview'
@@ -106,6 +107,8 @@ export function DraftItem({
             )}
 
             {!mediaExistsOnOtherDevice && <DraftMediaPreview post={post} />}
+
+            {post.poll && <DraftPollPreview poll={post.poll} />}
 
             {hasMetadata && (
               <View style={[a.gap_xs]}>
@@ -275,6 +278,43 @@ function DraftMetadataTag({
 type LoadedImage = {
   url: string
   alt: string
+}
+
+function DraftPollPreview({poll}: {poll: {statements: string[]}}) {
+  const t = useTheme()
+  const {_} = useLingui()
+  const statements = poll.statements.filter(s => s.trim().length > 0)
+  return (
+    <View
+      style={[
+        a.p_sm,
+        a.gap_xs,
+        a.rounded_sm,
+        a.border,
+        t.atoms.border_contrast_low,
+      ]}>
+      <View style={[a.flex_row, a.align_center, a.gap_xs]}>
+        <PollIcon size="xs" fill={t.palette.primary_500} />
+        <Text style={[a.text_xs, a.font_bold, {color: t.palette.primary_500}]}>
+          {_(
+            msg({
+              message: 'Poll',
+              comment: 'Label on a draft preview showing the draft has a poll',
+            }),
+          )}
+        </Text>
+      </View>
+      {statements.map((statement, index) => (
+        <Text
+          emoji
+          key={index}
+          style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_high]}
+          numberOfLines={2}>
+          {statement}
+        </Text>
+      ))}
+    </View>
+  )
 }
 
 function DraftMediaPreview({post}: {post: DraftPostDisplay}) {

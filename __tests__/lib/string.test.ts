@@ -13,7 +13,7 @@ import {cleanError} from '../../src/lib/strings/errors'
 import {createFullHandle, makeValidHandle} from '../../src/lib/strings/handles'
 import {enforceLen} from '../../src/lib/strings/helpers'
 import {detectLinkables} from '../../src/lib/strings/rich-text-detection'
-import {shortenLinks} from '../../src/lib/strings/rich-text-manip'
+import {expandLinks, shortenLinks} from '../../src/lib/strings/rich-text-manip'
 import {
   makeRecordUri,
   toNiceDomain,
@@ -284,6 +284,40 @@ describe('toShareUrl', () => {
       const result = toShareUrl(inputs[i])
       expect(result).toEqual(outputs[i])
     }
+  })
+})
+
+describe('expandLinks', () => {
+  const inputs = [
+    'start https://middle.com/foo/bar?baz=bux#hash end',
+    'https://start.com/looooooooooooooooooooooooooooooooooooooooooooooooooong/path middle https://end.com/foo/bar',
+    'no links here',
+    'a short one https://example.com/x stays as it is',
+  ]
+
+  it.each(inputs)('restores the full links of %s', input => {
+    const typed = new RichText({text: input})
+    typed.detectFacetsWithoutResolution()
+    const published = shortenLinks(typed)
+
+    const restored = expandLinks(published)
+
+    expect(restored.text).toBe(input)
+    expect(restored.facets).toStrictEqual(typed.facets)
+  })
+
+  it('leaves the published text as it was', () => {
+    const typed = new RichText({
+      text: 'see https://example.com/looooooooooooooooooooooooooooooong/path',
+    })
+    typed.detectFacetsWithoutResolution()
+    const published = shortenLinks(typed)
+    const before = published.text
+
+    expandLinks(published)
+
+    expect(published.text).toBe(before)
+    expect(before).not.toBe(typed.text)
   })
 })
 
@@ -903,6 +937,111 @@ describe('parseEmbedPlayerFromUrl', () => {
 
       expect(res).toEqual(output)
     }
+  })
+
+  describe('assembly conversations', () => {
+    const PRODUCTION = 'https://assembly.blacksky.community'
+
+    function parserFor(assemblyUrl: string) {
+      let parse = parseEmbedPlayerFromUrl
+      jest.isolateModules(() => {
+        jest.doMock('#/env', () => ({
+          ...jest.requireActual<Record<string, unknown>>('#/env'),
+          ASSEMBLY_URL: assemblyUrl,
+        }))
+        parse = jest.requireActual<{
+          parseEmbedPlayerFromUrl: typeof parseEmbedPlayerFromUrl
+        }>('#/lib/strings/embed-player').parseEmbedPlayerFromUrl
+      })
+      jest.dontMock('#/env')
+      return parse
+    }
+
+    function conversation(playerUri: string) {
+      return {
+        type: 'assembly_conversation',
+        source: 'assembly',
+        playerUri,
+        hideDetails: false,
+      }
+    }
+
+    it('accepts the production host', () => {
+      const parse = parserFor(PRODUCTION)
+
+      expect(parse(`${PRODUCTION}/2demo`)).toEqual(
+        conversation(`${PRODUCTION}/2demo`),
+      )
+      expect(parse(`${PRODUCTION}/2demo?utm_source=post`)).toEqual(
+        conversation(`${PRODUCTION}/2demo`),
+      )
+      expect(parse('http://assembly.blacksky.community/2demo')).toEqual(
+        conversation(`${PRODUCTION}/2demo`),
+      )
+    })
+
+    it('accepts only the production host by default', () => {
+      const parse = parserFor(PRODUCTION)
+
+      expect(parse('http://localhost:5000/2demo')).toBeUndefined()
+      expect(parse('https://example.com/2demo')).toBeUndefined()
+      expect(
+        parse('https://assembly.blacksky.community.example.com/2demo'),
+      ).toBeUndefined()
+    })
+
+    it('accepts the configured host', () => {
+      const parse = parserFor('http://localhost:5000')
+
+      expect(parse('http://localhost:5000/2demo')).toEqual(
+        conversation('http://localhost:5000/2demo'),
+      )
+      expect(parse(`${PRODUCTION}/2demo`)).toEqual(
+        conversation(`${PRODUCTION}/2demo`),
+      )
+    })
+
+    it('accepts a configured host written with a trailing slash', () => {
+      const parse = parserFor('http://localhost:5000/')
+
+      expect(parse('http://localhost:5000/2demo')).toEqual(
+        conversation('http://localhost:5000/2demo'),
+      )
+    })
+
+    it('rejects another port of the configured host', () => {
+      const parse = parserFor('http://localhost:5000')
+
+      expect(parse('http://localhost:8081/2demo')).toBeUndefined()
+      expect(parse('http://localhost/2demo')).toBeUndefined()
+    })
+
+    it.each([PRODUCTION, 'http://localhost:5000'])(
+      'rejects nested paths and short ids on %s',
+      origin => {
+        const parse = parserFor('http://localhost:5000')
+
+        expect(parse(`${origin}/report/r7demo`)).toBeUndefined()
+        expect(parse(`${origin}/2demo/extra`)).toBeUndefined()
+        expect(parse(`${origin}/2demo/`)).toBeUndefined()
+        expect(parse(`${origin}/2dem`)).toBeUndefined()
+        expect(parse(`${origin}/`)).toBeUndefined()
+        expect(parse(origin)).toBeUndefined()
+      },
+    )
+
+    it.each(['', 'not a url', 'file:///srv'])(
+      'keeps the production host when configured with "%s"',
+      assemblyUrl => {
+        const parse = parserFor(assemblyUrl)
+
+        expect(parse(`${PRODUCTION}/2demo`)).toEqual(
+          conversation(`${PRODUCTION}/2demo`),
+        )
+        expect(parse('http://localhost:5000/2demo')).toBeUndefined()
+        expect(parse('file:///2demo')).toBeUndefined()
+      },
+    )
   })
 })
 

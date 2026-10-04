@@ -1,19 +1,38 @@
-import {useCallback, useEffect, useState} from 'react'
-import {Image, Linking, Pressable, StyleSheet, View} from 'react-native'
-import {type AppBskyEmbedExternal} from '@atproto/api'
+import {useCallback, useEffect, useRef, useState} from 'react'
+import {Image, Pressable, StyleSheet, View} from 'react-native'
+import {
+  type AppBskyEmbedExternal,
+  type AppBskyRichtextFacet,
+  RichText,
+} from '@atproto/api'
+import {Trans, useLingui} from '@lingui/react/macro'
 
+import {assemblyReportUrl, assemblyUrl} from '#/lib/api/assembly'
+import {pollTopicFromText, type PollVoteValue} from '#/lib/api/poll'
+import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
+import {expandLinks} from '#/lib/strings/rich-text-manip'
 import {useAgent, useSession} from '#/state/session'
 import {Logo as BlackskyLogo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
+import {ASSEMBLY_URL} from '#/env'
+import {VoteButtons} from './VoteButtons'
 
-const ASSEMBLY_API = 'https://assembly.blacksky.community/api/v3'
+const ASSEMBLY_API = `${ASSEMBLY_URL.replace(/\/+$/, '')}/api/v3`
+
+const VOTE_NUMBERS: Record<PollVoteValue, -1 | 0 | 1> = {
+  agree: -1,
+  disagree: 1,
+  pass: 0,
+}
 
 interface Statement {
   tid: number
   txt: string
   remaining?: number
+  is_seed?: boolean
   author_name?: string
   author_avatar?: string
   author_is_blacksky_member?: boolean
@@ -37,6 +56,7 @@ interface ConversationMeta {
 interface EmbedConversationResponse {
   conversation: ConversationMeta
   nextComment: Statement | null
+  report_id?: string | null
 }
 
 interface ParticipationInitResponse {
@@ -47,6 +67,19 @@ interface ParticipationInitResponse {
 interface VoteResponse {
   auth?: {token: string}
   nextComment?: Statement
+}
+
+function repeatsTopic(
+  topic: string,
+  text: string | undefined,
+  facets: AppBskyRichtextFacet.Main[] | undefined,
+): boolean {
+  if (!text) return false
+  if (pollTopicFromText(text) === topic) return true
+  if (!facets?.length) return false
+  return (
+    pollTopicFromText(expandLinks(new RichText({text, facets})).text) === topic
+  )
 }
 
 function extractConversationId(uri: string): string {
@@ -60,14 +93,22 @@ function extractConversationId(uri: string): string {
 
 export function AssemblyEmbed({
   link,
+  postText,
+  postFacets,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   params: EmbedPlayerParams
+  postText?: string
+  postFacets?: AppBskyRichtextFacet.Main[]
 }) {
   const t = useTheme()
+  const {t: l} = useLingui()
+  const ax = useAnalytics()
   const agent = useAgent()
+  const openLink = useOpenLink()
   const {currentAccount} = useSession()
   const conversationId = extractConversationId(link.uri)
+  const hasCompleted = useRef(false)
 
   const [data, setData] = useState<EmbedConversationResponse | null>(null)
   const [statement, setStatement] = useState<Statement | null>(null)
@@ -75,21 +116,28 @@ export function AssemblyEmbed({
   const [error, setError] = useState<string | null>(null)
   const [allVoted, setAllVoted] = useState(false)
   const [notFound, setNotFound] = useState(false)
-  const [participationToken, setParticipationToken] = useState<string | null>(
-    null,
-  )
+  const [participation, setParticipation] = useState<{
+    did: string
+    token: string
+  } | null>(null)
 
-  const isAuthenticated = !!currentAccount?.did
+  const viewerDid = currentAccount?.did
+  const isAuthenticated = !!viewerDid
+  const participationToken =
+    participation && participation.did === viewerDid
+      ? participation.token
+      : null
 
   useEffect(() => {
     if (!conversationId) return
+    let cancelled = false
 
     const init = async () => {
-      // 1. Fetch conversation data (public endpoint, CORS-safe)
       try {
         const convResp = await fetch(
           `${ASSEMBLY_API}/embed/conversation?conversation_id=${conversationId}`,
         )
+        if (cancelled) return
         if (!convResp.ok) {
           if (convResp.status === 400 || convResp.status === 404) {
             setNotFound(true)
@@ -97,22 +145,22 @@ export function AssemblyEmbed({
           return
         }
         const convData = (await convResp.json()) as EmbedConversationResponse
+        if (cancelled) return
         setData(convData)
         setStatement(convData.nextComment)
-        if (!convData.nextComment) setAllVoted(true)
+        setAllVoted(!convData.nextComment)
         if (!convData.conversation.is_active) return
       } catch {
-        setError('Failed to load conversation')
+        if (!cancelled) setError('Failed to load conversation')
         return
       }
 
-      // 2. If authenticated, try to get a participation JWT (separate try/catch — non-fatal)
-      if (isAuthenticated && currentAccount?.did) {
+      if (viewerDid) {
         try {
           const xidParams = new URLSearchParams({
             conversation_id: conversationId,
             includePCA: 'false',
-            xid: currentAccount.did,
+            xid: viewerDid,
           })
 
           const initResp = await fetch(
@@ -122,40 +170,39 @@ export function AssemblyEmbed({
           if (initResp.ok) {
             const initData =
               (await initResp.json()) as ParticipationInitResponse
+            if (cancelled) return
 
             if (initData.auth?.token) {
-              setParticipationToken(initData.auth.token)
+              setParticipation({did: viewerDid, token: initData.auth.token})
             }
 
-            // Use personalized next comment (excludes already-voted)
             if (initData.nextComment) {
               setStatement(initData.nextComment)
             } else {
-              // User has voted on all statements
               setStatement(null)
               setAllVoted(true)
             }
           }
-        } catch {
-          // participationInit failed (likely CORS) — continue with public data
-        }
+        } catch {}
       }
     }
 
     void init()
-  }, [conversationId, isAuthenticated, currentAccount?.did])
+    return () => {
+      cancelled = true
+    }
+  }, [conversationId, viewerDid])
 
   const handleVote = useCallback(
-    async (value: -1 | 0 | 1) => {
+    async (value: PollVoteValue) => {
       if (!statement || voting) return
       setVoting(true)
       setError(null)
 
       try {
+        const vote = VOTE_NUMBERS[value]
         let voteAtUri: string | undefined
 
-        // If authenticated and statement has an AT URI, create a signed vote
-        // record in the user's repo as proof of identity.
         if (agent.session && statement.at_uri && statement.at_cid) {
           const createResult = await agent.com.atproto.repo.createRecord({
             repo: agent.assertDid,
@@ -166,16 +213,13 @@ export function AssemblyEmbed({
                 uri: statement.at_uri,
                 cid: statement.at_cid,
               },
-              value,
+              value: vote,
               createdAt: new Date().toISOString(),
             },
           })
           voteAtUri = createResult.data.uri
         }
 
-        // Submit to assembly's verified vote endpoint.
-        // If authenticated: server fetches the record from user's PDS to verify.
-        // If anonymous: server accepts the vote directly (conversation allows it).
         const voteHeaders: Record<string, string> = {
           'Content-Type': 'application/json',
         }
@@ -188,7 +232,7 @@ export function AssemblyEmbed({
           body: JSON.stringify({
             conversation_id: conversationId,
             tid: statement.tid,
-            vote: value,
+            vote,
             ...(voteAtUri ? {vote_at_uri: voteAtUri} : {}),
           }),
         })
@@ -205,11 +249,22 @@ export function AssemblyEmbed({
 
         const voteResult = (await voteResp.json()) as VoteResponse
 
+        ax.metric('assembly:vote', {
+          conversationId,
+          tid: statement.tid,
+          value,
+          remaining: voteResult.nextComment?.remaining ?? 0,
+        })
+
         if (voteResult.nextComment) {
           setStatement(voteResult.nextComment)
         } else {
           setAllVoted(true)
           setStatement(null)
+          if (!hasCompleted.current) {
+            hasCompleted.current = true
+            ax.metric('assembly:complete', {conversationId})
+          }
         }
       } catch {
         setError('Vote failed. Please try again.')
@@ -217,21 +272,24 @@ export function AssemblyEmbed({
         setVoting(false)
       }
     },
-    [agent, statement, conversationId, voting],
+    [agent, ax, statement, conversationId, voting, participationToken],
   )
 
   const onVote = useCallback(
-    (value: -1 | 0 | 1) => {
+    (value: PollVoteValue) => {
       void handleVote(value)
     },
     [handleVote],
   )
 
   const openAssembly = useCallback(() => {
-    void Linking.openURL(
-      `https://assembly.blacksky.community/${conversationId}`,
-    )
-  }, [conversationId])
+    openLink(assemblyUrl(conversationId))
+  }, [openLink, conversationId])
+
+  const reportId = data?.report_id
+  const openResults = useCallback(() => {
+    if (reportId) openLink(assemblyReportUrl(reportId))
+  }, [openLink, reportId])
 
   if (notFound) {
     return (
@@ -285,6 +343,16 @@ export function AssemblyEmbed({
     )
   }
 
+  const topic = repeatsTopic(data.conversation.topic, postText, postFacets)
+    ? undefined
+    : data.conversation.topic
+  const footer = (
+    <AssemblyFooter
+      onPress={openAssembly}
+      onPressResults={reportId ? openResults : undefined}
+    />
+  )
+
   if (!data.conversation.is_active) {
     return (
       <View
@@ -293,7 +361,7 @@ export function AssemblyEmbed({
           {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
         ]}>
         <AssemblyHeader
-          topic={data.conversation.topic}
+          topic={topic}
           description={data.conversation.description}
         />
         <Text
@@ -303,7 +371,7 @@ export function AssemblyEmbed({
           ]}>
           This conversation is closed.
         </Text>
-        <AssemblyFooter onPress={openAssembly} />
+        {footer}
       </View>
     )
   }
@@ -316,20 +384,20 @@ export function AssemblyEmbed({
           {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
         ]}>
         <AssemblyHeader
-          topic={data.conversation.topic}
+          topic={topic}
           description={data.conversation.description}
         />
         <Pressable
           style={styles.signInButton}
           onPress={openAssembly}
           accessibilityRole="link"
-          accessibilityLabel="Sign in to vote"
-          accessibilityHint="Opens the assembly page to sign in and vote">
+          accessibilityLabel={l`Sign in to vote`}
+          accessibilityHint={l`Opens the assembly page to sign in and vote`}>
           <Text style={[a.text_sm, a.font_semi_bold, {color: '#fff'}]}>
-            Sign in to vote
+            <Trans>Sign in to vote</Trans>
           </Text>
         </Pressable>
-        <AssemblyFooter onPress={openAssembly} />
+        {footer}
       </View>
     )
   }
@@ -341,7 +409,7 @@ export function AssemblyEmbed({
         {backgroundColor: t.atoms.bg_contrast_25.backgroundColor},
       ]}>
       <AssemblyHeader
-        topic={data.conversation.topic}
+        topic={topic}
         description={data.conversation.description}
       />
 
@@ -356,62 +424,74 @@ export function AssemblyEmbed({
         <>
           <View style={styles.statementCardStack}>
             <View style={styles.statementCard}>
-              <View style={styles.statementAuthorRow}>
-                {statement.author_avatar ? (
-                  <Image
-                    source={{uri: statement.author_avatar}}
-                    style={styles.authorAvatar}
-                    accessibilityIgnoresInvertColors
-                  />
-                ) : (
-                  <View
-                    style={[styles.authorAvatar, {backgroundColor: '#ddd'}]}
-                  />
-                )}
-                <View style={{flex: 1}}>
-                  <Text style={[a.text_xs, {color: '#666'}]}>
-                    {statement.author_name || 'Anonymous'} wrote:
-                  </Text>
-                  {(statement.author_is_team ||
-                    statement.author_is_blacksky_member ||
-                    statement.author_is_funder ||
-                    statement.author_is_oss_supporter) && (
-                    <View style={styles.badgeRow}>
-                      {statement.author_is_team && (
-                        <View style={[styles.badge, {backgroundColor: '#000'}]}>
-                          <Text style={[styles.badgeText, {color: '#fff'}]}>
-                            Admin
-                          </Text>
-                        </View>
-                      )}
-                      {statement.author_is_blacksky_member && (
-                        <View
-                          style={[styles.badge, {backgroundColor: '#8B8BFF'}]}>
-                          <Text style={[styles.badgeText, {color: '#fff'}]}>
-                            Member
-                          </Text>
-                        </View>
-                      )}
-                      {statement.author_is_funder && (
-                        <View
-                          style={[styles.badge, {backgroundColor: '#D2FC51'}]}>
-                          <Text style={[styles.badgeText, {color: '#000'}]}>
-                            Funder
-                          </Text>
-                        </View>
-                      )}
-                      {statement.author_is_oss_supporter && (
-                        <View
-                          style={[styles.badge, {backgroundColor: '#FF6B35'}]}>
-                          <Text style={[styles.badgeText, {color: '#fff'}]}>
-                            OSS
-                          </Text>
-                        </View>
-                      )}
-                    </View>
+              {!statement.is_seed && (
+                <View style={styles.statementAuthorRow}>
+                  {statement.author_avatar ? (
+                    <Image
+                      source={{uri: statement.author_avatar}}
+                      style={styles.authorAvatar}
+                      accessibilityIgnoresInvertColors
+                    />
+                  ) : (
+                    <View
+                      style={[styles.authorAvatar, {backgroundColor: '#ddd'}]}
+                    />
                   )}
+                  <View style={{flex: 1}}>
+                    <Text style={[a.text_xs, {color: '#666'}]}>
+                      {statement.author_name || 'Anonymous'} wrote:
+                    </Text>
+                    {(statement.author_is_team ||
+                      statement.author_is_blacksky_member ||
+                      statement.author_is_funder ||
+                      statement.author_is_oss_supporter) && (
+                      <View style={styles.badgeRow}>
+                        {statement.author_is_team && (
+                          <View
+                            style={[styles.badge, {backgroundColor: '#000'}]}>
+                            <Text style={[styles.badgeText, {color: '#fff'}]}>
+                              Admin
+                            </Text>
+                          </View>
+                        )}
+                        {statement.author_is_blacksky_member && (
+                          <View
+                            style={[
+                              styles.badge,
+                              {backgroundColor: '#8B8BFF'},
+                            ]}>
+                            <Text style={[styles.badgeText, {color: '#fff'}]}>
+                              Member
+                            </Text>
+                          </View>
+                        )}
+                        {statement.author_is_funder && (
+                          <View
+                            style={[
+                              styles.badge,
+                              {backgroundColor: '#D2FC51'},
+                            ]}>
+                            <Text style={[styles.badgeText, {color: '#000'}]}>
+                              Funder
+                            </Text>
+                          </View>
+                        )}
+                        {statement.author_is_oss_supporter && (
+                          <View
+                            style={[
+                              styles.badge,
+                              {backgroundColor: '#FF6B35'},
+                            ]}>
+                            <Text style={[styles.badgeText, {color: '#fff'}]}>
+                              OSS
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
                 </View>
-              </View>
+              )}
               <Text
                 style={[
                   a.text_md,
@@ -444,68 +524,12 @@ export function AssemblyEmbed({
           </View>
 
           <View style={styles.voteButtons}>
-            <Pressable
-              style={({hovered}: {hovered?: boolean}) => [
-                styles.voteButton,
-                {
-                  borderColor: '#61C554',
-                  backgroundColor: hovered
-                    ? 'rgba(97, 197, 84, 0.15)'
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}
-              onPress={() => onVote(-1)}
+            <VoteButtons
+              pending={voting}
               disabled={voting}
-              accessibilityRole="button"
-              accessibilityLabel="Agree"
-              accessibilityHint="Vote agree on this statement">
-              <Text style={[a.text_sm, a.font_semi_bold, {color: '#61C554'}]}>
-                {voting ? '...' : 'Agree'}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={({hovered}: {hovered?: boolean}) => [
-                styles.voteButton,
-                {
-                  borderColor: '#F40B42',
-                  backgroundColor: hovered
-                    ? 'rgba(244, 11, 66, 0.12)'
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}
-              onPress={() => onVote(1)}
-              disabled={voting}
-              accessibilityRole="button"
-              accessibilityLabel="Disagree"
-              accessibilityHint="Vote disagree on this statement">
-              <Text style={[a.text_sm, a.font_semi_bold, {color: '#F40B42'}]}>
-                {voting ? '...' : 'Disagree'}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={({hovered}: {hovered?: boolean}) => [
-                styles.voteButton,
-                {
-                  borderColor: t.atoms.border_contrast_low.borderColor,
-                  backgroundColor: hovered
-                    ? t.atoms.bg_contrast_50.backgroundColor
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}
-              onPress={() => onVote(0)}
-              disabled={voting}
-              accessibilityRole="button"
-              accessibilityLabel="Pass"
-              accessibilityHint="Pass on this statement">
-              <Text
-                style={[
-                  a.text_sm,
-                  a.font_semi_bold,
-                  {color: t.atoms.text_contrast_medium.color},
-                ]}>
-                {voting ? '...' : 'Pass / Unsure'}
-              </Text>
-            </Pressable>
+              passLabel={l`Pass / Unsure`}
+              onVote={onVote}
+            />
           </View>
 
           {error ? (
@@ -516,7 +540,7 @@ export function AssemblyEmbed({
         </>
       ) : null}
 
-      <AssemblyFooter onPress={openAssembly} />
+      {footer}
     </View>
   )
 }
@@ -525,7 +549,7 @@ function AssemblyHeader({
   topic,
   description,
 }: {
-  topic: string
+  topic?: string
   description?: string
 }) {
   const t = useTheme()
@@ -538,11 +562,13 @@ function AssemblyHeader({
           People's Assembly
         </Text>
       </View>
-      <Text
-        style={[{fontSize: 15, fontWeight: '700', marginTop: 6}]}
-        numberOfLines={2}>
-        {topic}
-      </Text>
+      {topic ? (
+        <Text
+          style={[{fontSize: 15, fontWeight: '700', marginTop: 6}]}
+          numberOfLines={2}>
+          {topic}
+        </Text>
+      ) : null}
       {description ? (
         <Text
           style={[
@@ -557,16 +583,34 @@ function AssemblyHeader({
   )
 }
 
-function AssemblyFooter({onPress}: {onPress: () => void}) {
+function AssemblyFooter({
+  onPress,
+  onPressResults,
+}: {
+  onPress: () => void
+  onPressResults?: () => void
+}) {
+  const {t: l} = useLingui()
   return (
     <View style={styles.footer}>
+      {onPressResults ? (
+        <Pressable
+          onPress={onPressResults}
+          accessibilityRole="link"
+          accessibilityLabel={l`See results`}
+          accessibilityHint={l`Opens the assembly results page`}>
+          <Text style={{fontSize: 12, color: '#8B8BFF'}}>
+            <Trans>See results</Trans>
+          </Text>
+        </Pressable>
+      ) : null}
       <Pressable
         onPress={onPress}
         accessibilityRole="link"
-        accessibilityLabel="Submit a statement"
-        accessibilityHint="Opens the assembly conversation page">
+        accessibilityLabel={l`Submit a statement`}
+        accessibilityHint={l`Opens the assembly conversation page`}>
         <Text style={{fontSize: 12, color: '#8B8BFF'}}>
-          Submit a statement →
+          <Trans>Submit a statement →</Trans>
         </Text>
       </Pressable>
     </View>
@@ -627,16 +671,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   voteButtons: {
-    flexDirection: 'row',
-    gap: 8,
     marginTop: 10,
-  },
-  voteButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 2,
-    alignItems: 'center',
   },
   statementAuthorRow: {
     flexDirection: 'row',
@@ -672,6 +707,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 10,
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: 12,
   },
 })

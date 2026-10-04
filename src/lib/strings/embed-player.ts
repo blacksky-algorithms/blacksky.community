@@ -1,6 +1,6 @@
 import {Dimensions} from 'react-native'
 
-import {IS_WEB} from '#/env'
+import {ASSEMBLY_URL, IS_WEB} from '#/env'
 import {
   parseStreamplaceActor,
   STREAMPLACE_ORIGIN,
@@ -107,6 +107,27 @@ export interface EmbedPlayerParams {
 
 const giphyRegex = /media(?:[0-4]\.giphy\.com|\.giphy\.com)/i
 const gifFilenameRegex = /^(\S+)\.(webp|gif|mp4)$/i
+
+const ASSEMBLY_HOSTNAME = 'assembly.blacksky.community'
+const ASSEMBLY_HOST = parseHost(ASSEMBLY_URL)
+
+function parseHost(url: string): string | undefined {
+  try {
+    return new URL(url).host || undefined
+  } catch {
+    return undefined
+  }
+}
+
+function getAssemblyOrigin(urlp: URL): string | undefined {
+  if (urlp.hostname === ASSEMBLY_HOSTNAME) {
+    return `https://${ASSEMBLY_HOSTNAME}`
+  }
+  if (ASSEMBLY_HOST && urlp.host === ASSEMBLY_HOST) {
+    return ASSEMBLY_URL.replace(/\/+$/, '')
+  }
+  return undefined
+}
 
 export function parseEmbedPlayerFromUrl(
   url: string,
@@ -515,13 +536,14 @@ export function parseEmbedPlayerFromUrl(
   }
 
   // Assembly conversations
-  if (urlp.hostname === 'assembly.blacksky.community') {
+  const assemblyOrigin = getAssemblyOrigin(urlp)
+  if (assemblyOrigin) {
     const match = urlp.pathname.match(/^\/([0-9A-Za-z]{5,})$/)
     if (match) {
       return {
         type: 'assembly_conversation' as EmbedPlayerType,
         source: 'assembly' as EmbedPlayerSource,
-        playerUri: `https://assembly.blacksky.community/${match[1]}`,
+        playerUri: `${assemblyOrigin}/${match[1]}`,
         hideDetails: false,
       }
     }

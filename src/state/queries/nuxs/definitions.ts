@@ -17,6 +17,7 @@ export enum Nux {
   DraftsAnnouncement = 'DraftsAnnouncement',
   GroupChatsAnnouncement = 'GroupChatsAnnouncement',
   InviteFriendsAnnouncement = 'InviteFriendsAnnouncement',
+  ComposerPoll = 'ComposerPoll',
 }
 
 export const nuxNames = new Set(Object.values(Nux))
@@ -78,6 +79,10 @@ export type AppNux = BaseNux<
       id: Nux.InviteFriendsAnnouncement
       data: undefined
     }
+  | {
+      id: Nux.ComposerPoll
+      data: undefined
+    }
 >
 
 export const NuxSchemas: Record<Nux, zod.ZodObject<any> | undefined> = {
@@ -95,4 +100,5 @@ export const NuxSchemas: Record<Nux, zod.ZodObject<any> | undefined> = {
   [Nux.DraftsAnnouncement]: undefined,
   [Nux.GroupChatsAnnouncement]: undefined,
   [Nux.InviteFriendsAnnouncement]: undefined,
+  [Nux.ComposerPoll]: undefined,
 }
