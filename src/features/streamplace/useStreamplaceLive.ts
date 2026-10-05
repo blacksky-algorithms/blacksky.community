@@ -3,6 +3,7 @@ import {useEffect, useReducer, useState} from 'react'
 import {logger} from '#/logger'
 import {
   EMPTY_LIVE_STATE,
+  isKnownNotLiveAt,
   isLiveAt,
   type LiveState,
   reduceLiveEvent,
@@ -56,5 +57,9 @@ export function useStreamplaceLive(actor: string | undefined) {
     return () => clearInterval(id)
   }, [])
 
-  return {...state, isLive: isLiveAt(state, now)}
+  return {
+    ...state,
+    isLive: isLiveAt(state, now),
+    notLive: isKnownNotLiveAt(state, now),
+  }
 }

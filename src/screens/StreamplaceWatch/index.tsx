@@ -170,7 +170,7 @@ function Watch({actor}: {actor: string}) {
   return (
     <Layout.Center style={a.flex_1}>
       {did ? (
-        <LivePlayer actor={did} />
+        <LivePlayer actor={did} notLive={live.notLive} />
       ) : (
         <View
           style={[a.w_full, {aspectRatio: 16 / 9, backgroundColor: 'black'}]}
