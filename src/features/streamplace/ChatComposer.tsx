@@ -1,11 +1,11 @@
 import {useState} from 'react'
-import {TextInput, View} from 'react-native'
+import {Pressable, TextInput, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {atoms as a, useTheme} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {PaperPlaneVertical_Filled_Stroke2_Corner1_Rounded as PaperPlaneIcon} from '#/components/icons/PaperPlane'
 
 const MAX_GRAPHEMES = 300
 
@@ -63,15 +63,26 @@ export function ChatComposer({
         ]}
         onSubmitEditing={submit}
       />
-      <Button
-        label={_(msg`Send`)}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={_(msg`Send`)}
+        accessibilityHint=""
+        accessibilityState={{disabled}}
         onPress={submit}
         disabled={disabled}
-        size="small"
-        color="primary"
-        variant="solid">
-        <ButtonText>{_(msg`Send`)}</ButtonText>
-      </Button>
+        style={[
+          a.rounded_full,
+          a.align_center,
+          a.justify_center,
+          {
+            width: 40,
+            height: 40,
+            backgroundColor: t.palette.primary_500,
+            opacity: disabled ? 0.5 : 1,
+          },
+        ]}>
+        <PaperPlaneIcon size="md" fill={t.palette.white} />
+      </Pressable>
     </View>
   )
 }
