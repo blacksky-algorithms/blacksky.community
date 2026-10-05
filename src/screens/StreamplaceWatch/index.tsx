@@ -1,6 +1,7 @@
 import {useEffect, useMemo} from 'react'
 import {Pressable, View} from 'react-native'
-import {KeyboardAvoidingView} from 'react-native-keyboard-controller'
+import {useKeyboardState} from 'react-native-keyboard-controller'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {moderateProfile} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -24,6 +25,7 @@ import {EmbedConsentDialog} from '#/components/dialogs/EmbedConsent'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {IS_NATIVE} from '#/env'
 import {ChatComposer} from '#/features/streamplace/ChatComposer'
 import {ChatList} from '#/features/streamplace/ChatList'
 import {LivePlayer} from '#/features/streamplace/LivePlayer'
@@ -145,6 +147,10 @@ function Watch({actor}: {actor: string}) {
   )
   const visibleChat = useMemo(() => visible.map(v => v.message), [visible])
   const {pending, send} = useSendChat(did, visibleChat)
+  const {bottom} = useSafeAreaInsets()
+  const keyboardVisible = useKeyboardState(s => s.isVisible)
+  const keyboardHeight = useKeyboardState(s => s.height)
+  const typing = IS_NATIVE && keyboardVisible
 
   useEffect(() => {
     ax.metric('live:watch:open', {subject: actor})
@@ -168,7 +174,11 @@ function Watch({actor}: {actor: string}) {
   ) : null
 
   return (
-    <Layout.Center style={a.flex_1}>
+    <Layout.Center
+      style={[
+        a.flex_1,
+        IS_NATIVE && {paddingBottom: typing ? keyboardHeight : bottom},
+      ]}>
       {did ? (
         <LivePlayer actor={did} />
       ) : (
@@ -176,29 +186,29 @@ function Watch({actor}: {actor: string}) {
           style={[a.w_full, {aspectRatio: 16 / 9, backgroundColor: 'black'}]}
         />
       )}
-      <ProfileInfo
-        actor={actor}
-        profile={profile}
-        live={live}
-        onPress={() => {
-          navigation.push('Profile', {name: profile?.did ?? actor})
-        }}
-      />
-      <Text
-        style={[
-          a.px_md,
-          a.py_sm,
-          a.font_semi_bold,
-          a.border_t,
-          t.atoms.border_contrast_low,
-        ]}>
-        <Trans>Live chat</Trans>
-      </Text>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={[a.flex_1, {minHeight: 0}]}>
-        {chat}
-      </KeyboardAvoidingView>
+      {!typing && (
+        <>
+          <ProfileInfo
+            actor={actor}
+            profile={profile}
+            live={live}
+            onPress={() => {
+              navigation.push('Profile', {name: profile?.did ?? actor})
+            }}
+          />
+          <Text
+            style={[
+              a.px_md,
+              a.py_sm,
+              a.font_semi_bold,
+              a.border_t,
+              t.atoms.border_contrast_low,
+            ]}>
+            <Trans>Live chat</Trans>
+          </Text>
+        </>
+      )}
+      <View style={[a.flex_1, {minHeight: 0}]}>{chat}</View>
     </Layout.Center>
   )
 }
