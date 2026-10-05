@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {View} from 'react-native'
 import {useVideoPlayer, VideoView} from 'expo-video'
 import {useIsFocused} from '@react-navigation/native'
@@ -10,16 +10,21 @@ import {livePlaylistUrl} from './url'
 const RETRY_MS = 2000
 const OFFLINE_AFTER_MS = 10_000
 
-export function LivePlayer({actor}: {actor: string}) {
+export function LivePlayer({
+  actor,
+  notLive = false,
+}: {
+  actor: string
+  notLive?: boolean
+}) {
   const source = livePlaylistUrl(actor)
   const player = useVideoPlayer(source, p => {
     p.play()
   })
-  const failingSince = useRef<number | null>(null)
-  const [offline, setOffline] = useState(false)
+  const [failing, setFailing] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
 
   const reload = () => {
-    failingSince.current = null
     player.replace(source)
     player.play()
   }
@@ -35,15 +40,20 @@ export function LivePlayer({actor}: {actor: string}) {
 
   useEffect(() => {
     let retry: ReturnType<typeof setTimeout> | undefined
+    let offlineTimer: ReturnType<typeof setTimeout> | undefined
     const sub = player.addListener('statusChange', ({status}) => {
       if (status === 'readyToPlay') {
-        failingSince.current = null
-        setOffline(false)
+        clearTimeout(offlineTimer)
+        offlineTimer = undefined
+        setFailing(false)
+        setTimedOut(false)
         return
       }
       if (status !== 'error') return
-      if (failingSince.current === null) failingSince.current = Date.now()
-      setOffline(Date.now() - failingSince.current > OFFLINE_AFTER_MS)
+      setFailing(true)
+      if (!offlineTimer) {
+        offlineTimer = setTimeout(() => setTimedOut(true), OFFLINE_AFTER_MS)
+      }
       clearTimeout(retry)
       retry = setTimeout(() => {
         player.replace(source)
@@ -53,6 +63,7 @@ export function LivePlayer({actor}: {actor: string}) {
     return () => {
       sub.remove()
       clearTimeout(retry)
+      clearTimeout(offlineTimer)
     }
   }, [player, source])
 
@@ -66,7 +77,7 @@ export function LivePlayer({actor}: {actor: string}) {
         contentFit="contain"
         accessibilityIgnoresInvertColors
       />
-      {offline && <LiveOffline onRetry={reload} />}
+      {failing && (notLive || timedOut) && <LiveOffline onRetry={reload} />}
     </View>
   )
 }
