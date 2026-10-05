@@ -164,6 +164,7 @@ export function RichText({
       els.push(
         <RichTextTag
           key={key}
+          selectable={selectable}
           display={segment.text}
           tag={tag.tag}
           textStyle={interactiveStyles}

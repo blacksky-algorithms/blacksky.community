@@ -29,11 +29,13 @@ export function RichTextTag({
   display,
   authorHandle,
   textStyle,
+  selectable,
 }: {
   tag: string
   display: string
   authorHandle?: string
   textStyle: StyleProp<TextStyle>
+  selectable?: boolean
 }) {
   const {_} = useLingui()
   const {isLoading: isPreferencesLoading, data: preferences} =
@@ -81,6 +83,7 @@ export function RichTextTag({
       <Menu.Trigger label={label} hint={hint}>
         {({props: menuProps}) => (
           <InlineLinkText
+            selectable={selectable}
             to={{
               screen: 'Hashtag',
               params: {tag: encodeURIComponent(tag)},
