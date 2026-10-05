@@ -1,7 +1,10 @@
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 import {Image} from 'expo-image'
-import {type AppBskyEmbedExternal} from '@atproto/api'
+import {
+  type AppBskyEmbedExternal,
+  type AppBskyRichtextFacet,
+} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -33,11 +36,15 @@ export const ExternalEmbed = ({
   onOpen,
   style,
   hideAlt,
+  postText,
+  postFacets,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
+  postText?: string
+  postFacets?: AppBskyRichtextFacet.Main[]
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -102,7 +109,12 @@ export const ExternalEmbed = ({
   if (embedPlayerParams?.type === 'assembly_conversation') {
     return (
       <View style={style}>
-        <AssemblyEmbed link={link} params={embedPlayerParams} />
+        <AssemblyEmbed
+          link={link}
+          params={embedPlayerParams}
+          postText={postText}
+          postFacets={postFacets}
+        />
       </View>
     )
   }

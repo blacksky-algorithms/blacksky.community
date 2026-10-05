@@ -18,6 +18,7 @@ export enum Features {
   AppviewFallbackThresholds = 'appview_fallback:thresholds',
   SearchAppviewRoute = 'search_appview:route',
   StreamplaceWatchEnable = 'streamplace:watch:enable',
+  PollsEnable = 'polls:enable',
 
   AATest = 'aa-test',
 }
