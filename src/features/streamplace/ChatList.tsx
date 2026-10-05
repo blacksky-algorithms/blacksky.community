@@ -1,4 +1,3 @@
-import {useRef} from 'react'
 import {FlatList, Pressable, View} from 'react-native'
 import {
   type AppBskyActorDefs,
@@ -40,24 +39,15 @@ export function ChatList({
   const data: ChatItem[] = [
     ...messages.map(item => ({kind: 'message' as const, item})),
     ...pending.map(item => ({kind: 'pending' as const, item})),
-  ]
-  const listRef = useRef<FlatList<ChatItem>>(null)
-  const atBottom = useRef(true)
+  ].reverse()
 
   return (
     <FlatList
-      ref={listRef}
+      inverted
       data={data}
       style={a.flex_1}
-      scrollEventThrottle={100}
-      onScroll={e => {
-        const {contentOffset, contentSize, layoutMeasurement} = e.nativeEvent
-        atBottom.current =
-          contentOffset.y + layoutMeasurement.height >= contentSize.height - 40
-      }}
-      onContentSizeChange={() => {
-        if (atBottom.current) listRef.current?.scrollToEnd({animated: false})
-      }}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
       keyExtractor={(item: ChatItem) =>
         item.kind === 'message'
           ? item.item.message.uri
