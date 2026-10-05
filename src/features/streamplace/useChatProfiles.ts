@@ -16,21 +16,21 @@ export function useChatProfiles(dids: string[]) {
     const missing = [...new Set(dids)].filter(d => !requested.current.has(d))
     if (!missing.length) return
     missing.forEach(d => requested.current.add(d))
-    void (async () => {
-      for (let i = 0; i < missing.length; i += BATCH) {
-        const chunk = missing.slice(i, i + BATCH)
-        try {
-          const res = await agent.getProfiles({actors: chunk})
+    for (let i = 0; i < missing.length; i += BATCH) {
+      const chunk = missing.slice(i, i + BATCH)
+      agent
+        .getProfiles({actors: chunk})
+        .then(res => {
           setProfiles(prev => {
             const next = new Map(prev)
             for (const p of res.data.profiles) next.set(p.did, p)
             return next
           })
-        } catch {
+        })
+        .catch(() => {
           chunk.forEach(d => requested.current.delete(d))
-        }
-      }
-    })()
+        })
+    }
   }, [dids, agent])
 
   return profiles
