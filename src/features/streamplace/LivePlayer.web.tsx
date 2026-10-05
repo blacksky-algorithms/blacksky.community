@@ -10,9 +10,16 @@ const RETRY_MS = 2000
 const OFFLINE_AFTER_MS = 10_000
 const MAX_MEDIA_RECOVERIES = 2
 
-export function LivePlayer({actor}: {actor: string}) {
+export function LivePlayer({
+  actor,
+  notLive = false,
+}: {
+  actor: string
+  notLive?: boolean
+}) {
   const ref = useRef<HTMLVideoElement>(null)
   const [offline, setOffline] = useState(false)
+  const [failing, setFailing] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
   useFocusEffect(
@@ -35,6 +42,7 @@ export function LivePlayer({actor}: {actor: string}) {
     setOffline(false)
 
     const onFailure = (reload: () => void) => {
+      setFailing(true)
       if (!offlineTimer) {
         offlineTimer = setTimeout(() => setOffline(true), OFFLINE_AFTER_MS)
       }
@@ -48,6 +56,7 @@ export function LivePlayer({actor}: {actor: string}) {
       clearTimeout(offlineTimer)
       offlineTimer = undefined
       setOffline(false)
+      setFailing(false)
     }
     video.addEventListener('playing', onPlaying)
 
@@ -87,7 +96,10 @@ export function LivePlayer({actor}: {actor: string}) {
         }
       })
       .catch(() => {
-        if (!disposed) setOffline(true)
+        if (!disposed) {
+          setFailing(true)
+          setOffline(true)
+        }
       })
 
     return () => {
@@ -112,7 +124,9 @@ export function LivePlayer({actor}: {actor: string}) {
         playsInline
         style={{width: '100%', height: '100%', backgroundColor: 'black'}}
       />
-      {offline && <LiveOffline onRetry={() => setAttempt(n => n + 1)} />}
+      {failing && (notLive || offline) && (
+        <LiveOffline onRetry={() => setAttempt(n => n + 1)} />
+      )}
     </View>
   )
 }
