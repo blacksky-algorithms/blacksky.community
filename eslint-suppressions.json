@@ -1674,14 +1674,6 @@
       "count": 1
     }
   },
-  "src/state/preferences/kawaii.tsx": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/state/preferences/languages.tsx": {
     "@typescript-eslint/no-floating-promises": {
       "count": 1
