@@ -1,5 +1,6 @@
 import {
   EMPTY_LIVE_STATE,
+  isKnownNotLiveAt,
   isLiveAt,
   type LiveState,
   reduceLiveEvent,
@@ -114,4 +115,36 @@ it('returns the same state for unknown or malformed events', () => {
     reduceLiveEvent(EMPTY_LIVE_STATE, {$type: 'place.stream.live.teleport'}, 0),
   ).toBe(EMPTY_LIVE_STATE)
   expect(reduceLiveEvent(EMPTY_LIVE_STATE, 'garbage', 0)).toBe(EMPTY_LIVE_STATE)
+})
+
+it('dates a segment by its startTime so an old one from the burst is not live', () => {
+  const now = Date.parse('2026-10-05T12:00:00Z')
+  const s = apply(
+    [{$type: 'place.stream.segment', startTime: '2026-10-05T09:00:00Z'}],
+    now,
+  )
+  expect(isLiveAt(s, now)).toBe(false)
+  expect(isKnownNotLiveAt(s, now)).toBe(true)
+})
+
+it('treats a fresh segment as live and never dates one in the future', () => {
+  const now = Date.parse('2026-10-05T12:00:00Z')
+  const s = apply(
+    [{$type: 'place.stream.segment', startTime: '2026-10-05T12:00:30Z'}],
+    now,
+  )
+  expect(s.lastSegmentAt).toBe(now)
+  expect(isLiveAt(s, now + 5000)).toBe(true)
+  expect(isKnownNotLiveAt(s, now + 5000)).toBe(false)
+})
+
+it('knows an ended stream is not live, and knows nothing before any events', () => {
+  const ended = apply([
+    {
+      $type: 'place.stream.livestream#livestreamView',
+      record: {title: 'x', endedAt: '2026-04-10T20:38:30Z'},
+    },
+  ])
+  expect(isKnownNotLiveAt(ended, 1000)).toBe(true)
+  expect(isKnownNotLiveAt(EMPTY_LIVE_STATE, 1000)).toBe(false)
 })
