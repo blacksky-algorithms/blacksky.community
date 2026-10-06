@@ -48,6 +48,7 @@ import {
 import {RQKEY_ROOT as RQKEY_LIST_CONVOS} from './messages/list-conversations'
 import {RQKEY as RQKEY_MY_BLOCKED} from './my-blocked-accounts'
 import {RQKEY as RQKEY_MY_MUTED} from './my-muted-accounts'
+import {forgetProfileEnrichment} from './profile-enrichment'
 
 export * from '#/state/queries/unstable-profile-cache'
 /**
@@ -339,6 +340,7 @@ export function useProfileUpdateMutation() {
       )
     },
     async onSuccess(_, variables) {
+      forgetProfileEnrichment(variables.profile.did)
       // invalidate cache
       queryClient.invalidateQueries({
         queryKey: RQKEY(variables.profile.did),

@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {useEffect, useRef} from 'react'
-import {type QueryClient, useQueryClient} from '@tanstack/react-query'
+import {
+  type Query,
+  type QueryClient,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import {PERSISTED_QUERY_ROOT} from '#/state/queries'
 import {fetchRecordViaSlingshot} from './microcosm-fallback'
@@ -15,16 +19,16 @@ type Enrichment = {
 /**
  * A profile is "incomplete" when the appview has the account but hasn't
  * synced the profile record yet. Detection heuristics:
- * - No avatar at all, OR
- * - displayName is missing/empty, OR
- * - displayName equals the handle (appview echoes handle as displayName
- *   when the profile record hasn't synced)
+ * - No avatar at all, AND
+ * - displayName is missing/empty or equals the handle (appview echoes handle
+ *   as displayName when the profile record hasn't synced)
  */
 function isIncompleteProfile(obj: any): boolean {
   if (!obj || typeof obj !== 'object') return false
   if (typeof obj.did !== 'string' || !obj.did.startsWith('did:')) return false
   if (!('handle' in obj)) return false
   if (obj.__enriched || obj.__fallbackMode) return false
+  if (isTakenDown(obj)) return false
 
   const hasAvatar = !!obj.avatar
   const hasRealDisplayName = !!obj.displayName && obj.displayName !== obj.handle // appview echoes handle when unsynced
@@ -32,6 +36,16 @@ function isIncompleteProfile(obj: any): boolean {
   // Incomplete if missing avatar AND missing a real display name
   if (!hasAvatar && !hasRealDisplayName) return true
   return false
+}
+
+function isTakenDown(obj: {labels?: unknown}): boolean {
+  return (
+    Array.isArray(obj.labels) &&
+    obj.labels.some(
+      (l: {val?: string; neg?: boolean} | undefined) =>
+        !l?.neg && (l?.val === '!takedown' || l?.val === '!suspend'),
+    )
+  )
 }
 
 /**
@@ -96,14 +110,25 @@ async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
  */
 function deepEnrich(
   data: any,
-  enrichments: Map<string, Enrichment>,
-  visited: WeakSet<object>,
+  enrichments: Map<string, Enrichment | null>,
+  visited: Map<object, [any, boolean]>,
   depth: number,
 ): [any, boolean] {
   if (!data || typeof data !== 'object' || depth > 12) return [data, false]
-  if (visited.has(data)) return [data, false]
-  visited.add(data)
+  const seen = visited.get(data)
+  if (seen) return seen
+  visited.set(data, [data, false])
+  const result = deepEnrichUncached(data, enrichments, visited, depth)
+  visited.set(data, result)
+  return result
+}
 
+function deepEnrichUncached(
+  data: any,
+  enrichments: Map<string, Enrichment | null>,
+  visited: Map<object, [any, boolean]>,
+  depth: number,
+): [any, boolean] {
   if (Array.isArray(data)) {
     let changed = false
     const out = data.map(item => {
@@ -122,7 +147,8 @@ function deepEnrich(
     data.did.startsWith('did:') &&
     'handle' in data &&
     !data.__enriched &&
-    enrichments.has(data.did)
+    !isTakenDown(data) &&
+    enrichments.get(data.did)
   ) {
     const e = enrichments.get(data.did)!
     const patch: any = {__enriched: true}
@@ -173,29 +199,40 @@ function deepEnrich(
 }
 
 /**
- * Apply enrichments to all non-persisted queries in the cache.
+ * Apply enrichments to a non-persisted query.
  * Uses immutable updates so React detects the changes.
  */
-function applyEnrichments(
+function enrichQuery(
   queryClient: QueryClient,
-  enrichments: Map<string, Enrichment>,
+  query: Query,
+  enrichments: Map<string, Enrichment | null>,
 ): void {
-  const queries = queryClient.getQueryCache().getAll()
+  const data = query.state.data
+  if (!data) return
 
-  for (const query of queries) {
-    const data = query.state.data
-    if (!data) continue
+  // Never touch persisted queries
+  const qk = query.queryKey
+  if (Array.isArray(qk) && qk[0] === PERSISTED_QUERY_ROOT) return
 
-    // Never touch persisted queries
-    const qk = query.queryKey
-    if (Array.isArray(qk) && qk[0] === PERSISTED_QUERY_ROOT) continue
-
-    const [next, changed] = deepEnrich(data, enrichments, new WeakSet(), 0)
-    if (changed) {
-      suppressSubscriber = true
-      queryClient.setQueryData(qk, next)
+  const [next, changed] = deepEnrich(data, enrichments, new Map(), 0)
+  if (changed) {
+    suppressSubscriber = true
+    try {
+      queryClient.setQueryData(qk, next, {
+        updatedAt: query.state.dataUpdatedAt,
+      })
+    } finally {
       suppressSubscriber = false
     }
+  }
+}
+
+function applyEnrichments(
+  queryClient: QueryClient,
+  enrichments: Map<string, Enrichment | null>,
+): void {
+  for (const query of queryClient.getQueryCache().getAll()) {
+    enrichQuery(queryClient, query, enrichments)
   }
 }
 
@@ -230,7 +267,7 @@ function repairPersistedCache(queryClient: QueryClient): void {
 
 // Module-level state
 let suppressSubscriber = false
-let enrichedDids = new Set<string>()
+let knownEnrichments = new Map<string, Enrichment | null>()
 let inFlightDids = new Set<string>()
 let pendingDids = new Set<string>()
 let flushTimer: ReturnType<typeof setTimeout> | null = null
@@ -267,6 +304,7 @@ async function processBatch(
     for (const result of results) {
       if (result.status === 'fulfilled') {
         inFlightDids.delete(result.value.did)
+        knownEnrichments.set(result.value.did, result.value.enrichment)
         if (result.value.enrichment) {
           enrichments.set(result.value.did, result.value.enrichment)
         }
@@ -282,16 +320,30 @@ async function processBatch(
 function queueDids(queryClient: QueryClient, dids: Set<string>): void {
   let hasNew = false
   for (const did of dids) {
-    if (!enrichedDids.has(did) && !inFlightDids.has(did)) {
+    if (!knownEnrichments.has(did) && !inFlightDids.has(did)) {
       pendingDids.add(did)
       inFlightDids.add(did)
-      enrichedDids.add(did)
       hasNew = true
     }
   }
   if (hasNew) {
     scheduleEnrichment(queryClient)
   }
+}
+
+export function forgetProfileEnrichment(did: string): void {
+  knownEnrichments.delete(did)
+}
+
+function handleQuery(queryClient: QueryClient, query: Query): void {
+  if (!query.state.data) return
+  const dids = new Set<string>()
+  collectIncompleteProfileDids(query.state.data, dids, new WeakSet(), 0)
+  if (dids.size === 0) return
+  if ([...dids].some(did => knownEnrichments.get(did))) {
+    enrichQuery(queryClient, query, knownEnrichments)
+  }
+  queueDids(queryClient, dids)
 }
 
 /**
@@ -305,7 +357,7 @@ export function useProfileEnrichment(): void {
 
   useEffect(() => {
     if (currentQueryClient !== queryClient) {
-      enrichedDids = new Set()
+      knownEnrichments = new Map()
       inFlightDids = new Set()
       pendingDids = new Set()
       currentQueryClient = queryClient
@@ -317,24 +369,15 @@ export function useProfileEnrichment(): void {
     const cache = queryClient.getQueryCache()
 
     // Initial scan
-    const dids = new Set<string>()
     for (const query of cache.getAll()) {
-      if (query.state.data) {
-        collectIncompleteProfileDids(query.state.data, dids, new WeakSet(), 0)
-      }
+      handleQuery(queryClient, query)
     }
-    if (dids.size > 0) queueDids(queryClient, dids)
 
     // Subscribe to new data
     const unsubscribe = cache.subscribe(event => {
       if (suppressSubscriber) return
       if (event.type !== 'updated' || event.action?.type !== 'success') return
-      const data = event.query.state.data
-      if (!data) return
-
-      const newDids = new Set<string>()
-      collectIncompleteProfileDids(data, newDids, new WeakSet(), 0)
-      if (newDids.size > 0) queueDids(qcRef.current, newDids)
+      handleQuery(qcRef.current, event.query)
     })
 
     return () => {
