@@ -111,7 +111,6 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const cancelPendingTask = useOneTaskAtATime()
   // eslint-disable-next-line react/hook-use-state
   const [store] = useState(() => new SessionStore())
-  const handledOauthDeletions = useRef(new Set<string>())
   const state = useSyncExternalStore(store.subscribe, store.getState)
   const onboardingDispatch = useOnboardingDispatch()
 
@@ -183,7 +182,6 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       if (signal.aborted) {
         return
       }
-      handledOauthDeletions.current.delete(account.did)
       store.dispatch({
         type: 'switched-to-account',
         newAgent: agent,
@@ -264,7 +262,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   )
 
   const resumeSession = useCallback<SessionApiContext['resumeSession']>(
-    async (storedAccount, isSwitchingAccounts = false) => {
+    async (storedAccount, isSwitchingAccounts = false, isAppLaunch = false) => {
       addSessionDebugLog({
         type: 'method:start',
         method: 'resumeSession',
@@ -278,7 +276,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       }
       if (storedAccount.isOauthSession) {
         try {
-          agentAccount = await oauthResumeSessionWithRetry(storedAccount)
+          agentAccount = await oauthResumeSessionWithRetry(
+            storedAccount,
+            isAppLaunch,
+          )
         } catch (e) {
           ax.metric('oauth:sessionResumeFailed', {
             logContext: isSwitchingAccounts ? 'SwitchAccount' : 'AppBoot',
@@ -298,7 +299,6 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       if (signal.aborted) {
         return
       }
-      handledOauthDeletions.current.delete(account.did)
       store.dispatch({
         type: 'switched-to-account',
         newAgent: agent,
@@ -353,10 +353,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   )
   useEffect(() => {
     setOauthLifecycleSink(event => {
-      if (handledOauthDeletions.current.has(event.did)) return
       if (store.getState().currentAgentState.did !== event.did) return
-
-      handledOauthDeletions.current.add(event.did)
       store.dispatch({
         type: 'oauth-session-terminated',
         accountDid: event.did,

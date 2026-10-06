@@ -15,7 +15,6 @@ import {
 } from './agent'
 import {configureModerationForAccount} from './moderation'
 import {getOAuthClient, TERMINAL_OAUTH_ERRORS} from './oauth-client'
-import {restoreOAuthSession} from './oauth-restore'
 import {
   categorizeOauthError,
   emitOauthTelemetry,
@@ -36,14 +35,22 @@ export async function oauthCreateAgent(session: OAuthSession) {
 
 const OAUTH_RESTORE_TIMEOUT_MS = 10_000
 
+type OAuthRestoreClient = {
+  restore(did: string): Promise<OAuthSession>
+}
+
+function restoreOAuthSession(did: string) {
+  const client: OAuthRestoreClient = getOAuthClient()
+  return client.restore(did)
+}
+
 export async function oauthResumeSession(account: SessionAccount) {
-  const client = getOAuthClient()
   let session: OAuthSession
   try {
-    session = await restoreOAuthSession(
-      client,
-      account.did,
+    session = await withTimeout(
+      restoreOAuthSession(account.did),
       OAUTH_RESTORE_TIMEOUT_MS,
+      'OAuth session restore timed out',
     )
   } catch (e) {
     logger.error('oauthResumeSession: restore failed', {
@@ -61,9 +68,22 @@ const TRANSIENT_RESUME_ERRORS = new Set([
   'network',
   'timeout',
   'serverError',
-  'dpopSkew',
-  'dpopOther',
+  'dpopNonce',
+  'dpopStale',
+  'dpopReplayed',
 ])
+
+export function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), timeoutMs)
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
+}
 
 function isTerminalOAuthError(e: unknown, depth = 0): boolean {
   if (!e || typeof e !== 'object' || depth > 5) return false
@@ -76,31 +96,32 @@ function isTerminalOAuthError(e: unknown, depth = 0): boolean {
   return 'cause' in e && isTerminalOAuthError(e.cause, depth + 1)
 }
 
-export async function oauthResumeSessionWithRetry(account: SessionAccount) {
+export async function oauthResumeSessionWithRetry(
+  account: SessionAccount,
+  keepOnTransientFailure = false,
+) {
   let error: unknown
+  let errorCategory: ReturnType<typeof categorizeOauthError> = 'unknown'
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       return await oauthResumeSession(account)
     } catch (e) {
       error = e
     }
+    errorCategory = categorizeOauthError(error)
     if (isTerminalOAuthError(error)) throw error
+    if (!TRANSIENT_RESUME_ERRORS.has(errorCategory)) throw error
     // A timeout has already held the splash screen for the full budget.
-    if (categorizeOauthError(error) === 'timeout') break
+    if (errorCategory === 'timeout') break
     if (attempt === 0) {
       await new Promise(r => setTimeout(r, OAUTH_RESUME_RETRY_DELAY_MS))
     }
   }
-  const errorCategory = categorizeOauthError(error)
-  if (!TRANSIENT_RESUME_ERRORS.has(errorCategory)) throw error
+  if (!keepOnTransientFailure) throw error
 
-  // Throws if the OAuth client deleted the session.
-  const session = await restoreOAuthSession(
-    getOAuthClient(),
-    account.did,
-    OAUTH_RESTORE_TIMEOUT_MS,
-    false,
-  )
+  // Restoring now could wait on the same stuck refresh, so defer it to the
+  // first request.
+  const session = lazyOAuthSession(account.did)
   logger.warn('oauthResumeSession: keeping stored account after failure', {
     did: account.did,
     errorCategory,
@@ -114,21 +135,35 @@ export async function oauthResumeSessionWithRetry(account: SessionAccount) {
   return agent.prepare(account, Promise.resolve(), moderation)
 }
 
+type OAuthSessionHandle = Pick<OAuthSession, 'did' | 'fetchHandler'>
+
+function lazyOAuthSession(did: string): OAuthSessionHandle {
+  let pending: Promise<OAuthSession> | undefined
+  return {
+    did: did as OAuthSession['did'],
+    fetchHandler(url, init) {
+      const restoring = (pending ??= restoreOAuthSession(did).catch(
+        (e: unknown) => {
+          pending = undefined
+          throw e
+        },
+      ))
+      return restoring.then(session => session.fetchHandler(url, init))
+    },
+  }
+}
+
 export async function oauthAgentAndSessionToSessionAccountOrThrow(
   agent: Agent,
   session: OAuthSession,
 ): Promise<SessionAccount> {
   let data: ComAtprotoServerGetSession.OutputSchema
   try {
-    const res = await Promise.race([
+    const res = await withTimeout(
       agent.com.atproto.server.getSession(),
-      new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('getSession timed out')),
-          OAUTH_RESTORE_TIMEOUT_MS,
-        ),
-      ),
-    ])
+      OAUTH_RESTORE_TIMEOUT_MS,
+      'getSession timed out',
+    )
     data = res.data
   } catch (e: any) {
     logger.error('oauthAgentAndSessionToSessionAccount: getSession failed', e)
@@ -136,15 +171,11 @@ export async function oauthAgentAndSessionToSessionAccountOrThrow(
   }
   let aud: string
   try {
-    const tokenInfo = await Promise.race([
+    const tokenInfo = await withTimeout(
       session.getTokenInfo(false),
-      new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('getTokenInfo timed out')),
-          OAUTH_RESTORE_TIMEOUT_MS,
-        ),
-      ),
-    ])
+      OAUTH_RESTORE_TIMEOUT_MS,
+      'getTokenInfo timed out',
+    )
     aud = tokenInfo.aud
   } catch (e: any) {
     logger.error('oauthAgentAndSessionToSessionAccount: getTokenInfo failed', e)
@@ -169,7 +200,7 @@ export class OauthBskyAppAgent extends Agent {
   session?: AtpSessionData
   dispatchUrl?: string
 
-  constructor(session: OAuthSession) {
+  constructor(session: OAuthSessionHandle) {
     // Wrap the OAuth session's fetchHandler so the appview proxy header is
     // stripped from PDS-local methods. The header is added by the Agent's XRPC
     // wrapper before it calls the session manager, so stripping here removes it

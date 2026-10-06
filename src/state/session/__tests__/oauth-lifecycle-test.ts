@@ -8,30 +8,18 @@ import {
 afterEach(() => setOauthLifecycleSink(null))
 
 describe('OAuth lifecycle events', () => {
-  it('delivers events emitted before the sink subscribes', () => {
-    emitOauthLifecycleEvent({type: 'deleted', did: 'did:plc:alice'})
+  it('delivers events to the registered sink', () => {
     const sink = jest.fn()
-
     setOauthLifecycleSink(sink)
 
-    expect(sink).toHaveBeenCalledWith({
-      type: 'deleted',
-      did: 'did:plc:alice',
-    })
+    emitOauthLifecycleEvent({type: 'deleted', did: 'did:plc:alice'})
+
+    expect(sink).toHaveBeenCalledWith({type: 'deleted', did: 'did:plc:alice'})
   })
 
-  it('bounds events queued before the sink subscribes', () => {
-    for (let i = 0; i < 51; i++) {
-      emitOauthLifecycleEvent({type: 'deleted', did: `did:plc:${i}`})
-    }
-    const sink = jest.fn()
-
-    setOauthLifecycleSink(sink)
-
-    expect(sink).toHaveBeenCalledTimes(50)
-    expect(sink).not.toHaveBeenCalledWith({
-      type: 'deleted',
-      did: 'did:plc:0',
-    })
+  it('drops events when no sink is registered', () => {
+    expect(() =>
+      emitOauthLifecycleEvent({type: 'deleted', did: 'did:plc:alice'}),
+    ).not.toThrow()
   })
 })

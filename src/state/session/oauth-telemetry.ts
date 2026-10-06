@@ -92,10 +92,25 @@ export function categorizeOauthError(
   ) {
     return 'databaseClosed'
   }
-  if (str.includes('invalid_dpop_proof') && str.includes('iat claim')) {
+  if (str.includes('use_dpop_nonce')) {
+    return 'dpopNonce'
+  }
+  if (
+    str.includes('invalid_dpop_proof') &&
+    (str.includes('too old') || str.includes('too far in the past'))
+  ) {
+    return 'dpopStale'
+  }
+  if (str.includes('invalid_dpop_proof') && str.includes('replayed')) {
+    return 'dpopReplayed'
+  }
+  if (
+    str.includes('invalid_dpop_proof') &&
+    (str.includes('iat claim') || str.includes('in the future'))
+  ) {
     return 'dpopSkew'
   }
-  if (str.includes('invalid_dpop_proof') || str.includes('use_dpop_nonce')) {
+  if (str.includes('invalid_dpop_proof')) {
     return 'dpopOther'
   }
   if (str.includes('No refresh token available')) {
