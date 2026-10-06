@@ -32,7 +32,10 @@ class SheetView: ExpoView, UISheetPresentationControllerDelegate {
   var cornerRadius: CGFloat?
   var sourceViewTag: Int?
   var minHeight = 0.0
-  var maxHeight: CGFloat = 0 {
+  // getScreenHeight() is nil when no window scene is connected yet (e.g. during
+  // prewarming or a background launch). A nil here previously trapped in
+  // clampHeight, so fall back to the full screen bounds instead.
+  var maxHeight: CGFloat = UIScreen.main.bounds.height {
     didSet {
       let screenHeight = Util.getScreenHeight() ?? UIScreen.main.bounds.height
       if maxHeight > screenHeight {
