@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import {PERSISTED_QUERY_ROOT} from '#/state/queries'
-import {fetchRecordViaSlingshotOrNotFound} from './microcosm-fallback'
+import {fetchRecordViaSlingshot} from './microcosm-fallback'
 
 type Enrichment = {
   displayName: string
@@ -78,14 +78,11 @@ function collectIncompleteProfileDids(
 }
 
 /**
- * Fetch profile record from PDS via Slingshot. Resolves null when there is
- * nothing to enrich with and undefined when the fetch failed.
+ * Fetch profile record from PDS via Slingshot.
  */
-async function fetchProfileEnrichment(
-  did: string,
-): Promise<Enrichment | null | undefined> {
+async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
   try {
-    const record = await fetchRecordViaSlingshotOrNotFound(
+    const record = await fetchRecordViaSlingshot(
       `at://${did}/app.bsky.actor.profile/self`,
     )
     if (!record?.value) return null
@@ -103,7 +100,7 @@ async function fetchProfileEnrichment(
         : undefined,
     }
   } catch {
-    return undefined
+    return null
   }
 }
 
@@ -307,7 +304,6 @@ async function processBatch(
     for (const result of results) {
       if (result.status === 'fulfilled') {
         inFlightDids.delete(result.value.did)
-        if (result.value.enrichment === undefined) continue
         knownEnrichments.set(result.value.did, result.value.enrichment)
         if (result.value.enrichment) {
           enrichments.set(result.value.did, result.value.enrichment)

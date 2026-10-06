@@ -4,8 +4,7 @@ import {act, renderHook} from '@testing-library/react-native'
 const mockFetchRecord = jest.fn()
 
 jest.mock('../microcosm-fallback', () => ({
-  fetchRecordViaSlingshotOrNotFound: (...args: unknown[]) =>
-    mockFetchRecord(...args),
+  fetchRecordViaSlingshot: (...args: unknown[]) => mockFetchRecord(...args),
 }))
 jest.mock('#/state/queries', () => ({PERSISTED_QUERY_ROOT: 'PERSISTED'}))
 
@@ -149,7 +148,7 @@ describe('useProfileEnrichment', () => {
     expect(avatarOf(queryClient, 'b')).toBeUndefined()
   })
 
-  it('retries a profile after a failed fetch', async () => {
+  it('remembers a failed fetch as a miss and does not refetch', async () => {
     const queryClient = mount()
     mockFetchRecord.mockRejectedValueOnce(new Error('ServerError'))
 
@@ -159,8 +158,8 @@ describe('useProfileEnrichment', () => {
 
     setThread(queryClient, 'b', [post('at://b', emptyAuthor(DID))])
     await flush()
-    expect(avatarOf(queryClient, 'b')).toBe(AVATAR)
-    expect(mockFetchRecord).toHaveBeenCalledTimes(2)
+    expect(avatarOf(queryClient, 'b')).toBeUndefined()
+    expect(mockFetchRecord).toHaveBeenCalledTimes(1)
   })
 
   it('never enriches a taken-down profile', async () => {

@@ -60,23 +60,6 @@ export async function fetchRecordViaSlingshot(
 }
 
 /**
- * Like fetchRecordViaSlingshot, but resolves null only when the record does
- * not exist and throws on any other failure.
- */
-export async function fetchRecordViaSlingshotOrNotFound(
-  atUri: string,
-): Promise<MicrocosmRecord | null> {
-  const queryString = new URLSearchParams({at_uri: atUri}).toString()
-  const res = await fetch(
-    `${SLINGSHOT_URL}/xrpc/com.bad-example.repo.getUriRecord?${queryString}`,
-  )
-  if (res.ok) return await res.json()
-  const body = (await res.json().catch(() => null)) as {error?: string} | null
-  if (body?.error === 'RecordNotFound') return null
-  throw new Error(`Slingshot getUriRecord failed: ${res.status}`)
-}
-
-/**
  * Resolve identity (DID/handle) via Slingshot
  *
  * Uses `com.bad-example.identity.resolveMiniDoc` which returns a compact identity
