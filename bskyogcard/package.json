@@ -1,12 +1,12 @@
 {
   "name": "bskyogcard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "src/index.ts",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.5.2",
+      "version": "11.23.0",
       "onFail": "warn"
     }
   },
