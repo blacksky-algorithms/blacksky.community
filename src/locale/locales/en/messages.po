@@ -318,7 +318,7 @@ msgid "{0} was removed from the group"
 msgstr "{0} was removed from the group"
 
 #. placeholder {0}: live.viewerCount
-#: src/screens/StreamplaceWatch/index.tsx:227
+#: src/screens/StreamplaceWatch/index.tsx:237
 msgid "{0} watching"
 msgstr "{0} watching"
 
@@ -6879,17 +6879,17 @@ msgid "Lists blocking this user:"
 msgstr ""
 
 #: src/Navigation.tsx:592
-#: src/screens/StreamplaceWatch/index.tsx:54
+#: src/screens/StreamplaceWatch/index.tsx:56
 msgid "Live"
 msgstr "Live"
 
 #. Live status indicator on avatar. Should be extremely short, not much space for more than 4 characters
 #: src/features/liveNow/components/LiveIndicator.tsx:46
-#: src/screens/StreamplaceWatch/index.tsx:252
+#: src/screens/StreamplaceWatch/index.tsx:262
 msgid "LIVE"
 msgstr ""
 
-#: src/screens/StreamplaceWatch/index.tsx:195
+#: src/screens/StreamplaceWatch/index.tsx:207
 msgid "Live chat"
 msgstr "Live chat"
 
@@ -7781,7 +7781,7 @@ msgstr ""
 msgid "No media yet"
 msgstr ""
 
-#: src/features/streamplace/ChatList.tsx:74
+#: src/features/streamplace/ChatList.tsx:64
 #: src/screens/Messages/components/ChatListItem.tsx:311
 msgid "No messages yet"
 msgstr ""
@@ -7938,7 +7938,7 @@ msgstr "Not available on this platform"
 msgid "Not available on this platform."
 msgstr ""
 
-#: src/features/streamplace/ChatList.tsx:89
+#: src/features/streamplace/ChatList.tsx:79
 msgid "Not delivered · Tap to retry"
 msgstr "Not delivered · Tap to retry"
 
@@ -8261,8 +8261,8 @@ msgstr ""
 msgid "Open muted words and tags settings"
 msgstr ""
 
-#: src/screens/StreamplaceWatch/index.tsx:81
-#: src/screens/StreamplaceWatch/index.tsx:85
+#: src/screens/StreamplaceWatch/index.tsx:83
+#: src/screens/StreamplaceWatch/index.tsx:87
 msgid "Open on stream.place"
 msgstr "Open on stream.place"
 
@@ -8421,7 +8421,7 @@ msgid "Opens post language settings"
 msgstr ""
 
 #: src/components/dms/SystemMessageItem.tsx:61
-#: src/screens/StreamplaceWatch/index.tsx:234
+#: src/screens/StreamplaceWatch/index.tsx:244
 msgid "Opens profile"
 msgstr "Opens profile"
 
@@ -10646,8 +10646,7 @@ msgstr ""
 msgid "Self-harm or dangerous behaviors"
 msgstr ""
 
-#: src/features/streamplace/ChatComposer.tsx:67
-#: src/features/streamplace/ChatComposer.tsx:73
+#: src/features/streamplace/ChatComposer.tsx:68
 msgid "Send"
 msgstr "Send"
 
@@ -10712,7 +10711,7 @@ msgstr ""
 msgid "Send via direct message"
 msgstr ""
 
-#: src/features/streamplace/ChatList.tsx:90
+#: src/features/streamplace/ChatList.tsx:80
 msgid "sending…"
 msgstr "sending…"
 
@@ -11489,7 +11488,7 @@ msgstr ""
 msgid "Storybook"
 msgstr ""
 
-#: src/screens/StreamplaceWatch/index.tsx:106
+#: src/screens/StreamplaceWatch/index.tsx:108
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 
@@ -13657,16 +13656,16 @@ msgstr ""
 msgid "Watch now"
 msgstr ""
 
-#: src/screens/StreamplaceWatch/index.tsx:116
-#: src/screens/StreamplaceWatch/index.tsx:120
+#: src/screens/StreamplaceWatch/index.tsx:118
+#: src/screens/StreamplaceWatch/index.tsx:122
 msgid "Watch on Blacksky"
 msgstr "Watch on Blacksky"
 
-#: src/screens/StreamplaceWatch/index.tsx:111
+#: src/screens/StreamplaceWatch/index.tsx:113
 msgid "Watch Streamplace media inside Blacksky."
 msgstr "Watch Streamplace media inside Blacksky."
 
-#: src/screens/StreamplaceWatch/index.tsx:78
+#: src/screens/StreamplaceWatch/index.tsx:80
 msgid "Watching livestreams in Blacksky isn't available yet."
 msgstr "Watching livestreams in Blacksky isn't available yet."
 
