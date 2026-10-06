@@ -1,17 +1,28 @@
 import {useRef, useState} from 'react'
-import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
+import {
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  type TextInput,
+  View,
+} from 'react-native'
 import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {useDebouncedValue} from '#/lib/hooks/useDebouncedValue'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {
   buildHandleCandidates,
+  getLoginTypeaheadQuery,
   isCorrectedLoginIdentifier,
   normalizeLoginIdentifier,
+  sortByUserDomains,
 } from '#/lib/strings/handles'
 import {logger} from '#/logger'
+import {useModerationOpts} from '#/state/preferences/moderation-opts'
+import {useActorAutocompleteQuery} from '#/state/queries/actor-autocomplete'
 import {useSessionApi} from '#/state/session'
 import {getOAuthClient, signInNativeAndroid} from '#/state/session/oauth-client'
 import {
@@ -25,8 +36,9 @@ import {FormError} from '#/components/forms/FormError'
 import * as TextField from '#/components/forms/TextField'
 import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
+import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
-import {IS_E2E} from '#/env'
+import {IS_E2E, IS_NATIVE} from '#/env'
 import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({
@@ -49,14 +61,34 @@ export const LoginForm = ({
   const [awaitingRedirect, setAwaitingRedirect] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
   const processingRef = useRef(false)
+  const identifierInputRef = useRef<TextInput>(null)
   const [identifierValue, setIdentifierValue] = useState<string>(
     initialHandle || '',
   )
   const [handleOptions, setHandleOptions] = useState<string[] | null>(null)
   const [showGuessConfirm, setShowGuessConfirm] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(true)
   const t = useTheme()
   const {_} = useLingui()
   const {login} = useSessionApi()
+  const moderationOpts = useModerationOpts()
+
+  const typeaheadQuery = getLoginTypeaheadQuery(identifierValue)
+  const {data: suggestions} = useActorAutocompleteQuery(
+    useDebouncedValue(typeaheadQuery, 250),
+    true,
+  )
+  const visibleSuggestions =
+    showSuggestions &&
+    typeaheadQuery &&
+    !handleOptions &&
+    suggestions &&
+    !suggestions.some(p => p.handle === typeaheadQuery)
+      ? sortByUserDomains(
+          suggestions,
+          serviceDescription?.availableUserDomains,
+        ).slice(0, 5)
+      : []
 
   const onPressNext = async () => {
     if (isProcessing || processingRef.current) return
@@ -67,6 +99,7 @@ export const LoginForm = ({
       setError('')
       setHandleOptions(null)
       setShowGuessConfirm(false)
+      setShowSuggestions(false)
 
       const identifier = normalizeLoginIdentifier(identifierValue)
 
@@ -145,6 +178,18 @@ export const LoginForm = ({
     setError('')
     setIdentifierValue(handle)
     setShowGuessConfirm(true)
+  }
+
+  const onPressSuggestion = (handle: string) => {
+    if (isProcessing) return
+    if (IS_NATIVE) {
+      Keyboard.dismiss()
+    } else {
+      identifierInputRef.current?.focus()
+    }
+    setError('')
+    setShowGuessConfirm(false)
+    setIdentifierValue(handle)
   }
 
   const signInWithIdentifier = async (identifier: string) => {
@@ -251,6 +296,7 @@ export const LoginForm = ({
             <TextField.Icon icon={At} />
             <TextField.Input
               testID="loginUsernameInput"
+              inputRef={identifierInputRef}
               label={_(msg`Username or handle`)}
               autoCapitalize="none"
               autoFocus
@@ -261,6 +307,7 @@ export const LoginForm = ({
               value={identifierValue}
               onChangeText={v => {
                 setIdentifierValue(v)
+                setShowSuggestions(true)
                 if (handleOptions) {
                   setHandleOptions(null)
                 }
@@ -269,12 +316,56 @@ export const LoginForm = ({
                 }
               }}
               onSubmitEditing={() => void onPressNext()}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={IS_NATIVE ? () => setShowSuggestions(false) : undefined}
               editable={!isProcessing}
               accessibilityHint={_(
                 msg`Enter your handle (e.g. alice.bsky.social)`,
               )}
             />
           </TextField.Root>
+          {moderationOpts && visibleSuggestions.length > 0 && (
+            <View
+              accessibilityRole="list"
+              style={[
+                a.rounded_md,
+                a.border,
+                a.overflow_hidden,
+                t.atoms.border_contrast_low,
+              ]}>
+              {visibleSuggestions.map(profile => (
+                <Button
+                  key={profile.did}
+                  testID={`loginSuggestion-${profile.handle}`}
+                  label={_(msg`Use ${profile.handle}`)}
+                  accessibilityHint={_(msg`Fills in this handle`)}
+                  onPress={() => onPressSuggestion(profile.handle)}>
+                  {({hovered, pressed, focused}) => (
+                    <View
+                      style={[
+                        a.flex_1,
+                        a.px_md,
+                        a.py_sm,
+                        (hovered || pressed || focused) &&
+                          t.atoms.bg_contrast_25,
+                      ]}>
+                      <ProfileCard.Header>
+                        <ProfileCard.Avatar
+                          disabledPreview
+                          profile={profile}
+                          moderationOpts={moderationOpts}
+                        />
+                        <ProfileCard.NameAndHandle
+                          profile={profile}
+                          moderationOpts={moderationOpts}
+                        />
+                      </ProfileCard.Header>
+                    </View>
+                  )}
+                </Button>
+              ))}
+            </View>
+          )}
         </View>
       </View>
       <FormError error={error} />

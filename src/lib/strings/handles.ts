@@ -56,6 +56,25 @@ export function buildHandleCandidates(
   return [...new Set(domains)].map(domain => createFullHandle(name, domain))
 }
 
+export function getLoginTypeaheadQuery(input: string): string {
+  const identifier = normalizeLoginIdentifier(input)
+  const isEmail = input.trim().replace(/^@+/, '').includes('@')
+  if (identifier.length < 2 || isEmail || /^did:/i.test(identifier)) {
+    return ''
+  }
+  return identifier
+}
+
+export function sortByUserDomains<T extends {handle: string}>(
+  profiles: T[],
+  availableUserDomains: string[] = [],
+): T[] {
+  const domains = availableUserDomains.map(d => `.${d.replace(/^\.+/, '')}`)
+  const rank = (handle: string) =>
+    domains.some(d => handle.toLowerCase().endsWith(d)) ? 0 : 1
+  return [...profiles].sort((x, y) => rank(x.handle) - rank(y.handle))
+}
+
 export function isInvalidHandle(handle: string): boolean {
   return handle === 'handle.invalid'
 }
