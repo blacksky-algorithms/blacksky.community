@@ -4,6 +4,8 @@
  */
 import {type AppBskyDraftDefs} from '@atproto/api'
 
+import {type PollDraft} from '#/lib/api/poll'
+
 /**
  * Reference to locally cached media file for display
  */
@@ -43,6 +45,7 @@ export type DraftPostDisplay = {
   video?: LocalMediaDisplay
   /** GIF data (from URL) */
   gif?: GifDisplay
+  poll?: PollDraft
 }
 
 /**

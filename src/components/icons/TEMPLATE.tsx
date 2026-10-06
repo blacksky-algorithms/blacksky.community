@@ -15,6 +15,15 @@ export type IconWithSvgMeta = ForwardRefExoticComponent<
   svgStrokeWidth: number
 }
 
+type StickerPath = {
+  path: string
+  fill: boolean
+  stroke: boolean
+  strokeLinecap?: 'butt' | 'round' | 'square'
+  strokeLinejoin?: 'miter' | 'round' | 'bevel'
+  strokeMiterlimit?: number
+}
+
 export const IconTemplate_Stroke2_Corner0_Rounded = forwardRef(
   function LogoImpl(props: Props, ref) {
     const {fill, size, style, ...rest} = useCommonSVGProps(props)
@@ -76,6 +85,145 @@ export function createSinglePathSVG({
           strokeLinejoin={strokeLinejoin}
           fillRule="evenodd"
           clipRule="evenodd"
+          d={path}
+        />
+      </Svg>
+    )
+  }) as IconWithSvgMeta
+  Icon.svgPaths = [path]
+  Icon.svgViewBox = viewBox || '0 0 24 24'
+  Icon.svgStrokeWidth = strokeWidth
+  return Icon
+}
+
+/**
+ * Renders stroke-authored glyphs (Lucide, Tabler, Iconoir) rather than
+ * outline-expanded fills. Stroke width, linecap and linejoin stay theme
+ * parameters here instead of being baked into the path data.
+ */
+export function createStrokeSVG({
+  paths,
+  viewBox,
+  strokeWidth = 2,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+}: {
+  paths: string[]
+  viewBox?: string
+  strokeWidth?: number
+  strokeLinecap?: 'butt' | 'round' | 'square'
+  strokeLinejoin?: 'miter' | 'round' | 'bevel'
+}) {
+  const Icon = forwardRef<Svg, Props>(function LogoImpl(props, ref) {
+    const {fill, size, style, gradient, ...rest} = useCommonSVGProps(props)
+
+    return (
+      <Svg
+        fill="none"
+        {...rest}
+        ref={ref}
+        viewBox={viewBox ?? '0 0 24 24'}
+        width={size}
+        height={size}
+        style={[style]}>
+        {gradient}
+        {paths.map((path, i) => (
+          <Path
+            key={i}
+            fill="none"
+            stroke={fill}
+            strokeWidth={strokeWidth}
+            strokeLinecap={strokeLinecap}
+            strokeLinejoin={strokeLinejoin}
+            d={path}
+          />
+        ))}
+      </Svg>
+    )
+  }) as IconWithSvgMeta
+  Icon.svgPaths = paths
+  Icon.svgViewBox = viewBox || '0 0 24 24'
+  Icon.svgStrokeWidth = strokeWidth
+  return Icon
+}
+
+export function createStickerSVG({
+  paths,
+  strokeWidth,
+}: {
+  paths: StickerPath[]
+  strokeWidth: number
+}) {
+  const Icon = forwardRef<Svg, Props>(function LogoImpl(props, ref) {
+    const {fill, size, style, gradient, ...rest} = useCommonSVGProps(props)
+
+    return (
+      <Svg
+        fill="none"
+        {...rest}
+        ref={ref}
+        viewBox="0 0 72 72"
+        width={size}
+        height={size}
+        style={[style]}>
+        {gradient}
+        {paths.map((item, i) => (
+          <Path
+            key={i}
+            d={item.path}
+            fill={item.fill ? fill : 'none'}
+            stroke={item.stroke ? fill : 'none'}
+            strokeWidth={item.stroke ? strokeWidth : 0}
+            strokeLinecap={item.strokeLinecap}
+            strokeLinejoin={item.strokeLinejoin}
+            strokeMiterlimit={item.strokeMiterlimit}
+          />
+        ))}
+      </Svg>
+    )
+  }) as IconWithSvgMeta
+  Icon.svgPaths = paths.map(item => item.path)
+  Icon.svgViewBox = '0 0 72 72'
+  Icon.svgStrokeWidth = strokeWidth
+  return Icon
+}
+
+/**
+ * A filled weight synthesised from a stroke-authored glyph, for the libraries
+ * that ship no fill of their own. The source subpaths are merged into a single
+ * path so nested shapes (a door, a camera lens) punch holes under `evenodd`
+ * rather than filling solid; the stroke is retained so the silhouette keeps the
+ * same optical weight as its outline sibling.
+ */
+export function createFilledFromStrokeSVG({
+  path,
+  viewBox,
+  strokeWidth = 2,
+}: {
+  path: string
+  viewBox?: string
+  strokeWidth?: number
+}) {
+  const Icon = forwardRef<Svg, Props>(function LogoImpl(props, ref) {
+    const {fill, size, style, gradient, ...rest} = useCommonSVGProps(props)
+
+    return (
+      <Svg
+        fill="none"
+        {...rest}
+        ref={ref}
+        viewBox={viewBox ?? '0 0 24 24'}
+        width={size}
+        height={size}
+        style={[style]}>
+        {gradient}
+        <Path
+          fill={fill}
+          fillRule="evenodd"
+          stroke={fill}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           d={path}
         />
       </Svg>

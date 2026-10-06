@@ -5,7 +5,6 @@ import {Provider as DisableHapticsProvider} from './disable-haptics'
 import {Provider as ExternalEmbedsProvider} from './external-embeds-prefs'
 import {Provider as HiddenPostsProvider} from './hidden-posts'
 import {Provider as InAppBrowserProvider} from './in-app-browser'
-import {Provider as KawaiiProvider} from './kawaii'
 import {Provider as LanguagesProvider} from './languages'
 import {Provider as LargeAltBadgeProvider} from './large-alt-badge'
 import {Provider as SubtitlesProvider} from './subtitles'
@@ -45,7 +44,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                       <SubtitlesProvider>
                         <TrendingSettingsProvider>
                           <BlackskyOnlyDefaultProvider>
-                            <KawaiiProvider>{children}</KawaiiProvider>
+                            {children}
                           </BlackskyOnlyDefaultProvider>
                         </TrendingSettingsProvider>
                       </SubtitlesProvider>

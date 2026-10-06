@@ -1,6 +1,7 @@
-import {Agent, AtpAgent, BSKY_LABELER_DID} from '@atproto/api'
+import {type Agent, AtpAgent, BSKY_LABELER_DID} from '@atproto/api'
 
 import {IS_TEST_USER} from '#/lib/constants'
+import {configureAdultContentLabelDefs} from '#/lib/moderation/adult-content-labels'
 import {getNoAppLabelers} from '../preferences/no-app-labelers'
 import {
   BLACKSKY_LABELER,
@@ -14,6 +15,7 @@ export function configureModerationForGuest() {
   // Don't add any other global behavior here!
   switchToBskyAppLabeler()
   configureAdditionalModerationAuthorities()
+  configureAdultContentLabelDefs()
 }
 
 export async function configureModerationForAccount(
@@ -41,6 +43,7 @@ export async function configureModerationForAccount(
   }
 
   configureAdditionalModerationAuthorities()
+  configureAdultContentLabelDefs()
 }
 
 function switchToBskyAppLabeler() {

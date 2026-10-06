@@ -1,15 +1,13 @@
 import {useMemo} from 'react'
-import {View} from 'react-native'
+import {Pressable, View} from 'react-native'
 import {Image as ExpoImage} from 'expo-image'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
 import {AvatarCreatorCircle} from '#/screens/Onboarding/StepProfile/AvatarCreatorCircle'
 import {useAvatar} from '#/screens/Onboarding/StepProfile/index'
-import {atoms as a, useTheme} from '#/alf'
-import {Button, ButtonIcon} from '#/components/Button'
-import {Pencil_Stroke2_Corner0_Rounded as Pencil} from '#/components/icons/Pencil'
-import {StreamingLive_Stroke2_Corner0_Rounded as StreamingLive} from '#/components/icons/StreamingLive'
+import {atoms as a} from '#/alf'
+import {Person_Stroke2_Corner0_Rounded as Person} from '#/components/icons/Person'
 
 export function AvatarCircle({
   openLibrary,
@@ -19,7 +17,6 @@ export function AvatarCircle({
   openCreator: () => unknown
 }) {
   const {_} = useLingui()
-  const t = useTheme()
   const {avatar} = useAvatar()
 
   const styles = useMemo(
@@ -30,19 +27,23 @@ export function AvatarCircle({
         a.align_center,
         a.justify_center,
         a.border,
-        t.atoms.border_contrast_low,
-        t.atoms.bg_contrast_25,
+        {borderColor: '#8686ff'},
+        {backgroundColor: '#262644'},
         {
           height: 200,
           width: 200,
         },
       ],
     }),
-    [t.atoms.bg_contrast_25, t.atoms.border_contrast_low],
+    [],
   )
 
   return (
-    <View>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityHint=""
+      accessibilityLabel={_(msg`Select an avatar`)}
+      onPress={avatar.useCreatedAvatar ? openCreator : openLibrary}>
       {avatar.useCreatedAvatar ? (
         <AvatarCreatorCircle avatar={avatar} size={200} />
       ) : avatar.image ? (
@@ -54,24 +55,9 @@ export function AvatarCircle({
         />
       ) : (
         <View style={styles.imageContainer}>
-          <StreamingLive
-            height={100}
-            width={100}
-            style={{color: t.palette.contrast_200}}
-          />
+          <Person height={72} width={72} style={{color: '#8686ff'}} />
         </View>
       )}
-      <View style={[a.absolute, {bottom: 2, right: 2}]}>
-        <Button
-          label={_(msg`Select an avatar`)}
-          size="large"
-          shape="round"
-          variant="solid"
-          color="primary"
-          onPress={avatar.useCreatedAvatar ? openCreator : openLibrary}>
-          <ButtonIcon icon={Pencil} />
-        </Button>
-      </View>
-    </View>
+    </Pressable>
   )
 }

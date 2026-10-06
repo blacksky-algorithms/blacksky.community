@@ -1,29 +1,6 @@
-import {forwardRef} from 'react'
-import Svg, {Circle, Path} from 'react-native-svg'
+import {createSinglePathSVG} from './TEMPLATE'
 
-import {type Props, useCommonSVGProps} from '#/components/icons/common'
-
-export const VerifiedCheck = forwardRef<Svg, Props>(
-  function LogoImpl(props, ref) {
-    const {fill, size, style, ...rest} = useCommonSVGProps(props)
-
-    return (
-      <Svg
-        fill="none"
-        {...rest}
-        ref={ref}
-        viewBox="0 0 24 24"
-        width={size}
-        height={size}
-        style={[style]}>
-        <Circle cx="12" cy="12" r="11.5" fill={fill} />
-        <Path
-          fill="#fff"
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M17.659 8.175a1.361 1.361 0 0 1 0 1.925l-6.224 6.223a1.361 1.361 0 0 1-1.925 0L6.4 13.212a1.361 1.361 0 0 1 1.925-1.925l2.149 2.148 5.26-5.26a1.361 1.361 0 0 1 1.925 0Z"
-        />
-      </Svg>
-    )
-  },
-)
+// tabler: circle-check (filled)
+export const VerifiedCheck = createSinglePathSVG({
+  path: 'M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-1.293 5.953a1 1 0 0 0 -1.32 -.083l-.094 .083l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.403 1.403l.083 .094l2 2l.094 .083a1 1 0 0 0 1.226 0l.094 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z',
+})

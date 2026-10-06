@@ -1,5 +1,8 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Loader_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12 5a7 7 0 0 0-5.218 11.666A1 1 0 0 1 5.292 18a9 9 0 1 1 13.416 0 1 1 0 1 1-1.49-1.334A7 7 0 0 0 12 5Z',
+// tabler: loader-2
+export const Loader_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M12 3a9 9 0 1 0 9 9'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

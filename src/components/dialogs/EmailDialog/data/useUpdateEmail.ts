@@ -1,19 +1,22 @@
 import {useMutation} from '@tanstack/react-query'
 
 import {useAgent} from '#/state/session'
+import {useRefreshSession} from '#/state/session/useRefreshSession'
 import {useRequestEmailUpdate} from '#/components/dialogs/EmailDialog/data/useRequestEmailUpdate'
 
 async function updateEmailAndRefreshSession(
   agent: ReturnType<typeof useAgent>,
+  refreshSession: () => Promise<void>,
   email: string,
   token?: string,
 ) {
   await agent.com.atproto.server.updateEmail({email: email.trim(), token})
-  await agent.resumeSession(agent.session!)
+  await refreshSession()
 }
 
 export function useUpdateEmail() {
   const agent = useAgent()
+  const refreshSession = useRefreshSession()
   const {mutateAsync: requestEmailUpdate} = useRequestEmailUpdate()
 
   return useMutation<
@@ -23,7 +26,7 @@ export function useUpdateEmail() {
   >({
     mutationFn: async ({email, token}: {email: string; token?: string}) => {
       if (token) {
-        await updateEmailAndRefreshSession(agent, email, token)
+        await updateEmailAndRefreshSession(agent, refreshSession, email, token)
         return {
           status: 'success',
         }
@@ -34,7 +37,12 @@ export function useUpdateEmail() {
             status: 'tokenRequired',
           }
         } else {
-          await updateEmailAndRefreshSession(agent, email, token)
+          await updateEmailAndRefreshSession(
+            agent,
+            refreshSession,
+            email,
+            token,
+          )
           return {
             status: 'success',
           }

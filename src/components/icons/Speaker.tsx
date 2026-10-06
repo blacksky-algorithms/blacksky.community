@@ -1,5 +1,12 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const SpeakerVolumeFull_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12.472 3.118A1 1 0 0 1 13 4v16a1 1 0 0 1-1.555.832L5.697 17H2a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h3.697l5.748-3.832a1 1 0 0 1 1.027-.05ZM11 5.868 6.555 8.833A1 1 0 0 1 6 9H3v6h3a1 1 0 0 1 .555.168L11 18.131V5.87Zm7.364-1.645a1 1 0 0 1 1.414 0A10.969 10.969 0 0 1 23 12c0 3.037-1.232 5.788-3.222 7.778a1 1 0 1 1-1.414-1.414A8.969 8.969 0 0 0 21 12a8.969 8.969 0 0 0-2.636-6.364 1 1 0 0 1 0-1.414Zm-3.182 3.181a1 1 0 0 1 1.414 0A6.483 6.483 0 0 1 18.5 12a6.483 6.483 0 0 1-1.904 4.597 1 1 0 0 1-1.414-1.415A4.483 4.483 0 0 0 16.5 12a4.483 4.483 0 0 0-1.318-3.182 1 1 0 0 1 0-1.414Z',
+// lucide: volume-2
+export const SpeakerVolumeFull_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z',
+    'M16 9a5 5 0 0 1 0 6',
+    'M19.364 18.364a9 9 0 0 0 0-12.728',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

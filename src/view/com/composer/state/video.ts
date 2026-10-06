@@ -265,6 +265,7 @@ export async function processVideo(
   did: string,
   signal: AbortSignal,
   i18n: I18n,
+  isPrivate: boolean,
 ) {
   let video: CompressedVideo | undefined
   try {
@@ -299,6 +300,7 @@ export async function processVideo(
       did,
       signal,
       i18n,
+      isPrivate,
       setProgress: p => {
         dispatch({type: 'update_progress', progress: p, signal})
       },

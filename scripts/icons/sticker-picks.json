@@ -1,0 +1,105 @@
+{
+ "licence": "OpenMoji artwork: CC BY-SA 4.0 (verified from its LICENSE.txt). Recolouring and re-weighting are modifications, so the derived stickers must also be licensed CC BY-SA 4.0 and attributed. This is the one non-MIT asset set in the repo \u2014 call it out in NOTICE.md.",
+ "note": "onboarding avatar palette (src/screens/Onboarding/StepProfile/types.ts). Decorative art rendered large on a coloured disc, not UI icons.",
+ "recolour": "stroke=\"#000\" -> currentColor so the sticker inherits the theme like every other icon",
+ "set": "openmoji-line",
+ "stickers": {
+  "alien": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F47D",
+   "source": "openmoji-line",
+   "uiSymbol": "Alien_Stroke2_Corner0_Rounded"
+  },
+  "apple": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F34E",
+   "source": "openmoji-line",
+   "uiSymbol": "Apple_Stroke2_Corner0_Rounded"
+  },
+  "arc": {
+   "alsoAUiIcon": true,
+   "codepoint": "1F642",
+   "review": "OpenMoji 1F642 is a winking face; the current icon is an abstract smile-arc.",
+   "source": "openmoji-line",
+   "uiSymbol": "EmojiArc_Stroke2_Corner0_Rounded"
+  },
+  "atom": {
+   "alsoAUiIcon": true,
+   "codepoint": "269B",
+   "source": "openmoji-line",
+   "uiSymbol": "Atom_Stroke2_Corner0_Rounded"
+  },
+  "celebrate": {
+   "alsoAUiIcon": true,
+   "codepoint": "1F389",
+   "source": "openmoji-line",
+   "uiSymbol": "Celebrate_Stroke2_Corner0_Rounded"
+  },
+  "explosion": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F4A5",
+   "note": "denser line art than the rest; drops a half-step so the interior stays open",
+   "source": "openmoji-line",
+   "strokeWidth": 3.5,
+   "uiSymbol": "Explosion_Stroke2_Corner0_Rounded"
+  },
+  "gameController": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F3AE",
+   "source": "openmoji-line",
+   "uiSymbol": "GameController_Stroke2_Corner0_Rounded"
+  },
+  "heartEyes": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F60D",
+   "source": "openmoji-line",
+   "uiSymbol": "EmojiHeartEyes_Stroke2_Corner0_Rounded"
+  },
+  "lab": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F9EA",
+   "review": "OpenMoji draws a test tube; the current icon is a conical flask. Shape differs, not weight.",
+   "source": "openmoji-line",
+   "uiSymbol": "Lab_Stroke2_Corner0_Rounded"
+  },
+  "leaf": {
+   "alsoAUiIcon": true,
+   "codepoint": "1F343",
+   "source": "openmoji-line",
+   "uiSymbol": "Leaf_Stroke2_Corner0_Rounded"
+  },
+  "musicNote": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F3B5",
+   "source": "openmoji-line",
+   "uiSymbol": "MusicNote_Stroke2_Corner0_Rounded"
+  },
+  "rose": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F339",
+   "note": "denser line art than the rest; drops a half-step so the interior stays open",
+   "source": "openmoji-line",
+   "strokeWidth": 3.5,
+   "uiSymbol": "Rose_Stroke2_Corner0_Rounded"
+  },
+  "shaka": {
+   "alsoAUiIcon": true,
+   "codepoint": "1F919",
+   "source": "openmoji-line",
+   "uiSymbol": "Shaka_Stroke2_Corner0_Rounded"
+  },
+  "ufo": {
+   "alsoAUiIcon": false,
+   "codepoint": "1F6F8",
+   "source": "openmoji-line",
+   "uiSymbol": "UFO_Stroke2_Corner0_Rounded"
+  },
+  "zap": {
+   "alsoAUiIcon": false,
+   "codepoint": "26A1",
+   "source": "openmoji-line",
+   "uiSymbol": "Zap_Stroke2_Corner0_Rounded"
+  }
+ },
+ "strokeWidth": 4
+}

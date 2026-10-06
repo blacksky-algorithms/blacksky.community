@@ -91,6 +91,8 @@ void prefetchLiveEvents()
 void prefetchAppConfig()
 
 function hasOAuthCallbackParams(): boolean {
+  if (window.parent !== window) return false
+
   const hash = new URLSearchParams(window.location.hash.slice(1))
   const query = new URLSearchParams(window.location.search)
   const params = hash.has('state') ? hash : query

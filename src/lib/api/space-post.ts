@@ -35,12 +35,6 @@ export async function postToSpace(
   const langs = opts.langs?.slice(0, 3)
   const uris: string[] = []
 
-  if (thread.posts.some(draft => draft.embed.media)) {
-    throw new Error(
-      t`Photos, videos, and GIFs are not available in private spaces yet.`,
-    )
-  }
-
   // Read access is uniform within a space but not across spaces, so quoting
   // another space's post here would name a private post to people who cannot
   // see it. Same space is fine — everyone reading this record can already read
@@ -52,6 +46,12 @@ export async function postToSpace(
     throw new Error(
       t`This is a private post from another space. You can only quote it in a post to that space.`,
     )
+  }
+
+  // Posts are written one at a time, so an unsupported draft has to be refused
+  // before the first write rather than part-way through the thread.
+  if (thread.posts.some(p => p.embed.poll)) {
+    throw new Error(t`Polls are not available in private community feeds.`)
   }
 
   // Threads are written in order: each reply refers to the space URI the host

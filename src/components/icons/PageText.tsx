@@ -1,5 +1,14 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const PageText_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M5 2a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H5Zm1 18V4h12v16H6Zm3-6a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2H9Zm-1-3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1-5a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9Z',
+// tabler: file-text
+export const PageText_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M14 3v4a1 1 0 0 0 1 1h4',
+    'M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2',
+    'M9 9l1 0',
+    'M9 13l6 0',
+    'M9 17l6 0',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

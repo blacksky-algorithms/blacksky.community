@@ -6,6 +6,7 @@ import {Trans} from '@lingui/react/macro'
 
 import {cleanError} from '#/lib/strings/errors'
 import {useAgent, useSession} from '#/state/session'
+import {useRefreshSession} from '#/state/session/useRefreshSession'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -31,6 +32,7 @@ export function DisableEmail2FADialog({
   const t = useTheme()
   const {gtMobile} = useBreakpoints()
   const {currentAccount} = useSession()
+  const refreshSession = useRefreshSession()
   const agent = useAgent()
 
   const [stage, setStage] = useState<Stages>(Stages.Email)
@@ -61,7 +63,7 @@ export function DisableEmail2FADialog({
           token: confirmationCode.trim(),
           emailAuthFactor: false,
         })
-        await agent.resumeSession(agent.session!)
+        await refreshSession()
         Toast.show(_(msg({message: 'Email 2FA disabled', context: 'toast'})))
       }
       control.close()

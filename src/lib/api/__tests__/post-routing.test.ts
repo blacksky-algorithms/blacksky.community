@@ -17,6 +17,17 @@ jest.mock('#/state/queries/threadgate', () => ({
   threadgateAllowUISettingToAllowRecordValue: jest.fn(() => []),
 }))
 
+// The public write path hashes the record through ESM-only IPLD packages
+// that jest cannot load; the CID value is not under test here.
+jest.mock(
+  '@ipld/dag-cbor',
+  () => ({encode: (v: unknown) => Buffer.from(JSON.stringify(v))}),
+  {virtual: true},
+)
+jest.mock('multiformats/cid', () => ({
+  CID: {createV1: () => ({toString: () => 'bafyreifake'})},
+}))
+
 jest.mock('../space-post', () => ({
   postToSpace: jest.fn(() => Promise.resolve({uris: ['at://space/post']})),
 }))
@@ -85,6 +96,38 @@ describe('post routing', () => {
 
     expect(postToSpace).not.toHaveBeenCalled()
     expect(applyWrites).toHaveBeenCalled()
+  })
+})
+
+describe('self labels', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('publishes a text-only post with its self labels', async () => {
+    const {agent, applyWrites} = mockAgent()
+
+    await post(agent, queryClient, {
+      thread: {
+        posts: [
+          {
+            richtext: {text: 'words only', facets: []},
+            shortenedGraphemeLength: 10,
+            labels: ['porn'],
+            embed: {},
+          },
+        ],
+        postgate: {},
+        threadgate: [],
+        blackskyOnly: false,
+      } as never,
+    })
+
+    const [{writes}] = applyWrites.mock.calls[0] as unknown as [
+      {writes: {value: {labels?: unknown}}[]},
+    ]
+    expect(writes[0].value.labels).toEqual({
+      $type: 'com.atproto.label.defs#selfLabels',
+      values: [{val: 'porn'}],
+    })
   })
 })
 

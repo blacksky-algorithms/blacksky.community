@@ -63,6 +63,33 @@ describe('communityXrpc', () => {
     )
   })
 
+  it('serializes repeated primitive parameters and omits empty values', async () => {
+    const {agent, fetchHandler} = mockAgent()
+
+    await communityXrpc(
+      agent,
+      'community.blacksky.notification.listNotifications',
+      {
+        params: {
+          reasons: ['mention', 'reply'],
+          empty: [],
+          limit: 30,
+          priority: false,
+          cursor: 'before value',
+          seenAt: undefined,
+        },
+      },
+    )
+
+    const url = new URL(fetchHandler.mock.calls[0][0], 'https://example.test')
+    expect(url.searchParams.getAll('reasons')).toEqual(['mention', 'reply'])
+    expect(url.searchParams.get('limit')).toBe('30')
+    expect(url.searchParams.get('priority')).toBe('false')
+    expect(url.searchParams.get('cursor')).toBe('before value')
+    expect(url.searchParams.has('empty')).toBe(false)
+    expect(url.searchParams.has('seenAt')).toBe(false)
+  })
+
   it('fetches space likes through the permission-aware endpoint', async () => {
     const {agent, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(

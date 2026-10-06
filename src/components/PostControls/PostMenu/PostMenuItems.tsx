@@ -17,7 +17,10 @@ import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
-import {getCommunitySpaceUri} from '#/lib/api/community-post'
+import {
+  getCommunitySpaceUri,
+  isPeerModLabelableUri,
+} from '#/lib/api/community-post'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink, postPermalink} from '#/lib/routes/links'
@@ -159,13 +162,11 @@ let PostMenuItems = ({
 
   const rootUri = record.reply?.root?.uri || postUri
   const isReply = Boolean(record.reply)
-  const isCommunityPost = useMemo(
-    () => new AtUri(postUri).collection === 'community.blacksky.feed.post',
-    [postUri],
-  )
   const {data: peerModPerms} = useMyPeerModPermissions()
   const canLabelPost =
-    !!peerModPerms?.isPeerMod && isCommunityPost && !getCommunitySpaceUri(post)
+    !!peerModPerms?.isPeerMod &&
+    isPeerModLabelableUri(postUri) &&
+    !getCommunitySpaceUri(post)
   const [isThreadMuted, muteThread, unmuteThread] = useThreadMuteMutationQueue(
     post,
     rootUri,

@@ -372,6 +372,14 @@ let Card = ({
     })
   }, [hide, navigation, status, data])
 
+  const onPressWatch = useCallback(
+    (actor: string) => {
+      hide()
+      navigation.push('StreamplaceWatch', {actor})
+    },
+    [hide, navigation],
+  )
+
   return (
     <View
       style={[
@@ -393,6 +401,7 @@ let Card = ({
             embed={status.embed}
             padding="lg"
             onPressOpenProfile={onPressOpenProfile}
+            onPressWatch={onPressWatch}
           />
         ) : (
           <Inner profile={data} moderationOpts={moderationOpts} hide={hide} />

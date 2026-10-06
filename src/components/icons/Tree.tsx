@@ -1,5 +1,13 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Tree_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M6 2a2.998 2.998 0 0 1 1 5.825V8a2 2 0 0 0 2 2h1.174c.412-1.165 1.52-2 2.826-2h5a3 3 0 1 1 0 6h-5a2.998 2.998 0 0 1-2.826-2H9a3.98 3.98 0 0 1-2-.537V16a2 2 0 0 0 2 2h1.174c.412-1.165 1.52-2 2.826-2h5a3 3 0 1 1 0 6h-5a2.998 2.998 0 0 1-2.826-2H9a4 4 0 0 1-4-4V7.825A2.998 2.998 0 0 1 6 2Zm7 16a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2h-5Zm0-8a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2h-5ZM6 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z',
+// iconoir: tree
+export const Tree_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M12 22L12 14M12 10L12 14M12 14L16 12',
+    'M17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7',
+    'M12 18H7.5C4.46243 18 2 15.5376 2 12.5C2 9.46243 4.46243 7 7.5 7H9',
+    'M12 18H16.5C19.5376 18 22 15.5376 22 12.5C22 9.63102 19.8033 7.27508 17 7.02246',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 1.5,
 })

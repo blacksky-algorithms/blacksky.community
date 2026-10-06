@@ -1,4 +1,3 @@
-import {Text as RNText} from 'react-native'
 import {UITextView} from 'react-native-uitextview'
 
 import {logger} from '#/logger'
@@ -63,20 +62,12 @@ export function Text({
     ...rest,
   }
 
-  if (selectable && ios(true)) {
-    return (
-      <UITextView {...shared}>
-        {renderChildrenWithEmoji(children, shared, emoji ?? false, {
-          allowNestedUITextView: false,
-        })}
-      </UITextView>
-    )
-  }
-
   return (
-    <RNText {...shared}>
-      {renderChildrenWithEmoji(children, shared, emoji ?? false)}
-    </RNText>
+    <UITextView {...shared}>
+      {renderChildrenWithEmoji(children, shared, emoji ?? false, {
+        allowNestedUITextView: !(selectable && ios(true)),
+      })}
+    </UITextView>
   )
 }
 

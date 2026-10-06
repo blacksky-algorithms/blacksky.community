@@ -1,5 +1,9 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG} from './TEMPLATE'
 
-export const BubbleInfo_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M6.002 5h12a1 1 0 0 1 1 1v10.036a1 1 0 0 1-1 1h-2.626a2 2 0 0 0-1.276.46l-2.098 1.738-2.065-1.731a2 2 0 0 0-1.285-.467h-2.65a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm12-2h-12a3 3 0 0 0-3 3v10.036a3 3 0 0 0 3 3h2.65l2.704 2.266a1 1 0 0 0 1.28.004l2.74-2.27h2.626a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3ZM13 11.75a1 1 0 1 0-2 0v2a1 1 0 1 0 2 0v-2ZM12 10a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z',
+// phosphor: chat-circle
+export const BubbleInfo_Stroke2_Corner2_Rounded = createMultiPathSVG({
+  paths: [
+    'M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z',
+  ],
+  viewBox: '0 0 256 256',
 })

@@ -8,7 +8,19 @@ import {
 } from '@atproto/api'
 import {nanoid} from 'nanoid/non-secure'
 
-import {type CommunityFeedTarget} from '#/lib/api/community-feed'
+import {
+  type CommunityFeedTarget,
+  isSpaceBackedFeed,
+} from '#/lib/api/community-feed'
+import {isCommunityPostUri} from '#/lib/api/community-post'
+import {
+  type AssemblyRef,
+  isPollDraftPublishable,
+  isPollTopicPublishable,
+  POLL_MAX_STATEMENTS,
+  type PollDraft,
+} from '#/lib/api/poll'
+import {isSpacePostUrl} from '#/lib/api/space-permalink'
 import {type SelfLabel} from '#/lib/moderation'
 import {insertMentionAt} from '#/lib/strings/mention-manip'
 import {shortenLinks} from '#/lib/strings/rich-text-manip'
@@ -69,6 +81,7 @@ export type EmbedDraft = {
   media: ImagesMedia | GalleryMedia | VideoMedia | GifMedia | undefined
   // This field may end up ignored if we have more important things to display than a link card:
   link: Link | undefined
+  poll?: PollDraft
 }
 
 export type PostDraft = {
@@ -98,6 +111,34 @@ export type PostAction =
   | {type: 'embed_add_gif'; gif: Gif}
   | {type: 'embed_update_gif'; alt: string}
   | {type: 'embed_remove_gif'}
+  | {type: 'embed_add_poll'}
+  | {type: 'embed_update_poll_statement'; index: number; text: string}
+  | {type: 'embed_add_poll_statement'}
+  | {type: 'embed_remove_poll_statement'; index: number}
+  | {type: 'embed_set_poll_assembly'; assembly: AssemblyRef}
+  | {type: 'embed_remove_poll'}
+
+export function postHasAttachment(post: PostDraft): boolean {
+  return Boolean(
+    post.embed.media || post.embed.link || post.embed.quote || post.embed.poll,
+  )
+}
+
+export function postHasContent(post: PostDraft): boolean {
+  return post.richtext.text.trim().length > 0 || postHasAttachment(post)
+}
+
+export function isPollPostable(post: PostDraft): boolean {
+  const poll = post.embed.poll
+  if (!poll) return true
+  return (
+    isPollTopicPublishable(post.richtext.text) &&
+    isPollDraftPublishable(poll) &&
+    !post.embed.media &&
+    !post.embed.link &&
+    !post.embed.quote
+  )
+}
 
 export type ThreadDraft = {
   posts: PostDraft[]
@@ -175,6 +216,93 @@ export type ComposerAction =
       draftId: string
     }
 
+function hasSpaceVideoTarget(thread: ThreadDraft): boolean {
+  return (
+    !!thread.communitySpaceUri ||
+    isSpaceBackedFeed(thread.communityFeed?.config)
+  )
+}
+
+function isPublicFeedTarget(thread: ThreadDraft): boolean {
+  const feed = thread.communityFeed
+  if (!feed) {
+    // A feed known only by its URI is resolved at publish, so until then
+    // nothing shows that it is public.
+    return !thread.communityFeedUri
+  }
+  return (
+    feed.config.contentType === 'publicRecord' &&
+    !isSpaceBackedFeed(feed.config)
+  )
+}
+
+function isCommunityQuote(uri: string | undefined): boolean {
+  return isCommunityPostUri(uri) || isSpacePostUrl(uri)
+}
+
+export function isPublicTarget(thread: ThreadDraft): boolean {
+  return (
+    !thread.blackskyOnly &&
+    !thread.communitySpaceUri &&
+    isPublicFeedTarget(thread)
+  )
+}
+
+export function isPollAllowed(
+  thread: ThreadDraft,
+  replyTo: string | undefined,
+): boolean {
+  return (
+    isPublicTarget(thread) &&
+    !isCommunityPostUri(replyTo) &&
+    !thread.posts.some(post => isCommunityQuote(post.embed.quote?.uri))
+  )
+}
+
+export function threadHasPoll(thread: ThreadDraft): boolean {
+  return thread.posts.some(post => post.embed.poll)
+}
+
+function keepFirstPoll(posts: PostDraft[]): PostDraft[] {
+  const first = posts.findIndex(post => post.embed.poll)
+  return posts.map((post, index) =>
+    post.embed.poll && index !== first
+      ? postReducer(post, {type: 'embed_remove_poll'})
+      : post,
+  )
+}
+
+function applyTargetChange(
+  state: ComposerState,
+  nextThread: ThreadDraft,
+): ComposerState {
+  const clearVideos =
+    hasSpaceVideoTarget(state.thread) !== hasSpaceVideoTarget(nextThread)
+  const clearPolls = threadHasPoll(nextThread) && !isPublicTarget(nextThread)
+  if (!clearVideos && !clearPolls) {
+    return {
+      ...state,
+      isDirty: true,
+      thread: nextThread,
+    }
+  }
+
+  const posts = state.thread.posts.map(post => {
+    const withoutVideo =
+      clearVideos && post.embed.media?.type === 'video'
+        ? postReducer(post, {type: 'embed_remove_video'})
+        : post
+    return clearPolls && withoutVideo.embed.poll
+      ? postReducer(withoutVideo, {type: 'embed_remove_poll'})
+      : withoutVideo
+  })
+  return {
+    ...state,
+    isDirty: true,
+    thread: {...nextThread, posts},
+  }
+}
+
 /**
  * Threshold for picking between embed variants. <= this count uses the
  * legacy `app.bsky.embed.images` shape; > this count promotes to
@@ -227,33 +355,43 @@ export function composerReducer(
       }
     }
     case 'toggle_blacksky_only': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: !state.thread.blackskyOnly,
-          communityFeed: undefined,
-          communityFeedUri: undefined,
-          communitySpaceUri: undefined,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: !state.thread.blackskyOnly,
+        communityFeed: undefined,
+        communityFeedUri: undefined,
+        communitySpaceUri: undefined,
       }
+      return applyTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'set_post_target': {
-      return {
-        ...state,
-        isDirty: true,
-        thread: {
-          ...state.thread,
-          blackskyOnly: action.target === 'blacksky',
-          communityFeed:
-            typeof action.target === 'string' ? undefined : action.target,
-          communityFeedUri:
-            typeof action.target === 'string' ? undefined : action.target.feed,
-        },
+      const nextThread = {
+        ...state.thread,
+        blackskyOnly: action.target === 'blacksky',
+        communityFeed:
+          typeof action.target === 'string' ? undefined : action.target,
+        communityFeedUri:
+          typeof action.target === 'string' ? undefined : action.target.feed,
       }
+      return applyTargetChange(
+        {
+          ...state,
+        },
+        nextThread,
+      )
     }
     case 'update_post': {
+      if (
+        action.postAction.type === 'embed_add_poll' &&
+        (threadHasPoll(state.thread) || !isPollAllowed(state.thread, undefined))
+      ) {
+        return state
+      }
       let nextPosts = state.thread.posts
       const postIndex = state.thread.posts.findIndex(
         p => p.id === action.postId,
@@ -355,7 +493,7 @@ export function composerReducer(
         loadedMediaMap: loadedMedia,
         originalLocalRefs,
         thread: {
-          posts,
+          posts: keepFirstPoll(posts),
           postgate: createPostgateRecord({
             post: '',
             embeddingRules: postgateEmbeddingRules,
@@ -405,7 +543,7 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_images': {
-      if (action.images.length === 0) {
+      if (action.images.length === 0 || state.embed.poll) {
         return state
       }
       const prevMedia = state.embed.media
@@ -466,7 +604,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
     }
     case 'embed_remove_image': {
       const prevMedia = state.embed.media
-      let nextLabels = state.labels
       if (prevMedia?.type === 'images' || prevMedia?.type === 'gallery') {
         const removedImage = action.image
         const remainingImages = prevMedia.images.filter(img => {
@@ -475,9 +612,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         let nextMedia: ImagesMedia | GalleryMedia | undefined
         if (remainingImages.length === 0) {
           nextMedia = undefined
-          if (!state.embed.link) {
-            nextLabels = []
-          }
         } else {
           // Re-pick the variant so a gallery that shrinks to <=4 demotes
           // back to the legacy `app.bsky.embed.images` shape - keeps old
@@ -486,7 +620,6 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         }
         return {
           ...state,
-          labels: nextLabels,
           embed: {
             ...state.embed,
             media: nextMedia,
@@ -496,6 +629,9 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       return state
     }
     case 'embed_add_video': {
+      if (state.embed.poll) {
+        return state
+      }
       const prevMedia = state.embed.media
       let nextMedia = prevMedia
       if (!prevMedia) {
@@ -537,13 +673,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         prevMedia.video.abortController.abort()
         nextMedia = undefined
       }
-      let nextLabels = state.labels
-      if (!state.embed.link) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           media: nextMedia,
@@ -551,6 +682,9 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_uri': {
+      if (state.embed.poll) {
+        return state
+      }
       const prevQuote = state.embed.quote
       const prevLink = state.embed.link
       let nextQuote = prevQuote
@@ -580,13 +714,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_remove_link': {
-      let nextLabels = state.labels
-      if (!state.embed.media) {
-        nextLabels = []
-      }
       return {
         ...state,
-        labels: nextLabels,
         embed: {
           ...state.embed,
           link: undefined,
@@ -603,6 +732,9 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_gif': {
+      if (state.embed.poll) {
+        return state
+      }
       const prevMedia = state.embed.media
       let nextMedia = prevMedia
       if (!prevMedia) {
@@ -648,6 +780,87 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
         embed: {
           ...state.embed,
           media: nextMedia,
+        },
+      }
+    }
+    case 'embed_add_poll': {
+      if (postHasAttachment(state)) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: {statements: ['']},
+        },
+      }
+    }
+    case 'embed_update_poll_statement': {
+      const poll = state.embed.poll
+      if (!poll || action.index < 0 || action.index >= poll.statements.length) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: {
+            ...poll,
+            statements: poll.statements.map((text, i) =>
+              i === action.index ? action.text : text,
+            ),
+          },
+        },
+      }
+    }
+    case 'embed_add_poll_statement': {
+      const poll = state.embed.poll
+      if (!poll || poll.statements.length >= POLL_MAX_STATEMENTS) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: {...poll, statements: [...poll.statements, '']},
+        },
+      }
+    }
+    case 'embed_remove_poll_statement': {
+      const poll = state.embed.poll
+      if (!poll || poll.statements.length <= 1) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: {
+            ...poll,
+            statements: poll.statements.filter((_, i) => i !== action.index),
+          },
+        },
+      }
+    }
+    case 'embed_set_poll_assembly': {
+      const poll = state.embed.poll
+      if (!poll) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: {...poll, assembly: action.assembly},
+        },
+      }
+    }
+    case 'embed_remove_poll': {
+      return {
+        ...state,
+        embed: {
+          ...state.embed,
+          poll: undefined,
         },
       }
     }

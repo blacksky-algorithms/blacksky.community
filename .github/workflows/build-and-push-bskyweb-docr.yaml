@@ -1,9 +1,6 @@
 name: build-and-push-bskyweb-docr
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   bskyweb-container-docr:

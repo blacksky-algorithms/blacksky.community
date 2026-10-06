@@ -49,20 +49,6 @@ const thread = (embed: object = {}, id = 'draft-operation-1') =>
 describe(postToSpace, () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it.each(['images', 'gallery', 'video', 'gif'])(
-    'blocks %s before embed resolution or a write',
-    async type => {
-      await expect(
-        postToSpace(agent, queryClient, SPACE, {
-          thread: thread({media: {type}}),
-        }),
-      ).rejects.toThrow(/not available in private spaces/i)
-
-      expect(resolveEmbed).not.toHaveBeenCalled()
-      expect(spaceCreateRecord).not.toHaveBeenCalled()
-    },
-  )
-
   it('refuses a quote from another space before embed resolution', async () => {
     await expect(
       postToSpace(agent, queryClient, SPACE, {

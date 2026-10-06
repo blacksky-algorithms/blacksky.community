@@ -4,6 +4,7 @@
 import {AppBskyDraftDefs, AtUri, RichText} from '@atproto/api'
 import {nanoid} from 'nanoid/non-secure'
 
+import {decodePollDraft} from '#/lib/api/poll'
 import {resolveLink} from '#/lib/api/resolve'
 import {getDeviceName} from '#/lib/deviceName'
 import {getImageDim} from '#/lib/media/manip'
@@ -26,6 +27,18 @@ import {type Gif} from '#/features/gifPicker/types'
 import {logger} from './logger'
 import {type DraftPostDisplay, type DraftSummary} from './schema'
 import * as storage from './storage'
+
+const DRAFT_POLL_KEY = 'communityBlackskyPoll'
+
+// app.bsky.draft.defs is not ours to extend, so the poll travels as an extra
+// property that the draft schema passes through untouched.
+type DraftPostWithPoll = AppBskyDraftDefs.DraftPost & {
+  [DRAFT_POLL_KEY]?: unknown
+}
+
+function readDraftPoll(post: DraftPostWithPoll) {
+  return decodePollDraft(post[DRAFT_POLL_KEY])
+}
 
 const TENOR_HOSTNAME = 'media.tenor.com'
 const KLIPY_HOSTNAME = 'static.klipy.com'
@@ -134,6 +147,13 @@ async function postDraftToServerPost(
         draftPost.embedExternals = [external]
       }
     }
+  }
+
+  if (post.embed.poll) {
+    const {statements, assembly} = post.embed.poll
+    ;(draftPost as DraftPostWithPoll)[DRAFT_POLL_KEY] = assembly
+      ? {statements, assembly}
+      : {statements}
   }
 
   // Add quote record embed
@@ -433,6 +453,7 @@ export function draftViewToSummary({
       images: images.length > 0 ? images : undefined,
       video: videos[0], // Only one video per post
       gif,
+      poll: readDraftPoll(post),
     }
   })
 
@@ -622,6 +643,19 @@ export async function draftToComposerPosts(
             break
           }
         }
+      }
+
+      // Restoration installs embeds directly, bypassing the reducer's
+      // exclusivity guards, and a video is only attached after this returns.
+      const poll = readDraftPoll(post)
+      if (
+        poll &&
+        !embed.media &&
+        !embed.link &&
+        !embed.quote &&
+        !restoredVideos.has(index)
+      ) {
+        embed.poll = poll
       }
 
       // Parse labels

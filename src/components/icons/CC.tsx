@@ -1,9 +1,20 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG, createStrokeSVG} from './TEMPLATE'
 
-export const CC_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm2 1v14h14V5H5Zm10.957 6.293a1 1 0 1 0 0 1.414 1 1 0 0 1 1.414 1.414 3 3 0 1 1 0-4.242 1 1 0 0 1-1.414 1.414Zm-6.331-.22a1 1 0 1 0 .331 1.634 1 1 0 0 1 1.414 1.414 3 3 0 1 1 0-4.242 1 1 0 0 1-1.414 1.414.994.994 0 0 0-.331-.22Z',
+// tabler: badge-cc (fill weight)
+export const CC_Filled_Corner0_Rounded = createMultiPathSVG({
+  paths: [
+    'M19 4a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-14a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3zm-10.5 4a2.5 2.5 0 0 0 -2.5 2.5v3a2.5 2.5 0 1 0 5 0a1 1 0 0 0 -2 0a.5 .5 0 1 1 -1 0v-3a.5 .5 0 1 1 1 0a1 1 0 0 0 2 0a2.5 2.5 0 0 0 -2.5 -2.5m7 0a2.5 2.5 0 0 0 -2.5 2.5v3a2.5 2.5 0 1 0 5 0a1 1 0 0 0 -2 0a.5 .5 0 1 1 -1 0v-3a.5 .5 0 1 1 1 0a1 1 0 0 0 2 0a2.5 2.5 0 0 0 -2.5 -2.5',
+  ],
+  viewBox: '0 0 24 24',
 })
 
-export const CC_Filled_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm11.543 7.293a1 1 0 0 1 1.414 0 1 1 0 0 0 1.414-1.414 3 3 0 1 0 0 4.242 1 1 0 0 0-1.414-1.414 1 1 0 0 1-1.414-1.414Zm-6 0a1 1 0 0 1 1.414 0 1 1 0 0 0 1.414-1.414 3 3 0 1 0 0 4.243 1 1 0 0 0-1.414-1.415 1 1 0 0 1-1.414-1.414Z',
+// tabler: badge-cc
+export const CC_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10',
+    'M10 10.5a1.5 1.5 0 0 0 -3 0v3a1.5 1.5 0 0 0 3 0',
+    'M17 10.5a1.5 1.5 0 0 0 -3 0v3a1.5 1.5 0 0 0 3 0',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

@@ -69,6 +69,19 @@ jest.mock('#/components/forms/Toggle', () => {
   }
 })
 
+const mockToast = jest.fn()
+jest.mock('#/components/Toast', () => ({
+  show: (...args: unknown[]) => mockToast(...args),
+}))
+jest.mock('#/state/gallery', () => ({createInitialImages: jest.fn()}))
+jest.mock('#/state/queries/threadgate', () => ({
+  threadgateRecordToAllowUISetting: jest.fn(() => []),
+}))
+jest.mock('#/view/com/composer/state/video', () => ({
+  createVideoState: jest.fn(),
+  videoReducer: jest.fn(),
+}))
+
 import {PostTargetControls} from '../PostTargetControls'
 
 const PRIVATE_TARGET: CommunityFeedTarget = {
@@ -84,6 +97,41 @@ const PRIVATE_TARGET: CommunityFeedTarget = {
     createdAt: '2026-08-30T00:00:00.000Z',
   },
 }
+
+const COMMUNITY_RECORD_TARGET: CommunityFeedTarget = {
+  ...PRIVATE_TARGET,
+  feed: 'at://did:plc:test/app.bsky.feed.generator/members',
+  name: 'Members Test',
+  config: {...PRIVATE_TARGET.config, space: undefined},
+}
+
+const PUBLIC_RECORD_TARGET: CommunityFeedTarget = {
+  ...PRIVATE_TARGET,
+  feed: 'at://did:plc:test/app.bsky.feed.generator/public',
+  name: 'Public Test',
+  config: {
+    ...PRIVATE_TARGET.config,
+    contentType: 'publicRecord',
+    visibility: 'public',
+    space: undefined,
+  },
+}
+
+const POLL_REMOVED_MESSAGE =
+  'Polls are only available on public posts, so the poll was removed.'
+
+function draftPost(embed: Partial<ThreadDraft['posts'][number]['embed']> = {}) {
+  return {embed} as ThreadDraft['posts'][number]
+}
+
+const TEXT_POST = draftPost()
+const POLL_POST = draftPost({poll: {statements: ['a']}})
+const COMMUNITY_QUOTE_POST = draftPost({
+  quote: {
+    type: 'link',
+    uri: 'https://bsky.app/profile/did:plc:author/post/3kabc?collection=community.blacksky.feed.post',
+  },
+})
 
 function thread(overrides: Partial<ThreadDraft> = {}): ThreadDraft {
   return {
@@ -126,6 +174,8 @@ function renderControls({
 }
 
 describe('PostTargetControls', () => {
+  beforeEach(() => mockToast.mockClear())
+
   it('keeps ordinary public composition on the legacy Blacksky-only toggle', () => {
     const {getByTestId, queryByTestId} = renderControls()
 
@@ -174,6 +224,160 @@ describe('PostTargetControls', () => {
       type: 'set_post_target',
       target: PRIVATE_TARGET,
     })
+  })
+
+  it('announces the poll removal when switching to a private feed', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [TEXT_POST, POLL_POST]}),
+      target: PRIVATE_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).toHaveBeenCalledTimes(1)
+    expect(mockToast).toHaveBeenCalledWith(POLL_REMOVED_MESSAGE, {type: 'info'})
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: PRIVATE_TARGET,
+    })
+  })
+
+  it('stays quiet when leaving the private feed', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [POLL_POST], communityFeed: PRIVATE_TARGET}),
+      target: PRIVATE_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: 'public',
+    })
+  })
+
+  it('stays quiet when no post has a poll', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [TEXT_POST]}),
+      target: PRIVATE_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: PRIVATE_TARGET,
+    })
+  })
+
+  it('announces the poll removal when switching to a community-record feed', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [POLL_POST]}),
+      target: COMMUNITY_RECORD_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).toHaveBeenCalledTimes(1)
+    expect(mockToast).toHaveBeenCalledWith(POLL_REMOVED_MESSAGE, {type: 'info'})
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: COMMUNITY_RECORD_TARGET,
+    })
+  })
+
+  it('stays quiet when the selected feed takes public posts', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [POLL_POST]}),
+      target: PUBLIC_RECORD_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: PUBLIC_RECORD_TARGET,
+    })
+  })
+
+  it('judges the selected feed, not what the thread quotes', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [POLL_POST, COMMUNITY_QUOTE_POST]}),
+      target: PUBLIC_RECORD_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: PUBLIC_RECORD_TARGET,
+    })
+  })
+
+  it('judges the selected feed, not the audience it replaces', () => {
+    const {dispatch, getByTestId} = renderControls({
+      draft: thread({posts: [POLL_POST], blackskyOnly: true}),
+      target: PUBLIC_RECORD_TARGET,
+    })
+
+    fireEvent.press(getByTestId('permissioned_space'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'set_post_target',
+      target: PUBLIC_RECORD_TARGET,
+    })
+  })
+
+  it('announces the poll removal when Blacksky Only is turned on', () => {
+    const {dispatch, getByTestId, setBlackskyOnlyDefault} = renderControls({
+      draft: thread({posts: [TEXT_POST, POLL_POST]}),
+    })
+
+    fireEvent.press(getByTestId('blacksky_only'))
+
+    expect(mockToast).toHaveBeenCalledTimes(1)
+    expect(mockToast).toHaveBeenCalledWith(POLL_REMOVED_MESSAGE, {type: 'info'})
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({type: 'toggle_blacksky_only'})
+    expect(setBlackskyOnlyDefault).toHaveBeenCalledWith(true)
+  })
+
+  it('stays quiet when Blacksky Only is turned on without a poll', () => {
+    const {dispatch, getByTestId, setBlackskyOnlyDefault} = renderControls({
+      draft: thread({posts: [TEXT_POST]}),
+    })
+
+    fireEvent.press(getByTestId('blacksky_only'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({type: 'toggle_blacksky_only'})
+    expect(setBlackskyOnlyDefault).toHaveBeenCalledWith(true)
+  })
+
+  it('stays quiet when Blacksky Only is turned off', () => {
+    const {dispatch, getByTestId, setBlackskyOnlyDefault} = renderControls({
+      draft: thread({posts: [POLL_POST], blackskyOnly: true}),
+    })
+
+    fireEvent.press(getByTestId('blacksky_only'))
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(dispatch).toHaveBeenCalledWith({type: 'toggle_blacksky_only'})
+    expect(setBlackskyOnlyDefault).toHaveBeenCalledWith(false)
   })
 
   it('does not expose private-space controls outside selected-feed context', () => {

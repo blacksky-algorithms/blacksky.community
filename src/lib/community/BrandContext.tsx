@@ -253,6 +253,10 @@ export function useBrand(): ComputedBrandConfig {
   return useContext(BrandContext)
 }
 
+export function isBlackskyBrand(config: ComputedBrandConfig): boolean {
+  return config.metadata.slug === BLACKSKY_CONFIG.metadata.slug
+}
+
 /**
  * Setter for the active brand config. Used by useCommunityBrandSync (native) to
  * re-theme when the active account resolves to a different community. The value

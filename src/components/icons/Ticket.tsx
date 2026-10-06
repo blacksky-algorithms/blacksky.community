@@ -1,5 +1,13 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const Ticket_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 0-1 1v4.17a1 1 0 0 0 .667.944 2.001 2.001 0 0 1 0 3.772A1 1 0 0 0 2 14.83V19a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-4.17a1 1 0 0 0-.667-.944 2.001 2.001 0 0 1 0-3.772A1 1 0 0 0 22 9.17V5a1 1 0 0 0-1-1H3Zm1 4.535V6h16v2.535A4 4 0 0 0 18 12c0 1.482.805 2.773 2 3.465V18H4v-2.535A4 4 0 0 0 6 12a4 4 0 0 0-2-3.465ZM15 15a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-1-3a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm1-5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z',
+// tabler: ticket
+export const Ticket_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: [
+    'M15 5l0 2',
+    'M15 11l0 2',
+    'M15 17l0 2',
+    'M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2',
+  ],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

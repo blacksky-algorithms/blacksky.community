@@ -24,6 +24,10 @@ on:
         type: boolean
         description: Assign the build to the "QA Team" TestFlight group after submitting
         default: false
+      submit:
+        type: boolean
+        description: Submit to App Store Connect (disable to only upload the IPA artifact)
+        default: true
     outputs:
       package-version:
         description: Version from package.json
@@ -189,7 +193,17 @@ jobs:
           fi
 
       - name: 🚀 Deploy
+        if: ${{ inputs.submit != false }}
         run: pnpm eas submit -p ios --non-interactive --path "$IPA_PATH"
+
+      - name: 📦 Upload release candidate IPA
+        if: ${{ inputs.submit == false }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-candidate-ios
+          path: ${{ env.IPA_PATH }}
+          retention-days: 7
+          if-no-files-found: error
 
       - name: 🪲 Upload dSYM to Sentry
         run: >

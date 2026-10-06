@@ -32,6 +32,28 @@ export function shortenLinks(rt: RichText): RichText {
   return rt
 }
 
+export function expandLinks(rt: RichText): RichText {
+  if (!rt.facets?.length) {
+    return rt
+  }
+  rt = rt.clone()
+  if (rt.facets) {
+    for (const facet of rt.facets) {
+      const link = facet.features.find(AppBskyRichtextFacet.isLink)
+      if (!link) {
+        continue
+      }
+      const {byteStart, byteEnd} = facet.index
+      const full = new UnicodeString(link.uri)
+      rt.insert(byteStart, full.utf16)
+      facet.index.byteStart = byteStart
+      facet.index.byteEnd = byteStart + full.length
+      rt.delete(byteStart + full.length, byteEnd + full.length)
+    }
+  }
+  return rt
+}
+
 // filter out any mention facets that didn't map to a user
 export function stripInvalidMentions(rt: RichText): RichText {
   if (!rt.facets?.length) {

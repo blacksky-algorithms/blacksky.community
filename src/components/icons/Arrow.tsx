@@ -1,21 +1,36 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createStrokeSVG} from './TEMPLATE'
 
-export const ArrowTopRight_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M8 6a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v9a1 1 0 1 1-2 0V8.414l-9.793 9.793a1 1 0 0 1-1.414-1.414L15.586 7H9a1 1 0 0 1-1-1Z',
+// tabler: arrow-down
+export const ArrowBottom_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M12 5l0 14', 'M18 13l-6 6', 'M6 13l6 6'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
 
-export const ArrowTop_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M11 20V6.164l-4.293 4.293a1 1 0 1 1-1.414-1.414l5.293-5.293.151-.138a2 2 0 0 1 2.677.138l5.293 5.293.068.076a1 1 0 0 1-1.406 1.406l-.076-.068L13 6.164V20a1 1 0 0 1-2 0Z',
+// tabler: arrow-left
+export const ArrowLeft_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M5 12l14 0', 'M5 12l6 6', 'M5 12l6 -6'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
 
-export const ArrowLeft_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 12a1 1 0 0 1 .293-.707l6-6a1 1 0 0 1 1.414 1.414L6.414 11H20a1 1 0 1 1 0 2H6.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6A1 1 0 0 1 3 12Z',
+// tabler: arrow-right
+export const ArrowRight_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M5 12l14 0', 'M13 18l6 -6', 'M13 6l6 6'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
 
-export const ArrowRight_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M21 12a1 1 0 0 1-.293.707l-6 6a1 1 0 0 1-1.414-1.414L17.586 13H4a1 1 0 1 1 0-2h13.586l-4.293-4.293a1 1 0 0 1 1.414-1.414l6 6A1 1 0 0 1 21 12Z',
+// tabler: arrow-up-right
+export const ArrowTopRight_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M17 7l-10 10', 'M8 7l9 0l0 9'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })
 
-export const ArrowBottom_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12 21a1 1 0 0 1-.707-.293l-6-6a1 1 0 1 1 1.414-1.414L11 17.586V4a1 1 0 1 1 2 0v13.586l4.293-4.293a1 1 0 0 1 1.414 1.414l-6 6A1 1 0 0 1 12 21Z',
+// tabler: arrow-up
+export const ArrowTop_Stroke2_Corner0_Rounded = createStrokeSVG({
+  paths: ['M12 5l0 14', 'M18 11l-6 -6', 'M6 11l6 -6'],
+  viewBox: '0 0 24 24',
+  strokeWidth: 2,
 })

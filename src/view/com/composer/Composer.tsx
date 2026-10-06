@@ -60,6 +60,7 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueries, useQueryClient} from '@tanstack/react-query'
 
+import {AssemblyError, type AssemblyErrorCode} from '#/lib/api/assembly'
 import {
   type CommunityFeedTarget,
   isSpaceBackedFeed,
@@ -69,6 +70,7 @@ import {
   isCommunityPostUri,
 } from '#/lib/api/community-post'
 import * as apilib from '#/lib/api/index'
+import {type AssemblyRef} from '#/lib/api/poll'
 import {EmbeddingDisabledError} from '#/lib/api/resolve'
 import {
   isSpaceRecordUri,
@@ -134,6 +136,8 @@ import {LabelsBtn} from '#/view/com/composer/labels/LabelsBtn'
 import {Gallery} from '#/view/com/composer/photos/Gallery'
 import {OpenCameraBtn} from '#/view/com/composer/photos/OpenCameraBtn'
 import {SelectGifBtn} from '#/view/com/composer/photos/SelectGifBtn'
+import {PollEditor} from '#/view/com/composer/poll/PollEditor'
+import {SelectPollBtn} from '#/view/com/composer/poll/SelectPollBtn'
 import {PostTargetControls} from '#/view/com/composer/PostTargetControls'
 import {SuggestedLanguage} from '#/view/com/composer/select-language/SuggestedLanguage'
 // TODO: Prevent naming components that coincide with RN primitives
@@ -161,6 +165,7 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {
   IS_ANDROID,
+  IS_DEV,
   IS_IOS,
   IS_LIQUID_GLASS,
   IS_NATIVE,
@@ -192,10 +197,14 @@ import {
   composerReducer,
   createComposerState,
   type EmbedDraft,
+  isPollAllowed,
+  isPollPostable,
   MAX_GALLERY_IMAGES,
   type PostAction,
   type PostDraft,
+  postHasAttachment,
   type ThreadDraft,
+  threadHasPoll,
 } from './state/composer'
 import {
   NO_VIDEO,
@@ -427,34 +436,7 @@ export const ComposePost = ({
     (isSpaceBackedFeed(thread.communityFeed?.config)
       ? thread.communityFeed.config.space
       : undefined)
-
-  useEffect(() => {
-    if (!spaceTarget) return
-    for (const post of thread.posts) {
-      const media = post.embed.media
-      if (media?.type === 'images' || media?.type === 'gallery') {
-        for (const image of media.images) {
-          composerDispatch({
-            type: 'update_post',
-            postId: post.id,
-            postAction: {type: 'embed_remove_image', image},
-          })
-        }
-      } else if (media?.type === 'video') {
-        composerDispatch({
-          type: 'update_post',
-          postId: post.id,
-          postAction: {type: 'embed_remove_video'},
-        })
-      } else if (media?.type === 'gif') {
-        composerDispatch({
-          type: 'update_post',
-          postId: post.id,
-          postAction: {type: 'embed_remove_gif'},
-        })
-      }
-    }
-  }, [spaceTarget, thread.posts])
+  const isPrivateVideoTarget = !!spaceTarget
 
   // Clear error when composer content changes, but only if all posts are
   // back within the character limit.
@@ -504,9 +486,10 @@ export const ComposePost = ({
         currentDid,
         abortController.signal,
         i18n,
+        isPrivateVideoTarget,
       )
     },
-    [i18n, agent, currentDid, composerDispatch],
+    [i18n, agent, currentDid, composerDispatch, isPrivateVideoTarget],
   )
 
   const onInitVideo = useNonReactiveCallback(() => {
@@ -651,6 +634,7 @@ export const ComposePost = ({
           currentDid,
           abortController.signal,
           i18n,
+          isPrivateVideoTarget,
         )
       } catch (e) {
         logger.error('Failed to restore video from draft', {
@@ -833,7 +817,8 @@ export const ComposePost = ({
       post =>
         post.richtext.text.trim().length > 0 ||
         post.embed.media ||
-        post.embed.link,
+        post.embed.link ||
+        post.embed.poll,
     )
     ax.metric('draft:discard', {
       logContext: 'ComposerClose',
@@ -857,6 +842,7 @@ export const ComposePost = ({
     if (firstPost.embed.quote) return false
     // Has link
     if (firstPost.embed.link) return false
+    if (firstPost.embed.poll) return false
 
     return true
   }, [thread.posts])
@@ -893,7 +879,10 @@ export const ComposePost = ({
 
     const hasContent = thread.posts.some(
       post =>
-        post.shortenedGraphemeLength > 0 || post.embed.media || post.embed.link,
+        post.shortenedGraphemeLength > 0 ||
+        post.embed.media ||
+        post.embed.link ||
+        post.embed.poll,
     )
 
     // Show discard prompt if there's content AND either:
@@ -982,6 +971,33 @@ export const ComposePost = ({
       !ChatBskyGroupDefs.isJoinLinkPreviewView(q.data.view),
   )
 
+  const canAddPoll =
+    isPollAllowed(thread, replyTo?.uri) && !threadHasPoll(thread)
+
+  const getAssemblyErrorMessage = useCallback(
+    (code: AssemblyErrorCode): string => {
+      switch (code) {
+        case 'not_eligible':
+          return l`Polls are not available for your account yet.`
+        case 'quota':
+          return l`You have started the maximum number of polls for today. Try again tomorrow.`
+        case 'busy':
+          return l`People's Assembly is busy. Wait a few seconds and post again.`
+        case 'invalid':
+          return l`This poll could not be created. Check the statements and try again.`
+        case 'conflict':
+          return l`This poll changed while it was being created. Please try again.`
+        case 'removed':
+          return l`This poll was removed and cannot be posted.`
+        case 'auth':
+        case 'network':
+        case 'unavailable':
+          return l`Could not reach People's Assembly. Your post was not sent.`
+      }
+    },
+    [l],
+  )
+
   const canPost =
     !missingAltError &&
     !hasUnavailableChatInvite &&
@@ -993,7 +1009,8 @@ export const ComposePost = ({
           !(
             post.embed.media?.type === 'video' &&
             post.embed.media.video.status === 'error'
-          )),
+          ) &&
+          isPollPostable(post)),
     )
 
   const getFilteredThread = useCallback((): {
@@ -1062,15 +1079,28 @@ export const ComposePost = ({
     let postSuccessData: OnPostSuccessData
     try {
       logger.info(`composer: posting...`)
-      postUri = (
-        await apilib.post(agent, queryClient, {
-          thread: filteredThread,
-          draftId: composerState.draftId,
-          replyTo: replyTo?.uri,
-          onStateChange: setPublishingStage,
-          langs: currentLanguages,
+      const result = await apilib.post(agent, queryClient, {
+        thread: filteredThread,
+        draftId: composerState.draftId,
+        replyTo: replyTo?.uri,
+        onStateChange: setPublishingStage,
+        onAssembly: (postId: string, assembly: AssemblyRef) => {
+          composerDispatch({
+            type: 'update_post',
+            postId,
+            postAction: {type: 'embed_set_poll_assembly', assembly},
+          })
+        },
+        langs: currentLanguages,
+      })
+      postUri = result.uris[0]
+      if (result.assembly) {
+        ax.metric('assembly:create', {
+          conversationId: result.assembly.conversationId,
+          statementCount: result.assembly.statementCount,
+          isReplay: result.assembly.isReplay,
         })
-      ).uris[0]
+      }
 
       /*
        * Wait for app view to have received the post(s). If this fails, it's
@@ -1132,6 +1162,9 @@ export const ComposePost = ({
         err = l`We're sorry! The post you are replying to has been deleted.`
       } else if (e instanceof EmbeddingDisabledError) {
         err = l`This post's author has disabled quote posts.`
+      } else if (e instanceof AssemblyError) {
+        err = getAssemblyErrorMessage(e.code)
+        ax.metric('assembly:create:error', {stage: e.stage, code: e.code})
       } else if (e instanceof SpaceUnsupportedError) {
         err = l`Your account is hosted elsewhere, so it cannot post to a private community feed. You can read it, but posting needs an account hosted here.`
         setNeedsMigration(true)
@@ -1153,6 +1186,8 @@ export const ComposePost = ({
             isPartOfThread: filteredThread.posts.length > 1,
             hasLink: !!post.embed.link,
             hasQuote: !!post.embed.quote,
+            hasPoll: !!post.embed.poll,
+            pollStatementCount: post.embed.poll?.statements.length ?? 0,
             langs: fromPostLanguages(currentLanguages),
             logContext: 'Composer',
           })
@@ -1299,6 +1334,7 @@ export const ComposePost = ({
     loadedDraftCreatedAt,
     emptyPostsPromptControl,
     getFilteredThread,
+    getAssemblyErrorMessage,
     linkQueries,
   ])
 
@@ -1420,6 +1456,7 @@ export const ComposePost = ({
       <ComposerFooter
         post={activePost}
         dispatch={dispatch}
+        canAddPoll={canAddPoll}
         showAddButton={
           !isEmptyPost(activePost) && (!nextPost || !isEmptyPost(nextPost))
         }
@@ -1435,7 +1472,6 @@ export const ComposePost = ({
         languageNudgeAt={languageNudgeAt}
         openGallery={openGallery}
         textInputRef={textInputRef}
-        spaceMediaDisabled={!!spaceTarget}
       />
     </>
   )
@@ -1643,7 +1679,7 @@ let ComposerPost = memo(function ComposerPost({
   const brand = useBrand()
   const {data: currentProfile} = useProfileQuery({did: currentDid})
   const richtext = post.richtext
-  const isTextOnly = !post.embed.link && !post.embed.quote && !post.embed.media
+  const isTextOnly = !postHasAttachment(post)
   const forceMinHeight = IS_WEB && isTextOnly && isActive
   const selectTextInputPlaceholder = isReply
     ? isFirstPost
@@ -1676,8 +1712,15 @@ let ComposerPost = memo(function ComposerPost({
     [dispatchPost],
   )
 
+  const hasPoll = !!post.embed.poll
   const onPhotoPasted = useCallback(
     async (uri: string) => {
+      if (hasPoll) {
+        if (IS_WEB) {
+          Toast.show(l`Remove the poll to add media`, {type: 'warning'})
+        }
+        return
+      }
       if (
         uri.startsWith('data:video/') ||
         (IS_WEB && uri.startsWith('data:image/gif'))
@@ -1700,7 +1743,7 @@ let ComposerPost = memo(function ComposerPost({
         onImageAdd([res])
       }
     },
-    [post.id, onSelectVideo, onImageAdd, l],
+    [post.id, hasPoll, onSelectVideo, onImageAdd, l],
   )
 
   useHideKeyboardOnBackground()
@@ -1765,12 +1808,7 @@ let ComposerPost = memo(function ComposerPost({
             shape="round"
             style={[a.absolute, {top: 0, right: 0}]}
             onPress={() => {
-              if (
-                post.shortenedGraphemeLength > 0 ||
-                post.embed.media ||
-                post.embed.link ||
-                post.embed.quote
-              ) {
+              if (post.shortenedGraphemeLength > 0 || postHasAttachment(post)) {
                 discardPromptControl.open()
               } else {
                 dispatch({
@@ -1800,6 +1838,7 @@ let ComposerPost = memo(function ComposerPost({
       <ComposerEmbeds
         canRemoveQuote={canRemoveQuote}
         embed={post.embed}
+        text={richtext.text}
         dispatch={dispatchPost}
         clearVideo={() => onClearVideo(post.id)}
         isActivePost={isActive}
@@ -1961,12 +2000,14 @@ function AltTextReminder({error}: {error: string}) {
 
 function ComposerEmbeds({
   embed,
+  text,
   dispatch,
   clearVideo,
   canRemoveQuote,
   isActivePost,
 }: {
   embed: EmbedDraft
+  text: string
   dispatch: (action: PostAction) => void
   clearVideo: () => void
   canRemoveQuote: boolean
@@ -1993,6 +2034,10 @@ function ComposerEmbeds({
             }}
           />
         </View>
+      )}
+
+      {embed.poll && (
+        <PollEditor poll={embed.poll} text={text} dispatch={dispatch} />
       )}
 
       {!embed.media && embed.link && (
@@ -2095,24 +2140,6 @@ function ComposerPills({
   const t = useTheme()
   const {data: isCommunityMember = false} = useCommunityMembership()
   const homeAppviewOutage = useHomeAppviewOutage()
-  const media = post.embed.media
-  const hasMedia =
-    media?.type === 'images' ||
-    media?.type === 'gallery' ||
-    media?.type === 'gif' ||
-    media?.type === 'video'
-  const hasLink = !!post.embed.link
-
-  if (
-    isReply &&
-    !hasMedia &&
-    !hasLink &&
-    !isForcedBlackskyOnly &&
-    !thread.communityFeedUri &&
-    !thread.communitySpaceUri
-  ) {
-    return null
-  }
 
   return (
     <Animated.View
@@ -2151,21 +2178,19 @@ function ComposerPills({
           isForcedCommunityTarget={isForcedCommunityTarget}
           contextualCommunityFeedTarget={contextualCommunityFeedTarget}
         />
-        {hasMedia || hasLink ? (
-          <LabelsBtn
-            labels={post.labels}
-            onChange={nextLabels => {
-              dispatch({
-                type: 'update_post',
-                postId: post.id,
-                postAction: {
-                  type: 'update_labels',
-                  labels: nextLabels,
-                },
-              })
-            }}
-          />
-        ) : null}
+        <LabelsBtn
+          labels={post.labels}
+          onChange={nextLabels => {
+            dispatch({
+              type: 'update_post',
+              postId: post.id,
+              postAction: {
+                type: 'update_labels',
+                labels: nextLabels,
+              },
+            })
+          }}
+        />
       </ScrollView>
       {(thread.blackskyOnly ||
         thread.communityFeedUri ||
@@ -2183,6 +2208,7 @@ function ComposerPills({
 function ComposerFooter({
   post,
   dispatch,
+  canAddPoll,
   showAddButton,
   onSelectVideo,
   onAddPost,
@@ -2191,10 +2217,10 @@ function ComposerFooter({
   languageNudgeAt,
   openGallery,
   textInputRef,
-  spaceMediaDisabled,
 }: {
   post: PostDraft
   dispatch: (action: PostAction) => void
+  canAddPoll: boolean
   showAddButton: boolean
   onError: (error: string) => void
   onSelectVideo: (postId: string, asset: ImagePickerAsset) => void
@@ -2204,11 +2230,13 @@ function ComposerFooter({
   languageNudgeAt: number
   openGallery?: boolean
   textInputRef: React.RefObject<TextInputRef | null>
-  spaceMediaDisabled: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
   const {gtPhone} = useBreakpoints()
+  const ax = useAnalytics()
+  const arePollsEnabled = IS_DEV || ax.features.enabled(ax.features.PollsEnable)
+  const hasPoll = !!post.embed.poll
   /*
    * Once we've allowed a certain type of asset to be selected, we don't allow
    * other types of media to be selected.
@@ -2236,15 +2264,17 @@ function ComposerFooter({
   } else {
     isMediaSelectionDisabled = !!media
   }
+  if (hasPoll) {
+    isMediaSelectionDisabled = true
+  }
 
   const onImageAdd = useAddImagesWithCap(images.length, dispatch)
 
   const onSelectGif = useCallback(
     (gif: Gif) => {
-      if (spaceMediaDisabled) return
       dispatch({type: 'embed_add_gif', gif})
     },
-    [dispatch, spaceMediaDisabled],
+    [dispatch],
   )
 
   /*
@@ -2256,7 +2286,6 @@ function ComposerFooter({
 
   const onSelectAssets = useCallback<SelectMediaButtonProps['onSelectAssets']>(
     async ({type, assets, errors}) => {
-      if (spaceMediaDisabled) return
       setSelectedAssetsType(type)
 
       if (assets.length) {
@@ -2293,7 +2322,7 @@ function ComposerFooter({
         })
       })
     },
-    [post.id, onSelectVideo, onImageAdd, spaceMediaDisabled],
+    [post.id, onSelectVideo, onImageAdd],
   )
 
   return (
@@ -2315,7 +2344,7 @@ function ComposerFooter({
           ) : (
             <ToolbarWrapper style={[a.flex_row, a.align_center, a.gap_xs]}>
               <SelectMediaButton
-                disabled={spaceMediaDisabled || isMediaSelectionDisabled}
+                disabled={isMediaSelectionDisabled}
                 allowedAssetTypes={selectedAssetsType}
                 selectedAssetsCount={selectedAssetsCount}
                 onSelectAssets={onSelectAssets}
@@ -2323,18 +2352,23 @@ function ComposerFooter({
               />
               <OpenCameraBtn
                 disabled={
-                  spaceMediaDisabled
-                    ? true
-                    : media?.type === 'images' || media?.type === 'gallery'
-                      ? isMaxImages
-                      : !!media
+                  hasPoll ||
+                  (media?.type === 'images' || media?.type === 'gallery'
+                    ? isMaxImages
+                    : !!media)
                 }
                 onAdd={onImageAdd}
               />
               <SelectGifBtn
                 onSelectGif={onSelectGif}
-                disabled={spaceMediaDisabled || !!media}
+                disabled={!!media || hasPoll}
               />
+              {arePollsEnabled && (
+                <SelectPollBtn
+                  onPress={() => dispatch({type: 'embed_add_poll'})}
+                  disabled={!canAddPoll || postHasAttachment(post)}
+                />
+              )}
               {IS_WEB && gtPhone ? (
                 <EmojiPicker.Root nextFocusRef={textInputRef}>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
@@ -2356,11 +2390,6 @@ function ComposerFooter({
             </ToolbarWrapper>
           )}
         </LayoutAnimationConfig>
-        {spaceMediaDisabled ? (
-          <Text style={[t.atoms.text_contrast_medium, a.text_sm, a.ml_sm]}>
-            <Trans>Media isn’t available in private spaces yet.</Trans>
-          </Text>
-        ) : null}
       </View>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         {showAddButton && (
@@ -2562,12 +2591,7 @@ async function whenAppViewReady(
 }
 
 function isEmptyPost(post: PostDraft) {
-  return (
-    post.richtext.text.trim().length === 0 &&
-    !post.embed.media &&
-    !post.embed.link &&
-    !post.embed.quote
-  )
+  return post.richtext.text.trim().length === 0 && !postHasAttachment(post)
 }
 
 function useHideKeyboardOnBackground() {

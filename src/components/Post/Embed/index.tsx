@@ -125,6 +125,13 @@ function MediaEmbed({
           </ContentHider>
         )
       }
+      const record = rest.post?.record
+      const postRecord = bsky.dangerousIsType<AppBskyFeedPost.Record>(
+        record,
+        AppBskyFeedPost.isRecord,
+      )
+        ? record
+        : undefined
       return (
         <ContentHider
           modui={rest.moderation?.ui('contentMedia')}
@@ -133,6 +140,8 @@ function MediaEmbed({
             link={embed.view.external}
             onOpen={rest.onOpen}
             style={[a.mt_sm, rest.style]}
+            postText={postRecord?.text}
+            postFacets={postRecord?.facets}
           />
         </ContentHider>
       )

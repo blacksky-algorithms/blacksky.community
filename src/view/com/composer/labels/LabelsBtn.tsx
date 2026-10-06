@@ -109,8 +109,8 @@ function DialogInner({
           </Text>
           <Text style={[t.atoms.text_contrast_medium, a.leading_snug]}>
             <Trans>
-              Please add any content warning labels that are applicable for the
-              media you are posting.
+              Please add any content warning labels that apply to what you are
+              posting.
             </Trans>
           </Text>
         </View>
@@ -162,7 +162,7 @@ function DialogInner({
               labels.includes('porn') ? (
                 <Text style={[a.mt_sm, t.atoms.text_contrast_medium]}>
                   {labels.includes('sexual') ? (
-                    <Trans>Pictures meant for adults.</Trans>
+                    <Trans>Suggestive content meant for adults.</Trans>
                   ) : labels.includes('nudity') ? (
                     <Trans>Artistic or non-erotic nudity.</Trans>
                   ) : labels.includes('porn') ? (
@@ -204,7 +204,7 @@ function DialogInner({
               {labels.includes('graphic-media') ? (
                 <Text style={[a.mt_sm, t.atoms.text_contrast_medium]}>
                   <Trans>
-                    Media that may be disturbing or inappropriate for some
+                    Content that may be disturbing or inappropriate for some
                     audiences.
                   </Trans>
                 </Text>

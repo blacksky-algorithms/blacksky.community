@@ -1,9 +1,9 @@
-import {createSinglePathSVG} from './TEMPLATE'
+import {createMultiPathSVG} from './TEMPLATE'
 
-export const ArrowBoxLeft_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3.293 3.293A1 1 0 0 1 4 3h7.25a1 1 0 1 1 0 2H5v14h6.25a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V4a1 1 0 0 1 .293-.707Zm11.5 3.5a1 1 0 0 1 1.414 0l4.5 4.5a1 1 0 0 1 0 1.414l-4.5 4.5a1 1 0 0 1-1.414-1.414L17.586 13H8.75a1 1 0 1 1 0-2h8.836l-2.793-2.793a1 1 0 0 1 0-1.414Z',
-})
-
-export const ArrowBoxLeft_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M6 5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h5.25a1 1 0 1 1 0 2H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h5.25a1 1 0 1 1 0 2H6Zm8.793 1.793a1 1 0 0 1 1.414 0l4.5 4.5a1 1 0 0 1 0 1.414l-4.5 4.5a1 1 0 0 1-1.414-1.414L17.586 13H8.75a1 1 0 1 1 0-2h8.836l-2.793-2.793a1 1 0 0 1 0-1.414Z',
+// phosphor: sign-out
+export const ArrowBoxLeft_Stroke2_Corner0_Rounded = createMultiPathSVG({
+  paths: [
+    'M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z',
+  ],
+  viewBox: '0 0 256 256',
 })

@@ -1,10 +1,12 @@
 import {useMutation} from '@tanstack/react-query'
 
 import {useAgent, useSession} from '#/state/session'
+import {useRefreshSession} from '#/state/session/useRefreshSession'
 
 export function useManageEmail2FA() {
   const agent = useAgent()
   const {currentAccount} = useSession()
+  const refreshSession = useRefreshSession()
 
   return useMutation({
     mutationFn: async ({
@@ -23,7 +25,7 @@ export function useManageEmail2FA() {
         token,
       })
       // will update session state at root of app
-      await agent.resumeSession(agent.session!)
+      await refreshSession()
     },
   })
 }

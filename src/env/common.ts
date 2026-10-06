@@ -169,6 +169,12 @@ export const ACORN_SERVICE_URL: string =
           })()
         : 'http://localhost:3000')
 
+export const ASSEMBLY_URL: string =
+  process.env.EXPO_PUBLIC_ASSEMBLY_URL || 'https://assembly.blacksky.community'
+export const ASSEMBLY_SERVICE_DID: string =
+  process.env.EXPO_PUBLIC_ASSEMBLY_SERVICE_DID ||
+  'did:web:assembly.blacksky.community'
+
 /**
  * Stripe publishable key for embedded checkout
  */

@@ -61,6 +61,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const [numUnread, setNumUnread] = useState('')
 
   const checkUnreadRef = useRef<ApiContext['checkUnread'] | null>(null)
+  const refreshGenerationRef = useRef(0)
   const cacheRef = useRef<CachedFeedPage>({
     usableInFeed: false,
     syncedAt: new Date(),
@@ -95,6 +96,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   // listen for broadcasts
   useEffect(() => {
     const listener = ({data}: MessageEvent) => {
+      refreshGenerationRef.current += 1
       cacheRef.current = {
         usableInFeed: false,
         syncedAt: new Date(),
@@ -120,13 +122,22 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   const api = useMemo<ApiContext>(() => {
     return {
       async markAllRead() {
+        refreshGenerationRef.current += 1
+        const seenAt = cacheRef.current.syncedAt
+
         // update server
         await agent.app.bsky.notification.updateSeen(
-          {seenAt: cacheRef.current.syncedAt.toISOString()},
+          {seenAt: seenAt.toISOString()},
           HOME_APPVIEW_PINNED_OPTS,
         )
 
         // update & broadcast
+        cacheRef.current = {
+          ...cacheRef.current,
+          usableInFeed: false,
+          syncedAt: seenAt,
+          unreadCount: 0,
+        }
         setNumUnread('')
         broadcast.postMessage({event: ''})
         resetBadgeCount()
@@ -155,8 +166,8 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
           }
           // Do not move this without ensuring it gets a symmetrical reset in the finally block.
           isFetchingRef.current = true
+          const generation = ++refreshGenerationRef.current
 
-          // count
           const {page, indexedAt: lastIndexed} = await fetchPage({
             agent,
             cursor: undefined,
@@ -165,12 +176,25 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             moderationOpts,
             hideFollowNotifications: undefined,
             reasons: [],
-
-            // only fetch subjects when the page is going to be used
-            // in the notifications query, otherwise skip it
             fetchAdditionalData: !!invalidate,
           })
-          const unreadCount = countUnread(page)
+          const now = new Date()
+          const lastIndexedDate = lastIndexed
+            ? new Date(lastIndexed)
+            : undefined
+          const nextCache: CachedFeedPage = {
+            usableInFeed: !!invalidate,
+            data: page,
+            syncedAt:
+              !lastIndexedDate || now > lastIndexedDate ? now : lastIndexedDate,
+            unreadCount: countUnread(page),
+          }
+
+          if (generation !== refreshGenerationRef.current) {
+            return
+          }
+
+          const unreadCount = nextCache.unreadCount
           const unreadCountStr =
             unreadCount >= 30
               ? '30+'
@@ -178,18 +202,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                 ? ''
                 : String(unreadCount)
 
-          // track last sync
-          const now = new Date()
-          const lastIndexedDate = lastIndexed
-            ? new Date(lastIndexed)
-            : undefined
-          cacheRef.current = {
-            usableInFeed: !!invalidate, // will be used immediately
-            data: page,
-            syncedAt:
-              !lastIndexedDate || now > lastIndexedDate ? now : lastIndexedDate,
-            unreadCount,
-          }
+          cacheRef.current = nextCache
 
           // update & broadcast
           setNumUnread(unreadCountStr)
