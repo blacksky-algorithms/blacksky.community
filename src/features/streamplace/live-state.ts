@@ -74,8 +74,14 @@ export function reduceLiveEvent(
       return typeof e.count === 'number'
         ? {...state, viewerCount: e.count}
         : state
-    case 'place.stream.segment':
-      return {...state, lastSegmentAt: now}
+    case 'place.stream.segment': {
+      const started =
+        typeof e.startTime === 'string' ? Date.parse(e.startTime) : NaN
+      return {
+        ...state,
+        lastSegmentAt: Number.isFinite(started) ? Math.min(started, now) : now,
+      }
+    }
     default:
       return state
   }
@@ -86,6 +92,14 @@ export function isLiveAt(state: LiveState, now: number) {
     !state.endedAt &&
     state.lastSegmentAt !== undefined &&
     now - state.lastSegmentAt < SEGMENT_STALE_MS
+  )
+}
+
+export function isKnownNotLiveAt(state: LiveState, now: number) {
+  return (
+    !!state.endedAt ||
+    (state.lastSegmentAt !== undefined &&
+      now - state.lastSegmentAt >= SEGMENT_STALE_MS)
   )
 }
 
