@@ -27,7 +27,7 @@ import {
 import {
   type OauthBskyAppAgent,
   oauthCreateAgent,
-  oauthResumeSession,
+  oauthResumeSessionWithRetry,
 } from './oauth-agent'
 import {categorizeOauthError, setOauthTelemetrySink} from './oauth-telemetry'
 import {type Action, getInitialState, reducer, type State} from './reducer'
@@ -278,7 +278,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       }
       if (storedAccount.isOauthSession) {
         try {
-          agentAccount = await oauthResumeSession(storedAccount)
+          agentAccount = await oauthResumeSessionWithRetry(storedAccount)
         } catch (e) {
           ax.metric('oauth:sessionResumeFailed', {
             logContext: isSwitchingAccounts ? 'SwitchAccount' : 'AppBoot',

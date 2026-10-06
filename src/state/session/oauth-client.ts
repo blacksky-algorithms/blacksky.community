@@ -1,6 +1,11 @@
 import * as Linking from 'expo-linking'
 import {openAuthSessionAsync} from 'expo-web-browser'
-import {ExpoOAuthClient} from '@atproto/oauth-client-expo'
+import {
+  ExpoOAuthClient,
+  TokenInvalidError,
+  TokenRefreshError,
+  TokenRevokedError,
+} from '@atproto/oauth-client-expo'
 
 import {logger} from '#/logger'
 import {
@@ -105,6 +110,12 @@ const BSKY_OAUTH_CLIENT = new ExpoOAuthClient({
 export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
 }
+
+export const TERMINAL_OAUTH_ERRORS = [
+  TokenRefreshError,
+  TokenRevokedError,
+  TokenInvalidError,
+]
 
 /**
  * Android-only OAuth sign-in.

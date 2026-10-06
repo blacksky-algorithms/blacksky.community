@@ -1,4 +1,9 @@
-import {BrowserOAuthClient} from '@atproto/oauth-client-browser'
+import {
+  BrowserOAuthClient,
+  TokenInvalidError,
+  TokenRefreshError,
+  TokenRevokedError,
+} from '@atproto/oauth-client-browser'
 
 import {logger} from '#/logger'
 import {
@@ -211,3 +216,9 @@ const BSKY_OAUTH_CLIENT = createWebOAuthClient()
 export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
 }
+
+export const TERMINAL_OAUTH_ERRORS = [
+  TokenRefreshError,
+  TokenRevokedError,
+  TokenInvalidError,
+]

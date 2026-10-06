@@ -114,7 +114,12 @@ export type Events = {
       | 'subMismatch'
       | 'timeout'
       | 'network'
+      | 'serverError'
       | 'unknown'
+    message?: string
+  }
+  'oauth:sessionResumeDegraded': {
+    errorCategory: Events['oauth:sessionResumeFailed']['errorCategory']
     message?: string
   }
   'notifications:openApp': {

@@ -1,7 +1,7 @@
 import {type OAuthSession} from '@atproto/oauth-client'
 
 type OAuthRestoreClient = {
-  restore(did: string): Promise<OAuthSession>
+  restore(did: string, refresh?: boolean): Promise<OAuthSession>
 }
 
 const pendingRestores = new Map<string, Promise<OAuthSession>>()
@@ -10,17 +10,19 @@ export function restoreOAuthSession(
   client: OAuthRestoreClient,
   did: string,
   timeoutMs: number,
+  refresh?: boolean,
 ): Promise<OAuthSession> {
-  let pending = pendingRestores.get(did)
+  const key = refresh === undefined ? did : `${did}:${refresh}`
+  let pending = pendingRestores.get(key)
   if (!pending) {
-    pending = client.restore(did)
-    pendingRestores.set(did, pending)
+    pending = client.restore(did, refresh)
+    pendingRestores.set(key, pending)
     pending.then(
       () => {
-        if (pendingRestores.get(did) === pending) pendingRestores.delete(did)
+        if (pendingRestores.get(key) === pending) pendingRestores.delete(key)
       },
       () => {
-        if (pendingRestores.get(did) === pending) pendingRestores.delete(did)
+        if (pendingRestores.get(key) === pending) pendingRestores.delete(key)
       },
     )
   }

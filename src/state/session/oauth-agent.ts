@@ -14,8 +14,13 @@ import {
   stripAppviewProxyForPdsLocalMethods,
 } from './agent'
 import {configureModerationForAccount} from './moderation'
-import {getOAuthClient} from './oauth-client'
+import {getOAuthClient, TERMINAL_OAUTH_ERRORS} from './oauth-client'
 import {restoreOAuthSession} from './oauth-restore'
+import {
+  categorizeOauthError,
+  emitOauthTelemetry,
+  truncateOauthMessage,
+} from './oauth-telemetry'
 import {type SessionAccount} from './types'
 
 export async function oauthCreateAgent(session: OAuthSession) {
@@ -50,21 +55,69 @@ export async function oauthResumeSession(account: SessionAccount) {
   return await oauthCreateAgent(session)
 }
 
+const OAUTH_RESUME_RETRY_DELAY_MS = 500
+
+const TRANSIENT_RESUME_ERRORS = new Set([
+  'network',
+  'timeout',
+  'serverError',
+  'dpopSkew',
+  'dpopOther',
+])
+
+function isTerminalOAuthError(e: unknown, depth = 0): boolean {
+  if (!e || typeof e !== 'object' || depth > 5) return false
+  if (TERMINAL_OAUTH_ERRORS.some(ErrorClass => e instanceof ErrorClass)) {
+    return true
+  }
+  if ('errors' in e && Array.isArray(e.errors)) {
+    return e.errors.some(err => isTerminalOAuthError(err, depth + 1))
+  }
+  return 'cause' in e && isTerminalOAuthError(e.cause, depth + 1)
+}
+
+export async function oauthResumeSessionWithRetry(account: SessionAccount) {
+  let error: unknown
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return await oauthResumeSession(account)
+    } catch (e) {
+      error = e
+    }
+    if (isTerminalOAuthError(error)) throw error
+    // A timeout has already held the splash screen for the full budget.
+    if (categorizeOauthError(error) === 'timeout') break
+    if (attempt === 0) {
+      await new Promise(r => setTimeout(r, OAUTH_RESUME_RETRY_DELAY_MS))
+    }
+  }
+  const errorCategory = categorizeOauthError(error)
+  if (!TRANSIENT_RESUME_ERRORS.has(errorCategory)) throw error
+
+  // Throws if the OAuth client deleted the session.
+  const session = await restoreOAuthSession(
+    getOAuthClient(),
+    account.did,
+    OAUTH_RESTORE_TIMEOUT_MS,
+    false,
+  )
+  logger.warn('oauthResumeSession: keeping stored account after failure', {
+    did: account.did,
+    errorCategory,
+  })
+  emitOauthTelemetry({
+    type: 'oauth:sessionResumeDegraded',
+    payload: {errorCategory, message: truncateOauthMessage(error)},
+  })
+  const agent = new OauthBskyAppAgent(session)
+  const moderation = configureModerationForAccount(agent, account)
+  return agent.prepare(account, Promise.resolve(), moderation)
+}
+
 export async function oauthAgentAndSessionToSessionAccountOrThrow(
   agent: Agent,
   session: OAuthSession,
 ): Promise<SessionAccount> {
-  const account = await oauthAgentAndSessionToSessionAccount(agent, session)
-  if (!account) {
-    throw Error('Expected an active session')
-  }
-  return account
-}
-
-export async function oauthAgentAndSessionToSessionAccount(
-  agent: Agent,
-  session: OAuthSession,
-): Promise<SessionAccount | undefined> {
   let data: ComAtprotoServerGetSession.OutputSchema
   try {
     const res = await Promise.race([
@@ -79,7 +132,7 @@ export async function oauthAgentAndSessionToSessionAccount(
     data = res.data
   } catch (e: any) {
     logger.error('oauthAgentAndSessionToSessionAccount: getSession failed', e)
-    return undefined
+    throw e
   }
   let aud: string
   try {
@@ -95,7 +148,7 @@ export async function oauthAgentAndSessionToSessionAccount(
     aud = tokenInfo.aud
   } catch (e: any) {
     logger.error('oauthAgentAndSessionToSessionAccount: getTokenInfo failed', e)
-    return undefined
+    throw e
   }
   return {
     service: session.serverMetadata.issuer,
