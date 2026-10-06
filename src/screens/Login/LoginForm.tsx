@@ -11,6 +11,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
+import {PUBLIC_BSKY_API} from '#/lib/constants'
 import {useDebouncedValue} from '#/lib/hooks/useDebouncedValue'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {
@@ -77,6 +78,9 @@ export const LoginForm = ({
   const {data: suggestions} = useActorAutocompleteQuery(
     useDebouncedValue(typeaheadQuery, 250),
     true,
+    undefined,
+    // our appview's logged-out actor search currently returns 502
+    PUBLIC_BSKY_API,
   )
   const visibleSuggestions =
     showSuggestions &&
