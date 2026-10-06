@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import {PERSISTED_QUERY_ROOT} from '#/state/queries'
-import {fetchRecordViaSlingshot} from './microcosm-fallback'
+import {fetchRecordViaSlingshotOrNotFound} from './microcosm-fallback'
 
 type Enrichment = {
   displayName: string
@@ -18,16 +18,34 @@ type Enrichment = {
 
 /**
  * A profile is "incomplete" when the appview has the account but hasn't
- * synced the profile record yet: it has no avatar. A profile that
- * genuinely has none is fetched once and remembered as a miss.
+ * synced the profile record yet. Detection heuristics:
+ * - No avatar at all, AND
+ * - displayName is missing/empty or equals the handle (appview echoes handle
+ *   as displayName when the profile record hasn't synced)
  */
 function isIncompleteProfile(obj: any): boolean {
   if (!obj || typeof obj !== 'object') return false
   if (typeof obj.did !== 'string' || !obj.did.startsWith('did:')) return false
   if (!('handle' in obj)) return false
   if (obj.__enriched || obj.__fallbackMode) return false
+  if (isTakenDown(obj)) return false
 
-  return !obj.avatar
+  const hasAvatar = !!obj.avatar
+  const hasRealDisplayName = !!obj.displayName && obj.displayName !== obj.handle // appview echoes handle when unsynced
+
+  // Incomplete if missing avatar AND missing a real display name
+  if (!hasAvatar && !hasRealDisplayName) return true
+  return false
+}
+
+function isTakenDown(obj: {labels?: unknown}): boolean {
+  return (
+    Array.isArray(obj.labels) &&
+    obj.labels.some(
+      (l: {val?: string; neg?: boolean} | undefined) =>
+        !l?.neg && (l?.val === '!takedown' || l?.val === '!suspend'),
+    )
+  )
 }
 
 /**
@@ -60,11 +78,14 @@ function collectIncompleteProfileDids(
 }
 
 /**
- * Fetch profile record from PDS via Slingshot.
+ * Fetch profile record from PDS via Slingshot. Resolves null when there is
+ * nothing to enrich with and undefined when the fetch failed.
  */
-async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
+async function fetchProfileEnrichment(
+  did: string,
+): Promise<Enrichment | null | undefined> {
   try {
-    const record = await fetchRecordViaSlingshot(
+    const record = await fetchRecordViaSlingshotOrNotFound(
       `at://${did}/app.bsky.actor.profile/self`,
     )
     if (!record?.value) return null
@@ -82,7 +103,7 @@ async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
         : undefined,
     }
   } catch {
-    return null
+    return undefined
   }
 }
 
@@ -93,13 +114,24 @@ async function fetchProfileEnrichment(did: string): Promise<Enrichment | null> {
 function deepEnrich(
   data: any,
   enrichments: Map<string, Enrichment | null>,
-  visited: WeakSet<object>,
+  visited: Map<object, [any, boolean]>,
   depth: number,
 ): [any, boolean] {
   if (!data || typeof data !== 'object' || depth > 12) return [data, false]
-  if (visited.has(data)) return [data, false]
-  visited.add(data)
+  const seen = visited.get(data)
+  if (seen) return seen
+  visited.set(data, [data, false])
+  const result = deepEnrichUncached(data, enrichments, visited, depth)
+  visited.set(data, result)
+  return result
+}
 
+function deepEnrichUncached(
+  data: any,
+  enrichments: Map<string, Enrichment | null>,
+  visited: Map<object, [any, boolean]>,
+  depth: number,
+): [any, boolean] {
   if (Array.isArray(data)) {
     let changed = false
     const out = data.map(item => {
@@ -118,6 +150,7 @@ function deepEnrich(
     data.did.startsWith('did:') &&
     'handle' in data &&
     !data.__enriched &&
+    !isTakenDown(data) &&
     enrichments.get(data.did)
   ) {
     const e = enrichments.get(data.did)!
@@ -184,11 +217,13 @@ function enrichQuery(
   const qk = query.queryKey
   if (Array.isArray(qk) && qk[0] === PERSISTED_QUERY_ROOT) return
 
-  const [next, changed] = deepEnrich(data, enrichments, new WeakSet(), 0)
+  const [next, changed] = deepEnrich(data, enrichments, new Map(), 0)
   if (changed) {
     suppressSubscriber = true
     try {
-      queryClient.setQueryData(qk, next)
+      queryClient.setQueryData(qk, next, {
+        updatedAt: query.state.dataUpdatedAt,
+      })
     } finally {
       suppressSubscriber = false
     }
@@ -272,6 +307,7 @@ async function processBatch(
     for (const result of results) {
       if (result.status === 'fulfilled') {
         inFlightDids.delete(result.value.did)
+        if (result.value.enrichment === undefined) continue
         knownEnrichments.set(result.value.did, result.value.enrichment)
         if (result.value.enrichment) {
           enrichments.set(result.value.did, result.value.enrichment)

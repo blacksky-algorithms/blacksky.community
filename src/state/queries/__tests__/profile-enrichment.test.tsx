@@ -1,11 +1,11 @@
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {act, renderHook} from '@testing-library/react-native'
 
-const mockFetchRecordViaSlingshot = jest.fn()
+const mockFetchRecord = jest.fn()
 
 jest.mock('../microcosm-fallback', () => ({
-  fetchRecordViaSlingshot: (...args: unknown[]) =>
-    mockFetchRecordViaSlingshot(...args),
+  fetchRecordViaSlingshotOrNotFound: (...args: unknown[]) =>
+    mockFetchRecord(...args),
 }))
 jest.mock('#/state/queries', () => ({PERSISTED_QUERY_ROOT: 'PERSISTED'}))
 
@@ -15,7 +15,7 @@ import {
 } from '../profile-enrichment'
 
 const DID = 'did:plc:alice'
-const NO_AVATAR_DID = 'did:plc:bob'
+const MISSING_DID = 'did:plc:bob'
 const AVATAR = `https://cdn.bsky.app/img/avatar/plain/${DID}/bafyavatar@jpeg`
 
 type Author = {
@@ -23,6 +23,7 @@ type Author = {
   handle: string
   displayName: string
   avatar?: string
+  labels?: {val: string}[]
 }
 type Post = {uri: string; author: Author}
 
@@ -53,11 +54,21 @@ async function flush() {
   })
 }
 
+function avatarOf(queryClient: QueryClient, id: string, index = 0) {
+  return queryClient.getQueryData<Post[]>(['thread', id])![index].author.avatar
+}
+
+function setThread(queryClient: QueryClient, id: string, posts: Post[]) {
+  act(() => {
+    queryClient.setQueryData(['thread', id], posts)
+  })
+}
+
 describe('useProfileEnrichment', () => {
   beforeEach(() => {
     jest.useFakeTimers()
-    mockFetchRecordViaSlingshot.mockReset()
-    mockFetchRecordViaSlingshot.mockImplementation((uri: string) =>
+    mockFetchRecord.mockReset()
+    mockFetchRecord.mockImplementation((uri: string) =>
       Promise.resolve(
         uri.startsWith(`at://${DID}/`)
           ? {
@@ -66,7 +77,7 @@ describe('useProfileEnrichment', () => {
                 avatar: {ref: {$link: 'bafyavatar'}},
               },
             }
-          : {value: {}},
+          : null,
       ),
     )
   })
@@ -78,27 +89,13 @@ describe('useProfileEnrichment', () => {
   it('patches the avatar into data that arrives after the first repair', async () => {
     const queryClient = mount()
 
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'a'],
-        [post('at://a', emptyAuthor(DID))],
-      )
-    })
+    setThread(queryClient, 'a', [post('at://a', emptyAuthor(DID))])
     await flush()
-    expect(
-      queryClient.getQueryData<Post[]>(['thread', 'a'])![0].author.avatar,
-    ).toBe(AVATAR)
+    expect(avatarOf(queryClient, 'a')).toBe(AVATAR)
 
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'b'],
-        [post('at://b', emptyAuthor(DID))],
-      )
-    })
+    setThread(queryClient, 'b', [post('at://b', emptyAuthor(DID))])
     await flush()
-    expect(
-      queryClient.getQueryData<Post[]>(['thread', 'b'])![0].author.avatar,
-    ).toBe(AVATAR)
+    expect(avatarOf(queryClient, 'b')).toBe(AVATAR)
 
     act(() => {
       queryClient.setQueryData(['profile', DID], emptyAuthor(DID))
@@ -107,71 +104,108 @@ describe('useProfileEnrichment', () => {
       AVATAR,
     )
 
-    expect(mockFetchRecordViaSlingshot).toHaveBeenCalledTimes(1)
+    expect(mockFetchRecord).toHaveBeenCalledTimes(1)
   })
 
-  it('treats a profile with a display name but no avatar as incomplete', async () => {
+  it('patches every reference to a shared profile object', async () => {
     const queryClient = mount()
 
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'a'],
-        [post('at://a', emptyAuthor(DID, 'Alice'))],
-      )
-    })
+    const author = emptyAuthor(DID)
+    setThread(queryClient, 'a', [
+      post('at://a', author),
+      post('at://b', author),
+    ])
     await flush()
+    expect(avatarOf(queryClient, 'a', 0)).toBe(AVATAR)
+    expect(avatarOf(queryClient, 'a', 1)).toBe(AVATAR)
 
-    const author = queryClient.getQueryData<Post[]>(['thread', 'a'])![0].author
-    expect(author.avatar).toBe(AVATAR)
-    expect(author.displayName).toBe('Alice')
+    const author2 = emptyAuthor(DID)
+    setThread(queryClient, 'b', [
+      post('at://c', author2),
+      post('at://d', author2),
+    ])
+    expect(avatarOf(queryClient, 'b', 0)).toBe(AVATAR)
+    expect(avatarOf(queryClient, 'b', 1)).toBe(AVATAR)
   })
 
-  it('fetches a profile without an avatar once and remembers the miss', async () => {
+  it('does not fetch a profile that has a display name', async () => {
     const queryClient = mount()
 
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'a'],
-        [post('at://a', emptyAuthor(NO_AVATAR_DID, 'Bob'))],
-      )
-    })
-    await flush()
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'b'],
-        [post('at://b', emptyAuthor(NO_AVATAR_DID, 'Bob'))],
-      )
-    })
+    setThread(queryClient, 'a', [post('at://a', emptyAuthor(DID, 'Alice'))])
     await flush()
 
-    expect(mockFetchRecordViaSlingshot).toHaveBeenCalledTimes(1)
-    expect(
-      queryClient.getQueryData<Post[]>(['thread', 'b'])![0].author.avatar,
-    ).toBeUndefined()
+    expect(mockFetchRecord).not.toHaveBeenCalled()
   })
 
-  it('refetches a profile after it is forgotten', async () => {
+  it('remembers a profile record that does not exist', async () => {
+    const queryClient = mount()
+
+    setThread(queryClient, 'a', [post('at://a', emptyAuthor(MISSING_DID))])
+    await flush()
+    setThread(queryClient, 'b', [post('at://b', emptyAuthor(MISSING_DID))])
+    await flush()
+
+    expect(mockFetchRecord).toHaveBeenCalledTimes(1)
+    expect(avatarOf(queryClient, 'b')).toBeUndefined()
+  })
+
+  it('retries a profile after a failed fetch', async () => {
+    const queryClient = mount()
+    mockFetchRecord.mockRejectedValueOnce(new Error('ServerError'))
+
+    setThread(queryClient, 'a', [post('at://a', emptyAuthor(DID))])
+    await flush()
+    expect(avatarOf(queryClient, 'a')).toBeUndefined()
+
+    setThread(queryClient, 'b', [post('at://b', emptyAuthor(DID))])
+    await flush()
+    expect(avatarOf(queryClient, 'b')).toBe(AVATAR)
+    expect(mockFetchRecord).toHaveBeenCalledTimes(2)
+  })
+
+  it('never enriches a taken-down profile', async () => {
+    const queryClient = mount()
+
+    const takenDown = {...emptyAuthor(DID), labels: [{val: '!takedown'}]}
+    setThread(queryClient, 'a', [post('at://a', takenDown)])
+    await flush()
+    expect(mockFetchRecord).not.toHaveBeenCalled()
+
+    setThread(queryClient, 'b', [
+      post('at://b', emptyAuthor(DID)),
+      post('at://c', takenDown),
+    ])
+    await flush()
+    expect(avatarOf(queryClient, 'b', 0)).toBe(AVATAR)
+    expect(avatarOf(queryClient, 'b', 1)).toBeUndefined()
+  })
+
+  it('keeps the original dataUpdatedAt', async () => {
     const queryClient = mount()
 
     act(() => {
       queryClient.setQueryData(
         ['thread', 'a'],
         [post('at://a', emptyAuthor(DID))],
+        {updatedAt: 1000},
       )
     })
-    await flush()
-    forgetProfileEnrichment(DID)
-    act(() => {
-      queryClient.setQueryData(
-        ['thread', 'b'],
-        [post('at://b', emptyAuthor(DID))],
-      )
-    })
-    expect(
-      queryClient.getQueryData<Post[]>(['thread', 'b'])![0].author.avatar,
-    ).toBeUndefined()
     await flush()
 
-    expect(mockFetchRecordViaSlingshot).toHaveBeenCalledTimes(2)
+    expect(avatarOf(queryClient, 'a')).toBe(AVATAR)
+    expect(queryClient.getQueryState(['thread', 'a'])!.dataUpdatedAt).toBe(1000)
+  })
+
+  it('refetches a profile after it is forgotten', async () => {
+    const queryClient = mount()
+
+    setThread(queryClient, 'a', [post('at://a', emptyAuthor(DID))])
+    await flush()
+    forgetProfileEnrichment(DID)
+    setThread(queryClient, 'b', [post('at://b', emptyAuthor(DID))])
+    expect(avatarOf(queryClient, 'b')).toBeUndefined()
+    await flush()
+
+    expect(mockFetchRecord).toHaveBeenCalledTimes(2)
   })
 })
