@@ -83,7 +83,7 @@ const THUMB_BLOB = {
   mimeType: 'image/png',
   size: 1234,
 }
-const POLLS_ARE_PUBLIC = 'Polls are only available on public posts.'
+const POLLS_ARE_PUBLIC = 'Discussions are only available on public posts.'
 const NO_THUMB = 'Failed to attach the poll thumbnail'
 const NO_IMAGE = 'The image could not be read in time'
 
@@ -297,7 +297,7 @@ describe('publishing a post with a poll', () => {
 
     expect(events).toEqual([
       'stage:Processing...',
-      'stage:Starting poll...',
+      'stage:Starting discussion...',
       'ensureAssembly',
       'imageToThumb',
       'stage:Uploading link thumbnail...',
@@ -473,7 +473,7 @@ describe('replying with a poll', () => {
     expect(events).toEqual([
       'stage:Processing...',
       'getPosts',
-      'stage:Starting poll...',
+      'stage:Starting discussion...',
       'ensureAssembly',
       'imageToThumb',
       'stage:Uploading link thumbnail...',
@@ -665,7 +665,7 @@ describe('a poll outside the public path', () => {
 
 describe('a poll with another attachment', () => {
   const COMBINED =
-    'A poll cannot be combined with media, a link card or a quote.'
+    'A discussion cannot be combined with media, a link card or a quote.'
   const attachments = [
     {name: 'media', extra: {media: {type: 'gif', gif: {}, alt: ''}}},
     {
@@ -729,7 +729,7 @@ describe('poll invariants', () => {
           draft({poll: {statements: ['Another']}}, 'Second', 'post-2'),
         ]),
       }),
-    ).rejects.toThrow(new Error('A thread can only have one poll.'))
+    ).rejects.toThrow(new Error('A thread can only have one discussion.'))
 
     expectNothingStarted(ctx)
   })
