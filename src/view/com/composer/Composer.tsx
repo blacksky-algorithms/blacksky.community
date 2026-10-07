@@ -978,21 +978,21 @@ export const ComposePost = ({
     (code: AssemblyErrorCode): string => {
       switch (code) {
         case 'not_eligible':
-          return l`Polls are not available for your account yet.`
+          return l`Discussions are not available for your account yet.`
         case 'quota':
-          return l`You have started the maximum number of polls for today. Try again tomorrow.`
+          return l`You have started the maximum number of discussions for today. Try again tomorrow.`
         case 'busy':
-          return l`People's Assembly is busy. Wait a few seconds and post again.`
+          return l`Discussions are busy. Wait a few seconds and post again.`
         case 'invalid':
-          return l`This poll could not be created. Check the statements and try again.`
+          return l`This discussion could not be created. Check the statements and try again.`
         case 'conflict':
-          return l`This poll changed while it was being created. Please try again.`
+          return l`This discussion changed while it was being created. Please try again.`
         case 'removed':
-          return l`This poll was removed and cannot be posted.`
+          return l`This discussion was removed and cannot be posted.`
         case 'auth':
         case 'network':
         case 'unavailable':
-          return l`Could not reach People's Assembly. Your post was not sent.`
+          return l`Could not reach Discussions. Your post was not sent.`
       }
     },
     [l],
@@ -1717,7 +1717,7 @@ let ComposerPost = memo(function ComposerPost({
     async (uri: string) => {
       if (hasPoll) {
         if (IS_WEB) {
-          Toast.show(l`Remove the poll to add media`, {type: 'warning'})
+          Toast.show(l`Remove the discussion to add media`, {type: 'warning'})
         }
         return
       }

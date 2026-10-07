@@ -116,10 +116,10 @@ describe('SelectPollBtn', () => {
     const {getByTestId} = render(<SelectPollBtn onPress={onPress} />)
 
     const button = getByTestId('openPollBtn')
-    expect(button).toHaveProp('accessibilityLabel', 'Add poll')
+    expect(button).toHaveProp('accessibilityLabel', 'Add discussion')
     expect(button).toHaveProp(
       'accessibilityHint',
-      'Attaches a poll to this post',
+      'Attaches a discussion to this post',
     )
     fireEvent.press(button)
 

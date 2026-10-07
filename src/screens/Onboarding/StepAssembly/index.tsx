@@ -30,7 +30,7 @@ export function StepAssembly() {
         onHelp={() => openLink(FEEDBACK_FORM_URL({}))}
       />
 
-      <Eyebrow label={_(msg`People's Assembly`)} />
+      <Eyebrow label={_(msg`Discussions`)} />
 
       <View style={[a.gap_xs]}>
         <Text style={[a.font_heading, a.text_3xl, a.leading_snug]}>
@@ -45,7 +45,7 @@ export function StepAssembly() {
           ]}>
           <Trans>
             Vote on platform decisions, make proposals, and offer feedback
-            through our People's Assembly.
+            through Discussions.
           </Trans>
         </Text>
       </View>
@@ -81,7 +81,7 @@ function StatementCard() {
       <View style={[a.flex_row, a.align_center, a.gap_sm]}>
         <Logomark width={18} fill="#F8FAF9" />
         <Text style={[a.text_sm, a.font_bold, {color: '#F8FAF9'}]}>
-          <Trans>People's Assembly</Trans>
+          <Trans>Discussion</Trans>
         </Text>
       </View>
 

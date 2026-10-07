@@ -51,7 +51,9 @@ export async function postToSpace(
   // Posts are written one at a time, so an unsupported draft has to be refused
   // before the first write rather than part-way through the thread.
   if (thread.posts.some(p => p.embed.poll)) {
-    throw new Error(t`Polls are not available in private community feeds.`)
+    throw new Error(
+      t`Discussions are not available in private community feeds.`,
+    )
   }
 
   // Threads are written in order: each reply refers to the space URI the host
