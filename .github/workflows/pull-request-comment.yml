@@ -189,6 +189,9 @@ jobs:
           --nonInteractive
           --message="PR #${{ github.event.issue.number }}"
         env:
+          # pnpx downloads expo from the registry instead of running the pinned
+          # project version; npx resolves the local node_modules binary
+          EOAS_PACKAGE_RUNNER: npx
           # intl:build dirties tracked .po files; skip eoas's git-clean check
           # (matches bundle-deploy-eas-update.yml)
           EAS_NO_VCS: '1'
