@@ -118,7 +118,7 @@ const PUBLIC_RECORD_TARGET: CommunityFeedTarget = {
 }
 
 const POLL_REMOVED_MESSAGE =
-  'Polls are only available on public posts, so the poll was removed.'
+  'Discussions are only available on public posts, so the discussion was removed.'
 
 function draftPost(embed: Partial<ThreadDraft['posts'][number]['embed']> = {}) {
   return {embed} as ThreadDraft['posts'][number]

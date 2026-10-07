@@ -70,7 +70,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   appleMusic: 'Apple Music',
   soundcloud: 'SoundCloud',
   flickr: 'Flickr',
-  assembly: "Blacksky People's Assembly",
+  assembly: 'Blacksky Discussions',
   bandcamp: 'Bandcamp',
   streamplace: 'Streamplace',
 }

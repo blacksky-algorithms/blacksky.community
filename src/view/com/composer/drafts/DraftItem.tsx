@@ -298,8 +298,9 @@ function DraftPollPreview({poll}: {poll: {statements: string[]}}) {
         <Text style={[a.text_xs, a.font_bold, {color: t.palette.primary_500}]}>
           {_(
             msg({
-              message: 'Poll',
-              comment: 'Label on a draft preview showing the draft has a poll',
+              message: 'Discussion',
+              comment:
+                'Label on a draft preview showing the draft has a discussion',
             }),
           )}
         </Text>

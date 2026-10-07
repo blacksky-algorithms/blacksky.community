@@ -175,7 +175,7 @@ const TOPIC_MISSING_HINT = 'Add post text to ask your question.'
 const TOPIC_INVALID_HINT =
   'Your post text contains characters that cannot be saved.'
 const QUESTION_LINE = 'Your post text is the question.'
-const PUBLIC_LINE = "Statements and votes are public on People's Assembly."
+const PUBLIC_LINE = 'Statements and votes in discussions are public.'
 
 function composerWith(statements: string[]): ComposerState {
   let state = createComposerState({

@@ -36,14 +36,14 @@ export function SelectPollBtn({onPress, disabled}: Props) {
         testID="openPollBtn"
         onPress={onPressAddPoll}
         label={l({
-          message: 'Add poll',
+          message: 'Add discussion',
           comment:
-            'Accessibility label for the button in the post composer that attaches a poll to the post.',
+            'Accessibility label for the button in the post composer that attaches a discussion to the post.',
         })}
         accessibilityHint={l({
-          message: 'Attaches a poll to this post',
+          message: 'Attaches a discussion to this post',
           comment:
-            'Accessibility hint announced after the poll button label, describing what activating it will do.',
+            'Accessibility hint announced after the discussion button label, describing what activating it will do.',
         })}
         style={a.p_sm}
         variant="ghost"
@@ -62,7 +62,7 @@ export function SelectPollBtn({onPress, disabled}: Props) {
             {top: -2, right: -10, backgroundColor: t.palette.primary_500},
           ]}>
           <Text style={[a.text_2xs, a.font_bold, {color: t.palette.white}]}>
-            <Trans comment="Short badge marking the poll button in the composer as a new feature">
+            <Trans comment="Short badge marking the discussion button in the composer as a new feature">
               New
             </Trans>
           </Text>

@@ -65,14 +65,14 @@ export function PollEditor({
               a.font_bold,
               {color: t.palette.primary_500, textTransform: 'uppercase'},
             ]}>
-            <Trans comment="Heading of the poll editor card in the post composer">
-              Poll
+            <Trans comment="Heading of the discussion editor card in the post composer">
+              Discussion
             </Trans>
           </Text>
         </View>
         <Button
           testID="removePollBtn"
-          label={l`Remove poll`}
+          label={l`Remove discussion`}
           size="tiny"
           variant="ghost"
           color="secondary"
@@ -227,7 +227,7 @@ export function PollEditor({
           <Trans>Your post text is the question.</Trans>
         </Text>
         <Text style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium]}>
-          <Trans>Statements and votes are public on People's Assembly.</Trans>
+          <Trans>Statements and votes in discussions are public.</Trans>
         </Text>
       </View>
     </View>

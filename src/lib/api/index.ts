@@ -95,7 +95,7 @@ function embedNamesSpaceRecord(embed: unknown): boolean {
 
 function refusePoll(thread: ThreadDraft) {
   if (thread.posts.some(p => p.embed.poll)) {
-    throw new Error(t`Polls are only available on public posts.`)
+    throw new Error(t`Discussions are only available on public posts.`)
   }
 }
 
@@ -105,7 +105,7 @@ function refusePollWithAttachments(draft: PostDraft) {
     (draft.embed.media || draft.embed.link || draft.embed.quote)
   ) {
     throw new Error(
-      t`A poll cannot be combined with media, a link card or a quote.`,
+      t`A discussion cannot be combined with media, a link card or a quote.`,
     )
   }
 }
@@ -113,7 +113,7 @@ function refusePollWithAttachments(draft: PostDraft) {
 function findPollPost(thread: ThreadDraft): PostDraft | undefined {
   const [pollPost, ...others] = thread.posts.filter(p => p.embed.poll)
   if (others.length) {
-    throw new Error(t`A thread can only have one poll.`)
+    throw new Error(t`A thread can only have one discussion.`)
   }
   if (pollPost) {
     refusePollWithAttachments(pollPost)
@@ -252,7 +252,7 @@ export async function post(
     // An assembly is public and cannot be withdrawn, so a reply whose parent
     // is gone has to fail before one is started.
     await replyPromise
-    opts.onStateChange?.(t`Starting poll...`)
+    opts.onStateChange?.(t`Starting discussion...`)
     const statements = pollStatementsForPublish(poll)
     const {ref, isReplay} = await ensureAssembly(agent, {
       topic: pollTopicFromText(pollPost.richtext.text),

@@ -36,7 +36,7 @@ describe('posting a thread into a space', () => {
           blackskyOnly: false,
         } as never,
       }),
-    ).rejects.toThrow(/Polls are not available/)
+    ).rejects.toThrow(/Discussions are not available/)
 
     expect(resolveRT).not.toHaveBeenCalled()
     expect(resolveEmbed).not.toHaveBeenCalled()
