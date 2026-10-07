@@ -137,6 +137,9 @@ jobs:
           --message="$OTA_MESSAGE"
         env:
           OTA_MESSAGE: ${{ github.event.head_commit.message || github.sha }}
+          # pnpx downloads expo from the registry instead of running the pinned
+          # project version; npx resolves the local node_modules binary
+          EOAS_PACKAGE_RUNNER: npx
           EAS_NO_VCS: '1'
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
