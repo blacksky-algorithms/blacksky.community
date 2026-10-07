@@ -43,7 +43,7 @@ export function PostTargetControls({
   const hasPoll = threadHasPoll(thread)
   const announcePollRemoval = () => {
     Toast.show(
-      t`Polls are only available on public posts, so the poll was removed.`,
+      t`Discussions are only available on public posts, so the discussion was removed.`,
       {type: 'info'},
     )
   }

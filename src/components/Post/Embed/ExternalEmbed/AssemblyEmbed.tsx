@@ -329,7 +329,7 @@ export function AssemblyEmbed({
         <View style={styles.logoContainer}>
           <BlackskyLogo width={20} fill={t.atoms.text.color} />
           <Text style={{fontSize: 11, fontWeight: '600', color: '#8B8BFF'}}>
-            People's Assembly
+            Discussion
           </Text>
         </View>
         <Text
@@ -392,7 +392,7 @@ export function AssemblyEmbed({
           onPress={openAssembly}
           accessibilityRole="link"
           accessibilityLabel={l`Sign in to vote`}
-          accessibilityHint={l`Opens the assembly page to sign in and vote`}>
+          accessibilityHint={l`Opens the discussion page to sign in and vote`}>
           <Text style={[a.text_sm, a.font_semi_bold, {color: '#fff'}]}>
             <Trans>Sign in to vote</Trans>
           </Text>
@@ -559,7 +559,7 @@ function AssemblyHeader({
         <BlackskyLogo width={20} fill={t.atoms.text.color} />
         <Text
           style={{fontSize: 11, fontWeight: '600', color: t.atoms.text.color}}>
-          People's Assembly
+          Discussion
         </Text>
       </View>
       {topic ? (
@@ -598,7 +598,7 @@ function AssemblyFooter({
           onPress={onPressResults}
           accessibilityRole="link"
           accessibilityLabel={l`See results`}
-          accessibilityHint={l`Opens the assembly results page`}>
+          accessibilityHint={l`Opens the discussion results page`}>
           <Text style={{fontSize: 12, color: '#8B8BFF'}}>
             <Trans>See results</Trans>
           </Text>
@@ -608,7 +608,7 @@ function AssemblyFooter({
         onPress={onPress}
         accessibilityRole="link"
         accessibilityLabel={l`Submit a statement`}
-        accessibilityHint={l`Opens the assembly conversation page`}>
+        accessibilityHint={l`Opens the discussion page`}>
         <Text style={{fontSize: 12, color: '#8B8BFF'}}>
           <Trans>Submit a statement →</Trans>
         </Text>
