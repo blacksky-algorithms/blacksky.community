@@ -9,3 +9,9 @@ This patch adds the same logic for iOS 26's native `interactiveContentPopGesture
 Related issues:
 - https://github.com/software-mansion/react-native-screens/issues/3512
 - https://github.com/software-mansion/react-native-screens/pull/3420
+
+## Defer page changes while the user is swiping (old architecture)
+
+`goTo:` (used by `setPage`) and `updateDataSource` call `setViewControllers` on the underlying `UIPageViewController`. If that happens while the user's swipe is still tracking, dragging or decelerating, it can collide with UIKit's own manual-scroll completion in `_UIQueuingScrollView` and abort the app (e.g. tapping a tab right after letting go of a swipe).
+
+This patch stores the requested index (or a pending data-source update) while the scroll view is busy and applies it once the swipe settles: on `scrollViewDidEndDecelerating:` or `scrollViewDidEndDragging:willDecelerate:NO`, dispatched to the next main-queue turn, with a 100 ms retry while the user is still scrolling.
