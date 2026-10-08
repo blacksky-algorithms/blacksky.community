@@ -423,7 +423,7 @@ func serve(cctx *cli.Context) error {
 
 	// bookmarks
 	e.GET("/saved", server.WebGenericNoindex)
-	e.GET("/live/:actor", server.WebGenericNoindex)
+	e.GET("/live/:actor", server.WebLive)
 
 	// ipcc
 	e.GET("/ipcc", server.WebIpCC)
@@ -1105,6 +1105,53 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 
 	return c.Render(http.StatusOK, "feed.html", data)
+}
+
+func streamplaceProfileCardURL(did string) string {
+	return "https://stream.place/xrpc/place.stream.live.getProfileCard?id=" + url.QueryEscape(did)
+}
+
+func liveStreamTitle(pv *appbsky.ActorDefs_ProfileViewDetailed) string {
+	st := pv.Status
+	if st == nil || st.Status != "app.bsky.actor.status#live" {
+		return ""
+	}
+	if st.IsActive != nil && !*st.IsActive {
+		return ""
+	}
+	if st.Embed == nil || st.Embed.EmbedExternal_View == nil || st.Embed.EmbedExternal_View.External == nil {
+		return ""
+	}
+	return st.Embed.EmbedExternal_View.External.Title
+}
+
+func (srv *Server) WebLive(c echo.Context) error {
+	ctx := c.Request().Context()
+	data := srv.NewTemplateContext(c.Request())
+	data["noindex"] = true
+
+	handleOrDID, err := syntax.ParseAtIdentifier(c.Param("actor"))
+	if err != nil {
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+	identifier := handleOrDID.Normalize().String()
+
+	pv, err := appbsky.ActorGetProfile(ctx, srv.xrpcc, identifier)
+	if err != nil {
+		log.Warnf("failed to fetch profile for: %s\t%v", identifier, err)
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+	if profileRequiresAuth(pv) {
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+
+	req := c.Request()
+	data["profileView"] = pv
+	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
+	data["liveImage"] = streamplaceProfileCardURL(pv.Did)
+	data["liveTitle"] = liveStreamTitle(pv)
+
+	return c.Render(http.StatusOK, "live.html", data)
 }
 
 type IPCCRequest struct {
