@@ -51,6 +51,8 @@ type Server struct {
 
 	ipccClient http.Client
 
+	liveCardClient http.Client
+
 	// sitemapClient is used for fetching sitemaps from the appview. It has
 	// DisableCompression set to true so that gzipped responses are passed
 	// through without being decompressed.
@@ -161,6 +163,7 @@ func serve(cctx *cli.Context) error {
 				},
 			},
 		},
+		liveCardClient: http.Client{Timeout: time.Second},
 		sitemapClient: http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:        100,
@@ -1111,18 +1114,51 @@ func streamplaceProfileCardURL(did string) string {
 	return "https://stream.place/xrpc/place.stream.live.getProfileCard?id=" + url.QueryEscape(did)
 }
 
-func liveStreamTitle(pv *appbsky.ActorDefs_ProfileViewDetailed) string {
+func liveStatusExternal(pv *appbsky.ActorDefs_ProfileViewDetailed) *appbsky.EmbedExternal_ViewExternal {
 	st := pv.Status
 	if st == nil || st.Status != "app.bsky.actor.status#live" {
-		return ""
+		return nil
 	}
 	if st.IsActive != nil && !*st.IsActive {
-		return ""
+		return nil
 	}
-	if st.Embed == nil || st.Embed.EmbedExternal_View == nil || st.Embed.EmbedExternal_View.External == nil {
-		return ""
+	if st.Embed == nil || st.Embed.EmbedExternal_View == nil {
+		return nil
 	}
-	return st.Embed.EmbedExternal_View.External.Title
+	return st.Embed.EmbedExternal_View.External
+}
+
+func liveStreamTitle(pv *appbsky.ActorDefs_ProfileViewDetailed) string {
+	if ext := liveStatusExternal(pv); ext != nil {
+		return ext.Title
+	}
+	return ""
+}
+
+func imageAvailable(ctx context.Context, client *http.Client, imageURL string) bool {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
+	if err != nil {
+		return false
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	resp.Body.Close()
+	return resp.StatusCode == http.StatusOK && strings.HasPrefix(resp.Header.Get("Content-Type"), "image/")
+}
+
+func liveImage(ctx context.Context, client *http.Client, pv *appbsky.ActorDefs_ProfileViewDetailed, cardURL, defaultImage string) string {
+	if imageAvailable(ctx, client, cardURL) {
+		return cardURL
+	}
+	if ext := liveStatusExternal(pv); ext != nil && ext.Thumb != nil && *ext.Thumb != "" {
+		return *ext.Thumb
+	}
+	if pv.Banner != nil && *pv.Banner != "" {
+		return *pv.Banner
+	}
+	return defaultImage
 }
 
 func (srv *Server) WebLive(c echo.Context) error {
@@ -1148,7 +1184,8 @@ func (srv *Server) WebLive(c echo.Context) error {
 	req := c.Request()
 	data["profileView"] = pv
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
-	data["liveImage"] = streamplaceProfileCardURL(pv.Did)
+	defaultImage, _ := data["brandSocialCard"].(string)
+	data["liveImage"] = liveImage(ctx, &srv.liveCardClient, pv, streamplaceProfileCardURL(pv.Did), defaultImage)
 	data["liveTitle"] = liveStreamTitle(pv)
 
 	return c.Render(http.StatusOK, "live.html", data)
