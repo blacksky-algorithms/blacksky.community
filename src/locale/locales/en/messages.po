@@ -898,6 +898,10 @@ msgstr ""
 msgid "A collection of popular feeds you can find on Blacksky, including News, Booksky, Game Dev, and Fountain Pens"
 msgstr "A collection of popular feeds you can find on Blacksky, including News, Booksky, Game Dev, and Fountain Pens"
 
+#: src/lib/api/index.ts:108
+msgid "A discussion cannot be combined with media, a link card or a quote."
+msgstr "A discussion cannot be combined with media, a link card or a quote."
+
 #. If last message does not contain text, fall back to "{user} reacted to {a message}"
 #: src/components/dms/getReactionInfo.ts:53
 msgid "a message"
@@ -923,17 +927,13 @@ msgstr ""
 msgid "A new code has been sent"
 msgstr ""
 
-#: src/lib/api/index.ts:108
-msgid "A poll cannot be combined with media, a link card or a quote."
-msgstr "A poll cannot be combined with media, a link card or a quote."
-
 #: src/components/dms/dialogs/NewChatDialog.tsx:109
 msgid "A selected recipient is not followed by the sender."
 msgstr "A selected recipient is not followed by the sender."
 
 #: src/lib/api/index.ts:116
-msgid "A thread can only have one poll."
-msgstr "A thread can only have one poll."
+msgid "A thread can only have one discussion."
+msgstr "A thread can only have one discussion."
 
 #: src/Navigation.tsx:497
 #: src/screens/Settings/AboutSettings.tsx:76
@@ -1214,6 +1214,11 @@ msgstr ""
 msgid "Add automation label to account"
 msgstr "Add automation label to account"
 
+#. Accessibility label for the button in the post composer that attaches a discussion to the post.
+#: src/view/com/composer/poll/SelectPollBtn.tsx:38
+msgid "Add discussion"
+msgstr "Add discussion"
+
 #: src/components/dms/EmojiReactionPicker.web.tsx:31
 msgid "Add emoji reaction"
 msgstr ""
@@ -1265,11 +1270,6 @@ msgstr ""
 #: src/components/dialogs/lists/ListAddRemoveUsersDialog.tsx:81
 msgid "Add people to list"
 msgstr ""
-
-#. Accessibility label for the button in the post composer that attaches a poll to the post.
-#: src/view/com/composer/poll/SelectPollBtn.tsx:38
-msgid "Add poll"
-msgstr "Add poll"
 
 #: src/view/com/composer/poll/PollEditor.tsx:103
 msgid "Add post text to ask your question."
@@ -1941,10 +1941,10 @@ msgstr ""
 msgid "AT Protocol FAQ"
 msgstr "AT Protocol FAQ"
 
-#. Accessibility hint announced after the poll button label, describing what activating it will do.
+#. Accessibility hint announced after the discussion button label, describing what activating it will do.
 #: src/view/com/composer/poll/SelectPollBtn.tsx:43
-msgid "Attaches a poll to this post"
-msgstr "Attaches a poll to this post"
+msgid "Attaches a discussion to this post"
+msgstr "Attaches a discussion to this post"
 
 #: src/lib/strings/errors.ts:59
 msgid "Authentication error. Please try signing in again."
@@ -3376,8 +3376,8 @@ msgid "Could not process your video"
 msgstr ""
 
 #: src/view/com/composer/Composer.tsx:995
-msgid "Could not reach People's Assembly. Your post was not sent."
-msgstr "Could not reach People's Assembly. Your post was not sent."
+msgid "Could not reach Discussions. Your post was not sent."
+msgstr "Could not reach Discussions. Your post was not sent."
 
 #: src/components/moderation/BlockDialog.tsx:311
 msgid "Could not remove member."
@@ -3934,11 +3934,40 @@ msgstr ""
 msgid "Discover New Feeds"
 msgstr ""
 
+#. Heading of the discussion editor card in the post composer
+#. Label on a draft preview showing the draft has a discussion
+#: src/screens/Onboarding/StepAssembly/index.tsx:84
+#: src/view/com/composer/drafts/DraftItem.tsx:300
+#: src/view/com/composer/poll/PollEditor.tsx:68
 #: src/view/shell/desktop/RightNav.tsx:116
 #: src/view/shell/desktop/RightNav.tsx:117
 #: src/view/shell/Drawer.tsx:476
 msgid "Discussion"
 msgstr "Discussion"
+
+#: src/screens/Onboarding/StepAssembly/index.tsx:33
+msgid "Discussions"
+msgstr "Discussions"
+
+#: src/view/com/composer/Composer.tsx:985
+msgid "Discussions are busy. Wait a few seconds and post again."
+msgstr "Discussions are busy. Wait a few seconds and post again."
+
+#: src/view/com/composer/Composer.tsx:981
+msgid "Discussions are not available for your account yet."
+msgstr "Discussions are not available for your account yet."
+
+#: src/lib/api/space-post.ts:55
+msgid "Discussions are not available in private community feeds."
+msgstr "Discussions are not available in private community feeds."
+
+#: src/view/com/composer/PostTargetControls.tsx:46
+msgid "Discussions are only available on public posts, so the discussion was removed."
+msgstr "Discussions are only available on public posts, so the discussion was removed."
+
+#: src/lib/api/index.ts:98
+msgid "Discussions are only available on public posts."
+msgstr "Discussions are only available on public posts."
 
 #: src/components/Dialog/index.tsx:416
 #: src/features/inviteFriends/components/FollowersPromoBanner.tsx:83
@@ -7535,7 +7564,7 @@ msgstr ""
 msgid "Nevermind, create a handle for me"
 msgstr ""
 
-#. Short badge marking the poll button in the composer as a new feature
+#. Short badge marking the discussion button in the composer as a new feature
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:184
 #: src/view/com/composer/poll/SelectPollBtn.tsx:65
 #: src/view/com/profile/ProfileMenu.tsx:398
@@ -8426,16 +8455,16 @@ msgid "Opens profile"
 msgstr "Opens profile"
 
 #: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:611
-msgid "Opens the assembly conversation page"
-msgstr "Opens the assembly conversation page"
+msgid "Opens the discussion page"
+msgstr "Opens the discussion page"
 
 #: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:395
-msgid "Opens the assembly page to sign in and vote"
-msgstr "Opens the assembly page to sign in and vote"
+msgid "Opens the discussion page to sign in and vote"
+msgstr "Opens the discussion page to sign in and vote"
 
 #: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:601
-msgid "Opens the assembly results page"
-msgstr "Opens the assembly results page"
+msgid "Opens the discussion results page"
+msgstr "Opens the discussion results page"
 
 #: src/features/inviteFriends/components/FollowersPromoBanner.tsx:50
 msgid "Opens the find and invite friends settings"
@@ -8674,15 +8703,6 @@ msgstr ""
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:524
 msgid "People you mention"
 msgstr ""
-
-#: src/screens/Onboarding/StepAssembly/index.tsx:33
-#: src/screens/Onboarding/StepAssembly/index.tsx:84
-msgid "People's Assembly"
-msgstr "People's Assembly"
-
-#: src/view/com/composer/Composer.tsx:985
-msgid "People's Assembly is busy. Wait a few seconds and post again."
-msgstr "People's Assembly is busy. Wait a few seconds and post again."
 
 #: src/lib/media/save-image.ts:59
 msgid "Permission to access your photo library was denied. Please enable it in your system settings."
@@ -8968,29 +8988,6 @@ msgstr ""
 msgid "Politics"
 msgstr ""
 
-#. Heading of the poll editor card in the post composer
-#. Label on a draft preview showing the draft has a poll
-#: src/view/com/composer/drafts/DraftItem.tsx:300
-#: src/view/com/composer/poll/PollEditor.tsx:68
-msgid "Poll"
-msgstr "Poll"
-
-#: src/view/com/composer/Composer.tsx:981
-msgid "Polls are not available for your account yet."
-msgstr "Polls are not available for your account yet."
-
-#: src/lib/api/space-post.ts:54
-msgid "Polls are not available in private community feeds."
-msgstr "Polls are not available in private community feeds."
-
-#: src/view/com/composer/PostTargetControls.tsx:46
-msgid "Polls are only available on public posts, so the poll was removed."
-msgstr "Polls are only available on public posts, so the poll was removed."
-
-#: src/lib/api/index.ts:98
-msgid "Polls are only available on public posts."
-msgstr "Polls are only available on public posts."
-
 #: src/screens/Onboarding/ConnectedApps.tsx:53
 msgid "Pop culture reviews"
 msgstr "Pop culture reviews"
@@ -9104,7 +9101,7 @@ msgctxt "toast"
 msgid "Post unpinned"
 msgstr ""
 
-#: src/lib/api/space-post.ts:99
+#: src/lib/api/space-post.ts:101
 msgid "Posting to the private feed..."
 msgstr "Posting to the private feed..."
 
@@ -9559,6 +9556,10 @@ msgstr ""
 msgid "Remove caption file"
 msgstr "Remove caption file"
 
+#: src/view/com/composer/poll/PollEditor.tsx:75
+msgid "Remove discussion"
+msgstr "Remove discussion"
+
 #: src/screens/Messages/components/MessageInputEmbed.tsx:247
 #: src/screens/Messages/components/MessageInputEmbed.tsx:302
 #: src/screens/Messages/components/MessageInputEmbed.tsx:357
@@ -9623,10 +9624,6 @@ msgstr ""
 msgid "Remove mute word from your list"
 msgstr ""
 
-#: src/view/com/composer/poll/PollEditor.tsx:75
-msgid "Remove poll"
-msgstr "Remove poll"
-
 #: src/screens/Search/components/SearchHistory.tsx:170
 msgid "Remove profile"
 msgstr ""
@@ -9646,8 +9643,8 @@ msgid "Remove suggestion"
 msgstr ""
 
 #: src/view/com/composer/Composer.tsx:1720
-msgid "Remove the poll to add media"
-msgstr "Remove the poll to add media"
+msgid "Remove the discussion to add media"
+msgstr "Remove the discussion to add media"
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:219
 msgid "Remove this feed from your saved feeds"
@@ -11448,8 +11445,8 @@ msgid "Starter Packs let you share your favorite feeds and people with your frie
 msgstr ""
 
 #: src/lib/api/index.ts:255
-msgid "Starting poll..."
-msgstr "Starting poll..."
+msgid "Starting discussion..."
+msgstr "Starting discussion..."
 
 #: src/screens/Login/LoginForm.tsx:367
 msgid "Starts the sign-in process"
@@ -11462,8 +11459,8 @@ msgid "Statement {0}"
 msgstr "Statement {0}"
 
 #: src/view/com/composer/poll/PollEditor.tsx:230
-msgid "Statements and votes are public on People's Assembly."
-msgstr "Statements and votes are public on People's Assembly."
+msgid "Statements and votes in discussions are public."
+msgstr "Statements and votes in discussions are public."
 
 #. placeholder {0}: state.activeStepIndex + 1
 #. placeholder {1}: state.totalSteps
@@ -12244,6 +12241,18 @@ msgstr "This conversation is locked."
 msgid "This conversation is with a deleted or a deactivated account. Press for options"
 msgstr ""
 
+#: src/view/com/composer/Composer.tsx:989
+msgid "This discussion changed while it was being created. Please try again."
+msgstr "This discussion changed while it was being created. Please try again."
+
+#: src/view/com/composer/Composer.tsx:987
+msgid "This discussion could not be created. Check the statements and try again."
+msgstr "This discussion could not be created. Check the statements and try again."
+
+#: src/view/com/composer/Composer.tsx:991
+msgid "This discussion was removed and cannot be posted."
+msgstr "This discussion was removed and cannot be posted."
+
 #: src/view/com/composer/drafts/DraftItem.tsx:243
 msgid "This draft will be permanently deleted."
 msgstr ""
@@ -12403,18 +12412,6 @@ msgstr "This moderation was applied to the entire user account and will appear o
 #: src/components/dms/MessagesListBlockedFooter.tsx:84
 msgid "This person is blocking you"
 msgstr "This person is blocking you"
-
-#: src/view/com/composer/Composer.tsx:989
-msgid "This poll changed while it was being created. Please try again."
-msgstr "This poll changed while it was being created. Please try again."
-
-#: src/view/com/composer/Composer.tsx:987
-msgid "This poll could not be created. Check the statements and try again."
-msgstr "This poll could not be created. Check the statements and try again."
-
-#: src/view/com/composer/Composer.tsx:991
-msgid "This poll was removed and cannot be posted."
-msgstr "This poll was removed and cannot be posted."
 
 #. placeholder {0}: niceDate(i18n, createdAt)
 #. placeholder {1}: niceDate(i18n, indexedAt)
@@ -13634,8 +13631,8 @@ msgid "Vote disagree on this statement"
 msgstr "Vote disagree on this statement"
 
 #: src/screens/Onboarding/StepAssembly/index.tsx:46
-msgid "Vote on platform decisions, make proposals, and offer feedback through our People's Assembly."
-msgstr "Vote on platform decisions, make proposals, and offer feedback through our People's Assembly."
+msgid "Vote on platform decisions, make proposals, and offer feedback through Discussions."
+msgstr "Vote on platform decisions, make proposals, and offer feedback through Discussions."
 
 #: src/components/moderation/LabelPreference.tsx:142
 #: src/lib/moderation/useLabelBehaviorDescription.ts:20
@@ -14235,8 +14232,8 @@ msgid "You have reached the end"
 msgstr ""
 
 #: src/view/com/composer/Composer.tsx:983
-msgid "You have started the maximum number of polls for today. Try again tomorrow."
-msgstr "You have started the maximum number of polls for today. Try again tomorrow."
+msgid "You have started the maximum number of discussions for today. Try again tomorrow."
+msgstr "You have started the maximum number of discussions for today. Try again tomorrow."
 
 #: src/components/dialogs/EmailDialog/screens/Verify.tsx:188
 msgid "You have successfully verified your email address. You can close this dialog."
