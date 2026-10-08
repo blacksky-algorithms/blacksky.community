@@ -1,4 +1,9 @@
-import {BrowserOAuthClient} from '@atproto/oauth-client-browser'
+import {
+  BrowserOAuthClient,
+  TokenInvalidError,
+  TokenRefreshError,
+  TokenRevokedError,
+} from '@atproto/oauth-client-browser'
 
 import {logger} from '#/logger'
 import {
@@ -8,6 +13,7 @@ import {
 } from '#/state/session/oauth-telemetry'
 import {type Metrics} from '#/analytics/metrics'
 import {OAUTH_SCOPE} from './oauth-config'
+import {emitOauthLifecycleEvent} from './oauth-lifecycle'
 
 const LOCAL_OAUTH_HANDLE_RESOLVER =
   process.env.EXPO_PUBLIC_OAUTH_HANDLE_RESOLVER
@@ -50,11 +56,8 @@ function isLoopback() {
   )
 }
 
-// Session hooks passed at construction. @atproto/oauth-client-browser ^0.3
-// removed the post-construction `addEventListener('deleted'|'updated', ...)`
-// surface; the OAuthClient base class now exposes `onDelete`/`onUpdate`
-// callbacks via SessionHooks instead. Functionally equivalent — we still
-// observe the same lifecycle events, just wired up earlier.
+// oauth-client-browser 0.3.40 (oauth-client 0.5.x) ignores `onDelete` /
+// `onUpdate` constructor options, so these are wired to the client's events.
 const sessionHooks = {
   onDelete(sub: string, cause: unknown) {
     const category = categorizeOauthError(cause)
@@ -65,6 +68,7 @@ const sessionHooks = {
           ? cause
           : undefined
     logger.warn('oauth: session deleted', {sub, cause: category, message})
+    emitOauthLifecycleEvent({type: 'deleted', did: sub})
     emitOauthTelemetry({
       type: 'oauth:sessionDeleted',
       payload: {cause: category, message: message?.slice(0, 200)},
@@ -180,7 +184,6 @@ function createWebOAuthClient() {
       },
       ...oauthResolutionOptions,
       fetch: oauthInstrumentedFetch,
-      ...sessionHooks,
     })
   }
 
@@ -202,12 +205,23 @@ function createWebOAuthClient() {
     },
     ...oauthResolutionOptions,
     fetch: oauthInstrumentedFetch,
-    ...sessionHooks,
   })
 }
 
 const BSKY_OAUTH_CLIENT = createWebOAuthClient()
+BSKY_OAUTH_CLIENT.addEventListener('deleted', event => {
+  sessionHooks.onDelete(event.detail.sub, event.detail.cause)
+})
+BSKY_OAUTH_CLIENT.addEventListener('updated', event => {
+  sessionHooks.onUpdate(event.detail.sub)
+})
 
 export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
 }
+
+export const TERMINAL_OAUTH_ERRORS = [
+  TokenRefreshError,
+  TokenRevokedError,
+  TokenInvalidError,
+]

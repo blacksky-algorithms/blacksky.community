@@ -979,6 +979,56 @@ describe('session', () => {
     `)
   })
 
+  it('ends an active OAuth session while keeping the remembered account', () => {
+    const account = {
+      service: 'https://alice.com',
+      did: 'did:plc:alice',
+      handle: 'alice.test',
+      isOauthSession: true,
+    }
+    const agent = new AtpAgent({service: account.service})
+    let state = run(getInitialState([]), [
+      {type: 'switched-to-account', newAgent: agent, newAccount: account},
+    ])
+
+    state = run(state, [
+      {type: 'oauth-session-terminated', accountDid: account.did},
+    ])
+
+    expect(state.currentAgentState.did).toBeUndefined()
+    expect(state.accounts).toEqual([account])
+    expect(state.needsPersist).toBe(true)
+  })
+
+  it('ignores OAuth termination for an inactive account', () => {
+    const alice = {
+      service: 'https://alice.com',
+      did: 'did:plc:alice',
+      handle: 'alice.test',
+      isOauthSession: true,
+    }
+    const bob = {
+      service: 'https://bob.com',
+      did: 'did:plc:bob',
+      handle: 'bob.test',
+      isOauthSession: true,
+    }
+    const aliceAgent = new AtpAgent({service: alice.service})
+    const bobAgent = new AtpAgent({service: bob.service})
+    const state = run(getInitialState([]), [
+      {type: 'switched-to-account', newAgent: aliceAgent, newAccount: alice},
+      {type: 'switched-to-account', newAgent: bobAgent, newAccount: bob},
+    ])
+
+    const next = reducer(state, {
+      type: 'oauth-session-terminated',
+      accountDid: alice.did,
+    })
+
+    expect(next).toBe(state)
+    expect(next.currentAgentState.did).toBe(bob.did)
+  })
+
   it('bails out of update on identical objects', () => {
     let state = getInitialState([])
 

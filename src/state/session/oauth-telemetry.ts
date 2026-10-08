@@ -8,6 +8,10 @@ type OauthTelemetryEvent =
       type: 'oauth:sessionResumeFailed'
       payload: Metrics['oauth:sessionResumeFailed']
     }
+  | {
+      type: 'oauth:sessionResumeDegraded'
+      payload: Metrics['oauth:sessionResumeDegraded']
+    }
 
 export type OauthTelemetrySink = (event: OauthTelemetryEvent) => void
 
@@ -63,6 +67,9 @@ export function categorizeOauthError(
   } else {
     str = ''
   }
+  if (err && typeof err === 'object' && 'error' in err) {
+    str = `${String(err.error)} ${str}`
+  }
   if (
     str.includes('session was deleted by another process') ||
     str.includes('The session was revoked')
@@ -85,7 +92,22 @@ export function categorizeOauthError(
   ) {
     return 'databaseClosed'
   }
-  if (str.includes('invalid_dpop_proof') && str.includes('iat claim')) {
+  if (str.includes('use_dpop_nonce')) {
+    return 'dpopNonce'
+  }
+  if (
+    str.includes('invalid_dpop_proof') &&
+    (str.includes('too old') || str.includes('too far in the past'))
+  ) {
+    return 'dpopStale'
+  }
+  if (str.includes('invalid_dpop_proof') && str.includes('replayed')) {
+    return 'dpopReplayed'
+  }
+  if (
+    str.includes('invalid_dpop_proof') &&
+    (str.includes('iat claim') || str.includes('in the future'))
+  ) {
     return 'dpopSkew'
   }
   if (str.includes('invalid_dpop_proof')) {
@@ -115,6 +137,15 @@ export function categorizeOauthError(
   // Generic invalid_grant catch-all that isn't a known sub-case above.
   if (str.includes('invalid_grant')) {
     return 'invalidGrant'
+  }
+  if (
+    err &&
+    typeof err === 'object' &&
+    'status' in err &&
+    typeof err.status === 'number' &&
+    err.status >= 500
+  ) {
+    return 'serverError'
   }
   return 'unknown'
 }

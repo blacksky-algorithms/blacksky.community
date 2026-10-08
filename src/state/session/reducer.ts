@@ -51,6 +51,10 @@ export type Action =
       type: 'logged-out-every-account'
     }
   | {
+      type: 'oauth-session-terminated'
+      accountDid: string
+    }
+  | {
       type: 'synced-accounts'
       syncedAccounts: SessionAccount[]
       syncedCurrentDid: string | undefined
@@ -146,7 +150,7 @@ let reducer = (state: State, action: Action): State => {
 
       // side effect
       const account = state.accounts.find(a => a.did === accountDid)
-      if (account) {
+      if (account && !account.isOauthSession) {
         createTemporaryAgentsAndResume([account])
           .then(agents => unregisterPushToken(agents))
           .then(() =>
@@ -174,7 +178,7 @@ let reducer = (state: State, action: Action): State => {
       const accountDid = currentAgentState.did
       // side effect
       const account = state.accounts.find(a => a.did === accountDid)
-      if (account && accountDid) {
+      if (account && accountDid && !account.isOauthSession) {
         createTemporaryAgentsAndResume([account])
           .then(agents => unregisterPushToken(agents))
           .then(() =>
@@ -203,7 +207,9 @@ let reducer = (state: State, action: Action): State => {
       }
     }
     case 'logged-out-every-account': {
-      createTemporaryAgentsAndResume(state.accounts)
+      createTemporaryAgentsAndResume(
+        state.accounts.filter(account => !account.isOauthSession),
+      )
         .then(agents => unregisterPushToken(agents))
         .then(() => logger.debug('Push token unregistered'))
         .catch(err => {
@@ -219,6 +225,14 @@ let reducer = (state: State, action: Action): State => {
           refreshJwt: undefined,
           accessJwt: undefined,
         })),
+        currentAgentState: createPublicAgentState(),
+        needsPersist: true,
+      }
+    }
+    case 'oauth-session-terminated': {
+      if (state.currentAgentState.did !== action.accountDid) return state
+      return {
+        accounts: state.accounts,
         currentAgentState: createPublicAgentState(),
         needsPersist: true,
       }
