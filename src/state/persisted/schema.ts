@@ -145,6 +145,7 @@ const schema = z.object({
   hideFollowNotifications: z.boolean().optional(),
   showLinkInHandle: z.boolean().optional(),
   blackskyOnlyDefault: z.boolean().optional(),
+  homeView: z.enum(['pager', 'board']).optional(),
 
   /** @deprecated */
   mutedThreads: z.array(z.string()),
@@ -204,6 +205,7 @@ export const defaults: Schema = {
   repostCarouselEnabled: false,
   hideFollowNotifications: false,
   showLinkInHandle: false,
+  homeView: 'pager',
 }
 
 export function tryParse(rawData: string): Schema | undefined {
