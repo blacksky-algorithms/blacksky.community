@@ -15,6 +15,7 @@ import {
 } from './agent'
 import {configureModerationForAccount} from './moderation'
 import {getOAuthClient} from './oauth-client'
+import {fetchWithDpopRetry} from './oauth-dpop-recovery'
 import {type SessionAccount} from './types'
 
 export async function oauthCreateAgent(session: OAuthSession) {
@@ -130,7 +131,11 @@ export class OauthBskyAppAgent extends Agent {
       },
       fetchHandler(url, init) {
         const finalInit = stripAppviewProxyForPdsLocalMethods(url, init) ?? init
-        return session.fetchHandler(url, finalInit).then(
+        return fetchWithDpopRetry(
+          (u, i) => session.fetchHandler(u, i),
+          url,
+          finalInit,
+        ).then(
           res => {
             reportProxiedFetch(finalInit, res.status)
             return res
