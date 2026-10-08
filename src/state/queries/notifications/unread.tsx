@@ -16,10 +16,14 @@ import {EventEmitter} from 'eventemitter3'
 
 import BroadcastChannel from '#/lib/broadcast'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
-import {resetBadgeCount} from '#/lib/notifications/notifications'
+import {
+  resetBadgeCount,
+  syncBadgeCount,
+} from '#/lib/notifications/notifications'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useAgent, useSession} from '#/state/session'
+import {IS_IOS} from '#/env'
 import {RQKEY as RQKEY_NOTIFS} from './feed'
 import {type CachedFeedPage, type FeedPage} from './types'
 import {fetchPage} from './util'
@@ -90,7 +94,22 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       () => checkUnreadRef.current?.({isPoll: true}),
       UPDATE_INTERVAL,
     )
-    return () => clearInterval(interval)
+    // the app icon badge may be stale after notifications were read elsewhere
+    let wasBackgrounded = false
+    const appStateSub = IS_IOS
+      ? AppState.addEventListener('change', state => {
+          if (state === 'background') {
+            wasBackgrounded = true
+          } else if (state === 'active' && wasBackgrounded) {
+            wasBackgrounded = false
+            void checkUnreadRef.current?.()
+          }
+        })
+      : undefined
+    return () => {
+      clearInterval(interval)
+      appStateSub?.remove()
+    }
   }, [hasSession])
 
   // listen for broadcasts
@@ -206,6 +225,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
 
           // update & broadcast
           setNumUnread(unreadCountStr)
+          void syncBadgeCount(unreadCount)
           if (invalidate) {
             truncateAndInvalidate(queryClient, RQKEY_NOTIFS('all'))
             truncateAndInvalidate(queryClient, RQKEY_NOTIFS('mentions'))
