@@ -29,6 +29,7 @@ import (
 	"github.com/bluesky-social/indigo/util/cliutil"
 	"github.com/bluesky-social/indigo/xrpc"
 	"github.com/bluesky-social/social-app/bskyweb"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 
 	"github.com/flosch/pongo2/v6"
 	"github.com/klauspost/compress/gzhttp"
@@ -52,6 +53,7 @@ type Server struct {
 	ipccClient http.Client
 
 	liveCardClient http.Client
+	liveCardCache  *expirable.LRU[string, bool]
 
 	// sitemapClient is used for fetching sitemaps from the appview. It has
 	// DisableCompression set to true so that gzipped responses are passed
@@ -164,6 +166,7 @@ func serve(cctx *cli.Context) error {
 			},
 		},
 		liveCardClient: http.Client{Timeout: time.Second},
+		liveCardCache:  expirable.NewLRU[string, bool](10000, nil, 5*time.Minute),
 		sitemapClient: http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:        100,
@@ -1148,8 +1151,19 @@ func imageAvailable(ctx context.Context, client *http.Client, imageURL string) b
 	return resp.StatusCode == http.StatusOK && strings.HasPrefix(resp.Header.Get("Content-Type"), "image/")
 }
 
-func liveImage(ctx context.Context, client *http.Client, pv *appbsky.ActorDefs_ProfileViewDetailed, cardURL, defaultImage string) string {
-	if imageAvailable(ctx, client, cardURL) {
+func (srv *Server) liveCardAvailable(ctx context.Context, cardURL string) bool {
+	if ok, hit := srv.liveCardCache.Get(cardURL); hit {
+		return ok
+	}
+	ok := imageAvailable(ctx, &srv.liveCardClient, cardURL)
+	if ctx.Err() == nil {
+		srv.liveCardCache.Add(cardURL, ok)
+	}
+	return ok
+}
+
+func liveImage(pv *appbsky.ActorDefs_ProfileViewDetailed, cardURL string, cardOK bool, defaultImage string) string {
+	if cardOK {
 		return cardURL
 	}
 	if ext := liveStatusExternal(pv); ext != nil && ext.Thumb != nil && *ext.Thumb != "" {
@@ -1185,7 +1199,8 @@ func (srv *Server) WebLive(c echo.Context) error {
 	data["profileView"] = pv
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 	defaultImage, _ := data["brandSocialCard"].(string)
-	data["liveImage"] = liveImage(ctx, &srv.liveCardClient, pv, streamplaceProfileCardURL(pv.Did), defaultImage)
+	cardURL := streamplaceProfileCardURL(pv.Did)
+	data["liveImage"] = liveImage(pv, cardURL, srv.liveCardAvailable(ctx, cardURL), defaultImage)
 	data["liveTitle"] = liveStreamTitle(pv)
 
 	return c.Render(http.StatusOK, "live.html", data)
