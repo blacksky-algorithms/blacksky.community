@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	appbsky "github.com/bluesky-social/indigo/api/bsky"
 	"github.com/bluesky-social/social-app/bskyweb"
 	"github.com/flosch/pongo2/v6"
 )
@@ -295,5 +296,27 @@ func TestRenderPost_PublicNoNoindex(t *testing.T) {
 	})
 	if strings.Contains(html, `<meta name="robots"`) {
 		t.Errorf("public post should not emit robots meta; got:\n%s", html)
+	}
+}
+
+func TestRenderLive_UsesStreamplaceCard(t *testing.T) {
+	name := "AT Protocol Developers"
+	pv := &appbsky.ActorDefs_ProfileViewDetailed{Did: "did:plc:abc", Handle: "atproto.com", DisplayName: &name}
+	html := renderTemplate(t, "live.html", pongo2.Context{
+		"brandName":   "Blacksky",
+		"profileView": pv,
+		"requestURI":  "https://blacksky.community/live/atproto.com",
+		"liveImage":   streamplaceProfileCardURL(pv.Did),
+		"liveTitle":   "Off Protocol LIVE",
+	})
+	for _, want := range []string{
+		`<meta property="og:image" content="https://stream.place/xrpc/place.stream.live.getProfileCard?id=did%3Aplc%3Aabc">`,
+		`<meta name="twitter:card" content="summary_large_image">`,
+		`<meta property="og:title" content="AT Protocol Developers is live on Blacksky">`,
+		`<meta property="og:description" content="Off Protocol LIVE">`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("missing %s in:\n%s", want, html)
+		}
 	}
 }
