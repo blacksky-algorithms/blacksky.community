@@ -8,6 +8,7 @@ import (
 	"time"
 
 	appbsky "github.com/bluesky-social/indigo/api/bsky"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 )
 
 func TestLiveStreamTitle(t *testing.T) {
@@ -39,7 +40,7 @@ func TestLiveStreamTitle(t *testing.T) {
 	}
 }
 
-func TestLiveImageFallbacks(t *testing.T) {
+func TestImageAvailable(t *testing.T) {
 	ok := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/jpeg")
 	}))
@@ -49,12 +50,34 @@ func TestLiveImageFallbacks(t *testing.T) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer broken.Close()
+	notImage := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+	}))
+	defer notImage.Close()
 	slow := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(200 * time.Millisecond)
 	}))
 	defer slow.Close()
 
 	client := &http.Client{Timeout: 50 * time.Millisecond}
+	cases := []struct {
+		name string
+		url  string
+		want bool
+	}{
+		{"ok", ok.URL, true},
+		{"error status", broken.URL, false},
+		{"not an image", notImage.URL, false},
+		{"timeout", slow.URL, false},
+	}
+	for _, c := range cases {
+		if got := imageAvailable(context.Background(), client, c.url); got != c.want {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
+func TestLiveImageFallbacks(t *testing.T) {
 	active := true
 	thumb, banner := "https://cdn.example/thumb.jpg", "https://cdn.example/banner.jpg"
 	live := &appbsky.ActorDefs_ProfileViewDetailed{
@@ -67,21 +90,42 @@ func TestLiveImageFallbacks(t *testing.T) {
 			}},
 		},
 	}
+	card, def := "https://stream.place/card", "https://static/default.png"
 	cases := []struct {
-		name    string
-		pv      *appbsky.ActorDefs_ProfileViewDetailed
-		cardURL string
-		want    string
+		name   string
+		pv     *appbsky.ActorDefs_ProfileViewDetailed
+		cardOK bool
+		want   string
 	}{
-		{"card ok", live, ok.URL, ok.URL},
-		{"card error uses status thumb", live, broken.URL, thumb},
-		{"card timeout uses status thumb", live, slow.URL, thumb},
-		{"no status uses banner", &appbsky.ActorDefs_ProfileViewDetailed{Banner: &banner}, broken.URL, banner},
-		{"nothing uses default", &appbsky.ActorDefs_ProfileViewDetailed{}, broken.URL, "https://static/default.png"},
+		{"card ok", live, true, card},
+		{"card failed uses status thumb", live, false, thumb},
+		{"no status uses banner", &appbsky.ActorDefs_ProfileViewDetailed{Banner: &banner}, false, banner},
+		{"nothing uses default", &appbsky.ActorDefs_ProfileViewDetailed{}, false, def},
 	}
 	for _, c := range cases {
-		if got := liveImage(context.Background(), client, c.pv, c.cardURL, "https://static/default.png"); got != c.want {
+		if got := liveImage(c.pv, card, c.cardOK, def); got != c.want {
 			t.Errorf("%s: got %q, want %q", c.name, got, c.want)
 		}
+	}
+}
+
+func TestLiveCardAvailableCaches(t *testing.T) {
+	hits := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		w.Header().Set("Content-Type", "image/jpeg")
+	}))
+	defer srv.Close()
+	s := &Server{
+		liveCardClient: http.Client{Timeout: time.Second},
+		liveCardCache:  expirable.NewLRU[string, bool](10, nil, time.Minute),
+	}
+	for i := 0; i < 3; i++ {
+		if !s.liveCardAvailable(context.Background(), srv.URL) {
+			t.Fatal("expected card available")
+		}
+	}
+	if hits != 1 {
+		t.Errorf("expected 1 upstream request, got %d", hits)
 	}
 }
