@@ -15,6 +15,7 @@ import {AppviewFallbackController} from '#/state/appview-fallback-controller'
 import {useDialogFullyExpandedCountContext} from '#/state/dialogs'
 import {useProfileEnrichment} from '#/state/queries/profile-enrichment'
 import {useSession} from '#/state/session'
+import {useNativeOAuthRedirect} from '#/state/session/useNativeOAuthRedirect'
 import {
   useIsDrawerOpen,
   useIsDrawerSwipeDisabled,
@@ -200,6 +201,7 @@ export function Shell() {
   const fullyExpandedCount = useDialogFullyExpandedCountContext()
 
   useIntentHandler()
+  useNativeOAuthRedirect()
 
   useEffect(() => {
     setSystemUITheme('theme', t)
