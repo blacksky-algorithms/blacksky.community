@@ -52,6 +52,10 @@ export function usePostQuery(uri: string | undefined) {
         urip.host = res.data.did
       }
 
+      if (urip.collection === COMMUNITY_POST_COLLECTION) {
+        return fetchCommunityPostView(agent, urip.toString())
+      }
+
       const res = await agent.getPosts({uris: [urip.toString()]})
       if (res.success && res.data.posts[0]) {
         return res.data.posts[0]
@@ -90,6 +94,10 @@ export function useGetPost() {
             })
             // @ts-expect-error TODO new-sdk-migration
             urip.host = res.data.did
+          }
+
+          if (urip.collection === COMMUNITY_POST_COLLECTION) {
+            return fetchCommunityPostView(agent, urip.toString())
           }
 
           const res = await agent.getPosts({

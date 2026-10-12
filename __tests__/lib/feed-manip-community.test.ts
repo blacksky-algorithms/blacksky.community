@@ -110,6 +110,51 @@ describe('FeedTuner with merged community posts', () => {
     expect(slice.isQuotePost).toBe(true)
   })
 
+  it('keeps a reposted community post as a repost slice', () => {
+    const post = communityPost({rkey: 'reposted', authorDid: 'did:plc:other'})
+    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+      {
+        post,
+        reason: {
+          $type: 'app.bsky.feed.defs#reasonRepost',
+          by: author(MEMBER_DID, {following: true}),
+          uri: `at://${MEMBER_DID}/app.bsky.feed.repost/reposted`,
+          cid: CID,
+          indexedAt: '2026-07-17T12:00:01.000Z',
+        },
+      },
+    ]
+    const slices = followingTuner().tune(feed)
+    expect(slices).toHaveLength(1)
+    expect(slices[0].isRepost).toBe(true)
+    expect(slices[0].items[0].post.uri).toContain(COLLECTION)
+    expect(slices[0].reason).toMatchObject({
+      $type: 'app.bsky.feed.defs#reasonRepost',
+      uri: `at://${MEMBER_DID}/app.bsky.feed.repost/reposted`,
+    })
+  })
+
+  it('drops a reposted community post when reposts are hidden', () => {
+    const post = communityPost({rkey: 'reposted', authorDid: 'did:plc:other'})
+    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+      {
+        post,
+        reason: {
+          $type: 'app.bsky.feed.defs#reasonRepost',
+          by: author(MEMBER_DID, {following: true}),
+          uri: `at://${MEMBER_DID}/app.bsky.feed.repost/reposted`,
+          cid: CID,
+          indexedAt: '2026-07-17T12:00:01.000Z',
+        },
+      },
+    ]
+    const slices = new FeedTuner([
+      FeedTuner.removeOrphans,
+      FeedTuner.removeReposts,
+    ]).tune(feed)
+    expect(slices).toHaveLength(0)
+  })
+
   it('keeps a top-level community post', () => {
     const feed: AppBskyFeedDefs.FeedViewPost[] = [
       {post: communityPost({rkey: 'aaa'})},
