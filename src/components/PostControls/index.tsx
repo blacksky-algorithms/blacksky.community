@@ -13,6 +13,7 @@ import {
   getCommunitySpaceUri,
   isCommunityPostUri,
 } from '#/lib/api/community-post'
+import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {CountWheel} from '#/lib/custom-animations/CountWheel'
 import {AnimatedLikeIcon} from '#/lib/custom-animations/LikeIcon'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -268,7 +269,7 @@ let PostControls = ({
             onQuote={onQuote}
             big={big}
             embeddingDisabled={Boolean(post.viewer?.embeddingDisabled)}
-            repostDisabled={isCommunityPostUri(post.uri)}
+            repostDisabled={isSpaceRecordUri(post.uri)}
           />
         </View>
         <View style={[a.flex_1, a.align_start]}>
