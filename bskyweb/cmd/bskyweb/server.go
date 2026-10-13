@@ -420,6 +420,7 @@ func serve(cctx *cli.Context) error {
 
 	// chat invites
 	e.GET("/chat/:code", server.WebChatInvite)
+	e.GET("/event/:handleOrDID/:rkey", server.WebEvent)
 
 	// bookmarks
 	e.GET("/saved", server.WebGenericNoindex)

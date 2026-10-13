@@ -3,6 +3,7 @@ import {type Express} from 'express'
 import {type AppContext} from '../context.js'
 import {default as avatarBubbles} from './avatar-bubbles.js'
 import {default as chatInvite} from './chat-invite.js'
+import {default as event} from './event.js'
 import {default as health} from './health.js'
 import {default as starterPack} from './starter-pack.js'
 
@@ -12,6 +13,7 @@ export default function (ctx: AppContext, app: Express) {
   app = health(ctx, app) // GET /_health
   app = starterPack(ctx, app) // GET /start/:actor/:rkey
   app = chatInvite(ctx, app) // GET /chat-invite/:code
+  app = event(ctx, app) // GET /event/:did/:rkey
   app = avatarBubbles(ctx, app) // GET /avatar-bubbles?dids=...
   return app
 }
