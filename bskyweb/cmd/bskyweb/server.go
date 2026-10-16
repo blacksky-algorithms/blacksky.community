@@ -29,6 +29,7 @@ import (
 	"github.com/bluesky-social/indigo/util/cliutil"
 	"github.com/bluesky-social/indigo/xrpc"
 	"github.com/bluesky-social/social-app/bskyweb"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 
 	"github.com/flosch/pongo2/v6"
 	"github.com/klauspost/compress/gzhttp"
@@ -50,6 +51,9 @@ type Server struct {
 	brandClient  *BrandConfigClient // nil when using local file mode
 
 	ipccClient http.Client
+
+	liveCardClient http.Client
+	liveCardCache  *expirable.LRU[string, bool]
 
 	// sitemapClient is used for fetching sitemaps from the appview. It has
 	// DisableCompression set to true so that gzipped responses are passed
@@ -161,6 +165,8 @@ func serve(cctx *cli.Context) error {
 				},
 			},
 		},
+		liveCardClient: http.Client{Timeout: time.Second},
+		liveCardCache:  expirable.NewLRU[string, bool](10000, nil, 5*time.Minute),
 		sitemapClient: http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:        100,
@@ -423,7 +429,7 @@ func serve(cctx *cli.Context) error {
 
 	// bookmarks
 	e.GET("/saved", server.WebGenericNoindex)
-	e.GET("/live/:actor", server.WebGenericNoindex)
+	e.GET("/live/:actor", server.WebLive)
 
 	// ipcc
 	e.GET("/ipcc", server.WebIpCC)
@@ -1105,6 +1111,99 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 
 	return c.Render(http.StatusOK, "feed.html", data)
+}
+
+func streamplaceProfileCardURL(did string) string {
+	return "https://stream.place/xrpc/place.stream.live.getProfileCard?id=" + url.QueryEscape(did)
+}
+
+func liveStatusExternal(pv *appbsky.ActorDefs_ProfileViewDetailed) *appbsky.EmbedExternal_ViewExternal {
+	st := pv.Status
+	if st == nil || st.Status != "app.bsky.actor.status#live" {
+		return nil
+	}
+	if st.IsActive != nil && !*st.IsActive {
+		return nil
+	}
+	if st.Embed == nil || st.Embed.EmbedExternal_View == nil {
+		return nil
+	}
+	return st.Embed.EmbedExternal_View.External
+}
+
+func liveStreamTitle(pv *appbsky.ActorDefs_ProfileViewDetailed) string {
+	if ext := liveStatusExternal(pv); ext != nil {
+		return ext.Title
+	}
+	return ""
+}
+
+func imageAvailable(ctx context.Context, client *http.Client, imageURL string) bool {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
+	if err != nil {
+		return false
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	resp.Body.Close()
+	return resp.StatusCode == http.StatusOK && strings.HasPrefix(resp.Header.Get("Content-Type"), "image/")
+}
+
+func (srv *Server) liveCardAvailable(ctx context.Context, cardURL string) bool {
+	if ok, hit := srv.liveCardCache.Get(cardURL); hit {
+		return ok
+	}
+	ok := imageAvailable(ctx, &srv.liveCardClient, cardURL)
+	if ctx.Err() == nil {
+		srv.liveCardCache.Add(cardURL, ok)
+	}
+	return ok
+}
+
+func liveImage(pv *appbsky.ActorDefs_ProfileViewDetailed, cardURL string, cardOK bool, defaultImage string) string {
+	if cardOK {
+		return cardURL
+	}
+	if ext := liveStatusExternal(pv); ext != nil && ext.Thumb != nil && *ext.Thumb != "" {
+		return *ext.Thumb
+	}
+	if pv.Banner != nil && *pv.Banner != "" {
+		return *pv.Banner
+	}
+	return defaultImage
+}
+
+func (srv *Server) WebLive(c echo.Context) error {
+	ctx := c.Request().Context()
+	data := srv.NewTemplateContext(c.Request())
+	data["noindex"] = true
+
+	handleOrDID, err := syntax.ParseAtIdentifier(c.Param("actor"))
+	if err != nil {
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+	identifier := handleOrDID.Normalize().String()
+
+	pv, err := appbsky.ActorGetProfile(ctx, srv.xrpcc, identifier)
+	if err != nil {
+		log.Warnf("failed to fetch profile for: %s\t%v", identifier, err)
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+	if profileRequiresAuth(pv) {
+		return c.Render(http.StatusOK, "live.html", data)
+	}
+
+	req := c.Request()
+	data["profileView"] = pv
+	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
+	defaultImage, _ := data["brandSocialCard"].(string)
+	cardURL := streamplaceProfileCardURL(pv.Did)
+	data["liveImage"] = liveImage(pv, cardURL, srv.liveCardAvailable(ctx, cardURL), defaultImage)
+	data["liveTitle"] = liveStreamTitle(pv)
+
+	return c.Render(http.StatusOK, "live.html", data)
 }
 
 type IPCCRequest struct {
