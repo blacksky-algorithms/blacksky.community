@@ -291,16 +291,22 @@ export async function resetBadgeCount() {
   await setBadgeCountAsync(0)
 }
 
-export async function unregisterPushToken(agents: AtpAgent[]) {
+export async function unregisterPushToken(
+  agents: AtpAgent[],
+  fallbackService?: string,
+) {
   if (!IS_NATIVE) return
 
   try {
     const token = await getPushToken()
     if (token) {
       for (const agent of agents) {
+        const serviceHostname =
+          agent.serviceUrl?.hostname ??
+          (fallbackService ? new URL(fallbackService).hostname : '')
         await agent.app.bsky.notification.unregisterPush(
           {
-            serviceDid: agent.serviceUrl.hostname.includes('staging')
+            serviceDid: serviceHostname.includes('staging')
               ? PUBLIC_STAGING_APPVIEW_DID
               : PUBLIC_APPVIEW_DID,
             platform: Platform.OS,

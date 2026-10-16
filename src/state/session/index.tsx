@@ -27,7 +27,7 @@ import {
 import {
   type OauthBskyAppAgent,
   oauthCreateAgent,
-  oauthResumeSession,
+  oauthResumeSessionWithRetry,
 } from './oauth-agent'
 import {categorizeOauthError, setOauthTelemetrySink} from './oauth-telemetry'
 import {type Action, getInitialState, reducer, type State} from './reducer'
@@ -35,12 +35,14 @@ export {isSignupQueued} from './util'
 import {addSessionDebugLog} from './logging'
 export type {SessionAccount} from '#/state/session/types'
 
+import {unregisterPushToken} from '#/lib/notifications/notifications'
 import {clearPersistedQueryStorage} from '#/lib/persisted-query-storage'
 import {
   type SessionApiContext,
   type SessionStateContext,
 } from '#/state/session/types'
 import {useOnboardingDispatch} from '#/state/shell/onboarding'
+import {setOauthLifecycleSink} from './oauth-lifecycle'
 
 const StateContext = createContext<SessionStateContext>({
   accounts: [],
@@ -202,6 +204,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       addSessionDebugLog({type: 'method:start', method: 'logout'})
       cancelPendingTask()
       const prevState = store.getState()
+      unregisterActiveOauthPushToken(prevState)
       store.dispatch({
         type: 'logged-out-current-account',
       })
@@ -233,6 +236,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       addSessionDebugLog({type: 'method:start', method: 'logout'})
       cancelPendingTask()
       const prevState = store.getState()
+      unregisterActiveOauthPushToken(prevState)
       store.dispatch({
         type: 'logged-out-every-account',
       })
@@ -258,7 +262,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   )
 
   const resumeSession = useCallback<SessionApiContext['resumeSession']>(
-    async (storedAccount, isSwitchingAccounts = false) => {
+    async (storedAccount, isSwitchingAccounts = false, isAppLaunch = false) => {
       addSessionDebugLog({
         type: 'method:start',
         method: 'resumeSession',
@@ -272,7 +276,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       }
       if (storedAccount.isOauthSession) {
         try {
-          agentAccount = await oauthResumeSession(storedAccount)
+          agentAccount = await oauthResumeSessionWithRetry(
+            storedAccount,
+            isAppLaunch,
+          )
         } catch (e) {
           ax.metric('oauth:sessionResumeFailed', {
             logContext: isSwitchingAccounts ? 'SwitchAccount' : 'AppBoot',
@@ -333,6 +340,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         account,
       })
       cancelPendingTask()
+      if (store.getState().currentAgentState.did === account.did) {
+        unregisterActiveOauthPushToken(store.getState())
+      }
       store.dispatch({
         type: 'removed-account',
         accountDid: account.did,
@@ -341,6 +351,19 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     },
     [store, cancelPendingTask],
   )
+  useEffect(() => {
+    setOauthLifecycleSink(event => {
+      if (store.getState().currentAgentState.did !== event.did) return
+      store.dispatch({
+        type: 'oauth-session-terminated',
+        accountDid: event.did,
+      })
+      emitSessionDropped()
+      void clearPersistedQueryStorage(event.did)
+    })
+    return () => setOauthLifecycleSink(null)
+  }, [store])
+
   useEffect(() => {
     setOauthTelemetrySink(event => {
       ax.metric(event.type, event.payload)
@@ -450,6 +473,16 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
         </ApiContext.Provider>
       </StateContext.Provider>
     </AgentContext.Provider>
+  )
+}
+
+function unregisterActiveOauthPushToken(state: State) {
+  const did = state.currentAgentState.did
+  const account = state.accounts.find(candidate => candidate.did === did)
+  if (!account?.isOauthSession) return
+  void unregisterPushToken(
+    [state.currentAgentState.agent as AtpAgent],
+    account.service,
   )
 }
 
