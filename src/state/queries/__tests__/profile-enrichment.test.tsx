@@ -1,3 +1,4 @@
+import {BskyAgent} from '@atproto/api'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {act, renderHook} from '@testing-library/react-native'
 
@@ -8,6 +9,7 @@ jest.mock('../microcosm-fallback', () => ({
 }))
 jest.mock('#/state/queries', () => ({PERSISTED_QUERY_ROOT: 'PERSISTED'}))
 
+import {FollowingFeedAPI} from '#/lib/api/feed/following'
 import {
   forgetProfileEnrichment,
   useProfileEnrichment,
@@ -206,5 +208,90 @@ describe('useProfileEnrichment', () => {
     await flush()
 
     expect(mockFetchRecord).toHaveBeenCalledTimes(2)
+  })
+
+  it('leaves feed API instances in query data untouched', async () => {
+    const ME = 'did:plc:me'
+    const ME_AVATAR = `https://cdn.bsky.app/img/avatar/plain/${ME}/bafyme@jpeg`
+    mockFetchRecord.mockImplementation((uri: string) =>
+      Promise.resolve(
+        uri.startsWith(`at://${DID}/`)
+          ? {
+              value: {
+                displayName: 'Alice',
+                avatar: {ref: {$link: 'bafyavatar'}},
+              },
+            }
+          : uri.startsWith(`at://${ME}/`)
+            ? {value: {displayName: 'Me', avatar: {ref: {$link: 'bafyme'}}}}
+            : null,
+      ),
+    )
+
+    const agent = new BskyAgent({service: 'https://pds.test'})
+    agent.sessionManager.session = {
+      did: ME,
+      handle: 'me.test',
+      accessJwt: 'a',
+      refreshJwt: 'r',
+      active: true,
+    }
+    const session = agent.sessionManager.session
+    const sessionBefore = {...session}
+    const api = new FollowingFeedAPI({agent})
+
+    type FeedPage = {
+      api: FollowingFeedAPI
+      cursor: string
+      feed: {post: Post}[]
+      fetchedAt: number
+    }
+    type FeedData = {
+      pages: FeedPage[]
+      pageParams: ({api: FollowingFeedAPI; cursor: string} | undefined)[]
+    }
+    const key = ['post-feed', 'following', {}]
+    const queryClient = mount()
+
+    act(() => {
+      queryClient.setQueryData<FeedData>(key, {
+        pages: [
+          {api, cursor: 'c1', feed: [], fetchedAt: 1},
+          {
+            api,
+            cursor: 'c2',
+            feed: [{post: post('at://a', emptyAuthor(DID))}],
+            fetchedAt: 2,
+          },
+        ],
+        pageParams: [undefined, {api, cursor: 'c1'}],
+      })
+    })
+    await flush()
+
+    const expectIntact = () => {
+      const data = queryClient.getQueryData<FeedData>(key)!
+      expect(data.pages[0].api).toBe(api)
+      expect(data.pages[1].api).toBe(api)
+      expect(data.pageParams[1]?.api).toBe(api)
+      expect(typeof data.pages[1].api.peekLatest).toBe('function')
+      expect(typeof data.pages[1].api.fetch).toBe('function')
+      expect(agent.sessionManager.session).toBe(session)
+      expect(agent.sessionManager.session).toEqual(sessionBefore)
+      return data
+    }
+
+    const data = expectIntact()
+    expect(data.pages[1].feed[0].post.author.avatar).toBe(AVATAR)
+    expect(mockFetchRecord).toHaveBeenCalledTimes(1)
+    expect(mockFetchRecord).toHaveBeenCalledWith(
+      `at://${DID}/app.bsky.actor.profile/self`,
+    )
+
+    setThread(queryClient, 'b', [post('at://b', emptyAuthor(ME))])
+    await flush()
+
+    expect(avatarOf(queryClient, 'b')).toBe(ME_AVATAR)
+    expectIntact()
   })
 })
