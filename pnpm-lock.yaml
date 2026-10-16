@@ -232,7 +232,7 @@ patchedDependencies:
   react-native-date-picker@5.0.13: f2a6697da7a7ca79b4f39efda142eee1b82db6de3aa5010ad4bd59df41fe2ce1
   react-native-drawer-layout@4.2.3: 74f2c043cc22ab87054f219e7c7373a509b779b18bfa79d27e7d051d73355130
   react-native-keyboard-controller@1.21.8: 2f6791837622fb391c3e41fc044b91ddedbe503da14da86165ee0a73924b05f1
-  react-native-pager-view@6.8.0: f23e08d4ccb0693157dc371e8c56e9f395262c69542099d865fef3b80c141d75
+  react-native-pager-view@6.8.0: 9f3fd7d8d8493a2dd121bb45c1f75a2fd49f04b79eabadb75c95e91a5ddb3697
   react-native-reanimated@3.19.1: 7191d88a867e12d7197f3fd8f9016cff2449edbdd3901323ee4f3f02eb83c818
   react-native-screens@4.24.0: 219c860873bcc77da05e88f7e080c0bb35502119af7d595627bdb6c198f02f36
   react-native-svg@15.12.1: 31401fa6ff01498773afb51a7b066821c471eb3e71b0764a10017938beed49e9
@@ -655,7 +655,7 @@ importers:
         version: 1.21.8(patch_hash=2f6791837622fb391c3e41fc044b91ddedbe503da14da86165ee0a73924b05f1)(react-native-reanimated@3.19.1(patch_hash=7191d88a867e12d7197f3fd8f9016cff2449edbdd3901323ee4f3f02eb83c818)(@babel/core@7.29.0(supports-color@8.1.1))(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0))(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)
       react-native-pager-view:
         specifier: 6.8.0
-        version: 6.8.0(patch_hash=f23e08d4ccb0693157dc371e8c56e9f395262c69542099d865fef3b80c141d75)(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)
+        version: 6.8.0(patch_hash=9f3fd7d8d8493a2dd121bb45c1f75a2fd49f04b79eabadb75c95e91a5ddb3697)(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)
       react-native-progress:
         specifier: bluesky-social/react-native-progress
         version: https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4(react-native-svg@15.12.1(patch_hash=31401fa6ff01498773afb51a7b066821c471eb3e71b0764a10017938beed49e9)(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0))
@@ -19254,7 +19254,7 @@ snapshots:
       react-native-is-edge-to-edge: 1.3.1(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)
       react-native-reanimated: 3.19.1(patch_hash=7191d88a867e12d7197f3fd8f9016cff2449edbdd3901323ee4f3f02eb83c818)(@babel/core@7.29.0(supports-color@8.1.1))(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)
 
-  react-native-pager-view@6.8.0(patch_hash=f23e08d4ccb0693157dc371e8c56e9f395262c69542099d865fef3b80c141d75)(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0):
+  react-native-pager-view@6.8.0(patch_hash=9f3fd7d8d8493a2dd121bb45c1f75a2fd49f04b79eabadb75c95e91a5ddb3697)(react-native@0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0):
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(patch_hash=c04039ca628dc799ca95703534cdf7395135cca646b369dcfd979f582fb5edfc)(@babel/core@7.29.0(supports-color@8.1.1))(@types/react@19.1.17)(react@19.1.0)(supports-color@8.1.1)
