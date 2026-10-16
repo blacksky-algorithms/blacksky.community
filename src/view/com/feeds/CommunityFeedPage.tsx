@@ -49,14 +49,21 @@ type CommunityFeedRow =
       reactKey: string
     }
 
-export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
+export function CommunityFeedPage({
+  isPageFocused,
+  headerOffset: headerOffsetOverride,
+}: {
+  isPageFocused: boolean
+  headerOffset?: number
+}) {
   const {_} = useLingui()
   const t = useTheme()
   const agent = useAgent()
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
   const {hasSession} = useSession()
-  const headerOffset = useHeaderOffset()
+  const defaultHeaderOffset = useHeaderOffset()
+  const headerOffset = headerOffsetOverride ?? defaultHeaderOffset
   const scrollElRef = useRef<ListMethods>(null)
   const {openComposer} = useOpenComposer()
 

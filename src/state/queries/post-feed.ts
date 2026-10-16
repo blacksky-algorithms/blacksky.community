@@ -17,6 +17,7 @@ import {
 } from '@tanstack/react-query'
 
 import {AuthorFeedAPI} from '#/lib/api/feed/author'
+import {CommunityFeedAPI} from '#/lib/api/feed/community'
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
 import {DemoFeedAPI} from '#/lib/api/feed/demo'
 import {FollowingFeedAPI} from '#/lib/api/feed/following'
@@ -438,7 +439,7 @@ export async function pollLatest(page: FeedPage | undefined) {
   return false
 }
 
-function createApi({
+export function createApi({
   feedDesc,
   feedParams,
   feedTuners,
@@ -474,6 +475,8 @@ function createApi({
   } else if (feedDesc.startsWith('likes')) {
     const [__, actor] = feedDesc.split('|')
     return new LikesFeedAPI({agent, feedParams: {actor}})
+  } else if (feedDesc === 'community') {
+    return new CommunityFeedAPI(agent)
   } else if (feedDesc.startsWith('feedgen')) {
     const [__, feed] = feedDesc.split('|')
     return new CustomFeedAPI({
