@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head_title %}{% if title %}{{ title }} - {{ brandName }}{% else %}{{ brandTitle }}{% endif %}{% endblock %}
+
+{% block html_head_extra -%}
+  {%- if requestURI %}
+  <meta property="og:url" content="{{ requestURI }}">
+  {% endif -%}
+  {%- if imgThumbUrl %}
+  <meta property="og:image" content="{{ imgThumbUrl }}">
+  <meta property="twitter:image" content="{{ imgThumbUrl }}">
+  {%- else -%}
+  <meta property="og:image" content="{{ brandSocialCard }}" />
+  <meta property="twitter:image" content="{{ brandSocialCard }}"  />
+  {% endif -%}
+  <meta name="twitter:card" content="summary_large_image" />
+  {%- if title %}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ title }}" />
+  <meta name="twitter:title" content="{{ title }}" />
+  {%- else -%}
+  <meta property="og:title" content="{{ brandName }}" />
+  <meta name="twitter:title" content="{{ brandName }}" />
+  {% endif -%}
+  {%- if description %}
+  <meta name="description" content="{{ description|truncatechars:300 }}" />
+  <meta property="og:description" content="{{ description|truncatechars:300 }}" />
+  <meta name="twitter:description" content="{{ description|truncatechars:300 }}" />
+  {%- elif title %}
+  <meta name="description" content="An event on {{ brandName }}" />
+  <meta property="og:description" content="An event on {{ brandName }}" />
+  <meta name="twitter:description" content="An event on {{ brandName }}" />
+  {% endif -%}
+{%- endblock %}
