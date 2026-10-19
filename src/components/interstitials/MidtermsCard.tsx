@@ -17,7 +17,7 @@ import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
-const MIDTERMS_BANNER_ENDS_AT = Date.UTC(2026, 10, 5)
+const MIDTERMS_BANNER_ENDS_AT = Date.UTC(2026, 10, 11, 5)
 
 export function MidtermsCard() {
   const t = useTheme()
