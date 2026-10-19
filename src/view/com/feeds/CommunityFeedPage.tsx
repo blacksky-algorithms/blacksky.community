@@ -32,6 +32,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {HomeAppviewOutageNotice} from '#/components/HomeAppviewOutageNotice'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
+import {MidtermsCard} from '#/components/interstitials/MidtermsCard'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
 
@@ -292,7 +293,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
           data={rows}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          ListHeaderComponent={HomeAppviewOutageNotice}
+          ListHeaderComponent={CommunityFeedHeader}
           ListEmptyComponent={renderEmpty}
           ListFooterComponent={renderFooter}
           onEndReached={onEndReached}
@@ -322,5 +323,14 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
         />
       )}
     </View>
+  )
+}
+
+function CommunityFeedHeader() {
+  return (
+    <>
+      <HomeAppviewOutageNotice />
+      <MidtermsCard />
+    </>
   )
 }

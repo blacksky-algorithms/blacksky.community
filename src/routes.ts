@@ -60,6 +60,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ContentAndMediaSettings: '/settings/content-and-media',
   InterestsSettings: '/settings/interests',
   AboutSettings: '/settings/about',
+  Midterms: '/midterms',
   AppIconSettings: '/settings/app-icon',
   NotificationSettings: '/settings/notifications',
   FindContactsSettings: '/settings/find-contacts',
