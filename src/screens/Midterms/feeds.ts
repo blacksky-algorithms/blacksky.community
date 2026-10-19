@@ -60,3 +60,9 @@ export const US_STATES: [code: string, name: string][] = [
   ['US-WI', 'Wisconsin'],
   ['US-WY', 'Wyoming'],
 ]
+
+export const ALL_MIDTERMS_FEED_URIS = [
+  RACES_NATL_FEED_URI,
+  ...US_STATES.map(([code]) => stateFeedUri(code)),
+  ELECTION_DESK_FEED_URI,
+]

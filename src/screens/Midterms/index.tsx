@@ -1,6 +1,7 @@
-import {useState} from 'react'
+import {useRef, useState} from 'react'
 import {ScrollView, View} from 'react-native'
 import {Image} from 'expo-image'
+import {type AppBskyFeedDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -38,6 +39,7 @@ import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {
+  ALL_MIDTERMS_FEED_URIS,
   ELECTION_DESK_FEED_URI,
   RACES_NATL_FEED_URI,
   stateFeedUri,
@@ -77,15 +79,23 @@ function MidtermsFlow() {
   const [pins, setPins] = useState<string[]>([RACES_NATL_FEED_URI])
 
   const {data: preferences} = usePreferencesQuery()
+  const feedViews = useFeedViews()
+  const views = [
+    RACES_NATL_FEED_URI,
+    ...states.map(stateFeedUri),
+    ELECTION_DESK_FEED_URI,
+  ].flatMap(uri => feedViews.data?.find(v => v.uri === uri) ?? [])
+  const pinsToSave = pins.filter(uri => views.some(v => v.uri === uri))
+  const saving = useRef(false)
   const {mutateAsync: addSavedFeeds} = useAddSavedFeedsMutation()
   const {mutateAsync: updateSavedFeeds} = useUpdateSavedFeedsMutation()
   const {mutate: saveNux} = useSaveNux()
 
   const save = useMutation({
     mutationFn: async () => {
-      const saved = preferences?.savedFeeds ?? []
-      const toAdd = pins.filter(uri => !saved.some(f => f.value === uri))
-      const toPin = saved.filter(f => pins.includes(f.value) && !f.pinned)
+      const saved = preferences!.savedFeeds
+      const toAdd = pinsToSave.filter(uri => !saved.some(f => f.value === uri))
+      const toPin = saved.filter(f => pinsToSave.includes(f.value) && !f.pinned)
       if (toAdd.length) {
         await addSavedFeeds(
           toAdd.map(uri => ({type: 'feed', value: uri, pinned: true})),
@@ -109,7 +119,13 @@ function MidtermsFlow() {
       {step === 0 && <WelcomeStep />}
       {step === 1 && <StatesStep states={states} onChange={setStates} />}
       {step === 2 && (
-        <FeedsStep states={states} pins={pins} onChangePins={setPins} />
+        <FeedsStep
+          views={views}
+          isLoading={feedViews.isLoading}
+          isError={feedViews.isError}
+          pins={pins}
+          onChangePins={setPins}
+        />
       )}
       {step === 3 && <GetInvolvedStep />}
 
@@ -152,8 +168,16 @@ function MidtermsFlow() {
             size="large"
             color="primary"
             style={[a.flex_1]}
-            disabled={save.isPending}
-            onPress={() => save.mutate()}>
+            disabled={!preferences || !pinsToSave.length || save.isPending}
+            onPress={() => {
+              if (saving.current) return
+              saving.current = true
+              save.mutate(undefined, {
+                onSettled: () => {
+                  saving.current = false
+                },
+              })
+            }}>
             <ButtonText>
               <Trans>Save</Trans>
             </ButtonText>
@@ -396,22 +420,20 @@ function StateChip({
 }
 
 function FeedsStep({
-  states,
+  views,
+  isLoading,
+  isError,
   pins,
   onChangePins,
 }: {
-  states: string[]
+  views: AppBskyFeedDefs.GeneratorView[]
+  isLoading: boolean
+  isError: boolean
   pins: string[]
   onChangePins: (pins: string[]) => void
 }) {
   const t = useTheme()
   const {_} = useLingui()
-  const feedUris = [
-    RACES_NATL_FEED_URI,
-    ...states.map(stateFeedUri),
-    ELECTION_DESK_FEED_URI,
-  ]
-  const {data: views} = useFeedViews(feedUris)
 
   return (
     <View style={[a.gap_md]}>
@@ -429,13 +451,12 @@ function FeedsStep({
         values={pins}
         onChange={onChangePins}
         style={[a.gap_sm]}>
-        {feedUris.map(uri => {
-          const view = views?.find(v => v.uri === uri)
+        {views.map(view => {
           return (
             <Toggle.Item
-              key={uri}
-              name={uri}
-              label={_(msg`Pin ${view?.displayName ?? ''}`)}>
+              key={view.uri}
+              name={view.uri}
+              label={_(msg`Pin ${view.displayName}`)}>
               <View
                 style={[
                   a.flex_1,
@@ -448,10 +469,10 @@ function FeedsStep({
                   t.atoms.border_contrast_low,
                   t.atoms.bg_contrast_25,
                 ]}>
-                <UserAvatar type="algo" size={40} avatar={view?.avatar} />
+                <UserAvatar type="algo" size={40} avatar={view.avatar} />
                 <View style={[a.flex_1, a.gap_2xs]}>
                   <Text style={[a.text_md, a.font_bold]}>
-                    {view?.displayName ?? ''}
+                    {view.displayName}
                   </Text>
                   <Text
                     style={[
@@ -459,7 +480,7 @@ function FeedsStep({
                       a.leading_snug,
                       t.atoms.text_contrast_medium,
                     ]}>
-                    {view?.description ?? ''}
+                    {view.description}
                   </Text>
                 </View>
                 <Toggle.Platform />
@@ -468,6 +489,12 @@ function FeedsStep({
           )
         })}
       </Toggle.Group>
+      {isLoading && <Loader />}
+      {isError && (
+        <ErrorText
+          text={_(msg`Couldn't load the election feeds. Try again later.`)}
+        />
+      )}
     </View>
   )
 }
@@ -536,12 +563,15 @@ function CtaCard({cta}: {cta: MidtermsCta}) {
   )
 }
 
-function useFeedViews(uris: string[]) {
+function useFeedViews() {
   const agent = useAgent()
   return useQuery({
-    queryKey: ['midterms-feed-views', uris],
+    queryKey: ['midterms-feed-views'],
+    staleTime: Infinity,
     queryFn: async () => {
-      const res = await agent.app.bsky.feed.getFeedGenerators({feeds: uris})
+      const res = await agent.app.bsky.feed.getFeedGenerators({
+        feeds: ALL_MIDTERMS_FEED_URIS,
+      })
       return res.data.feeds
     },
   })
