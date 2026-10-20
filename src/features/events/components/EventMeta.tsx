@@ -12,6 +12,8 @@ import {Text} from '#/components/Typography'
 import {formatEventTime} from '../format'
 import {type ParsedEvent} from '../record'
 import {type EventView} from '../types'
+import {useEventLive} from '../useStreamplace'
+import {LiveWatchButton} from './LiveWatchButton'
 
 export function EventMeta({
   event,
@@ -23,6 +25,7 @@ export function EventMeta({
   const t = useTheme()
   const {_, i18n} = useLingui()
   const time = formatEventTime(parsed, i18n.locale)
+  const live = useEventLive(parsed)
   const place =
     parsed.location ??
     (parsed.mode === 'virtual' || parsed.streamplaceUrl
@@ -53,6 +56,7 @@ export function EventMeta({
             style={[a.text_sm, t.atoms.text_contrast_medium, a.flex_1]}>
             {place}
           </Text>
+          {live && <LiveWatchButton url={parsed.streamplaceUrl!} />}
         </View>
       )}
       <View style={[a.flex_row, a.align_center, a.gap_sm, a.pt_2xs]}>

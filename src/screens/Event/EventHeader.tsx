@@ -18,6 +18,7 @@ import {InlineLinkText} from '#/components/Link'
 import * as ProfileCard from '#/components/ProfileCard'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {LiveWatchButton} from '#/features/events/components/LiveWatchButton'
 import {
   eventDateParts,
   eventPhase,
@@ -34,6 +35,10 @@ import {
   type RsvpStatus,
   type RsvpView,
 } from '#/features/events/types'
+import {
+  useEventLive,
+  useWatchStreamplace,
+} from '#/features/events/useStreamplace'
 
 export function EventHeader({
   event,
@@ -47,6 +52,8 @@ export function EventHeader({
   const t = useTheme()
   const {_, i18n} = useLingui()
   const openLink = useOpenLink()
+  const watch = useWatchStreamplace()
+  const live = useEventLive(parsed)
   const date = eventDateParts(parsed, i18n.locale)
   const localTime = formatEventTime(parsed, i18n.locale)?.local
   const past = eventPhase(parsed, new Date()) === 'past'
@@ -108,10 +115,25 @@ export function EventHeader({
           </View>
         )}
         {place && (
-          <Text
-            style={[a.text_md, a.text_center, t.atoms.text_contrast_medium]}>
-            📍 {place}
-          </Text>
+          <View
+            style={[
+              a.flex_row,
+              a.flex_wrap,
+              a.align_center,
+              a.justify_center,
+              a.gap_sm,
+            ]}>
+            <Text
+              style={[
+                a.flex_shrink,
+                a.text_md,
+                a.text_center,
+                t.atoms.text_contrast_medium,
+              ]}>
+              📍 {place}
+            </Text>
+            {live && <LiveWatchButton url={parsed.streamplaceUrl!} />}
+          </View>
         )}
         {parsed.joinUrl && !parsed.cancelled && !past && (
           <Button
@@ -138,12 +160,12 @@ export function EventHeader({
             </Trans>
           </Text>
         </View>
-        {parsed.streamplaceUrl && (
+        {parsed.streamplaceUrl && !live && (
           <Button
             label={_(msg`Watch on Streamplace`)}
             size="small"
             color="secondary"
-            onPress={() => openLink(parsed.streamplaceUrl!)}>
+            onPress={() => watch(parsed.streamplaceUrl!)}>
             <ButtonText>
               <Trans>📺 Watch on Streamplace</Trans>
             </ButtonText>

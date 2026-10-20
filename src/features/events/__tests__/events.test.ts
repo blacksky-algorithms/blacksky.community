@@ -1,6 +1,7 @@
 import {describe, expect, it} from '@jest/globals'
 
 import {eventDateParts, eventPhase, formatEventTime} from '../format'
+import {inLiveWindow, isLiveOnStreamplace} from '../live'
 import {eventPoster} from '../poster'
 import {coverUrl, parseEventRecord} from '../record'
 import {applyRsvp} from '../rsvp-state'
@@ -416,5 +417,79 @@ describe('eventPoster', () => {
       eventPoster(uri, {...base, name: 'Gamestop earnings', mode: 'virtual'})
         .emoji,
     ).toBe('💻')
+  })
+})
+
+describe('isLiveOnStreamplace', () => {
+  const streamer = {did: 'did:plc:host', handle: 'Host.example.com'}
+  const status = (uri: string, isActive = true) => ({
+    status: 'app.bsky.actor.status#live',
+    isActive,
+    record: {},
+    embed: {
+      $type: 'app.bsky.embed.external#view',
+      external: {uri, title: '', description: ''},
+    },
+  })
+
+  it('is live when the status points at the same channel by DID or handle', () => {
+    expect(
+      isLiveOnStreamplace(
+        status('https://stream.place/did:plc:host'),
+        streamer,
+      ),
+    ).toBe(true)
+    expect(
+      isLiveOnStreamplace(
+        status('https://stream.place/host.example.com'),
+        streamer,
+      ),
+    ).toBe(true)
+  })
+
+  it('ignores other hosts, other channels and inactive statuses', () => {
+    expect(
+      isLiveOnStreamplace(status('https://twitch.tv/host'), streamer),
+    ).toBe(false)
+    expect(
+      isLiveOnStreamplace(
+        status('https://stream.place/did:plc:other'),
+        streamer,
+      ),
+    ).toBe(false)
+    expect(
+      isLiveOnStreamplace(
+        status('https://stream.place/did:plc:host', false),
+        streamer,
+      ),
+    ).toBe(false)
+    expect(
+      isLiveOnStreamplace(
+        {status: '', isActive: false, isDisabled: false, record: {}},
+        streamer,
+      ),
+    ).toBe(false)
+  })
+})
+
+describe('inLiveWindow', () => {
+  const startsAt = new Date('2026-10-24T18:00:00Z')
+  const endsAt = new Date('2026-10-24T20:00:00Z')
+  const event = {name: 'Walk', links: [], cancelled: false, startsAt, endsAt}
+  const at = (iso: string) => inLiveWindow(event, new Date(iso))
+
+  it('covers an hour either side of the event', () => {
+    expect(at('2026-10-24T17:00:00Z')).toBe(true)
+    expect(at('2026-10-24T19:00:00Z')).toBe(true)
+    expect(at('2026-10-24T20:59:00Z')).toBe(true)
+  })
+
+  it('ignores the channel well before or after the event', () => {
+    expect(at('2026-10-17T18:00:00Z')).toBe(false)
+    expect(at('2026-10-24T16:59:00Z')).toBe(false)
+    expect(at('2026-10-24T21:01:00Z')).toBe(false)
+    expect(inLiveWindow({...event, startsAt: undefined}, new Date())).toBe(
+      false,
+    )
   })
 })
