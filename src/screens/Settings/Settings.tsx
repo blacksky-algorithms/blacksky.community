@@ -20,6 +20,7 @@ import * as persisted from '#/state/persisted'
 import {clearStorage} from '#/state/persisted'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useDeleteActorDeclaration} from '#/state/queries/messages/actor-declaration'
+import {Nux, useResetNuxs} from '#/state/queries/nuxs'
 import {useProfileQuery, useProfilesQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
@@ -388,6 +389,17 @@ function DevOptions() {
   } = useApplyPullRequestOTAUpdate()
   const [actyNotifNudged, setActyNotifNudged] = useActivitySubscriptionsNudged()
 
+  const {mutate: resetNuxs} = useResetNuxs()
+
+  const resetMidterms = () => {
+    resetNuxs([Nux.Midterms2026Card], {
+      onSuccess: () => {
+        navigation.navigate('Home')
+        Toast.show(l`Midterms banner reset`)
+      },
+    })
+  }
+
   const resetOnboarding = () => {
     navigation.navigate('Home')
     onboardingDispatch({type: 'start'})
@@ -473,6 +485,13 @@ function DevOptions() {
         label={l`Reset onboarding state`}>
         <SettingsList.ItemText>
           <Trans>Reset onboarding state</Trans>
+        </SettingsList.ItemText>
+      </SettingsList.PressableItem>
+      <SettingsList.PressableItem
+        onPress={resetMidterms}
+        label={l`Reset midterms banner`}>
+        <SettingsList.ItemText>
+          <Trans>Reset midterms banner</Trans>
         </SettingsList.ItemText>
       </SettingsList.PressableItem>
       <SettingsList.PressableItem

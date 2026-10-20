@@ -297,3 +297,30 @@ func TestRenderPost_PublicNoNoindex(t *testing.T) {
 		t.Errorf("public post should not emit robots meta; got:\n%s", html)
 	}
 }
+
+func TestRenderMidterms_OGTags(t *testing.T) {
+	html := renderTemplate(t, "midterms.html", pongo2.Context{
+		"staticCDNHost": "https://cdn.example",
+		"brandDomain":   "https://blacksky.community",
+	})
+	for _, want := range []string{
+		`<meta property="og:title" content="Follow the 2026 midterms on Blacksky" />`,
+		`<meta property="og:image" content="https://cdn.example/static/social-card-midterms.png" />`,
+		`<meta property="og:url" content="https://blacksky.community/midterms" />`,
+		`<meta name="twitter:card" content="summary_large_image" />`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("missing %s", want)
+		}
+	}
+}
+
+func TestRenderMidterms_OGImageFallsBackToBrandDomain(t *testing.T) {
+	html := renderTemplate(t, "midterms.html", pongo2.Context{
+		"brandDomain": "https://blacksky.community",
+	})
+	want := `<meta property="og:image" content="https://blacksky.community/static/social-card-midterms.png" />`
+	if !strings.Contains(html, want) {
+		t.Errorf("missing %s", want)
+	}
+}
