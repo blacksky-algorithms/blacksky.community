@@ -15,7 +15,7 @@ import {LinearGradientBackground} from '#/components/LinearGradientBackground'
 import {Link} from '#/components/Link'
 import {ExternalEmbed} from '#/components/Post/Embed/ExternalEmbed'
 import {Text} from '#/components/Typography'
-import {eventPhase} from '../format'
+import {eventLinkLabel, eventPhase} from '../format'
 import {eventPoster} from '../poster'
 import {useEventQuery} from '../queries'
 import {coverUrl, parseEventRecord} from '../record'
@@ -35,7 +35,7 @@ export function EventEmbed({
   style?: StyleProp<ViewStyle>
 }) {
   const t = useTheme()
-  const {_} = useLingui()
+  const {_, i18n} = useLingui()
   const openLink = useOpenLink()
   const {data: did} = useResolveDidQuery(eventRef.actor)
   const {data: event} = useEventQuery(
@@ -64,12 +64,13 @@ export function EventEmbed({
       ]}>
       <Link
         to={makeEventLink(event.creator, eventRef.rkey)}
-        label={_(msg`View event ${parsed.name}`)}
+        label={eventLinkLabel(i18n, event, parsed, phase)}
         onPress={onOpen}>
         <View style={[a.w_full]}>
           {cover ? (
             <Image
               source={{uri: cover}}
+              alt={_(msg`Cover image for ${parsed.name}`)}
               accessibilityIgnoresInvertColors
               style={[a.w_full, {aspectRatio: 2}]}
               contentFit="cover"
@@ -121,7 +122,7 @@ export function EventEmbed({
               label={_(msg`Join online at ${toNiceDomain(parsed.joinUrl)}`)}
               size="small"
               color={phase === 'current' ? 'primary' : 'secondary'}
-              onPress={() => openLink(parsed.joinUrl!)}>
+              onPress={() => openLink(parsed.joinUrl!, undefined, true)}>
               <ButtonText>
                 <Trans>Join · {toNiceDomain(parsed.joinUrl)}</Trans>
               </ButtonText>

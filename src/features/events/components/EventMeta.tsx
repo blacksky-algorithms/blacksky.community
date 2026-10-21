@@ -9,7 +9,7 @@ import {Clock_Stroke2_Corner0_Rounded as ClockIcon} from '#/components/icons/Clo
 import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
 import {Pin_Stroke2_Corner0_Rounded as PinIcon} from '#/components/icons/Pin'
 import {Text} from '#/components/Typography'
-import {formatEventTime} from '../format'
+import {eventPlace, formatEventTime} from '../format'
 import {type ParsedEvent} from '../record'
 import {type EventView} from '../types'
 import {useEventLive} from '../useStreamplace'
@@ -26,11 +26,7 @@ export function EventMeta({
   const {_, i18n} = useLingui()
   const time = formatEventTime(parsed, i18n.locale)
   const live = useEventLive(parsed)
-  const place =
-    parsed.location ??
-    (parsed.mode === 'virtual' || parsed.streamplaceUrl
-      ? _(msg`Online`)
-      : undefined)
+  const place = eventPlace(_, parsed)
   const knownGoing = event.knownGoing ?? []
 
   return (

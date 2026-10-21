@@ -10,7 +10,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {LinearGradientBackground} from '#/components/LinearGradientBackground'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {type EventPhase, eventPhase} from '../format'
+import {eventLinkLabel, type EventPhase, eventPhase} from '../format'
 import {eventPoster} from '../poster'
 import {useEventQuery} from '../queries'
 import {coverUrl, parseEventRecord} from '../record'
@@ -31,7 +31,7 @@ export function EventCard({
   showRsvp?: boolean
 }) {
   const t = useTheme()
-  const {_} = useLingui()
+  const {_, i18n} = useLingui()
   const {data} = useEventQuery(initial.uri, initial)
   const event = data ?? initial
   const parsed = useMemo(() => parseEventRecord(event.record), [event.record])
@@ -49,11 +49,12 @@ export function EventCard({
         t.atoms.border_contrast_low,
         a.overflow_hidden,
       ]}>
-      <Link to={href} label={_(msg`View event ${parsed.name}`)}>
+      <Link to={href} label={eventLinkLabel(i18n, event, parsed, phase)}>
         <View style={[a.flex_row, a.gap_md, a.p_md, a.flex_1]}>
           {cover ? (
             <Image
               source={{uri: cover}}
+              alt={_(msg`Cover image for ${parsed.name}`)}
               accessibilityIgnoresInvertColors
               style={[a.rounded_sm, {width: 64, height: 64}]}
             />

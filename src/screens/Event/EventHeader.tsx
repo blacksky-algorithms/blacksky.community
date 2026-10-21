@@ -140,7 +140,7 @@ export function EventHeader({
             label={_(msg`Join online at ${toNiceDomain(parsed.joinUrl)}`)}
             size="large"
             color="primary"
-            onPress={() => openLink(parsed.joinUrl!)}>
+            onPress={() => openLink(parsed.joinUrl!, undefined, true)}>
             <ButtonText>
               <Trans>Join · {toNiceDomain(parsed.joinUrl)}</Trans>
             </ButtonText>
@@ -222,12 +222,14 @@ export function EventHeader({
 }
 
 function Poster({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
+  const {_} = useLingui()
   const size = 280
   const cover = coverUrl(event)
   if (cover) {
     return (
       <Image
         source={{uri: cover}}
+        alt={_(msg`Cover image for ${parsed.name}`)}
         accessibilityIgnoresInvertColors
         style={[a.rounded_lg, {width: size, height: size}]}
         contentFit="cover"
@@ -244,7 +246,9 @@ function Poster({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
         a.justify_center,
         {width: size, height: size},
       ]}>
-      <Text style={{fontSize: 96}}>{poster.emoji}</Text>
+      <Text aria-hidden style={{fontSize: 96}}>
+        {poster.emoji}
+      </Text>
     </LinearGradientBackground>
   )
 }
@@ -371,7 +375,7 @@ export function GuestRow({
         a.px_xl,
         !noBorder && [a.border_t, t.atoms.border_contrast_low],
       ]}>
-      <ProfileCard.Link profile={rsvp.actor}>
+      <ProfileCard.Link profile={rsvp.actor} accessibilityHint={response.label}>
         <ProfileCard.Outer>
           <ProfileCard.Header>
             <ProfileCard.Avatar
@@ -394,7 +398,9 @@ export function GuestRow({
                   ? {backgroundColor: t.palette.primary_100}
                   : t.atoms.bg_contrast_50,
               ]}>
-              <Text style={[a.text_sm]}>{response.emoji}</Text>
+              <Text aria-hidden style={[a.text_sm]}>
+                {response.emoji}
+              </Text>
               <Text style={[a.text_sm, a.font_semi_bold]}>
                 {response.label}
               </Text>

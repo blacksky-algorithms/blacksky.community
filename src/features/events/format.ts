@@ -1,4 +1,8 @@
+import {type I18n} from '@lingui/core'
+import {msg, plural} from '@lingui/core/macro'
+
 import {type ParsedEvent} from './record'
+import {type EventView} from './types'
 
 const format = (date: Date, locale: string, timeZone?: string) =>
   new Intl.DateTimeFormat(locale, {
@@ -82,4 +86,45 @@ export function eventDateParts(
     ),
     timeRange: `${end ? `${start} – ${end}` : start} ${zone ?? ''}`.trim(),
   }
+}
+
+export function eventPlace(_: I18n['_'], parsed: ParsedEvent) {
+  return (
+    parsed.location ??
+    (parsed.mode === 'virtual' || parsed.streamplaceUrl
+      ? _(msg`Online`)
+      : undefined)
+  )
+}
+
+// Cards wrap their details in one link, so screen readers only hear its label.
+export function eventLinkLabel(
+  i18n: I18n,
+  event: EventView,
+  parsed: ParsedEvent,
+  phase?: EventPhase,
+) {
+  const _ = i18n._.bind(i18n)
+  const status = parsed.cancelled
+    ? _(msg`Cancelled`)
+    : phase === 'current'
+      ? _(msg`Happening now`)
+      : phase === 'past'
+        ? _(msg`Past`)
+        : undefined
+  return [
+    _(msg`View event ${parsed.name}`),
+    status,
+    formatEventTime(parsed, i18n.locale)?.primary,
+    eventPlace(_, parsed),
+    plural(event.goingCount, {one: '# going', other: '# going'}),
+    event.interestedCount > 0
+      ? plural(event.interestedCount, {
+          one: '# interested',
+          other: '# interested',
+        })
+      : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
 }

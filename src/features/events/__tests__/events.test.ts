@@ -1,6 +1,12 @@
 import {describe, expect, it} from '@jest/globals'
+import {setupI18n} from '@lingui/core'
 
-import {eventDateParts, eventPhase, formatEventTime} from '../format'
+import {
+  eventDateParts,
+  eventLinkLabel,
+  eventPhase,
+  formatEventTime,
+} from '../format'
 import {inLiveWindow, isLiveOnStreamplace} from '../live'
 import {eventPoster} from '../poster'
 import {coverUrl, parseEventRecord} from '../record'
@@ -490,6 +496,31 @@ describe('inLiveWindow', () => {
     expect(at('2026-10-24T21:01:00Z')).toBe(false)
     expect(inLiveWindow({...event, startsAt: undefined}, new Date())).toBe(
       false,
+    )
+  })
+})
+
+describe('eventLinkLabel', () => {
+  const i18n = setupI18n({locale: 'en', messages: {en: {}}})
+
+  it('reads status, time, place and counts for screen readers', () => {
+    const parsed = parseEventRecord({
+      name: 'Block party',
+      startsAt: '2026-10-01T23:00:00.000Z',
+      mode: 'community.lexicon.calendar.event#virtual',
+      status: 'community.lexicon.calendar.event#cancelled',
+    })!
+    const counts = {goingCount: 3, interestedCount: 1} as EventView
+    const label = eventLinkLabel(i18n, counts, parsed, 'upcoming')
+    expect(label.startsWith('View event Block party, Cancelled, ')).toBe(true)
+    expect(label.endsWith(', Online, 3 going, 1 interested')).toBe(true)
+  })
+
+  it('leaves out an unknown phase and zero interest', () => {
+    const parsed = parseEventRecord({name: 'Meetup'})!
+    const counts = {goingCount: 0, interestedCount: 0} as EventView
+    expect(eventLinkLabel(i18n, counts, parsed)).toBe(
+      'View event Meetup, 0 going',
     )
   })
 })
