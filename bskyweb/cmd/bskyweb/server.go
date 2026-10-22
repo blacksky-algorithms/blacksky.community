@@ -343,6 +343,7 @@ func serve(cctx *cli.Context) error {
 
 	// download
 	e.GET("/download", server.Download)
+	e.GET("/midterms", server.WebMidterms)
 
 	// generic routes
 	e.GET("/hashtag/:tag", server.WebGeneric)
@@ -784,6 +785,14 @@ func (srv *Server) WebGenericNoindexNofollow(c echo.Context) error {
 func (srv *Server) WebHome(c echo.Context) error {
 	data := srv.NewTemplateContext(c.Request())
 	return c.Render(http.StatusOK, "home.html", data)
+}
+
+func (srv *Server) WebMidterms(c echo.Context) error {
+	data := srv.NewTemplateContext(c.Request())
+	if data["brandDomain"] != DefaultBrandConfig().Domain {
+		return c.Render(http.StatusOK, "base.html", data)
+	}
+	return c.Render(http.StatusOK, "midterms.html", data)
 }
 
 // Posts that include these labels will not have embeds passed to the metadata

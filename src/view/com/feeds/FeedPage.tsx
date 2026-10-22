@@ -36,6 +36,7 @@ import {MainScrollProvider} from '#/view/com/util/MainScrollProvider'
 import {useTheme} from '#/alf'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
+import {MidtermsCard} from '#/components/interstitials/MidtermsCard'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
 
@@ -159,6 +160,7 @@ export function FeedPage({
             headerOffset={headerOffset}
             savedFeedConfig={savedFeedConfig}
             isVideoFeed={isVideoFeed}
+            ListHeaderComponent={HomeFeedHeader}
           />
         </FeedFeedbackProvider>
       </MainScrollProvider>
@@ -182,4 +184,8 @@ export function FeedPage({
       )}
     </View>
   )
+}
+
+function HomeFeedHeader() {
+  return <MidtermsCard />
 }

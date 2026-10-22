@@ -1,10 +1,10 @@
 {
   "name": "blacksky.community",
-  "version": "1.132.0",
+  "version": "1.132.1",
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "engines": {
-    "node": ">=24.15.0"
+    "node": ">=24.22.1"
   },
   "devEngines": {
     "packageManager": {
@@ -14,7 +14,7 @@
     },
     "runtime": {
       "name": "node",
-      "version": "^24.15.0",
+      "version": "^24.22.1",
       "onFail": "download"
     }
   },

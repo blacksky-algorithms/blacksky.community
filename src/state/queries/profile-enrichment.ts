@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import {isPlainObject} from '#/lib/functions'
 import {PERSISTED_QUERY_ROOT} from '#/state/queries'
 import {fetchRecordViaSlingshot} from './microcosm-fallback'
 
@@ -58,6 +59,9 @@ function collectIncompleteProfileDids(
   depth: number,
 ): void {
   if (!data || typeof data !== 'object' || depth > 12) return
+  // Query data can hold class instances (feed APIs, the agent); copying them
+  // drops their prototypes, so only JSON-shaped containers are walked.
+  if (!Array.isArray(data) && !isPlainObject(data as unknown)) return
   if (visited.has(data)) return
   visited.add(data)
 
@@ -115,6 +119,9 @@ function deepEnrich(
   depth: number,
 ): [any, boolean] {
   if (!data || typeof data !== 'object' || depth > 12) return [data, false]
+  if (!Array.isArray(data) && !isPlainObject(data as unknown)) {
+    return [data, false]
+  }
   const seen = visited.get(data)
   if (seen) return seen
   visited.set(data, [data, false])

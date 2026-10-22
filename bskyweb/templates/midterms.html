@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block head_title %}Follow the 2026 midterms on Blacksky{% endblock %}
+
+{% block html_head_extra -%}
+  <meta property="og:title" content="Follow the 2026 midterms on Blacksky" />
+  <meta name="twitter:title" content="Follow the 2026 midterms on Blacksky" />
+
+  <meta name="description" content="Blacksky is partnering with Graze to provide up-to-date, community-curated information about the US midterm elections in 2026. Pick your states and pin the races you care about." />
+  <meta property="og:description" content="Blacksky is partnering with Graze to provide up-to-date, community-curated information about the US midterm elections in 2026. Pick your states and pin the races you care about." />
+  <meta name="twitter:description" content="Blacksky is partnering with Graze to provide up-to-date, community-curated information about the US midterm elections in 2026. Pick your states and pin the races you care about." />
+
+  <meta property="og:url" content="{{ brandDomain }}/midterms" />
+  <meta name="twitter:url" content="{{ brandDomain }}/midterms" />
+
+  <meta property="og:image" content="{% if staticCDNHost %}{{ staticCDNHost }}{% else %}{{ brandDomain }}{% endif %}/static/social-card-midterms.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="twitter:image" content="{% if staticCDNHost %}{{ staticCDNHost }}{% else %}{{ brandDomain }}{% endif %}/static/social-card-midterms.png" />
+
+  <meta name="twitter:site" content="{{ brandTwitterSite }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+{%- endblock %}
+
+{% block noscript_extra %}
+<p>Follow the 2026 US midterm elections on Blacksky with community-curated feeds from Graze.
+{% endblock %}
