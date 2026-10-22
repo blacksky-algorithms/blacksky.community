@@ -1,7 +1,6 @@
 import {useState} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {LinearGradient} from 'expo-linear-gradient'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -18,6 +17,8 @@ import {Text} from '#/components/Typography'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
 const MIDTERMS_BANNER_ENDS_AT = Date.UTC(2026, 10, 11, 5)
+const BANNER_BG = '#8B8BFF'
+const BANNER_TEXT = '#13133B'
 
 export function MidtermsCard() {
   const t = useTheme()
@@ -59,30 +60,28 @@ export function MidtermsCard() {
             a.curve_continuous,
             a.overflow_hidden,
           ]}>
-          <LinearGradient
-            colors={[t.palette.primary_200, t.palette.primary_50]}
-            start={{x: 0, y: 0.5}}
-            end={{x: 1, y: 0.5}}
-            style={[a.w_full, a.flex_row, a.align_center, a.gap_md]}>
-            <View style={[a.flex_1, a.gap_2xs, a.py_lg, a.pl_lg]}>
-              <Text
-                style={[
-                  a.text_md,
-                  a.font_bold,
-                  {color: t.palette.primary_900},
-                ]}>
+          <View
+            style={[
+              a.w_full,
+              a.flex_row,
+              a.align_center,
+              a.gap_md,
+              {backgroundColor: BANNER_BG},
+            ]}>
+            <Image
+              source={require('../../../assets/images/midterms_ballot_box.png')}
+              accessibilityIgnoresInvertColors
+              style={{width: 96, height: 82}}
+            />
+            <View style={[a.flex_1, a.gap_2xs, a.py_lg, a.pr_5xl]}>
+              <Text style={[a.text_md, a.font_bold, {color: BANNER_TEXT}]}>
                 <Trans>Follow the 2026 midterms</Trans>
               </Text>
-              <Text style={[a.text_sm, {color: t.palette.primary_800}]}>
+              <Text style={[a.text_sm, {color: BANNER_TEXT}]}>
                 <Trans>Pick your states →</Trans>
               </Text>
             </View>
-            <Image
-              source={require('../../../assets/images/midterms_ballot.png')}
-              accessibilityIgnoresInvertColors
-              style={[a.self_end, {width: 82, height: 82}]}
-            />
-          </LinearGradient>
+          </View>
         </Link>
         <Button
           label={_(msg`Dismiss`)}
@@ -90,7 +89,7 @@ export function MidtermsCard() {
           onPress={close}
           style={[a.absolute, {top: 14, right: 14}]}
           hoverStyle={[a.bg_transparent, {opacity: 0.5}]}>
-          <XIcon size="xs" style={[t.atoms.text_contrast_low]} />
+          <XIcon size="xs" style={{color: BANNER_TEXT}} />
         </Button>
       </View>
     </View>
