@@ -10,6 +10,7 @@ import {
 import {Trans} from '@lingui/react/macro'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {useBrand} from '#/lib/community'
 import {postPermalink} from '#/lib/routes/links'
 import {getChatInviteCodeFromUrl} from '#/lib/strings/url-helpers'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
@@ -28,6 +29,9 @@ import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/uti
 import {RichText} from '#/components/RichText'
 import {Embed as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {SubtleHover} from '#/components/SubtleHover'
+import {useAnalytics} from '#/analytics'
+import {EventEmbed} from '#/features/events/components/EventEmbed'
+import {parseEventUrl} from '#/features/events/url'
 import * as bsky from '#/types/bsky'
 import {
   type Embed as TEmbed,
@@ -85,6 +89,8 @@ function MediaEmbed({
 }: CommonProps & {
   embed: TEmbed
 }) {
+  const ax = useAnalytics()
+  const brand = useBrand()
   switch (embed.type) {
     case 'images':
     case 'gallery': {
@@ -105,6 +111,23 @@ function MediaEmbed({
             <StandardSiteEmbed
               view={embed.view.external}
               onEmbedInteractionCallback={rest.onOpen}
+              style={[a.mt_sm, rest.style]}
+            />
+          </ContentHider>
+        )
+      }
+      const eventRef = ax.features.enabled(ax.features.EventsEnable)
+        ? parseEventUrl(embed.view.external.uri, [brand.web.domains.main])
+        : undefined
+      if (eventRef) {
+        return (
+          <ContentHider
+            modui={rest.moderation?.ui('contentMedia')}
+            activeStyle={[a.mt_sm]}>
+            <EventEmbed
+              eventRef={eventRef}
+              link={embed.view.external}
+              onOpen={rest.onOpen}
               style={[a.mt_sm, rest.style]}
             />
           </ContentHider>

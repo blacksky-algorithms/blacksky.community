@@ -81,6 +81,7 @@ import {createNativeStackNavigatorWithAuth} from '#/view/shell/createNativeStack
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {Ios26CrashRegressionScreen} from '#/screens/E2E/Ios26CrashRegressionScreen'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
+import {EventScreen} from '#/screens/Event/EventScreen'
 import {FindContactsFlowScreen} from '#/screens/FindContactsFlowScreen'
 import HashtagScreen from '#/screens/Hashtag'
 import {LogScreen} from '#/screens/Log'
@@ -185,6 +186,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Lists"
         component={ListsScreen}
         options={{title: title(msg`Lists`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{title: title(msg`Event`)}}
       />
       <Stack.Screen
         name="Moderation"

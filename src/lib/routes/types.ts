@@ -9,6 +9,7 @@ export type CommonNavigatorParams = {
   NotFound: undefined
   AuthCallback: undefined
   Lists: undefined
+  Event: {name: string; rkey: string}
   Moderation: undefined
   ModerationModlists: undefined
   ModerationMutedAccounts: undefined

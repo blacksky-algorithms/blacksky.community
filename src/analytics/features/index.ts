@@ -36,6 +36,19 @@ export const features = new GrowthBook({
   clientKey: env.GROWTHBOOK_CLIENT_KEY,
 })
 
+// Dev builds only: EXPO_PUBLIC_FORCE_FEATURES=a,b turns those flags on locally.
+const FORCE_FEATURES: string = process.env.EXPO_PUBLIC_FORCE_FEATURES || ''
+if (__DEV__ && FORCE_FEATURES) {
+  features.setForcedFeatures(
+    new Map(
+      FORCE_FEATURES.split(',')
+        .map(key => key.trim())
+        .filter(Boolean)
+        .map(key => [key, true]),
+    ),
+  )
+}
+
 /**
  * Initializer promise that must be awaited before using the GrowthBook
  * instance or rendering the `AnalyticsFeaturesContext`. Note: this may not be

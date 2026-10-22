@@ -19,6 +19,7 @@ export enum Features {
   SearchAppviewRoute = 'search_appview:route',
   StreamplaceWatchEnable = 'streamplace:watch:enable',
   PollsEnable = 'polls:enable',
+  EventsEnable = 'events:enable',
 
   AATest = 'aa-test',
 }

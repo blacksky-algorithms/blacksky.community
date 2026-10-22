@@ -55,6 +55,8 @@ import {VideoClip_Stroke1_Corner0_Rounded as VideoIcon} from '#/components/icons
 import * as Layout from '#/components/Layout'
 import {ScreenHider} from '#/components/moderation/ScreenHider'
 import {ProfileStarterPacks} from '#/components/StarterPack/ProfileStarterPacks'
+import {useAnalytics} from '#/analytics'
+import {ProfileEvents} from '#/features/events/components/ProfileEvents'
 import {navigate} from '#/Navigation'
 import {ExpoScrollForwarderView} from '../../../modules/expo-scroll-forwarder'
 
@@ -214,6 +216,7 @@ function ProfileScreenLoaded({
   })
   const [currentPage, setCurrentPage] = useState(0)
   const {_} = useLingui()
+  const ax = useAnalytics()
 
   const [scrollViewTag, setScrollViewTag] = useState<number | null>(null)
 
@@ -223,6 +226,7 @@ function ProfileScreenLoaded({
   const mediaSectionRef = useRef<SectionRef>(null)
   const videosSectionRef = useRef<SectionRef>(null)
   const likesSectionRef = useRef<SectionRef>(null)
+  const eventsSectionRef = useRef<SectionRef>(null)
   const feedsSectionRef = useRef<SectionRef>(null)
   const listsSectionRef = useRef<SectionRef>(null)
   const starterPacksSectionRef = useRef<SectionRef>(null)
@@ -250,6 +254,7 @@ function ProfileScreenLoaded({
   const showMediaTab = !hasLabeler
   const showVideosTab = !hasLabeler
   const showLikesTab = isMe
+  const showEventsTab = isMe && ax.features.enabled(ax.features.EventsEnable)
   const feedGenCount = profile.associated?.feedgens || 0
   const showFeedsTab = isMe || feedGenCount > 0
   const starterPackCount = profile.associated?.starterPacks || 0
@@ -267,6 +272,7 @@ function ProfileScreenLoaded({
     showMediaTab ? _(msg`Media`) : undefined,
     showVideosTab ? _(msg`Videos`) : undefined,
     showLikesTab ? _(msg`Likes`) : undefined,
+    showEventsTab ? _(msg`Events`) : undefined,
     showFeedsTab ? _(msg`Feeds`) : undefined,
     showStarterPacksTab ? _(msg`Starter Packs`) : undefined,
     showListsTab && !hasLabeler ? _(msg`Lists`) : undefined,
@@ -280,6 +286,7 @@ function ProfileScreenLoaded({
   let mediaIndex: number | null = null
   let videosIndex: number | null = null
   let likesIndex: number | null = null
+  let eventsIndex: number | null = null
   let feedsIndex: number | null = null
   let starterPacksIndex: number | null = null
   let listsIndex: number | null = null
@@ -303,6 +310,9 @@ function ProfileScreenLoaded({
   }
   if (showLikesTab) {
     likesIndex = nextIndex++
+  }
+  if (showEventsTab) {
+    eventsIndex = nextIndex++
   }
   if (showFeedsTab) {
     feedsIndex = nextIndex++
@@ -330,6 +340,8 @@ function ProfileScreenLoaded({
         videosSectionRef.current?.scrollToTop()
       } else if (index === likesIndex) {
         likesSectionRef.current?.scrollToTop()
+      } else if (index === eventsIndex) {
+        eventsSectionRef.current?.scrollToTop()
       } else if (index === feedsIndex) {
         feedsSectionRef.current?.scrollToTop()
       } else if (index === starterPacksIndex) {
@@ -346,6 +358,7 @@ function ProfileScreenLoaded({
       mediaIndex,
       videosIndex,
       likesIndex,
+      eventsIndex,
       feedsIndex,
       listsIndex,
       starterPacksIndex,
@@ -574,6 +587,17 @@ function ProfileScreenLoaded({
                 setScrollViewTag={setScrollViewTag}
                 emptyStateMessage={_(msg`No likes yet`)}
                 emptyStateIcon={HeartIcon}
+              />
+            )
+          : null}
+        {showEventsTab
+          ? ({headerHeight, isFocused, scrollElRef}) => (
+              <ProfileEvents
+                ref={eventsSectionRef}
+                scrollElRef={scrollElRef as ListRef}
+                headerOffset={headerHeight}
+                enabled={isFocused}
+                setScrollViewTag={setScrollViewTag}
               />
             )
           : null}
