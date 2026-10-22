@@ -47,7 +47,10 @@ jest.mock('#/lib/hooks/useOpenLink', () => ({
 }))
 
 const mockMetric = jest.fn()
-const mockAnalytics = {metric: mockMetric}
+const mockAnalytics = {
+  metric: mockMetric,
+  features: {enabled: () => false, EventsEnable: 'events:enable'},
+}
 jest.mock('#/analytics', () => ({
   useAnalytics: () => mockAnalytics,
 }))
@@ -108,6 +111,9 @@ jest.mock('#/components/Post/Embed/PostPlaceholder', () => ({
 }))
 jest.mock('#/components/Post/Embed/VideoEmbed', () => ({
   VideoEmbed: () => null,
+}))
+jest.mock('#/features/events/components/EventEmbed', () => ({
+  EventEmbed: () => null,
 }))
 
 import {pollTopicFromText} from '#/lib/api/poll'
