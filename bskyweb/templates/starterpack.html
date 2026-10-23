@@ -5,6 +5,9 @@
   {%- if requestURI %}
   <meta property="og:url" content="{{ requestURI }}">
   {% endif -%}
+  {%- if atURI %}
+  <meta name="at:canonical" content="{{ atURI }}">
+  {% endif -%}
   {%- if imgThumbUrl %}
   <meta property="og:image" content="{{ imgThumbUrl }}">
   <meta property="twitter:image" content="{{ imgThumbUrl }}">
