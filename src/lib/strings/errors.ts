@@ -52,8 +52,8 @@ export function cleanError(str: any): string {
   ) {
     return t`Session storage is unavailable. Please sign in again.`
   }
-  if (str.includes('invalid_dpop_proof') && str.includes('iat claim')) {
-    return t`Your device clock appears to be incorrect. Please check your system time settings and try again.`
+  if (isDelayedDpopProofError(str)) {
+    return t`Connection was interrupted. Please try again.`
   }
   if (str.includes('invalid_dpop_proof')) {
     return t`Authentication error. Please try signing in again.`
@@ -89,6 +89,13 @@ export function cleanError(str: any): string {
     return str.slice('Error: '.length)
   }
   return str
+}
+
+function isDelayedDpopProofError(str: string) {
+  return (
+    str.includes('DPoP proof is too old') ||
+    str.includes('"iat" claim timestamp check failed (too far in the past)')
+  )
 }
 
 const NETWORK_ERRORS = [
