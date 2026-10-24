@@ -4063,7 +4063,7 @@ msgid "Discussions are only available on public posts."
 msgstr "Discussions are only available on public posts."
 
 #: src/components/Dialog/index.tsx:416
-#: src/components/interstitials/MidtermsCard.tsx:88
+#: src/components/interstitials/MidtermsCard.tsx:87
 #: src/features/inviteFriends/components/FollowersPromoBanner.tsx:83
 msgid "Dismiss"
 msgstr ""
@@ -5443,11 +5443,11 @@ msgstr ""
 msgid "Follow back"
 msgstr ""
 
-#: src/components/interstitials/MidtermsCard.tsx:74
+#: src/components/interstitials/MidtermsCard.tsx:78
 msgid "Follow the 2026 midterms"
 msgstr "Follow the 2026 midterms"
 
-#: src/components/interstitials/MidtermsCard.tsx:55
+#: src/components/interstitials/MidtermsCard.tsx:56
 msgid "Follow the 2026 midterms and pick your states"
 msgstr "Follow the 2026 midterms and pick your states"
 
@@ -8987,7 +8987,7 @@ msgstr ""
 msgid "Pick a color theme"
 msgstr "Pick a color theme"
 
-#: src/components/interstitials/MidtermsCard.tsx:77
+#: src/components/interstitials/MidtermsCard.tsx:81
 msgid "Pick your states →"
 msgstr "Pick your states →"
 
