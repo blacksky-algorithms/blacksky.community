@@ -79,15 +79,10 @@ import {
   features,
   setupDeviceId,
 } from '#/analytics'
-import {
-  prefetchLiveEvents,
-  Provider as LiveEventsProvider,
-} from '#/features/liveEvents/context'
 import {Splash} from '#/Splash'
 import {BackgroundNotificationPreferencesProvider} from '../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 import {Provider as HideBottomBarBorderProvider} from './lib/hooks/useHideBottomBarBorder'
 
-void prefetchLiveEvents()
 void prefetchAppConfig()
 
 function hasOAuthCallbackParams(): boolean {
@@ -174,49 +169,47 @@ function InnerApp() {
                   key={currentAccount?.did}>
                   <AnalyticsFeaturesContext>
                     <QueryProvider currentDid={currentAccount?.did}>
-                      <LiveEventsProvider>
-                        <ComposerProvider>
-                          <MessagesProvider>
-                            {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
-                            <LabelDefsProvider>
-                              <ModerationOptsProvider>
-                                <LoggedOutViewProvider>
-                                  <SelectedFeedProvider>
-                                    <HiddenRepliesProvider>
-                                      <HomeBadgeProvider>
-                                        <UnreadNotifsProvider>
-                                          <BackgroundNotificationPreferencesProvider>
-                                            <MutedThreadsProvider>
-                                              <SafeAreaProvider>
-                                                <ProgressGuideProvider>
-                                                  <ServiceConfigProvider>
-                                                    <EmailVerificationProvider>
-                                                      <HideBottomBarBorderProvider>
-                                                        <IntentDialogProvider>
-                                                          <TranslateOnDeviceProvider>
-                                                            <HotkeysProvider>
-                                                              <Shell />
-                                                              <ToastOutlet />
-                                                            </HotkeysProvider>
-                                                          </TranslateOnDeviceProvider>
-                                                        </IntentDialogProvider>
-                                                      </HideBottomBarBorderProvider>
-                                                    </EmailVerificationProvider>
-                                                  </ServiceConfigProvider>
-                                                </ProgressGuideProvider>
-                                              </SafeAreaProvider>
-                                            </MutedThreadsProvider>
-                                          </BackgroundNotificationPreferencesProvider>
-                                        </UnreadNotifsProvider>
-                                      </HomeBadgeProvider>
-                                    </HiddenRepliesProvider>
-                                  </SelectedFeedProvider>
-                                </LoggedOutViewProvider>
-                              </ModerationOptsProvider>
-                            </LabelDefsProvider>
-                          </MessagesProvider>
-                        </ComposerProvider>
-                      </LiveEventsProvider>
+                      <ComposerProvider>
+                        <MessagesProvider>
+                          {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
+                          <LabelDefsProvider>
+                            <ModerationOptsProvider>
+                              <LoggedOutViewProvider>
+                                <SelectedFeedProvider>
+                                  <HiddenRepliesProvider>
+                                    <HomeBadgeProvider>
+                                      <UnreadNotifsProvider>
+                                        <BackgroundNotificationPreferencesProvider>
+                                          <MutedThreadsProvider>
+                                            <SafeAreaProvider>
+                                              <ProgressGuideProvider>
+                                                <ServiceConfigProvider>
+                                                  <EmailVerificationProvider>
+                                                    <HideBottomBarBorderProvider>
+                                                      <IntentDialogProvider>
+                                                        <TranslateOnDeviceProvider>
+                                                          <HotkeysProvider>
+                                                            <Shell />
+                                                            <ToastOutlet />
+                                                          </HotkeysProvider>
+                                                        </TranslateOnDeviceProvider>
+                                                      </IntentDialogProvider>
+                                                    </HideBottomBarBorderProvider>
+                                                  </EmailVerificationProvider>
+                                                </ServiceConfigProvider>
+                                              </ProgressGuideProvider>
+                                            </SafeAreaProvider>
+                                          </MutedThreadsProvider>
+                                        </BackgroundNotificationPreferencesProvider>
+                                      </UnreadNotifsProvider>
+                                    </HomeBadgeProvider>
+                                  </HiddenRepliesProvider>
+                                </SelectedFeedProvider>
+                              </LoggedOutViewProvider>
+                            </ModerationOptsProvider>
+                          </LabelDefsProvider>
+                        </MessagesProvider>
+                      </ComposerProvider>
                     </QueryProvider>
                   </AnalyticsFeaturesContext>
                 </Fragment>
