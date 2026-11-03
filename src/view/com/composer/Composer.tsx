@@ -126,6 +126,8 @@ import {type ComposerOpts, type OnPostSuccessData} from '#/state/shell/composer'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {ComposerReplyTo} from '#/view/com/composer/ComposerReplyTo'
 import {DraftsButton} from '#/view/com/composer/drafts/DraftsButton'
+import {EventEditor} from '#/view/com/composer/event/EventEditor'
+import {SelectEventBtn} from '#/view/com/composer/event/SelectEventBtn'
 import {
   ExternalEmbedGif,
   ExternalEmbedLink,
@@ -197,6 +199,8 @@ import {
   composerReducer,
   createComposerState,
   type EmbedDraft,
+  isEventAllowed,
+  isEventPostable,
   isPollAllowed,
   isPollPostable,
   MAX_GALLERY_IMAGES,
@@ -204,6 +208,7 @@ import {
   type PostDraft,
   postHasAttachment,
   type ThreadDraft,
+  threadHasEvent,
   threadHasPoll,
 } from './state/composer'
 import {
@@ -818,7 +823,8 @@ export const ComposePost = ({
         post.richtext.text.trim().length > 0 ||
         post.embed.media ||
         post.embed.link ||
-        post.embed.poll,
+        post.embed.poll ||
+        post.embed.event,
     )
     ax.metric('draft:discard', {
       logContext: 'ComposerClose',
@@ -843,6 +849,7 @@ export const ComposePost = ({
     // Has link
     if (firstPost.embed.link) return false
     if (firstPost.embed.poll) return false
+    if (firstPost.embed.event) return false
 
     return true
   }, [thread.posts])
@@ -882,7 +889,8 @@ export const ComposePost = ({
         post.shortenedGraphemeLength > 0 ||
         post.embed.media ||
         post.embed.link ||
-        post.embed.poll,
+        post.embed.poll ||
+        post.embed.event,
     )
 
     // Show discard prompt if there's content AND either:
@@ -973,6 +981,8 @@ export const ComposePost = ({
 
   const canAddPoll =
     isPollAllowed(thread, replyTo?.uri) && !threadHasPoll(thread)
+  const canAddEvent =
+    isEventAllowed(thread, replyTo?.uri) && !threadHasEvent(thread)
 
   const getAssemblyErrorMessage = useCallback(
     (code: AssemblyErrorCode): string => {
@@ -1010,7 +1020,8 @@ export const ComposePost = ({
             post.embed.media?.type === 'video' &&
             post.embed.media.video.status === 'error'
           ) &&
-          isPollPostable(post)),
+          isPollPostable(post) &&
+          isEventPostable(post)),
     )
 
   const getFilteredThread = useCallback((): {
@@ -1457,6 +1468,7 @@ export const ComposePost = ({
         post={activePost}
         dispatch={dispatch}
         canAddPoll={canAddPoll}
+        canAddEvent={canAddEvent}
         showAddButton={
           !isEmptyPost(activePost) && (!nextPost || !isEmptyPost(nextPost))
         }
@@ -1713,11 +1725,17 @@ let ComposerPost = memo(function ComposerPost({
   )
 
   const hasPoll = !!post.embed.poll
+  const hasEvent = !!post.embed.event
   const onPhotoPasted = useCallback(
     async (uri: string) => {
-      if (hasPoll) {
+      if (hasPoll || hasEvent) {
         if (IS_WEB) {
-          Toast.show(l`Remove the discussion to add media`, {type: 'warning'})
+          Toast.show(
+            hasPoll
+              ? l`Remove the discussion to add media`
+              : l`Remove the event to add media`,
+            {type: 'warning'},
+          )
         }
         return
       }
@@ -1743,7 +1761,7 @@ let ComposerPost = memo(function ComposerPost({
         onImageAdd([res])
       }
     },
-    [post.id, hasPoll, onSelectVideo, onImageAdd, l],
+    [post.id, hasPoll, hasEvent, onSelectVideo, onImageAdd, l],
   )
 
   useHideKeyboardOnBackground()
@@ -2040,6 +2058,8 @@ function ComposerEmbeds({
         <PollEditor poll={embed.poll} text={text} dispatch={dispatch} />
       )}
 
+      {embed.event && <EventEditor event={embed.event} dispatch={dispatch} />}
+
       {!embed.media && embed.link && (
         <View style={[a.relative, a.mt_lg]} key={embed.link.uri}>
           <ExternalEmbedLink
@@ -2209,6 +2229,7 @@ function ComposerFooter({
   post,
   dispatch,
   canAddPoll,
+  canAddEvent,
   showAddButton,
   onSelectVideo,
   onAddPost,
@@ -2221,6 +2242,7 @@ function ComposerFooter({
   post: PostDraft
   dispatch: (action: PostAction) => void
   canAddPoll: boolean
+  canAddEvent: boolean
   showAddButton: boolean
   onError: (error: string) => void
   onSelectVideo: (postId: string, asset: ImagePickerAsset) => void
@@ -2236,7 +2258,8 @@ function ComposerFooter({
   const {gtPhone} = useBreakpoints()
   const ax = useAnalytics()
   const arePollsEnabled = IS_DEV || ax.features.enabled(ax.features.PollsEnable)
-  const hasPoll = !!post.embed.poll
+  const areEventsEnabled = ax.features.enabled(ax.features.EventsEnable)
+  const hasExclusiveEmbed = !!post.embed.poll || !!post.embed.event
   /*
    * Once we've allowed a certain type of asset to be selected, we don't allow
    * other types of media to be selected.
@@ -2264,7 +2287,7 @@ function ComposerFooter({
   } else {
     isMediaSelectionDisabled = !!media
   }
-  if (hasPoll) {
+  if (hasExclusiveEmbed) {
     isMediaSelectionDisabled = true
   }
 
@@ -2352,7 +2375,7 @@ function ComposerFooter({
               />
               <OpenCameraBtn
                 disabled={
-                  hasPoll ||
+                  hasExclusiveEmbed ||
                   (media?.type === 'images' || media?.type === 'gallery'
                     ? isMaxImages
                     : !!media)
@@ -2361,12 +2384,18 @@ function ComposerFooter({
               />
               <SelectGifBtn
                 onSelectGif={onSelectGif}
-                disabled={!!media || hasPoll}
+                disabled={!!media || hasExclusiveEmbed}
               />
               {arePollsEnabled && (
                 <SelectPollBtn
                   onPress={() => dispatch({type: 'embed_add_poll'})}
                   disabled={!canAddPoll || postHasAttachment(post)}
+                />
+              )}
+              {areEventsEnabled && (
+                <SelectEventBtn
+                  onPress={() => dispatch({type: 'embed_add_event'})}
+                  disabled={!canAddEvent || postHasAttachment(post)}
                 />
               )}
               {IS_WEB && gtPhone ? (

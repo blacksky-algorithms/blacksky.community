@@ -1,0 +1,296 @@
+import {View} from 'react-native'
+import {Trans, useLingui} from '@lingui/react/macro'
+import {countGraphemes} from 'unicode-segmenter/grapheme'
+
+import {type PostAction} from '#/view/com/composer/state/composer'
+import {atoms as a, useTheme} from '#/alf'
+import {Button, ButtonText} from '#/components/Button'
+import * as TextField from '#/components/forms/TextField'
+import {CalendarDays_Stroke2_Corner0_Rounded as CalendarIcon} from '#/components/icons/CalendarDays'
+import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
+import {
+  areEventDetailsValid,
+  EVENT_DESCRIPTION_MAX_GRAPHEMES,
+  EVENT_NAME_MAX_GRAPHEMES,
+  type EventDraft,
+  type EventDraftFields,
+  type EventDraftStep,
+  eventEndsBeforeStart,
+  eventStartsInPast,
+} from '#/features/events/draft'
+
+const STEPS: EventDraftStep[] = ['details', 'when', 'cover']
+
+export function EventEditor({
+  event,
+  dispatch,
+}: {
+  event: EventDraft
+  dispatch: (action: PostAction) => void
+}) {
+  const t = useTheme()
+  const {t: l} = useLingui()
+  const ax = useAnalytics()
+  const stepIndex = STEPS.indexOf(event.step)
+  const update = (fields: Partial<EventDraftFields>) =>
+    dispatch({type: 'embed_update_event', fields})
+  const setStep = (step: EventDraftStep) =>
+    dispatch({type: 'embed_set_event_step', step})
+  const canContinue =
+    event.step === 'details'
+      ? areEventDetailsValid(event)
+      : event.step === 'when'
+        ? !eventEndsBeforeStart(event)
+        : true
+  const isLastStep = stepIndex === STEPS.length - 1
+
+  return (
+    <View
+      testID="eventEditor"
+      style={[
+        a.mt_lg,
+        a.p_md,
+        a.gap_md,
+        a.rounded_md,
+        a.border,
+        t.atoms.border_contrast_low,
+        t.atoms.bg_contrast_25,
+      ]}>
+      <View style={[a.flex_row, a.align_center, a.justify_between]}>
+        <View style={[a.flex_row, a.align_center, a.gap_xs]}>
+          <CalendarIcon size="sm" fill={t.palette.primary_500} />
+          <Text style={[a.text_sm, {color: t.palette.primary_500}]}>
+            <Trans comment="Heading of the event editor card in the post composer">
+              Event
+            </Trans>
+          </Text>
+        </View>
+        <Button
+          testID="removeEventBtn"
+          label={l`Remove event`}
+          size="tiny"
+          variant="ghost"
+          color="secondary"
+          onPress={() => {
+            ax.metric('composer:event:remove', {})
+            dispatch({type: 'embed_remove_event'})
+          }}>
+          <ButtonText>
+            <Trans>Remove</Trans>
+          </ButtonText>
+        </Button>
+      </View>
+
+      {event.step === 'details' && (
+        <DetailsStep event={event} update={update} />
+      )}
+      {event.step === 'when' && <WhenStep event={event} update={update} />}
+      {event.step === 'cover' && (
+        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+          <Trans>Select the event image</Trans>
+        </Text>
+      )}
+      {event.step === 'done' && (
+        <View style={[a.flex_row, a.align_center, a.justify_between]}>
+          <Text style={[a.text_md, a.font_bold, a.flex_1]} numberOfLines={2}>
+            {event.name.trim()}
+          </Text>
+          <Button
+            testID="editEventBtn"
+            label={l`Edit event`}
+            size="small"
+            variant="ghost"
+            color="secondary"
+            onPress={() => setStep('details')}>
+            <ButtonText>
+              <Trans>Edit</Trans>
+            </ButtonText>
+          </Button>
+        </View>
+      )}
+
+      {stepIndex >= 0 && (
+        <View style={[a.flex_row, a.align_center, a.justify_between]}>
+          <Text
+            testID="eventStepLabel"
+            style={[a.text_xs, a.font_bold, t.atoms.text_contrast_medium]}>
+            <Trans comment="Progress through the steps of creating an event in the post composer">
+              Step {stepIndex + 1} of {STEPS.length}
+            </Trans>
+          </Text>
+          <View style={[a.flex_row, a.gap_sm]}>
+            {stepIndex > 0 && (
+              <Button
+                testID="eventBackBtn"
+                label={l`Back`}
+                size="small"
+                variant="solid"
+                color="secondary"
+                onPress={() => setStep(STEPS[stepIndex - 1])}>
+                <ButtonText>
+                  <Trans>Back</Trans>
+                </ButtonText>
+              </Button>
+            )}
+            <Button
+              testID="eventContinueBtn"
+              label={isLastStep ? l`Create event` : l`Continue`}
+              size="small"
+              variant="solid"
+              color="primary"
+              disabled={!canContinue}
+              onPress={() =>
+                setStep(isLastStep ? 'done' : STEPS[stepIndex + 1])
+              }>
+              <ButtonText>
+                {isLastStep ? (
+                  <Trans>Create event</Trans>
+                ) : (
+                  <Trans>Continue</Trans>
+                )}
+              </ButtonText>
+            </Button>
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function DetailsStep({
+  event,
+  update,
+}: {
+  event: EventDraft
+  update: (fields: Partial<EventDraftFields>) => void
+}) {
+  const {t: l} = useLingui()
+  const nameCount = countGraphemes(event.name.trim())
+  const descriptionCount = countGraphemes(event.description.trim())
+
+  return (
+    <View style={[a.gap_sm]}>
+      <View>
+        <TextField.LabelText>
+          <Trans>Create your event</Trans>
+        </TextField.LabelText>
+        <TextField.Root isInvalid={nameCount > EVENT_NAME_MAX_GRAPHEMES}>
+          <TextField.Input
+            testID="eventNameInput"
+            label={l`Event name`}
+            placeholder={l`Event name`}
+            value={event.name}
+            onChangeText={name => update({name})}
+          />
+        </TextField.Root>
+        <Counter count={nameCount} max={EVENT_NAME_MAX_GRAPHEMES} />
+      </View>
+      <View>
+        <TextField.LabelText>
+          <Trans>Describe your event (optional)</Trans>
+        </TextField.LabelText>
+        <TextField.Root
+          isInvalid={descriptionCount > EVENT_DESCRIPTION_MAX_GRAPHEMES}>
+          <TextField.Input
+            testID="eventDescriptionInput"
+            label={l`Event description`}
+            placeholder={l`About this event`}
+            value={event.description}
+            onChangeText={description => update({description})}
+            multiline
+          />
+        </TextField.Root>
+        <Counter
+          count={descriptionCount}
+          max={EVENT_DESCRIPTION_MAX_GRAPHEMES}
+        />
+      </View>
+    </View>
+  )
+}
+
+function WhenStep({
+  event,
+  update,
+}: {
+  event: EventDraft
+  update: (fields: Partial<EventDraftFields>) => void
+}) {
+  const t = useTheme()
+  const {t: l, i18n} = useLingui()
+  const endsBeforeStart = eventEndsBeforeStart(event)
+  const startsInPast = eventStartsInPast(event)
+  const formatDate = (iso: string) =>
+    new Intl.DateTimeFormat(i18n.locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso))
+
+  return (
+    <View style={[a.gap_sm]}>
+      <View>
+        <TextField.LabelText>
+          <Trans>Add location</Trans>
+        </TextField.LabelText>
+        <TextField.Root>
+          <TextField.Input
+            testID="eventLocationInput"
+            label={l`Event location`}
+            placeholder={l`External link or in-person location`}
+            value={event.location}
+            onChangeText={location => update({location})}
+          />
+        </TextField.Root>
+      </View>
+      <View style={[a.flex_row, a.gap_sm]}>
+        <View style={[a.flex_1]}>
+          <TextField.LabelText>
+            <Trans>Start date</Trans>
+          </TextField.LabelText>
+          <Text testID="eventStartsAt" style={[a.text_md]}>
+            {formatDate(event.startsAt)}
+          </Text>
+        </View>
+        <View style={[a.flex_1]}>
+          <TextField.LabelText>
+            <Trans>End date</Trans>
+          </TextField.LabelText>
+          <Text testID="eventEndsAt" style={[a.text_md]}>
+            {formatDate(event.endsAt)}
+          </Text>
+        </View>
+      </View>
+      {endsBeforeStart ? (
+        <Text
+          testID="eventEndsBeforeStart"
+          style={[a.text_xs, {color: t.palette.negative_500}]}>
+          <Trans>The end date must be after the start date.</Trans>
+        </Text>
+      ) : startsInPast ? (
+        <Text
+          testID="eventStartsInPast"
+          style={[a.text_xs, t.atoms.text_contrast_medium]}>
+          <Trans>This event starts in the past.</Trans>
+        </Text>
+      ) : null}
+    </View>
+  )
+}
+
+function Counter({count, max}: {count: number; max: number}) {
+  const t = useTheme()
+  return (
+    <Text
+      style={[
+        a.text_xs,
+        a.text_right,
+        a.mt_2xs,
+        count > max
+          ? {color: t.palette.negative_500}
+          : t.atoms.text_contrast_medium,
+      ]}>
+      {`${count} / ${max}`}
+    </Text>
+  )
+}
