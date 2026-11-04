@@ -101,7 +101,7 @@ export function EventCard({
       </Link>
       {showRsvp && !parsed.cancelled && phase !== 'past' && (
         <View style={[a.px_md, a.pb_md]}>
-          <RsvpButtons event={event} />
+          <RsvpButtons event={event} logContext="EventCard" />
         </View>
       )}
     </View>

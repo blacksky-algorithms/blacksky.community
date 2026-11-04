@@ -128,7 +128,7 @@ export function EventEmbed({
               </ButtonText>
             </Button>
           )}
-          <RsvpButtons event={event} />
+          <RsvpButtons event={event} logContext="EventEmbed" />
         </View>
       )}
     </View>
