@@ -7,6 +7,10 @@ import {type Platform} from 'react-native'
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
 import {type NotificationType} from '#/state/queries/notifications/types'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
+import {
+  type RsvpLogContext,
+  type RsvpMetricStatus,
+} from '#/features/events/rsvp-state'
 import {type LiveEventFeedMetricContext} from '#/features/liveEvents/types'
 
 export type Events = {
@@ -417,6 +421,19 @@ export type Events = {
     pollStatementCount: number
     langs: string
     logContext: 'Composer'
+  }
+  'event:rsvp': {
+    uri: string
+    hostDid: string
+    status: RsvpMetricStatus
+    previousStatus?: RsvpMetricStatus
+    logContext: RsvpLogContext
+  }
+  'event:rsvp:remove': {
+    uri: string
+    hostDid: string
+    status: RsvpMetricStatus
+    logContext: RsvpLogContext
   }
   'thread:create': {
     postCount: number

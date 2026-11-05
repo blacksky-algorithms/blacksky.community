@@ -11,7 +11,8 @@ import {
 import {communityXrpc} from '#/lib/api/community'
 import {STALE} from '#/state/queries'
 import {useAgent, useSession} from '#/state/session'
-import {applyRsvp} from './rsvp-state'
+import {useAnalytics} from '#/analytics'
+import {applyRsvp, type RsvpLogContext, rsvpMetricStatus} from './rsvp-state'
 import {mergeEventTimeline} from './timeline'
 import {
   type EventView,
@@ -187,7 +188,8 @@ export type RsvpChange = {
  * cached one. The PDS result is written through without refetching, since
  * the AppView lags the write.
  */
-export function useRsvpMutation(event: EventView) {
+export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
+  const ax = useAnalytics()
   const agent = useAgent()
   const queryClient = useQueryClient()
   const {currentAccount} = useSession()
@@ -244,7 +246,21 @@ export function useRsvpMutation(event: EventView) {
     onError: (_error, _change, context) => {
       queryClient.setQueryData(queryKey, context?.prev ?? event)
     },
-    onSuccess: result => {
+    onSuccess: (result, {status, current}) => {
+      const metric = {
+        uri: event.uri,
+        hostDid: event.creator.did,
+        status: rsvpMetricStatus(status)!,
+        logContext,
+      }
+      if (result) {
+        ax.metric('event:rsvp', {
+          ...metric,
+          previousStatus: rsvpMetricStatus(current?.status),
+        })
+      } else {
+        ax.metric('event:rsvp:remove', metric)
+      }
       const base = queryClient.getQueryData<EventView | null>(queryKey) ?? event
       queryClient.setQueryData(queryKey, {
         ...base,

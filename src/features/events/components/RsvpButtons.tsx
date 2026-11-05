@@ -9,6 +9,7 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
 import * as Toast from '#/components/Toast'
 import {useRsvpMutation} from '../queries'
+import {type RsvpLogContext} from '../rsvp-state'
 import {
   type EventView,
   RSVP_GOING,
@@ -19,14 +20,16 @@ import {
 
 export function RsvpButtons({
   event,
+  logContext,
   size = 'small',
 }: {
   event: EventView
+  logContext: RsvpLogContext
   size?: 'small' | 'large'
 }) {
   const {_} = useLingui()
   const requireAuth = useRequireAuth()
-  const {mutate, isPending} = useRsvpMutation(event)
+  const {mutate, isPending} = useRsvpMutation(event, logContext)
   const current = event.viewer?.rsvp?.status
 
   const onPress = (status: RsvpStatus) =>
