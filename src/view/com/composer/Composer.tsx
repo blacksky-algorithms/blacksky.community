@@ -1112,6 +1112,14 @@ export const ComposePost = ({
           isReplay: result.assembly.isReplay,
         })
       }
+      const event = filteredThread.posts.find(p => p.embed.event)?.embed.event
+      if (result.event && event) {
+        ax.metric('event:create', {
+          uri: result.event.uri,
+          hasDescription: event.description.trim().length > 0,
+          hasLocation: event.location.trim().length > 0,
+        })
+      }
 
       /*
        * Wait for app view to have received the post(s). If this fails, it's

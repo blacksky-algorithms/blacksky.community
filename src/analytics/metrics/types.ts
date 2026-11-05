@@ -1177,6 +1177,11 @@ export type Events = {
   'share:press:recentDm': {}
   'share:press:embed': {}
 
+  'event:create': {
+    uri: string
+    hasDescription: boolean
+    hasLocation: boolean
+  }
   'assembly:create': {
     conversationId: string
     statementCount: number

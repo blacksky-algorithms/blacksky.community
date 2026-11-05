@@ -1,3 +1,4 @@
+import {getLocales} from 'expo-localization'
 import {
   type $Typed,
   type AppBskyEmbedExternal,
@@ -65,6 +66,13 @@ import {
   type PostDraft,
   type ThreadDraft,
 } from '#/view/com/composer/state/composer'
+import {
+  buildEventExternal,
+  buildEventRecord,
+  deviceTimeZone,
+} from '#/features/events/draft'
+import {EVENT_COLLECTION} from '#/features/events/types'
+import {eventAtUri} from '#/features/events/url'
 import * as bsky from '#/types/bsky'
 import {createGIFDescription} from '../gif-alt-text'
 import {uploadBlob} from './upload-blob'
@@ -96,6 +104,12 @@ function embedNamesSpaceRecord(embed: unknown): boolean {
 function refusePoll(thread: ThreadDraft) {
   if (thread.posts.some(p => p.embed.poll)) {
     throw new Error(t`Discussions are only available on public posts.`)
+  }
+}
+
+function refuseEvent(thread: ThreadDraft) {
+  if (thread.posts.some(p => p.embed.event)) {
+    throw new Error(t`Events are only available on public posts.`)
   }
 }
 
@@ -132,6 +146,7 @@ export interface PostOpts {
 
 export type PostResult = {
   uris: string[]
+  event?: {uri: string}
   assembly?: {
     conversationId: string
     statementCount: number
@@ -160,6 +175,7 @@ export async function post(
       )
     }
     refusePoll(thread)
+    refuseEvent(thread)
     return postToSpace(agent, queryClient, space, opts)
   }
 
@@ -184,6 +200,7 @@ export async function post(
   const config = thread.communityFeed?.config
   if (isSpaceBackedFeed(config)) {
     refusePoll(thread)
+    refuseEvent(thread)
     return postToSpace(agent, queryClient, config.space, opts)
   }
 
@@ -217,6 +234,7 @@ export async function post(
     isQuoteOfCommunityPost
   ) {
     refusePoll(thread)
+    refuseEvent(thread)
     return postCommunity(agent, queryClient, opts)
   }
 
@@ -236,6 +254,9 @@ export async function post(
   }
 
   const pollPost = findPollPost(thread)
+  const eventPost = thread.posts.find(p => p.embed.event)
+  const eventRkey = eventPost ? TID.nextStr() : undefined
+  const locale = getLocales()[0]
 
   let replyPromise:
     | Promise<AppBskyFeedPost.Record['reply']>
@@ -294,12 +315,17 @@ export async function post(
 
     // Not awaited to avoid waterfalls.
     const rtPromise = resolveRT(agent, draft.richtext)
-    const embedPromise = resolveEmbed(
-      agent,
-      queryClient,
-      draft,
-      opts.onStateChange,
-    )
+    const embedPromise =
+      draft === eventPost && eventRkey
+        ? Promise.resolve({
+            $type: 'app.bsky.embed.external' as const,
+            external: buildEventExternal(draft.embed.event!, {
+              did,
+              rkey: eventRkey,
+              locale: locale?.languageTag ?? 'en-US',
+            }),
+          })
+        : resolveEmbed(agent, queryClient, draft, opts.onStateChange)
     let labels: $Typed<ComAtprotoLabelDefs.SelfLabels> | undefined
     if (draft.labels.length) {
       labels = {
@@ -382,11 +408,27 @@ export async function post(
     }
   }
 
+  if (eventPost?.embed.event && eventRkey) {
+    writes.unshift({
+      $type: 'com.atproto.repo.applyWrites#create',
+      collection: EVENT_COLLECTION,
+      rkey: eventRkey,
+      value: buildEventRecord(eventPost.embed.event, {
+        now: new Date(),
+        timeZone: deviceTimeZone(),
+        country: locale?.regionCode ?? undefined,
+      }),
+    })
+  }
+
   try {
     await agent.com.atproto.repo.applyWrites({
       repo: agent.assertDid,
       writes: writes,
-      validate: true,
+      // A PDS refuses lexicons it does not know when asked to validate, and
+      // most do not know the event lexicon. Left unset, known ones such as
+      // the post are still validated.
+      validate: eventPost ? undefined : true,
     })
   } catch (err) {
     const e = err as Error
@@ -410,7 +452,11 @@ export async function post(
     )
   }
 
-  return {uris, assembly}
+  return {
+    uris,
+    assembly,
+    ...(eventRkey && {event: {uri: eventAtUri(did, eventRkey)}}),
+  }
 }
 
 async function postCommunity(

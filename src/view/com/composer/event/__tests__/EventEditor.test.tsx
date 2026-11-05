@@ -124,6 +124,25 @@ jest.mock('#/view/com/composer/state/video', () => ({
   videoReducer: jest.fn(),
 }))
 
+jest.mock('../EventDateRange', () => {
+  const {Pressable} = require('react-native')
+  return {
+    EventDateRange: ({
+      onChange,
+    }: {
+      onChange: (field: string, iso: string) => void
+    }) => (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="End before start"
+        accessibilityHint=""
+        testID="setEndBeforeStart"
+        onPress={() => onChange('endsAt', '2000-01-01T00:00:00.000Z')}
+      />
+    ),
+  }
+})
+
 import {EventEditor} from '../EventEditor'
 
 function composerWithEvent(): ComposerState {
@@ -211,5 +230,16 @@ describe('EventEditor', () => {
     fireEvent.press(getByTestId('removeEventBtn'))
     expect(queryByTestId('eventEditor')).toBeNull()
     expect(mockMetric).toHaveBeenCalledWith('composer:event:remove', {})
+  })
+
+  it('blocks continuing when the end is before the start', () => {
+    const {getByTestId, getByText} = render(<Harness />)
+    fireEvent.changeText(getByTestId('eventNameInput'), 'Party')
+    fireEvent.press(getByTestId('eventContinueBtn'))
+    fireEvent.press(getByTestId('setEndBeforeStart'))
+
+    expect(getByText('The end date must be after the start date.')).toBeTruthy()
+    fireEvent.press(getByTestId('eventContinueBtn'))
+    expect(getByTestId('eventStepLabel')).toHaveTextContent('Step 2 of 3')
   })
 })

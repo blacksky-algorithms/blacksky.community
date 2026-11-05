@@ -1,13 +1,19 @@
 import {
   areEventDetailsValid,
+  buildEventExternal,
+  buildEventRecord,
+  changeEventTime,
   createEventDraft,
   EVENT_DESCRIPTION_MAX_GRAPHEMES,
   EVENT_NAME_MAX_GRAPHEMES,
   type EventDraft,
   eventEndsBeforeStart,
   eventStartsInPast,
+  fromLocalInputValue,
   isEventDraftPublishable,
+  toLocalInputValue,
 } from '../draft'
+import {parseEventRecord} from '../record'
 
 const NOW = new Date('2027-01-15T11:05:42.123Z')
 
@@ -75,5 +81,120 @@ describe('event drafts', () => {
         draft({step: 'done', endsAt: '2027-01-15T11:00:00.000Z'}),
       ),
     ).toBe(false)
+  })
+
+  describe('changeEventTime', () => {
+    it('moves the end along when the start passes it', () => {
+      expect(
+        changeEventTime(draft(), 'startsAt', '2027-01-16T10:00:00.000Z'),
+      ).toEqual({
+        startsAt: '2027-01-16T10:00:00.000Z',
+        endsAt: '2027-01-16T10:00:00.000Z',
+      })
+    })
+
+    it('leaves a later end alone', () => {
+      const later = draft({endsAt: '2027-01-20T10:00:00.000Z'})
+      expect(
+        changeEventTime(later, 'startsAt', '2027-01-16T10:00:00.000Z'),
+      ).toEqual({startsAt: '2027-01-16T10:00:00.000Z'})
+    })
+
+    it('lets the end go before the start, for validation to catch', () => {
+      expect(
+        changeEventTime(draft(), 'endsAt', '2027-01-14T10:00:00.000Z'),
+      ).toEqual({endsAt: '2027-01-14T10:00:00.000Z'})
+    })
+  })
+
+  it('round-trips local input values', () => {
+    const iso = '2027-01-15T11:05:00.000Z'
+    expect(fromLocalInputValue(toLocalInputValue(iso))).toBe(iso)
+    expect(fromLocalInputValue('')).toBeUndefined()
+  })
+
+  describe('buildEventRecord', () => {
+    const opts = {now: NOW, timeZone: 'America/New_York', country: 'US'}
+
+    it('writes the minimal record', () => {
+      expect(buildEventRecord(draft({name: ' Party '}), opts)).toEqual({
+        $type: 'community.lexicon.calendar.event',
+        name: 'Party',
+        createdAt: NOW.toISOString(),
+        startsAt: '2027-01-15T11:05:00.000Z',
+        status: 'community.lexicon.calendar.event#scheduled',
+        timezone: 'America/New_York',
+      })
+    })
+
+    it('keeps a distinct end and a trimmed description', () => {
+      const record = buildEventRecord(
+        draft({
+          endsAt: '2027-01-15T14:00:00.000Z',
+          description: '  Bring snacks ',
+        }),
+        opts,
+      )
+      expect(record).toMatchObject({
+        endsAt: '2027-01-15T14:00:00.000Z',
+        description: 'Bring snacks',
+      })
+    })
+
+    it('makes a link location an online event that our card can join', () => {
+      const record = buildEventRecord(
+        draft({location: 'https://twitch.tv/someone'}),
+        opts,
+      )
+      expect(record).toMatchObject({
+        mode: 'community.lexicon.calendar.event#virtual',
+        locations: [
+          {
+            $type: 'community.lexicon.calendar.event#uri',
+            uri: 'https://twitch.tv/someone',
+          },
+        ],
+      })
+      expect(parseEventRecord(record)?.joinUrl).toBe(
+        'https://twitch.tv/someone',
+      )
+    })
+
+    it('makes a place an in-person address our card can show', () => {
+      const record = buildEventRecord(draft({location: 'Prospect Park'}), opts)
+      expect(record).toMatchObject({
+        mode: 'community.lexicon.calendar.event#inperson',
+        locations: [
+          {
+            $type: 'community.lexicon.location.address',
+            name: 'Prospect Park',
+            country: 'US',
+          },
+        ],
+      })
+      expect(parseEventRecord(record)?.location).toBe('Prospect Park')
+    })
+
+    it('leaves out a place when the country is unknown', () => {
+      const record = buildEventRecord(draft({location: 'Prospect Park'}), {
+        now: NOW,
+      })
+      expect(record).not.toHaveProperty('locations')
+      expect(record).not.toHaveProperty('timezone')
+    })
+  })
+
+  it('links the post to the event page by DID', () => {
+    expect(
+      buildEventExternal(draft({location: 'The park'}), {
+        did: 'did:plc:alice',
+        rkey: '3kevent',
+        locale: 'en-US',
+      }),
+    ).toEqual({
+      uri: 'https://blacksky.community/event/did:plc:alice/3kevent',
+      title: 'Party',
+      description: expect.stringContaining(' · The park'),
+    })
   })
 })

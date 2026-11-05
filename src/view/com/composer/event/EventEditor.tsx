@@ -2,6 +2,7 @@ import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
+import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
 import {type PostAction} from '#/view/com/composer/state/composer'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -11,6 +12,7 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {
   areEventDetailsValid,
+  changeEventTime,
   EVENT_DESCRIPTION_MAX_GRAPHEMES,
   EVENT_NAME_MAX_GRAPHEMES,
   type EventDraft,
@@ -218,14 +220,9 @@ function WhenStep({
   update: (fields: Partial<EventDraftFields>) => void
 }) {
   const t = useTheme()
-  const {t: l, i18n} = useLingui()
+  const {t: l} = useLingui()
   const endsBeforeStart = eventEndsBeforeStart(event)
   const startsInPast = eventStartsInPast(event)
-  const formatDate = (iso: string) =>
-    new Intl.DateTimeFormat(i18n.locale, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(iso))
 
   return (
     <View style={[a.gap_sm]}>
@@ -243,24 +240,12 @@ function WhenStep({
           />
         </TextField.Root>
       </View>
-      <View style={[a.flex_row, a.gap_sm]}>
-        <View style={[a.flex_1]}>
-          <TextField.LabelText>
-            <Trans>Start date</Trans>
-          </TextField.LabelText>
-          <Text testID="eventStartsAt" style={[a.text_md]}>
-            {formatDate(event.startsAt)}
-          </Text>
-        </View>
-        <View style={[a.flex_1]}>
-          <TextField.LabelText>
-            <Trans>End date</Trans>
-          </TextField.LabelText>
-          <Text testID="eventEndsAt" style={[a.text_md]}>
-            {formatDate(event.endsAt)}
-          </Text>
-        </View>
-      </View>
+      <EventDateRange
+        startsAt={event.startsAt}
+        endsAt={event.endsAt}
+        isEndInvalid={endsBeforeStart}
+        onChange={(field, iso) => update(changeEventTime(event, field, iso))}
+      />
       {endsBeforeStart ? (
         <Text
           testID="eventEndsBeforeStart"
