@@ -933,7 +933,7 @@ async function uploadEventCover(
   agent: AtpAgent,
   cover: EventCover,
   onStateChange: ((state: string) => void) | undefined,
-): Promise<{blob: BlobRef; width: number; height: number} | undefined> {
+): Promise<{blob: BlobRef; width: number; height: number}> {
   try {
     const image =
       'url' in cover ? (await imageToThumb(cover.url))?.source : cover
@@ -942,10 +942,12 @@ async function uploadEventCover(
     const response = await uploadBlob(agent, image.path, image.mime)
     return {blob: response.data.blob, width: image.width, height: image.height}
   } catch (e) {
-    logger.warn(`Failed to attach the event image`, {
+    logger.warn(`Failed to upload the event image`, {
       safeMessage: e instanceof Error ? e.message : String(e),
     })
-    return undefined
+    throw new Error(
+      t`Couldn't upload the event image. Try again, or remove the image.`,
+    )
   }
 }
 

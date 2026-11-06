@@ -160,6 +160,25 @@ describe('event drafts', () => {
       )
     })
 
+    it.each(['zoom.us/j/123', 'meet.google.com/abc-defg-hij', 'twitch.tv'])(
+      'treats the bare domain %s as an online link',
+      location => {
+        expect(buildEventRecord(draft({location}), opts)).toMatchObject({
+          mode: 'community.lexicon.calendar.event#virtual',
+          locations: [{uri: `https://${location}`}],
+        })
+      },
+    )
+
+    it.each(['Prospect Park', 'St. Mark’s Church', 'Room 4.2'])(
+      'keeps %s as a place',
+      location => {
+        expect(buildEventRecord(draft({location}), opts)).toMatchObject({
+          mode: 'community.lexicon.calendar.event#inperson',
+        })
+      },
+    )
+
     it('makes a place an in-person address our card can show', () => {
       const record = buildEventRecord(draft({location: 'Prospect Park'}), opts)
       expect(record).toMatchObject({

@@ -115,7 +115,10 @@ export function eventLocationUrl(draft: EventDraft): string | undefined {
   return webUrl(draft.location.trim())
 }
 
+const BARE_DOMAIN = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(\/\S*)?$/i
+
 function webUrl(value: string): string | undefined {
+  if (BARE_DOMAIN.test(value)) value = `https://${value}`
   try {
     const {protocol} = new URL(value)
     return protocol === 'http:' || protocol === 'https:' ? value : undefined

@@ -63,6 +63,8 @@ export function EventEditor({
         ? !eventEndsBeforeStart(event)
         : true
   const isLastStep = stepIndex === STEPS.length - 1
+  const stepColor =
+    t.name === 'light' ? t.palette.primary_500 : DEFAULT_BRAND.secondary
   const remove = () => {
     ax.metric('composer:event:remove', {})
     dispatch({type: 'embed_remove_event'})
@@ -188,7 +190,7 @@ export function EventEditor({
         <View style={[a.flex_row, a.align_center, a.justify_between]}>
           <View style={[a.flex_row, a.align_center, a.gap_sm]}>
             <View
-              style={{width: 12, height: 12, backgroundColor: DEFAULT_BRAND.secondary}}
+              style={{width: 12, height: 12, backgroundColor: stepColor}}
             />
             <Text
               testID="eventStepLabel"
@@ -199,7 +201,7 @@ export function EventEditor({
                   fontWeight: '300',
                   letterSpacing: -0.08,
                   textTransform: 'uppercase',
-                  color: DEFAULT_BRAND.secondary,
+                  color: stepColor,
                 },
               ]}>
               <Trans comment="Progress through the steps of creating an event in the post composer">
@@ -399,7 +401,6 @@ function EventPreview({event}: {event: EventDraft}) {
   return (
     <View
       testID="eventPreview"
-      pointerEvents="none"
       accessible
       accessibilityLabel={l`Preview of ${parsed.name}`}
       accessibilityHint={l`Shows how the event will look in the feed`}>
@@ -416,6 +417,7 @@ function EventPreview({event}: {event: EventDraft}) {
         }}
         parsed={parsed}
         rkey="preview"
+        preview
       />
     </View>
   )

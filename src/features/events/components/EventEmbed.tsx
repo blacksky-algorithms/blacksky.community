@@ -65,10 +65,12 @@ export function EventEmbedCard({
   rkey,
   onOpen,
   style,
+  preview,
 }: {
   event: EventView
   parsed: ParsedEvent
   rkey: string
+  preview?: boolean
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
 }) {
@@ -78,19 +80,7 @@ export function EventEmbedCard({
   const phase = eventPhase(parsed, new Date())
   const cover = coverUrl(event)
   const poster = eventPoster(event.uri, parsed)
-  return (
-    <View
-      style={[
-        a.rounded_md,
-        a.border,
-        a.overflow_hidden,
-        t.atoms.border_contrast_low,
-        style,
-      ]}>
-      <Link
-        to={makeEventLink(event.creator, rkey)}
-        label={eventLinkLabel(i18n, event, parsed, phase)}
-        onPress={onOpen}>
+  const content = (
         <View style={[a.w_full]}>
           {cover ? (
             <Image
@@ -139,7 +129,26 @@ export function EventEmbedCard({
             <EventMeta event={event} parsed={parsed} />
           </View>
         </View>
-      </Link>
+  )
+  return (
+    <View
+      style={[
+        a.rounded_md,
+        a.border,
+        a.overflow_hidden,
+        t.atoms.border_contrast_low,
+        style,
+      ]}>
+      {preview ? (
+        content
+      ) : (
+        <Link
+          to={makeEventLink(event.creator, rkey)}
+          label={eventLinkLabel(i18n, event, parsed, phase)}
+          onPress={onOpen}>
+          {content}
+        </Link>
+      )}
       {!parsed.cancelled && phase !== 'past' && (
         <View style={[a.px_md, a.pb_md, a.gap_sm]}>
           {parsed.joinUrl && (
@@ -147,13 +156,14 @@ export function EventEmbedCard({
               label={_(msg`Join online at ${toNiceDomain(parsed.joinUrl)}`)}
               size="small"
               color={phase === 'current' ? 'primary' : 'secondary'}
+              disabled={preview}
               onPress={() => openLink(parsed.joinUrl!, undefined, true)}>
               <ButtonText>
                 <Trans>Join · {toNiceDomain(parsed.joinUrl)}</Trans>
               </ButtonText>
             </Button>
           )}
-          <RsvpButtons event={event} />
+          <RsvpButtons event={event} disabled={preview} />
         </View>
       )}
     </View>

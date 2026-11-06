@@ -65,7 +65,7 @@ export function EventDateRange({
           <View style={[a.gap_lg]}>
             <View
               accessibilityRole="tablist"
-              style={[a.flex_row, a.border_b, {borderBottomColor: '#e3e4e5'}]}>
+              style={[a.flex_row, a.border_b, t.atoms.border_contrast_low]}>
               {FIELDS.map(key => {
                 const active = field === key
                 return (

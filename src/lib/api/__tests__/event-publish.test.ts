@@ -228,21 +228,43 @@ describe('publishing a post with an event', () => {
       ])
     })
 
-    it('still publishes without the image when the upload fails', async () => {
+    it('stops the post with an error when the upload fails', async () => {
       jest.mocked(uploadBlob).mockRejectedValue(new Error('offline'))
+      const {agent, applyWrites} = setup()
 
-      const {eventWrite, postWrite} = await publish({
-        path: 'file:///cover.jpg',
-        mime: 'image/jpeg',
-        width: 1500,
-        height: 500,
-      })
-
-      expect(eventWrite.value).not.toHaveProperty('media')
-      expect(postWrite.value.embed?.external).not.toHaveProperty('thumb')
-      expect(warn).toHaveBeenCalledWith('Failed to attach the event image', {
+      await expect(
+        post(agent, queryClient, {
+          thread: thread({
+            event: {
+              ...event,
+              cover: {
+                path: 'file:///cover.jpg',
+                mime: 'image/jpeg',
+                width: 1500,
+                height: 500,
+              },
+            },
+          }),
+        }),
+      ).rejects.toThrow("Couldn't upload the event image.")
+      expect(applyWrites).not.toHaveBeenCalled()
+      expect(warn).toHaveBeenCalledWith('Failed to upload the event image', {
         safeMessage: 'offline',
       })
+    })
+
+    it('stops the post when a link image cannot be read', async () => {
+      jest.mocked(imageToThumb).mockResolvedValue(undefined)
+      const {agent, applyWrites} = setup()
+
+      await expect(
+        post(agent, queryClient, {
+          thread: thread({
+            event: {...event, cover: {url: 'https://x.test/a.jpg'}},
+          }),
+        }),
+      ).rejects.toThrow("Couldn't upload the event image.")
+      expect(applyWrites).not.toHaveBeenCalled()
     })
   })
 })
