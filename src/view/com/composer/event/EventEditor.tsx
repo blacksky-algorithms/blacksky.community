@@ -6,10 +6,12 @@ import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {getLinkMeta} from '#/lib/link-meta/link-meta'
 import {useAgent, useSession} from '#/state/session'
+import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
+import {FieldLabelText, INPUT_TEXT} from '#/view/com/composer/event/EventFields'
 import {type PostAction} from '#/view/com/composer/state/composer'
-import {UserBanner} from '#/view/com/util/UserBanner'
 import {atoms as a, useTheme} from '#/alf'
+import {DEFAULT_BRAND} from '#/alf/themes'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
 import {CalendarDays_Stroke2_Corner0_Rounded as CalendarIcon} from '#/components/icons/CalendarDays'
@@ -78,9 +80,9 @@ export function EventEditor({
       testID="eventEditor"
       style={[
         a.mt_lg,
-        a.p_md,
-        a.gap_md,
+        a.gap_xl,
         a.rounded_md,
+        {padding: 13},
         a.border,
         t.atoms.border_contrast_low,
         t.atoms.bg_contrast_25,
@@ -138,10 +140,11 @@ export function EventEditor({
             testID="removeEventBtn"
             label={l`Remove event`}
             size="tiny"
-            variant="ghost"
+            variant="solid"
             color="secondary"
+            style={[t.atoms.bg, a.px_lg, {height: 28}]}
             onPress={remove}>
-            <ButtonText>
+            <ButtonText style={[a.text_xs, t.atoms.text_contrast_medium]}>
               <Trans>Remove</Trans>
             </ButtonText>
           </Button>
@@ -153,14 +156,14 @@ export function EventEditor({
       )}
       {event.step === 'when' && <WhenStep event={event} update={update} />}
       {event.step === 'cover' && (
-        <View style={[a.gap_xs]}>
-          <TextField.LabelText>
+        <View>
+          <FieldLabelText>
             <Trans>Select the event image</Trans>
-          </TextField.LabelText>
-          <View style={[a.rounded_sm, a.overflow_hidden]}>
-            <UserBanner
-              banner={cover}
-              onSelectNewBanner={image =>
+          </FieldLabelText>
+          <View>
+            <EventCoverPicker
+              cover={cover}
+              onChange={image =>
                 update(
                   image
                     ? {
@@ -183,13 +186,27 @@ export function EventEditor({
 
       {stepIndex >= 0 && (
         <View style={[a.flex_row, a.align_center, a.justify_between]}>
-          <Text
-            testID="eventStepLabel"
-            style={[a.text_xs, a.font_bold, t.atoms.text_contrast_medium]}>
-            <Trans comment="Progress through the steps of creating an event in the post composer">
-              Step {stepIndex + 1} of {STEPS.length}
-            </Trans>
-          </Text>
+          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+            <View
+              style={{width: 12, height: 12, backgroundColor: DEFAULT_BRAND.secondary}}
+            />
+            <Text
+              testID="eventStepLabel"
+              style={[
+                a.font_mono,
+                {
+                  fontSize: 14,
+                  fontWeight: '300',
+                  letterSpacing: -0.08,
+                  textTransform: 'uppercase',
+                  color: DEFAULT_BRAND.secondary,
+                },
+              ]}>
+              <Trans comment="Progress through the steps of creating an event in the post composer">
+                Step {stepIndex + 1} of {STEPS.length}
+              </Trans>
+            </Text>
+          </View>
           <View style={[a.flex_row, a.gap_sm]}>
             {stepIndex > 0 && (
               <Button
@@ -198,8 +215,9 @@ export function EventEditor({
                 size="small"
                 variant="solid"
                 color="secondary"
+                style={[t.atoms.bg, a.px_2xl]}
                 onPress={() => setStep(STEPS[stepIndex - 1])}>
-                <ButtonText>
+                <ButtonText style={{color: t.palette.primary_600}}>
                   <Trans>Back</Trans>
                 </ButtonText>
               </Button>
@@ -210,6 +228,7 @@ export function EventEditor({
               size="small"
               variant="solid"
               color="primary"
+              style={[a.px_2xl]}
               disabled={!canContinue}
               onPress={() => {
                 if (isLastStep && !event.cover && cover) {
@@ -246,9 +265,9 @@ function DetailsStep({
   return (
     <View style={[a.gap_sm]}>
       <View>
-        <TextField.LabelText>
+        <FieldLabelText>
           <Trans>Create your event</Trans>
-        </TextField.LabelText>
+        </FieldLabelText>
         <TextField.Root isInvalid={nameCount > EVENT_NAME_MAX_GRAPHEMES}>
           <TextField.Input
             testID="eventNameInput"
@@ -256,14 +275,15 @@ function DetailsStep({
             placeholder={l`Event name`}
             value={event.name}
             onChangeText={name => update({name})}
+            style={INPUT_TEXT}
           />
         </TextField.Root>
         <Counter count={nameCount} max={EVENT_NAME_MAX_GRAPHEMES} />
       </View>
       <View>
-        <TextField.LabelText>
+        <FieldLabelText>
           <Trans>Describe your event (optional)</Trans>
-        </TextField.LabelText>
+        </FieldLabelText>
         <TextField.Root
           isInvalid={descriptionCount > EVENT_DESCRIPTION_MAX_GRAPHEMES}>
           <TextField.Input
@@ -272,6 +292,7 @@ function DetailsStep({
             placeholder={l`About this event`}
             value={event.description}
             onChangeText={description => update({description})}
+            style={INPUT_TEXT}
             multiline
           />
         </TextField.Root>
@@ -299,9 +320,9 @@ function WhenStep({
   return (
     <View style={[a.gap_sm]}>
       <View>
-        <TextField.LabelText>
+        <FieldLabelText>
           <Trans>Add location</Trans>
-        </TextField.LabelText>
+        </FieldLabelText>
         <TextField.Root>
           <TextField.Input
             testID="eventLocationInput"
@@ -309,6 +330,7 @@ function WhenStep({
             placeholder={l`External link or in-person location`}
             value={event.location}
             onChangeText={location => update({location})}
+            style={INPUT_TEXT}
           />
         </TextField.Root>
       </View>

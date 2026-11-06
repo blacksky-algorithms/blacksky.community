@@ -41,6 +41,7 @@ jest.mock('#/alf', () => {
     }),
   }
 })
+jest.mock('#/alf/themes', () => ({DEFAULT_BRAND: {secondary: '#D2FC51'}}))
 jest.mock('#/components/Typography', () => {
   const {Text} = require('react-native')
   return {Text}
@@ -210,15 +211,15 @@ jest.mock('#/features/events/components/EventEmbed', () => {
   }
 })
 jest.mock('#/lib/link-meta/link-meta', () => ({getLinkMeta: jest.fn()}))
-jest.mock('#/view/com/util/UserBanner', () => {
+jest.mock('../EventCoverPicker', () => {
   const {Pressable, Text, View} = require('react-native')
   return {
-    UserBanner: ({
-      banner,
-      onSelectNewBanner,
+    EventCoverPicker: ({
+      cover: banner,
+      onChange: onSelectNewBanner,
     }: {
-      banner?: string
-      onSelectNewBanner: (image: unknown) => void
+      cover?: string
+      onChange: (image: unknown) => void
     }) => (
       <View>
         <Text testID="coverShown">{banner ?? 'none'}</Text>

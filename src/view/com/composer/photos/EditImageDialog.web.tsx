@@ -5,7 +5,11 @@ import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
-import ReactCrop, {type PercentCrop} from 'react-image-crop'
+import ReactCrop, {
+  centerCrop,
+  makeAspectCrop,
+  type PercentCrop,
+} from 'react-image-crop'
 
 import {
   type ImageSource,
@@ -33,6 +37,7 @@ function DialogInner({
   onChange,
   circularCrop,
   aspectRatio,
+  preselectCrop,
 }: EditImageDialogProps) {
   const {_} = useLingui()
   const [pending, setPending] = useState(false)
@@ -99,6 +104,7 @@ function DialogInner({
           onChange={onChange}
           circularCrop={circularCrop}
           aspectRatio={aspectRatio}
+          preselectCrop={preselectCrop}
         />
       )}
     </Dialog.Inner>
@@ -111,6 +117,7 @@ function EditImageInner({
   saveRef,
   circularCrop = false,
   aspectRatio,
+  preselectCrop,
 }: Required<Pick<EditImageDialogProps, 'image'>> &
   Omit<EditImageDialogProps, 'control' | 'image'> & {
     saveRef: React.RefObject<{save: () => Promise<void>} | null>
@@ -121,7 +128,11 @@ function EditImageInner({
 
   const source = image.source
 
-  const initialCrop = getInitialCrop(source, image.manips)
+  const initialCrop =
+    getInitialCrop(source, image.manips) ??
+    (preselectCrop && aspectRatio
+      ? centeredCrop(source, aspectRatio)
+      : undefined)
   const [crop, setCrop] = useState(initialCrop)
 
   const onPressSubmit = useCallback(async () => {
@@ -193,3 +204,17 @@ const getInitialCrop = (
     }
   }
 }
+
+const centeredCrop = (source: ImageSource, aspect: number): PercentCrop =>
+  centerCrop(
+    makeAspectCrop(
+      source.width / source.height > aspect
+        ? {unit: '%', height: 100}
+        : {unit: '%', width: 100},
+      aspect,
+      source.width,
+      source.height,
+    ),
+    source.width,
+    source.height,
+  )

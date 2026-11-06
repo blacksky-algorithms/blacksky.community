@@ -6,13 +6,12 @@ import {Trans, useLingui} from '@lingui/react/macro'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
-import * as TextField from '#/components/forms/TextField'
 import {Text} from '#/components/Typography'
-import {
-  type EventTimeField,
-  formatEventDraftDate,
-} from '#/features/events/draft'
+import {type EventTimeField} from '#/features/events/draft'
 import {type EventDateRangeProps} from './EventDateRange.types'
+import {DateBox, FieldLabelText} from './EventFields'
+
+const FIELDS = ['startsAt', 'endsAt'] as const
 
 export function EventDateRange({
   startsAt,
@@ -26,6 +25,13 @@ export function EventDateRange({
   const [field, setField] = useState<EventTimeField>('startsAt')
   const values = {startsAt, endsAt}
   const labels = {startsAt: l`Start date`, endsAt: l`End date`}
+  const short = (iso: string) =>
+    i18n.date(new Date(iso), {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
 
   const open = (next: EventTimeField) => {
     Keyboard.dismiss()
@@ -36,28 +42,19 @@ export function EventDateRange({
   return (
     <>
       <View style={[a.flex_row, a.gap_sm]}>
-        {(['startsAt', 'endsAt'] as const).map(key => (
+        {FIELDS.map(key => (
           <View key={key} style={[a.flex_1]}>
-            <TextField.LabelText>{labels[key]}</TextField.LabelText>
+            <FieldLabelText>{labels[key]}</FieldLabelText>
             <Pressable
               testID={`${key}Btn`}
               accessibilityRole="button"
               accessibilityLabel={labels[key]}
               accessibilityHint={l`Opens the date and time picker`}
-              onPress={() => open(key)}
-              style={[
-                a.px_md,
-                a.py_sm,
-                a.rounded_sm,
-                a.border,
-                t.atoms.bg_contrast_50,
-                key === 'endsAt' && isEndInvalid
-                  ? {borderColor: t.palette.negative_500}
-                  : {borderColor: 'transparent'},
-              ]}>
-              <Text style={[a.text_md]}>
-                {formatEventDraftDate(values[key], i18n.locale)}
-              </Text>
+              onPress={() => open(key)}>
+              <DateBox
+                iso={values[key]}
+                isInvalid={key === 'endsAt' && isEndInvalid}
+              />
             </Pressable>
           </View>
         ))}
@@ -66,30 +63,50 @@ export function EventDateRange({
         <Dialog.Handle />
         <Dialog.ScrollableInner label={l`Event dates`}>
           <View style={[a.gap_lg]}>
-            <View style={[a.flex_row, a.gap_sm]}>
-              {(['startsAt', 'endsAt'] as const).map(key => (
-                <Button
-                  key={key}
-                  testID={`${key}Tab`}
-                  label={labels[key]}
-                  size="small"
-                  variant={field === key ? 'solid' : 'ghost'}
-                  color="secondary"
-                  style={[a.flex_1]}
-                  onPress={() => setField(key)}>
-                  <ButtonText>
-                    {key === 'startsAt' ? (
-                      <Trans>
-                        Start: {formatEventDraftDate(startsAt, i18n.locale)}
-                      </Trans>
-                    ) : (
-                      <Trans>
-                        End: {formatEventDraftDate(endsAt, i18n.locale)}
-                      </Trans>
-                    )}
-                  </ButtonText>
-                </Button>
-              ))}
+            <View
+              accessibilityRole="tablist"
+              style={[a.flex_row, a.border_b, {borderBottomColor: '#e3e4e5'}]}>
+              {FIELDS.map(key => {
+                const active = field === key
+                return (
+                  <Pressable
+                    key={key}
+                    testID={`${key}Tab`}
+                    accessibilityRole="tab"
+                    accessibilityState={{selected: active}}
+                    accessibilityLabel={labels[key]}
+                    accessibilityHint=""
+                    onPress={() => setField(key)}
+                    style={[a.flex_1, a.align_center, a.pt_md]}>
+                    <Text
+                      style={[
+                        a.text_xs,
+                        a.pb_sm,
+                        t.atoms.text,
+                        active && a.font_semi_bold,
+                      ]}>
+                      {key === 'startsAt' ? (
+                        <Trans>Start: {short(startsAt)}</Trans>
+                      ) : (
+                        <Trans>End: {short(endsAt)}</Trans>
+                      )}
+                    </Text>
+                    <View
+                      style={[
+                        a.w_full,
+                        {
+                          height: 3,
+                          borderTopLeftRadius: 2,
+                          borderTopRightRadius: 2,
+                          backgroundColor: active
+                            ? t.palette.primary_500
+                            : 'transparent',
+                        },
+                      ]}
+                    />
+                  </Pressable>
+                )
+              })}
             </View>
             <View style={[a.w_full, a.align_center]}>
               <DatePicker
