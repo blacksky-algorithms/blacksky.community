@@ -202,3 +202,40 @@ export function buildEventExternal(
     description: location ? `${when} · ${location}` : when,
   }
 }
+
+const STEPS: EventDraftStep[] = ['details', 'when', 'cover', 'done']
+
+/** For server drafts, which hold no local files: a picked cover is dropped. */
+export function encodeEventDraft({cover, coverRemoved, ...rest}: EventDraft) {
+  return {
+    ...rest,
+    ...(cover && 'url' in cover && {cover: {url: cover.url}}),
+    ...(coverRemoved && {coverRemoved}),
+  }
+}
+
+export function decodeEventDraft(value: unknown): EventDraft | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const v = value as Record<string, unknown>
+  const strings = ['name', 'description', 'location', 'startsAt', 'endsAt']
+  if (
+    !STEPS.includes(v.step as EventDraftStep) ||
+    !strings.every(k => typeof v[k] === 'string') ||
+    isNaN(Date.parse(v.startsAt as string)) ||
+    isNaN(Date.parse(v.endsAt as string))
+  ) {
+    return undefined
+  }
+  const coverUrl = (v.cover as {url?: unknown} | undefined)?.url
+  return {
+    step: v.step as EventDraftStep,
+    name: v.name as string,
+    description: v.description as string,
+    location: v.location as string,
+    startsAt: v.startsAt as string,
+    endsAt: v.endsAt as string,
+    ...(typeof coverUrl === 'string' &&
+      webUrl(coverUrl) && {cover: {url: coverUrl}}),
+    ...(v.coverRemoved === true && {coverRemoved: true}),
+  }
+}

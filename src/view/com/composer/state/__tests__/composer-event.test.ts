@@ -175,6 +175,29 @@ describe('composer events', () => {
     expect(state.thread.posts[0].embed.event).toBeUndefined()
   })
 
+  it('keeps only the first event when restoring a draft', () => {
+    const two = composerReducer(initialState(), {type: 'add_post'})
+    const draft = apply(initialState(), [{type: 'embed_add_event'}]).thread
+      .posts[0].embed.event!
+    const posts = two.thread.posts.map(p => ({
+      ...p,
+      embed: {...p.embed, event: draft},
+    }))
+    const restored = composerReducer(initialState(), {
+      type: 'restore_from_draft',
+      draftId: 'd1',
+      posts,
+      threadgateAllow: undefined,
+      postgateEmbeddingRules: undefined,
+      loadedMedia: new Map(),
+      originalLocalRefs: new Set(),
+    })
+    expect(restored.thread.posts.map(p => !!p.embed.event)).toEqual([
+      true,
+      false,
+    ])
+  })
+
   describe('isEventPostable', () => {
     it('is true without an event', () => {
       expect(isEventPostable(draftAfter([]))).toBe(true)

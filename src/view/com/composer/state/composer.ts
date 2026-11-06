@@ -302,11 +302,13 @@ export function threadHasEvent(thread: ThreadDraft): boolean {
   return thread.posts.some(post => post.embed.event)
 }
 
-function keepFirstPoll(posts: PostDraft[]): PostDraft[] {
-  const first = posts.findIndex(post => post.embed.poll)
+function keepFirst(posts: PostDraft[], key: 'poll' | 'event'): PostDraft[] {
+  const first = posts.findIndex(post => post.embed[key])
   return posts.map((post, index) =>
-    post.embed.poll && index !== first
-      ? postReducer(post, {type: 'embed_remove_poll'})
+    post.embed[key] && index !== first
+      ? postReducer(post, {
+          type: key === 'poll' ? 'embed_remove_poll' : 'embed_remove_event',
+        })
       : post,
   )
 }
@@ -544,7 +546,7 @@ export function composerReducer(
         loadedMediaMap: loadedMedia,
         originalLocalRefs,
         thread: {
-          posts: keepFirstPoll(posts),
+          posts: keepFirst(keepFirst(posts, 'poll'), 'event'),
           postgate: createPostgateRecord({
             post: '',
             embeddingRules: postgateEmbeddingRules,
