@@ -77,6 +77,7 @@ jest.mock('#/components/Button', () => {
     ButtonText: ({children}: {children: React.ReactNode}) => (
       <Text>{children}</Text>
     ),
+    ButtonIcon: () => null,
   }
 })
 jest.mock('#/components/forms/TextField', () => {
@@ -149,7 +150,65 @@ jest.mock('@tanstack/react-query', () => ({
     data: enabled ? mockLinkImage() : undefined,
   }),
 }))
-jest.mock('#/state/session', () => ({useAgent: () => ({})}))
+jest.mock('#/state/session', () => ({
+  useAgent: () => ({}),
+  useSession: () => ({
+    currentAccount: {did: 'did:plc:me', handle: 'me.test'},
+  }),
+}))
+jest.mock('#/components/Menu', () => {
+  const {Pressable, Text, View} = require('react-native')
+  return {
+    Root: ({children}: {children: React.ReactNode}) => <View>{children}</View>,
+    Outer: ({children}: {children: React.ReactNode}) => <View>{children}</View>,
+    Group: ({children}: {children: React.ReactNode}) => <View>{children}</View>,
+    Trigger: ({
+      children,
+    }: {
+      children: (p: {props: {accessibilityLabel: string}}) => React.ReactNode
+    }) => children({props: {accessibilityLabel: 'Event options'}}),
+    Item: ({
+      children,
+      label,
+      onPress,
+      testID,
+    }: {
+      children: React.ReactNode
+      label: string
+      onPress: () => void
+      testID: string
+    }) => (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityHint=""
+        onPress={onPress}
+        testID={testID}>
+        {children}
+      </Pressable>
+    ),
+    ItemText: ({children}: {children: React.ReactNode}) => (
+      <Text>{children}</Text>
+    ),
+    ItemIcon: () => null,
+  }
+})
+jest.mock('#/features/events/components/EventEmbed', () => {
+  const {Text} = require('react-native')
+  return {
+    EventEmbedCard: ({
+      event,
+      parsed,
+    }: {
+      event: {thumb?: string}
+      parsed: {name: string; location?: string}
+    }) => (
+      <Text testID="previewCard">
+        {[parsed.name, parsed.location ?? '', event.thumb ?? ''].join('|')}
+      </Text>
+    ),
+  }
+})
 jest.mock('#/lib/link-meta/link-meta', () => ({getLinkMeta: jest.fn()}))
 jest.mock('#/view/com/util/UserBanner', () => {
   const {Pressable, Text, View} = require('react-native')
@@ -272,10 +331,29 @@ describe('EventEditor', () => {
 
     fireEvent.press(getByTestId('eventContinueBtn'))
     expect(queryByTestId('eventStepLabel')).toBeNull()
-    expect(getByText('Party')).toBeTruthy()
+    expect(queryByTestId('removeEventBtn')).toBeNull()
+    expect(getByText(/^Party\|/)).toBeTruthy()
 
     fireEvent.press(getByTestId('editEventBtn'))
     expect(getByTestId('eventStepLabel')).toHaveTextContent('Step 1 of 3')
+  })
+
+  it('previews the finished event from the record that will be saved', () => {
+    mockLinkImage.mockReturnValue('https://example.com/og.jpg')
+    const {getByTestId} = toCoverStep('https://twitch.tv/someone')
+    fireEvent.press(getByTestId('eventContinueBtn'))
+
+    expect(getByTestId('previewCard')).toHaveTextContent(
+      'Party||https://example.com/og.jpg',
+    )
+  })
+
+  it('deletes the finished event from its menu', () => {
+    const {getByTestId, queryByTestId} = toCoverStep('Prospect Park')
+    fireEvent.press(getByTestId('eventContinueBtn'))
+    fireEvent.press(getByTestId('deleteEventBtn'))
+    expect(queryByTestId('eventEditor')).toBeNull()
+    expect(mockMetric).toHaveBeenCalledWith('composer:event:remove', {})
   })
 
   it('removes the event', () => {

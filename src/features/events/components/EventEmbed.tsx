@@ -18,7 +18,8 @@ import {Text} from '#/components/Typography'
 import {eventLinkLabel, eventPhase} from '../format'
 import {eventPoster} from '../poster'
 import {useEventQuery} from '../queries'
-import {coverUrl, parseEventRecord} from '../record'
+import {coverUrl, type ParsedEvent, parseEventRecord} from '../record'
+import {type EventView} from '../types'
 import {eventAtUri, type EventRef, makeEventLink} from '../url'
 import {EventMeta} from './EventMeta'
 import {RsvpButtons} from './RsvpButtons'
@@ -34,9 +35,6 @@ export function EventEmbed({
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
 }) {
-  const t = useTheme()
-  const {_, i18n} = useLingui()
-  const openLink = useOpenLink()
   const {data: did} = useResolveDidQuery(eventRef.actor)
   const {data: event} = useEventQuery(
     did ? eventAtUri(did, eventRef.rkey) : undefined,
@@ -50,6 +48,33 @@ export function EventEmbed({
     return <ExternalEmbed link={link} onOpen={onOpen} style={style} />
   }
 
+  return (
+    <EventEmbedCard
+      event={event}
+      parsed={parsed}
+      rkey={eventRef.rkey}
+      onOpen={onOpen}
+      style={style}
+    />
+  )
+}
+
+export function EventEmbedCard({
+  event,
+  parsed,
+  rkey,
+  onOpen,
+  style,
+}: {
+  event: EventView
+  parsed: ParsedEvent
+  rkey: string
+  onOpen?: () => void
+  style?: StyleProp<ViewStyle>
+}) {
+  const t = useTheme()
+  const {_, i18n} = useLingui()
+  const openLink = useOpenLink()
   const phase = eventPhase(parsed, new Date())
   const cover = coverUrl(event)
   const poster = eventPoster(event.uri, parsed)
@@ -63,7 +88,7 @@ export function EventEmbed({
         style,
       ]}>
       <Link
-        to={makeEventLink(event.creator, eventRef.rkey)}
+        to={makeEventLink(event.creator, rkey)}
         label={eventLinkLabel(i18n, event, parsed, phase)}
         onPress={onOpen}>
         <View style={[a.w_full]}>
