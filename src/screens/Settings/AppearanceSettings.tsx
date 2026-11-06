@@ -13,7 +13,12 @@ import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
-import {useSetThemePrefs, useThemePrefs} from '#/state/shell'
+import {
+  useHomeView,
+  useSetHomeView,
+  useSetThemePrefs,
+  useThemePrefs,
+} from '#/state/shell'
 import {SettingsListItem as AppIconSettingsListItem} from '#/screens/Settings/AppIconSettings/SettingsListItem'
 import {type Alf, atoms as a, native, useAlf, useTheme} from '#/alf'
 import * as SegmentedControl from '#/components/forms/SegmentedControl'
@@ -34,6 +39,8 @@ export function AppearanceSettingsScreen({}: Props) {
 
   const {colorMode, darkTheme} = useThemePrefs()
   const {setColorMode, setDarkTheme} = useSetThemePrefs()
+  const homeView = useHomeView()
+  const setHomeView = useSetHomeView()
 
   const onChangeAppearance = useCallback(
     (value: 'light' | 'system' | 'dark') => {
@@ -163,6 +170,17 @@ export function AppearanceSettingsScreen({}: Props) {
                 ]}
                 value={fonts.scale}
                 onChange={onChangeFontScale}
+              />
+
+              <AppearanceToggleButtonGroup
+                title={_(msg`Home view`)}
+                icon={PhoneIcon}
+                items={[
+                  {label: _(msg`Pager`), name: 'pager'},
+                  {label: _(msg`Board`), name: 'board'},
+                ]}
+                value={homeView}
+                onChange={setHomeView}
               />
 
               {IS_NATIVE && IS_INTERNAL && (

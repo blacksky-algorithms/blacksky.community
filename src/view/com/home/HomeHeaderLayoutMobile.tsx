@@ -24,9 +24,11 @@ import {IS_DEV, IS_LIQUID_GLASS} from '#/env'
 
 export function HomeHeaderLayoutMobile({
   children,
+  fixed = true,
 }: {
   children: React.ReactNode
   tabBarAnchor: React.ReactElement | null | undefined
+  fixed?: boolean
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -41,7 +43,7 @@ export function HomeHeaderLayoutMobile({
   return (
     <Animated.View
       style={[
-        a.fixed,
+        fixed && a.fixed,
         a.z_10,
         t.atoms.bg,
         {
@@ -50,7 +52,7 @@ export function HomeHeaderLayoutMobile({
           right: 0,
         },
         IS_LIQUID_GLASS && {paddingTop: insets.top},
-        headerMinimalShellTransform,
+        fixed && headerMinimalShellTransform,
       ]}
       onLayout={e => {
         headerHeight.set(e.nativeEvent.layout.height)
