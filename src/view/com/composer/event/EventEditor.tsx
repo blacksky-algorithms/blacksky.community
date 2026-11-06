@@ -1,9 +1,13 @@
 import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
+import {useQuery} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
+import {getLinkMeta} from '#/lib/link-meta/link-meta'
+import {useAgent} from '#/state/session'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
 import {type PostAction} from '#/view/com/composer/state/composer'
+import {UserBanner} from '#/view/com/util/UserBanner'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
@@ -19,6 +23,7 @@ import {
   type EventDraftFields,
   type EventDraftStep,
   eventEndsBeforeStart,
+  eventLocationUrl,
   eventStartsInPast,
 } from '#/features/events/draft'
 
@@ -46,6 +51,18 @@ export function EventEditor({
         ? !eventEndsBeforeStart(event)
         : true
   const isLastStep = stepIndex === STEPS.length - 1
+  const linkImage = useLinkImage(
+    event.step === 'cover' && !event.cover && !event.coverRemoved
+      ? eventLocationUrl(event)
+      : undefined,
+  )
+  const cover = event.cover
+    ? 'url' in event.cover
+      ? event.cover.url
+      : event.cover.path
+    : event.coverRemoved
+      ? undefined
+      : linkImage
 
   return (
     <View
@@ -89,9 +106,31 @@ export function EventEditor({
       )}
       {event.step === 'when' && <WhenStep event={event} update={update} />}
       {event.step === 'cover' && (
-        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-          <Trans>Select the event image</Trans>
-        </Text>
+        <View style={[a.gap_xs]}>
+          <TextField.LabelText>
+            <Trans>Select the event image</Trans>
+          </TextField.LabelText>
+          <View style={[a.rounded_sm, a.overflow_hidden]}>
+            <UserBanner
+              banner={cover}
+              onSelectNewBanner={image =>
+                update(
+                  image
+                    ? {
+                        cover: {
+                          path: image.path,
+                          mime: image.mime,
+                          width: image.width,
+                          height: image.height,
+                        },
+                        coverRemoved: false,
+                      }
+                    : {cover: undefined, coverRemoved: true},
+                )
+              }
+            />
+          </View>
+        </View>
       )}
       {event.step === 'done' && (
         <View style={[a.flex_row, a.align_center, a.justify_between]}>
@@ -142,9 +181,12 @@ export function EventEditor({
               variant="solid"
               color="primary"
               disabled={!canContinue}
-              onPress={() =>
+              onPress={() => {
+                if (isLastStep && !event.cover && cover) {
+                  update({cover: {url: cover}})
+                }
                 setStep(isLastStep ? 'done' : STEPS[stepIndex + 1])
-              }>
+              }}>
               <ButtonText>
                 {isLastStep ? (
                   <Trans>Create event</Trans>
@@ -278,4 +320,15 @@ function Counter({count, max}: {count: number; max: number}) {
       {`${count} / ${max}`}
     </Text>
   )
+}
+
+function useLinkImage(url: string | undefined) {
+  const agent = useAgent()
+  const {data} = useQuery({
+    queryKey: ['event-cover-link-image', url],
+    queryFn: async () => (await getLinkMeta(agent, url!)).image ?? null,
+    enabled: !!url,
+    staleTime: Infinity,
+  })
+  return data ?? undefined
 }

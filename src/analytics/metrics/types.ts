@@ -1181,6 +1181,7 @@ export type Events = {
     uri: string
     hasDescription: boolean
     hasLocation: boolean
+    hasCover: boolean
   }
   'assembly:create': {
     conversationId: string

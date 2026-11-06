@@ -1,9 +1,12 @@
 import {type AtpAgent} from '@atproto/api'
 import {type QueryClient} from '@tanstack/react-query'
 
+import {logger} from '#/logger'
 import {type EventDraft} from '#/features/events/draft'
 import {post} from '../index'
+import {imageToThumb} from '../resolve'
 import {postToSpace} from '../space-post'
+import {uploadBlob} from '../upload-blob'
 
 jest.mock('expo-localization', () => ({
   getLocales: () => [{languageTag: 'en-US', regionCode: 'US'}],
@@ -26,6 +29,15 @@ jest.mock('multiformats/cid', () => ({
   CID: {createV1: () => ({toString: () => 'bafyreifake'})},
 }))
 jest.mock('../space-post', () => ({postToSpace: jest.fn()}))
+jest.mock('../resolve', () => ({imageToThumb: jest.fn()}))
+jest.mock('../upload-blob', () => ({uploadBlob: jest.fn()}))
+
+const COVER_BLOB = {
+  $type: 'blob',
+  ref: {$link: 'bafkreicover'},
+  mimeType: 'image/jpeg',
+  size: 1234,
+}
 
 const queryClient = {invalidateQueries: jest.fn()} as unknown as QueryClient
 const SPACE = 'at://did:plc:community/space/community.blacksky.feed/private'
@@ -145,5 +157,92 @@ describe('publishing a post with an event', () => {
       }),
     ).rejects.toThrow('Events are only available on public posts.')
     expect(jest.mocked(postToSpace)).not.toHaveBeenCalled()
+  })
+
+  describe('with a cover image', () => {
+    let warn: jest.SpyInstance
+    beforeEach(() => {
+      jest.mocked(uploadBlob).mockReset()
+      jest.mocked(imageToThumb).mockReset()
+      jest
+        .mocked(uploadBlob)
+        .mockResolvedValue({data: {blob: COVER_BLOB}} as never)
+      warn = jest.spyOn(logger, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => warn.mockRestore())
+
+    async function publish(cover: EventDraft['cover']) {
+      const {agent, applyWrites} = setup()
+      await post(agent, queryClient, {
+        thread: thread({event: {...event, cover}}),
+      })
+      const [eventWrite, postWrite] = applyWrites.mock.calls[0][0].writes
+      return {eventWrite, postWrite}
+    }
+
+    it('uploads a picked photo once and uses it for the event and the link card', async () => {
+      const {eventWrite, postWrite} = await publish({
+        path: 'file:///cover.jpg',
+        mime: 'image/jpeg',
+        width: 1500,
+        height: 500,
+      })
+
+      expect(uploadBlob).toHaveBeenCalledTimes(1)
+      expect(uploadBlob).toHaveBeenCalledWith(
+        expect.anything(),
+        'file:///cover.jpg',
+        'image/jpeg',
+      )
+      expect(eventWrite.value.media).toEqual([
+        {
+          role: 'thumbnail',
+          content: COVER_BLOB,
+          aspect_ratio: {width: 1500, height: 500},
+        },
+      ])
+      expect(postWrite.value.embed?.external.thumb).toBe(COVER_BLOB)
+    })
+
+    it("downloads a link's image before uploading it", async () => {
+      jest.mocked(imageToThumb).mockResolvedValue({
+        source: {
+          id: 'x',
+          path: 'file:///link.jpg',
+          mime: 'image/jpeg',
+          width: 1200,
+          height: 630,
+        },
+      } as never)
+
+      const {eventWrite} = await publish({url: 'https://example.com/og.jpg'})
+
+      expect(imageToThumb).toHaveBeenCalledWith('https://example.com/og.jpg')
+      expect(uploadBlob).toHaveBeenCalledWith(
+        expect.anything(),
+        'file:///link.jpg',
+        'image/jpeg',
+      )
+      expect(eventWrite.value.media).toEqual([
+        expect.objectContaining({aspect_ratio: {width: 1200, height: 630}}),
+      ])
+    })
+
+    it('still publishes without the image when the upload fails', async () => {
+      jest.mocked(uploadBlob).mockRejectedValue(new Error('offline'))
+
+      const {eventWrite, postWrite} = await publish({
+        path: 'file:///cover.jpg',
+        mime: 'image/jpeg',
+        width: 1500,
+        height: 500,
+      })
+
+      expect(eventWrite.value).not.toHaveProperty('media')
+      expect(postWrite.value.embed?.external).not.toHaveProperty('thumb')
+      expect(warn).toHaveBeenCalledWith('Failed to attach the event image', {
+        safeMessage: 'offline',
+      })
+    })
   })
 })

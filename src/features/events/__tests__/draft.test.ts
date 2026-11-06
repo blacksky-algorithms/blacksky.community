@@ -175,6 +175,22 @@ describe('event drafts', () => {
       expect(parseEventRecord(record)?.location).toBe('Prospect Park')
     })
 
+    it('stores a cover as the thumbnail media', () => {
+      const blob = {ref: {$link: 'bafkreicover'}} as never
+      expect(
+        buildEventRecord(draft(), {
+          ...opts,
+          cover: {blob, width: 1500, height: 500},
+        }).media,
+      ).toEqual([
+        {
+          role: 'thumbnail',
+          content: blob,
+          aspect_ratio: {width: 1500, height: 500},
+        },
+      ])
+    })
+
     it('leaves out a place when the country is unknown', () => {
       const record = buildEventRecord(draft({location: 'Prospect Park'}), {
         now: NOW,

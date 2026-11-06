@@ -1118,6 +1118,7 @@ export const ComposePost = ({
           uri: result.event.uri,
           hasDescription: event.description.trim().length > 0,
           hasLocation: event.location.trim().length > 0,
+          hasCover: !!event.cover,
         })
       }
 

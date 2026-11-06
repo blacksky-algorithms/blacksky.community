@@ -70,6 +70,7 @@ import {
   buildEventExternal,
   buildEventRecord,
   deviceTimeZone,
+  type EventCover,
 } from '#/features/events/draft'
 import {EVENT_COLLECTION} from '#/features/events/types'
 import {eventAtUri} from '#/features/events/url'
@@ -302,6 +303,14 @@ export async function post(
     langs = opts.langs.slice(0, 3)
   }
 
+  const eventCover = eventPost?.embed.event?.cover
+    ? await uploadEventCover(
+        agent,
+        eventPost.embed.event.cover,
+        opts.onStateChange,
+      )
+    : undefined
+
   const did = agent.assertDid
   const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
   const uris: string[] = []
@@ -319,11 +328,14 @@ export async function post(
       draft === eventPost && eventRkey
         ? Promise.resolve({
             $type: 'app.bsky.embed.external' as const,
-            external: buildEventExternal(draft.embed.event!, {
-              did,
-              rkey: eventRkey,
-              locale: locale?.languageTag ?? 'en-US',
-            }),
+            external: {
+              ...buildEventExternal(draft.embed.event!, {
+                did,
+                rkey: eventRkey,
+                locale: locale?.languageTag ?? 'en-US',
+              }),
+              ...(eventCover && {thumb: eventCover.blob}),
+            },
           })
         : resolveEmbed(agent, queryClient, draft, opts.onStateChange)
     let labels: $Typed<ComAtprotoLabelDefs.SelfLabels> | undefined
@@ -417,6 +429,7 @@ export async function post(
         now: new Date(),
         timeZone: deviceTimeZone(),
         country: locale?.regionCode ?? undefined,
+        cover: eventCover,
       }),
     })
   }
@@ -913,6 +926,26 @@ async function resolveAssembly(
       }),
       thumb: await uploadAssemblyThumb(agent, conversationId, onStateChange),
     },
+  }
+}
+
+async function uploadEventCover(
+  agent: AtpAgent,
+  cover: EventCover,
+  onStateChange: ((state: string) => void) | undefined,
+): Promise<{blob: BlobRef; width: number; height: number} | undefined> {
+  try {
+    const image =
+      'url' in cover ? (await imageToThumb(cover.url))?.source : cover
+    if (!image) throw new Error('The image could not be read')
+    onStateChange?.(t`Uploading event image...`)
+    const response = await uploadBlob(agent, image.path, image.mime)
+    return {blob: response.data.blob, width: image.width, height: image.height}
+  } catch (e) {
+    logger.warn(`Failed to attach the event image`, {
+      safeMessage: e instanceof Error ? e.message : String(e),
+    })
+    return undefined
   }
 }
 

@@ -1,3 +1,4 @@
+import {type BlobRef} from '@atproto/api'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
@@ -11,6 +12,10 @@ const PAST_START_GRACE_MS = 15 * 60e3
 
 export type EventDraftStep = 'details' | 'when' | 'cover' | 'done'
 
+export type EventCover =
+  | {path: string; mime: string; width: number; height: number}
+  | {url: string}
+
 export type EventDraft = {
   step: EventDraftStep
   name: string
@@ -18,6 +23,8 @@ export type EventDraft = {
   location: string
   startsAt: string
   endsAt: string
+  cover?: EventCover
+  coverRemoved?: boolean
 }
 
 export type EventDraftFields = Omit<EventDraft, 'step'>
@@ -104,6 +111,10 @@ export function deviceTimeZone(): string | undefined {
   }
 }
 
+export function eventLocationUrl(draft: EventDraft): string | undefined {
+  return webUrl(draft.location.trim())
+}
+
 function webUrl(value: string): string | undefined {
   try {
     const {protocol} = new URL(value)
@@ -115,7 +126,17 @@ function webUrl(value: string): string | undefined {
 
 export function buildEventRecord(
   draft: EventDraft,
-  {now, timeZone, country}: {now: Date; timeZone?: string; country?: string},
+  {
+    now,
+    timeZone,
+    country,
+    cover,
+  }: {
+    now: Date
+    timeZone?: string
+    country?: string
+    cover?: {blob: BlobRef; width: number; height: number}
+  },
 ) {
   const description = draft.description.trim()
   const location = draft.location.trim()
@@ -129,6 +150,15 @@ export function buildEventRecord(
     status: `${EVENT_COLLECTION}#scheduled`,
     ...(description && {description}),
     ...(timeZone && {timezone: timeZone}),
+    ...(cover && {
+      media: [
+        {
+          role: 'thumbnail',
+          content: cover.blob,
+          aspect_ratio: {width: cover.width, height: cover.height},
+        },
+      ],
+    }),
     ...(locationUrl
       ? {
           mode: `${EVENT_COLLECTION}#virtual`,

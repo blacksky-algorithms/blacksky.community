@@ -143,6 +143,53 @@ jest.mock('../EventDateRange', () => {
   }
 })
 
+const mockLinkImage = jest.fn()
+jest.mock('@tanstack/react-query', () => ({
+  useQuery: ({enabled}: {enabled: boolean}) => ({
+    data: enabled ? mockLinkImage() : undefined,
+  }),
+}))
+jest.mock('#/state/session', () => ({useAgent: () => ({})}))
+jest.mock('#/lib/link-meta/link-meta', () => ({getLinkMeta: jest.fn()}))
+jest.mock('#/view/com/util/UserBanner', () => {
+  const {Pressable, Text, View} = require('react-native')
+  return {
+    UserBanner: ({
+      banner,
+      onSelectNewBanner,
+    }: {
+      banner?: string
+      onSelectNewBanner: (image: unknown) => void
+    }) => (
+      <View>
+        <Text testID="coverShown">{banner ?? 'none'}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Pick"
+          accessibilityHint=""
+          testID="pickCover"
+          onPress={() =>
+            onSelectNewBanner({
+              path: 'file:///picked.jpg',
+              mime: 'image/jpeg',
+              width: 1500,
+              height: 500,
+              size: 1,
+            })
+          }
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Remove"
+          accessibilityHint=""
+          testID="removeCover"
+          onPress={() => onSelectNewBanner(null)}
+        />
+      </View>
+    ),
+  }
+})
+
 import {EventEditor} from '../EventEditor'
 
 function composerWithEvent(): ComposerState {
@@ -168,13 +215,19 @@ function Harness() {
   )
   const post = state.thread.posts[0]
   if (!post.embed.event) return null
+  const {Text} = require('react-native')
   return (
-    <EventEditor
-      event={post.embed.event}
-      dispatch={postAction =>
-        dispatch({type: 'update_post', postId: post.id, postAction})
-      }
-    />
+    <>
+      <EventEditor
+        event={post.embed.event}
+        dispatch={postAction =>
+          dispatch({type: 'update_post', postId: post.id, postAction})
+        }
+      />
+      <Text testID="draftCover">
+        {JSON.stringify(post.embed.event.cover ?? null)}
+      </Text>
+    </>
   )
 }
 
@@ -241,5 +294,46 @@ describe('EventEditor', () => {
     expect(getByText('The end date must be after the start date.')).toBeTruthy()
     fireEvent.press(getByTestId('eventContinueBtn'))
     expect(getByTestId('eventStepLabel')).toHaveTextContent('Step 2 of 3')
+  })
+
+  function toCoverStep(location: string) {
+    const utils = render(<Harness />)
+    fireEvent.changeText(utils.getByTestId('eventNameInput'), 'Party')
+    fireEvent.press(utils.getByTestId('eventContinueBtn'))
+    fireEvent.changeText(utils.getByTestId('eventLocationInput'), location)
+    fireEvent.press(utils.getByTestId('eventContinueBtn'))
+    return utils
+  }
+
+  it("defaults the cover to the link's image and keeps it on create", () => {
+    mockLinkImage.mockReturnValue('https://example.com/og.jpg')
+    const {getByTestId} = toCoverStep('https://twitch.tv/someone')
+
+    expect(getByTestId('coverShown')).toHaveTextContent(
+      'https://example.com/og.jpg',
+    )
+    fireEvent.press(getByTestId('eventContinueBtn'))
+    expect(getByTestId('draftCover')).toHaveTextContent(
+      JSON.stringify({url: 'https://example.com/og.jpg'}),
+    )
+  })
+
+  it('lets a picked photo replace the default, and removal clear it', () => {
+    mockLinkImage.mockReturnValue('https://example.com/og.jpg')
+    const {getByTestId} = toCoverStep('https://twitch.tv/someone')
+
+    fireEvent.press(getByTestId('pickCover'))
+    expect(getByTestId('coverShown')).toHaveTextContent('file:///picked.jpg')
+
+    fireEvent.press(getByTestId('removeCover'))
+    expect(getByTestId('coverShown')).toHaveTextContent('none')
+    fireEvent.press(getByTestId('eventContinueBtn'))
+    expect(getByTestId('draftCover')).toHaveTextContent('null')
+  })
+
+  it('looks up no link image for an in-person place', () => {
+    const {getByTestId} = toCoverStep('Prospect Park')
+    expect(mockLinkImage).not.toHaveBeenCalled()
+    expect(getByTestId('coverShown')).toHaveTextContent('none')
   })
 })
