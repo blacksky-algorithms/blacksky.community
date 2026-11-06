@@ -130,7 +130,7 @@ function InnerApp() {
         }
 
         if (account) {
-          await resumeSession(account)
+          await resumeSession(account, false, true)
         } else {
           await features.init
         }

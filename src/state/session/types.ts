@@ -46,6 +46,7 @@ export type SessionApiContext = {
   resumeSession: (
     account: SessionAccount,
     isSwitchingAccounts?: boolean,
+    isAppLaunch?: boolean,
   ) => Promise<void>
   removeAccount: (account: SessionAccount) => void
   /**
