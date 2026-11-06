@@ -3495,7 +3495,7 @@ msgstr "Couldn't pin your feeds. Check your connection and try again."
 msgid "Couldn't reactivate the account. Please try again."
 msgstr "Couldn't reactivate the account. Please try again."
 
-#: src/features/events/components/RsvpButtons.tsx:39
+#: src/features/events/components/RsvpButtons.tsx:42
 #: src/screens/Event/EventHeader.tsx:294
 msgid "Couldn't update your RSVP"
 msgstr "Couldn't update your RSVP"
@@ -5849,7 +5849,7 @@ msgid "Go to user’s profile"
 msgstr "Go to user’s profile"
 
 #: src/features/events/components/ProfileEvents.tsx:101
-#: src/features/events/components/RsvpButtons.tsx:48
+#: src/features/events/components/RsvpButtons.tsx:51
 #: src/screens/Event/EventHeader.tsx:271
 #: src/screens/Event/EventHeader.tsx:366
 msgid "Going"
@@ -5859,7 +5859,7 @@ msgstr "Going"
 msgid "Going live is currently disabled for your account"
 msgstr ""
 
-#: src/features/events/components/RsvpButtons.tsx:49
+#: src/features/events/components/RsvpButtons.tsx:52
 #: src/screens/Event/EventHeader.tsx:272
 msgid "Going, tap to remove"
 msgstr "Going, tap to remove"
@@ -6503,13 +6503,13 @@ msgid "Interaction settings"
 msgstr ""
 
 #: src/features/events/components/ProfileEvents.tsx:103
-#: src/features/events/components/RsvpButtons.tsx:53
+#: src/features/events/components/RsvpButtons.tsx:56
 #: src/screens/Event/EventHeader.tsx:277
 #: src/screens/Event/EventHeader.tsx:368
 msgid "Interested"
 msgstr "Interested"
 
-#: src/features/events/components/RsvpButtons.tsx:54
+#: src/features/events/components/RsvpButtons.tsx:57
 #: src/screens/Event/EventHeader.tsx:278
 msgid "Interested, tap to remove"
 msgstr "Interested, tap to remove"
@@ -8209,13 +8209,13 @@ msgstr "Not found"
 msgid "Not Found"
 msgstr ""
 
-#: src/features/events/components/RsvpButtons.tsx:58
+#: src/features/events/components/RsvpButtons.tsx:61
 #: src/screens/Event/EventHeader.tsx:283
 #: src/screens/Event/EventHeader.tsx:369
 msgid "Not going"
 msgstr "Not going"
 
-#: src/features/events/components/RsvpButtons.tsx:59
+#: src/features/events/components/RsvpButtons.tsx:62
 #: src/screens/Event/EventHeader.tsx:284
 msgid "Not going, tap to remove"
 msgstr "Not going, tap to remove"
