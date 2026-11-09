@@ -22,7 +22,7 @@ import {VoteButtons} from './VoteButtons'
 
 const ASSEMBLY_API = `${ASSEMBLY_URL.replace(/\/+$/, '')}/api/v3`
 
-const viewedPolls = new Set<string>()
+const viewedDiscussions = new Set<string>()
 
 const VOTE_NUMBERS: Record<PollVoteValue, -1 | 0 | 1> = {
   agree: -1,
@@ -198,9 +198,9 @@ export function AssemblyEmbed({
   }, [conversationId, viewerDid])
 
   useEffect(() => {
-    if (!data || !postUri || viewedPolls.has(postUri)) return
-    viewedPolls.add(postUri)
-    ax.metric('poll:viewed', {uri: postUri, conversationId})
+    if (!data || !postUri || viewedDiscussions.has(postUri)) return
+    viewedDiscussions.add(postUri)
+    ax.metric('discussion:viewed', {uri: postUri, conversationId})
   }, [ax, data, postUri, conversationId])
 
   const handleVote = useCallback(
@@ -266,7 +266,7 @@ export function AssemblyEmbed({
           remaining: voteResult.nextComment?.remaining ?? 0,
         })
         if (postUri) {
-          ax.metric('poll:vote', {uri: postUri, conversationId, value})
+          ax.metric('discussion:vote', {uri: postUri, conversationId, value})
         }
 
         if (voteResult.nextComment) {

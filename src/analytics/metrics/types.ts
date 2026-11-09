@@ -1221,11 +1221,11 @@ export type Events = {
     remaining: number
   }
   'assembly:complete': {conversationId: string}
-  'poll:viewed': {
+  'discussion:viewed': {
     uri: string
     conversationId: string
   }
-  'poll:vote': {
+  'discussion:vote': {
     uri: string
     conversationId: string
     value: 'agree' | 'disagree' | 'pass'
