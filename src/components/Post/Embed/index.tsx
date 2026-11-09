@@ -165,6 +165,7 @@ function MediaEmbed({
             style={[a.mt_sm, rest.style]}
             postText={postRecord?.text}
             postFacets={postRecord?.facets}
+            postUri={rest.post?.uri}
           />
         </ContentHider>
       )

@@ -3,10 +3,12 @@ import {Alert} from 'react-native'
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
 
+import {setPendingAppEntry} from '#/lib/appEntry'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
 import {
   CHAT_INVITE_CODE_REGEX,
+  getDeepLinkDestinationKind,
   GROUP_INVITE_CODE_REGEX,
   shouldHandleIncomingIntentUrl,
 } from '#/lib/strings/url-helpers'
@@ -109,6 +111,12 @@ export function useIntentHandler() {
     }
 
     const processIncomingURL = (url: string, fromLinkEvent: boolean) => {
+      if (fromLinkEvent) {
+        setPendingAppEntry({
+          source: 'link',
+          destination: getDeepLinkDestinationKind(url),
+        })
+      }
       if (
         !shouldHandleIncomingIntentUrl(url, previousIntentUrl, fromLinkEvent)
       ) {

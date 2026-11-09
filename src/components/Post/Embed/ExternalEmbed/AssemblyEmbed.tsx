@@ -22,6 +22,8 @@ import {VoteButtons} from './VoteButtons'
 
 const ASSEMBLY_API = `${ASSEMBLY_URL.replace(/\/+$/, '')}/api/v3`
 
+const viewedDiscussions = new Set<string>()
+
 const VOTE_NUMBERS: Record<PollVoteValue, -1 | 0 | 1> = {
   agree: -1,
   disagree: 1,
@@ -95,11 +97,13 @@ export function AssemblyEmbed({
   link,
   postText,
   postFacets,
+  postUri,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   params: EmbedPlayerParams
   postText?: string
   postFacets?: AppBskyRichtextFacet.Main[]
+  postUri?: string
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -193,6 +197,12 @@ export function AssemblyEmbed({
     }
   }, [conversationId, viewerDid])
 
+  useEffect(() => {
+    if (!data || !postUri || viewedDiscussions.has(postUri)) return
+    viewedDiscussions.add(postUri)
+    ax.metric('discussion:viewed', {uri: postUri, conversationId})
+  }, [ax, data, postUri, conversationId])
+
   const handleVote = useCallback(
     async (value: PollVoteValue) => {
       if (!statement || voting) return
@@ -255,6 +265,9 @@ export function AssemblyEmbed({
           value,
           remaining: voteResult.nextComment?.remaining ?? 0,
         })
+        if (postUri) {
+          ax.metric('discussion:vote', {uri: postUri, conversationId, value})
+        }
 
         if (voteResult.nextComment) {
           setStatement(voteResult.nextComment)
@@ -272,7 +285,7 @@ export function AssemblyEmbed({
         setVoting(false)
       }
     },
-    [agent, ax, statement, conversationId, voting, participationToken],
+    [agent, ax, statement, conversationId, voting, participationToken, postUri],
   )
 
   const onVote = useCallback(

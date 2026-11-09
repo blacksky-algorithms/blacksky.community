@@ -58,6 +58,10 @@ export function Signup({
   }, [ax])
 
   useEffect(() => {
+    ax.metric('signup:opened', {})
+  }, [ax])
+
+  useEffect(() => {
     if (brand.services.pds.url) {
       dispatch({
         type: 'setCommunity',

@@ -6,6 +6,7 @@ import {useLingui} from '@lingui/react'
 import {CommonActions, useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
+import {setPendingAppEntry} from '#/lib/appEntry'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {type NavigationProp} from '#/lib/routes/types'
@@ -361,6 +362,7 @@ export function useNotificationsHandler() {
             reason: payload.reason,
             causedBoot: false,
           })
+          setPendingAppEntry({source: 'push', reason: payload.reason})
 
           invalidateCachedUnreadPage()
           truncateAndInvalidate(queryClient, RQKEY_NOTIFS('all'))

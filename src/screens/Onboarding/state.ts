@@ -6,7 +6,7 @@ import {
   type Emoji,
 } from '#/screens/Onboarding/StepProfile/types'
 
-type OnboardingScreen =
+export type OnboardingScreen =
   | 'profile'
   | 'pin-feeds'
   | 'belong'
