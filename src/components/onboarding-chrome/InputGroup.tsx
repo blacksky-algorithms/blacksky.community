@@ -133,6 +133,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
         onChangeText={onChangeText}
         placeholder={placeholder ? placeholder.toUpperCase() : undefined}
         placeholderTextColor={PLACEHOLDER}
+        keyboardAppearance={t.scheme}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}

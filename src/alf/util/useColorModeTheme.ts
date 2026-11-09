@@ -1,10 +1,32 @@
-import {useLayoutEffect} from 'react'
+import {useLayoutEffect, useSyncExternalStore} from 'react'
 import {type ColorSchemeName, useColorScheme} from 'react-native'
 import {type ThemeName} from '@bsky.app/alf'
 
 import {useThemePrefs} from '#/state/shell'
 import {dark, dim, light} from '#/alf/themes'
 import {IS_WEB} from '#/env'
+
+let forceDarkCount = 0
+const forceDarkListeners = new Set<() => void>()
+
+function subscribeForceDark(listener: () => void) {
+  forceDarkListeners.add(listener)
+  return () => {
+    forceDarkListeners.delete(listener)
+  }
+}
+
+function changeForceDarkCount(delta: number) {
+  forceDarkCount += delta
+  forceDarkListeners.forEach(listener => listener())
+}
+
+export function useForceDarkTheme() {
+  useLayoutEffect(() => {
+    changeForceDarkCount(1)
+    return () => changeForceDarkCount(-1)
+  }, [])
+}
 
 export function useColorModeTheme(): ThemeName {
   const theme = useThemeName()
@@ -19,6 +41,12 @@ export function useColorModeTheme(): ThemeName {
 export function useThemeName(): ThemeName {
   const colorScheme = useColorScheme()
   const {colorMode, darkTheme} = useThemePrefs()
+  const isForcedDark = useSyncExternalStore(
+    subscribeForceDark,
+    () => forceDarkCount > 0,
+  )
+
+  if (isForcedDark) return 'dim'
 
   return getThemeName(colorScheme, colorMode, darkTheme)
 }

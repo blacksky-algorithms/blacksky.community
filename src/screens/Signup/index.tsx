@@ -26,6 +26,7 @@ import {StepCommunity} from '#/screens/Signup/StepCommunity'
 import {StepHandle} from '#/screens/Signup/StepHandle'
 import {StepInfo} from '#/screens/Signup/StepInfo'
 import {atoms as a, native} from '#/alf'
+import {useForceDarkTheme} from '#/alf/util/useColorModeTheme'
 import {LinearGradientBackground} from '#/components/LinearGradientBackground'
 import {Screen} from '#/components/onboarding-chrome'
 import {ScreenTransition} from '#/components/ScreenTransition'
@@ -41,6 +42,7 @@ export function Signup({
   onPressBack: () => void
   onPressSignIn?: (handle: string) => void
 }) {
+  useForceDarkTheme()
   const ax = useAnalytics()
   const {_} = useLingui()
   const brand = useBrand()
