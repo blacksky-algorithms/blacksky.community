@@ -115,6 +115,8 @@ export function eventLocationUrl(draft: EventDraft): string | undefined {
   return webUrl(draft.location.trim())
 }
 
+// The address lexicon requires a country, and ZZ is CLDR's unknown region.
+const UNKNOWN_COUNTRY = 'ZZ'
 const BARE_DOMAIN = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(\/\S*)?$/i
 
 function webUrl(value: string): string | undefined {
@@ -167,14 +169,14 @@ export function buildEventRecord(
           mode: `${EVENT_COLLECTION}#virtual`,
           locations: [{$type: `${EVENT_COLLECTION}#uri`, uri: locationUrl}],
         }
-      : location && country
+      : location
         ? {
             mode: `${EVENT_COLLECTION}#inperson`,
             locations: [
               {
                 $type: 'community.lexicon.location.address',
                 name: location,
-                country,
+                country: country || UNKNOWN_COUNTRY,
               },
             ],
           }

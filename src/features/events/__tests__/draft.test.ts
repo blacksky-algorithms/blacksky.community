@@ -210,12 +210,16 @@ describe('event drafts', () => {
       ])
     })
 
-    it('leaves out a place when the country is unknown', () => {
+    it('keeps a place when the country is unknown', () => {
       const record = buildEventRecord(draft({location: 'Prospect Park'}), {
         now: NOW,
       })
-      expect(record).not.toHaveProperty('locations')
+      expect(record).toMatchObject({
+        mode: 'community.lexicon.calendar.event#inperson',
+        locations: [{name: 'Prospect Park', country: 'ZZ'}],
+      })
       expect(record).not.toHaveProperty('timezone')
+      expect(parseEventRecord(record)?.location).toBe('Prospect Park')
     })
   })
 
