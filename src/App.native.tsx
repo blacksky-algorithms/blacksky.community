@@ -106,7 +106,7 @@ function InnerApp() {
     async function onLaunch(account?: SessionAccount) {
       try {
         if (account) {
-          await resumeSession(account)
+          await resumeSession(account, false, true)
         } else {
           await features.init
         }

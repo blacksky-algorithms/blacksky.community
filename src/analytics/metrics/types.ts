@@ -93,6 +93,9 @@ export type Events = {
       | 'invalidGrant'
       | 'databaseClosed'
       | 'dpopSkew'
+      | 'dpopStale'
+      | 'dpopReplayed'
+      | 'dpopNonce'
       | 'dpopOther'
       | 'refreshExhausted'
       | 'subMismatch'
@@ -115,12 +118,20 @@ export type Events = {
       | 'invalidGrant'
       | 'databaseClosed'
       | 'dpopSkew'
+      | 'dpopStale'
+      | 'dpopReplayed'
+      | 'dpopNonce'
       | 'dpopOther'
       | 'refreshExhausted'
       | 'subMismatch'
       | 'timeout'
       | 'network'
+      | 'serverError'
       | 'unknown'
+    message?: string
+  }
+  'oauth:sessionResumeDegraded': {
+    errorCategory: Events['oauth:sessionResumeFailed']['errorCategory']
     message?: string
   }
   'notifications:openApp': {
