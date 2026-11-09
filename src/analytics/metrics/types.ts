@@ -5,8 +5,10 @@
 import {type Platform} from 'react-native'
 
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
+import {type DeepLinkDestinationKind} from '#/lib/strings/url-helpers'
 import {type NotificationType} from '#/state/queries/notifications/types'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
+import {type OnboardingScreen} from '#/screens/Onboarding/state'
 import {
   type RsvpLogContext,
   type RsvpMetricStatus,
@@ -160,8 +162,15 @@ export type Events = {
     referrer: string
     hostname: string
   }
+  'app:entry': {
+    source: 'push' | 'link' | 'direct'
+    coldStart: boolean
+    reason?: NotificationReason
+    destination?: DeepLinkDestinationKind
+  }
 
   // Screen events
+  'splash:presented': {}
   'splash:signInPressed': {}
   'splash:createAccountPressed': {}
   'welcomeModal:signupClicked': {}
@@ -169,6 +178,7 @@ export type Events = {
   'welcomeModal:signinClicked': {}
   'welcomeModal:dismissed': {}
   'welcomeModal:presented': {}
+  'signup:opened': {}
   'signup:nextPressed': {
     activeStep: number
     phoneVerificationRequired?: boolean
@@ -219,6 +229,9 @@ export type Events = {
   'signin:passwordReset': {}
   'signin:passwordResetSuccess': {}
   'signin:passwordResetFailure': {}
+  'onboarding:step:viewed': {
+    step: OnboardingScreen
+  }
   'onboarding:interests:nextPressed': {
     selectedInterests: string[]
     selectedInterestsLength: number
@@ -1208,6 +1221,15 @@ export type Events = {
     remaining: number
   }
   'assembly:complete': {conversationId: string}
+  'poll:viewed': {
+    uri: string
+    conversationId: string
+  }
+  'poll:vote': {
+    uri: string
+    conversationId: string
+    value: 'agree' | 'disagree' | 'pass'
+  }
 
   'embed:standardSite:view': {url: string}
   'embed:standardSite:article:press': {url: string}

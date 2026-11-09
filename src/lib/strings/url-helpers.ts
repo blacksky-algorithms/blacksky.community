@@ -5,6 +5,7 @@ import TLDs from 'tlds'
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {BSKY_SERVICE} from '#/lib/constants'
+import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
 import {isInvalidHandle} from '#/lib/strings/handles'
 import {startUriToStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
@@ -261,6 +262,31 @@ export function isBskyGroupInviteUrl(url: string): boolean {
 
 export function getDeepLinkAnalyticsTarget(url: string): string {
   return isBskyGroupInviteUrl(url) ? 'group-invite' : url
+}
+
+export type DeepLinkDestinationKind =
+  | 'post'
+  | 'profile'
+  | 'starterPack'
+  | 'event'
+  | 'other'
+
+export function getDeepLinkDestinationKind(
+  url: string,
+): DeepLinkDestinationKind {
+  let pathname: string
+  try {
+    pathname = parseLinkingUrl(url).pathname
+  } catch {
+    return 'other'
+  }
+  if (/^\/profile\/[^/]+\/post\/[^/]+/.test(pathname)) return 'post'
+  if (/^\/profile\/[^/]+\/?$/.test(pathname)) return 'profile'
+  if (/^\/(start|starter-pack|starter-pack-short)\//.test(pathname)) {
+    return 'starterPack'
+  }
+  if (/^\/event\//.test(pathname)) return 'event'
+  return 'other'
 }
 
 export function getChatInviteCodeFromUrl(url: string): string | undefined {

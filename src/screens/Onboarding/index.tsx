@@ -1,4 +1,4 @@
-import {useMemo, useReducer} from 'react'
+import {useEffect, useMemo, useReducer} from 'react'
 import {View} from 'react-native'
 
 import {useAgent} from '#/state/session'
@@ -21,6 +21,7 @@ import {StepProfile} from '#/screens/Onboarding/StepProfile'
 import {atoms as a, useTheme} from '#/alf'
 import {Portal} from '#/components/Portal'
 import {ScreenTransition} from '#/components/ScreenTransition'
+import {useAnalytics} from '#/analytics'
 
 const BLACKSKY_HANDLE_DOMAIN = 'blacksky.app'
 
@@ -39,6 +40,11 @@ export function Onboarding() {
     {blackskyOnly: isBlackskyMember},
     createInitialOnboardingState,
   )
+
+  const ax = useAnalytics()
+  useEffect(() => {
+    ax.metric('onboarding:step:viewed', {step: state.activeStep})
+  }, [ax, state.activeStep])
 
   return (
     <Portal>

@@ -69,6 +69,12 @@ export function LoggedOut({onDismiss}: {onDismiss?: () => void}) {
   const {clearRequestedAccount} = useLoggedOutViewControls()
   const setActiveLanding = useSetActiveLanding()
 
+  useEffect(() => {
+    if (screenState === ScreenState.S_LoginOrCreateAccount) {
+      ax.metric('splash:presented', {})
+    }
+  }, [ax, screenState])
+
   const queryClient = useQueryClient()
   const {accounts} = useSession()
   const agent = useAgent()

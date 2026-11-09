@@ -947,3 +947,52 @@ describe('post text reaching the card', () => {
     expect(screen.getByText(TOPIC)).toBeTruthy()
   })
 })
+
+describe('poll analytics', () => {
+  const POST_URI = 'at://did:plc:author/app.bsky.feed.post/3kpoll'
+
+  function renderPoll(postUri: string) {
+    return render(
+      <I18nProvider i18n={i18n}>
+        <AssemblyEmbed link={LINK} params={PARAMS} postUri={postUri} />
+      </I18nProvider>,
+    )
+  }
+
+  it('reports poll:viewed once per post when the card loads', async () => {
+    serve({})
+    const first = renderPoll(POST_URI)
+    await screen.findByText(SEED.txt)
+    first.unmount()
+    renderPoll(POST_URI)
+    await screen.findByText(SEED.txt)
+
+    expect(metricsNamed('poll:viewed')).toEqual([
+      ['poll:viewed', {uri: POST_URI, conversationId: CONVERSATION_ID}],
+    ])
+  })
+
+  it('reports poll:vote with the post uri', async () => {
+    const uri = `${POST_URI}vote`
+    serve({votes: [reply({nextComment: SECOND_SEED})]})
+    renderPoll(uri)
+    await screen.findByText(SEED.txt)
+    fireEvent.press(screen.getByTestId('pollVote-agree'))
+    await screen.findByText(SECOND_SEED.txt)
+
+    expect(metricsNamed('poll:vote')).toEqual([
+      ['poll:vote', {uri, conversationId: CONVERSATION_ID, value: 'agree'}],
+    ])
+  })
+
+  it('reports no poll events without an owning post', async () => {
+    serve({votes: [reply({nextComment: SECOND_SEED})]})
+    renderCard()
+    await screen.findByText(SEED.txt)
+    fireEvent.press(screen.getByTestId('pollVote-agree'))
+    await screen.findByText(SECOND_SEED.txt)
+
+    expect(metricsNamed('poll:viewed')).toEqual([])
+    expect(metricsNamed('poll:vote')).toEqual([])
+  })
+})

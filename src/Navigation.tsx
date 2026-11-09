@@ -17,6 +17,8 @@ import {
   StackActions,
 } from '@react-navigation/native'
 
+import {setPendingAppEntry, takePendingAppEntry} from '#/lib/appEntry'
+import {useOnAppStateChange} from '#/lib/appState'
 import {timeout} from '#/lib/async/timeout'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {useColorSchemeStyle} from '#/lib/hooks/useColorSchemeStyle'
@@ -30,6 +32,7 @@ import {
 } from '#/lib/hooks/useNotificationHandler'
 import {useWebScrollRestoration} from '#/lib/hooks/useWebScrollRestoration'
 import {useCallOnce} from '#/lib/once'
+import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
 import {buildStateObject} from '#/lib/routes/helpers'
 import {
   type AllNavigatorParams,
@@ -47,6 +50,7 @@ import {bskyTitle} from '#/lib/strings/headings'
 import {
   CHAT_INVITE_CODE_REGEX,
   getDeepLinkAnalyticsTarget,
+  getDeepLinkDestinationKind,
   GROUP_INVITE_CODE_REGEX,
 } from '#/lib/strings/url-helpers'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
@@ -142,7 +146,7 @@ import {
   EmailDialogScreenID,
   useEmailDialogControl,
 } from '#/components/dialogs/EmailDialog'
-import {useAnalytics} from '#/analytics'
+import {type Metrics, useAnalytics} from '#/analytics'
 import {setNavigationMetadata} from '#/analytics/metadata'
 import {IS_LIQUID_GLASS, IS_NATIVE, IS_WEB} from '#/env'
 import {InviteScannerScreen} from '#/features/inviteFriends'
@@ -913,6 +917,16 @@ const LINKING = {
 } satisfies LinkingOptions<AllNavigatorParams>
 
 let didHandlePushNotificationEntry = false
+let didRecordAppEntry = false
+
+function appEntryFromUrl(
+  url: string | null,
+): Omit<Metrics['app:entry'], 'coldStart'> {
+  if (!url || (IS_WEB && parseLinkingUrl(url).pathname === '/')) {
+    return {source: 'direct'}
+  }
+  return {source: 'link', destination: getDeepLinkDestinationKind(url)}
+}
 
 function RoutesContainer({children}: React.PropsWithChildren<{}>) {
   const ax = useAnalytics()
@@ -926,6 +940,27 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
   const emailDialogControl = useEmailDialogControl()
   const closeAllActiveElements = useCloseAllActiveElements()
   const linkingUrl = Linking.useLinkingURL()
+
+  const wasBackgrounded = useRef(false)
+  useOnAppStateChange(
+    useCallback(
+      state => {
+        if (state === 'background') {
+          wasBackgrounded.current = true
+        } else if (state === 'active' && wasBackgrounded.current) {
+          wasBackgrounded.current = false
+          // push/link handlers may run just after the app becomes active
+          setTimeout(() => {
+            ax.metric('app:entry', {
+              coldStart: false,
+              ...(takePendingAppEntry() ?? {source: 'direct'}),
+            })
+          }, 500)
+        }
+      },
+      [ax],
+    ),
+  )
 
   /**
    * Handle navigation to the messages tab, or prepares for account switch.
@@ -1009,6 +1044,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
           reason: payload.reason,
           causedBoot: true,
         })
+        setPendingAppEntry({source: 'push', reason: payload.reason})
 
         if (isChatNotificationPayload(payload)) {
           handleChatNotification(payload)
@@ -1041,6 +1077,14 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
     previousScreen.current = currentScreen
 
     handlePushNotificationEntry()
+
+    if (!didRecordAppEntry) {
+      didRecordAppEntry = true
+      ax.metric('app:entry', {
+        coldStart: true,
+        ...(takePendingAppEntry() ?? appEntryFromUrl(linkingUrl)),
+      })
+    }
 
     ax.metric('router:navigate', {})
 

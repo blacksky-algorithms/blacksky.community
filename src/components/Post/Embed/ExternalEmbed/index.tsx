@@ -38,6 +38,7 @@ export const ExternalEmbed = ({
   hideAlt,
   postText,
   postFacets,
+  postUri,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
@@ -45,6 +46,7 @@ export const ExternalEmbed = ({
   hideAlt?: boolean
   postText?: string
   postFacets?: AppBskyRichtextFacet.Main[]
+  postUri?: string
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -114,6 +116,7 @@ export const ExternalEmbed = ({
           params={embedPlayerParams}
           postText={postText}
           postFacets={postFacets}
+          postUri={postUri}
         />
       </View>
     )
