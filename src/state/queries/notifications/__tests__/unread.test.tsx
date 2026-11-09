@@ -1,11 +1,13 @@
 import {type PropsWithChildren} from 'react'
 import {AppState} from 'react-native'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {act, renderHook} from '@testing-library/react-native'
+import {act, renderHook, waitFor} from '@testing-library/react-native'
 
 const mockGetUnreadCount = jest.fn()
 const mockFetchPage = jest.fn()
 const mockResetBadgeCount = jest.fn()
+const mockSyncBadgeCount = jest.fn().mockResolvedValue(undefined)
+let mockHasSession = false
 const mockTruncateAndInvalidate = jest.fn()
 const mockUpdateSeen = jest.fn().mockResolvedValue(undefined)
 const mockBroadcastPostMessage = jest.fn()
@@ -41,6 +43,7 @@ jest.mock('#/lib/broadcast', () =>
 )
 jest.mock('#/lib/notifications/notifications', () => ({
   resetBadgeCount: () => mockResetBadgeCount(),
+  syncBadgeCount: (count: number) => mockSyncBadgeCount(count),
 }))
 jest.mock('#/state/preferences/moderation-opts', () => ({
   useModerationOpts: () => undefined,
@@ -51,7 +54,7 @@ jest.mock('#/state/queries/util', () => ({
 }))
 jest.mock('#/state/session', () => ({
   useAgent: () => mockAgent,
-  useSession: () => ({hasSession: false}),
+  useSession: () => ({hasSession: mockHasSession}),
 }))
 jest.mock('../util', () => ({
   fetchPage: (...args: unknown[]) => mockFetchPage(...args),
@@ -114,6 +117,7 @@ describe('notification unread synchronization', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockBroadcastListener = undefined
+    mockHasSession = false
     Object.defineProperty(AppState, 'currentState', {
       configurable: true,
       value: 'active',
@@ -204,6 +208,55 @@ describe('notification unread synchronization', () => {
       HOME_APPVIEW_PINNED_OPTS,
     )
     expect(mockResetBadgeCount).toHaveBeenCalledTimes(1)
+    expect(mockSyncBadgeCount).not.toHaveBeenCalled()
+  })
+
+  it('syncs the app icon badge with the unread count', async () => {
+    mockFetchPage.mockResolvedValue({page: visiblePage, indexedAt: ''})
+    const {result} = setup()
+    await act(() => result.current.api.checkUnread())
+    expect(mockSyncBadgeCount).toHaveBeenCalledWith(2)
+  })
+
+  it('syncs a cleared badge when everything was read elsewhere', async () => {
+    mockFetchPage.mockResolvedValue({page, indexedAt: ''})
+    const {result} = setup()
+    await act(() => result.current.api.checkUnread())
+    expect(mockSyncBadgeCount).toHaveBeenCalledWith(0)
+  })
+
+  it('rechecks unread notifications when the app returns from the background', async () => {
+    let onAppStateChange: ((state: string) => void) | undefined
+    const remove = jest.fn()
+    const addEventListener = jest
+      .spyOn(AppState, 'addEventListener')
+      .mockImplementation((_type, listener) => {
+        onAppStateChange = listener as (state: string) => void
+        return {remove}
+      })
+    mockHasSession = true
+    mockFetchPage.mockResolvedValue({page, indexedAt: ''})
+    const {unmount} = setup()
+    await waitFor(() => expect(mockSyncBadgeCount).toHaveBeenCalled())
+    mockFetchPage.mockClear()
+    mockSyncBadgeCount.mockClear()
+
+    act(() => {
+      onAppStateChange?.('inactive')
+      onAppStateChange?.('active')
+    })
+    expect(mockFetchPage).not.toHaveBeenCalled()
+
+    act(() => {
+      onAppStateChange?.('background')
+      onAppStateChange?.('active')
+    })
+    await waitFor(() => expect(mockSyncBadgeCount).toHaveBeenCalledWith(0))
+    expect(mockFetchPage).toHaveBeenCalledTimes(1)
+
+    unmount()
+    expect(remove).toHaveBeenCalled()
+    addEventListener.mockRestore()
   })
 
   it('prevents an older refresh from overwriting a broadcast badge', async () => {

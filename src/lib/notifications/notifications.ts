@@ -16,7 +16,7 @@ import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, useAgent, useSession} from '#/state/session'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
 import {useAnalytics} from '#/analytics'
-import {IS_DEV, IS_NATIVE} from '#/env'
+import {IS_DEV, IS_IOS, IS_NATIVE} from '#/env'
 
 /**
  * @private
@@ -289,6 +289,29 @@ export async function decrementBadgeCount(by: number) {
 export async function resetBadgeCount() {
   await BackgroundNotificationHandler.setBadgeCountAsync(0)
   await setBadgeCountAsync(0)
+}
+
+/**
+ * Lowers the app icon badge and the extension's stored count to the unread
+ * count, so notifications read elsewhere stop inflating the badge.
+ */
+export async function syncBadgeCount(unreadCount: number) {
+  if (!IS_IOS) return
+  try {
+    const [prefs, iconCount] = await Promise.all([
+      BackgroundNotificationHandler.getAllPrefsAsync(),
+      getBadgeCountAsync(),
+    ])
+    const stored = (prefs as {badgeCount?: unknown} | null)?.badgeCount
+    if (typeof stored === 'number' && stored > unreadCount) {
+      await BackgroundNotificationHandler.setBadgeCountAsync(unreadCount)
+    }
+    if (iconCount > unreadCount) {
+      await setBadgeCountAsync(unreadCount)
+    }
+  } catch (error) {
+    notyLogger.error(`syncBadgeCount: failed`, {safeMessage: error})
+  }
 }
 
 export async function unregisterPushToken(agents: AtpAgent[]) {

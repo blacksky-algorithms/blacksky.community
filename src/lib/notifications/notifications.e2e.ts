@@ -15,3 +15,5 @@ export function useGetAndRegisterPushToken() {
 export async function decrementBadgeCount(_by: number) {}
 
 export async function resetBadgeCount() {}
+
+export async function syncBadgeCount(_unreadCount: number) {}
