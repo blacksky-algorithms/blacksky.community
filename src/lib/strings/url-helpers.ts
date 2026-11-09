@@ -269,6 +269,7 @@ export type DeepLinkDestinationKind =
   | 'profile'
   | 'starterPack'
   | 'event'
+  | 'groupInvite'
   | 'other'
 
 export function getDeepLinkDestinationKind(
@@ -286,6 +287,7 @@ export function getDeepLinkDestinationKind(
     return 'starterPack'
   }
   if (/^\/event\//.test(pathname)) return 'event'
+  if (GROUP_INVITE_CODE_REGEX.test(pathname)) return 'groupInvite'
   return 'other'
 }
 
