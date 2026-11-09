@@ -163,7 +163,11 @@ export function EventEmbedCard({
               </ButtonText>
             </Button>
           )}
-          <RsvpButtons event={event} disabled={preview} />
+          <RsvpButtons
+            event={event}
+            logContext="EventEmbed"
+            disabled={preview}
+          />
         </View>
       )}
     </View>

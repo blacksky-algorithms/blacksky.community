@@ -257,7 +257,7 @@ function RsvpChoices({event}: {event: EventView}) {
   const t = useTheme()
   const {_} = useLingui()
   const requireAuth = useRequireAuth()
-  const {mutate, isPending} = useRsvpMutation(event)
+  const {mutate, isPending} = useRsvpMutation(event, 'EventPage')
   const current = event.viewer?.rsvp?.status
   const choices: {
     status: RsvpStatus

@@ -10,7 +10,7 @@ import {
 import {inLiveWindow, isLiveOnStreamplace} from '../live'
 import {eventPoster} from '../poster'
 import {coverUrl, parseEventRecord} from '../record'
-import {applyRsvp} from '../rsvp-state'
+import {applyRsvp, rsvpMetricStatus} from '../rsvp-state'
 import {mergeEventTimeline} from '../timeline'
 import {
   type EventView,
@@ -282,6 +282,19 @@ describe('applyRsvp', () => {
   it('does not count not-going', () => {
     const next = applyRsvp(event(), {uri: 'u', status: RSVP_NOTGOING})
     expect([next.goingCount, next.interestedCount]).toEqual([3, 2])
+  })
+})
+
+describe('rsvpMetricStatus', () => {
+  it('shortens the lexicon statuses', () => {
+    expect(rsvpMetricStatus(RSVP_GOING)).toBe('going')
+    expect(rsvpMetricStatus(RSVP_INTERESTED)).toBe('interested')
+    expect(rsvpMetricStatus(RSVP_NOTGOING)).toBe('notgoing')
+  })
+
+  it('drops statuses outside the lexicon', () => {
+    expect(rsvpMetricStatus('going')).toBeUndefined()
+    expect(rsvpMetricStatus(undefined)).toBeUndefined()
   })
 })
 
