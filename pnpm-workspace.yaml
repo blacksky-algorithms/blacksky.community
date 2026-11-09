@@ -42,6 +42,7 @@ allowBuilds:
   'esbuild': true
   'unrs-resolver': true
 patchedDependencies:
+  '@atproto/oauth-client@0.6.1': patches/@atproto__oauth-client@0.6.1.patch
   '@sentry/expo-upload-sourcemaps@8.18.0': patches/@sentry__expo-upload-sourcemaps@8.18.0.patch
   'core-js@3.49.0': patches/core-js@3.49.0.patch
   'expo-age-range@0.2.18': patches/expo-age-range@0.2.18.patch

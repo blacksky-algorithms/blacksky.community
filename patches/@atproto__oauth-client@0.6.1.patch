@@ -1,0 +1,63 @@
+diff --git a/dist/oauth-session.js b/dist/oauth-session.js
+index 02882b2..11e0e0b 100644
+--- a/dist/oauth-session.js
++++ b/dist/oauth-session.js
+@@ -6,6 +6,18 @@ const token_invalid_error_js_1 = require("./errors/token-invalid-error.js");
+ const token_revoked_error_js_1 = require("./errors/token-revoked-error.js");
+ const fetch_dpop_js_1 = require("./fetch-dpop.js");
+ const ReadableStream = globalThis.ReadableStream;
++function isSameDpopKey(a, b) {
++    const x = a?.bareJwk;
++    const y = b?.bareJwk;
++    if (!x || !y)
++        return false;
++    return (x.kty === y.kty &&
++        x.crv === y.crv &&
++        x.x === y.x &&
++        x.y === y.y &&
++        x.n === y.n &&
++        x.e === y.e);
++}
+ class OAuthSession {
+     constructor(server, sub, sessionGetter, fetch = globalThis.fetch) {
+         Object.defineProperty(this, "server", {
+@@ -47,6 +59,17 @@ class OAuthSession {
+     get serverMetadata() {
+         return this.server.serverMetadata;
+     }
++    /**
++     * The DPoP key lives on this instance while the token set is re-read from
++     * the shared store on every call. When the store holds a different key,
++     * another instance re-authenticated this sub and now owns the session.
++     */
++    async ownsStoredSession() {
++        const stored = await this.sessionGetter.getStored(this.sub);
++        if (stored?.dpopKey == null)
++            return true;
++        return isSameDpopKey(stored.dpopKey, this.server.dpopKey);
++    }
+     /**
+      * @param refresh When `true`, the credentials will be refreshed even if they
+      * are not expired. When `false`, the credentials will not be refreshed even
+@@ -97,6 +120,11 @@ class OAuthSession {
+         if (!isInvalidTokenResponse(initialResponse)) {
+             return initialResponse;
+         }
++        // A stale instance must neither refresh nor delete a session it no
++        // longer owns; doing so logs out the instance that does own it.
++        if (!(await this.ownsStoredSession())) {
++            return initialResponse;
++        }
+         let tokenSetFresh;
+         try {
+             // Force a refresh
+@@ -120,7 +148,8 @@ class OAuthSession {
+         // resource server. This might be due to the resource server not accepting
+         // credentials from the authorization server (e.g. because some migration
+         // occurred). Any ways, there is no point in keeping the session.
+-        if (isInvalidTokenResponse(finalResponse)) {
++        if (isInvalidTokenResponse(finalResponse) &&
++            (await this.ownsStoredSession())) {
+             // @TODO Is there a "softer" way to handle this, e.g. by marking the
+             // session as "expired" in the session store, allowing the user to trigger
+             // a new login (using login_hint)?
