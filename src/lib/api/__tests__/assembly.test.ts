@@ -16,6 +16,7 @@ import {
 } from '#/lib/api/assembly'
 import {type AssemblyRef} from '#/lib/api/poll'
 import {parseEmbedPlayerFromUrl} from '#/lib/strings/embed-player'
+import {com} from '#/lexicons'
 
 jest.mock('#/env', () => mockEnv('https://assembly.blacksky.community'))
 
@@ -74,24 +75,20 @@ function setup() {
   const putRecord = jest.fn((input: RecordInput) => {
     events.push('putRecord')
     return Promise.resolve({
-      data: {
-        uri: `at://${input.repo}/${input.collection}/${input.rkey}`,
-        cid: CID,
-      },
+      uri: `at://${input.repo}/${input.collection}/${input.rkey}`,
+      cid: CID,
     })
   })
-  const deleteRecord = jest.fn<(input: RecordInput) => Promise<{data: object}>>(
-    () => {
-      events.push('deleteRecord')
-      return Promise.resolve({data: {}})
-    },
-  )
+  const deleteRecord = jest.fn<(input: RecordInput) => Promise<object>>(() => {
+    events.push('deleteRecord')
+    return Promise.resolve({})
+  })
   const getServiceAuth = jest.fn<
-    (input: TokenInput) => Promise<{data: {token: string}}>
+    (input: TokenInput) => Promise<{token: string}>
   >(() => {
     events.push('getServiceAuth')
     tokens += 1
-    return Promise.resolve({data: {token: `token-${tokens}`}})
+    return Promise.resolve({token: `token-${tokens}`})
   })
   const onRef = jest.fn((ref: AssemblyRef) => {
     events.push('onRef')
@@ -103,14 +100,20 @@ function setup() {
   })
   const client = {
     assertDid: DID,
-    dispatchUrl: 'https://pds.example/',
-    com: {
-      atproto: {
-        repo: {putRecord, deleteRecord},
-        server: {getServiceAuth},
-      },
+    // Matched by name: a test that reloads modules gets its own lexicons.
+    call: (method: {$lxm: string}, input: never) => {
+      switch (method.$lxm) {
+        case com.atproto.repo.putRecord.$lxm:
+          return putRecord(input)
+        case com.atproto.repo.deleteRecord.$lxm:
+          return deleteRecord(input)
+        case com.atproto.server.getServiceAuth.$lxm:
+          return getServiceAuth(input)
+        default:
+          throw new Error('unexpected call')
+      }
     },
-  } as unknown as AtpAgent
+  } as unknown as Client
   return {
     client,
     events,

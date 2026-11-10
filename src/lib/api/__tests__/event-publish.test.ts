@@ -64,10 +64,17 @@ function setup() {
     Promise.resolve({}),
   )
   const client = {
+    did: 'did:plc:alice',
     assertDid: 'did:plc:alice',
-    com: {atproto: {repo: {applyWrites}}},
-  } as unknown as AtpAgent
-  return {client, applyWrites}
+    call: (_method: unknown, input: {writes: Write[]; validate?: boolean}) =>
+      applyWrites(input),
+  } as unknown as Client
+  const clients = {
+    appviewClient: client,
+    chatClient: client,
+    pdsClient: client,
+  }
+  return {client, clients, applyWrites}
 }
 
 function thread(embed: Record<string, unknown>, extra = {}) {
@@ -90,9 +97,12 @@ function thread(embed: Record<string, unknown>, extra = {}) {
 
 describe('publishing a post with an event', () => {
   it('writes the event and the post together, linking the post to it', async () => {
-    const {client, applyWrites} = setup()
+    const {client, clients, applyWrites} = setup()
 
-    const result = await post(client, queryClient, {thread: thread({event})})
+    const result = await post(queryClient, {
+      ...clients,
+      thread: thread({event}),
+    })
 
     expect(applyWrites).toHaveBeenCalledTimes(1)
     const [{writes, validate}] = applyWrites.mock.calls[0]
@@ -129,19 +139,20 @@ describe('publishing a post with an event', () => {
   })
 
   it('still asks the PDS to validate posts without an event', async () => {
-    const {client, applyWrites} = setup()
+    const {client, clients, applyWrites} = setup()
 
-    const result = await post(client, queryClient, {thread: thread({})})
+    const result = await post(queryClient, {...clients, thread: thread({})})
 
     expect(applyWrites.mock.calls[0][0].validate).toBe(true)
     expect(result).not.toHaveProperty('event')
   })
 
   it('refuses an event on a Blacksky-only post', async () => {
-    const {client, applyWrites} = setup()
+    const {client, clients, applyWrites} = setup()
 
     await expect(
-      post(client, queryClient, {
+      post(queryClient, {
+        ...clients,
         thread: thread({event}, {blackskyOnly: true}),
       }),
     ).rejects.toThrow('Events are only available on public posts.')
@@ -149,10 +160,11 @@ describe('publishing a post with an event', () => {
   })
 
   it('refuses an event in a private space', async () => {
-    const {client} = setup()
+    const {clients} = setup()
 
     await expect(
-      post(client, queryClient, {
+      post(queryClient, {
+        ...clients,
         thread: thread({event}, {communitySpaceUri: SPACE}),
       }),
     ).rejects.toThrow('Events are only available on public posts.')
@@ -164,16 +176,15 @@ describe('publishing a post with an event', () => {
     beforeEach(() => {
       jest.mocked(uploadBlob).mockReset()
       jest.mocked(imageToThumb).mockReset()
-      jest
-        .mocked(uploadBlob)
-        .mockResolvedValue({data: {blob: COVER_BLOB}} as never)
+      jest.mocked(uploadBlob).mockResolvedValue({blob: COVER_BLOB} as never)
       warn = jest.spyOn(logger, 'warn').mockImplementation(() => {})
     })
     afterEach(() => warn.mockRestore())
 
     async function publish(cover: EventDraft['cover']) {
-      const {client, applyWrites} = setup()
-      await post(client, queryClient, {
+      const {client, clients, applyWrites} = setup()
+      await post(queryClient, {
+        ...clients,
         thread: thread({event: {...event, cover}}),
       })
       const [eventWrite, postWrite] = applyWrites.mock.calls[0][0].writes
@@ -230,10 +241,11 @@ describe('publishing a post with an event', () => {
 
     it('stops the post with an error when the upload fails', async () => {
       jest.mocked(uploadBlob).mockRejectedValue(new Error('offline'))
-      const {client, applyWrites} = setup()
+      const {client, clients, applyWrites} = setup()
 
       await expect(
-        post(client, queryClient, {
+        post(queryClient, {
+          ...clients,
           thread: thread({
             event: {
               ...event,
@@ -255,10 +267,11 @@ describe('publishing a post with an event', () => {
 
     it('stops the post when a link image cannot be read', async () => {
       jest.mocked(imageToThumb).mockResolvedValue(undefined)
-      const {client, applyWrites} = setup()
+      const {client, clients, applyWrites} = setup()
 
       await expect(
-        post(client, queryClient, {
+        post(queryClient, {
+          ...clients,
           thread: thread({
             event: {...event, cover: {url: 'https://x.test/a.jpg'}},
           }),

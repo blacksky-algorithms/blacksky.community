@@ -6,7 +6,10 @@ import {postToSpace} from '../space-post'
 
 // `post()`'s module graph reaches the image picker, which pulls in native UI
 // modules that cannot load under jest. Only the write routing is under test.
-jest.mock('react-native-uuid', () => ({default: {v4: () => 'test-device-id'}}))
+jest.mock('react-native-uuid', () => ({
+  __esModule: true,
+  default: {v4: () => 'test-device-id'},
+}))
 jest.mock('#/state/gallery', () => ({compressImage: jest.fn()}))
 jest.mock('#/state/queries/resolve-link', () => ({
   fetchResolveGifQuery: jest.fn(),
@@ -57,15 +60,18 @@ const threadWith = (space?: string) =>
     },
   }) as never
 
-function mockAgent() {
+function mockClient() {
   const fetchHandler = jest.fn()
-  const applyWrites = jest.fn(() => Promise.resolve({}))
+  const applyWrites = jest.fn((_input: unknown) => Promise.resolve({}))
+  const client = {
+    did: 'did:plc:alice',
+    assertDid: 'did:plc:alice',
+    agent: {fetchHandler},
+    call: (_method: unknown, input: unknown) => applyWrites(input),
+  } as unknown as Client
   return {
-    agent: {
-      assertDid: 'did:plc:alice',
-      fetchHandler,
-      com: {atproto: {repo: {applyWrites}}},
-    } as unknown as AtpAgent,
+    client,
+    clients: {appviewClient: client, chatClient: client, pdsClient: client},
     fetchHandler,
     applyWrites,
   }
@@ -77,11 +83,12 @@ describe('post routing', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('sends a space-backed feed down the space write path', async () => {
-    const {client, fetchHandler, applyWrites} = mockAgent()
+    const {clients, fetchHandler, applyWrites} = mockClient()
 
-    await post(client, queryClient, {thread: threadWith(SPACE)})
+    await post(queryClient, {...clients, thread: threadWith(SPACE)})
 
-    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(queryClient, SPACE, {
+      ...clients,
       thread: threadWith(SPACE),
     })
     // Nothing may reach the appview or the public repo on this path.
@@ -90,9 +97,9 @@ describe('post routing', () => {
   })
 
   it('leaves a feed without a space on the community path', async () => {
-    const {client, applyWrites} = mockAgent()
+    const {clients, applyWrites} = mockClient()
 
-    await post(client, queryClient, {thread: threadWith(undefined)})
+    await post(queryClient, {...clients, thread: threadWith(undefined)})
 
     expect(postToSpace).not.toHaveBeenCalled()
     expect(applyWrites).toHaveBeenCalled()
@@ -103,9 +110,10 @@ describe('self labels', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('publishes a text-only post with its self labels', async () => {
-    const {client, applyWrites} = mockAgent()
+    const {clients, applyWrites} = mockClient()
 
-    await post(client, queryClient, {
+    await post(queryClient, {
+      ...clients,
       thread: {
         posts: [
           {
@@ -160,10 +168,10 @@ describe('quoting a space post from outside the space', () => {
   ])(
     'refuses %s rather than writing it to the public repo',
     async (_n, uri) => {
-      const {client, applyWrites, fetchHandler} = mockAgent()
+      const {clients, applyWrites, fetchHandler} = mockClient()
 
       await expect(
-        post(client, queryClient, {thread: threadQuoting(uri)}),
+        post(queryClient, {...clients, thread: threadQuoting(uri)}),
       ).rejects.toThrow(/private post/)
 
       expect(applyWrites).not.toHaveBeenCalled()
@@ -178,9 +186,10 @@ describe('quoting a space post from outside the space', () => {
   ])(
     'allows the quote when the post goes into that space (%s)',
     async (_n, extra) => {
-      const {client} = mockAgent()
+      const {clients} = mockClient()
 
-      await post(client, queryClient, {
+      await post(queryClient, {
+        ...clients,
         thread: {
           ...(threadQuoting(permalink, SPACE) as object),
           ...extra,
@@ -218,30 +227,33 @@ describe('quotedSpace', () => {
 
 describe('space replies', () => {
   it('passes the reply target down to the space write path', async () => {
-    const {client} = mockAgent()
+    const {clients} = mockClient()
     const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
 
-    await post(client, queryClient, {
+    await post(queryClient, {
+      ...clients,
       thread: threadWith(SPACE),
       replyTo: parent,
     })
 
     // postToSpace resolves the parent itself; what matters here is that the
     // reply is routed into the space at all rather than posted publicly.
-    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(queryClient, SPACE, {
+      ...clients,
       thread: threadWith(SPACE),
       replyTo: parent,
     })
   })
 
   it('reconstructs the space target when the reply view omitted it', async () => {
-    const {client} = mockAgent()
+    const {clients} = mockClient()
     const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
     const thread = threadWith(undefined)
 
-    await post(client, queryClient, {thread, replyTo: parent})
+    await post(queryClient, {...clients, thread, replyTo: parent})
 
-    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(queryClient, SPACE, {
+      ...clients,
       thread,
       replyTo: parent,
     })
@@ -252,47 +264,39 @@ describe('resolveReply public-path guard', () => {
   const publicParent = 'at://did:plc:bob/app.bsky.feed.post/3kparent'
   const spaceRecord = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kroot`
 
-  const agentReturningRoot = (rootUri: string) =>
+  const clientReturningRoot = (rootUri: string) =>
     ({
-      app: {
-        bsky: {
-          feed: {
-            getPosts: jest.fn(() =>
-              Promise.resolve({
-                data: {
-                  posts: [
-                    {
-                      uri: publicParent,
-                      cid: 'bafyreiparent',
-                      record: {
-                        $type: 'app.bsky.feed.post',
-                        text: 'hi',
-                        createdAt: '2026-08-09T12:00:00.000Z',
-                        reply: {
-                          root: {uri: rootUri, cid: 'bafyreiroot'},
-                          parent: {uri: publicParent, cid: 'bafyreiparent'},
-                        },
-                      },
-                    },
-                  ],
+      call: jest.fn(() =>
+        Promise.resolve({
+          posts: [
+            {
+              uri: publicParent,
+              cid: 'bafyreiparent',
+              record: {
+                $type: 'app.bsky.feed.post',
+                text: 'hi',
+                createdAt: '2026-08-09T12:00:00.000Z',
+                reply: {
+                  root: {uri: rootUri, cid: 'bafyreiroot'},
+                  parent: {uri: publicParent, cid: 'bafyreiparent'},
                 },
-              }),
-            ),
-          },
-        },
-      },
-    }) as unknown as AtpAgent
+              },
+            },
+          ],
+        }),
+      ),
+    }) as unknown as Client
 
   it('refuses to hand a space thread root to the public write path', async () => {
     await expect(
-      resolveReply(agentReturningRoot(spaceRecord), publicParent),
+      resolveReply(clientReturningRoot(spaceRecord), publicParent),
     ).rejects.toThrow(/private post/i)
   })
 
   it('passes an ordinary thread root through', async () => {
     const root = 'at://did:plc:bob/app.bsky.feed.post/3kroot'
     await expect(
-      resolveReply(agentReturningRoot(root), publicParent),
+      resolveReply(clientReturningRoot(root), publicParent),
     ).resolves.toEqual({
       root: {uri: root, cid: 'bafyreiroot'},
       parent: {uri: publicParent, cid: 'bafyreiparent'},
