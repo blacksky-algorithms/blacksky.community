@@ -13,7 +13,10 @@ import {
 import {sanitizeUrl} from '@braintree/sanitize-url'
 import {StackActions} from '@react-navigation/native'
 
-import {useGroupChatJoinIntent} from '#/lib/hooks/useIntentHandler'
+import {
+  useGroupChatJoinIntent,
+  useGroupInviteIntent,
+} from '#/lib/hooks/useIntentHandler'
 import {
   type DebouncedNavigationProp,
   useNavigationDeduped,
@@ -23,6 +26,7 @@ import {getTabState, TabState} from '#/lib/routes/helpers'
 import {
   convertBskyAppUrlIfNeeded,
   getChatInviteCodeFromUrl,
+  getGroupInviteCodeFromUrl,
   isExternalUrl,
   linkRequiresWarning,
 } from '#/lib/strings/url-helpers'
@@ -82,6 +86,7 @@ export const Link = memo(function Link({
   const anchorHref = asAnchor ? sanitizeUrl(href) : undefined
   const openLink = useOpenLink()
   const groupChatJoinIntent = useGroupChatJoinIntent()
+  const groupInviteIntent = useGroupInviteIntent()
 
   const onPress = useCallback(
     (e?: Event) => {
@@ -93,6 +98,7 @@ export const Link = memo(function Link({
           navigationAction,
           openLink,
           groupChatJoinIntent,
+          groupInviteIntent,
           e,
         )
       }
@@ -104,6 +110,7 @@ export const Link = memo(function Link({
       openLink,
       onBeforePress,
       groupChatJoinIntent,
+      groupInviteIntent,
     ],
   )
 
@@ -204,6 +211,7 @@ export const TextLink = memo(function TextLink({
   const {linkWarningDialogControl} = useGlobalDialogsControlContext()
   const openLink = useOpenLink()
   const groupChatJoinIntent = useGroupChatJoinIntent()
+  const groupInviteIntent = useGroupInviteIntent()
 
   if (!disableMismatchWarning && typeof text !== 'string') {
     console.error('Unable to detect mismatching label')
@@ -246,6 +254,7 @@ export const TextLink = memo(function TextLink({
         navigationAction,
         openLink,
         groupChatJoinIntent,
+        groupInviteIntent,
         e,
       )
     },
@@ -260,6 +269,7 @@ export const TextLink = memo(function TextLink({
       openLink,
       linkWarningDialogControl,
       groupChatJoinIntent,
+      groupInviteIntent,
     ],
   )
   const hrefAttrs = useMemo(() => {
@@ -381,6 +391,7 @@ function onPressInner(
   navigationAction: 'push' | 'replace' | 'navigate' = 'push',
   openLink: (href: string) => void,
   groupChatJoinIntent: (code: string, uri?: string) => void,
+  groupInviteIntent: (code: string) => void,
   e?: Event,
 ) {
   let shouldHandle = false
@@ -411,6 +422,11 @@ function onPressInner(
     const chatInviteCode = getChatInviteCodeFromUrl(href)
     if (chatInviteCode) {
       groupChatJoinIntent(chatInviteCode, href)
+      return
+    }
+    const groupInviteCode = getGroupInviteCodeFromUrl(href)
+    if (groupInviteCode) {
+      groupInviteIntent(groupInviteCode)
       return
     }
     if (
