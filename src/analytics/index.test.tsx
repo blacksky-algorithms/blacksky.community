@@ -22,7 +22,6 @@ import {type Metrics, metrics} from '#/analytics/metrics'
 import {MetricsClient} from '#/analytics/metrics/client'
 import {recordSessionActivity} from '#/analytics/useSessionActivity/index.web'
 import {useMeta} from '#/analytics/utils'
-import {useGeolocationServiceResponse} from '#/geolocation/service'
 import {account, device} from '#/storage'
 
 jest.mock('#/lib/appState', () => ({
@@ -50,9 +49,6 @@ jest.mock('#/analytics/metrics', () => ({metrics: {track: jest.fn()}}))
 jest.mock('#/analytics/identifiers/device', () => ({
   getDeviceId: jest.fn(),
   getAndMigrateDeviceId: () => Promise.resolve('device-a'),
-}))
-jest.mock('#/geolocation/service', () => ({
-  useGeolocationServiceResponse: jest.fn(),
 }))
 
 const FIVE_MINUTES = 5 * 60 * 1e3
@@ -103,11 +99,6 @@ beforeEach(() => {
   device.set(['analyticsSession'], {id: 'session-a', lastEventAt: Date.now()})
   account.set(['did:plc:a', 'isBetaUser'], true)
   account.set(['did:plc:b', 'isBetaUser'], false)
-  jest.mocked(useGeolocationServiceResponse).mockReturnValue({
-    countryCode: 'US',
-    regionCode: 'WI',
-    city: 'Madison',
-  })
   features.setDeferredTrackingCalls([])
   features.setFeatures({})
 })
@@ -164,7 +155,7 @@ function expectExposures(did = 'did:plc:a') {
 it('inherits device identity without session state or rerenders on rotation', () => {
   render(
     <Tree
-      session={{did: 'did:plc:a', isBskyPds: true}}
+      session={{did: 'did:plc:a', isBlackskyPds: true}}
       preferences={{appLanguage: 'en', contentLanguages: ['en']}}
     />,
   )
@@ -180,11 +171,7 @@ it('inherits device identity without session state or rerenders on rotation', ()
     expect(metadata).toBe(previousMetadata[index])
     expect(metadata.base).not.toHaveProperty('sessionId')
     expect(metadata.base.deviceId).toBe('device-a')
-    expect(metadata.geolocation).toEqual({
-      countryCode: 'US',
-      regionCode: 'WI',
-      city: 'Madison',
-    })
+    expect(metadata.geolocation).toEqual({countryCode: '', regionCode: ''})
   }
   expect(contexts[0].session).toBeUndefined()
   expect(contexts[1].session?.did).toBe('did:plc:a')
@@ -215,19 +202,16 @@ it('tracks lifecycle before mount and between mounts without context subscriptio
   expect(lastMetricMetadata().base.sessionId).toBe(getSessionId())
 })
 
-it('updates inherited account, preferences, and geolocation', () => {
+it('updates inherited account and preferences, and carries no location', () => {
   const view = render(
     <Tree
-      session={{did: 'did:plc:a', isBskyPds: true}}
+      session={{did: 'did:plc:a', isBlackskyPds: true}}
       preferences={{appLanguage: 'en', contentLanguages: ['en']}}
     />,
   )
-  jest
-    .mocked(useGeolocationServiceResponse)
-    .mockReturnValue({countryCode: 'CA', regionCode: 'ON', city: 'Toronto'})
   view.rerender(
     <Tree
-      session={{did: 'did:plc:b', isBskyPds: false}}
+      session={{did: 'did:plc:b', isBlackskyPds: false}}
       preferences={{appLanguage: 'fr', contentLanguages: ['fr']}}
     />,
   )
@@ -236,7 +220,7 @@ it('updates inherited account, preferences, and geolocation', () => {
     base: {isBetaUser: false},
     session: {did: 'did:plc:b'},
     preferences: {appLanguage: 'fr'},
-    geolocation: {countryCode: 'CA'},
+    geolocation: {countryCode: '', regionCode: ''},
   })
   ax.metric('state:foreground', {})
   expect(lastMetricMetadata()).toMatchObject({
@@ -247,7 +231,7 @@ it('updates inherited account, preferences, and geolocation', () => {
   })
   childLogger.info('updated logger')
   expect(getEntries()[0].metadata.__metadata__).toMatchObject({
-    countryCode: 'CA',
+    countryCode: '',
     deviceId: ax.metadata.base.deviceId,
     sessionId: getSessionId(),
   })
@@ -255,7 +239,7 @@ it('updates inherited account, preferences, and geolocation', () => {
     did: 'did:plc:b',
     isBetaUser: false,
     appLanguage: 'fr',
-    countryCode: 'CA',
+    countryCode: '',
   })
 })
 
@@ -266,7 +250,7 @@ it.each(['default', 'nested'])(
       context === 'default' ? (
         <CaptureBase index={0} />
       ) : (
-        <Tree session={{did: 'did:plc:a', isBskyPds: true}} />
+        <Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />
       ),
     )
     const metric = baseAx.metric
@@ -443,7 +427,7 @@ describe.each(['did', 'deviceId'] as const)(
     ] as const)(
       'uses context identity for %s without rereading device identity or updating attributes',
       method => {
-        render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+        render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
         const originalContext = ax
         const {enabled, getValue} = ax.features
         const capturedEvaluate = {
@@ -464,7 +448,7 @@ describe.each(['did', 'deviceId'] as const)(
           deviceId: 'device-a',
           did: 'did:plc:a',
           isBetaUser: true,
-          countryCode: 'US',
+          countryCode: '',
         })
         expect(features.getAttributes()).not.toHaveProperty('sessionId')
         expectExposures()
@@ -481,7 +465,7 @@ describe.each(['did', 'deviceId'] as const)(
 )
 
 it('keeps feature attributes unchanged on rotation while exposures use the reporting session', () => {
-  render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+  render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
   const feature = installFeature()
   const attributes = features.getAttributes()
   expect(attributes).not.toHaveProperty('sessionId')
@@ -502,7 +486,7 @@ it('keeps feature attributes unchanged on rotation while exposures use the repor
 
 it('uses the initialized device ID when contexts mount instead of an import-time unknown', () => {
   jest.mocked(getDeviceId).mockReturnValue('initialized-device')
-  render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+  render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
   expect(contexts.map(metadata => metadata.base.deviceId)).toEqual([
     'initialized-device',
     'initialized-device',
@@ -522,7 +506,7 @@ it('uses the initialized device ID when contexts mount instead of an import-time
 })
 
 it('uses context device identity when setting attributes triggers synchronous evaluations', () => {
-  render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+  render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
   const metadata = ax.metadata
   const feature = installFeature('deviceId')
   act(() => rotateSession())
@@ -544,7 +528,7 @@ it('uses context device identity when setting attributes triggers synchronous ev
 
 it('registers current-account callbacks before provider attribute updates evaluate gates', () => {
   function AccountTree({did}: {did: string}) {
-    return <Tree key={did} session={{did, isBskyPds: did === 'did:plc:a'}} />
+    return <Tree key={did} session={{did, isBlackskyPds: did === 'did:plc:a'}} />
   }
   const view = render(<AccountTree did="did:plc:a" />)
   const feature = installFeature('did')
@@ -556,18 +540,18 @@ it('registers current-account callbacks before provider attribute updates evalua
   view.rerender(<AccountTree did="did:plc:b" />)
 
   expectExposures('did:plc:b')
-  expect(lastMetricMetadata().session?.isBskyPds).toBe(false)
+  expect(lastMetricMetadata().session?.isBlackskyPds).toBe(false)
   expect(features.getAllResults().get(feature)?.result.hashValue).toBe(
     'did:plc:b',
   )
 })
 
 it('attributes both exposures to the bucketed did rather than the ambient account', () => {
-  render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+  render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
   const feature = installFeature('did')
   setAttributes({
     ...ax.metadata,
-    session: {did: 'did:plc:b', isBskyPds: false},
+    session: {did: 'did:plc:b', isBlackskyPds: false},
   })
 
   expect(ax.features.enabled(feature)).toBe(true)
@@ -579,7 +563,7 @@ it('attributes both exposures to the bucketed did rather than the ambient accoun
 it.each(['did', 'deviceId'] as const)(
   'preserves did attribution and uses the reporting session for deferred experiments bucketed on %s',
   hashAttribute => {
-    render(<Tree session={{did: 'did:plc:a', isBskyPds: true}} />)
+    render(<Tree session={{did: 'did:plc:a', isBlackskyPds: true}} />)
     const feature = installFeature(hashAttribute)
     // Replay an actual result after the account and analytics session change.
     const result = features.evalFeature(feature)
@@ -591,7 +575,7 @@ it.each(['did', 'deviceId'] as const)(
     act(() => rotateSession())
     expect(getSessionId()).not.toBe(originalMetadata.base.sessionId)
 
-    render(<Tree session={{did: 'did:plc:b', isBskyPds: false}} />)
+    render(<Tree session={{did: 'did:plc:b', isBlackskyPds: false}} />)
 
     expect(metrics.track).toHaveBeenCalledTimes(1)
     expect(lastMetricMetadata().base).toMatchObject({
@@ -601,7 +585,7 @@ it.each(['did', 'deviceId'] as const)(
     expect(originalMetadata.base.sessionId).toBe('session-a')
     expect(lastMetricMetadata().session).toEqual({
       did: hashAttribute === 'did' ? 'did:plc:a' : 'did:plc:b',
-      isBskyPds: false,
+      isBlackskyPds: false,
     })
   },
 )

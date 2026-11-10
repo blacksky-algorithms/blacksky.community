@@ -10,7 +10,7 @@ jest.mock('#/analytics/features/client', () => ({
     >('@growthbook/growthbook')
     return new MockGrowthBook({})
   },
-  refreshGrowthBook: jest.fn(),
+  refreshGrowthBook: jest.fn(() => Promise.resolve()),
 }))
 jest.mock('#/analytics/features/bootstrap', () => ({
   readFeatureBootstrap: () => Promise.resolve(),
