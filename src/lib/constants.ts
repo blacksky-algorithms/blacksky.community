@@ -199,7 +199,12 @@ export const VIDEO_SERVICE = 'https://video.blacksky.community'
 export const VIDEO_SERVICE_DID = 'did:web:video.blacksky.community'
 
 export const VIDEO_MAX_DURATION_MS = 60 * 60 * 1000 // 60 minutes in milliseconds
-export const VIDEO_10_MINUTE_MAX_DURATION_MS = 10 * 60 * 1000
+// The base limit here is already above 10 minutes, so upstream's "longer
+// videos" gate must never lower it.
+export const VIDEO_10_MINUTE_MAX_DURATION_MS = Math.max(
+  10 * 60 * 1000,
+  VIDEO_MAX_DURATION_MS,
+)
 /**
  * Maximum size of a video in megabytes, _not_ mebibytes. Backend uses
  * ISO megabytes.
