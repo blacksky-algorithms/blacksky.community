@@ -33,7 +33,6 @@ jest.mock('#/alf', () => ({
   atoms: {flex_row: {}, align_center: {}, gap_xs: {}},
 }))
 jest.mock('#/components/forms/Toggle', () => {
-  const React = require('react')
   const {Pressable, Text} = require('react-native')
   return {
     Item: ({

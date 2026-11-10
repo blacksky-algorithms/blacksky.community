@@ -35,7 +35,10 @@ module.exports = function (api) {
       // cannot use `env` field because it will put them after
       // the `react-native-worklets/plugin` plugin
       ...(api.env('test')
-        ? ['@babel/plugin-transform-class-static-block']
+        ? [
+            '@babel/plugin-transform-class-static-block',
+            '@babel/plugin-transform-dynamic-import',
+          ]
         : []),
       ...(api.env('production') ? ['transform-remove-console'] : []),
 

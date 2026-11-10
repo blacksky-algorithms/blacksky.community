@@ -229,7 +229,7 @@ export function Signup({
                         isFetchingStarterPack && !isErrorStarterPack
                       }
                       isServerError={isError}
-                      refetchServer={refetch}
+                      refetchServer={() => void refetch()}
                     />
                   ) : state.activeStep === SignupStep.HANDLE ? (
                     <StepHandle onPressSignIn={onPressSignIn} />

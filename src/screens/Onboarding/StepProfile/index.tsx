@@ -15,8 +15,7 @@ import {
   launchImageLibraryAsync,
   UIImagePickerPreferredAssetRepresentationMode,
 } from 'expo-image-picker'
-import {useLingui} from '@lingui/react/macro'
-import {Trans} from '@lingui/react/macro'
+import {useLingui, Trans} from '@lingui/react/macro'
 
 import {FEEDBACK_FORM_URL, IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
@@ -312,9 +311,7 @@ export function StepProfile() {
           variant="ghost"
           size="small"
           label={
-            avatar.useCreatedAvatar
-              ? _(msg`Upload a photo`)
-              : _(msg`Create an avatar`)
+            avatar.useCreatedAvatar ? l`Upload a photo` : l`Create an avatar`
           }
           onPress={onSecondaryPress}
           style={[a.w_full]}>
@@ -335,7 +332,7 @@ export function StepProfile() {
           <PrimaryButton
             variant="outline"
             testID="onboardingSkipAvatar"
-            label={_(msg`Skip`)}
+            label={l`Skip`}
             onPress={() => {
               dispatch({
                 type: 'setProfileStepResults',
@@ -350,7 +347,7 @@ export function StepProfile() {
           />
           <PrimaryButton
             testID="onboardingContinue"
-            label={_(msg`Continue`)}
+            label={l`Continue`}
             onPress={onContinue}
           />
         </Footer>

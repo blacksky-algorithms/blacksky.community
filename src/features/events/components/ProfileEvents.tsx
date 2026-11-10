@@ -1,10 +1,5 @@
 import {useCallback, useEffect, useImperativeHandle, useState} from 'react'
-import {
-  findNodeHandle,
-  type ListRenderItemInfo,
-  useWindowDimensions,
-  View,
-} from 'react-native'
+import {type ListRenderItemInfo, useWindowDimensions, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -14,6 +9,7 @@ import {useSession} from '#/state/session'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
+import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {atoms as a, ios} from '#/alf'
 import {CalendarDays_Stroke2_Corner0_Rounded as CalendarIcon} from '#/components/icons/CalendarDays'
@@ -70,7 +66,7 @@ export function ProfileEvents({
 
   useEffect(() => {
     if (IS_IOS && enabled && scrollElRef.current) {
-      setScrollViewTag(findNodeHandle(scrollElRef.current))
+      setScrollViewTag(findListNativeTag(scrollElRef.current))
     }
   }, [enabled, scrollElRef, setScrollViewTag])
 

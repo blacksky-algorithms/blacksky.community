@@ -5,11 +5,11 @@
 import {type Platform} from 'react-native'
 
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
-import {type DeepLinkDestinationKind} from '#/lib/strings/url-helpers'
 import {
   type VideoCompressSkipReason,
   type VideoUploadTransport,
 } from '#/lib/media/video/types'
+import {type DeepLinkDestinationKind} from '#/lib/strings/url-helpers'
 import {type NotificationType} from '#/state/queries/notifications/types'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
 import {type OnboardingScreen} from '#/screens/Onboarding/state'

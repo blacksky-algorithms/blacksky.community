@@ -39,9 +39,9 @@ export const SplashScreen = ({
       logoFill,
       logoShadow: isDarkMode
         ? [
+            t.atoms.shadow_md,
             {
               shadowColor: logoFill,
-              shadowRadius: 8,
               shadowOpacity: 0.5,
               shadowOffset: {
                 width: 0,
@@ -80,28 +80,15 @@ export const SplashScreen = ({
         <View
           testID="signinOrCreateAccount"
           style={[a.px_5xl, a.gap_md, a.pb_sm]}>
-          <Button
-            testID="createAccountButton"
-            onPress={() => {
-              onPressCreateAccount()
-              playHaptic('Light')
-            }}
-            label={_(msg`Create new account`)}
-            accessibilityHint={_(
-              msg`Opens flow to create a new Blacksky account`,
-            )}
-            size="large"
-            color={isDarkMode ? 'secondary_inverted' : 'secondary'}
+          <View
             style={[
+              t.atoms.shadow_md,
               {
-                shadowColor: t.palette.black,
-                shadowRadius: 8,
                 shadowOpacity: 0.1,
                 shadowOffset: {
                   width: 0,
                   height: 5,
                 },
-                elevation: 16,
               },
             ]}>
             <Button

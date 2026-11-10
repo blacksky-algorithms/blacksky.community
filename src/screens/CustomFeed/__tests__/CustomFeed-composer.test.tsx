@@ -96,6 +96,8 @@ const FEED_INFO = {
   uri: FEED_URI,
   feedDescriptor: FEED_DESCRIPTOR,
   displayName: 'Private Test',
+  creatorDid: 'did:plc:test',
+  creatorHandle: 'test.example',
   contentMode: undefined,
 } as unknown as FeedSourceFeedInfo
 

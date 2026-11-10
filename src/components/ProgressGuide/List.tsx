@@ -66,14 +66,14 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
         ]}>
         <View style={[a.flex_row, a.justify_between, a.align_center]}>
           <View style={a.flex_1}>
-            <Eyebrow label={_(msg`Welcome to ${brand.metadata.displayName}`)} />
+            <Eyebrow label={l`Welcome to ${brand.metadata.displayName}`} />
           </View>
           <Button
             variant="ghost"
             size="tiny"
             color="primary"
             shape="round"
-            label={_(msg`Dismiss welcome message`)}
+            label={l`Dismiss welcome message`}
             onPress={endProgressGuide}>
             <ButtonIcon icon={Times} />
           </Button>

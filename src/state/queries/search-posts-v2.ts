@@ -2,7 +2,6 @@ import {useCallback, useMemo, useRef} from 'react'
 import {
   type AppBskyFeedDefs,
   type AppBskyFeedSearchPostsV2,
-  AtUri,
   moderatePost,
 } from '@atproto/api'
 import {
@@ -82,18 +81,21 @@ export function useSearchPostsV2Query({
       const {q, ...embedded} = extractSearchPostsParams(query)
       const builtFilters = buildSearchPostsV2Filters(embedded, filters)
       const finalQuery = appendFromMe(q, filters?.from === 'me')
-      const res = await agent.app.bsky.feed.searchPostsV2({
-        ...builtFilters,
-        query: finalQuery,
-        limit: 25,
-        cursor: pageParam,
-        /*
-         * v2 calls the recency sort 'recent'; the rest of the app still uses
-         * the v1 'latest' label.
-         */
-        sort: sort === 'latest' ? 'recent' : sort,
-        allTime: true,
-      }, searchAppviewOpts())
+      const res = await agent.app.bsky.feed.searchPostsV2(
+        {
+          ...builtFilters,
+          query: finalQuery,
+          limit: 25,
+          cursor: pageParam,
+          /*
+           * v2 calls the recency sort 'recent'; the rest of the app still uses
+           * the v1 'latest' label.
+           */
+          sort: sort === 'latest' ? 'recent' : sort,
+          allTime: true,
+        },
+        searchAppviewOpts(),
+      )
       return res.data
     },
     initialPageParam: undefined,

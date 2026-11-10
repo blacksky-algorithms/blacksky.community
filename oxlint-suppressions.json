@@ -610,7 +610,7 @@
   },
   "src/lib/hooks/useIntentHandler.ts": {
     "typescript/no-floating-promises": {
-      "count": 2
+      "count": 1
     }
   },
   "src/lib/hooks/useNonReactiveCallback.ts": {
@@ -1223,11 +1223,6 @@
       "count": 1
     }
   },
-  "src/state/preferences/kawaii.tsx": {
-    "typescript/no-floating-promises": {
-      "count": 1
-    }
-  },
   "src/state/preferences/languages.tsx": {
     "typescript/no-floating-promises": {
       "count": 1
@@ -1335,10 +1330,7 @@
   },
   "src/state/queries/notifications/unread.tsx": {
     "typescript/no-floating-promises": {
-      "count": 4
-    },
-    "typescript/no-misused-promises": {
-      "count": 1
+      "count": 3
     },
     "typescript/no-unsafe-member-access": {
       "count": 4
@@ -1469,9 +1461,6 @@
   "src/state/shell/progress-guide.tsx": {
     "typescript/no-explicit-any": {
       "count": 1
-    },
-    "typescript/no-floating-promises": {
-      "count": 4
     }
   },
   "src/state/shell/reminders.ts": {
@@ -1712,9 +1701,6 @@
     }
   },
   "src/view/com/util/Views.tsx": {
-    "react/display-name": {
-      "count": 1
-    },
     "typescript/no-explicit-any": {
       "count": 1
     }

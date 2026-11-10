@@ -247,30 +247,30 @@ export function StepHandle({
             ref={IS_WEB ? inputAnchorRef : undefined}
             inputProps={IS_WEB ? comboboxProps : undefined}
             testID="handleInput"
-              label={_(msg`Handle`)}
-              icon={At}
-              value={draftValue}
-              placeholder={_(msg`Enter your handle`)}
-              onChangeText={val => {
-                if (state.error) {
-                  dispatch({type: 'setError', value: ''})
-                }
-                setSubmitFoundTaken(false)
-                setDraftValue(val.toLowerCase())
-              }}
-              supportingText={supportingText}
-              errorText={errorText}
-              trailing={
-                isHandleAvailable?.available && draftValue.length > 0 ? (
-                  <Check size="md" style={{color: t.palette.positive_600}} />
-                ) : undefined
+            label={_(msg`Handle`)}
+            icon={At}
+            value={draftValue}
+            placeholder={_(msg`Enter your handle`)}
+            onChangeText={val => {
+              if (state.error) {
+                dispatch({type: 'setError', value: ''})
               }
-              keyboardType="ascii-capable"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoFocus
-              autoComplete="off"
-            />
+              setSubmitFoundTaken(false)
+              setDraftValue(val.toLowerCase())
+            }}
+            supportingText={supportingText}
+            errorText={errorText}
+            trailing={
+              isHandleAvailable?.available && draftValue.length > 0 ? (
+                <Check size="md" style={{color: t.palette.positive_600}} />
+              ) : undefined
+            }
+            keyboardType="ascii-capable"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus
+            autoComplete="off"
+          />
         </FieldGroupCard>
       </View>
       <View style={a.gap_sm}>
@@ -379,7 +379,7 @@ export function StepHandle({
         <PrimaryButton
           testID="nextBtn"
           label={_(msg`Continue`)}
-          onPress={onNextPress}
+          onPress={() => void onNextPress()}
           disabled={isNextDisabled || isNextLoading}
         />
       </Footer>

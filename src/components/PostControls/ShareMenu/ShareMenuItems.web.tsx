@@ -1,5 +1,4 @@
 import {memo, useMemo} from 'react'
-import {AtUri} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
