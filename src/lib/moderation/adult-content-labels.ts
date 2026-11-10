@@ -1,5 +1,7 @@
-import {type InterpretedLabelValueDefinition, LABELS} from '@atproto/api'
-
+import {
+  LABELS,
+  type InterpretedLabelValueDefinition,
+} from '@bsky/sdk/moderation'
 import {SELF_LABELS} from '../moderation'
 
 const ADULT_LABEL_VALS = [...SELF_LABELS, 'gore'] as const

@@ -1,4 +1,4 @@
-import {type AppBskyFeedDefs} from '@atproto/api'
+import {type app} from '#/lexicons'
 import {type InfiniteData, type QueryClient} from '@tanstack/react-query'
 
 /**
@@ -11,8 +11,8 @@ export const TOPIC_FEED_QUERY_KEY_ROOT = 'topic-feed'
 export function* findAllPostsInTopicQueryData(
   queryClient: QueryClient,
   uri: string,
-): Generator<AppBskyFeedDefs.PostView, undefined> {
-  type PageData = {posts: AppBskyFeedDefs.PostView[]; cursor: string | null}
+): Generator<app.bsky.feed.defs.PostView, undefined> {
+  type PageData = {posts: app.bsky.feed.defs.PostView[]; cursor: string | null}
   const queryDatas = queryClient.getQueriesData<InfiniteData<PageData>>({
     queryKey: [TOPIC_FEED_QUERY_KEY_ROOT],
   })

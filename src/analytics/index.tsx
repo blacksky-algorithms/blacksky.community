@@ -134,7 +134,6 @@ const Context = createContext<AnalyticsBaseContextType>({
     geolocation: {
       countryCode: '',
       regionCode: '',
-      city: '',
     },
   },
 })

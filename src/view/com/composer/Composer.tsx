@@ -228,6 +228,8 @@ type CancelRef = {
   onPressCancel: () => void
 }
 
+const VIDEO_MAX_MINUTES = VIDEO_MAX_DURATION_MS / 60_000
+
 function applyGalleryCap(
   currentCount: number,
   incoming: ComposerImage[],
@@ -528,7 +530,7 @@ export const ComposePost = ({
             type: 'embed_update_video',
             videoAction: {
               type: 'to_error',
-              error: l`Videos must be 10 minutes or less.`,
+              error: l`Videos must be ${VIDEO_MAX_MINUTES} minutes or less.`,
               signal: abortController.signal,
             },
           },
@@ -561,11 +563,8 @@ export const ComposePost = ({
       i18n,
       pdsClient,
       currentDispatchUrl,
-      currentDid,
       composerDispatch,
       ax.metric,
-      videoMaxDurationMs,
-      allow10MinuteVideos,
       isPrivateVideoTarget,
     ],
   )
@@ -672,7 +671,7 @@ export const ComposePost = ({
               type: 'embed_update_video',
               videoAction: {
                 type: 'to_error',
-                error: l`Videos must be 10 minutes or less.`,
+                error: l`Videos must be ${VIDEO_MAX_MINUTES} minutes or less.`,
                 signal: abortController.signal,
               },
             },

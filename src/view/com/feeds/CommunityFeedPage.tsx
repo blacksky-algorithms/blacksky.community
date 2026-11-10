@@ -1,6 +1,6 @@
+import {moderatePost} from '@bsky/sdk/moderation'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ActivityIndicator, type ListRenderItemInfo, View} from 'react-native'
-import {moderatePost} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -20,7 +20,7 @@ import {
   useCommunityTimelineQuery,
 } from '#/state/queries/community-feed'
 import {truncateAndInvalidate} from '#/state/queries/util'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 import {isThreadChildAt, isThreadParentAt} from '#/view/com/posts/PostFeed'
 import {PostFeedItem} from '#/view/com/posts/PostFeedItem'
 import {ViewFullThread} from '#/view/com/posts/ViewFullThread'
@@ -53,7 +53,7 @@ type CommunityFeedRow =
 export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
   const {_} = useLingui()
   const t = useTheme()
-  const agent = useAgent()
+  const client = useAppviewClient()
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
   const {hasSession} = useSession()
@@ -156,7 +156,7 @@ export function CommunityFeedPage({isPageFocused}: {isPageFocused: boolean}) {
         void refetch()
         return
       }
-      const head = await fetchCommunityTimelineHead(agent)
+      const head = await fetchCommunityTimelineHead(client)
       if (!head) return
       if (
         moderationOpts &&

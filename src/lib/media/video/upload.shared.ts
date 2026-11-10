@@ -3,7 +3,6 @@ import {type NsidString} from '@atproto/syntax'
 import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 
-import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {VIDEO_SERVICE_DID} from '#/lib/constants'
 import {UploadLimitError} from '#/lib/media/video/errors'
 import {getServiceAuthAudFromUrl} from '#/lib/strings/url-helpers'

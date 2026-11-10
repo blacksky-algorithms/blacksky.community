@@ -307,7 +307,7 @@ export {ProfileHeaderShell}
 function ProfileHeaderPills({
   moderation,
 }: {
-  profile: Shadow<AppBskyActorDefs.ProfileViewDetailed>
+  profile: Shadow<app.bsky.actor.defs.ProfileViewDetailed>
   moderation: ModerationDecision
 }) {
   const modui = moderation.ui('profileView')

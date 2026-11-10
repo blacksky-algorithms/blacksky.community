@@ -177,7 +177,7 @@ export async function resolveLink(
     const recordUri = spaceUri ?? makeRecordUri(user, collection, rkey)
     const post =
       spaceUri || collection === COMMUNITY_POST_COLLECTION
-        ? await getCommunityPost(agent, recordUri)
+        ? await getCommunityPost(appviewClient, recordUri)
         : await getPost({uri: recordUri})
     if (post.viewer?.embeddingDisabled) {
       throw new EmbeddingDisabledError()

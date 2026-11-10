@@ -1,5 +1,5 @@
 import {useEffect, useRef} from 'react'
-import {type AtUri} from '@atproto/syntax'
+import {AtUri} from '@atproto/syntax'
 import {
   type InfiniteData,
   type QueryClient,
@@ -195,12 +195,16 @@ export function didOrHandleUriMatches(
  */
 export function makeUriMatcher(uri: string) {
   if (isSpaceRecordUri(uri)) {
-    return (record: {uri: string; author: AppBskyActorDefs.ProfileViewBasic}) =>
-      record.uri === uri
+    return (record: {
+      uri: string
+      author: app.bsky.actor.defs.ProfileViewBasic
+    }) => record.uri === uri
   }
   const atUri = new AtUri(uri)
-  return (record: {uri: string; author: AppBskyActorDefs.ProfileViewBasic}) =>
-    didOrHandleUriMatches(atUri, record)
+  return (record: {
+    uri: string
+    author: app.bsky.actor.defs.ProfileViewBasic
+  }) => didOrHandleUriMatches(atUri, record)
 }
 
 export function getEmbeddedPost(

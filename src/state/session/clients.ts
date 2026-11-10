@@ -1,4 +1,4 @@
-import {type Agent, type Client} from '@atproto/lex'
+import {type Agent, type Client, type Service} from '@atproto/lex'
 import {type PasswordSession} from '@atproto/lex-password-session'
 
 import {
@@ -28,10 +28,34 @@ import {networkAwareFetch} from './network'
  * fetch, which is `networkAwareFetch` wrapped in the disposal kill switch.
  */
 export function buildAppviewClient(agent: Agent): Client {
-  return createLexClient(agent, {
-    service: BLUESKY_PROXY_HEADER.get(),
+  return createLexClient(followCurrentAppview(agent), {
+    service: CURRENT_APPVIEW,
     includeDeviceSessionHeaders: true,
   })
+}
+
+/*
+ * A lex client's default service is fixed when it is built, but the appview
+ * this app reads from can change while a session is live (the fallback during
+ * a home appview outage). The client is therefore built with a placeholder
+ * target, and the agent swaps it for the current one as each request goes out.
+ * A call that names its own `service` carries a real value and is left alone.
+ */
+const CURRENT_APPVIEW: Service = 'did:web:current-appview.invalid#bsky_appview'
+
+function followCurrentAppview(agent: Agent): Agent {
+  return {
+    get did() {
+      return agent.did
+    },
+    fetchHandler(path, init) {
+      const headers = new Headers(init.headers)
+      if (headers.get('atproto-proxy') === CURRENT_APPVIEW) {
+        headers.set('atproto-proxy', BLUESKY_PROXY_HEADER.get())
+      }
+      return agent.fetchHandler(path, {...init, headers})
+    },
+  }
 }
 
 /**

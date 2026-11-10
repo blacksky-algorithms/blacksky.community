@@ -33,6 +33,7 @@ import * as toast from '#/components/Toast'
 import {Span, Text} from '#/components/Typography'
 import {chat, com} from '#/lexicons'
 import {resetToTab} from '#/Navigation'
+import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 
 const WHITESPACE_RE = /\s/gu
 const PASSWORD_MIN_LENGTH = 8

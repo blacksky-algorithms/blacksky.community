@@ -93,11 +93,11 @@ export function usePostThread({anchor}: {anchor?: string}) {
       // parameter is an at-uri and a space URI is not one. The community
       // endpoint answers with the same item shape.
       const data = isSpaceRecordUri(anchor)
-        ? await fetchCommunityThread(client, {
+        ? ((await fetchCommunityThread(client, {
             anchor: anchor!,
             branchingFactor,
             below,
-          })
+          })) as app.bsky.unspecced.getPostThreadV2.$OutputBody)
         : await client.call(
             app.bsky.unspecced.getPostThreadV2,
             {

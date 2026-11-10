@@ -343,8 +343,8 @@ export async function processVideo(
       dispatchUrl,
       signal,
       i18n,
+      did: client.assertDid,
       isPrivate,
-      onTransport: telemetry.uploadTransport,
       setProgress: p => {
         dispatch({type: 'update_progress', progress: p, signal})
       },

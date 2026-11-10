@@ -30,7 +30,7 @@ export function useAppPasswordsQuery(gatekeeper?: GatekeeperConfig) {
           did: gatekeeper.did,
           password: gatekeeper.password,
         })
-        return res.passwords
+        return res.passwords as com.atproto.server.listAppPasswords.AppPassword[]
       }
       const data = await client.call(com.atproto.server.listAppPasswords)
       return data.passwords
@@ -49,13 +49,13 @@ export function useAppPasswordCreateMutation(gatekeeper?: GatekeeperConfig) {
   >({
     mutationFn: async ({name, privileged}) => {
       if (gatekeeper) {
-        return await gateCreateAppPassword({
+        return (await gateCreateAppPassword({
           serviceUrl: gatekeeper.serviceUrl,
           did: gatekeeper.did,
           password: gatekeeper.password,
           name,
           privileged,
-        })
+        })) as com.atproto.server.createAppPassword.$OutputBody
       }
       return await client.call(com.atproto.server.createAppPassword, {
         name,

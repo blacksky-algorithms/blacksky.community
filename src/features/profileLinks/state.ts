@@ -17,7 +17,6 @@ import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
 import {usePdsClient} from '#/state/session'
-import {useAgeAssurance} from '#/ageAssurance'
 import {app} from '#/lexicons'
 import {
   filterModeratedLinkViews,
@@ -42,12 +41,11 @@ export function useProfileViewLinks(
 }
 
 /**
- * Whether the current account can add or edit its links. Age-restricted
- * accounts, like those in Safe mode, still see links but can't add them.
+ * Whether the current account can add or edit its links. Always true here:
+ * this app has no age-restricted mode.
  */
 export function useCanEditProfileLinks() {
-  const aa = useAgeAssurance()
-  return !aa.flags.isAgeRestricted
+  return true
 }
 
 type StrongRef = {uri: l.AtUriString; cid: l.CidString}

@@ -65,7 +65,7 @@ export function isDidBlocked(
   did: string,
 ): {blocked: boolean; blockUri?: string} {
   const queryDatas = queryClient.getQueriesData<
-    InfiniteData<AppBskyGraphGetBlocks.OutputSchema>
+    InfiniteData<app.bsky.graph.getBlocks.$OutputBody>
   >({
     queryKey: [RQKEY_ROOT],
   })

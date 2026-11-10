@@ -1,8 +1,7 @@
-import {type Client} from '@atproto/lex'
+import {type Client, jsonToLex} from '@atproto/lex'
 import {type AtUriString} from '@atproto/syntax'
 import {
   hasMutedWord,
-  jsonToLex,
   moderateNotification,
   type ModerationOpts,
 } from '@bsky/sdk/moderation'

@@ -16,6 +16,7 @@ import {useFindContactsFlowState} from '#/components/contacts/state'
 import * as Layout from '#/components/Layout'
 import {ScreenTransition} from '#/components/ScreenTransition'
 import {IS_NATIVE} from '#/env'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'FindContactsFlow'>
 export function FindContactsFlowScreen({navigation}: Props) {
@@ -28,7 +29,9 @@ export function FindContactsFlowScreen({navigation}: Props) {
   useFocusEffect(
     useCallback(() => {
       if (!findContactsEnabled) {
-        navigation.navigate('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'navigate'),
+        )
       }
     }, [findContactsEnabled, navigation]),
   )

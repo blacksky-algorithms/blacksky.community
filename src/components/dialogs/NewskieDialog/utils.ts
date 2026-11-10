@@ -23,13 +23,15 @@ export function getJoinMessage({
   if (diff.unit === 'now') {
     if (isMe) {
       return joinedViaStarterPack
-        ? i18n._(msg`You joined Bluesky using a Starter Pack just now`)
-        : i18n._(msg`You joined Bluesky just now`)
+        ? i18n._(msg`You joined Blacksky using a starter pack just now`)
+        : i18n._(msg`You joined Blacksky just now`)
     }
 
     return joinedViaStarterPack
-      ? i18n._(msg`${profileName} joined Bluesky using a Starter Pack just now`)
-      : i18n._(msg`${profileName} joined Bluesky just now`)
+      ? i18n._(
+          msg`${profileName} joined Blacksky using a starter pack just now`,
+        )
+      : i18n._(msg`${profileName} joined Blacksky just now`)
   }
 
   const timeAgoString = formatDateDiff({diff, i18n, format: 'long'})
@@ -37,14 +39,14 @@ export function getJoinMessage({
   if (isMe) {
     return joinedViaStarterPack
       ? i18n._(
-          msg`You joined Bluesky using a Starter Pack ${timeAgoString} ago`,
+          msg`You joined Blacksky using a starter pack ${timeAgoString} ago`,
         )
-      : i18n._(msg`You joined Bluesky ${timeAgoString} ago`)
+      : i18n._(msg`You joined Blacksky ${timeAgoString} ago`)
   }
 
   return joinedViaStarterPack
     ? i18n._(
-        msg`${profileName} joined Bluesky using a Starter Pack ${timeAgoString} ago`,
+        msg`${profileName} joined Blacksky using a starter pack ${timeAgoString} ago`,
       )
-    : i18n._(msg`${profileName} joined Bluesky ${timeAgoString} ago`)
+    : i18n._(msg`${profileName} joined Blacksky ${timeAgoString} ago`)
 }

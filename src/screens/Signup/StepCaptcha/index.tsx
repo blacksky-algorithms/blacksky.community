@@ -179,7 +179,7 @@ function StepCaptchaInner({
         type: 'setError',
         value: _(msg`Error receiving captcha response.`),
       })
-      ax.metric('signup:captchaFailure', {})
+      ax.metric('signup:captchaFailure', {reason: 'webview-error'})
       logger.error('Signup: captcha response error', {
         safeMessage: error,
       })

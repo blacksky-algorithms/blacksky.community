@@ -75,7 +75,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       },
       labelDefs,
     }
-  }, [override, userDid, labelDefs, moderationPrefs, hiddenPosts, birthDate])
+  }, [userDid, labelDefs, moderationPrefs, hiddenPosts, birthDate])
 
   return (
     <moderationOptsContext.Provider value={value}>

@@ -44,7 +44,7 @@ export const ExternalEmbed = ({
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
   postText?: string
-  postFacets?: AppBskyRichtextFacet.Main[]
+  postFacets?: app.bsky.richtext.facet.Main[]
   postUri?: string
 }) => {
   const {_} = useLingui()

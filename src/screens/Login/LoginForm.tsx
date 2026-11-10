@@ -1,6 +1,6 @@
+import {type com} from '#/lexicons'
 import {useRef, useState} from 'react'
 import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
-import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -39,7 +39,7 @@ export const LoginForm = ({
 }: {
   error: string
   serviceUrl: string
-  serviceDescription: ComAtprotoServerDescribeServer.OutputSchema | undefined
+  serviceDescription: com.atproto.server.describeServer.$OutputBody | undefined
   initialHandle: string
   setError: (v: string) => void
   onPressBack: () => void

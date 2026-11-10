@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
-import {type TextInput, View} from 'react-native'
+import {TextInput, View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 import * as EmailValidator from 'email-validator'
 import type tldts from 'tldts'
@@ -66,8 +66,8 @@ export function StepInfo({
   const [password, setPassword] = useState<string>(state.password)
   const prevEmailValueRef = useRef<string>(state.email)
 
-  const emailInputRef = useRef<TextInput>(null)
-  const passwordInputRef = useRef<TextInput>(null)
+  const emailInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
+  const passwordInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
   const birthdateInputRef = useRef<DateFieldRef>(null)
 
   const isOverAppMinAccessAge = state.dateOfBirth
@@ -288,7 +288,7 @@ export function StepInfo({
             <DateField.DateField
               testID="date"
               inputRef={birthdateInputRef}
-              value={state.dateOfBirth}
+              value={state.dateOfBirth ?? ''}
               onChangeDate={date => {
                 dispatch({
                   type: 'setDateOfBirth',

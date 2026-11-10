@@ -1,5 +1,5 @@
-import {type BskyAgent, jsonToLex} from '@atproto/api'
-
+import {jsonToLex, type Client} from '@atproto/lex'
+import {type app} from '#/lexicons'
 import {communityXrpc} from '#/lib/api/community'
 import {type SpaceFeedPage, toSpaceFeedPage} from '#/lib/api/space-views'
 
@@ -23,7 +23,7 @@ export const signInRequiredError = () => new Error('FeedSignedInOnly')
  * inside the response are space URIs and are never parsed here.
  */
 export async function fetchSpaceFeed(
-  agent: BskyAgent,
+  client: Client,
   feed: string,
   {cursor, limit}: {cursor?: string; limit?: number} = {},
 ): Promise<SpaceFeedPage> {
@@ -31,7 +31,7 @@ export async function fetchSpaceFeed(
   if (cursor) params.cursor = cursor
   if (limit) params.limit = String(limit)
 
-  const res = await communityXrpc(agent, GET_SPACE_FEED, {params})
+  const res = await communityXrpc(client, GET_SPACE_FEED, {params})
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as {
       error?: string

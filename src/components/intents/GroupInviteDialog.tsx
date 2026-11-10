@@ -48,6 +48,7 @@ import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {useIntentDialogs} from './IntentDialogs'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 export function GroupInviteDialog() {
   const {groupInviteDialogControl, groupInviteState, setGroupInviteState} =
@@ -127,7 +128,9 @@ export function GroupInviteDialogContent({code}: {code?: string}) {
     maybeFailGroupInviteE2E('navigation')
     setSelectedFeed(`feedgen|${feed.uri}`)
     groupInviteDialogControl.close()
-    navigation.navigate('HomeTab')
+    navigation.dispatch(
+      getHomeNavigationAction(navigation.getState(), 'navigate'),
+    )
   }, [
     acceptance,
     groupInviteDialogControl,

@@ -32,6 +32,7 @@ import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID} from '#/env'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
+import {getErrorName} from '#/lib/xrpc-error'
 
 export function Signup({
   onPressBack,
@@ -133,8 +134,7 @@ export function Signup({
       dispatch({
         type: 'setError',
         value:
-          serviceError instanceof XRPCError &&
-          serviceError.error === 'RateLimitExceeded'
+          getErrorName(serviceError) === 'RateLimitExceeded'
             ? l`Your service is receiving too many requests. Please wait a few minutes and try again.`
             : l`Unable to contact your service. Please try again shortly.`,
       })

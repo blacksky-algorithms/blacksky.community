@@ -108,3 +108,6 @@ export const Person_Stroke2_Corner2_Rounded = createStrokeSVG({
   viewBox: '0 0 24 24',
   strokeWidth: 2,
 })
+
+export const PersonPlus_Filled_Corner2_Rounded =
+  PersonPlus_Filled_Stroke2_Corner0_Rounded

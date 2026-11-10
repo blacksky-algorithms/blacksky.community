@@ -1,7 +1,7 @@
+import {type Client} from '@atproto/lex'
 import {useCallback, useState} from 'react'
 import {View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {AtpAgent, XRPCError} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -25,6 +25,10 @@ import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
+import {PasswordSession} from '@atproto/lex-password-session'
+import {createLexClient} from '#/lib/lexClient'
+import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
+import {com} from '#/lexicons'
 
 async function reactivateWithPassword({
   pdsUrl,
@@ -37,20 +41,27 @@ async function reactivateWithPassword({
   password: string
   authFactorToken?: string
 }) {
-  const agent = new AtpAgent({service: pdsUrl})
-  await agent.login({identifier, password, authFactorToken})
+  const session = await PasswordSession.login({
+    service: pdsUrl,
+    identifier,
+    password,
+    authFactorToken,
+    allowTakendown: true,
+  })
   try {
     try {
-      await agent.com.atproto.server.activateAccount()
+      await createLexClient(session, {appLabelers: null}).call(
+        com.atproto.server.activateAccount,
+      )
     } catch (e) {
       // On retry after a partial success, the account may already be active.
       // Treat that as a successful no-op so the user isn't stuck.
-      if (e instanceof XRPCError && e.error === 'InvalidRequest') return
+      if (getErrorName(e) === 'InvalidRequest') return
       throw e
     }
   } finally {
     try {
-      await agent.logout()
+      await session.logout()
     } catch {
       // best-effort cleanup; the throwaway session expires anyway
     }
@@ -130,26 +141,20 @@ export function Deactivated() {
             msg`Unable to contact your service. Please check your Internet connection.`,
           ),
         )
-      } else if (
-        e instanceof XRPCError &&
-        e.error === 'AuthFactorTokenRequired'
-      ) {
+      } else if (getErrorName(e) === 'AuthFactorTokenRequired') {
         // PDS just emailed a code; reveal the input and let the user retry.
         // Not a real error, so skip the error log below.
         setNeeds2fa(true)
         setError(undefined)
         return
-      } else if (
-        e instanceof XRPCError &&
-        e.message.includes('Token is invalid')
-      ) {
+      } else if (e instanceof Error && e.message.includes('Token is invalid')) {
         setError(_(msg`Invalid 2FA code. Please try again.`))
       } else if (
-        e instanceof XRPCError &&
-        (e.status === 401 || e.error === 'AuthenticationRequired')
+        getErrorStatus(e) === 401 ||
+        getErrorName(e) === 'AuthenticationRequired'
       ) {
         setError(_(msg`Incorrect password. Please try again.`))
-      } else if (e instanceof XRPCError && e.status === 429) {
+      } else if (getErrorStatus(e) === 429) {
         setError(
           _(msg`Too many attempts. Please wait a few minutes and try again.`),
         )

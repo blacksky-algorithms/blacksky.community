@@ -322,20 +322,6 @@ module.exports = function (_config) {
         ],
         'expo-web-browser',
         'expo-background-task',
-        [
-          'react-native-nano-icons',
-          {
-            /*
-             * One font per codegen directory under `assets/icons/`, see
-             * `scripts/icons/README.md`.
-             */
-            iconSets: ['ui', 'brands', 'community'].map(lane => ({
-              inputDir: `./assets/icons/${lane}`,
-              outputDir: './assets/nano-icons/nanoicons',
-              fontFamily: `icons-${lane}`,
-            })),
-          },
-        ],
         /*
          * Mods run in reverse registration order. Register the system bars
          * plugin before expo-navigation-bar, which removes

@@ -1,10 +1,12 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {TID} from '@atproto/common-web'
 
 import {type AssemblyRef, normalizePollText} from '#/lib/api/poll'
 import {isNetworkError} from '#/lib/strings/errors'
 import {ASSEMBLY_SERVICE_DID, ASSEMBLY_URL} from '#/env'
 import {getServiceAuthToken} from './service-auth'
+import {com} from '#/lexicons'
+import {type UriString} from '@atproto/syntax'
 
 export const ASSEMBLY_CONVERSATION_COLLECTION =
   'community.blacksky.assembly.conversation'
@@ -88,9 +90,9 @@ export function buildAssemblyExternal(input: {
   conversationId: string
   topic: string
   statements: string[]
-}): {uri: string; title: string; description: string} {
+}): {uri: UriString; title: string; description: string} {
   return {
-    uri: assemblyUrl(input.conversationId),
+    uri: assemblyUrl(input.conversationId) as UriString,
     title: input.topic,
     description: input.statements
       .map((statement, i) => `${i + 1}. ${statement}`)
@@ -112,10 +114,10 @@ function parseBody(text: string): Record<string, unknown> {
   return {}
 }
 
-async function removeRecord(agent: AtpAgent, rkey: string): Promise<void> {
+async function removeRecord(client: Client, rkey: string): Promise<void> {
   try {
-    await agent.com.atproto.repo.deleteRecord({
-      repo: agent.assertDid,
+    await client.call(com.atproto.repo.deleteRecord, {
+      repo: client.assertDid,
       collection: ASSEMBLY_CONVERSATION_COLLECTION,
       rkey,
     })
@@ -123,15 +125,15 @@ async function removeRecord(agent: AtpAgent, rkey: string): Promise<void> {
 }
 
 async function writeRecord(
-  agent: AtpAgent,
+  client: Client,
   ref: AssemblyRef,
   topic: string,
   staleRkey: string | undefined,
 ): Promise<{uri: string; cid: string}> {
   try {
-    if (staleRkey) await removeRecord(agent, staleRkey)
-    const {data} = await agent.com.atproto.repo.putRecord({
-      repo: agent.assertDid,
+    if (staleRkey) await removeRecord(client, staleRkey)
+    const data = await client.call(com.atproto.repo.putRecord, {
+      repo: client.assertDid,
       collection: ASSEMBLY_CONVERSATION_COLLECTION,
       rkey: ref.rkey,
       record: {
@@ -151,13 +153,13 @@ async function writeRecord(
 }
 
 async function requestCreate(
-  agent: AtpAgent,
+  client: Client,
   body: string,
 ): Promise<CreateResponse> {
   let token: string
   try {
     token = await getServiceAuthToken({
-      agent,
+      client,
       aud: ASSEMBLY_SERVICE_DID,
       lxm: ASSEMBLY_CREATE_LXM,
       exp: Math.floor(Date.now() / 1000) + TOKEN_LIFETIME_SECONDS,
@@ -190,7 +192,7 @@ async function requestCreate(
 }
 
 export async function ensureAssembly(
-  agent: AtpAgent,
+  client: Client,
   input: {
     topic: string
     statements: string[]
@@ -226,14 +228,14 @@ export async function ensureAssembly(
     previous && !isUnchanged && !previous.conversationId
       ? previous.rkey
       : undefined
-  const record = await writeRecord(agent, ref, topic, staleRkey)
+  const record = await writeRecord(client, ref, topic, staleRkey)
   const body = JSON.stringify({
     topic,
     statements,
     conversation: {at_uri: record.uri, at_cid: record.cid},
   })
 
-  let response = await requestCreate(agent, body)
+  let response = await requestCreate(client, body)
   for (
     let retries = 0;
     retries < CREATE_RETRIES &&
@@ -242,7 +244,7 @@ export async function ensureAssembly(
     retries++
   ) {
     await pause(CREATE_RETRY_PAUSE_MS)
-    response = await requestCreate(agent, body)
+    response = await requestCreate(client, body)
   }
 
   if (response.status === 200 || response.status === 201) {
@@ -267,7 +269,7 @@ export async function ensureAssembly(
 
   const refusal = REFUSALS[response.status]
   if (refusal) {
-    await removeRecord(agent, ref.rkey)
+    await removeRecord(client, ref.rkey)
     if (refusal === 'conflict') {
       input.onRef({
         rkey: TID.nextStr(),

@@ -7,10 +7,10 @@ import {
 import {STALE} from '#/state/queries'
 import {useSavedFeeds} from '#/state/queries/feed'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 
 export function useCommunityPostTargets(contextualFeed?: FeedDescriptor) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const {currentAccount} = useSession()
   const {data, isLoading} = useSavedFeeds()
   const feeds = (data?.feeds ?? []).filter(item => item.type === 'feed')
@@ -36,7 +36,7 @@ export function useCommunityPostTargets(contextualFeed?: FeedDescriptor) {
     queryFn: async () => {
       const targets = await Promise.all(
         candidateFeeds.map(async ([feed, displayName]) => {
-          const target = await fetchCommunityFeedTarget(agent, feed)
+          const target = await fetchCommunityFeedTarget(client, feed)
           return target ? {...target, name: displayName ?? target.name} : null
         }),
       )

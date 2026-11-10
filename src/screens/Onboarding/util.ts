@@ -10,8 +10,9 @@ import chunk from 'lodash.chunk'
 import {until} from '#/lib/async/until'
 import {type ComputedBrandConfig} from '#/lib/community/types'
 import {logger} from '#/logger'
-import {saveLabelers} from '#/state/session/moderation'
+import {readLabelers, saveLabelers} from '#/state/session/moderation'
 import {app, com} from '#/lexicons'
+import {addLabeler} from '@bsky/sdk'
 
 export async function bulkWriteFollows(
   pdsClient: Client,
@@ -95,16 +96,16 @@ export function resolveModerationServiceDids(
 }
 
 export async function subscribeToBrandModerationServices(
-  agent: AtpAgent,
-  accountDid: string | undefined,
+  pdsClient: Client,
   brandConfig: ComputedBrandConfig,
 ) {
+  const accountDid = pdsClient.did
   const dids = resolveModerationServiceDids(brandConfig)
   if (!dids.length) return
 
   const results = await Promise.allSettled(
     dids.map(async did => {
-      await agent.addLabeler(did)
+      await pdsClient.call(addLabeler, did as DidString)
       return did
     }),
   )
@@ -124,10 +125,9 @@ export async function subscribeToBrandModerationServices(
   if (!accountDid || !subscribedDids.length) return
 
   try {
-    await saveLabelers(
-      accountDid,
-      agent.labelers.length ? [...agent.labelers] : subscribedDids,
-    )
+    saveLabelers(accountDid, [
+      ...new Set([...(readLabelers(accountDid) ?? []), ...subscribedDids]),
+    ])
   } catch (e) {
     logger.error('Failed to cache brand moderation services', {safeMessage: e})
   }

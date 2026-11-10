@@ -37,7 +37,7 @@ const DRAFT_EVENT_KEY = 'communityBlackskyEvent'
 
 // app.bsky.draft.defs is not ours to extend, so the poll travels as an extra
 // property that the draft schema passes through untouched.
-type DraftPostWithPoll = AppBskyDraftDefs.DraftPost & {
+type DraftPostWithPoll = app.bsky.draft.defs.DraftPost & {
   [DRAFT_POLL_KEY]?: unknown
   [DRAFT_EVENT_KEY]?: unknown
 }

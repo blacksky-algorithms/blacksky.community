@@ -43,7 +43,9 @@ export function expandLinks(rt: RichText): RichText {
   rt = rt.clone()
   if (rt.facets) {
     for (const facet of rt.facets) {
-      const link = facet.features.find(AppBskyRichtextFacet.isLink)
+      const link = facet.features.find(feature =>
+        bsky.isType(app.bsky.richtext.facet.link, feature),
+      )
       if (!link) {
         continue
       }

@@ -1,11 +1,11 @@
-import {type AppBskyActorDefs} from '@atproto/api'
+import {type app} from '#/lexicons'
 
 export const PEER_MOD_BADGE = 'peer-moderator'
 
 type ProfileLike =
-  | AppBskyActorDefs.ProfileViewBasic
-  | AppBskyActorDefs.ProfileView
-  | AppBskyActorDefs.ProfileViewDetailed
+  | app.bsky.actor.defs.ProfileViewBasic
+  | app.bsky.actor.defs.ProfileView
+  | app.bsky.actor.defs.ProfileViewDetailed
   | {did: string}
 
 // Blacksky appview extension: active badge slugs ride profile views as

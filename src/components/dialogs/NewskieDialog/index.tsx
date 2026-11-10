@@ -95,28 +95,6 @@ function DialogInner({
     )
   }, [moderationOpts, profile])
 
-  const getJoinMessage = () => {
-    const timeAgoString = timeAgo(createdAt, now, {format: 'long'})
-
-    if (isMe) {
-      if (profile.joinedViaStarterPack) {
-        return _(
-          msg`You joined Blacksky using a starter pack ${timeAgoString} ago`,
-        )
-      } else {
-        return _(msg`You joined Blacksky ${timeAgoString} ago`)
-      }
-    } else {
-      if (profile.joinedViaStarterPack) {
-        return _(
-          msg`${profileName} joined Blacksky using a starter pack ${timeAgoString} ago`,
-        )
-      } else {
-        return _(msg`${profileName} joined Blacksky ${timeAgoString} ago`)
-      }
-    }
-  }
-
   return (
     <Dialog.ScrollableInner
       label={_(msg`New user info dialog`)}

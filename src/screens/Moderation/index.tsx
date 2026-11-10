@@ -1,6 +1,6 @@
+import {LABELS} from '@bsky/sdk/moderation'
 import {Fragment, useCallback} from 'react'
 import {Linking, View} from 'react-native'
-import {LABELS} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'

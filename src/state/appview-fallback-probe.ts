@@ -1,7 +1,8 @@
-import {type AtpAgent} from '@atproto/api'
-
-import {BLUESKY_FALLBACK_PROXY_HEADER} from '#/lib/constants'
+import {type Client} from '@atproto/lex'
+import {BLUESKY_APPVIEW_PINNED_OPTS} from '#/lib/constants'
+import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
 import {metrics} from '#/analytics/metrics'
+import {app} from '#/lexicons'
 
 export type ProbeResult = 'eligible' | 'ineligible' | 'unknown'
 
@@ -17,9 +18,9 @@ const INELIGIBLE_MESSAGE_FRAGMENTS = ['suspended', 'taken down', 'deactivated']
 // isAuthorModerated in microcosm-fallback. Definitive results expire after
 // PROBE_TTL_MS so a status change is picked up within the hour.
 export async function probeFallbackEligibility(
-  agent: AtpAgent,
+  client: Client,
 ): Promise<ProbeResult> {
-  const did = agent.session?.did
+  const did = client.did
   if (!did) return 'unknown'
 
   const cached = cache.get(did)
@@ -35,15 +36,15 @@ export async function probeFallbackEligibility(
   let errorName: string | undefined
   let status: number | undefined
   try {
-    await agent.app.bsky.actor.getProfile(
+    await client.call(
+      app.bsky.actor.getProfile,
       {actor: did},
-      {headers: {'atproto-proxy': BLUESKY_FALLBACK_PROXY_HEADER}},
+      BLUESKY_APPVIEW_PINNED_OPTS,
     )
     result = 'eligible'
   } catch (e) {
-    const err = e as {status?: number; error?: string}
-    errorName = typeof err?.error === 'string' ? err.error : undefined
-    status = typeof err?.status === 'number' ? err.status : undefined
+    errorName = getErrorName(e)
+    status = getErrorStatus(e)
     result = classifyProbeError(e)
   }
 
@@ -56,10 +57,9 @@ export async function probeFallbackEligibility(
 }
 
 function classifyProbeError(e: unknown): ProbeResult {
-  const err = e as {status?: number; error?: string; message?: string}
-  const status = typeof err?.status === 'number' ? err.status : undefined
-  const name = typeof err?.error === 'string' ? err.error : ''
-  const message = typeof err?.message === 'string' ? err.message : ''
+  const status = getErrorStatus(e)
+  const name = getErrorName(e) ?? ''
+  const message = e instanceof Error ? e.message : ''
 
   if (status === 401 || status === 403) return 'ineligible'
   if (INELIGIBLE_ERROR_NAMES.includes(name)) return 'ineligible'

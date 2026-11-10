@@ -10,6 +10,7 @@ import {logger} from '#/logger'
 import {getContentLanguages} from '#/state/preferences/languages'
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
+import {type app} from '#/lexicons'
 
 export const DEFAULT_LIMIT = 10
 export const DEFAULT_FETCH_LIMIT = 20
@@ -77,7 +78,8 @@ export function useGetTrendsQuery(props: QueryProps = {}) {
       if (!res.ok) {
         throw new Error(`getTrends failed: ${res.status}`)
       }
-      const data = (await res.json()) as AppBskyUnspeccedGetTrends.OutputSchema
+      const data =
+        (await res.json()) as app.bsky.unspecced.getTrends.$OutputBody
       if (!data.recIdStr) {
         logger.debug('useGetTrendsQuery response missing recIdStr')
       }

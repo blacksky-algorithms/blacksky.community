@@ -1,6 +1,11 @@
 import {useCallback} from 'react'
 import {type Client} from '@atproto/lex'
-import {AtUri, type AtUriString, type HandleString} from '@atproto/syntax'
+import {
+  AtUri,
+  type AtUriString,
+  type DidString,
+  type HandleString,
+} from '@atproto/syntax'
 import {deleteLike, deletePost, deleteRepost, like, repost} from '@bsky/sdk'
 import {
   type QueryClient,
@@ -240,7 +245,9 @@ function usePostLikeMutation(
       // public repo: a public like naming a space URI would announce that the
       // private post exists, and who can see it.
       return (
-        spaceLikeIfSpace(pdsClient, uri, cid) ??
+        (spaceLikeIfSpace(pdsClient, uri, cid) as Promise<{
+          uri: AtUriString
+        }> | null) ??
         pdsClient.call(like, {
           uri: uri as AtUriString,
           cid: cid,

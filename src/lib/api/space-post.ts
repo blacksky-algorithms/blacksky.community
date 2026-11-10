@@ -1,4 +1,3 @@
-import {type AppBskyFeedPost, type AtpAgent} from '@atproto/api'
 import {ensureValidRecordKey} from '@atproto/syntax'
 import {t} from '@lingui/core/macro'
 import {type QueryClient} from '@tanstack/react-query'
@@ -26,7 +25,6 @@ import {POST_COLLECTION, spaceCreateRecord} from '#/lib/api/space-write'
  * would fail SDK-side validation.
  */
 export async function postToSpace(
-  agent: AtpAgent,
   queryClient: QueryClient,
   space: string,
   opts: PostOpts,
@@ -64,7 +62,7 @@ export async function postToSpace(
   // Replying into the space: the first draft hangs off the post being replied
   // to, and everything after it hangs off its predecessor as usual.
   if (opts.replyTo) {
-    const replyRef = await resolveReply(agent, opts.replyTo)
+    const replyRef = await resolveReply(opts.appviewClient, opts.replyTo)
     if (replyRef) {
       root = replyRef.root
       parent = replyRef.parent
@@ -72,9 +70,11 @@ export async function postToSpace(
   }
 
   for (const [index, draft] of thread.posts.entries()) {
-    const rt = await resolveRT(agent, draft.richtext)
+    const rt = await resolveRT(opts.appviewClient, draft.richtext)
     const embed = await resolveEmbed(
-      agent,
+      opts.appviewClient,
+      opts.chatClient,
+      opts.pdsClient,
       queryClient,
       draft,
       opts.onStateChange,
@@ -102,7 +102,7 @@ export async function postToSpace(
     const rkey = opts.draftId ? `${opts.draftId}-${index}` : draft.id
     ensureValidRecordKey(rkey)
     const written = await spaceCreateRecord(
-      agent,
+      opts.pdsClient,
       space,
       POST_COLLECTION,
       record,
@@ -128,5 +128,3 @@ export async function postToSpace(
 export function spacePostsIgnoreGates(): true {
   return true
 }
-
-export type {AppBskyFeedPost}

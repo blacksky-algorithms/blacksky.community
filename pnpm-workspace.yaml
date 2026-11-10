@@ -51,7 +51,6 @@ patchedDependencies:
   'metro@0.87.1': patches/metro@0.87.1.patch
   react-native-keyboard-controller@1.22.7: patches/react-native-keyboard-controller@1.22.7.patch
   react-native-mmkv@3.3.3: patches/react-native-mmkv@3.3.3.patch
-  react-native-nano-icons@1.0.1: patches/react-native-nano-icons@1.0.1.patch
   react-native-pager-view@9.0.11: patches/react-native-pager-view@9.0.11.patch
   react-native-reanimated@4.7.1: patches/react-native-reanimated@4.7.1.patch
   react-native-screens@4.30.1: patches/react-native-screens@4.30.1.patch
@@ -62,7 +61,6 @@ minimumReleaseAgeExclude:
   - '@atproto-labs/*'
   - '@bsky.app/*'
   - '@bsky/*'
-  - react-native-nano-icons@1.0.1
   - '@expo/cli@58.1.19'
   - '@expo/config-plugins@58.0.12'
   - '@expo/config@58.0.11'

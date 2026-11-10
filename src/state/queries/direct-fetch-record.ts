@@ -1,32 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  type AppBskyActorDefs,
-  type AppBskyEmbedRecord,
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AtUri,
-  type BskyAgent,
-} from '@atproto/api'
 
-type ProfileViewBasic = AppBskyActorDefs.ProfileViewBasic
+type ProfileViewBasic = app.bsky.actor.defs.ProfileViewBasic
+import {type Client} from '@atproto/lex'
+import {AtUri} from '@atproto/syntax'
+import {app, com} from '#/lexicons'
 import {useQuery} from '@tanstack/react-query'
 
 import {retry} from '#/lib/async/retry'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import * as bsky from '#/types/bsky'
 
 const RQKEY_ROOT = 'direct-fetch-record'
 export const RQKEY = (uri: string) => [RQKEY_ROOT, uri]
 
-export async function directFetchRecordAndProfile(
-  agent: BskyAgent,
-  uri: string,
-) {
+export async function directFetchRecordAndProfile(client: Client, uri: string) {
   const urip = new AtUri(uri)
 
   if (!urip.host.startsWith('did:')) {
-    const res = await agent.resolveHandle({
+    const res = await client.call(com.atproto.identity.resolveHandle, {
       handle: urip.host,
     })
     ;(urip as any).host = res.data.did
@@ -34,7 +26,9 @@ export async function directFetchRecordAndProfile(
 
   try {
     const [profile, record] = await Promise.all([
-      (async () => (await agent.getProfile({actor: urip.host})).data)(),
+      (async () =>
+        (await client.call(app.bsky.actor.getProfile, {actor: urip.host}))
+          .data)(),
       (async () =>
         (
           await retry(
@@ -46,7 +40,7 @@ export async function directFetchRecordAndProfile(
               return true
             },
             () =>
-              agent.api.com.atproto.repo.getRecord({
+              client.call(com.atproto.repo.getRecord, {
                 repo: urip.host,
                 collection: 'app.bsky.feed.post',
                 rkey: urip.rkey,
@@ -63,14 +57,14 @@ export async function directFetchRecordAndProfile(
 }
 
 export async function directFetchEmbedRecord(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
-): Promise<AppBskyEmbedRecord.ViewRecord | undefined> {
-  const res = await directFetchRecordAndProfile(agent, uri)
+): Promise<app.bsky.embed.record.ViewRecord | undefined> {
+  const res = await directFetchRecordAndProfile(client, uri)
   if (res === undefined) return undefined
   const {profile, record} = res
 
-  if (record && bsky.validate(record, AppBskyFeedPost.validateRecord)) {
+  if (record && bsky.validate(record, app.bsky.feed.post.validateRecord)) {
     return {
       $type: 'app.bsky.embed.record#viewRecord',
       uri,
@@ -78,7 +72,7 @@ export async function directFetchEmbedRecord(
       cid: 'directfetch',
       value: record,
       indexedAt: new Date().toISOString(),
-    } satisfies AppBskyEmbedRecord.ViewRecord
+    } satisfies app.bsky.embed.record.ViewRecord
   } else {
     return undefined
   }
@@ -91,26 +85,26 @@ export function useDirectFetchEmbedRecord({
   uri: string
   enabled?: boolean
 }) {
-  const agent = useAgent()
-  return useQuery<AppBskyEmbedRecord.ViewRecord | undefined>({
+  const client = useAppviewClient()
+  return useQuery<app.bsky.embed.record.ViewRecord | undefined>({
     staleTime: STALE.HOURS.ONE,
     queryKey: RQKEY(uri || ''),
     async queryFn() {
-      return directFetchEmbedRecord(agent, uri)
+      return directFetchEmbedRecord(client, uri)
     },
     enabled: enabled && !!uri,
   })
 }
 
 export async function directFetchPostRecord(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
-): Promise<AppBskyFeedDefs.PostView | undefined> {
-  const res = await directFetchRecordAndProfile(agent, uri)
+): Promise<app.bsky.feed.defs.PostView | undefined> {
+  const res = await directFetchRecordAndProfile(client, uri)
   if (res === undefined) return undefined
   const {profile, record} = res
 
-  if (record && bsky.validate(record, AppBskyFeedPost.validateRecord)) {
+  if (record && bsky.validate(record, app.bsky.feed.post.validateRecord)) {
     return {
       $type: 'app.bsky.feed.defs#postView',
       uri,
@@ -118,7 +112,7 @@ export async function directFetchPostRecord(
       cid: 'directfetch',
       record,
       indexedAt: new Date().toISOString(),
-    } satisfies AppBskyFeedDefs.PostView
+    } satisfies app.bsky.feed.defs.PostView
   } else {
     return undefined
   }

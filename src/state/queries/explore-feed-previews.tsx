@@ -28,6 +28,7 @@ import {usePreferencesQuery} from '#/state/queries/preferences'
 import {
   embedViewRecordToPostView,
   getEmbeddedPost,
+  didOrHandleUriMatches,
   makeUriMatcher,
 } from '#/state/queries/util'
 import {useAppviewClient} from '#/state/session'

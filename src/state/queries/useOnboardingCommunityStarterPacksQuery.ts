@@ -1,9 +1,10 @@
-import {type AppBskyGraphDefs} from '@atproto/api'
+import {app} from '#/lexicons'
 import {useQuery} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {type AtIdentifierString} from '@atproto/syntax'
 
 export const createOnboardingCommunityStarterPacksQueryKey = (did?: string) => [
   'onboarding-community-starter-packs',
@@ -25,25 +26,25 @@ export function useOnboardingCommunityStarterPacksQuery({
   did?: string
   enabled?: boolean
 }) {
-  const agent = useAgent()
+  const client = useAppviewClient()
 
   return useQuery({
     enabled: !!did && enabled !== false,
     staleTime: STALE.MINUTES.THREE,
     queryKey: createOnboardingCommunityStarterPacksQueryKey(did),
     queryFn: async () => {
-      const {data} = await agent.app.bsky.graph.getActorStarterPacks({
-        actor: did!,
+      const data = await client.call(app.bsky.graph.getActorStarterPacks, {
+        actor: did! as AtIdentifierString,
         limit: 10,
       })
 
       const hydrated = await Promise.all(
         data.starterPacks.map(async basic => {
           try {
-            const res = await agent.app.bsky.graph.getStarterPack({
+            const res = await client.call(app.bsky.graph.getStarterPack, {
               starterPack: basic.uri,
             })
-            return res.data.starterPack
+            return res.starterPack
           } catch (e) {
             logger.error('Failed to hydrate community starter pack', {
               safeMessage: e,
@@ -56,7 +57,7 @@ export function useOnboardingCommunityStarterPacksQuery({
 
       return {
         starterPacks: hydrated.filter(
-          (p): p is AppBskyGraphDefs.StarterPackView => p !== null,
+          (p): p is app.bsky.graph.defs.StarterPackView => p !== null,
         ),
       }
     },

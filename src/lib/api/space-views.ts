@@ -1,4 +1,4 @@
-import {type AppBskyFeedDefs} from '@atproto/api'
+import {type app} from '#/lexicons'
 
 /**
  * The private read contract's wire types, mapped back onto the shapes the feed
@@ -55,24 +55,24 @@ function rename(value: unknown): unknown {
  */
 export function toFeedViewPost(
   item: unknown,
-): AppBskyFeedDefs.FeedViewPost | undefined {
+): app.bsky.feed.defs.FeedViewPost | undefined {
   if (!isPlainObject(item)) return undefined
   const post = item.post
   if (!isPlainObject(post) || typeof post.uri !== 'string') return undefined
-  return rename(item) as AppBskyFeedDefs.FeedViewPost
+  return rename(item) as app.bsky.feed.defs.FeedViewPost
 }
 
 /** A private post view, from `getCommunityPost` or a private feed row. */
 export function toPostView(
   post: unknown,
-): AppBskyFeedDefs.PostView | undefined {
+): app.bsky.feed.defs.PostView | undefined {
   if (!isPlainObject(post) || typeof post.uri !== 'string') return undefined
-  return rename(post) as AppBskyFeedDefs.PostView
+  return rename(post) as app.bsky.feed.defs.PostView
 }
 
 export type SpaceFeedPage = {
   cursor?: string
-  feed: AppBskyFeedDefs.FeedViewPost[]
+  feed: app.bsky.feed.defs.FeedViewPost[]
 }
 
 /** The whole `getSpaceFeed` / community-feed body. */
@@ -83,7 +83,7 @@ export function toSpaceFeedPage(body: unknown): SpaceFeedPage {
     cursor: typeof source.cursor === 'string' ? source.cursor : undefined,
     feed: feed
       .map(toFeedViewPost)
-      .filter((item): item is AppBskyFeedDefs.FeedViewPost => !!item),
+      .filter((item): item is app.bsky.feed.defs.FeedViewPost => !!item),
   }
 }
 

@@ -161,10 +161,7 @@ function MediaEmbed({
         )
       }
       const record = rest.post?.record
-      const postRecord = bsky.dangerousIsType<AppBskyFeedPost.Record>(
-        record,
-        AppBskyFeedPost.isRecord,
-      )
+      const postRecord = bsky.isType(app.bsky.feed.post, record)
         ? record
         : undefined
       return (

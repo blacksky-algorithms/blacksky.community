@@ -823,8 +823,6 @@ let PostFeed = ({
         return <SuggestedFollows feed={feed} />
       } else if (row.type === 'interstitialProgressGuide') {
         return <ProgressGuide />
-      } else if (row.type === 'interstitialTrending') {
-        return <TrendingInterstitial />
       } else if (row.type === 'interstitialFeedTrendingTopics') {
         return (
           <FeedTrendingTopicsInterstitial feedSliceIndex={row.feedSliceIndex} />

@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
-import {View} from 'react-native'
+import {useWindowDimensions, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Plural, Trans} from '@lingui/react/macro'
 
-import {MAX_DESCRIPTION, MAX_DISPLAY_NAME, urls} from '#/lib/constants'
+import {MAX_DESCRIPTION, MAX_DISPLAY_NAME} from '#/lib/constants'
 import {useCallOnce} from '#/lib/once'
 import {cleanError} from '#/lib/strings/errors'
 import {isOverMaxGraphemeCount} from '#/lib/strings/helpers'

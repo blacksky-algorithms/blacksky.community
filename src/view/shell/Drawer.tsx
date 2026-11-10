@@ -530,12 +530,12 @@ let DrawerFooter = ({
       </Button>
       {showDiscuss ? (
         <Button
-          label={_(msg`Begin Discussion`)}
+          label={l`Begin Discussion`}
           size="small"
           variant="solid"
           color="secondary"
           onPress={onPressDiscuss}>
-          <ButtonIcon icon={Message} position="left" />
+          <ButtonIcon icon={MessageIcon} position="left" />
           <ButtonText>
             <Trans>Discussion</Trans>
           </ButtonText>
@@ -556,7 +556,7 @@ let DrawerFooter = ({
       </Button>
       {showContribute ? (
         <Button
-          label={_(msg`Support Us`)}
+          label={l`Support Us`}
           size="small"
           variant="outline"
           color="secondary"

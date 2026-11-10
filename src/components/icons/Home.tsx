@@ -7,3 +7,8 @@ export const Home_Stroke2_Corner2_Rounded = createMultiPathSVG({
   ],
   viewBox: '0 0 256 256',
 })
+
+export {
+  HomeOpen_Filled_Corner0_Rounded,
+  HomeOpen_Stoke2_Corner0_Rounded as HomeOpen_Stroke2_Corner0_Rounded,
+} from './HomeOpen'

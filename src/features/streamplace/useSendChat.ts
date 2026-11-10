@@ -1,9 +1,10 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {logger} from '#/logger'
-import {useAgent} from '#/state/session'
+import {usePdsClient} from '#/state/session'
 import {type ChatMessage} from './live-state'
 import {type PendingMessage, reconcilePending} from './pending'
+import {com} from '#/lexicons'
 
 const COLLECTION = 'place.stream.chat.message'
 export const CHAT_DELIVERY_TIMEOUT_MS = 10_000
@@ -12,7 +13,7 @@ export function useSendChat(
   streamerDid: string | undefined,
   messages: ChatMessage[],
 ) {
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
   const [pending, setPending] = useState<PendingMessage[]>([])
   const retrying = useRef(new Set<string>())
   const seenUris = useMemo(() => new Set(messages.map(m => m.uri)), [messages])
@@ -50,7 +51,7 @@ export function useSendChat(
 
   const send = useCallback(
     async (text: string, replacing?: PendingMessage) => {
-      if (!streamerDid || !agent.session) return
+      if (!streamerDid || !pdsClient.did) return
       if (replacing) {
         if (retrying.current.has(replacing.localId)) return
         retrying.current.add(replacing.localId)
@@ -63,12 +64,16 @@ export function useSendChat(
       try {
         if (replacing?.uri) {
           const rkey = replacing.uri.split('/').pop()!
-          await agent.com.atproto.repo
-            .deleteRecord({repo: agent.assertDid, collection: COLLECTION, rkey})
+          await pdsClient
+            .call(com.atproto.repo.deleteRecord, {
+              repo: pdsClient.assertDid,
+              collection: COLLECTION,
+              rkey,
+            })
             .catch(() => undefined)
         }
-        const res = await agent.com.atproto.repo.createRecord({
-          repo: agent.assertDid,
+        const res = await pdsClient.call(com.atproto.repo.createRecord, {
+          repo: pdsClient.assertDid,
           collection: COLLECTION,
           record: {
             $type: COLLECTION,
@@ -80,7 +85,7 @@ export function useSendChat(
         setPending(prev =>
           prev.map(m =>
             m.localId === localId
-              ? {...m, uri: res.data.uri, sentAt: Date.now()}
+              ? {...m, uri: res.uri, sentAt: Date.now()}
               : m,
           ),
         )
@@ -91,7 +96,7 @@ export function useSendChat(
         )
       }
     },
-    [agent, streamerDid],
+    [pdsClient, streamerDid],
   )
 
   return {pending, send}

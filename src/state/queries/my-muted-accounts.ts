@@ -65,7 +65,7 @@ export function isDidMuted(
   did: string,
 ): {muted: boolean} {
   const queryDatas = queryClient.getQueriesData<
-    InfiniteData<AppBskyGraphGetMutes.OutputSchema>
+    InfiniteData<app.bsky.graph.getMutes.$OutputBody>
   >({
     queryKey: [RQKEY_ROOT],
   })

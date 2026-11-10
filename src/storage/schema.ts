@@ -28,7 +28,6 @@ export type Device = {
   demoMode: boolean
   activitySubscriptionsNudged?: boolean
   threadgateNudged?: boolean
-  inviteFriendsFollowersPromoDismissed?: boolean
   /**
    * Whether the trending topics widget was installed the last time we checked,
    * so `trendingWidget:installed` and `trendingWidget:uninstalled` are only

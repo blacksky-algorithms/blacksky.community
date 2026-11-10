@@ -211,7 +211,7 @@ function restrictIncomingChat(client: Client, did: string) {
   return retryPostSignupTask('set chat declaration', 3, () =>
     client.put(
       chat.bsky.actor.declaration,
-      {$type: 'chat.bsky.actor.declaration', allowIncoming: 'none'},
+      {allowIncoming: 'none'},
       {repo: did as `did:${string}:${string}`, rkey: 'self'},
     ),
   )

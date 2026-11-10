@@ -1,7 +1,14 @@
 import {getLocales} from 'expo-localization'
 import {TID} from '@atproto/common-web'
-import {type $Typed, type Client} from '@atproto/lex'
 import {
+  type $Typed,
+  type BlobRef,
+  type Client,
+  jsonToLex,
+  type LexMap,
+} from '@atproto/lex'
+import {
+  AtUri,
   type AtUriString,
   toDatetimeString,
   type UriString,
@@ -280,7 +287,7 @@ export async function post(
     await replyPromise
     opts.onStateChange?.(t`Starting discussion...`)
     const statements = pollStatementsForPublish(poll)
-    const {ref, isReplay} = await ensureAssembly(agent, {
+    const {ref, isReplay} = await ensureAssembly(opts.pdsClient, {
       topic: pollTopicFromText(pollPost.richtext.text),
       statements,
       ref: poll.assembly,
@@ -471,7 +478,7 @@ export async function post(
   if (thread.communityFeed?.config.contentType === 'publicRecord') {
     await Promise.all(
       admissions.map(({post, cid}) =>
-        admitFeedPost(agent, thread.communityFeed!, post, cid),
+        admitFeedPost(opts.appviewClient, thread.communityFeed!, post, cid),
       ),
     )
   }
@@ -483,19 +490,15 @@ export async function post(
   }
 }
 
-async function postCommunity(
-  agent: AtpAgent,
-  queryClient: QueryClient,
-  opts: PostOpts,
-) {
+async function postCommunity(queryClient: QueryClient, opts: PostOpts) {
   const thread = opts.thread
 
   let replyPromise:
-    | Promise<AppBskyFeedPost.Record['reply']>
-    | AppBskyFeedPost.Record['reply']
+    | Promise<app.bsky.feed.post.Main['reply']>
+    | app.bsky.feed.post.Main['reply']
     | undefined
   if (opts.replyTo) {
-    replyPromise = resolveReply(agent, opts.replyTo)
+    replyPromise = resolveReply(opts.appviewClient, opts.replyTo)
   }
 
   let langs = opts.langs
@@ -503,8 +506,8 @@ async function postCommunity(
     langs = opts.langs.slice(0, 3)
   }
 
-  const did = agent.assertDid
-  const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
+  const did = opts.pdsClient.assertDid
+  const writes: com.atproto.repo.applyWrites.$InputBody['writes'] = []
   const uris: string[] = []
   const admissions: Array<{post: string; cid: string}> = []
 
@@ -514,14 +517,16 @@ async function postCommunity(
   for (let i = 0; i < thread.posts.length; i++) {
     const draft = thread.posts[i]
 
-    const rtPromise = resolveRT(agent, draft.richtext)
+    const rtPromise = resolveRT(opts.appviewClient, draft.richtext)
     const embedPromise = resolveEmbed(
-      agent,
+      opts.appviewClient,
+      opts.chatClient,
+      opts.pdsClient,
       queryClient,
       draft,
       opts.onStateChange,
     )
-    let labels: $Typed<ComAtprotoLabelDefs.SelfLabels> | undefined
+    let labels: $Typed<com.atproto.label.defs.SelfLabels> | undefined
     if (draft.labels.length) {
       labels = {
         $type: 'com.atproto.label.defs#selfLabels',
@@ -569,7 +574,7 @@ async function postCommunity(
 
     // Step 2: Compute CID locally - this is the SOURCE OF TRUTH for integrity
     const cid = await computeCid(
-      canonicalRecord as unknown as AppBskyFeedPost.Record,
+      canonicalRecord as unknown as app.bsky.feed.post.Main,
     )
 
     // Step 3: Submit to appview with expectedCid for verification
@@ -619,7 +624,7 @@ async function postCommunity(
 
     try {
       const submitRes = await communityXrpc(
-        agent,
+        opts.appviewClient,
         'community.blacksky.feed.submitPost',
         // No serviceDid: submitPost serves the Blacksky community feed, whose
         // content lives on the home appview. `contentStore` named a per-feed
@@ -682,12 +687,12 @@ async function postCommunity(
       $type: 'com.atproto.repo.applyWrites#create',
       collection: COMMUNITY_POST_COLLECTION,
       rkey,
-      value: stubRecord,
+      value: stubRecord as LexMap,
     })
 
     // Prepare ref for next post in thread
     const ref = {
-      cid: await computeCid(stubRecord as unknown as AppBskyFeedPost.Record),
+      cid: await computeCid(stubRecord as unknown as app.bsky.feed.post.Main),
       uri,
     }
     if (thread.communityFeed) {
@@ -696,13 +701,13 @@ async function postCommunity(
     replyPromise = {
       root: reply?.root ?? ref,
       parent: ref,
-    }
+    } as ReplyRefs
   }
 
   // Write stubs to PDS
   try {
-    await agent.com.atproto.repo.applyWrites({
-      repo: agent.assertDid,
+    await opts.pdsClient.call(com.atproto.repo.applyWrites, {
+      repo: did,
       writes,
       validate: false,
     })
@@ -722,7 +727,7 @@ async function postCommunity(
   if (thread.communityFeed) {
     await Promise.all(
       admissions.map(({post, cid}) =>
-        admitFeedPost(agent, thread.communityFeed!, post, cid),
+        admitFeedPost(opts.appviewClient, thread.communityFeed!, post, cid),
       ),
     )
   }
@@ -770,7 +775,22 @@ function refusePublicSpaceRefs<
   return refs
 }
 
-export async function resolveReply(appviewClient: Client, replyTo: string) {
+type ReplyRefs = NonNullable<app.bsky.feed.post.Main['reply']>
+
+/*
+ * Typed as post reply refs even though a ref into a permissioned space is not
+ * an at-uri: the space write path sends these as plain JSON, and the public
+ * branches refuse a space ref before returning one.
+ */
+export async function resolveReply(
+  appviewClient: Client,
+  replyTo: string,
+): Promise<ReplyRefs | undefined> {
+  return (await resolveReplyRefs(appviewClient, replyTo)) as
+    ReplyRefs | undefined
+}
+
+async function resolveReplyRefs(appviewClient: Client, replyTo: string) {
   // Space records first: they are not at-uris, so AtUri would misparse one.
   // The parent is read back through the appview, which is the only read path
   // the client has into a space, and carries the root of its own thread.
@@ -919,11 +939,11 @@ export async function resolveEmbed(
 }
 
 async function resolveAssembly(
-  agent: AtpAgent,
+  pdsClient: Client,
   draft: PostDraft,
   poll: PollDraft,
   onStateChange: ((state: string) => void) | undefined,
-): Promise<$Typed<AppBskyEmbedExternal.Main>> {
+): Promise<$Typed<app.bsky.embed.external.Main>> {
   refusePollWithAttachments(draft)
   const conversationId = poll.assembly?.conversationId
   if (!conversationId) {
@@ -937,13 +957,17 @@ async function resolveAssembly(
         topic: pollTopicFromText(draft.richtext.text),
         statements: pollStatementsForPublish(poll),
       }),
-      thumb: await uploadAssemblyThumb(agent, conversationId, onStateChange),
+      thumb: await uploadAssemblyThumb(
+        pdsClient,
+        conversationId,
+        onStateChange,
+      ),
     },
   }
 }
 
 async function uploadEventCover(
-  agent: AtpAgent,
+  pdsClient: Client,
   cover: EventCover,
   onStateChange: ((state: string) => void) | undefined,
 ): Promise<{blob: BlobRef; width: number; height: number}> {
@@ -952,8 +976,8 @@ async function uploadEventCover(
       'url' in cover ? (await imageToThumb(cover.url))?.source : cover
     if (!image) throw new Error('The image could not be read')
     onStateChange?.(t`Uploading event image...`)
-    const response = await uploadBlob(agent, image.path, image.mime)
-    return {blob: response.data.blob, width: image.width, height: image.height}
+    const response = await uploadBlob(pdsClient, image.path, image.mime)
+    return {blob: response.blob, width: image.width, height: image.height}
   } catch (e) {
     logger.warn(`Failed to upload the event image`, {
       safeMessage: e instanceof Error ? e.message : String(e),
@@ -965,7 +989,7 @@ async function uploadEventCover(
 }
 
 async function uploadAssemblyThumb(
-  agent: AtpAgent,
+  pdsClient: Client,
   conversationId: string,
   onStateChange: ((state: string) => void) | undefined,
 ): Promise<BlobRef | undefined> {
@@ -980,8 +1004,8 @@ async function uploadAssemblyThumb(
     if (!thumb) throw new Error('The image could not be read in time')
     onStateChange?.(t`Uploading link thumbnail...`)
     const {path, mime} = thumb.source
-    const response = await uploadBlob(agent, path, mime)
-    return response.data.blob
+    const response = await uploadBlob(pdsClient, path, mime)
+    return response.blob
   } catch (e) {
     logger.warn(`Failed to attach the poll thumbnail`, {
       safeMessage: e instanceof Error ? e.message : String(e),

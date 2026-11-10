@@ -1,11 +1,6 @@
-import {
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AtUri,
-  type BskyAgent,
-  jsonToLex,
-} from '@atproto/api'
-
+import {jsonToLex, type Client} from '@atproto/lex'
+import {AtUri} from '@atproto/syntax'
+import {app} from '#/lexicons'
 import {communityXrpc} from '#/lib/api/community'
 import {isSpaceRecordUri, parseSpaceUri} from '#/lib/api/space-uri'
 import {toPostView} from '#/lib/api/space-views'
@@ -43,11 +38,11 @@ export function isCommunityPostUri(uri: string | undefined): boolean {
  * validation for public posts.
  */
 export function isRenderablePostRecord(
-  post: AppBskyFeedDefs.PostView,
-): post is AppBskyFeedDefs.PostView & {record: AppBskyFeedPost.Record} {
-  if (!AppBskyFeedPost.isRecord(post.record)) return false
+  post: app.bsky.feed.defs.PostView,
+): post is app.bsky.feed.defs.PostView & {record: app.bsky.feed.post.Main} {
+  if (!bsky.isType(app.bsky.feed.post, post.record)) return false
   if (!isSpaceRecordUri(post.uri)) {
-    return bsky.validate(post.record, AppBskyFeedPost.validateRecord)
+    return bsky.matches(app.bsky.feed.post, post.record)
   }
   return (
     typeof post.record.text === 'string' &&
@@ -55,7 +50,7 @@ export function isRenderablePostRecord(
   )
 }
 
-export type CommunityPostView = AppBskyFeedDefs.PostView & {
+export type CommunityPostView = app.bsky.feed.defs.PostView & {
   communitySpace?: string
 }
 
@@ -65,7 +60,7 @@ export type CommunityPostView = AppBskyFeedDefs.PostView & {
  * space; never fed to `AtUri`, which misparses a space URI.
  */
 export function getCommunitySpaceUri(
-  post: AppBskyFeedDefs.PostView | undefined,
+  post: app.bsky.feed.defs.PostView | undefined,
 ): string | undefined {
   const space = (post as unknown as {communitySpace?: unknown} | undefined)
     ?.communitySpace
@@ -83,10 +78,10 @@ export function getCommunitySpaceUri(
  * on membership before returning anything.
  */
 export async function fetchCommunityPostView(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
-): Promise<AppBskyFeedDefs.PostView> {
-  const res = await communityXrpc(agent, GET_COMMUNITY_POST, {params: {uri}})
+): Promise<app.bsky.feed.defs.PostView> {
+  const res = await communityXrpc(client, GET_COMMUNITY_POST, {params: {uri}})
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as {
       message?: string

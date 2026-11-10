@@ -9,8 +9,6 @@ import {
 
 import {getSpacePostLikes} from '#/lib/api/community'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
-import {STALE} from '#/state/queries'
-import {createQueryKey} from '#/state/queries/util'
 import {useAppviewClient} from '#/state/session'
 import {app} from '#/lexicons'
 
@@ -56,50 +54,6 @@ export function useLikedByQuery(resolvedUri: string | undefined) {
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
     enabled: !!resolvedUri,
-  })
-}
-
-/**
- * The maximum `limit` accepted by `app.bsky.feed.getLikes` in a single
- * request.
- */
-const SAMPLE_SIZE = 100
-
-const likedBySampleQueryKeyRoot = 'liked-by-sample'
-export const createLikedBySampleQueryKey = (args: {uri: string}) =>
-  createQueryKey(likedBySampleQueryKeyRoot, args)
-
-export async function fetchLikedBySample(
-  client: Client,
-  uri: string,
-): Promise<app.bsky.feed.getLikes.$OutputBody> {
-  if (isSpaceRecordUri(uri)) {
-    return getSpacePostLikes(client, {uri, limit: SAMPLE_SIZE})
-  }
-  return await client.call(app.bsky.feed.getLikes, {
-    uri: uri as AtUriString,
-    limit: SAMPLE_SIZE,
-  })
-}
-
-/**
- * A single-request sample of a post's most recent likers, as many as the API
- * allows in one page (100). Used for the known-likers social proof on the
- * post thread page. Kept separate from `useLikedByQuery` so it does not
- * perturb the liked-by screen's pagination.
- */
-export function useLikedBySampleQuery({uri}: {uri: string | undefined}) {
-  const client = useAppviewClient()
-  return useQuery({
-    queryKey: createLikedBySampleQueryKey({uri: uri ?? ''}),
-    queryFn: () => fetchLikedBySample(client, uri ?? ''),
-    staleTime: STALE.MINUTES.FIVE,
-    enabled: !!uri,
-    /*
-     * Consumers fall back to a plain like count when this query fails, so
-     * failing fast is preferable to amplifying getLikes load with retries.
-     */
-    retry: 1,
   })
 }
 

@@ -71,7 +71,7 @@ export function useNotificationSettingsQuery({
     queryFn: async (): Promise<AppNotificationSettingsPreferences> => {
       const data = await client.call(
         app.bsky.notification.getPreferences,
-        undefined,
+        {},
         HOME_APPVIEW_PINNED_OPTS,
       )
       return appPreferencesWithoutChat(data.preferences)

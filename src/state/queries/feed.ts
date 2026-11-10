@@ -231,11 +231,11 @@ export const communityFeedConfigQueryKey = (uri: string) => [
 ]
 
 export function useCommunityFeedConfigQuery({uri}: {uri: string}) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery<CommunityFeedConfig | null>({
     queryKey: communityFeedConfigQueryKey(uri),
     staleTime: STALE.INFINITY,
-    queryFn: () => fetchCommunityFeedConfig(agent, uri),
+    queryFn: () => fetchCommunityFeedConfig(client, uri),
   })
 }
 
@@ -373,7 +373,7 @@ export function useGetPopularFeedsQuery(options?: GetPopularFeedsOptions) {
 
 export function useGetBlackskyFeedsQuery(options?: GetPopularFeedsOptions) {
   const {hasSession} = useSession()
-  const agent = useAgent()
+  const client = useAppviewClient()
   const brand = useBrand()
   const limit = options?.limit || 10
   const {data: preferences} = usePreferencesQuery()
@@ -398,31 +398,31 @@ export function useGetBlackskyFeedsQuery(options?: GetPopularFeedsOptions) {
   )
 
   const query = useInfiniteQuery<
-    AppBskyFeedGetFeedGenerators.OutputSchema,
+    app.bsky.feed.getFeedGenerators.$OutputBody,
     Error,
-    InfiniteData<AppBskyFeedGetFeedGenerators.OutputSchema>,
+    InfiniteData<app.bsky.feed.getFeedGenerators.$OutputBody>,
     QueryKey,
     string | undefined
   >({
     enabled: Boolean(moderationOpts) && options?.enabled !== false,
     queryKey: [...createGetPopularFeedsQueryKey(options), discoveryFeeds],
     queryFn: async () => {
-      const res = await agent.app.bsky.feed.getFeedGenerators({
-        feeds: discoveryFeeds,
+      const res = await client.call(app.bsky.feed.getFeedGenerators, {
+        feeds: discoveryFeeds as AtUriString[],
       })
 
       // precache feeds
-      for (const feed of res.data.feeds) {
+      for (const feed of res.feeds) {
         const hydratedFeed = hydrateFeedGenerator(feed)
         precacheFeed(queryClient, hydratedFeed)
       }
 
-      return res.data
+      return res
     },
     initialPageParam: undefined,
     getNextPageParam: _lastPage => null,
     select: useCallback(
-      (data: InfiniteData<AppBskyFeedGetFeedGenerators.OutputSchema>) => {
+      (data: InfiniteData<app.bsky.feed.getFeedGenerators.$OutputBody>) => {
         const {
           savedFeeds,
           hasSession: hasSessionInner,
@@ -664,10 +664,10 @@ export function usePinnedFeedsInfos() {
 
         const resolved = new Map<string, FeedSourceInfo>()
         if (feedUris.length > 0) {
-          const res = await agent.app.bsky.feed.getFeedGenerators({
-            feeds: feedUris,
+          const res = await client.call(app.bsky.feed.getFeedGenerators, {
+            feeds: feedUris as AtUriString[],
           })
-          for (const feedView of res.data.feeds) {
+          for (const feedView of res.feeds) {
             resolved.set(feedView.uri, hydrateFeedGenerator(feedView))
           }
         }

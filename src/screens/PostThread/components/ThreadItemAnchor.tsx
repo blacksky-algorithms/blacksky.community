@@ -521,7 +521,6 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                     </Trans>
                   </Text>
                 ) : null}
-                <KnownLikers post={post} href={likesHref} />
               </View>
             ) : null}
             <KnownLikers

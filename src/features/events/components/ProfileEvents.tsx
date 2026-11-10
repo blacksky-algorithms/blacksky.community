@@ -10,7 +10,7 @@ import {EmptyState} from '#/view/com/util/EmptyState'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
 import {findListNativeTag} from '#/view/com/util/listNativeTag'
-import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
+import {FeedCardListSkeleton} from '#/components/FeedCardSkeleton'
 import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, ios} from '#/alf'
 import {CalendarDays_Stroke2_Corner0_Rounded as CalendarIcon} from '#/components/icons/CalendarDays'
@@ -128,7 +128,7 @@ export function ProfileEvents({
       desktopFixedHeight
       ListEmptyComponent={
         isLoading ? (
-          FeedLoadingPlaceholder
+          <FeedCardListSkeleton />
         ) : error ? (
           <ErrorMessage
             message={_(msg`Couldn't load your events.`)}

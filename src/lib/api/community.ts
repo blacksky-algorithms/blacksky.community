@@ -1,17 +1,13 @@
-import {
-  type AppBskyFeedGetLikes,
-  type AppBskyFeedGetQuotes,
-  type BskyAgent,
-  jsonToLex,
-} from '@atproto/api'
-
+import {jsonToLex, type Client} from '@atproto/lex'
+import {type app} from '#/lexicons'
 import {HOME_PROXY_HEADER} from '#/lib/constants'
 import {toPostView} from './space-views'
+import {type AtUriString} from '@atproto/syntax'
 
 export type CommunityXrpcParam = string | number | boolean
 
 export async function communityXrpc(
-  agent: BskyAgent,
+  client: Client,
   method: string,
   opts?: {
     params?: Record<
@@ -33,7 +29,7 @@ export async function communityXrpc(
   }
   const encodedParams = searchParams.toString()
   const qs = encodedParams ? `?${encodedParams}` : ''
-  const path = `/xrpc/${method}${qs}`
+  const path = `/xrpc/${method}${qs}` as const
 
   const headers: Record<string, string> = {
     'atproto-proxy': opts?.serviceDid
@@ -48,15 +44,15 @@ export async function communityXrpc(
     headers['Content-Type'] = 'application/json'
     init.body = JSON.stringify(opts.body)
   }
-  return agent.fetchHandler(path, init)
+  return client.agent.fetchHandler(path, init)
 }
 
 export async function getSpacePostLikes(
-  agent: BskyAgent,
+  client: Client,
   params: {uri: string; limit: number; cursor?: string},
-): Promise<AppBskyFeedGetLikes.OutputSchema> {
+): Promise<app.bsky.feed.getLikes.$OutputBody> {
   const response = await communityXrpc(
-    agent,
+    client,
     'community.blacksky.feed.getSpacePostLikes',
     {
       params: {
@@ -69,15 +65,15 @@ export async function getSpacePostLikes(
   if (!response.ok) {
     throw new Error(`getSpacePostLikes ${response.status}`)
   }
-  return jsonToLex(await response.json()) as AppBskyFeedGetLikes.OutputSchema
+  return jsonToLex(await response.json()) as app.bsky.feed.getLikes.$OutputBody
 }
 
 export async function getSpacePostQuotes(
-  agent: BskyAgent,
+  client: Client,
   params: {uri: string; limit: number; cursor?: string},
-): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+): Promise<app.bsky.feed.getQuotes.$OutputBody> {
   const response = await communityXrpc(
-    agent,
+    client,
     'community.blacksky.feed.getSpacePostQuotes',
     {
       params: {
@@ -95,12 +91,12 @@ export async function getSpacePostQuotes(
     posts?: unknown[]
   }
   return {
-    uri: params.uri,
+    uri: params.uri as AtUriString,
     cursor: data.cursor,
     posts: (data.posts ?? [])
       .map(toPostView)
       .filter(
-        (post): post is AppBskyFeedGetQuotes.OutputSchema['posts'][number] =>
+        (post): post is app.bsky.feed.getQuotes.$OutputBody['posts'][number] =>
           Boolean(post),
       ),
   }

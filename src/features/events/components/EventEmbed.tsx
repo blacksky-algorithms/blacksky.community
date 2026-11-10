@@ -1,7 +1,7 @@
+import {type app} from '#/lexicons'
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 import {Image} from 'expo-image'
-import {type AppBskyEmbedExternal} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -31,7 +31,7 @@ export function EventEmbed({
   style,
 }: {
   eventRef: EventRef
-  link: AppBskyEmbedExternal.ViewExternal
+  link: app.bsky.embed.external.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
 }) {

@@ -1,4 +1,4 @@
-import {type BskyAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {TID} from '@atproto/common-web'
 
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
@@ -10,7 +10,7 @@ import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
  * implement the 0016 PDS methods yet, so development may point these requests
  * at its same-origin edge instead. That means **no `atproto-proxy` header**:
  * proxying would send the write to the appview, which is not where this
- * content lives. The request remains DPoP-signed by the agent, and the space
+ * content lives. The request remains DPoP-signed by the client, and the space
  * host verifies that token itself.
  *
  * Records are sent as raw JSON rather than through typed builders. A like or a
@@ -45,7 +45,7 @@ export class SpaceUnsupportedError extends Error {
 }
 
 async function spaceXrpc(
-  agent: BskyAgent,
+  client: Client,
   method: string,
   body: unknown,
 ): Promise<Response> {
@@ -53,7 +53,7 @@ async function spaceXrpc(
   const url = LOCAL_SPACE_XRPC_ORIGIN
     ? `${LOCAL_SPACE_XRPC_ORIGIN}${path}`
     : path
-  return agent.fetchHandler(url, {
+  return client.agent.fetchHandler(url as `/${string}`, {
     method: 'POST',
     // Deliberately no `atproto-proxy`: this write belongs to the account's own
     // PDS, not the appview.
@@ -63,7 +63,7 @@ async function spaceXrpc(
 }
 
 async function spaceQuery(
-  agent: BskyAgent,
+  client: Client,
   method: string,
   params: Record<string, string>,
 ): Promise<Response> {
@@ -71,11 +71,11 @@ async function spaceQuery(
   const url = LOCAL_SPACE_XRPC_ORIGIN
     ? `${LOCAL_SPACE_XRPC_ORIGIN}${path}`
     : path
-  return agent.fetchHandler(url, {method: 'GET'})
+  return client.agent.fetchHandler(url as `/${string}`, {method: 'GET'})
 }
 
-function authenticatedRepo(agent: BskyAgent): string {
-  const repo = agent.session?.did
+function authenticatedRepo(client: Client): string {
+  const repo = client.did
   if (!repo) {
     throw new Error('Sign in before writing to a private space')
   }
@@ -98,13 +98,13 @@ function failure(response: Response, body: XrpcErrorBody): never {
 }
 
 async function existingRecord(
-  agent: BskyAgent,
+  client: Client,
   space: string,
   repo: string,
   collection: string,
   rkey: string,
 ): Promise<SpaceWriteResult> {
-  const response = await spaceQuery(agent, SPACE_GET_RECORD, {
+  const response = await spaceQuery(client, SPACE_GET_RECORD, {
     space,
     repo,
     collection,
@@ -120,15 +120,15 @@ async function existingRecord(
 
 /** Create a record in the caller's permissioned repo within `space`. */
 export async function spaceCreateRecord(
-  agent: BskyAgent,
+  client: Client,
   space: string,
   collection: string,
   record: Record<string, unknown>,
   rkey?: string,
 ): Promise<SpaceWriteResult> {
-  const repo = authenticatedRepo(agent)
+  const repo = authenticatedRepo(client)
   const recordKey = rkey ?? TID.nextStr()
-  const response = await spaceXrpc(agent, SPACE_CREATE_RECORD, {
+  const response = await spaceXrpc(client, SPACE_CREATE_RECORD, {
     space,
     repo,
     collection,
@@ -138,7 +138,7 @@ export async function spaceCreateRecord(
   if (!response.ok) {
     const body = await errorBody(response)
     if (body.error === 'RecordExists') {
-      return existingRecord(agent, space, repo, collection, recordKey)
+      return existingRecord(client, space, repo, collection, recordKey)
     }
     return failure(response, body)
   }
@@ -151,13 +151,13 @@ export async function spaceCreateRecord(
 
 /** Delete one of the caller's own records from `space`. */
 export async function spaceDeleteRecord(
-  agent: BskyAgent,
+  client: Client,
   space: string,
   collection: string,
   rkey: string,
 ): Promise<void> {
-  const repo = authenticatedRepo(agent)
-  const response = await spaceXrpc(agent, SPACE_DELETE_RECORD, {
+  const repo = authenticatedRepo(client)
+  const response = await spaceXrpc(client, SPACE_DELETE_RECORD, {
     space,
     repo,
     collection,
@@ -174,11 +174,11 @@ export async function spaceDeleteRecord(
  * post exists, and to whom.
  */
 export async function spaceLike(
-  agent: BskyAgent,
+  client: Client,
   space: string,
   subject: {uri: string; cid: string},
 ): Promise<SpaceWriteResult> {
-  return spaceCreateRecord(agent, space, LIKE_COLLECTION, {
+  return spaceCreateRecord(client, space, LIKE_COLLECTION, {
     $type: LIKE_COLLECTION,
     subject: {uri: subject.uri, cid: subject.cid},
     createdAt: new Date().toISOString(),
@@ -187,13 +187,13 @@ export async function spaceLike(
 
 /** Remove a like previously written into `space`. */
 export async function spaceUnlike(
-  agent: BskyAgent,
+  client: Client,
   space: string,
   likeUri: string,
 ): Promise<void> {
   const rkey = likeUri.split('/').pop()
   if (!rkey) throw new Error(`Unusable like uri: ${likeUri}`)
-  return spaceDeleteRecord(agent, space, LIKE_COLLECTION, rkey)
+  return spaceDeleteRecord(client, space, LIKE_COLLECTION, rkey)
 }
 
 /*
@@ -204,30 +204,30 @@ export async function spaceUnlike(
 
 /** Like `uri` in its own space, or null if it is not a space record. */
 export function spaceLikeIfSpace(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
   cid: string,
 ): Promise<SpaceWriteResult> | null {
   const ref = parseSpaceRecordUri(uri)
-  return ref ? spaceLike(agent, spaceUriOf(ref), {uri, cid}) : null
+  return ref ? spaceLike(client, spaceUriOf(ref), {uri, cid}) : null
 }
 
 /** Undo a like held in a space, or null if `likeUri` is not a space record. */
 export function spaceUnlikeIfSpace(
-  agent: BskyAgent,
+  client: Client,
   likeUri: string,
 ): Promise<void> | null {
   const ref = parseSpaceRecordUri(likeUri)
-  return ref ? spaceUnlike(agent, spaceUriOf(ref), likeUri) : null
+  return ref ? spaceUnlike(client, spaceUriOf(ref), likeUri) : null
 }
 
 /** Delete one's own space record, or null if `uri` is not one. */
 export function spaceDeleteIfSpace(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
 ): Promise<void> | null {
   const ref = parseSpaceRecordUri(uri)
   return ref
-    ? spaceDeleteRecord(agent, spaceUriOf(ref), ref.collection, ref.rkey)
+    ? spaceDeleteRecord(client, spaceUriOf(ref), ref.collection, ref.rkey)
     : null
 }

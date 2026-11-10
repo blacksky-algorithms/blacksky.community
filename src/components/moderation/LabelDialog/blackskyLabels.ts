@@ -1,5 +1,4 @@
-import {type ComAtprotoLabelDefs} from '@atproto/api'
-
+import {type com} from '#/lexicons'
 import {useLabelersDetailedInfoQuery} from '#/state/queries/labeler'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
 
@@ -9,7 +8,7 @@ import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authoritie
  * so the label flow never breaks offline. The live definitions are preferred
  * (see {@link useBlackskyLabelDefs}) so the set stays in sync.
  */
-export const BLACKSKY_LABEL_DEFS_FALLBACK: ComAtprotoLabelDefs.LabelValueDefinition[] =
+export const BLACKSKY_LABEL_DEFS_FALLBACK: com.atproto.label.defs.LabelValueDefinition[] =
   [
     {
       identifier: 'misogynoir',
@@ -158,7 +157,7 @@ export type ResolvedLabelStrings = {
  * falling back to English and then the identifier.
  */
 export function resolveLabelStrings(
-  def: ComAtprotoLabelDefs.LabelValueDefinition,
+  def: com.atproto.label.defs.LabelValueDefinition,
   lang: string,
 ): ResolvedLabelStrings {
   const locales = def.locales ?? []
@@ -175,71 +174,72 @@ export function resolveLabelStrings(
 // Global atproto system labels offered alongside the labeler's custom defs.
 // Clients handle these vals natively, so they never appear in a labeler's
 // labelValueDefinitions.
-export const GLOBAL_LABEL_DEFS: ComAtprotoLabelDefs.LabelValueDefinition[] = [
-  {
-    identifier: 'porn',
-    severity: 'none',
-    blurs: 'content',
-    defaultSetting: 'hide',
-    adultOnly: true,
-    locales: [
-      {
-        lang: 'en',
-        name: 'Adult Content',
-        description: 'Explicit sexual images.',
-      },
-    ],
-  },
-  {
-    identifier: 'sexual',
-    severity: 'none',
-    blurs: 'content',
-    defaultSetting: 'warn',
-    adultOnly: true,
-    locales: [
-      {
-        lang: 'en',
-        name: 'Sexually Suggestive',
-        description: 'Does not include nudity.',
-      },
-    ],
-  },
-  {
-    identifier: 'nudity',
-    severity: 'none',
-    blurs: 'content',
-    defaultSetting: 'ignore',
-    adultOnly: false,
-    locales: [
-      {
-        lang: 'en',
-        name: 'Non-sexual Nudity',
-        description: 'E.g. artistic nudes.',
-      },
-    ],
-  },
-  {
-    identifier: 'graphic-media',
-    severity: 'none',
-    blurs: 'content',
-    defaultSetting: 'warn',
-    adultOnly: true,
-    locales: [
-      {
-        lang: 'en',
-        name: 'Graphic Media',
-        description: 'Explicit or potentially disturbing media.',
-      },
-    ],
-  },
-]
+export const GLOBAL_LABEL_DEFS: com.atproto.label.defs.LabelValueDefinition[] =
+  [
+    {
+      identifier: 'porn',
+      severity: 'none',
+      blurs: 'content',
+      defaultSetting: 'hide',
+      adultOnly: true,
+      locales: [
+        {
+          lang: 'en',
+          name: 'Adult Content',
+          description: 'Explicit sexual images.',
+        },
+      ],
+    },
+    {
+      identifier: 'sexual',
+      severity: 'none',
+      blurs: 'content',
+      defaultSetting: 'warn',
+      adultOnly: true,
+      locales: [
+        {
+          lang: 'en',
+          name: 'Sexually Suggestive',
+          description: 'Does not include nudity.',
+        },
+      ],
+    },
+    {
+      identifier: 'nudity',
+      severity: 'none',
+      blurs: 'content',
+      defaultSetting: 'ignore',
+      adultOnly: false,
+      locales: [
+        {
+          lang: 'en',
+          name: 'Non-sexual Nudity',
+          description: 'E.g. artistic nudes.',
+        },
+      ],
+    },
+    {
+      identifier: 'graphic-media',
+      severity: 'none',
+      blurs: 'content',
+      defaultSetting: 'warn',
+      adultOnly: true,
+      locales: [
+        {
+          lang: 'en',
+          name: 'Graphic Media',
+          description: 'Explicit or potentially disturbing media.',
+        },
+      ],
+    },
+  ]
 
 /**
  * Returns the Blacksky labeler's label-value definitions, preferring the live
  * set fetched from the labeler service and falling back to the hardcoded set.
  */
 export function useBlackskyLabelDefs(): {
-  defs: ComAtprotoLabelDefs.LabelValueDefinition[]
+  defs: com.atproto.label.defs.LabelValueDefinition[]
   isLoading: boolean
 } {
   const {data, isLoading} = useLabelersDetailedInfoQuery({

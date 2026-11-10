@@ -53,6 +53,7 @@ import {InviteFriendsDialog} from '#/features/inviteFriends'
 import {app} from '#/lexicons'
 import type * as bsky from '#/types/bsky'
 import {bulkWriteFollows} from '../Onboarding/util'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<
   CommonNavigatorParams,
@@ -70,7 +71,9 @@ export function FindContactsSettingsScreen({navigation}: Props) {
   useFocusEffect(
     useCallback(() => {
       if (!findContactsEnabled) {
-        navigation.navigate('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'navigate'),
+        )
       }
     }, [findContactsEnabled, navigation]),
   )

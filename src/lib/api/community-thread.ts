@@ -1,5 +1,4 @@
-import {type BskyAgent} from '@atproto/api'
-
+import {type Client} from '@atproto/lex'
 import {communityXrpc} from '#/lib/api/community'
 import {toSpaceThreadBody} from '#/lib/api/space-views'
 
@@ -21,7 +20,7 @@ export type CommunityThreadResponse = {
  * string and answers with the same item shape.
  */
 export async function fetchCommunityThread(
-  agent: BskyAgent,
+  client: Client,
   params: {
     anchor: string
     above?: boolean
@@ -35,7 +34,7 @@ export async function fetchCommunityThread(
   if (params.branchingFactor !== undefined) {
     query.branchingFactor = String(params.branchingFactor)
   }
-  const res = await communityXrpc(agent, GET_COMMUNITY_THREAD, {params: query})
+  const res = await communityXrpc(client, GET_COMMUNITY_THREAD, {params: query})
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as {
       message?: string
@@ -63,11 +62,11 @@ export const SET_THREAD_MUTE = 'community.blacksky.feed.setThreadMute'
  * state itself is keyed by plain URI on both sides, so nothing else differs.
  */
 export async function setSpaceThreadMute(
-  agent: BskyAgent,
+  client: Client,
   root: string,
   mute: boolean,
 ): Promise<{}> {
-  const res = await communityXrpc(agent, SET_THREAD_MUTE, {
+  const res = await communityXrpc(client, SET_THREAD_MUTE, {
     body: {root, mute},
   })
   if (!res.ok) {

@@ -1,19 +1,15 @@
-import {
-  type AppBskyActorDefs,
-  moderateProfile,
-  type ModerationOpts,
-} from '@atproto/api'
-
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
+import {type app} from '#/lexicons'
 import {type ChatMessage} from './live-state'
 
 export function visibleMessages(
   messages: ChatMessage[],
-  profiles: ReadonlyMap<string, AppBskyActorDefs.ProfileViewDetailed>,
+  profiles: ReadonlyMap<string, app.bsky.actor.defs.ProfileViewDetailed>,
   moderationOpts: ModerationOpts,
 ) {
   const out: {
     message: ChatMessage
-    profile: AppBskyActorDefs.ProfileViewDetailed
+    profile: app.bsky.actor.defs.ProfileViewDetailed
   }[] = []
   for (const message of messages) {
     const profile = profiles.get(message.authorDid)

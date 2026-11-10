@@ -141,27 +141,24 @@ export function usePublicProfileQuery({did}: {did: string | undefined}) {
   })
 }
 
-const BSKY_PROXY_HEADER = {
-  'atproto-proxy': `${ALT_PROXY_DID}#bsky_appview`,
-}
-
 /**
  * Fetches a profile from Bluesky's appview via the PDS proxy.
  * Returns null if the user is suspended on Bluesky or the request fails.
  * Used to get accurate follower/following counts and known followers data.
  */
 export function useBskyProfileQuery({did}: {did: string | undefined}) {
-  const agent = useAgent()
-  return useQuery<AppBskyActorDefs.ProfileViewDetailed | null>({
+  const client = useAppviewClient()
+  return useQuery<app.bsky.actor.defs.ProfileViewDetailed | null>({
     staleTime: STALE.MINUTES.FIVE,
     queryKey: ['bsky-profile', did ?? ''],
     queryFn: async () => {
       try {
-        const res = await agent.app.bsky.actor.getProfile(
-          {actor: did ?? ''},
-          {headers: BSKY_PROXY_HEADER},
+        const res = await client.call(
+          app.bsky.actor.getProfile,
+          {actor: (did ?? '') as AtIdentifierString},
+          BLUESKY_APPVIEW_PINNED_OPTS,
         )
-        return res.data
+        return res
       } catch {
         return null
       }
@@ -206,7 +203,11 @@ export function usePrefetchProfileQuery() {
           const [profile, bskyProfile] = await Promise.all([
             client.call(app.bsky.actor.getProfile, {actor}),
             client
-              .call(app.bsky.actor.getProfile, {actor}, BLUESKY_APPVIEW_PINNED_OPTS)
+              .call(
+                app.bsky.actor.getProfile,
+                {actor},
+                BLUESKY_APPVIEW_PINNED_OPTS,
+              )
               .catch(() => null),
           ])
           if (!bskyProfile) return profile
@@ -215,7 +216,8 @@ export function usePrefetchProfileQuery() {
           // between our appview's counts and Bluesky's
           return {
             ...profile,
-            followersCount: bskyProfile.followersCount ?? profile.followersCount,
+            followersCount:
+              bskyProfile.followersCount ?? profile.followersCount,
             followsCount: bskyProfile.followsCount ?? profile.followsCount,
             postsCount: bskyProfile.postsCount ?? profile.postsCount,
             viewer: bskyProfile.viewer?.knownFollowers
@@ -549,6 +551,7 @@ export function useProfileMuteMutationQueue(
   profile: Shadow<bsky.profile.AnyProfileView>,
 ) {
   const queryClient = useQueryClient()
+  const ax = useAnalytics()
   const did = profile.did
   const initialMuted = profile.viewer?.muted
   const muteMutation = useProfileMuteMutation()

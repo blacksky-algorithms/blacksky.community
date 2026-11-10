@@ -1,10 +1,7 @@
+import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
+import {type app} from '#/lexicons'
 import {useMemo} from 'react'
 import {ActivityIndicator, View} from 'react-native'
-import {
-  type AppBskyFeedDefs,
-  type AppBskyFeedPost,
-  RichText as RichTextAPI,
-} from '@atproto/api'
 import {Trans} from '@lingui/react/macro'
 
 import {useCommunityFeedQuery} from '#/state/queries/community-feed'
@@ -84,10 +81,10 @@ export function CommunityFeed({actor}: {actor: string}) {
 export function CommunityPostItem({
   postView,
 }: {
-  postView: AppBskyFeedDefs.PostView
+  postView: app.bsky.feed.defs.PostView
 }) {
   const t = useTheme()
-  const record = postView.record as AppBskyFeedPost.Record
+  const record = postView.record as app.bsky.feed.post.Main
   const rt = useMemo(() => {
     const richText = new RichTextAPI({
       text: record.text,

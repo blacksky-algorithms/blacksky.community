@@ -1,7 +1,9 @@
-import {type AtpAgent, AtUri, XRPCError} from '@atproto/api'
-
+import {type Client} from '@atproto/lex'
+import {type AtIdentifierString, AtUri} from '@atproto/syntax'
 import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {isSpaceUri} from '#/lib/api/space-uri'
+import {isRecordNotFoundError} from '#/lib/xrpc-error'
+import {com} from '#/lexicons'
 
 export const COMMUNITY_FEED_CONFIG_COLLECTION = 'community.blacksky.feed.config'
 export const CHECK_FEED_PERMISSIONS = 'community.blacksky.feed.checkPermissions'
@@ -68,8 +70,7 @@ function parseCommunityFeedConfig(value: unknown): CommunityFeedConfig | null {
   if (!value || typeof value !== 'object') return null
   const config = value as Record<string, unknown>
   const authorization = config.authorization as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (
     config.$type !== COMMUNITY_FEED_CONFIG_COLLECTION ||
     (config.contentType !== 'publicRecord' &&
@@ -87,11 +88,11 @@ function parseCommunityFeedConfig(value: unknown): CommunityFeedConfig | null {
 }
 
 export async function fetchCommunityFeedConfig(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<CommunityFeedConfig | null> {
   try {
-    return await fetchCommunityFeedConfigStrict(agent, feed)
+    return await fetchCommunityFeedConfigStrict(client, feed)
   } catch {
     return null
   }
@@ -103,7 +104,7 @@ export async function fetchCommunityFeedConfig(
  * space-backed" and route a private feed down the standard path.
  */
 export async function fetchCommunityFeedConfigStrict(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<CommunityFeedConfig | null> {
   let uri: AtUri
@@ -114,14 +115,14 @@ export async function fetchCommunityFeedConfigStrict(
   }
   if (!uri.rkey) return null
   try {
-    const {data} = await agent.com.atproto.repo.getRecord({
-      repo: uri.hostname,
+    const data = await client.call(com.atproto.repo.getRecord, {
+      repo: uri.host as AtIdentifierString,
       collection: COMMUNITY_FEED_CONFIG_COLLECTION,
       rkey: uri.rkey,
     })
     return parseCommunityFeedConfig(data.value)
   } catch (e) {
-    if (e instanceof XRPCError && e.error === 'RecordNotFound') {
+    if (isRecordNotFoundError(e)) {
       return null
     }
     throw e
@@ -129,14 +130,14 @@ export async function fetchCommunityFeedConfigStrict(
 }
 
 async function fetchFeedGenerator(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<CommunityFeedGenerator | null> {
   try {
     const uri = new AtUri(feed)
     if (!uri.rkey) return null
-    const {data} = await agent.com.atproto.repo.getRecord({
-      repo: uri.hostname,
+    const data = await client.call(com.atproto.repo.getRecord, {
+      repo: uri.host as AtIdentifierString,
       collection: 'app.bsky.feed.generator',
       rkey: uri.rkey,
     })
@@ -154,10 +155,10 @@ async function fetchFeedGenerator(
 }
 
 export async function fetchFeedServiceDid(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<string | null> {
-  return (await fetchFeedGenerator(agent, feed))?.serviceDid ?? null
+  return (await fetchFeedGenerator(client, feed))?.serviceDid ?? null
 }
 
 function isCommunityFeedPermission(
@@ -170,18 +171,18 @@ function isCommunityFeedPermission(
 }
 
 async function fetchFeedPermissionsFromService(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
   serviceDid: string,
 ): Promise<CommunityFeedPermission[]> {
   try {
     const token = await getServiceAuthToken({
-      agent,
+      client,
       aud: serviceDid,
       lxm: CHECK_FEED_PERMISSIONS,
       exp: Math.floor(Date.now() / 1000) + 60,
     })
-    const response = await agent.fetchHandler(
+    const response = await client.agent.fetchHandler(
       `/xrpc/${CHECK_FEED_PERMISSIONS}?${new URLSearchParams({feed})}`,
       {
         headers: {
@@ -201,28 +202,28 @@ async function fetchFeedPermissionsFromService(
 }
 
 export async function fetchFeedPermissions(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<CommunityFeedPermission[]> {
-  const config = await fetchCommunityFeedConfig(agent, feed)
+  const config = await fetchCommunityFeedConfig(client, feed)
   if (!config) return []
-  const serviceDid = await fetchFeedServiceDid(agent, feed)
+  const serviceDid = await fetchFeedServiceDid(client, feed)
   return serviceDid
-    ? fetchFeedPermissionsFromService(agent, feed, serviceDid)
+    ? fetchFeedPermissionsFromService(client, feed, serviceDid)
     : []
 }
 
 export async function fetchCommunityFeedTarget(
-  agent: AtpAgent,
+  client: Client,
   feed: string,
 ): Promise<CommunityFeedTarget | null> {
   const [config, generator] = await Promise.all([
-    fetchCommunityFeedConfig(agent, feed),
-    fetchFeedGenerator(agent, feed),
+    fetchCommunityFeedConfig(client, feed),
+    fetchFeedGenerator(client, feed),
   ])
   if (!config || !generator) return null
   const permissions = await fetchFeedPermissionsFromService(
-    agent,
+    client,
     feed,
     generator.serviceDid,
   )
@@ -237,18 +238,18 @@ export async function fetchCommunityFeedTarget(
 }
 
 export async function admitFeedPost(
-  agent: AtpAgent,
+  client: Client,
   target: CommunityFeedTarget,
   post: string,
   cid: string,
 ): Promise<void> {
   const token = await getServiceAuthToken({
-    agent,
+    client,
     aud: target.serviceDid,
     lxm: ADMIT_FEED_POST,
     exp: Math.floor(Date.now() / 1000) + 60,
   })
-  const response = await agent.fetchHandler(`/xrpc/${ADMIT_FEED_POST}`, {
+  const response = await client.agent.fetchHandler(`/xrpc/${ADMIT_FEED_POST}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,

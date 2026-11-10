@@ -47,6 +47,7 @@ import {usePreferencesQuery} from './preferences'
 import {
   embedViewRecordToPostView,
   getEmbeddedPost,
+  didOrHandleUriMatches,
   makeUriMatcher,
   useAutoPagination,
 } from './util'

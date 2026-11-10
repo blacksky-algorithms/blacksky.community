@@ -111,9 +111,6 @@
     "publish-ota": "eoas publish --nonInteractive",
     "generate-web-stats": "EXPO_ATLAS=1 pnpm build-web",
     "open-analyzer": "npx expo-atlas .expo/atlas.jsonl",
-    "icons:generate": "node ./scripts/icons/generate.mts",
-    "icons:check": "node ./scripts/icons/generate.mts --check",
-    "icons:test": "node --test ./scripts/icons/lib.test.mts",
     "prettier": "prettier --check .",
     "update-actions": "pnpm dlx actions-up --min-age 7"
   },
@@ -276,7 +273,6 @@
     "react-native-gesture-handler": "~3.3.0",
     "react-native-keyboard-controller": "1.22.7",
     "react-native-mmkv": "^3.3.3",
-    "react-native-nano-icons": "1.0.1",
     "react-native-pager-view": "9.0.11",
     "react-native-progress": "^5.0.1",
     "react-native-qrcode-styled": "^0.3.3",
@@ -442,9 +438,6 @@
     ],
     "*{.js,.jsx,.ts,.tsx,.css}": [
       "prettier --cache --write --ignore-unknown"
-    ],
-    "assets/icons/{ui,brands,community,custom}/*.svg": [
-      "svgo"
     ]
   }
 }
