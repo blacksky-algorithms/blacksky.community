@@ -100,7 +100,7 @@ describe('FeedTuner with merged community posts', () => {
       },
     }
 
-    const slice = new FeedViewPostsSlice({post})
+    const slice = new FeedViewPostsSlice({post}, new Map())
 
     expect(slice.items).toHaveLength(1)
     expect(slice.isQuotePost).toBe(true)

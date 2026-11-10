@@ -1,8 +1,9 @@
+import {addLabeler} from '@bsky/sdk'
 import {describe, expect, it, jest} from '@jest/globals'
 
 import {generateComputedConfig} from '#/lib/community/configGenerator'
 import {type RawCommunityConfig} from '#/lib/community/types'
-import {saveLabelers} from '#/state/session/agent-config'
+import {saveLabelers} from '#/state/session/moderation'
 import {
   resolveFollowDids,
   resolveModerationServiceDids,
@@ -10,7 +11,8 @@ import {
   subscribeToBrandModerationServices,
 } from '../util'
 
-jest.mock('#/state/session/agent-config', () => ({
+jest.mock('#/state/session/moderation', () => ({
+  readLabelers: jest.fn(() => undefined),
   saveLabelers: jest.fn(),
 }))
 
@@ -183,51 +185,43 @@ describe('resolveModerationServiceDids', () => {
 })
 
 describe('subscribeToBrandModerationServices', () => {
-  it('subscribes to each resolved moderation service and caches labelers', async () => {
-    const brand = makeConfig({}, ['did:plc:mod1', 'did:plc:mod1'])
-    const agent = {
-      labelers: [] as string[],
-      addLabeler: jest.fn((did: string) => {
-        agent.labelers.push(did)
-      }),
-    }
-
-    await subscribeToBrandModerationServices(
-      agent as unknown as Parameters<
+  function mockClient(addLabelerImpl: (did: string) => void = () => {}) {
+    const call = jest.fn((_action: unknown, did: string) => {
+      addLabelerImpl(did)
+      return Promise.resolve()
+    })
+    return {
+      call,
+      client: {did: 'did:plc:user', call} as unknown as Parameters<
         typeof subscribeToBrandModerationServices
       >[0],
-      'did:plc:user',
-      brand,
-    )
+    }
+  }
 
-    expect(agent.addLabeler).toHaveBeenCalledTimes(1)
-    expect(agent.addLabeler).toHaveBeenCalledWith('did:plc:mod1')
+  it('subscribes to each resolved moderation service and caches labelers', async () => {
+    const brand = makeConfig({}, ['did:plc:mod1', 'did:plc:mod1'])
+    const {client, call} = mockClient()
+
+    await subscribeToBrandModerationServices(client, brand)
+
+    expect(call).toHaveBeenCalledTimes(1)
+    expect(call).toHaveBeenCalledWith(addLabeler, 'did:plc:mod1')
     expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', ['did:plc:mod1'])
   })
 
   it('keeps onboarding best-effort when a moderation service fails', async () => {
     const brand = makeConfig({}, ['did:plc:good', 'did:plc:bad'])
-    const agent = {
-      labelers: [] as string[],
-      addLabeler: jest.fn((did: string) => {
-        if (did === 'did:plc:bad') {
-          throw new Error('failed')
-        }
-        agent.labelers.push(did)
-      }),
-    }
+    const {client, call} = mockClient(did => {
+      if (did === 'did:plc:bad') {
+        throw new Error('failed')
+      }
+    })
 
     await expect(
-      subscribeToBrandModerationServices(
-        agent as unknown as Parameters<
-          typeof subscribeToBrandModerationServices
-        >[0],
-        'did:plc:user',
-        brand,
-      ),
+      subscribeToBrandModerationServices(client, brand),
     ).resolves.toBeUndefined()
 
-    expect(agent.addLabeler).toHaveBeenCalledTimes(2)
+    expect(call).toHaveBeenCalledTimes(2)
     expect(saveLabelers).toHaveBeenCalledWith('did:plc:user', ['did:plc:good'])
   })
 })

@@ -28,17 +28,17 @@ jest.mock('#/view/icons/Logo', () => ({Logo: () => null}))
 type Viewer = {did: string} | undefined
 let mockViewer: Viewer
 const mockCreateRecord = jest.fn()
-const mockAgent = {
-  get session() {
-    return mockViewer
+const mockPdsClient = {
+  get did() {
+    return mockViewer?.did
   },
   get assertDid() {
     return mockViewer?.did
   },
-  com: {atproto: {repo: {createRecord: mockCreateRecord}}},
+  call: (_method: unknown, input: unknown) => mockCreateRecord(input),
 }
 jest.mock('#/state/session', () => ({
-  useAgent: () => mockAgent,
+  usePdsClient: () => mockPdsClient,
   useSession: () => ({currentAccount: mockViewer}),
 }))
 
@@ -92,6 +92,7 @@ jest.mock('#/components/StarterPack/StarterPackCard', () => ({
   Embed: () => null,
 }))
 jest.mock('#/components/SubtleHover', () => ({SubtleHover: () => null}))
+jest.mock('#/components/Post/Embed/AtCard', () => ({AtCard: () => null}))
 jest.mock('#/components/Post/Embed/StandardSiteEmbed', () => ({
   StandardSiteEmbed: () => null,
 }))
@@ -560,7 +561,7 @@ describe('AssemblyEmbed', () => {
         at_cid: 'bafyreistatement',
       }
       const voteUri = `at://${VIEWER}/community.blacksky.assembly.vote/3kvote`
-      mockCreateRecord.mockResolvedValue({data: {uri: voteUri}})
+      mockCreateRecord.mockResolvedValue({uri: voteUri})
       serve({
         participation: reply({
           auth: {token: 'participant-token'},
