@@ -94,9 +94,10 @@ export function liveSessionData(
   bundle: SessionBundle | PublicSessionBundle,
 ): SessionData | undefined {
   const session = bundle.session
-  return session instanceof PasswordSession && !session.destroyed
-    ? session.session
-    : undefined
+  if (!session || session instanceof OAuthCore || session.destroyed) {
+    return undefined
+  }
+  return session.session
 }
 
 /**

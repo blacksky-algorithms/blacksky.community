@@ -38,30 +38,25 @@ jest.mock('#/logger', () => {
 })
 
 /*
- * `prefetchAgeAssuranceServerData` is a genuine prep await in each factory
- * (moderation config is synchronous, so the AA prefetch is where the factory
- * tests inject a mid-prep token rotation). The default is a no-op;
- * individual tests install behavior via `mockImplementationOnce`.
+ * The factory tail awaits `features.refresh(...)`, the one genuine prep await
+ * in each factory (moderation config is synchronous), so it is where the
+ * factory tests inject a mid-prep token rotation. Stubbing the analytics module
+ * also keeps GrowthBook (and its native deps) out of this lightweight suite.
+ * The default is a no-op; tests install behavior through `duringPreparation`.
  */
-const mockPrefetchAgeAssuranceServerData = jest.fn<() => void | Promise<void>>()
-jest.mock('#/ageAssurance/data', () => ({
-  prefetchAgeAssuranceServerData: () => mockPrefetchAgeAssuranceServerData(),
-}))
-/*
- * The factory tail awaits `features.refresh(...)`; stub the analytics module so
- * the factory does not pull GrowthBook (and its native deps) into this
- * lightweight suite.
- */
+const mockFeaturesRefresh = jest.fn<() => Promise<void>>(() =>
+  Promise.resolve(),
+)
 jest.mock('#/analytics', () => ({
-  features: {refresh: () => Promise.resolve()},
+  features: {refresh: () => mockFeaturesRefresh()},
 }))
 
 /*
  * `configureModerationForAccount` is synchronous (the labeler cache is a local
  * MMKV read), so it is not a prep await - but it still runs inside each factory
- * with the freshly built bundle, before the awaited prep steps. The factory
- * tests capture the bundle with this mock, then inject a real refresh into the
- * awaited AA prefetch so a token rotation happens during prep, before arm().
+ * with the freshly built bundle. The factory tests capture the bundle with this
+ * mock, then inject a real refresh into the awaited gate refresh so a token
+ * rotation happens during prep, before arm().
  * The default is a no-op so other tests are unaffected.
  * (jest requires out-of-scope factory references to be `mock`-prefixed.)
  */
@@ -130,17 +125,17 @@ function makeSessionData(overrides: Partial<SessionData> = {}): SessionData {
     emailConfirmed: true,
     emailAuthFactor: false,
     active: true,
-    service: 'https://bsky.social',
+    service: 'https://blacksky.app',
     ...overrides,
   }
 }
 
 describe('sessionDataToSessionAccount', () => {
   it('returns undefined for a missing session', () => {
-    expect(sessionDataToSessionAccount(undefined, 'https://bsky.social')).toBe(
+    expect(sessionDataToSessionAccount(undefined, 'https://blacksky.app')).toBe(
       undefined,
     )
-    expect(sessionDataToSessionAccount(null, 'https://bsky.social')).toBe(
+    expect(sessionDataToSessionAccount(null, 'https://blacksky.app')).toBe(
       undefined,
     )
   })
@@ -148,10 +143,10 @@ describe('sessionDataToSessionAccount', () => {
   it('maps fields for a hosted account (no didDoc)', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(account).toEqual({
-      service: 'https://bsky.social/',
+      service: 'https://blacksky.app/',
       did: DID,
       handle: HANDLE,
       email: 'alice@example.com',
@@ -170,15 +165,15 @@ describe('sessionDataToSessionAccount', () => {
   it('serializes service as a normalized URL', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
-    expect(account.service).toBe('https://bsky.social/')
+    expect(account.service).toBe('https://blacksky.app/')
   })
 
   it('serializes the didDoc PDS endpoint as a normalized URL', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: synthDidDoc(DID, PDS_URL)}),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(account.pdsUrl).toBe(`${PDS_URL}/`)
   })
@@ -186,7 +181,7 @@ describe('sessionDataToSessionAccount', () => {
   it('leaves pdsUrl undefined for hosted accounts (no service fallback)', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: undefined}),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(account.pdsUrl).toBe(undefined)
   })
@@ -194,7 +189,7 @@ describe('sessionDataToSessionAccount', () => {
   it('retains the stored PDS when a valid didDoc has no PDS service', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: {id: DID}}),
-      'https://bsky.social',
+      'https://blacksky.app',
       PDS_URL,
     )!
     expect(account.pdsUrl).toBe(`${PDS_URL}/`)
@@ -203,7 +198,7 @@ describe('sessionDataToSessionAccount', () => {
   it('derives isSelfHosted from the service URL', () => {
     const hosted = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(hosted.isSelfHosted).toBe(false)
 
@@ -217,13 +212,13 @@ describe('sessionDataToSessionAccount', () => {
   it('derives signupQueued from the access token scope', () => {
     const queued = sessionDataToSessionAccount(
       makeSessionData({accessJwt: 'queued-access-jwt'}),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(queued.signupQueued).toBe(true)
 
     const notQueued = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(notQueued.signupQueued).toBe(false)
   })
@@ -235,7 +230,7 @@ describe('sessionDataToSessionAccount', () => {
         emailConfirmed: undefined,
         emailAuthFactor: undefined,
       }),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     expect(account.email).toBe(undefined)
     expect(account.emailConfirmed).toBe(false)
@@ -249,10 +244,10 @@ describe('sessionDataToSessionAccount', () => {
      */
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: synthDidDoc(DID, PDS_URL)}),
-      'https://bsky.social',
+      'https://blacksky.app',
     )!
     const golden: SessionAccount = {
-      service: 'https://bsky.social/',
+      service: 'https://blacksky.app/',
       did: DID,
       handle: HANDLE,
       email: 'alice@example.com',
@@ -273,7 +268,7 @@ describe('sessionDataToSessionAccount', () => {
 
 describe('sessionAccountToSessionData', () => {
   const baseAccount: SessionAccount = {
-    service: 'https://bsky.social/',
+    service: 'https://blacksky.app/',
     did: DID,
     handle: HANDLE,
     email: 'alice@example.com',
@@ -300,7 +295,7 @@ describe('sessionAccountToSessionData', () => {
     expect(data.active).toBe(true)
     expect(data.did).toBe(DID)
     expect(data.handle).toBe(HANDLE)
-    expect(data.service).toBe('https://bsky.social/')
+    expect(data.service).toBe('https://blacksky.app/')
   })
 
   it('omits didDoc when the account has no stored pdsUrl', () => {
@@ -815,18 +810,44 @@ async function withFreshFactory(
  * which is dead on the next cold start.
  *
  * We simulate the mid-prep rotation by capturing the bundle from the mocked
- * `configureModerationForAccount` and making the mocked
- * `prefetchAgeAssuranceServerData` (a genuine prep await in each factory) run a
- * real `session.refresh()`. The factory itself is re-required inside
+ * `configureModerationForAccount` and making the mocked gate refresh (a
+ * genuine prep await in each factory) run a real `session.refresh()`. The
+ * factory itself is re-required inside
  * `jest.isolateModulesAsync` AFTER overriding `globalThis.fetch`, because
  * the network leaf captures `globalThis.fetch` at module load - and that
  * captured fetch is what PasswordSession's auto-refresh routes through.
  */
-describe('factory account snapshot after preparation', () => {
-  beforeEach(() => {
-    mockConfigureModerationForAccount.mockReset()
-    mockPrefetchAgeAssuranceServerData.mockReset()
+/*
+ * A factory starts the gate refresh before it has built the bundle, so the
+ * refresh is held open until the moderation step hands the bundle over, and
+ * only then runs `step`.
+ */
+function duringPreparation(step: (bundle: SessionBundle) => Promise<unknown>) {
+  const captured: {bundle?: SessionBundle} = {}
+  let built!: (bundle: SessionBundle) => void
+  const bundleBuilt = new Promise<SessionBundle>(resolve => {
+    built = resolve
   })
+  mockConfigureModerationForAccount.mockImplementationOnce(
+    (bundle: unknown) => {
+      captured.bundle = bundle as SessionBundle
+      built(captured.bundle)
+    },
+  )
+  mockFeaturesRefresh.mockImplementationOnce(async () => {
+    await step(await bundleBuilt)
+  })
+  return captured
+}
+
+function resetPreparationMocks() {
+  mockConfigureModerationForAccount.mockReset()
+  mockFeaturesRefresh.mockReset()
+  mockFeaturesRefresh.mockImplementation(() => Promise.resolve())
+}
+
+describe('factory account snapshot after preparation', () => {
+  beforeEach(resetPreparationMocks)
 
   it('resume: returned account carries the tokens rotated DURING prep', async () => {
     /*
@@ -834,17 +855,9 @@ describe('factory account snapshot after preparation', () => {
      * `valid-access-jwt` decodes as non-expired, so resume() takes the sync
      * fast path and the only refresh is the one prep triggers. The bundle is
      * captured from the (synchronous) moderation call, and the rotation is
-     * injected into the awaited AA prefetch.
+     * injected into the awaited gate refresh.
      */
-    let capturedBundle: SessionBundle | undefined
-    mockConfigureModerationForAccount.mockImplementationOnce(
-      (bundle: unknown) => {
-        capturedBundle = bundle as SessionBundle
-      },
-    )
-    mockPrefetchAgeAssuranceServerData.mockImplementationOnce(async () => {
-      await capturedBundle!.session.refresh()
-    })
+    duringPreparation(bundle => bundle.session.refresh())
     const fetchMock = makeMockFetch()
 
     await withFreshFactory(asFetch(fetchMock), async core => {
@@ -889,10 +902,7 @@ describe('factory account snapshot after preparation', () => {
  * Both failure modes must therefore dispose the bundle and reject.
  */
 describe('a session destroyed or rejected during preparation', () => {
-  beforeEach(() => {
-    mockConfigureModerationForAccount.mockReset()
-    mockPrefetchAgeAssuranceServerData.mockReset()
-  })
+  beforeEach(resetPreparationMocks)
 
   it('resume: rejects with the revoked-during-prep error and disposes the bundle', async () => {
     /*
@@ -901,15 +911,7 @@ describe('a session destroyed or rejected during preparation', () => {
      * way to drive a session to `destroyed` from outside, and it takes the same
      * `deleteSession` -> onDeleted -> destroyed path the real 401 rescue does.
      */
-    let capturedBundle: SessionBundle | undefined
-    mockConfigureModerationForAccount.mockImplementationOnce(
-      (bundle: unknown) => {
-        capturedBundle = bundle as SessionBundle
-      },
-    )
-    mockPrefetchAgeAssuranceServerData.mockImplementationOnce(async () => {
-      await capturedBundle!.session.logout()
-    })
+    const captured = duringPreparation(bundle => bundle.session.logout())
     const fetchMock = makeMockFetch()
 
     await withFreshFactory(asFetch(fetchMock), async core => {
@@ -926,18 +928,12 @@ describe('a session destroyed or rejected during preparation', () => {
       ).rejects.toThrow('Session was revoked while it was being prepared')
 
       /* the bundle the caller never received reads as logged out */
-      expect(capturedBundle!.session.destroyed).toBe(true)
+      expect(captured.bundle!.session.destroyed).toBe(true)
     })
   })
 
   it('resume: a prep rejection propagates and disposes the bundle', async () => {
-    let capturedBundle: SessionBundle | undefined
-    mockConfigureModerationForAccount.mockImplementationOnce(
-      (bundle: unknown) => {
-        capturedBundle = bundle as SessionBundle
-      },
-    )
-    mockPrefetchAgeAssuranceServerData.mockImplementationOnce(() =>
+    const captured = duringPreparation(() =>
       Promise.reject(new Error('prefetch blew up')),
     )
     const fetchMock = makeMockFetch()
@@ -952,7 +948,7 @@ describe('a session destroyed or rejected during preparation', () => {
 
       /* the still-live session was disposed rather than left refreshing */
       await expect(
-        capturedBundle!.session.fetchHandler('/xrpc/test', {}),
+        captured.bundle!.session.fetchHandler('/xrpc/test', {}),
       ).rejects.toThrow('session disposed')
     })
   })

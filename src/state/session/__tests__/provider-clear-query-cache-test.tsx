@@ -30,10 +30,6 @@ jest.mock('#/analytics', () => ({
 jest.mock('#/state/shell/onboarding', () => ({
   useOnboardingDispatch: () => () => {},
 }))
-jest.mock('#/ageAssurance/data', () => ({
-  clearAgeAssuranceServerDataForAll: () => {},
-  clearAgeAssuranceServerDataForDid: () => {},
-}))
 const mockClearPersistedQueryStorage = jest.fn((_id: string) =>
   Promise.resolve(),
 )
