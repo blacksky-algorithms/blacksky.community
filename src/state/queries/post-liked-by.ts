@@ -73,6 +73,17 @@ const likedBySampleQueryKeyRoot = 'liked-by-sample'
 export const createLikedBySampleQueryKey = (args: {uri: string}) =>
   createQueryKey(likedBySampleQueryKeyRoot, args)
 
+export async function fetchLikedBySample(
+  agent: BskyAgent,
+  uri: string,
+): Promise<AppBskyFeedGetLikes.OutputSchema> {
+  if (isSpaceRecordUri(uri)) {
+    return getSpacePostLikes(agent, {uri, limit: SAMPLE_SIZE})
+  }
+  const res = await agent.getLikes({uri, limit: SAMPLE_SIZE})
+  return res.data
+}
+
 /**
  * A single-request sample of a post's most recent likers, as many as the API
  * allows in one page (100). Used for the known-likers social proof on the
@@ -83,10 +94,7 @@ export function useLikedBySampleQuery({uri}: {uri: string | undefined}) {
   const agent = useAgent()
   return useQuery({
     queryKey: createLikedBySampleQueryKey({uri: uri ?? ''}),
-    queryFn: async () => {
-      const res = await agent.getLikes({uri: uri ?? '', limit: SAMPLE_SIZE})
-      return res.data
-    },
+    queryFn: () => fetchLikedBySample(agent, uri ?? ''),
     staleTime: STALE.MINUTES.FIVE,
     enabled: !!uri,
     /*
