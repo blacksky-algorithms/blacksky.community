@@ -2,8 +2,8 @@
 import {type ModerationOpts} from '@bsky/sdk/moderation'
 import {visibleMessages} from '../visible'
 
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
+jest.mock('@bsky/sdk/moderation', () => ({
+  ...jest.requireActual('@bsky/sdk/moderation'),
   moderateProfile: (p: {did: string}) => ({
     ui: () => ({filter: p.did === 'did:muted', blur: p.did === 'did:warned'}),
   }),

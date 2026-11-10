@@ -228,17 +228,17 @@ describe('useProfileEnrichment', () => {
       ),
     )
 
-    const client = new BskyAgent({service: 'https://pds.test'})
-    client.sessionManager.session = {
+    // The client a feed API holds carries a profile-shaped session object.
+    const session = {
       did: ME,
       handle: 'me.test',
       accessJwt: 'a',
       refreshJwt: 'r',
       active: true,
     }
-    const session = client.sessionManager.session
+    const held = {did: ME, agent: {session}}
     const sessionBefore = {...session}
-    const api = new FollowingFeedAPI({client})
+    const api = new FollowingFeedAPI({client: held as unknown as Client})
 
     type FeedPage = {
       api: FollowingFeedAPI
@@ -276,8 +276,8 @@ describe('useProfileEnrichment', () => {
       expect(data.pageParams[1]?.api).toBe(api)
       expect(typeof data.pages[1].api.peekLatest).toBe('function')
       expect(typeof data.pages[1].api.fetch).toBe('function')
-      expect(client.sessionManager.session).toBe(session)
-      expect(client.sessionManager.session).toEqual(sessionBefore)
+      expect(held.agent.session).toBe(session)
+      expect(held.agent.session).toEqual(sessionBefore)
       return data
     }
 

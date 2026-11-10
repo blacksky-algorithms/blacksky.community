@@ -1,4 +1,3 @@
-
 import {RichText} from '@bsky/sdk/richtext'
 import {type app} from '#/lexicons'
 import {type AssemblyRef} from '#/lib/api/poll'
@@ -11,6 +10,7 @@ import {
   draftToComposerPosts,
   draftViewToSummary,
 } from '../api'
+import {type LinkResolvers} from '#/lib/api/resolve'
 
 jest.mock('../storage', () => ({
   mediaExists: jest.fn(() => true),
@@ -29,7 +29,6 @@ jest.mock('#/lib/media/manip', () => ({getImageDim: jest.fn()}))
 jest.mock('#/lib/media/video/util', () => ({mimeToExt: jest.fn(() => 'mp4')}))
 jest.mock('#/lib/deviceName', () => ({getDeviceName: () => 'Test device'}))
 jest.mock('#/analytics/identifiers', () => ({getDeviceId: () => 'device-1'}))
-jest.mock('#/state/session/agent', () => ({createPublicAgent: jest.fn()}))
 jest.mock('#/lib/api/resolve', () => ({resolveLink: jest.fn()}))
 jest.mock('#/state/queries/threadgate/util', () => ({
   threadgateAllowUISettingToAllowRecordValue: jest.fn(() => undefined),
@@ -38,6 +37,8 @@ jest.mock('#/state/gallery', () => ({}))
 jest.mock('#/view/com/composer/state/composer', () => ({
   LEGACY_IMAGES_EMBED_MAX: 4,
 }))
+
+const clients = {} as LinkResolvers
 
 const POLL_KEY = 'communityBlackskyPoll'
 
@@ -85,7 +86,9 @@ function state(posts: PostDraft[]): ComposerState {
   }
 }
 
-function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPost {
+function draftPost(
+  extra: Record<string, unknown>,
+): app.bsky.draft.defs.DraftPost {
   return {
     $type: 'app.bsky.draft.defs#draftPost',
     text: 'hello',
@@ -93,13 +96,16 @@ function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPos
   }
 }
 
-function draftOf(posts: app.bsky.draft.defs.DraftPost[]): app.bsky.draft.defs.Draft {
+function draftOf(
+  posts: app.bsky.draft.defs.DraftPost[],
+): app.bsky.draft.defs.Draft {
   return {$type: 'app.bsky.draft.defs#draft', posts}
 }
 
 describe('draft polls', () => {
   it('serialises the poll as an extra property on the draft post', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([post({poll: {statements: ['one', '']}}, 'question')]),
     )
     expect(savedPoll(draft)).toStrictEqual({statements: ['one', '']})
@@ -107,6 +113,7 @@ describe('draft polls', () => {
 
   it('serialises the assembly reference with the statements', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([
         post(
           {poll: {statements: ['first', 'second'], assembly: createdRef}},
@@ -128,6 +135,7 @@ describe('draft polls', () => {
 
   it('serialises the poll of the post that has one', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([
         post({}, 'lead'),
         post({poll: {statements: ['first'], assembly: pendingRef}}, 'question'),
@@ -141,7 +149,10 @@ describe('draft polls', () => {
   })
 
   it('omits the property when there is no poll', async () => {
-    const {draft} = await composerStateToDraft(state([post({}, 'text only')]))
+    const {draft} = await composerStateToDraft(
+      clients,
+      state([post({}, 'text only')]),
+    )
     expect(POLL_KEY in draft.posts[0]).toBe(false)
   })
 
@@ -156,6 +167,7 @@ describe('draft polls', () => {
 
   it('round-trips a poll through save and restore', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([post({poll: {statements: ['first', 'second']}}, 'question')]),
     )
     const {posts} = await draftToComposerPosts(asStored(draft), new Map())
@@ -169,6 +181,7 @@ describe('draft polls', () => {
     {kind: 'an assembly that is still being created', assembly: pendingRef},
   ])('round-trips the reference to $kind', async ({assembly}) => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([
         post({poll: {statements: ['first', 'second'], assembly}}, 'question'),
       ]),
@@ -187,6 +200,7 @@ describe('draft polls', () => {
 
   it('round-trips a saved reference through a second save', async () => {
     const first = await composerStateToDraft(
+      clients,
       state([
         post(
           {poll: {statements: ['first', 'second'], assembly: pendingRef}},
@@ -198,7 +212,7 @@ describe('draft polls', () => {
       asStored(first.draft),
       new Map(),
     )
-    const second = await composerStateToDraft(state(restored.posts))
+    const second = await composerStateToDraft(clients, state(restored.posts))
 
     expect(asStored(second.draft).posts[0]).toHaveProperty(POLL_KEY, {
       statements: ['first', 'second'],
@@ -316,6 +330,7 @@ describe('draft polls', () => {
       String(index).repeat(400),
     )
     const {draft} = await composerStateToDraft(
+      clients,
       state([
         post({poll: {statements, assembly: createdRef}}, 'question'),
         ...Array.from({length: 31}, () => post({}, text)),

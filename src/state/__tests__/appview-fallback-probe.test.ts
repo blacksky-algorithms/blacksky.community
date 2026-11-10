@@ -1,5 +1,8 @@
 
-import {type Client} from '@atproto/lex'
+import {type Client, XrpcResponseError} from '@atproto/lex'
+
+import {BLUESKY_APPVIEW_PINNED_OPTS} from '#/lib/constants'
+import {app} from '#/lexicons'
 import {
   probeFallbackEligibility,
   resetProbeCacheForTesting,
@@ -9,11 +12,16 @@ jest.mock('#/analytics/metrics', () => ({
   metrics: {track: jest.fn()},
 }))
 
-function agentWith(getProfile: jest.Mock, did = 'did:plc:test123'): Client {
-  return {
-    session: {did},
-    app: {bsky: {actor: {getProfile}}},
-  } as unknown as AtpAgent
+function clientWith(getProfile: jest.Mock, did = 'did:plc:test123'): Client {
+  return {did, call: getProfile} as unknown as Client
+}
+
+function xrpcError(status: number, error: string) {
+  return new XrpcResponseError(
+    app.bsky.actor.getProfile.main,
+    new Response(null, {status}),
+    {encoding: 'application/json', body: {error, message: error}},
+  )
 }
 
 describe('probeFallbackEligibility', () => {
@@ -22,24 +30,27 @@ describe('probeFallbackEligibility', () => {
   })
 
   it('eligible when the fallback appview serves the profile', async () => {
-    const getProfile = jest.fn().mockResolvedValue({data: {}})
-    expect(await probeFallbackEligibility(agentWith(getProfile))).toBe(
+    const getProfile = jest.fn().mockResolvedValue({})
+    expect(await probeFallbackEligibility(clientWith(getProfile))).toBe(
       'eligible',
+    )
+    expect(getProfile).toHaveBeenCalledWith(
+      app.bsky.actor.getProfile,
+      {actor: 'did:plc:test123'},
+      BLUESKY_APPVIEW_PINNED_OPTS,
     )
   })
 
   it.each([
-    ['AccountTakedown error name', {error: 'AccountTakedown', status: 400}],
-    ['AccountDeactivated error name', {error: 'AccountDeactivated'}],
-    ['401 status', {status: 401}],
-    ['403 status', {status: 403}],
-    ['suspended message', {message: 'Account has been suspended'}],
-    ['taken down message', {message: 'this account was taken down'}],
-  ])('ineligible on %s', async (_name, errShape) => {
-    const getProfile = jest
-      .fn()
-      .mockRejectedValue(Object.assign(new Error(), errShape))
-    expect(await probeFallbackEligibility(agentWith(getProfile))).toBe(
+    ['AccountTakedown error name', xrpcError(400, 'AccountTakedown')],
+    ['AccountDeactivated error name', xrpcError(400, 'AccountDeactivated')],
+    ['401 status', xrpcError(401, 'AuthenticationRequired')],
+    ['403 status', xrpcError(403, 'Forbidden')],
+    ['suspended message', new Error('Account has been suspended')],
+    ['taken down message', new Error('this account was taken down')],
+  ])('ineligible on %s', async (_name, error) => {
+    const getProfile = jest.fn().mockRejectedValue(error)
+    expect(await probeFallbackEligibility(clientWith(getProfile))).toBe(
       'ineligible',
     )
   })
@@ -48,16 +59,16 @@ describe('probeFallbackEligibility', () => {
     const getProfile = jest
       .fn()
       .mockRejectedValueOnce(new Error('Network request failed'))
-      .mockResolvedValueOnce({data: {}})
-    const client = agentWith(getProfile)
+      .mockResolvedValueOnce({})
+    const client = clientWith(getProfile)
 
     expect(await probeFallbackEligibility(client)).toBe('unknown')
     expect(await probeFallbackEligibility(client)).toBe('eligible')
   })
 
   it('caches a definitive result per DID', async () => {
-    const getProfile = jest.fn().mockResolvedValue({data: {}})
-    const client = agentWith(getProfile)
+    const getProfile = jest.fn().mockResolvedValue({})
+    const client = clientWith(getProfile)
 
     await probeFallbackEligibility(client)
     await probeFallbackEligibility(client)
@@ -67,11 +78,9 @@ describe('probeFallbackEligibility', () => {
   it('re-probes after the cache TTL expires', async () => {
     const getProfile = jest
       .fn()
-      .mockResolvedValueOnce({data: {}})
-      .mockRejectedValueOnce(
-        Object.assign(new Error(), {error: 'AccountTakedown', status: 400}),
-      )
-    const client = agentWith(getProfile)
+      .mockResolvedValueOnce({})
+      .mockRejectedValueOnce(xrpcError(400, 'AccountTakedown'))
+    const client = clientWith(getProfile)
     const nowSpy = jest.spyOn(Date, 'now')
 
     nowSpy.mockReturnValue(1_000_000)
@@ -86,10 +95,7 @@ describe('probeFallbackEligibility', () => {
 
   it('unknown without a session', async () => {
     const getProfile = jest.fn()
-    const client = {
-      session: undefined,
-      app: {bsky: {actor: {getProfile}}},
-    } as unknown as AtpAgent
+    const client = {did: undefined, call: getProfile} as unknown as Client
     expect(await probeFallbackEligibility(client)).toBe('unknown')
     expect(getProfile).not.toHaveBeenCalled()
   })

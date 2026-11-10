@@ -1,4 +1,3 @@
-
 import {RichText} from '@bsky/sdk/richtext'
 import {type app} from '#/lexicons'
 import {
@@ -11,6 +10,7 @@ import {
   draftToComposerPosts,
   draftViewToSummary,
 } from '../api'
+import {type LinkResolvers} from '#/lib/api/resolve'
 
 jest.mock('../storage', () => ({
   mediaExists: jest.fn(() => true),
@@ -29,7 +29,6 @@ jest.mock('#/lib/media/manip', () => ({getImageDim: jest.fn()}))
 jest.mock('#/lib/media/video/util', () => ({mimeToExt: jest.fn(() => 'mp4')}))
 jest.mock('#/lib/deviceName', () => ({getDeviceName: () => 'Test device'}))
 jest.mock('#/analytics/identifiers', () => ({getDeviceId: () => 'device-1'}))
-jest.mock('#/state/session/agent', () => ({createPublicAgent: jest.fn()}))
 jest.mock('#/lib/api/resolve', () => ({resolveLink: jest.fn()}))
 jest.mock('#/state/queries/threadgate/util', () => ({
   threadgateAllowUISettingToAllowRecordValue: jest.fn(() => undefined),
@@ -38,6 +37,8 @@ jest.mock('#/state/gallery', () => ({}))
 jest.mock('#/view/com/composer/state/composer', () => ({
   LEGACY_IMAGES_EMBED_MAX: 4,
 }))
+
+const clients = {} as LinkResolvers
 
 const EVENT_KEY = 'communityBlackskyEvent'
 
@@ -82,7 +83,9 @@ function state(posts: PostDraft[]): ComposerState {
   }
 }
 
-function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPost {
+function draftPost(
+  extra: Record<string, unknown>,
+): app.bsky.draft.defs.DraftPost {
   return {
     $type: 'app.bsky.draft.defs#draftPost',
     text: 'hello',
@@ -90,23 +93,29 @@ function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPos
   }
 }
 
-function draftOf(posts: app.bsky.draft.defs.DraftPost[]): app.bsky.draft.defs.Draft {
+function draftOf(
+  posts: app.bsky.draft.defs.DraftPost[],
+): app.bsky.draft.defs.Draft {
   return {$type: 'app.bsky.draft.defs#draft', posts}
 }
 
 describe('draft events', () => {
   it('saves the event as an extra property on the draft post', async () => {
-    const {draft} = await composerStateToDraft(state([post({event})]))
+    const {draft} = await composerStateToDraft(clients, state([post({event})]))
     expect(savedEvent(draft)).toStrictEqual(event)
   })
 
   it('omits the property when there is no event', async () => {
-    const {draft} = await composerStateToDraft(state([post({}, 'text')]))
+    const {draft} = await composerStateToDraft(
+      clients,
+      state([post({}, 'text')]),
+    )
     expect(EVENT_KEY in draft.posts[0]).toBe(false)
   })
 
   it("keeps a link's image but drops a picked photo, which lives only on this device", async () => {
     const withLink = await composerStateToDraft(
+      clients,
       state([post({event: {...event, cover: {url: 'https://x.test/og.jpg'}}})]),
     )
     expect(savedEvent(withLink.draft)).toMatchObject({
@@ -114,6 +123,7 @@ describe('draft events', () => {
     })
 
     const withPhoto = await composerStateToDraft(
+      clients,
       state([
         post({
           event: {
@@ -133,6 +143,7 @@ describe('draft events', () => {
 
   it('round-trips an event through save and restore', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([post({event: {...event, coverRemoved: true}}, 'come')]),
     )
     const {posts} = await draftToComposerPosts(asStored(draft), new Map())
