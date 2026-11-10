@@ -28,6 +28,7 @@ import {List, type ListRef} from '#/view/com/util/List'
 import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {LoadMoreRetryBtn} from '#/view/com/util/LoadMoreRetryBtn'
+import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, ios, useTheme} from '#/alf'
 import {BulletList_Stroke1_Corner0_Rounded as ListIcon} from '#/components/icons/BulletList'
 import * as ListCard from '#/components/ListCard'
@@ -38,10 +39,6 @@ const LOADING = {_reactKey: '__loading__'}
 const EMPTY = {_reactKey: '__empty__'}
 const ERROR_ITEM = {_reactKey: '__error__'}
 const LOAD_MORE_ERROR_ITEM = {_reactKey: '__load_more_error__'}
-
-interface SectionRef {
-  scrollToTop: () => void
-}
 
 interface ProfileListsProps {
   ref?: React.Ref<SectionRef>
@@ -117,19 +114,24 @@ export function ProfileLists({
     queryClient.invalidateQueries({queryKey: RQKEY(did)})
   }, [scrollElRef, queryClient, headerOffset, did])
 
-  useImperativeHandle(ref, () => ({
-    scrollToTop: onScrollToTop,
-  }))
-
-  const onRefresh = useCallback(async () => {
-    setIsPTRing(true)
+  const refresh = useCallback(async () => {
     try {
       await refetch()
     } catch (err) {
       logger.error('Failed to refresh lists', {message: err})
     }
+  }, [refetch])
+
+  useImperativeHandle(ref, () => ({
+    scrollToTop: onScrollToTop,
+    refresh,
+  }))
+
+  const onRefresh = useCallback(async () => {
+    setIsPTRing(true)
+    await refresh()
     setIsPTRing(false)
-  }, [refetch, setIsPTRing])
+  }, [refresh, setIsPTRing])
 
   const onEndReached = useCallback(async () => {
     if (isFetchingNextPage || !hasNextPage || isError) return

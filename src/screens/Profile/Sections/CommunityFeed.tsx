@@ -64,6 +64,9 @@ export function CommunityFeedSection({
 
   useImperativeHandle(ref, () => ({
     scrollToTop: onScrollToTop,
+    refresh: async () => {
+      await refetch()
+    },
   }))
 
   useEffect(() => {

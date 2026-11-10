@@ -1,4 +1,10 @@
-import {useCallback, useEffect, useImperativeHandle, useState} from 'react'
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -36,7 +42,6 @@ interface FeedSectionProps {
   emptyStateMessage?: string
   emptyStateButton?: EmptyStateButtonProps
   emptyStateIcon?: React.ComponentType<any> | React.ReactElement
-  postFeedRef?: React.Ref<PostFeedRef>
 }
 
 export function ProfileFeedSection({
@@ -50,12 +55,12 @@ export function ProfileFeedSection({
   emptyStateMessage,
   emptyStateButton,
   emptyStateIcon,
-  postFeedRef,
 }: FeedSectionProps) {
   const {_} = useLingui()
   const queryClient = useQueryClient()
   const [hasNew, setHasNew] = useState(false)
   const [isScrolledDown, setIsScrolledDown] = useState(false)
+  const postFeedRef = useRef<PostFeedRef>(null)
   const shouldUseAdjustedNumToRender = feed.endsWith('posts_and_author_threads')
   const isVideoFeed = IS_NATIVE && feed.endsWith('posts_with_video')
   const adjustedInitialNumToRender = useInitialNumToRender({
@@ -72,6 +77,9 @@ export function ProfileFeedSection({
 
   useImperativeHandle(ref, () => ({
     scrollToTop: onScrollToTop,
+    refresh: async () => {
+      await postFeedRef.current?.refreshFeed()
+    },
   }))
 
   const renderPostsEmpty = useCallback(() => {

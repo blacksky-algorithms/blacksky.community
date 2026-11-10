@@ -27,6 +27,7 @@ import {
 import {List, type ListRef} from '#/view/com/util/List'
 import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
+import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, ios, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
@@ -37,10 +38,6 @@ import * as Prompt from '#/components/Prompt'
 import {Default as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {Text} from '#/components/Typography'
 import {IS_IOS} from '#/env'
-
-interface SectionRef {
-  scrollToTop: () => void
-}
 
 interface ProfileFeedgensProps {
   ref?: React.Ref<SectionRef>
@@ -113,19 +110,24 @@ export function ProfileStarterPacks({
     return <Empty />
   }, [_, emptyStateMessage, emptyStateButton, emptyStateIcon])
 
-  useImperativeHandle(ref, () => ({
-    scrollToTop: () => {},
-  }))
-
-  const onRefresh = useCallback(async () => {
-    setIsPTRing(true)
+  const refresh = useCallback(async () => {
     try {
       await refetch()
     } catch (err) {
       logger.error('Failed to refresh starter packs', {message: err})
     }
+  }, [refetch])
+
+  useImperativeHandle(ref, () => ({
+    scrollToTop: () => {},
+    refresh,
+  }))
+
+  const onRefresh = useCallback(async () => {
+    setIsPTRing(true)
+    await refresh()
     setIsPTRing(false)
-  }, [refetch, setIsPTRing])
+  }, [refresh, setIsPTRing])
 
   const onEndReached = useCallback(async () => {
     if (isFetchingNextPage || !hasNextPage || isError) return
