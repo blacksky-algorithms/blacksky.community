@@ -65,6 +65,7 @@ export function EventEditor({
         ? !eventEndsBeforeStart(event)
         : true
   const isLastStep = stepIndex === STEPS.length - 1
+  const pillBg = isEditing ? t.atoms.bg_contrast_50 : t.atoms.bg
   const stepColor =
     t.name === 'light' ? t.palette.primary_500 : DEFAULT_BRAND.secondary
   const remove = () => {
@@ -148,7 +149,7 @@ export function EventEditor({
             size="tiny"
             variant="solid"
             color="secondary"
-            style={[t.atoms.bg, a.px_lg, {height: 28}]}
+            style={[pillBg, a.px_lg, {height: 28}]}
             onPress={
               isEditing ? () => dispatch({type: 'embed_remove_event'}) : remove
             }>
@@ -193,8 +194,8 @@ export function EventEditor({
       {event.step === 'done' && <EventPreview event={event} />}
 
       {stepIndex >= 0 && (
-        <View style={[a.flex_row, a.align_center, a.justify_between]}>
-          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+        <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.align_center, a.gap_sm]}>
             <View style={{width: 12, height: 12, backgroundColor: stepColor}} />
             <Text
               testID="eventStepLabel"
@@ -213,7 +214,7 @@ export function EventEditor({
               </Trans>
             </Text>
           </View>
-          <View style={[a.flex_row, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.justify_end, a.gap_sm]}>
             {stepIndex > 0 && (
               <Button
                 testID="eventBackBtn"
@@ -221,7 +222,7 @@ export function EventEditor({
                 size="small"
                 variant="solid"
                 color="secondary"
-                style={[t.atoms.bg, a.px_2xl]}
+                style={[a.flex_1, pillBg, a.px_md]}
                 onPress={() => setStep(STEPS[stepIndex - 1])}>
                 <ButtonText style={{color: t.palette.primary_600}}>
                   <Trans>Back</Trans>
@@ -240,7 +241,7 @@ export function EventEditor({
               size="small"
               variant="solid"
               color="primary"
-              style={[a.px_2xl]}
+              style={[a.flex_1, a.px_md]}
               disabled={!canContinue}
               onPress={() => {
                 if (isLastStep && !event.cover && cover) {
