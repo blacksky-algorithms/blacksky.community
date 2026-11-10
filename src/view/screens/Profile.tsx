@@ -291,6 +291,9 @@ function ProfileScreenLoaded({
   if (showFiltersTab) {
     filtersIndex = nextIndex++
   }
+  if (showListsTab && hasLabeler) {
+    listsIndex = nextIndex++
+  }
   if (showPostsTab) {
     postsIndex = nextIndex++
   }
@@ -318,7 +321,7 @@ function ProfileScreenLoaded({
   if (showStarterPacksTab) {
     starterPacksIndex = nextIndex++
   }
-  if (showListsTab) {
+  if (showListsTab && !hasLabeler) {
     listsIndex = nextIndex++
   }
 
