@@ -13,7 +13,7 @@ import UserNotifications
  * expo-notifications owns the `UNUserNotificationCenter` delegate via its
  * `NotificationCenterManager`, which fans that callback out to any registered
  * `NotificationDelegate` through `openSettings(_:)`. We register here and turn
- * the callback into a `bluesky://settings/notifications` deep link so the app's
+ * the callback into a `blacksky://settings/notifications` deep link so the app's
  * existing linking config routes the user to the notification settings screen.
  */
 public class ExpoBlueskyNotificationSettingsModule: Module, NotificationDelegate {
@@ -30,7 +30,7 @@ public class ExpoBlueskyNotificationSettingsModule: Module, NotificationDelegate
   }
 
   public func openSettings(_ notification: UNNotification?) {
-    guard let url = URL(string: "bluesky://settings/notifications") else {
+    guard let url = URL(string: "blacksky://settings/notifications") else {
       return
     }
     DispatchQueue.main.async {

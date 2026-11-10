@@ -135,7 +135,7 @@ Bluesky. Tapping it launches the app and triggers
 `userNotificationCenter(_:openSettingsFor:)`. expo-notifications owns the
 `UNUserNotificationCenter` delegate and fans this callback out to registered
 `NotificationDelegate`s. This module registers one and converts the callback into
-a `bluesky://settings/notifications` deep link, which the app's existing linking
+a `blacksky://settings/notifications` deep link, which the app's existing linking
 config routes to the notification settings screen.
 
 **Platform Support:**
