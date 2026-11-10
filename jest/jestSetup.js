@@ -17,6 +17,12 @@ jest.mock('react-native-worklets', () =>
   require('react-native-worklets/src/mock'),
 )
 
+// Reanimated registers a CSS event handler on import, which its JS-only test
+// module rejects, so nothing that imports Reanimated loads under Jest.
+jest.mock('react-native-reanimated/lib/module/initializers.native', () => ({
+  initializeReanimatedModule: () => {},
+}))
+
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 )

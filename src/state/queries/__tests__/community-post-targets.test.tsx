@@ -3,7 +3,7 @@ import {renderHook, waitFor} from '@testing-library/react-native'
 
 const mockFetchCommunityFeedTarget = jest.fn()
 const mockUseSavedFeeds = jest.fn()
-const mockAgent = {}
+const mockClient = {}
 
 jest.mock('#/lib/api/community-feed', () => ({
   fetchCommunityFeedTarget: (...args: unknown[]) =>
@@ -13,7 +13,7 @@ jest.mock('#/state/queries/feed', () => ({
   useSavedFeeds: () => mockUseSavedFeeds(),
 }))
 jest.mock('#/state/session', () => ({
-  useAgent: () => mockAgent,
+  useAppviewClient: () => mockClient,
   useSession: () => ({currentAccount: {did: 'did:plc:test'}}),
 }))
 
@@ -59,7 +59,7 @@ describe('useCommunityPostTargets', () => {
 
     expect(mockFetchCommunityFeedTarget).toHaveBeenCalledTimes(1)
     expect(mockFetchCommunityFeedTarget).toHaveBeenCalledWith(
-      mockAgent,
+      mockClient,
       FEED_URI,
     )
     expect(result.current.data).toEqual([TARGET])

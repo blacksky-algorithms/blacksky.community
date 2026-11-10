@@ -10,8 +10,9 @@ import {
 const mockQueryLabels = jest.fn()
 const mockCommunityXrpc = jest.fn()
 const mockWarn = jest.fn()
-const mockAgent = {
-  com: {atproto: {label: {queryLabels: mockQueryLabels}}},
+const mockClient = {
+  call: (_method: unknown, params: unknown, opts: unknown) =>
+    mockQueryLabels(params, opts),
 }
 
 jest.mock('#/lib/api/community', () => ({
@@ -21,7 +22,7 @@ jest.mock('#/logger', () => ({
   logger: {warn: (...args: unknown[]) => mockWarn(...args)},
 }))
 jest.mock('#/state/session', () => ({
-  useAgent: () => mockAgent,
+  useAppviewClient: () => mockClient,
 }))
 jest.mock('#/state/queries/community-feed', () => ({
   COMMUNITY_POST_RQKEY: (uri: string) => ['community-post', uri],
@@ -47,7 +48,7 @@ const ATTEMPTS = 8
 const RENDER_KEYS = [['post', URI], ['post-feed'], ['post-thread-v2']]
 
 const labelsResponse = (vals: string[]) => ({
-  data: {labels: vals.map(val => ({val, uri: URI, src: 'did:plc:mod'}))},
+  labels: vals.map(val => ({val, uri: URI, src: 'did:plc:mod'})),
 })
 
 function setup() {
@@ -147,9 +148,9 @@ describe('peer-mod label reconciliation', () => {
     expect(BLUESKY_PROXY_HEADER.get()).toBe(BLUESKY_FALLBACK_PROXY_HEADER)
     expect(mockQueryLabels.mock.calls.length).toBeGreaterThanOrEqual(2)
     for (const [, opts] of mockQueryLabels.mock.calls as Array<
-      [unknown, {headers?: unknown}]
+      [unknown, {service?: unknown}]
     >) {
-      expect(opts.headers).toEqual(HOME_APPVIEW_PINNED_OPTS.headers)
+      expect(opts.service).toBe(HOME_APPVIEW_PINNED_OPTS.service)
     }
   })
 

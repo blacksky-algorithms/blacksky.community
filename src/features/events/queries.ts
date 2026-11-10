@@ -11,7 +11,7 @@ import {
 
 import {communityXrpc} from '#/lib/api/community'
 import {STALE} from '#/state/queries'
-import {useAppviewClient, useSession} from '#/state/session'
+import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import {useAnalytics} from '#/analytics'
 import {applyRsvp, type RsvpLogContext, rsvpMetricStatus} from './rsvp-state'
 import {mergeEventTimeline} from './timeline'
@@ -192,7 +192,7 @@ export type RsvpChange = {
  */
 export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
   const ax = useAnalytics()
-  const client = useAppviewClient()
+  const client = usePdsClient()
   const queryClient = useQueryClient()
   const {currentAccount} = useSession()
   const queryKey = EVENT_RQKEY(event.uri)

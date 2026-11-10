@@ -10,13 +10,9 @@ const mockTruncateAndInvalidate = jest.fn()
 const mockUpdateSeen = jest.fn().mockResolvedValue(undefined)
 const mockBroadcastPostMessage = jest.fn()
 let mockBroadcastListener: ((event: MessageEvent) => void) | undefined
-const mockAgent = {
-  session: {did: 'did:plc:viewer'},
-  app: {
-    bsky: {
-      notification: {updateSeen: mockUpdateSeen},
-    },
-  },
+const mockClient = {
+  did: 'did:plc:viewer',
+  call: (...args: unknown[]) => mockUpdateSeen(...args),
 }
 
 jest.mock('#/lib/api/community-notifications', () => ({
@@ -46,18 +42,23 @@ jest.mock('#/state/preferences/moderation-opts', () => ({
   useModerationOpts: () => undefined,
 }))
 jest.mock('#/state/queries/util', () => ({
+  ...jest.requireActual<typeof import('#/state/queries/util')>(
+    '#/state/queries/util',
+  ),
   truncateAndInvalidate: (...args: unknown[]) =>
     mockTruncateAndInvalidate(...args),
 }))
 jest.mock('#/state/session', () => ({
-  useAgent: () => mockAgent,
-  useSession: () => ({hasSession: false}),
+  useAppviewClient: () => mockClient,
+  useSession: () => ({hasSession: true}),
 }))
 jest.mock('../util', () => ({
+  ...jest.requireActual<typeof import('../util')>('../util'),
   fetchPage: (...args: unknown[]) => mockFetchPage(...args),
 }))
 
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
+import {app} from '#/lexicons'
 import {type FeedPage} from '../types'
 import {
   Provider,
@@ -108,16 +109,17 @@ const visiblePage: FeedPage = {
   ],
 }
 
+function setAppState(value: 'active' | 'background') {
+  Object.defineProperty(AppState, 'currentState', {configurable: true, value})
+}
+
 describe('notification unread synchronization', () => {
   let queryClient: QueryClient
 
   beforeEach(() => {
     jest.clearAllMocks()
     mockBroadcastListener = undefined
-    Object.defineProperty(AppState, 'currentState', {
-      configurable: true,
-      value: 'active',
-    })
+    setAppState('active')
     queryClient = new QueryClient({
       defaultOptions: {queries: {retry: false}},
     })
@@ -131,14 +133,21 @@ describe('notification unread synchronization', () => {
     )
   }
 
+  /*
+   * The provider checks once on mount. Mounting in the background skips that
+   * check, so each test drives every request itself.
+   */
   function setup() {
-    return renderHook(
+    setAppState('background')
+    const hook = renderHook(
       () => ({
         count: useUnreadNotifications(),
         api: useUnreadNotificationsApi(),
       }),
       {wrapper},
     )
+    setAppState('active')
+    return hook
   }
 
   it('clears the badge when the filtered list is empty', async () => {
@@ -200,6 +209,7 @@ describe('notification unread synchronization', () => {
     expect(result.current.count).toBe('')
     expect(result.current.api.getCachedUnreadPage()).toBeUndefined()
     expect(mockUpdateSeen).toHaveBeenCalledWith(
+      app.bsky.notification.updateSeen,
       {seenAt: expect.any(String)},
       HOME_APPVIEW_PINNED_OPTS,
     )
