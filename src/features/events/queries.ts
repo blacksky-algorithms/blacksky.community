@@ -15,6 +15,7 @@ import {useAnalytics} from '#/analytics'
 import {applyRsvp, type RsvpLogContext, rsvpMetricStatus} from './rsvp-state'
 import {mergeEventTimeline} from './timeline'
 import {
+  EVENT_COLLECTION,
   type EventView,
   RSVP_COLLECTION,
   type RsvpStatus,
@@ -267,6 +268,42 @@ export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
         viewer: {...base.viewer, rsvp: result},
       })
       markListsStale(queryClient, event.uri)
+    },
+  })
+}
+
+/**
+ * Writes the host's own event record: a new record replaces it, `null`
+ * deletes it. The result is written through to the cache, since the AppView
+ * lags the write.
+ */
+export function useEventWriteMutation(event: EventView) {
+  const agent = useAgent()
+  const queryClient = useQueryClient()
+  return useMutation<void, Error, Record<string, unknown> | null>({
+    mutationFn: async record => {
+      const {host: repo, rkey} = new AtUri(event.uri)
+      if (record) {
+        await agent.com.atproto.repo.putRecord({
+          repo,
+          collection: EVENT_COLLECTION,
+          rkey,
+          record,
+        })
+      } else {
+        await agent.com.atproto.repo.deleteRecord({
+          repo,
+          collection: EVENT_COLLECTION,
+          rkey,
+        })
+      }
+    },
+    onSuccess: (_result, record) => {
+      queryClient.setQueryData(
+        EVENT_RQKEY(event.uri),
+        record ? {...event, record} : null,
+      )
+      void queryClient.invalidateQueries({queryKey: [MY_EVENTS_RQKEY_ROOT]})
     },
   })
 }

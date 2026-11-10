@@ -16,6 +16,7 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
 import {Text} from '#/components/Typography'
+import {EventHostMenu} from '#/features/events/components/EventHostMenu'
 import {useEventQuery, useEventRsvpsQuery} from '#/features/events/queries'
 import {type ParsedEvent, parseEventRecord} from '#/features/events/record'
 import {
@@ -48,7 +49,9 @@ export function EventScreen({route}: Props) {
             <Trans>Event</Trans>
           </Layout.Header.TitleText>
         </Layout.Header.Content>
-        <Layout.Header.Slot />
+        <Layout.Header.Slot>
+          {event && parsed && <EventHostMenu event={event} parsed={parsed} />}
+        </Layout.Header.Slot>
       </Layout.Header.Outer>
       {event && parsed ? (
         <EventBody event={event} parsed={parsed} />
