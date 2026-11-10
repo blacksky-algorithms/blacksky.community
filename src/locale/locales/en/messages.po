@@ -910,7 +910,7 @@ msgstr "10+"
 msgid "10+ requests"
 msgstr "10+ requests"
 
-#: src/Navigation.tsx:504
+#: src/Navigation.tsx:508
 #: src/screens/Midterms/index.tsx:62
 msgid "2026 midterms"
 msgstr "2026 midterms"
@@ -978,7 +978,7 @@ msgstr "A selected recipient is not followed by the sender."
 msgid "A thread can only have one discussion."
 msgstr "A thread can only have one discussion."
 
-#: src/Navigation.tsx:512
+#: src/Navigation.tsx:516
 #: src/screens/Event/EventHeader.tsx:188
 #: src/screens/Settings/AboutSettings.tsx:76
 #: src/screens/Settings/Settings.tsx:258
@@ -1038,11 +1038,11 @@ msgstr "Access requested! The group owner will review your request."
 msgid "Accessibility"
 msgstr ""
 
-#: src/Navigation.tsx:419
+#: src/Navigation.tsx:423
 msgid "Accessibility Settings"
 msgstr ""
 
-#: src/Navigation.tsx:443
+#: src/Navigation.tsx:447
 #: src/screens/Login/LoginForm.tsx:247
 #: src/screens/Settings/AccountSettings.tsx:69
 #: src/screens/Settings/Settings.tsx:168
@@ -1158,7 +1158,7 @@ msgstr ""
 msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Blacksky."
 msgstr "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Blacksky."
 
-#: src/lib/hooks/useNotificationHandler.ts:216
+#: src/lib/hooks/useNotificationHandler.ts:217
 #: src/screens/Settings/NotificationSettings/index.tsx:205
 #: src/screens/Settings/NotificationSettings/index.tsx:310
 msgid "Activity from others"
@@ -1446,7 +1446,7 @@ msgstr "Agree"
 msgid "AI preferences"
 msgstr "AI preferences"
 
-#: src/Navigation.tsx:427
+#: src/Navigation.tsx:431
 msgid "AI Preferences"
 msgstr "AI Preferences"
 
@@ -1786,7 +1786,7 @@ msgstr "Anyone who has it will no longer be able to join or request to join. You
 msgid "App directory"
 msgstr "App directory"
 
-#: src/Navigation.tsx:520
+#: src/Navigation.tsx:524
 #: src/screens/Settings/AppIconSettings/index.tsx:62
 #: src/screens/Settings/AppIconSettings/SettingsListItem.tsx:19
 #: src/screens/Settings/AppIconSettings/SettingsListItem.tsx:24
@@ -1826,7 +1826,7 @@ msgstr ""
 msgid "App passwords"
 msgstr ""
 
-#: src/Navigation.tsx:387
+#: src/Navigation.tsx:391
 #: src/screens/Settings/AppPasswords.tsx:89
 #: src/screens/Settings/AppPasswords.tsx:143
 msgid "App Passwords"
@@ -1873,7 +1873,7 @@ msgstr ""
 msgid "Appeal this decision"
 msgstr ""
 
-#: src/Navigation.tsx:435
+#: src/Navigation.tsx:439
 #: src/screens/Settings/AppearanceSettings.tsx:73
 #: src/screens/Settings/Settings.tsx:228
 #: src/screens/Settings/Settings.tsx:231
@@ -2004,7 +2004,7 @@ msgstr "Automated account"
 msgid "Automation label"
 msgstr "Automation label"
 
-#: src/Navigation.tsx:451
+#: src/Navigation.tsx:455
 #: src/screens/Settings/AutomationLabelSettings.tsx:103
 msgid "Automation Label"
 msgstr "Automation Label"
@@ -2255,7 +2255,7 @@ msgstr ""
 msgid "Block user and/or leave this conversation"
 msgstr "Block user and/or leave this conversation"
 
-#: src/components/Post/Embed/index.tsx:240
+#: src/components/Post/Embed/index.tsx:241
 msgid "Blocked"
 msgstr ""
 
@@ -2263,7 +2263,7 @@ msgstr ""
 msgid "Blocked accounts"
 msgstr ""
 
-#: src/Navigation.tsx:213
+#: src/Navigation.tsx:217
 #: src/view/screens/ModerationBlockedAccounts.tsx:95
 msgid "Blocked Accounts"
 msgstr ""
@@ -2612,8 +2612,8 @@ msgstr ""
 msgid "Changes to the starter pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:133
-#: src/Navigation.tsx:538
+#: src/lib/hooks/useNotificationHandler.ts:134
+#: src/Navigation.tsx:542
 #: src/view/shell/bottom-bar/BottomBar.tsx:237
 #: src/view/shell/desktop/LeftNav.tsx:724
 #: src/view/shell/Drawer.tsx:590
@@ -2644,11 +2644,11 @@ msgstr "Chat locked"
 msgid "Chat message"
 msgstr "Chat message"
 
-#: src/lib/hooks/useNotificationHandler.ts:148
+#: src/lib/hooks/useNotificationHandler.ts:149
 msgid "Chat messages - silent"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:139
+#: src/lib/hooks/useNotificationHandler.ts:140
 msgid "Chat messages - sound"
 msgstr ""
 
@@ -2670,7 +2670,7 @@ msgstr "Chat owners cannot leave a group chat."
 msgid "Chat recipient is not followed by the sender."
 msgstr "Chat recipient is not followed by the sender."
 
-#: src/Navigation.tsx:558
+#: src/Navigation.tsx:562
 msgid "Chat request inbox"
 msgstr ""
 
@@ -2679,7 +2679,7 @@ msgid "Chat requests"
 msgstr ""
 
 #: src/components/dms/ConvoMenu.tsx:88
-#: src/Navigation.tsx:553
+#: src/Navigation.tsx:557
 #: src/screens/Messages/ChatList.tsx:525
 #: src/screens/Messages/ChatList.tsx:556
 msgid "Chat settings"
@@ -3009,7 +3009,7 @@ msgstr "Community Builder"
 msgid "Community features are temporarily unavailable. We're working on it — the rest of the app still works."
 msgstr "Community features are temporarily unavailable. We're working on it — the rest of the app still works."
 
-#: src/Navigation.tsx:377
+#: src/Navigation.tsx:381
 #: src/view/screens/CommunityGuidelines.tsx:28
 msgid "Community Guidelines"
 msgstr ""
@@ -3124,7 +3124,7 @@ msgstr ""
 msgid "Content and media"
 msgstr ""
 
-#: src/Navigation.tsx:488
+#: src/Navigation.tsx:492
 msgid "Content and Media"
 msgstr ""
 
@@ -3356,7 +3356,7 @@ msgstr ""
 msgid "Copy TXT record value"
 msgstr ""
 
-#: src/Navigation.tsx:382
+#: src/Navigation.tsx:386
 #: src/view/screens/CopyrightPolicy.tsx:25
 msgid "Copyright Policy"
 msgstr ""
@@ -3535,7 +3535,7 @@ msgstr ""
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:207
 #: src/components/StarterPack/ProfileStarterPacks.tsx:316
-#: src/Navigation.tsx:589
+#: src/Navigation.tsx:593
 msgid "Create a starter pack"
 msgstr ""
 
@@ -3839,7 +3839,7 @@ msgstr ""
 msgid "Delete this post?"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:322
+#: src/components/Post/Embed/index.tsx:323
 msgid "Deleted"
 msgstr ""
 
@@ -4361,7 +4361,7 @@ msgstr ""
 msgid "Edit moderation list"
 msgstr ""
 
-#: src/Navigation.tsx:392
+#: src/Navigation.tsx:396
 #: src/view/screens/Feeds.tsx:511
 msgid "Edit My Feeds"
 msgstr ""
@@ -4408,7 +4408,7 @@ msgstr ""
 msgid "Edit who can reply"
 msgstr ""
 
-#: src/Navigation.tsx:594
+#: src/Navigation.tsx:598
 msgid "Edit your starter pack"
 msgstr ""
 
@@ -4679,7 +4679,7 @@ msgstr ""
 msgid "Escalate post"
 msgstr "Escalate post"
 
-#: src/Navigation.tsx:193
+#: src/Navigation.tsx:197
 #: src/screens/Event/EventScreen.tsx:48
 msgid "Event"
 msgstr "Event"
@@ -4805,7 +4805,7 @@ msgstr ""
 msgid "Explicit sexual images."
 msgstr ""
 
-#: src/Navigation.tsx:803
+#: src/Navigation.tsx:807
 #: src/screens/Search/Shell.tsx:362
 #: src/view/shell/desktop/LeftNav.tsx:703
 #: src/view/shell/Drawer.tsx:538
@@ -4847,7 +4847,7 @@ msgstr ""
 msgid "External media may allow websites to collect information about you and your device. No information is sent or requested until you press the \"play\" button."
 msgstr ""
 
-#: src/Navigation.tsx:411
+#: src/Navigation.tsx:415
 #: src/screens/Settings/ExternalMediaPreferences.tsx:40
 msgid "External Media Preferences"
 msgstr ""
@@ -5170,7 +5170,7 @@ msgstr ""
 msgid "False information about elections"
 msgstr ""
 
-#: src/Navigation.tsx:312
+#: src/Navigation.tsx:316
 msgid "Feed"
 msgstr ""
 
@@ -5213,7 +5213,7 @@ msgctxt "toast"
 msgid "Feedback sent to feed operator"
 msgstr ""
 
-#: src/Navigation.tsx:574
+#: src/Navigation.tsx:578
 #: src/screens/SavedFeeds.tsx:114
 #: src/screens/SavedFeeds.tsx:306
 #: src/screens/Search/SearchResults.tsx:80
@@ -5313,8 +5313,8 @@ msgstr ""
 msgid "Find and invite friends"
 msgstr "Find and invite friends"
 
-#: src/Navigation.tsx:475
-#: src/Navigation.tsx:621
+#: src/Navigation.tsx:479
+#: src/Navigation.tsx:625
 msgid "Find Contacts"
 msgstr ""
 
@@ -5488,7 +5488,7 @@ msgid "Followers can join"
 msgstr "Followers can join"
 
 #. placeholder {0}: route.params.name
-#: src/Navigation.tsx:266
+#: src/Navigation.tsx:270
 msgid "Followers of @{0} that you know"
 msgstr ""
 
@@ -5539,7 +5539,7 @@ msgstr ""
 msgid "Following feed preferences"
 msgstr ""
 
-#: src/Navigation.tsx:398
+#: src/Navigation.tsx:402
 #: src/screens/Settings/FollowingFeedPreferences.tsx:57
 msgid "Following Feed Preferences"
 msgstr ""
@@ -5751,7 +5751,7 @@ msgstr ""
 #: src/screens/VideoFeed/components/Header.tsx:163
 #: src/screens/VideoFeed/index.tsx:1170
 #: src/screens/VideoFeed/index.tsx:1174
-#: src/view/com/auth/LoggedOut.tsx:108
+#: src/view/com/auth/LoggedOut.tsx:114
 #: src/view/com/profile/ProfileFollowers.tsx:211
 #: src/view/com/profile/ProfileFollowers.tsx:212
 #: src/view/screens/NotFound.tsx:51
@@ -5914,7 +5914,7 @@ msgctxt "toast"
 msgid "Group chat name updated"
 msgstr "Group chat name updated"
 
-#: src/Navigation.tsx:543
+#: src/Navigation.tsx:547
 #: src/screens/Messages/ConversationSettings/index.tsx:113
 msgid "Group chat settings"
 msgstr "Group chat settings"
@@ -6020,7 +6020,7 @@ msgstr ""
 msgid "Harming or endangering minors"
 msgstr ""
 
-#: src/Navigation.tsx:527
+#: src/Navigation.tsx:531
 msgid "Hashtag"
 msgstr ""
 
@@ -6218,8 +6218,8 @@ msgstr ""
 msgid "Hold up! We’re gradually giving access to video, and you’re still waiting in line. Check back soon!"
 msgstr ""
 
-#: src/Navigation.tsx:798
-#: src/Navigation.tsx:819
+#: src/Navigation.tsx:802
+#: src/Navigation.tsx:823
 #: src/view/shell/bottom-bar/BottomBar.tsx:193
 #: src/view/shell/desktop/LeftNav.tsx:693
 #: src/view/shell/Drawer.tsx:564
@@ -6642,7 +6642,7 @@ msgstr "Invited"
 msgid "Invites, but personal"
 msgstr ""
 
-#: src/Navigation.tsx:342
+#: src/Navigation.tsx:346
 msgid "iOS 26 Crash Regression"
 msgstr "iOS 26 Crash Regression"
 
@@ -6781,7 +6781,7 @@ msgstr ""
 msgid "Labels on your content"
 msgstr ""
 
-#: src/Navigation.tsx:239
+#: src/Navigation.tsx:243
 msgid "Language Settings"
 msgstr ""
 
@@ -6952,8 +6952,8 @@ msgstr ""
 msgid "Like this labeler"
 msgstr ""
 
-#: src/Navigation.tsx:317
-#: src/Navigation.tsx:322
+#: src/Navigation.tsx:321
+#: src/Navigation.tsx:326
 msgid "Liked by"
 msgstr ""
 
@@ -6977,14 +6977,14 @@ msgstr ""
 msgid "Liked by {likeCount, plural, one {# user} other {# users}}"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:160
+#: src/lib/hooks/useNotificationHandler.ts:161
 #: src/screens/Settings/NotificationSettings/index.tsx:139
 #: src/screens/Settings/NotificationSettings/index.tsx:260
 #: src/view/screens/Profile.tsx:274
 msgid "Likes"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:202
+#: src/lib/hooks/useNotificationHandler.ts:203
 #: src/screens/Settings/NotificationSettings/index.tsx:218
 #: src/screens/Settings/NotificationSettings/index.tsx:323
 msgid "Likes of your reposts"
@@ -7007,7 +7007,7 @@ msgstr "Link copied to clipboard"
 msgid "Links"
 msgstr "Links"
 
-#: src/Navigation.tsx:272
+#: src/Navigation.tsx:276
 msgid "List"
 msgstr ""
 
@@ -7093,7 +7093,7 @@ msgctxt "toast"
 msgid "List unmuted"
 msgstr ""
 
-#: src/Navigation.tsx:188
+#: src/Navigation.tsx:192
 #: src/view/screens/Lists.tsx:60
 #: src/view/screens/Profile.tsx:268
 #: src/view/screens/Profile.tsx:278
@@ -7110,7 +7110,7 @@ msgstr ""
 msgid "Lists blocking this user:"
 msgstr ""
 
-#: src/Navigation.tsx:607
+#: src/Navigation.tsx:611
 #: src/screens/StreamplaceWatch/index.tsx:56
 msgid "Live"
 msgstr "Live"
@@ -7207,7 +7207,7 @@ msgstr ""
 msgid "Loading your saved feeds…"
 msgstr "Loading your saved feeds…"
 
-#: src/components/Post/Embed/index.tsx:294
+#: src/components/Post/Embed/index.tsx:295
 #: src/view/com/composer/text-input/mobile/Autocomplete.tsx:60
 #: src/view/screens/SupportReturn.tsx:73
 msgid "Loading..."
@@ -7233,7 +7233,7 @@ msgstr "Lock this group chat"
 msgid "Locked"
 msgstr "Locked"
 
-#: src/Navigation.tsx:352
+#: src/Navigation.tsx:356
 msgid "Log"
 msgstr ""
 
@@ -7385,7 +7385,7 @@ msgstr "Members can still read chat history but can’t send new messages."
 msgid "mentioned users"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:181
+#: src/lib/hooks/useNotificationHandler.ts:182
 #: src/screens/Settings/NotificationSettings/index.tsx:172
 #: src/screens/Settings/NotificationSettings/index.tsx:285
 #: src/view/screens/Notifications.tsx:99
@@ -7459,7 +7459,7 @@ msgstr "Message is too long ({graphemeCount}/{MAX_DM_GRAPHEME_LENGTH})"
 msgid "Message options"
 msgstr ""
 
-#: src/Navigation.tsx:813
+#: src/Navigation.tsx:817
 msgid "Messages"
 msgstr ""
 
@@ -7495,7 +7495,7 @@ msgstr "Misogynoir"
 msgid "Missing media"
 msgstr ""
 
-#: src/Navigation.tsx:198
+#: src/Navigation.tsx:202
 #: src/screens/Moderation/index.tsx:100
 msgid "Moderation"
 msgstr ""
@@ -7543,7 +7543,7 @@ msgstr ""
 msgid "Moderation lists"
 msgstr ""
 
-#: src/Navigation.tsx:203
+#: src/Navigation.tsx:207
 #: src/view/screens/ModerationModlists.tsx:60
 msgid "Moderation Lists"
 msgstr ""
@@ -7552,7 +7552,7 @@ msgstr ""
 msgid "moderation settings"
 msgstr ""
 
-#: src/Navigation.tsx:332
+#: src/Navigation.tsx:336
 msgid "Moderation states"
 msgstr ""
 
@@ -7700,7 +7700,7 @@ msgstr "Muted"
 msgid "Muted accounts"
 msgstr ""
 
-#: src/Navigation.tsx:208
+#: src/Navigation.tsx:212
 #: src/view/screens/ModerationMutedAccounts.tsx:107
 msgid "Muted Accounts"
 msgstr ""
@@ -7831,7 +7831,7 @@ msgstr "New chat with {0}, {1}, and {memberCount, plural, one {{memberCount} mor
 msgid "New email address"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:195
+#: src/lib/hooks/useNotificationHandler.ts:196
 #: src/screens/Settings/NotificationSettings/index.tsx:150
 #: src/screens/Settings/NotificationSettings/index.tsx:269
 msgid "New followers"
@@ -8204,7 +8204,7 @@ msgstr "Not followed by anyone you’re following"
 msgid "Not found"
 msgstr "Not found"
 
-#: src/Navigation.tsx:183
+#: src/Navigation.tsx:187
 #: src/view/screens/Profile.tsx:149
 msgid "Not Found"
 msgstr ""
@@ -8244,8 +8244,8 @@ msgid "Nothing saved yet"
 msgstr ""
 
 #: src/components/dialogs/NotificationSettingsDialog.tsx:64
-#: src/Navigation.tsx:482
-#: src/Navigation.tsx:569
+#: src/Navigation.tsx:486
+#: src/Navigation.tsx:573
 #: src/view/screens/Notifications.tsx:134
 msgid "Notification settings"
 msgstr ""
@@ -8255,8 +8255,8 @@ msgstr ""
 msgid "Notification sounds"
 msgstr ""
 
-#: src/Navigation.tsx:564
-#: src/Navigation.tsx:808
+#: src/Navigation.tsx:568
+#: src/Navigation.tsx:812
 #: src/screens/Notifications/ActivityList.tsx:31
 #: src/screens/Settings/NotificationSettings/index.tsx:105
 #: src/screens/Settings/Settings.tsx:200
@@ -8514,7 +8514,7 @@ msgstr "Open group chat"
 msgid "Open group chat settings"
 msgstr "Open group chat settings"
 
-#: src/components/Post/Embed/ExternalEmbed/index.tsx:124
+#: src/components/Post/Embed/ExternalEmbed/index.tsx:127
 #: src/components/Post/Embed/StandardSiteEmbed/index.tsx:147
 msgid "Open link to {niceUrl}"
 msgstr ""
@@ -8695,15 +8695,15 @@ msgstr ""
 msgid "Opens profile"
 msgstr "Opens profile"
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:611
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:624
 msgid "Opens the discussion page"
 msgstr "Opens the discussion page"
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:395
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:408
 msgid "Opens the discussion page to sign in and vote"
 msgstr "Opens the discussion page to sign in and vote"
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:601
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:614
 msgid "Opens the discussion results page"
 msgstr "Opens the discussion results page"
 
@@ -8830,7 +8830,7 @@ msgstr "Party GIFs"
 msgid "Pass"
 msgstr "Pass"
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:530
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:543
 msgid "Pass / Unsure"
 msgstr "Pass / Unsure"
 
@@ -8910,12 +8910,12 @@ msgid "People {ownerName} follows can request to join"
 msgstr "People {ownerName} follows can request to join"
 
 #. placeholder {0}: route.params.name
-#: src/Navigation.tsx:259
+#: src/Navigation.tsx:263
 msgid "People followed by @{0}"
 msgstr ""
 
 #. placeholder {0}: route.params.name
-#: src/Navigation.tsx:252
+#: src/Navigation.tsx:256
 msgid "People following @{0}"
 msgstr ""
 
@@ -9279,10 +9279,10 @@ msgid "Post blocked"
 msgstr ""
 
 #. placeholder {0}: route.params.name
-#: src/Navigation.tsx:285
-#: src/Navigation.tsx:292
-#: src/Navigation.tsx:299
-#: src/Navigation.tsx:306
+#: src/Navigation.tsx:289
+#: src/Navigation.tsx:296
+#: src/Navigation.tsx:303
+#: src/Navigation.tsx:310
 msgid "Post by @{0}"
 msgstr ""
 
@@ -9321,7 +9321,7 @@ msgstr ""
 msgid "Post interaction settings"
 msgstr ""
 
-#: src/Navigation.tsx:219
+#: src/Navigation.tsx:223
 #: src/screens/ModerationInteractionSettings/index.tsx:35
 msgid "Post Interaction Settings"
 msgstr ""
@@ -9436,8 +9436,8 @@ msgstr ""
 msgid "Privacy and security"
 msgstr ""
 
-#: src/Navigation.tsx:459
-#: src/Navigation.tsx:467
+#: src/Navigation.tsx:463
+#: src/Navigation.tsx:471
 #: src/screens/Settings/ActivityPrivacySettings.tsx:41
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:51
 msgid "Privacy and Security"
@@ -9447,7 +9447,7 @@ msgstr ""
 msgid "Privacy and Security settings"
 msgstr ""
 
-#: src/Navigation.tsx:367
+#: src/Navigation.tsx:371
 #: src/screens/Settings/AboutSettings.tsx:93
 #: src/screens/Settings/AboutSettings.tsx:96
 #: src/view/screens/PrivacyPolicy.tsx:25
@@ -9593,7 +9593,7 @@ msgstr ""
 msgid "Quote posts disabled"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:188
+#: src/lib/hooks/useNotificationHandler.ts:189
 #: src/screens/Post/PostQuotes.tsx:56
 #: src/screens/Settings/NotificationSettings/index.tsx:183
 #: src/screens/Settings/NotificationSettings/index.tsx:292
@@ -9932,11 +9932,11 @@ msgstr ""
 msgid "Remove your verification for this account?"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:268
+#: src/components/Post/Embed/index.tsx:269
 msgid "Removed by author"
 msgstr ""
 
-#: src/components/Post/Embed/index.tsx:266
+#: src/components/Post/Embed/index.tsx:267
 msgid "Removed by you"
 msgstr ""
 
@@ -10019,7 +10019,7 @@ msgstr "Replied-to message, tap to scroll to it"
 
 #: src/components/activity-notifications/SubscribeProfileDialog.tsx:278
 #: src/components/activity-notifications/SubscribeProfileDialog.tsx:290
-#: src/lib/hooks/useNotificationHandler.ts:174
+#: src/lib/hooks/useNotificationHandler.ts:175
 #: src/screens/Settings/NotificationSettings/index.tsx:161
 #: src/screens/Settings/NotificationSettings/index.tsx:276
 #: src/view/screens/Profile.tsx:271
@@ -10208,7 +10208,7 @@ msgstr ""
 msgid "Reposted by you"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:167
+#: src/lib/hooks/useNotificationHandler.ts:168
 #: src/screens/Settings/NotificationSettings/index.tsx:194
 #: src/screens/Settings/NotificationSettings/index.tsx:301
 msgid "Reposts"
@@ -10225,7 +10225,7 @@ msgstr "Reposts disabled"
 msgid "Reposts of this post"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:209
+#: src/lib/hooks/useNotificationHandler.ts:210
 #: src/screens/Settings/NotificationSettings/index.tsx:231
 #: src/screens/Settings/NotificationSettings/index.tsx:332
 msgid "Reposts of your reposts"
@@ -10262,7 +10262,7 @@ msgstr "Requested"
 msgid "Requests"
 msgstr "Requests"
 
-#: src/Navigation.tsx:548
+#: src/Navigation.tsx:552
 #: src/screens/Messages/JoinRequests.tsx:415
 msgid "Requests to join"
 msgstr "Requests to join"
@@ -10515,7 +10515,7 @@ msgstr ""
 msgid "Saved Feeds"
 msgstr ""
 
-#: src/Navigation.tsx:613
+#: src/Navigation.tsx:617
 #: src/screens/Bookmarks/index.tsx:59
 msgid "Saved Posts"
 msgstr ""
@@ -10546,7 +10546,7 @@ msgstr "Scan"
 
 #: src/features/inviteFriends/InviteScannerScreen.tsx:83
 #: src/features/inviteFriends/InviteScannerScreen.web.tsx:23
-#: src/Navigation.tsx:337
+#: src/Navigation.tsx:341
 msgid "Scan QR code"
 msgstr "Scan QR code"
 
@@ -10581,7 +10581,7 @@ msgstr ""
 
 #. placeholder {0}: profile.handle
 #. placeholder {0}: route.params.name
-#: src/Navigation.tsx:278
+#: src/Navigation.tsx:282
 #: src/screens/Profile/ProfileSearch.tsx:37
 msgid "Search @{0}'s posts"
 msgstr ""
@@ -10713,8 +10713,8 @@ msgstr ""
 msgid "See more suggested profiles"
 msgstr ""
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:600
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:603
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:613
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:616
 msgid "See results"
 msgstr "See results"
 
@@ -11032,7 +11032,7 @@ msgstr ""
 msgid "Sets email for password reset"
 msgstr ""
 
-#: src/Navigation.tsx:234
+#: src/Navigation.tsx:238
 #: src/screens/Settings/Settings.tsx:95
 #: src/view/shell/desktop/LeftNav.tsx:779
 #: src/view/shell/Drawer.tsx:733
@@ -11186,7 +11186,7 @@ msgstr ""
 msgid "Share your contacts to find friends"
 msgstr ""
 
-#: src/Navigation.tsx:347
+#: src/Navigation.tsx:351
 msgid "Shared Preferences Tester"
 msgstr ""
 
@@ -11424,8 +11424,8 @@ msgstr "Sign in to request access to this group chat."
 msgid "Sign in to view post"
 msgstr ""
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:394
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:397
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:407
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:410
 msgid "Sign in to vote"
 msgstr "Sign in to vote"
 
@@ -11465,7 +11465,7 @@ msgstr ""
 msgid "Signed in as @{0}"
 msgstr ""
 
-#: src/Navigation.tsx:178
+#: src/Navigation.tsx:182
 msgid "Signing in..."
 msgstr "Signing in..."
 
@@ -11691,8 +11691,8 @@ msgstr "Start chat"
 msgid "Start chat with {displayName}"
 msgstr ""
 
-#: src/Navigation.tsx:579
-#: src/Navigation.tsx:584
+#: src/Navigation.tsx:583
+#: src/Navigation.tsx:588
 #: src/screens/StarterPack/Wizard/index.tsx:197
 msgid "Starter Pack"
 msgstr ""
@@ -11772,7 +11772,7 @@ msgstr ""
 msgid "Stored as part of a secure code for matching with others"
 msgstr ""
 
-#: src/Navigation.tsx:327
+#: src/Navigation.tsx:331
 #: src/screens/Settings/Settings.tsx:466
 msgid "Storybook"
 msgstr ""
@@ -11796,11 +11796,11 @@ msgstr "Streamplace media is turned off. Turn it on in Settings → Content and 
 msgid "Submit"
 msgstr ""
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:610
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:623
 msgid "Submit a statement"
 msgstr "Submit a statement"
 
-#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:613
+#: src/components/Post/Embed/ExternalEmbed/AssemblyEmbed.tsx:626
 msgid "Submit a statement →"
 msgstr "Submit a statement →"
 
@@ -11890,8 +11890,8 @@ msgstr ""
 msgid "Suggestive content meant for adults."
 msgstr "Suggestive content meant for adults."
 
-#: src/Navigation.tsx:357
-#: src/Navigation.tsx:362
+#: src/Navigation.tsx:361
+#: src/Navigation.tsx:366
 #: src/view/screens/Support.tsx:31
 #: src/view/screens/SupportReturn.tsx:64
 #: src/view/shell/desktop/LeftNav.tsx:789
@@ -12101,7 +12101,7 @@ msgid "Terms"
 msgstr ""
 
 #: src/components/dialogs/BirthDateSettings.tsx:181
-#: src/Navigation.tsx:372
+#: src/Navigation.tsx:376
 #: src/screens/Settings/AboutSettings.tsx:85
 #: src/screens/Settings/AboutSettings.tsx:88
 #: src/view/screens/TermsOfService.tsx:25
@@ -12880,7 +12880,7 @@ msgstr ""
 msgid "Threaded"
 msgstr ""
 
-#: src/Navigation.tsx:405
+#: src/Navigation.tsx:409
 msgid "Threads Preferences"
 msgstr ""
 
@@ -12949,7 +12949,7 @@ msgstr ""
 msgid "Top replies first"
 msgstr ""
 
-#: src/Navigation.tsx:532
+#: src/Navigation.tsx:536
 #: src/screens/Topic.tsx:53
 msgid "Topic"
 msgstr ""
@@ -13076,7 +13076,7 @@ msgstr ""
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
 
-#: src/screens/Signup/index.tsx:138
+#: src/screens/Signup/index.tsx:142
 msgid "Unable to contact your service. Please try again shortly."
 msgstr "Unable to contact your service. Please try again shortly."
 
@@ -13604,7 +13604,7 @@ msgstr ""
 msgid "Verification settings"
 msgstr ""
 
-#: src/Navigation.tsx:227
+#: src/Navigation.tsx:231
 #: src/screens/Moderation/VerificationSettings.tsx:29
 msgid "Verification Settings"
 msgstr ""
@@ -13685,7 +13685,7 @@ msgstr ""
 msgid "Video failed to process"
 msgstr ""
 
-#: src/Navigation.tsx:600
+#: src/Navigation.tsx:604
 msgid "Video Feed"
 msgstr ""
 
@@ -14408,7 +14408,7 @@ msgstr ""
 msgid "You can always opt out and delete your data"
 msgstr ""
 
-#: src/lib/hooks/useNotificationHandler.ts:135
+#: src/lib/hooks/useNotificationHandler.ts:136
 msgid "You can choose whether chat notifications have sound in the chat settings within the app"
 msgstr ""
 
@@ -14730,11 +14730,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:201
+#: src/screens/Signup/index.tsx:205
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:206
+#: src/screens/Signup/index.tsx:210
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -14933,7 +14933,7 @@ msgstr ""
 msgid "Your full handle will be <0>@{0}</0>"
 msgstr ""
 
-#: src/Navigation.tsx:496
+#: src/Navigation.tsx:500
 #: src/screens/Search/modules/ExploreInterestsCard.tsx:68
 #: src/screens/Settings/ContentAndMediaSettings.tsx:94
 #: src/screens/Settings/ContentAndMediaSettings.tsx:97
@@ -15018,7 +15018,7 @@ msgstr ""
 msgid "Your selected interests help us serve you content you care about."
 msgstr ""
 
-#: src/screens/Signup/index.tsx:136
+#: src/screens/Signup/index.tsx:140
 msgid "Your service is receiving too many requests. Please wait a few minutes and try again."
 msgstr "Your service is receiving too many requests. Please wait a few minutes and try again."
 
