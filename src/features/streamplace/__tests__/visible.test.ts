@@ -1,5 +1,5 @@
-import {type ModerationOpts} from '@atproto/api'
 
+import {type ModerationOpts} from '@bsky/sdk/moderation'
 import {visibleMessages} from '../visible'
 
 jest.mock('@atproto/api', () => ({

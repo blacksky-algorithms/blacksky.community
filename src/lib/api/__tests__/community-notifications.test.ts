@@ -1,9 +1,3 @@
-import {
-  type AppBskyNotificationGetUnreadCount,
-  type AppBskyNotificationListNotifications,
-  type AtpAgent,
-  lexicons,
-} from '@atproto/api'
 
 jest.mock('@atproto/api', () => ({
   ...jest.requireActual('@atproto/api'),
@@ -19,6 +13,8 @@ jest.mock('multiformats/cid', () => ({
   },
 }))
 
+import {type Client} from '@atproto/lex'
+import {type app} from '#/lexicons'
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {
   type CommunityNotificationXrpcError,
@@ -62,14 +58,14 @@ function listBody(uri = PRIVATE_URI) {
 function mockAgent() {
   const fetchHandler = jest.fn<Promise<Response>, [string, RequestInit]>()
   const standardList = jest.fn<
-    Promise<{data: AppBskyNotificationListNotifications.OutputSchema}>,
-    [AppBskyNotificationListNotifications.QueryParams, unknown]
+    Promise<{data: app.bsky.notification.listNotifications.$OutputBody}>,
+    [app.bsky.notification.listNotifications.$Params, unknown]
   >()
   const standardCount = jest.fn<
-    Promise<{data: AppBskyNotificationGetUnreadCount.OutputSchema}>,
-    [AppBskyNotificationGetUnreadCount.QueryParams, unknown]
+    Promise<{data: app.bsky.notification.getUnreadCount.$OutputBody}>,
+    [app.bsky.notification.getUnreadCount.$Params, unknown]
   >()
-  const agent = {
+  const client = {
     fetchHandler,
     app: {
       bsky: {
@@ -80,12 +76,12 @@ function mockAgent() {
       },
     },
   } as unknown as AtpAgent
-  return {agent, fetchHandler, standardList, standardCount}
+  return {client, fetchHandler, standardList, standardCount}
 }
 
 describe('community notification API', () => {
   it('accepts private notification output rejected by the standard catalog', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     const body = listBody()
     fetchHandler.mockResolvedValue(new Response(JSON.stringify(body)))
 
@@ -96,7 +92,7 @@ describe('community notification API', () => {
       ),
     ).toThrow()
     await expect(
-      listNotifications(agent, {limit: 30, reasons: ['mention']}),
+      listNotifications(client, {limit: 30, reasons: ['mention']}),
     ).resolves.toEqual(body)
     expect(fetchHandler).toHaveBeenCalledWith(
       expect.stringContaining(`/xrpc/${LIST_NOTIFICATIONS_METHOD}?`),
@@ -105,7 +101,7 @@ describe('community notification API', () => {
   })
 
   it('keeps public notification output compatible', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     const body = listBody(PUBLIC_URI)
     fetchHandler.mockResolvedValue(new Response(JSON.stringify(body)))
 
@@ -115,20 +111,20 @@ describe('community notification API', () => {
         body,
       ),
     ).not.toThrow()
-    await expect(listNotifications(agent, {})).resolves.toEqual(body)
+    await expect(listNotifications(client, {})).resolves.toEqual(body)
   })
 
   it('rejects malformed successful output before returning it', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(JSON.stringify({notifications: [{uri: PRIVATE_URI}]})),
     )
 
-    await expect(listNotifications(agent, {})).rejects.toThrow()
+    await expect(listNotifications(client, {})).rejects.toThrow()
   })
 
   it('falls back only for a 501 MethodNotImplemented response', async () => {
-    const {agent, fetchHandler, standardList, standardCount} = mockAgent()
+    const {client, fetchHandler, standardList, standardCount} = mockAgent()
     fetchHandler
       .mockResolvedValueOnce(
         new Response(JSON.stringify({error: 'MethodNotImplemented'}), {
@@ -145,10 +141,10 @@ describe('community notification API', () => {
     })
     standardCount.mockResolvedValue({data: {count: 4}})
 
-    await expect(listNotifications(agent, {limit: 20})).resolves.toEqual(
+    await expect(listNotifications(client, {limit: 20})).resolves.toEqual(
       listBody(PUBLIC_URI),
     )
-    await expect(getUnreadCount(agent, {priority: true})).resolves.toEqual({
+    await expect(getUnreadCount(client, {priority: true})).resolves.toEqual({
       count: 4,
     })
     expect(standardList).toHaveBeenCalledWith(
@@ -168,12 +164,12 @@ describe('community notification API', () => {
     [403, 'Forbidden'],
     [503, 'UpstreamFailure'],
   ])('does not fall back for status %s and error %s', async (status, error) => {
-    const {agent, fetchHandler, standardList} = mockAgent()
+    const {client, fetchHandler, standardList} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(JSON.stringify(error ? {error} : {}), {status}),
     )
 
-    await expect(listNotifications(agent, {})).rejects.toEqual(
+    await expect(listNotifications(client, {})).rejects.toEqual(
       expect.objectContaining<Partial<CommunityNotificationXrpcError>>({
         status,
         error,
@@ -183,19 +179,19 @@ describe('community notification API', () => {
   })
 
   it('surfaces transport failures without fallback', async () => {
-    const {agent, fetchHandler, standardList} = mockAgent()
+    const {client, fetchHandler, standardList} = mockAgent()
     const error = new Error('offline')
     fetchHandler.mockRejectedValue(error)
 
-    await expect(listNotifications(agent, {})).rejects.toBe(error)
+    await expect(listNotifications(client, {})).rejects.toBe(error)
     expect(standardList).not.toHaveBeenCalled()
   })
 
   it('validates and returns the custom unread count', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(new Response(JSON.stringify({count: 8})))
 
-    await expect(getUnreadCount(agent)).resolves.toEqual({count: 8})
+    await expect(getUnreadCount(client)).resolves.toEqual({count: 8})
     expect(fetchHandler).toHaveBeenCalledWith(
       `/xrpc/${GET_UNREAD_COUNT_METHOD}`,
       expect.objectContaining({method: 'GET'}),

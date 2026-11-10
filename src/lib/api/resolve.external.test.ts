@@ -141,7 +141,7 @@ test('external metadata without an image still records a real preview attempt', 
 })
 
 test.each(['network', 'metadata response'])(
-  '%s errors skip thumbnails and still finish the preview span',
+  '%s errors reject, skip thumbnails and still finish the preview span',
   async failure => {
     if (failure === 'network') {
       jest.mocked(fetch).mockRejectedValue(new Error('offline'))
@@ -152,15 +152,8 @@ test.each(['network', 'metadata response'])(
     }
     jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    const result = await resolveLink({} as LinkResolvers, targetUrl)
+    await expect(resolveLink({} as LinkResolvers, targetUrl)).rejects.toThrow()
 
-    expect(result).toMatchObject({
-      type: 'external',
-      uri: targetUrl,
-      title: '',
-      description: '',
-      thumb: undefined,
-    })
     expect(mockDownloadAndResize).not.toHaveBeenCalled()
     expect(Sentry.startInactiveSpan).toHaveBeenCalledTimes(2)
     expect(mockPreviewSpan.setAttribute.mock.calls).toEqual([
@@ -206,10 +199,18 @@ test.each(['download', 'empty download', 'processing'])(
   },
 )
 
+test('an invalid link rejects without a metadata request or preview spans', async () => {
+  await expect(resolveLink({} as LinkResolvers, 'not a URL')).rejects.toThrow(
+    'Invalid URL',
+  )
+  expect(fetch).not.toHaveBeenCalled()
+  expect(mockDownloadAndResize).not.toHaveBeenCalled()
+  expect(Sentry.startInactiveSpan).not.toHaveBeenCalled()
+})
+
 test.each([
   'https://images.example/photo.jpg',
   'https://bsky.app/profile/example.test',
-  'not a URL',
 ])('skipped metadata for %s creates no preview spans', async uri => {
   const result = await resolveLink({} as LinkResolvers, uri)
 

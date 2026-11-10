@@ -1,4 +1,5 @@
-import {type BskyAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type com} from '#/lexicons'
 import {describe, expect, it} from '@jest/globals'
 
 import {
@@ -35,7 +36,7 @@ function agentWith(
   const calls: Call[] = []
   const responses = Array.isArray(response) ? response : [response]
   let responseIndex = 0
-  const agent = {
+  const client = {
     ...(signedIn ? {session: {did: 'did:plc:me'}} : {}),
     fetchHandler(path: string, init: RequestInit) {
       const current = responses[Math.min(responseIndex++, responses.length - 1)]
@@ -56,7 +57,7 @@ function agentWith(
       } as unknown as Response)
     },
   } as unknown as BskyAgent
-  return {agent, calls}
+  return {client, calls}
 }
 
 const bodyOf = (call: Call): Record<string, unknown> =>
@@ -64,8 +65,8 @@ const bodyOf = (call: Call): Record<string, unknown> =>
 
 describe('space writes', () => {
   it('posts to the account’s own pds without a proxy header', async () => {
-    const {agent, calls} = agentWith()
-    await spaceCreateRecord(agent, SPACE, POST_COLLECTION, {
+    const {client, calls} = agentWith()
+    await spaceCreateRecord(client, SPACE, POST_COLLECTION, {
       $type: POST_COLLECTION,
       text: 'hello',
     })
@@ -85,11 +86,11 @@ describe('space writes', () => {
   })
 
   it('uses an explicit stable rkey or generates a protocol key', async () => {
-    const {agent, calls} = agentWith()
-    await spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}, '3kxyz')
+    const {client, calls} = agentWith()
+    await spaceCreateRecord(client, SPACE, POST_COLLECTION, {}, '3kxyz')
     expect(bodyOf(calls[0]).rkey).toBe('3kxyz')
 
-    await spaceCreateRecord(agent, SPACE, POST_COLLECTION, {})
+    await spaceCreateRecord(client, SPACE, POST_COLLECTION, {})
     expect(bodyOf(calls[1]).rkey).toEqual(expect.any(String))
   })
 
@@ -100,21 +101,21 @@ describe('space writes', () => {
       createdAt: '2026-08-26T12:00:00.000Z',
     }
     const original = {uri: 'at://space/original', cid: 'bafyreioriginal'}
-    const {agent, calls} = agentWith([
+    const {client, calls} = agentWith([
       {body: original},
       {status: 400, body: {error: 'RecordExists'}},
       {body: {...original, value: record}},
     ])
 
     const first = await spaceCreateRecord(
-      agent,
+      client,
       SPACE,
       POST_COLLECTION,
       {...record, createdAt: '2026-08-26T12:00:01.000Z'},
       '3mstablekey',
     )
     const retry = await spaceCreateRecord(
-      agent,
+      client,
       SPACE,
       POST_COLLECTION,
       record,
@@ -136,8 +137,8 @@ describe('space writes', () => {
   })
 
   it('writes a like into the permissioned repo, never the public one', async () => {
-    const {agent, calls} = agentWith()
-    await spaceLike(agent, SPACE, SUBJECT)
+    const {client, calls} = agentWith()
+    await spaceLike(client, SPACE, SUBJECT)
 
     // The one thing that must never happen: com.atproto.repo.createRecord with
     // a space-uri subject, which would publish that the private post exists.
@@ -151,9 +152,9 @@ describe('space writes', () => {
   })
 
   it('unlikes by the rkey of the like record', async () => {
-    const {agent, calls} = agentWith({body: {}})
+    const {client, calls} = agentWith({body: {}})
     await spaceUnlike(
-      agent,
+      client,
       SPACE,
       `${SPACE}/did:plc:me/${LIKE_COLLECTION}/3klike`,
     )
@@ -168,48 +169,48 @@ describe('space writes', () => {
   })
 
   it('deletes one of the caller’s own records', async () => {
-    const {agent, calls} = agentWith({body: {}})
-    await spaceDeleteRecord(agent, SPACE, POST_COLLECTION, '3kpost')
+    const {client, calls} = agentWith({body: {}})
+    await spaceDeleteRecord(client, SPACE, POST_COLLECTION, '3kpost')
     expect(bodyOf(calls[0]).rkey).toBe('3kpost')
     expect(bodyOf(calls[0]).repo).toBe('did:plc:me')
   })
 
-  it('fails before issuing a request when the agent is signed out', async () => {
-    const {agent, calls} = agentWith({}, false)
+  it('fails before issuing a request when the client is signed out', async () => {
+    const {client, calls} = agentWith({}, false)
 
     await expect(
-      spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
+      spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
     ).rejects.toThrow(/sign in/i)
     await expect(
-      spaceDeleteRecord(agent, SPACE, POST_COLLECTION, '3kpost'),
+      spaceDeleteRecord(client, SPACE, POST_COLLECTION, '3kpost'),
     ).rejects.toThrow(/sign in/i)
     expect(calls).toHaveLength(0)
   })
 
   it('reads a 404 as “this pds has no space support”', async () => {
-    const {agent} = agentWith({status: 404})
+    const {client} = agentWith({status: 404})
     // A PDS that never heard of the method answers 404 rather than an XRPC
     // error; that is how a foreign-PDS account is recognised so the UI can
     // offer migration instead of a generic failure.
     await expect(
-      spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
+      spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
     ).rejects.toBeInstanceOf(SpaceUnsupportedError)
   })
 
   it('surfaces the host’s own message on other failures', async () => {
-    const {agent} = agentWith({
+    const {client} = agentWith({
       status: 429,
       body: {error: 'RateLimitExceeded', message: 'records quota exceeded'},
     })
     await expect(
-      spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
+      spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
     ).rejects.toThrow('records quota exceeded')
   })
 
   it('refuses a response that names no record', async () => {
-    const {agent} = agentWith({body: {cid: 'bafyreinew'}})
+    const {client} = agentWith({body: {cid: 'bafyreinew'}})
     await expect(
-      spaceCreateRecord(agent, SPACE, POST_COLLECTION, {}),
+      spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
     ).rejects.toThrow(/no record reference/)
   })
 })
@@ -219,9 +220,9 @@ const PUBLIC_LIKE = 'at://did:plc:alice/app.bsky.feed.like/3klike'
 
 describe('interaction routing', () => {
   it('likes a space post into its own space', async () => {
-    const {agent, calls} = agentWith()
+    const {client, calls} = agentWith()
 
-    await spaceLikeIfSpace(agent, SUBJECT.uri, SUBJECT.cid)
+    await spaceLikeIfSpace(client, SUBJECT.uri, SUBJECT.cid)
 
     // The leak this prevents: a like in the public repo whose subject is a
     // space URI announces that the private post exists.
@@ -233,14 +234,14 @@ describe('interaction routing', () => {
   })
 
   it('unlikes and deletes within the space the record belongs to', async () => {
-    const {agent, calls} = agentWith({body: {}})
+    const {client, calls} = agentWith({body: {}})
 
     await spaceUnlikeIfSpace(
-      agent,
+      client,
       `${SPACE}/did:plc:alice/${LIKE_COLLECTION}/3klike`,
     )
     await spaceDeleteIfSpace(
-      agent,
+      client,
       `${SPACE}/did:plc:alice/${POST_COLLECTION}/3kpost`,
     )
 
@@ -261,14 +262,14 @@ describe('interaction routing', () => {
   })
 
   it.each([
-    ['like', (a: BskyAgent) => spaceLikeIfSpace(a, PUBLIC_POST, 'bafy')],
-    ['unlike', (a: BskyAgent) => spaceUnlikeIfSpace(a, PUBLIC_LIKE)],
-    ['delete', (a: BskyAgent) => spaceDeleteIfSpace(a, PUBLIC_POST)],
+    ['like', (a: Client) => spaceLikeIfSpace(a, PUBLIC_POST, 'bafy')],
+    ['unlike', (a: Client) => spaceUnlikeIfSpace(a, PUBLIC_LIKE)],
+    ['delete', (a: Client) => spaceDeleteIfSpace(a, PUBLIC_POST)],
   ])('leaves a public %s to the public repo', (_name, run) => {
-    const {agent, calls} = agentWith()
+    const {client, calls} = agentWith()
 
-    // null means "not mine" — the caller falls back to the ordinary agent call.
-    expect(run(agent)).toBeNull()
+    // null means "not mine" — the caller falls back to the ordinary client call.
+    expect(run(client)).toBeNull()
     expect(calls).toHaveLength(0)
   })
 })

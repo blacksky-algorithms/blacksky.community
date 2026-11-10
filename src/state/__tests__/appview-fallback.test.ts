@@ -1,4 +1,4 @@
-import {type BskyAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {
@@ -25,15 +25,15 @@ function mocks() {
 
 describe('appview fallback state', () => {
   afterEach(() => {
-    const {agent, queryClient} = mocks()
-    setFallbackActive(false, agent, queryClient)
+    const {client, queryClient} = mocks()
+    setFallbackActive(false, client, queryClient)
     BLUESKY_PROXY_HEADER.set(HOME_PROXY_HEADER)
   })
 
-  it('activating flips the global header, live agent, and resets the cache', () => {
-    const {agent, queryClient, configureProxy, resetQueries} = mocks()
+  it('activating flips the global header, live client, and resets the cache', () => {
+    const {client, queryClient, configureProxy, resetQueries} = mocks()
 
-    setFallbackActive(true, agent, queryClient)
+    setFallbackActive(true, client, queryClient)
 
     expect(isFallbackActive()).toBe(true)
     expect(BLUESKY_PROXY_HEADER.get()).toBe(BLUESKY_FALLBACK_PROXY_HEADER)
@@ -53,16 +53,16 @@ describe('appview fallback state', () => {
     expect(second.configureProxy).toHaveBeenCalledWith(HOME_PROXY_HEADER)
   })
 
-  it('setting the same value skips the reset but still aligns the agent', () => {
-    const {agent, queryClient, configureProxy, resetQueries} = mocks()
+  it('setting the same value skips the reset but still aligns the client', () => {
+    const {client, queryClient, configureProxy, resetQueries} = mocks()
 
-    setFallbackActive(false, agent, queryClient)
+    setFallbackActive(false, client, queryClient)
 
     expect(configureProxy).toHaveBeenCalledWith(HOME_PROXY_HEADER)
     expect(resetQueries).not.toHaveBeenCalled()
   })
 
-  it('a fresh agent passed after activation gets the fallback header', () => {
+  it('a fresh client passed after activation gets the fallback header', () => {
     const first = mocks()
     setFallbackActive(true, first.agent, first.queryClient)
 
@@ -76,15 +76,15 @@ describe('appview fallback state', () => {
   })
 
   it('notifies subscribers on change and stops after unsubscribe', () => {
-    const {agent, queryClient} = mocks()
+    const {client, queryClient} = mocks()
     const fn = jest.fn()
     const unsub = subscribe(fn)
 
-    setFallbackActive(true, agent, queryClient)
+    setFallbackActive(true, client, queryClient)
     expect(fn).toHaveBeenCalledTimes(1)
 
     unsub()
-    setFallbackActive(false, agent, queryClient)
+    setFallbackActive(false, client, queryClient)
     expect(fn).toHaveBeenCalledTimes(1)
   })
 })

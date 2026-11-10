@@ -1,14 +1,6 @@
-import {
-  type AppBskyFeedDefs,
-  type AppBskyLabelerDefs,
-  type ComAtprotoLabelDefs,
-  interpretLabelValueDefinitions,
-  type LabelPreference,
-  LABELS,
-  moderatePost,
-  type ModerationOpts,
-} from '@atproto/api'
 
+import {LABELS, interpretLabelValueDefinitions, moderatePost, type LabelPreference, type ModerationOpts} from '@bsky/sdk/moderation'
+import {type app, type com} from '#/lexicons'
 import {
   configureAdultContentLabelDefs,
   withAdultContentBehavior,
@@ -35,7 +27,7 @@ const CONTEXTS = [
   'profileView',
 ] as const
 
-const label = (val: string, src: string): ComAtprotoLabelDefs.Label => ({
+const label = (val: string, src: string): com.atproto.label.defs.Label => ({
   src,
   uri: URI,
   cid: CID,
@@ -47,9 +39,9 @@ const textPost = ({
   postLabels = [],
   authorLabels = [],
 }: {
-  postLabels?: ComAtprotoLabelDefs.Label[]
-  authorLabels?: ComAtprotoLabelDefs.Label[]
-}): AppBskyFeedDefs.PostView => ({
+  postLabels?: com.atproto.label.defs.Label[]
+  authorLabels?: com.atproto.label.defs.Label[]
+}): app.bsky.feed.defs.PostView => ({
   $type: 'app.bsky.feed.defs#postView',
   uri: URI,
   cid: CID,
@@ -66,8 +58,8 @@ const textPost = ({
 
 const labelerView = (
   did: string,
-  defs: Array<Partial<ComAtprotoLabelDefs.LabelValueDefinition>>,
-): AppBskyLabelerDefs.LabelerViewDetailed => ({
+  defs: Array<Partial<com.atproto.label.defs.LabelValueDefinition>>,
+): app.bsky.labeler.defs.LabelerViewDetailed => ({
   $type: 'app.bsky.labeler.defs#labelerViewDetailed',
   uri: `at://${did}/app.bsky.labeler.service/self`,
   cid: 'bafyreilabeler',
@@ -79,7 +71,7 @@ const labelerView = (
       blurs: 'media',
       locales: [],
       ...d,
-    })) as ComAtprotoLabelDefs.LabelValueDefinition[],
+    })) as com.atproto.label.defs.LabelValueDefinition[],
   },
   indexedAt: AT,
 })
@@ -105,7 +97,7 @@ const opts = ({
 })
 
 const uiSummary = (
-  post: AppBskyFeedDefs.PostView,
+  post: app.bsky.feed.defs.PostView,
   moderationOpts: ModerationOpts,
 ) => {
   const mod = moderatePost(post, moderationOpts)

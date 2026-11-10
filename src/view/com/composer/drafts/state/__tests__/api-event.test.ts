@@ -1,5 +1,6 @@
-import {type AppBskyDraftDefs, RichText} from '@atproto/api'
 
+import {RichText} from '@bsky/sdk/richtext'
+import {type app} from '#/lexicons'
 import {
   type ComposerState,
   type PostDraft,
@@ -49,12 +50,12 @@ const event: EventDraft = {
   endsAt: '2027-01-15T03:00:00.000Z',
 }
 
-function savedEvent(draft: AppBskyDraftDefs.Draft, index = 0): unknown {
+function savedEvent(draft: app.bsky.draft.defs.Draft, index = 0): unknown {
   return (draft.posts[index] as unknown as Record<string, unknown>)[EVENT_KEY]
 }
 
-function asStored(draft: AppBskyDraftDefs.Draft): AppBskyDraftDefs.Draft {
-  return JSON.parse(JSON.stringify(draft)) as AppBskyDraftDefs.Draft
+function asStored(draft: app.bsky.draft.defs.Draft): app.bsky.draft.defs.Draft {
+  return JSON.parse(JSON.stringify(draft)) as app.bsky.draft.defs.Draft
 }
 
 function post(embed: Partial<PostDraft['embed']>, text = ''): PostDraft {
@@ -81,7 +82,7 @@ function state(posts: PostDraft[]): ComposerState {
   }
 }
 
-function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
+function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPost {
   return {
     $type: 'app.bsky.draft.defs#draftPost',
     text: 'hello',
@@ -89,7 +90,7 @@ function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
   }
 }
 
-function draftOf(posts: AppBskyDraftDefs.DraftPost[]): AppBskyDraftDefs.Draft {
+function draftOf(posts: app.bsky.draft.defs.DraftPost[]): app.bsky.draft.defs.Draft {
   return {$type: 'app.bsky.draft.defs#draft', posts}
 }
 

@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {resolveEmbed, resolveRT} from '../index'

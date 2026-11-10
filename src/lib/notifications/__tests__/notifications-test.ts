@@ -1,5 +1,5 @@
+import {type Client} from '@atproto/lex'
 import * as Notifications from 'expo-notifications'
-import {type AtpAgent} from '@atproto/api'
 
 import {PUBLIC_APPVIEW_DID} from '#/lib/constants'
 import {unregisterPushToken} from '#/lib/notifications/notifications'
@@ -21,9 +21,9 @@ jest.mock('#/../modules/expo-background-notification-handler', () => ({
 }))
 
 describe('unregisterPushToken', () => {
-  it('uses the account service when an OAuth agent has no serviceUrl', async () => {
+  it('uses the account service when an OAuth client has no serviceUrl', async () => {
     const unregisterPush = jest.fn().mockResolvedValue(undefined)
-    const agent = {
+    const client = {
       app: {bsky: {notification: {unregisterPush}}},
       session: {handle: 'alice.test'},
     } as unknown as AtpAgent
@@ -36,7 +36,7 @@ describe('unregisterPushToken', () => {
       data: 'device-token',
     })
 
-    await unregisterPushToken([agent], 'https://blacksky.app')
+    await unregisterPushToken([client], 'https://blacksky.app')
 
     expect(unregisterPush).toHaveBeenCalledWith(
       expect.objectContaining({

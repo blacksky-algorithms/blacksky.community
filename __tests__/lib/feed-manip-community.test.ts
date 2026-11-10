@@ -1,9 +1,5 @@
-import {
-  type AppBskyActorDefs,
-  type AppBskyFeedDefs,
-  type AppBskyFeedPost,
-} from '@atproto/api'
 
+import {type app} from '#/lexicons'
 import {FeedTuner, FeedViewPostsSlice} from '#/lib/api/feed-manip'
 
 // The repo-wide manual mock stubs CID.parse away, which makes every
@@ -26,7 +22,7 @@ const SPACE_URI =
 function author(
   did: string,
   opts?: {following?: boolean},
-): AppBskyActorDefs.ProfileViewBasic {
+): app.bsky.actor.defs.ProfileViewBasic {
   return {
     $type: 'app.bsky.actor.defs#profileViewBasic',
     did,
@@ -43,9 +39,9 @@ function communityPost(opts: {
   reply?: {rootUri: string; parentUri: string}
   threadMuted?: boolean
   recordType?: string
-}): AppBskyFeedDefs.PostView {
+}): app.bsky.feed.defs.PostView {
   const did = opts.authorDid ?? MEMBER_DID
-  const record: AppBskyFeedPost.Record = {
+  const record: app.bsky.feed.post.Main = {
     $type: (opts.recordType ?? 'app.bsky.feed.post') as 'app.bsky.feed.post',
     text: `post ${opts.rkey}`,
     createdAt: '2026-07-17T12:00:00.000Z',
@@ -112,7 +108,7 @@ describe('FeedTuner with merged community posts', () => {
 
   it('keeps a reposted community post as a repost slice', () => {
     const post = communityPost({rkey: 'reposted', authorDid: 'did:plc:other'})
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {
         post,
         reason: {
@@ -136,7 +132,7 @@ describe('FeedTuner with merged community posts', () => {
 
   it('drops a reposted community post when reposts are hidden', () => {
     const post = communityPost({rkey: 'reposted', authorDid: 'did:plc:other'})
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {
         post,
         reason: {
@@ -156,7 +152,7 @@ describe('FeedTuner with merged community posts', () => {
   })
 
   it('keeps a top-level community post', () => {
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {post: communityPost({rkey: 'aaa'})},
     ]
     const slices = followingTuner().tune(feed)
@@ -170,7 +166,7 @@ describe('FeedTuner with merged community posts', () => {
       rkey: 'reply',
       reply: {rootUri: root.uri, parentUri: root.uri},
     })
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {
         post: reply,
         reply: {root, parent: root},
@@ -188,7 +184,7 @@ describe('FeedTuner with merged community posts', () => {
       rkey: 'reply',
       reply: {rootUri, parentUri: rootUri},
     })
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [{post: reply}]
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [{post: reply}]
     const slices = followingTuner().tune(feed)
     expect(slices).toHaveLength(0)
   })
@@ -199,7 +195,7 @@ describe('FeedTuner with merged community posts', () => {
       rkey: 'reply',
       reply: {rootUri: root.uri, parentUri: root.uri},
     })
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {post: reply, reply: {root, parent: root}},
       {post: root},
     ]
@@ -208,7 +204,7 @@ describe('FeedTuner with merged community posts', () => {
   })
 
   it('drops a thread-muted community post', () => {
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {post: communityPost({rkey: 'muted', threadMuted: true})},
     ]
     const slices = followingTuner().tune(feed)
@@ -218,7 +214,7 @@ describe('FeedTuner with merged community posts', () => {
   it('drops items whose record $type is not app.bsky.feed.post', () => {
     // Encodes the appview invariant: buildCommunityPostView must normalize
     // record $type, or merged items silently vanish from feeds.
-    const feed: AppBskyFeedDefs.FeedViewPost[] = [
+    const feed: app.bsky.feed.defs.FeedViewPost[] = [
       {post: communityPost({rkey: 'raw', recordType: COLLECTION})},
     ]
     const slices = followingTuner().tune(feed)

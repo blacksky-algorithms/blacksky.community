@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
@@ -137,13 +137,13 @@ function setup() {
     events.push(`stage:${state}`)
   })
   const onAssembly = jest.fn()
-  const agent = {
+  const client = {
     assertDid: 'did:plc:alice',
     fetchHandler,
     com: {atproto: {repo: {applyWrites}}},
     app: {bsky: {feed: {getPosts}}},
   } as unknown as AtpAgent
-  return {agent, fetchHandler, applyWrites, getPosts, onStateChange, onAssembly}
+  return {client, fetchHandler, applyWrites, getPosts, onStateChange, onAssembly}
 }
 
 function draft(embed: Record<string, unknown>, text = TOPIC, id = 'post-1') {
@@ -209,7 +209,7 @@ beforeEach(() => {
   jest.resetAllMocks()
   events = []
   warn = jest.spyOn(logger, 'warn').mockImplementation(() => {})
-  mockEnsureAssembly.mockImplementation((agent, input) => {
+  mockEnsureAssembly.mockImplementation((client, input) => {
     events.push('ensureAssembly')
     input.onRef(REF)
     input.onRef(CREATED_REF)
@@ -358,7 +358,7 @@ describe('publishing a post with a poll', () => {
   it('rethrows a failed assembly unchanged and writes nothing', async () => {
     const ctx = setup()
     const error = new AssemblyError('quota', 'create')
-    mockEnsureAssembly.mockImplementation((agent, input) => {
+    mockEnsureAssembly.mockImplementation((client, input) => {
       input.onRef(REF)
       return Promise.reject(error)
     })

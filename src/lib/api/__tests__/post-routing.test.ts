@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {post, quotedSpace, resolveReply} from '../index'
@@ -77,11 +77,11 @@ describe('post routing', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('sends a space-backed feed down the space write path', async () => {
-    const {agent, fetchHandler, applyWrites} = mockAgent()
+    const {client, fetchHandler, applyWrites} = mockAgent()
 
-    await post(agent, queryClient, {thread: threadWith(SPACE)})
+    await post(client, queryClient, {thread: threadWith(SPACE)})
 
-    expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
       thread: threadWith(SPACE),
     })
     // Nothing may reach the appview or the public repo on this path.
@@ -90,9 +90,9 @@ describe('post routing', () => {
   })
 
   it('leaves a feed without a space on the community path', async () => {
-    const {agent, applyWrites} = mockAgent()
+    const {client, applyWrites} = mockAgent()
 
-    await post(agent, queryClient, {thread: threadWith(undefined)})
+    await post(client, queryClient, {thread: threadWith(undefined)})
 
     expect(postToSpace).not.toHaveBeenCalled()
     expect(applyWrites).toHaveBeenCalled()
@@ -103,9 +103,9 @@ describe('self labels', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('publishes a text-only post with its self labels', async () => {
-    const {agent, applyWrites} = mockAgent()
+    const {client, applyWrites} = mockAgent()
 
-    await post(agent, queryClient, {
+    await post(client, queryClient, {
       thread: {
         posts: [
           {
@@ -160,10 +160,10 @@ describe('quoting a space post from outside the space', () => {
   ])(
     'refuses %s rather than writing it to the public repo',
     async (_n, uri) => {
-      const {agent, applyWrites, fetchHandler} = mockAgent()
+      const {client, applyWrites, fetchHandler} = mockAgent()
 
       await expect(
-        post(agent, queryClient, {thread: threadQuoting(uri)}),
+        post(client, queryClient, {thread: threadQuoting(uri)}),
       ).rejects.toThrow(/private post/)
 
       expect(applyWrites).not.toHaveBeenCalled()
@@ -178,9 +178,9 @@ describe('quoting a space post from outside the space', () => {
   ])(
     'allows the quote when the post goes into that space (%s)',
     async (_n, extra) => {
-      const {agent} = mockAgent()
+      const {client} = mockAgent()
 
-      await post(agent, queryClient, {
+      await post(client, queryClient, {
         thread: {
           ...(threadQuoting(permalink, SPACE) as object),
           ...extra,
@@ -218,30 +218,30 @@ describe('quotedSpace', () => {
 
 describe('space replies', () => {
   it('passes the reply target down to the space write path', async () => {
-    const {agent} = mockAgent()
+    const {client} = mockAgent()
     const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
 
-    await post(agent, queryClient, {
+    await post(client, queryClient, {
       thread: threadWith(SPACE),
       replyTo: parent,
     })
 
     // postToSpace resolves the parent itself; what matters here is that the
     // reply is routed into the space at all rather than posted publicly.
-    expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
       thread: threadWith(SPACE),
       replyTo: parent,
     })
   })
 
   it('reconstructs the space target when the reply view omitted it', async () => {
-    const {agent} = mockAgent()
+    const {client} = mockAgent()
     const parent = `${SPACE}/did:plc:bob/app.bsky.feed.post/3kparent`
     const thread = threadWith(undefined)
 
-    await post(agent, queryClient, {thread, replyTo: parent})
+    await post(client, queryClient, {thread, replyTo: parent})
 
-    expect(postToSpace).toHaveBeenCalledWith(agent, queryClient, SPACE, {
+    expect(postToSpace).toHaveBeenCalledWith(client, queryClient, SPACE, {
       thread,
       replyTo: parent,
     })

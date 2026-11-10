@@ -1,5 +1,6 @@
+import {RichText} from '@bsky/sdk/richtext'
+import {type app} from '#/lexicons'
 import {type ReactNode} from 'react'
-import {type AppBskyFeedDefs, RichText} from '@atproto/api'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
 import {
@@ -839,7 +840,7 @@ describe('post text reaching the card', () => {
     expect(screen.getByText(TOPIC)).toBeTruthy()
   })
 
-  function post(text: string): AppBskyFeedDefs.PostView {
+  function post(text: string): app.bsky.feed.defs.PostView {
     return {
       $type: 'app.bsky.feed.defs#postView',
       uri: 'at://did:plc:author/app.bsky.feed.post/3kpost',
@@ -873,7 +874,7 @@ describe('post text reaching the card', () => {
     const published = shortenLinks(typed)
     const topic = pollTopicFromText(typed.text)
     serve({conversation: reply(conversation({}, {topic}))})
-    const view: AppBskyFeedDefs.PostView = {
+    const view: app.bsky.feed.defs.PostView = {
       ...post(published.text),
       record: {
         $type: 'app.bsky.feed.post',
@@ -901,7 +902,7 @@ describe('post text reaching the card', () => {
     typed.detectFacetsWithoutResolution()
     const published = shortenLinks(typed)
     serve({})
-    const view: AppBskyFeedDefs.PostView = {
+    const view: app.bsky.feed.defs.PostView = {
       ...post(published.text),
       record: {
         $type: 'app.bsky.feed.post',

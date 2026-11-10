@@ -14,22 +14,22 @@ describe('NewskieDialog getJoinMessage', () => {
     {
       isMe: true,
       joinedViaStarterPack: false,
-      expected: 'You joined Bluesky just now',
+      expected: 'You joined Blacksky just now',
     },
     {
       isMe: true,
       joinedViaStarterPack: true,
-      expected: 'You joined Bluesky using a Starter Pack just now',
+      expected: 'You joined Blacksky using a starter pack just now',
     },
     {
       isMe: false,
       joinedViaStarterPack: false,
-      expected: 'Alice joined Bluesky just now',
+      expected: 'Alice joined Blacksky just now',
     },
     {
       isMe: false,
       joinedViaStarterPack: true,
-      expected: 'Alice joined Bluesky using a Starter Pack just now',
+      expected: 'Alice joined Blacksky using a starter pack just now',
     },
   ])('$expected', ({isMe, joinedViaStarterPack, expected}) => {
     expect(
@@ -48,22 +48,22 @@ describe('NewskieDialog getJoinMessage', () => {
     {
       isMe: true,
       joinedViaStarterPack: false,
-      expected: 'You joined Bluesky 5 seconds ago',
+      expected: 'You joined Blacksky 5 seconds ago',
     },
     {
       isMe: true,
       joinedViaStarterPack: true,
-      expected: 'You joined Bluesky using a Starter Pack 5 seconds ago',
+      expected: 'You joined Blacksky using a starter pack 5 seconds ago',
     },
     {
       isMe: false,
       joinedViaStarterPack: false,
-      expected: 'Alice joined Bluesky 5 seconds ago',
+      expected: 'Alice joined Blacksky 5 seconds ago',
     },
     {
       isMe: false,
       joinedViaStarterPack: true,
-      expected: 'Alice joined Bluesky using a Starter Pack 5 seconds ago',
+      expected: 'Alice joined Blacksky using a starter pack 5 seconds ago',
     },
   ])('$expected', ({isMe, joinedViaStarterPack, expected}) => {
     expect(
@@ -88,6 +88,6 @@ describe('NewskieDialog getJoinMessage', () => {
         createdAt: new Date(now + 60_000).toISOString(),
         now,
       }),
-    ).toBe('You joined Bluesky just now')
+    ).toBe('You joined Blacksky just now')
   })
 })

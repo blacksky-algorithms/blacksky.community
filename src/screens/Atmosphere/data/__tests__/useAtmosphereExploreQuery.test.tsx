@@ -145,7 +145,7 @@ describe('useAtmosphereExploreQuery', () => {
     expect(queryClient.getQueryCache().getAll()).toHaveLength(2)
   })
 
-  it('sends the Discover platform, service geo, and timestamped topics headers', async () => {
+  it('sends the platform and timestamped topics headers, and no location', async () => {
     const {client, wrapper} = setup()
     client.call.mockResolvedValue(data)
     setLanguages(['en', 'fr'])
@@ -169,17 +169,13 @@ describe('useAtmosphereExploreQuery', () => {
           'Accept-Language': 'en,fr',
           'x-atproto-bsky-platform': Platform.OS,
           'x-atproto-bsky-topics': 'animals,music;2026-09-03T17:00:00.000Z',
-          'x-atproto-bsky-geo-country': 'JP',
-          'x-atproto-bsky-geo-region': '13',
-          'x-atproto-bsky-geo-city': '%E6%9D%B1%E4%BA%AC',
-          'x-atproto-bsky-geo-ip': '2001:db8::1',
         },
       },
     )
-    expect(device.get).toHaveBeenCalledWith(['geolocationServiceResponse'])
+    expect(device.get).not.toHaveBeenCalledWith(['geolocationServiceResponse'])
   })
 
-  it('reads updated service geolocation on refetch, including when logged out', async () => {
+  it('sends no location on refetch, including when logged out', async () => {
     const {client, wrapper} = setup()
     jest
       .mocked(useAppviewClient)
@@ -208,7 +204,6 @@ describe('useAtmosphereExploreQuery', () => {
         headers: {
           ...defaultHeaders,
           'Accept-Language': 'en',
-          'x-atproto-bsky-geo-country': 'US',
         },
       },
     )

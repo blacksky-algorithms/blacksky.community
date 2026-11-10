@@ -4,6 +4,7 @@ import {
   fetchUpdateAsync,
   reloadAsync,
   setExtraParamAsync,
+  setUpdateURLAndRequestHeadersOverride,
   UpdateCheckResultNotAvailableReason,
   useUpdates,
 } from 'expo-updates'
@@ -323,10 +324,12 @@ describe('useApplyPullRequestOTAUpdate', () => {
 
       await act(() => result.current.checkForUpdates())
 
-      // The running channel is checked, not the build's default channel.
-      expect(setExtraParamAsync).toHaveBeenCalledWith(
+      // The channel rides on the request-header override, which a check of
+      // the running channel must leave as it is.
+      expect(setUpdateURLAndRequestHeadersOverride).not.toHaveBeenCalled()
+      expect(setExtraParamAsync).not.toHaveBeenCalledWith(
         'channel',
-        'pull-request-123',
+        expect.anything(),
       )
       expect(Alert.alert).toHaveBeenCalledWith(
         'Update Available',

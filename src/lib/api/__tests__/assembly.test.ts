@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {TID} from '@atproto/common-web'
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 
@@ -101,7 +101,7 @@ function setup() {
     events.push('pause')
     return Promise.resolve()
   })
-  const agent = {
+  const client = {
     assertDid: DID,
     dispatchUrl: 'https://pds.example/',
     com: {
@@ -112,7 +112,7 @@ function setup() {
     },
   } as unknown as AtpAgent
   return {
-    agent,
+    client,
     events,
     refs,
     putRecord,
@@ -274,11 +274,11 @@ describe('AssemblyError', () => {
 
 describe('ensureAssembly', () => {
   it('writes the record, asks for a token and creates the conversation', async () => {
-    const {agent, events, putRecord, deleteRecord, getServiceAuth, onRef} =
+    const {client, events, putRecord, deleteRecord, getServiceAuth, onRef} =
       setup()
     respondWith(reply(201, CREATED))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -348,7 +348,7 @@ describe('ensureAssembly', () => {
   })
 
   it('reports the reference before the first request and again with the conversation', async () => {
-    const {agent, putRecord, getServiceAuth, onRef} = setup()
+    const {client, putRecord, getServiceAuth, onRef} = setup()
     const seenAtFirstReport: number[] = []
     onRef.mockImplementationOnce(() => {
       seenAtFirstReport.push(
@@ -359,7 +359,7 @@ describe('ensureAssembly', () => {
     })
     respondWith(reply(201, CREATED))
 
-    await ensureAssembly(agent, {topic: TOPIC, statements: STATEMENTS, onRef})
+    await ensureAssembly(client, {topic: TOPIC, statements: STATEMENTS, onRef})
 
     expect(seenAtFirstReport).toStrictEqual([0, 0, 0])
     expect(onRef.mock.calls).toStrictEqual([
@@ -383,7 +383,7 @@ describe('ensureAssembly', () => {
   })
 
   it('reports a replay when the server did not create the conversation', async () => {
-    const {agent, onRef} = setup()
+    const {client, onRef} = setup()
     respondWith(
       reply(200, {
         conversation_id: '2demo',
@@ -392,7 +392,7 @@ describe('ensureAssembly', () => {
       }),
     )
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -417,10 +417,10 @@ describe('ensureAssembly', () => {
   ])(
     'reports a new conversation when the server $answer',
     async ({status, body}) => {
-      const {agent, onRef} = setup()
+      const {client, onRef} = setup()
       respondWith(reply(status, body))
 
-      const result = await ensureAssembly(agent, {
+      const result = await ensureAssembly(client, {
         topic: TOPIC,
         statements: STATEMENTS,
         onRef,
@@ -446,10 +446,10 @@ describe('ensureAssembly', () => {
       body: {conversation_id: '2demo', report_id: 7, created: true},
     },
   ])('leaves the results reference out when it is $report', async ({body}) => {
-    const {agent, onRef} = setup()
+    const {client, onRef} = setup()
     respondWith(reply(201, body))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -466,10 +466,10 @@ describe('ensureAssembly', () => {
   })
 
   it('sends the normalised topic and statements', async () => {
-    const {agent, putRecord, onRef} = setup()
+    const {client, putRecord, onRef} = setup()
     respondWith(reply(201, CREATED))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: `  ${TOPIC}\n`,
       statements: [' Yes, until sunset ', 'Only on weekends\n'],
       onRef,
@@ -481,7 +481,7 @@ describe('ensureAssembly', () => {
   })
 
   it('makes no request when the reference already has its conversation', async () => {
-    const {agent, putRecord, deleteRecord, getServiceAuth, onRef} = setup()
+    const {client, putRecord, deleteRecord, getServiceAuth, onRef} = setup()
     const ref = {
       rkey: RKEY,
       createdAt: '2026-09-01T08:30:00.000Z',
@@ -490,7 +490,7 @@ describe('ensureAssembly', () => {
       reportId: 'r7report',
     }
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref,
@@ -507,12 +507,12 @@ describe('ensureAssembly', () => {
   })
 
   it('repeats the identical record and request on a retry', async () => {
-    const {agent, refs, putRecord, deleteRecord, onRef} = setup()
+    const {client, refs, putRecord, deleteRecord, onRef} = setup()
     fetchMock.mockImplementationOnce(() =>
       Promise.reject(new TypeError('Network request failed')),
     )
     await expect(
-      ensureAssembly(agent, {topic: TOPIC, statements: STATEMENTS, onRef}),
+      ensureAssembly(client, {topic: TOPIC, statements: STATEMENTS, onRef}),
     ).rejects.toMatchObject({code: 'network', stage: 'create'})
     expect(refs).toStrictEqual([
       {
@@ -526,7 +526,7 @@ describe('ensureAssembly', () => {
     jest.mocked(TID.nextStr).mockReturnValue(NEXT_RKEY)
     respondWith(reply(200, {...CREATED, created: false}))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: refs[0],
@@ -565,11 +565,11 @@ describe('ensureAssembly', () => {
   })
 
   it('starts over with a new record when the text changed', async () => {
-    const {agent, events, putRecord, deleteRecord, onRef} = setup()
+    const {client, events, putRecord, deleteRecord, onRef} = setup()
     jest.mocked(TID.nextStr).mockReturnValue(NEXT_RKEY)
     respondWith(reply(201, CREATED))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: ['Yes, until sunset', 'Never'],
       ref: {
@@ -617,11 +617,11 @@ describe('ensureAssembly', () => {
   })
 
   it('treats a reordering of the statements as a change', async () => {
-    const {agent, putRecord, deleteRecord, onRef} = setup()
+    const {client, putRecord, deleteRecord, onRef} = setup()
     jest.mocked(TID.nextStr).mockReturnValue(NEXT_RKEY)
     respondWith(reply(201, CREATED))
 
-    await ensureAssembly(agent, {
+    await ensureAssembly(client, {
       topic: TOPIC,
       statements: ['Only on weekends', 'Yes, until sunset'],
       ref: {
@@ -637,14 +637,14 @@ describe('ensureAssembly', () => {
   })
 
   it('continues when the old record cannot be deleted', async () => {
-    const {agent, putRecord, deleteRecord, onRef} = setup()
+    const {client, putRecord, deleteRecord, onRef} = setup()
     jest.mocked(TID.nextStr).mockReturnValue(NEXT_RKEY)
     deleteRecord.mockImplementationOnce(() =>
       Promise.reject(new Error('Network request failed')),
     )
     respondWith(reply(201, CREATED))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: 'A different question',
       statements: STATEMENTS,
       ref: {
@@ -661,11 +661,11 @@ describe('ensureAssembly', () => {
   })
 
   it('keeps the record of a conversation that already exists when the text changed', async () => {
-    const {agent, putRecord, deleteRecord, onRef} = setup()
+    const {client, putRecord, deleteRecord, onRef} = setup()
     jest.mocked(TID.nextStr).mockReturnValue(NEXT_RKEY)
     respondWith(reply(201, {conversation_id: '3other', created: true}))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: 'A different question',
       statements: STATEMENTS,
       ref: {
@@ -697,10 +697,10 @@ describe('ensureAssembly', () => {
   })
 
   it('asks the server again when a stored conversation id is not usable', async () => {
-    const {agent, putRecord, deleteRecord, onRef} = setup()
+    const {client, putRecord, deleteRecord, onRef} = setup()
     respondWith(reply(200, {...CREATED, created: false}))
 
-    const result = await ensureAssembly(agent, {
+    const result = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: {
@@ -739,11 +739,11 @@ describe('ensureAssembly', () => {
   ])(
     'deletes the record when the server refuses with %i %s',
     async (status, error, code) => {
-      const {agent, events, deleteRecord, onRef, pause} = setup()
+      const {client, events, deleteRecord, onRef, pause} = setup()
       respondWith(reply(status, {error}))
 
       const failure = await ensureAssembly(
-        agent,
+        client,
         {topic: TOPIC, statements: STATEMENTS, onRef},
         {pause},
       ).catch((e: unknown) => e)
@@ -770,7 +770,7 @@ describe('ensureAssembly', () => {
   )
 
   it('starts over with a new record after a conflict', async () => {
-    const {agent, events, refs, putRecord, deleteRecord, onRef} = setup()
+    const {client, events, refs, putRecord, deleteRecord, onRef} = setup()
     jest
       .spyOn(TID, 'nextStr')
       .mockReturnValueOnce(RKEY)
@@ -782,7 +782,7 @@ describe('ensureAssembly', () => {
       reply(201, CREATED),
     )
 
-    const failure = await ensureAssembly(agent, {
+    const failure = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -806,7 +806,7 @@ describe('ensureAssembly', () => {
       fingerprint: FINGERPRINT,
     })
 
-    const retried = await ensureAssembly(agent, {
+    const retried = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: refs[1],
@@ -823,7 +823,7 @@ describe('ensureAssembly', () => {
   })
 
   it('keeps the record and the reference when too many requests came from one address', async () => {
-    const {agent, deleteRecord, onRef, refs} = setup()
+    const {client, deleteRecord, onRef, refs} = setup()
     respondWith(
       reply(429, {error: 'polis_err_atproto_conversation_rate_limited'}),
       reply(201, {
@@ -834,12 +834,12 @@ describe('ensureAssembly', () => {
     )
 
     await expect(
-      ensureAssembly(agent, {topic: TOPIC, statements: STATEMENTS, onRef}),
+      ensureAssembly(client, {topic: TOPIC, statements: STATEMENTS, onRef}),
     ).rejects.toMatchObject({code: 'busy', stage: 'create'})
     expect(deleteRecord).toHaveBeenCalledTimes(0)
     const kept = refs[refs.length - 1]
 
-    const retried = await ensureAssembly(agent, {
+    const retried = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: kept,
@@ -852,7 +852,7 @@ describe('ensureAssembly', () => {
   })
 
   it('still reports the refusal when the record cannot be deleted', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     deleteRecord.mockImplementationOnce(() =>
       Promise.reject(new Error('Network request failed')),
     )
@@ -861,7 +861,7 @@ describe('ensureAssembly', () => {
     )
 
     await expect(
-      ensureAssembly(agent, {topic: TOPIC, statements: STATEMENTS, onRef}),
+      ensureAssembly(client, {topic: TOPIC, statements: STATEMENTS, onRef}),
     ).rejects.toMatchObject({code: 'quota', stage: 'create'})
     expect(deleteRecord).toHaveBeenCalledTimes(1)
   })
@@ -879,11 +879,11 @@ describe('ensureAssembly', () => {
   ])(
     'keeps the record and does not resend on %i %s',
     async (status, error, code) => {
-      const {agent, deleteRecord, onRef, pause} = setup()
+      const {client, deleteRecord, onRef, pause} = setup()
       respondWith(reply(status, {error}))
 
       const failure = await ensureAssembly(
-        agent,
+        client,
         {topic: TOPIC, statements: STATEMENTS, onRef},
         {pause},
       ).catch((e: unknown) => e)
@@ -898,10 +898,10 @@ describe('ensureAssembly', () => {
   )
 
   it('does not accept a conversation from any other success status', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     respondWith(reply(202, CREATED))
 
-    const failure = await ensureAssembly(agent, {
+    const failure = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -914,12 +914,12 @@ describe('ensureAssembly', () => {
   })
 
   it('keeps the record when the request cannot be delivered', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     fetchMock.mockImplementationOnce(() =>
       Promise.reject(new TypeError('Failed to fetch')),
     )
 
-    const failure = await ensureAssembly(agent, {
+    const failure = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -933,7 +933,7 @@ describe('ensureAssembly', () => {
   })
 
   it('keeps the record when the response cannot be read', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     respondWith({
       ok: true,
       status: 201,
@@ -941,13 +941,13 @@ describe('ensureAssembly', () => {
     } as Response)
 
     await expect(
-      ensureAssembly(agent, {topic: TOPIC, statements: STATEMENTS, onRef}),
+      ensureAssembly(client, {topic: TOPIC, statements: STATEMENTS, onRef}),
     ).rejects.toMatchObject({code: 'network', stage: 'create'})
     expect(deleteRecord).not.toHaveBeenCalled()
   })
 
   it('gives up after thirty seconds without an answer', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     fetchMock.mockImplementationOnce(
       (url, init) =>
         new Promise((resolve, reject) => {
@@ -957,7 +957,7 @@ describe('ensureAssembly', () => {
         }),
     )
     let failure: unknown
-    const pending = ensureAssembly(agent, {
+    const pending = ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -980,7 +980,7 @@ describe('ensureAssembly', () => {
   })
 
   it('gives up when the answer is still arriving after thirty seconds', async () => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     fetchMock.mockImplementationOnce((url, init) =>
       Promise.resolve({
         ok: true,
@@ -994,7 +994,7 @@ describe('ensureAssembly', () => {
       } as Response),
     )
     let failure: unknown
-    const pending = ensureAssembly(agent, {
+    const pending = ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -1017,7 +1017,7 @@ describe('ensureAssembly', () => {
 
   it('resends with a fresh token while the statement records are incomplete', async () => {
     const {
-      agent,
+      client,
       events,
       putRecord,
       getServiceAuth,
@@ -1028,7 +1028,7 @@ describe('ensureAssembly', () => {
     respondWith(reply(503, INCOMPLETE), reply(201, CREATED))
 
     const result = await ensureAssembly(
-      agent,
+      client,
       {topic: TOPIC, statements: STATEMENTS, onRef},
       {pause},
     )
@@ -1070,7 +1070,7 @@ describe('ensureAssembly', () => {
   })
 
   it('succeeds on the third attempt', async () => {
-    const {agent, onRef, pause} = setup()
+    const {client, onRef, pause} = setup()
     respondWith(
       reply(503, INCOMPLETE),
       reply(503, INCOMPLETE),
@@ -1078,7 +1078,7 @@ describe('ensureAssembly', () => {
     )
 
     const result = await ensureAssembly(
-      agent,
+      client,
       {topic: TOPIC, statements: STATEMENTS, onRef},
       {pause},
     )
@@ -1094,7 +1094,7 @@ describe('ensureAssembly', () => {
   })
 
   it('gives up after the third incomplete attempt and keeps the record', async () => {
-    const {agent, getServiceAuth, deleteRecord, onRef, pause} = setup()
+    const {client, getServiceAuth, deleteRecord, onRef, pause} = setup()
     respondWith(
       reply(503, INCOMPLETE),
       reply(503, INCOMPLETE),
@@ -1103,7 +1103,7 @@ describe('ensureAssembly', () => {
     )
 
     const failure = await ensureAssembly(
-      agent,
+      client,
       {topic: TOPIC, statements: STATEMENTS, onRef},
       {pause},
     ).catch((e: unknown) => e)
@@ -1118,7 +1118,7 @@ describe('ensureAssembly', () => {
   })
 
   it('stops resending when a later attempt is refused', async () => {
-    const {agent, deleteRecord, onRef, pause} = setup()
+    const {client, deleteRecord, onRef, pause} = setup()
     respondWith(
       reply(503, INCOMPLETE),
       reply(403, {error: 'polis_err_atproto_conversation_not_eligible'}),
@@ -1126,7 +1126,7 @@ describe('ensureAssembly', () => {
 
     await expect(
       ensureAssembly(
-        agent,
+        client,
         {topic: TOPIC, statements: STATEMENTS, onRef},
         {pause},
       ),
@@ -1137,10 +1137,10 @@ describe('ensureAssembly', () => {
   })
 
   it('waits one second between attempts by default', async () => {
-    const {agent, getServiceAuth, onRef} = setup()
+    const {client, getServiceAuth, onRef} = setup()
     respondWith(reply(503, INCOMPLETE), reply(201, CREATED))
 
-    const pending = ensureAssembly(agent, {
+    const pending = ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -1178,10 +1178,10 @@ describe('ensureAssembly', () => {
     {problem: 'in a body that is not an object', body: ['2demo']},
     {problem: 'in a body that is not JSON', body: '<html>2demo</html>'},
   ])('rejects a conversation id $problem', async ({body}) => {
-    const {agent, deleteRecord, onRef} = setup()
+    const {client, deleteRecord, onRef} = setup()
     respondWith(reply(201, body))
 
-    const failure = await ensureAssembly(agent, {
+    const failure = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -1199,10 +1199,10 @@ describe('ensureAssembly', () => {
   ])(
     'stops at the record when writing fails with %s',
     async (message, code) => {
-      const {agent, putRecord, getServiceAuth, deleteRecord, onRef} = setup()
+      const {client, putRecord, getServiceAuth, deleteRecord, onRef} = setup()
       putRecord.mockImplementationOnce(() => Promise.reject(new Error(message)))
 
-      const failure = await ensureAssembly(agent, {
+      const failure = await ensureAssembly(client, {
         topic: TOPIC,
         statements: STATEMENTS,
         onRef,
@@ -1221,12 +1221,12 @@ describe('ensureAssembly', () => {
     ['Bad token scope', 'auth'],
     ['Network request failed', 'network'],
   ])('stops at the token when it fails with %s', async (message, code) => {
-    const {agent, getServiceAuth, deleteRecord, onRef} = setup()
+    const {client, getServiceAuth, deleteRecord, onRef} = setup()
     getServiceAuth.mockImplementationOnce(() =>
       Promise.reject(new Error(message)),
     )
 
-    const failure = await ensureAssembly(agent, {
+    const failure = await ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       onRef,
@@ -1239,7 +1239,7 @@ describe('ensureAssembly', () => {
   })
 
   it('keeps the token out of the console and out of the error', async () => {
-    const {agent, onRef, pause} = setup()
+    const {client, onRef, pause} = setup()
     const written: string[] = []
     for (const method of ['log', 'info', 'warn', 'error', 'debug'] as const) {
       jest.spyOn(console, method).mockImplementation((...args: unknown[]) => {
@@ -1261,12 +1261,12 @@ describe('ensureAssembly', () => {
     )
 
     const refused = await ensureAssembly(
-      agent,
+      client,
       {topic: TOPIC, statements: STATEMENTS, onRef},
       {pause},
     ).catch((e: unknown) => e)
     const undelivered = await ensureAssembly(
-      agent,
+      client,
       {topic: TOPIC, statements: STATEMENTS, onRef},
       {pause},
     ).catch((e: unknown) => e)
@@ -1312,10 +1312,10 @@ describe('a configured assembly address', () => {
       assemblyReportUrl: typeof assemblyReportUrl
       assemblyThumbUrl: typeof assemblyThumbUrl
     }>('#/lib/api/assembly')
-    const {agent, onRef} = setup()
+    const {client, onRef} = setup()
     respondWith(reply(201, CREATED))
 
-    await local.ensureAssembly(agent, {
+    await local.ensureAssembly(client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: {

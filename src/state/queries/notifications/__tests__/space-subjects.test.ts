@@ -1,4 +1,3 @@
-import {type AtpAgent} from '@atproto/api'
 
 const mockCommunityXrpc = jest.fn()
 
@@ -11,6 +10,7 @@ jest.mock('#/lib/api/community', () => ({
 }))
 jest.mock('#/state/queries/profile', () => ({precacheProfile: jest.fn()}))
 
+import {type Client} from '@atproto/lex'
 import {type FeedNotification} from '../types'
 import {fetchSubjects} from '../util'
 
@@ -28,7 +28,7 @@ describe('space notification subject hydration', () => {
   it('routes like, reply, and quote subjects through getCommunityPost', async () => {
     const notifications = [subject('like'), subject('reply'), subject('quote')]
     mockCommunityXrpc.mockImplementation(
-      (_agent: AtpAgent, _method: string, opts: {params: {uri: string}}) =>
+      (client: Client, _method: string, opts: {params: {uri: string}}) =>
         Promise.resolve(
           new Response(
             JSON.stringify({
@@ -47,7 +47,7 @@ describe('space notification subject hydration', () => {
     const getStarterPacks = jest.fn().mockResolvedValue({
       data: {starterPacks: []},
     })
-    const agent = {
+    const client = {
       app: {
         bsky: {
           feed: {getPosts},
@@ -56,7 +56,7 @@ describe('space notification subject hydration', () => {
       },
     } as unknown as AtpAgent
 
-    const result = await fetchSubjects(agent, notifications)
+    const result = await fetchSubjects(client, notifications)
 
     expect(mockCommunityXrpc).toHaveBeenCalledTimes(3)
     expect(mockCommunityXrpc.mock.calls.map(([, method]) => method)).toEqual([

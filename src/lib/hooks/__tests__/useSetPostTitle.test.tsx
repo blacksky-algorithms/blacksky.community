@@ -14,7 +14,7 @@ import {type app} from '#/lexicons'
 
 const DID = 'did:plc:7r7oxqovttrrcgzsy24ogise'
 // What the route options in src/Navigation.tsx produce for a DID URL.
-const ROUTE_TITLE = `Post by @${DID} — Bluesky`
+const ROUTE_TITLE = `Post by @${DID} — blacksky.community`
 
 jest.mock('#/state/queries/notifications/unread', () => ({
   useUnreadNotifications: () => undefined,
@@ -60,7 +60,7 @@ describe('useSetPostTitle', () => {
   it("titles the post with its author's handle", () => {
     const navigation = renderPostScreen(authorWith('ironeconomist.bsky.social'))
     expect(navigation.getCurrentOptions()).toMatchObject({
-      title: 'Post by @ironeconomist.bsky.social — Bluesky',
+      title: 'Post by @ironeconomist.bsky.social — blacksky.community',
     })
   })
 

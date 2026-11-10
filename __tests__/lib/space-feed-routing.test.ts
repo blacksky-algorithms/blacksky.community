@@ -6,8 +6,8 @@ jest.mock('@atproto/api', () => ({
   jsonToLex: (value: unknown) => value,
 }))
 
-import {type AtpAgent} from '@atproto/api'
 
+import {type Client} from '@atproto/lex'
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
 import {toPostView, toSpaceFeedPage} from '#/lib/api/space-views'
 
@@ -31,7 +31,7 @@ type FakeAgent = {
   com: {atproto: {repo: {getRecord: jest.Mock}}}
 }
 
-function agent({did}: {did?: string}): FakeAgent {
+function client({did}: {did?: string}): FakeAgent {
   const getFeed = jest.fn()
   const fetchHandler = jest.fn((path: string) => {
     if (path.includes('community.blacksky.feed.getSpaceFeed')) {
@@ -79,7 +79,7 @@ const asAgent = (a: FakeAgent) => a as unknown as AtpAgent
 
 describe('space-backed feed routing', () => {
   it('reads a space feed through the private endpoint and never the standard one', async () => {
-    const a = agent({did: 'did:plc:alice'})
+    const a = client({did: 'did:plc:alice'})
     const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
 
     const page = await api.fetch({cursor: undefined, limit: 30})
@@ -93,7 +93,7 @@ describe('space-backed feed routing', () => {
   })
 
   it('peekLatest uses the same endpoint, so polling agrees with pagination', async () => {
-    const a = agent({did: 'did:plc:alice'})
+    const a = client({did: 'did:plc:alice'})
     const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
 
     await api.peekLatest()
@@ -103,7 +103,7 @@ describe('space-backed feed routing', () => {
   })
 
   it('refuses logged out rather than falling back to the public appview', async () => {
-    const a = agent({})
+    const a = client({})
     const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
 
     await expect(api.fetch({cursor: undefined, limit: 30})).rejects.toThrow(

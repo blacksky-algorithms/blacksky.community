@@ -1,4 +1,3 @@
-import {type BskyAgent} from '@atproto/api'
 
 const mockGetSpacePostLikes = jest.fn()
 const mockGetSpacePostQuotes = jest.fn()
@@ -9,6 +8,7 @@ jest.mock('#/lib/api/community', () => ({
 }))
 jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
 
+import {type Client} from '@atproto/lex'
 import {fetchLikedByPage, fetchLikedBySample} from '../post-liked-by'
 import {fetchPostQuotesPage} from '../post-quotes'
 import {fetchRepostedByPage} from '../post-reposted-by'
@@ -30,12 +30,12 @@ function mockAgent() {
   })
   mockGetSpacePostLikes.mockResolvedValue({uri: SPACE_POST, likes: []})
   mockGetSpacePostQuotes.mockResolvedValue({uri: SPACE_POST, posts: []})
-  const agent = {
+  const client = {
     getLikes,
     getRepostedBy,
     api: {app: {bsky: {feed: {getQuotes}}}},
   } as unknown as BskyAgent
-  return {agent, getLikes, getQuotes, getRepostedBy}
+  return {client, getLikes, getQuotes, getRepostedBy}
 }
 
 describe('post engagement routing', () => {
@@ -46,9 +46,9 @@ describe('post engagement routing', () => {
   it.each([PUBLIC_POST, LEGACY_POST])(
     'keeps likes for %s on the standard endpoint',
     async uri => {
-      const {agent, getLikes} = mockAgent()
+      const {client, getLikes} = mockAgent()
 
-      await fetchLikedByPage(agent, uri, 'next')
+      await fetchLikedByPage(client, uri, 'next')
 
       expect(getLikes).toHaveBeenCalledWith({
         uri,
@@ -62,9 +62,9 @@ describe('post engagement routing', () => {
   it.each([PUBLIC_POST, LEGACY_POST])(
     'keeps quotes for %s on the standard endpoint',
     async uri => {
-      const {agent, getQuotes} = mockAgent()
+      const {client, getQuotes} = mockAgent()
 
-      await fetchPostQuotesPage(agent, uri, 'next')
+      await fetchPostQuotesPage(client, uri, 'next')
 
       expect(getQuotes).toHaveBeenCalledWith({
         uri,
@@ -76,19 +76,19 @@ describe('post engagement routing', () => {
   )
 
   it('uses only the permission-aware endpoints for space engagement', async () => {
-    const {agent, getLikes, getQuotes} = mockAgent()
+    const {client, getLikes, getQuotes} = mockAgent()
 
-    await fetchLikedByPage(agent, SPACE_POST)
-    await fetchPostQuotesPage(agent, SPACE_POST)
+    await fetchLikedByPage(client, SPACE_POST)
+    await fetchPostQuotesPage(client, SPACE_POST)
 
     expect(getLikes).not.toHaveBeenCalled()
     expect(getQuotes).not.toHaveBeenCalled()
-    expect(mockGetSpacePostLikes).toHaveBeenCalledWith(agent, {
+    expect(mockGetSpacePostLikes).toHaveBeenCalledWith(client, {
       uri: SPACE_POST,
       limit: 30,
       cursor: undefined,
     })
-    expect(mockGetSpacePostQuotes).toHaveBeenCalledWith(agent, {
+    expect(mockGetSpacePostQuotes).toHaveBeenCalledWith(client, {
       uri: SPACE_POST,
       limit: 30,
       cursor: undefined,
@@ -96,22 +96,22 @@ describe('post engagement routing', () => {
   })
 
   it('samples known likers of a space post from the permission-aware endpoint', async () => {
-    const {agent, getLikes} = mockAgent()
+    const {client, getLikes} = mockAgent()
 
-    await fetchLikedBySample(agent, SPACE_POST)
+    await fetchLikedBySample(client, SPACE_POST)
 
     expect(getLikes).not.toHaveBeenCalled()
     expect(mockGetSpacePostLikes).toHaveBeenCalledTimes(1)
-    expect(mockGetSpacePostLikes).toHaveBeenCalledWith(agent, {
+    expect(mockGetSpacePostLikes).toHaveBeenCalledWith(client, {
       uri: SPACE_POST,
       limit: 100,
     })
   })
 
   it('samples known likers of a public post from the standard endpoint', async () => {
-    const {agent, getLikes} = mockAgent()
+    const {client, getLikes} = mockAgent()
 
-    await fetchLikedBySample(agent, PUBLIC_POST)
+    await fetchLikedBySample(client, PUBLIC_POST)
 
     expect(mockGetSpacePostLikes).not.toHaveBeenCalled()
     expect(getLikes).toHaveBeenCalledTimes(1)
@@ -119,9 +119,9 @@ describe('post engagement routing', () => {
   })
 
   it('never calls the standard repost endpoint for a space URI', async () => {
-    const {agent, getRepostedBy} = mockAgent()
+    const {client, getRepostedBy} = mockAgent()
 
-    await expect(fetchRepostedByPage(agent, SPACE_POST)).rejects.toThrow(
+    await expect(fetchRepostedByPage(client, SPACE_POST)).rejects.toThrow(
       'Reposts are not supported for private space posts',
     )
     expect(getRepostedBy).not.toHaveBeenCalled()

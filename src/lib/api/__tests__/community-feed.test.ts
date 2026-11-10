@@ -1,5 +1,5 @@
-import {type AtpAgent, XRPCError} from '@atproto/api'
 
+import {type Client} from '@atproto/lex'
 import {
   ADMIT_FEED_POST,
   admitFeedPost,
@@ -54,10 +54,10 @@ describe('community feed API', () => {
   })
 
   it('loads config and generator records from the feed owner at the same rkey', async () => {
-    const {agent, getRecord} = mockAgent()
+    const {client, getRecord} = mockAgent()
 
-    await expect(fetchCommunityFeedConfig(agent, feed)).resolves.toEqual(config)
-    await expect(fetchFeedServiceDid(agent, feed)).resolves.toBe(serviceDid)
+    await expect(fetchCommunityFeedConfig(client, feed)).resolves.toEqual(config)
+    await expect(fetchFeedServiceDid(client, feed)).resolves.toBe(serviceDid)
 
     expect(getRecord).toHaveBeenNthCalledWith(1, {
       repo: 'did:plc:community',
@@ -72,21 +72,21 @@ describe('community feed API', () => {
   })
 
   it('distinguishes an absent config from a failed config read', async () => {
-    const {agent, getRecord} = mockAgent()
+    const {client, getRecord} = mockAgent()
     getRecord.mockRejectedValueOnce(new XRPCError(400, 'RecordNotFound'))
 
     await expect(
-      fetchCommunityFeedConfigStrict(agent, feed),
+      fetchCommunityFeedConfigStrict(client, feed),
     ).resolves.toBeNull()
 
     getRecord.mockRejectedValueOnce(new XRPCError(503, 'UpstreamFailure'))
-    await expect(fetchCommunityFeedConfigStrict(agent, feed)).rejects.toThrow(
+    await expect(fetchCommunityFeedConfigStrict(client, feed)).rejects.toThrow(
       'UpstreamFailure',
     )
   })
 
   it('checks self-scoped permissions with exact service auth and filters unknown values', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -95,13 +95,13 @@ describe('community feed API', () => {
       ),
     )
 
-    await expect(fetchFeedPermissions(agent, feed)).resolves.toEqual([
+    await expect(fetchFeedPermissions(client, feed)).resolves.toEqual([
       'canView',
       'canPost',
     ])
     expect(getServiceAuthToken).toHaveBeenCalledWith(
       expect.objectContaining({
-        agent,
+        client,
         aud: serviceDid,
         lxm: CHECK_FEED_PERMISSIONS,
       }),
@@ -118,19 +118,19 @@ describe('community feed API', () => {
   })
 
   it('fails closed when the permission service rejects the request', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(new Response('{}', {status: 403}))
 
-    await expect(fetchFeedPermissions(agent, feed)).resolves.toEqual([])
+    await expect(fetchFeedPermissions(client, feed)).resolves.toEqual([])
   })
 
   it('resolves a post target only when the user can post', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(JSON.stringify({permissions: ['canView', 'canPost']})),
     )
 
-    await expect(fetchCommunityFeedTarget(agent, feed)).resolves.toEqual({
+    await expect(fetchCommunityFeedTarget(client, feed)).resolves.toEqual({
       feed,
       name: feed,
       serviceDid,
@@ -139,28 +139,28 @@ describe('community feed API', () => {
   })
 
   it('fails closed when resolving a post target without canPost', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(JSON.stringify({permissions: ['canView']})),
     )
 
-    await expect(fetchCommunityFeedTarget(agent, feed)).resolves.toBeNull()
+    await expect(fetchCommunityFeedTarget(client, feed)).resolves.toBeNull()
   })
 
   it('admits a canonical record through the feed generator service', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(new Response('{}'))
     const post = 'at://did:plc:author/app.bsky.feed.post/3m2post'
 
     await admitFeedPost(
-      agent,
+      client,
       {feed, name: 'Community', serviceDid, config},
       post,
       'bafyrecordcid',
     )
 
     expect(getServiceAuthToken).toHaveBeenCalledWith(
-      expect.objectContaining({agent, aud: serviceDid, lxm: ADMIT_FEED_POST}),
+      expect.objectContaining({client, aud: serviceDid, lxm: ADMIT_FEED_POST}),
     )
     expect(fetchHandler).toHaveBeenCalledWith(`/xrpc/${ADMIT_FEED_POST}`, {
       method: 'POST',

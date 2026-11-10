@@ -74,7 +74,7 @@ describe('FeaturedAppCard', () => {
 
     expect(
       screen.getByTestId('featuredAppProfile').props.accessibilityValue,
-    ).toEqual({text: '/profile/app.test'})
+    ).toEqual({text: '/profile/did:plc:6ayddqghxhciedbaofoxkcbs'})
   })
 
   it('hides View profile without a profile', () => {

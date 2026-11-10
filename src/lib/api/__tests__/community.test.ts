@@ -1,10 +1,10 @@
-import {type BskyAgent} from '@atproto/api'
 
 jest.mock('@atproto/api', () => ({
   ...jest.requireActual('@atproto/api'),
   jsonToLex: (value: unknown) => value,
 }))
 
+import {type Client} from '@atproto/lex'
 import {
   BLUESKY_FALLBACK_PROXY_HEADER,
   BLUESKY_PROXY_HEADER,
@@ -34,9 +34,9 @@ describe('communityXrpc', () => {
 
   it('always targets the home appview, even when the global proxy header is flipped', async () => {
     BLUESKY_PROXY_HEADER.set(BLUESKY_FALLBACK_PROXY_HEADER)
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
 
-    await communityXrpc(agent, 'community.blacksky.feed.getCommunityTimeline')
+    await communityXrpc(client, 'community.blacksky.feed.getCommunityTimeline')
 
     const init = fetchHandler.mock.calls[0][1] as {
       headers: Record<string, string>
@@ -48,9 +48,9 @@ describe('communityXrpc', () => {
   })
 
   it('can target a configured content store', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
 
-    await communityXrpc(agent, 'community.blacksky.feed.submitPost', {
+    await communityXrpc(client, 'community.blacksky.feed.submitPost', {
       body: {text: 'hello'},
       serviceDid: 'did:web:content.example.com',
     })
@@ -64,10 +64,10 @@ describe('communityXrpc', () => {
   })
 
   it('serializes repeated primitive parameters and omits empty values', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
 
     await communityXrpc(
-      agent,
+      client,
       'community.blacksky.notification.listNotifications',
       {
         params: {
@@ -91,7 +91,7 @@ describe('communityXrpc', () => {
   })
 
   it('fetches space likes through the permission-aware endpoint', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -108,7 +108,7 @@ describe('communityXrpc', () => {
       ),
     )
 
-    const page = await getSpacePostLikes(agent, {
+    const page = await getSpacePostLikes(client, {
       uri: SPACE_POST,
       limit: 30,
       cursor: 'before',
@@ -131,7 +131,7 @@ describe('communityXrpc', () => {
   })
 
   it('converts custom space quote views into standard renderer views', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockAgent()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -150,7 +150,7 @@ describe('communityXrpc', () => {
       ),
     )
 
-    const page = await getSpacePostQuotes(agent, {
+    const page = await getSpacePostQuotes(client, {
       uri: SPACE_POST,
       limit: 30,
     })

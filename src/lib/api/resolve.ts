@@ -379,6 +379,7 @@ async function resolveExternal(uri: string): Promise<ResolvedExternalLink> {
       telemetry.startMetadata()
     })
     if (result.error) {
+      telemetry?.finishMetadata(false)
       telemetry?.finish('metadata_error')
       throw new Error(result.error)
     }

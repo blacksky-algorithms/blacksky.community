@@ -10,7 +10,7 @@ import {MergeFeedAPI} from './merge'
 const post = {} as app.bsky.feed.defs.FeedViewPost
 
 describe('MergeFeedAPI', () => {
-  it('sends platform and service geolocation only to Bluesky-owned merged sources', async () => {
+  it('sends platform and topics, and no location, only to owned merged sources', async () => {
     const get = jest.spyOn(device, 'get').mockReturnValue({
       countryCode: 'JP',
       regionCode: '13',
@@ -42,10 +42,6 @@ describe('MergeFeedAPI', () => {
           headers: {
             'x-atproto-bsky-platform': Platform.OS,
             'x-atproto-bsky-topics': 'music',
-            'x-atproto-bsky-geo-country': 'JP',
-            'x-atproto-bsky-geo-region': '13',
-            'x-atproto-bsky-geo-city': '%E6%9D%B1%E4%BA%AC',
-            'x-atproto-bsky-geo-ip': '192.0.2.1',
             'Accept-Language': getContentLanguages().join(','),
           },
         },

@@ -1,5 +1,6 @@
-import {type AppBskyDraftDefs, RichText} from '@atproto/api'
 
+import {RichText} from '@bsky/sdk/richtext'
+import {type app} from '#/lexicons'
 import {type AssemblyRef} from '#/lib/api/poll'
 import {
   type ComposerState,
@@ -52,12 +53,12 @@ const createdRef: AssemblyRef = {
   reportId: 'r7abcde',
 }
 
-function savedPoll(draft: AppBskyDraftDefs.Draft, index = 0): unknown {
+function savedPoll(draft: app.bsky.draft.defs.Draft, index = 0): unknown {
   return (draft.posts[index] as unknown as Record<string, unknown>)[POLL_KEY]
 }
 
-function asStored(draft: AppBskyDraftDefs.Draft): AppBskyDraftDefs.Draft {
-  return JSON.parse(JSON.stringify(draft)) as AppBskyDraftDefs.Draft
+function asStored(draft: app.bsky.draft.defs.Draft): app.bsky.draft.defs.Draft {
+  return JSON.parse(JSON.stringify(draft)) as app.bsky.draft.defs.Draft
 }
 
 function post(embed: Partial<PostDraft['embed']>, text = ''): PostDraft {
@@ -84,7 +85,7 @@ function state(posts: PostDraft[]): ComposerState {
   }
 }
 
-function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
+function draftPost(extra: Record<string, unknown>): app.bsky.draft.defs.DraftPost {
   return {
     $type: 'app.bsky.draft.defs#draftPost',
     text: 'hello',
@@ -92,7 +93,7 @@ function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
   }
 }
 
-function draftOf(posts: AppBskyDraftDefs.DraftPost[]): AppBskyDraftDefs.Draft {
+function draftOf(posts: app.bsky.draft.defs.DraftPost[]): app.bsky.draft.defs.Draft {
   return {$type: 'app.bsky.draft.defs#draft', posts}
 }
 

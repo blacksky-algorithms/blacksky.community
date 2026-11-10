@@ -3,6 +3,7 @@ import {type Client} from '@atproto/lex'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {CustomFeedAPI as FollowingV2CustomFeedAPI} from '#/features/followingV2/home/api/custom'
+import {app} from '#/lexicons'
 import {CustomFeedAPI as LegacyCustomFeedAPI} from './custom'
 
 jest.mock('#/state/preferences/languages', () => ({
@@ -32,18 +33,20 @@ afterAll(() => fetchMock.mockRestore())
 const thirdPartyFeed = 'at://did:example:feed/app.bsky.feed.generator/test'
 const feedHeaders = {
   'x-atproto-bsky-platform': Platform.OS,
-  'x-atproto-bsky-geo-country': 'JP',
-  'x-atproto-bsky-geo-region': '13',
-  'x-atproto-bsky-geo-city': '%E6%9D%B1%E4%BA%AC',
-  'x-atproto-bsky-geo-ip': '192.0.2.1',
 }
+const geoHeaders = [
+  'x-atproto-bsky-geo-country',
+  'x-atproto-bsky-geo-region',
+  'x-atproto-bsky-geo-city',
+  'x-atproto-bsky-geo-ip',
+]
 
 describe.each([
   ['legacy', LegacyCustomFeedAPI],
   ['following v2', FollowingV2CustomFeedAPI],
 ] as const)('CustomFeedAPI (%s)', (_name, CustomFeedAPI) => {
   it.each([DISCOVER_FEED_URI, thirdPartyFeed] as const)(
-    'gates platform and geolocation headers for authenticated fetches and peeks: %s',
+    'gates the platform header and sends no location for authenticated fetches and peeks: %s',
     async feed => {
       const call = jest.fn().mockResolvedValue({feed: []})
       const api = new CustomFeedAPI({
@@ -60,24 +63,20 @@ describe.each([
         ...(owned ? feedHeaders : {}),
         'Accept-Language': '',
       }
-      expect(call).toHaveBeenNthCalledWith(
-        1,
-        expect.anything(),
-        expect.anything(),
-        {
-          signal: undefined,
-          headers: {
-            ...headers,
-            ...(owned ? {'x-atproto-bsky-topics': 'music'} : {}),
-          },
+      // The fork's legacy API also reads the generator record, so look at the
+      // feed requests alone.
+      const feedCalls = call.mock.calls.filter(
+        ([method]) => method === app.bsky.feed.getFeed,
+      )
+      expect(feedCalls).toHaveLength(2)
+      expect(feedCalls[0][2]).toEqual({
+        signal: undefined,
+        headers: {
+          ...headers,
+          ...(owned ? {'x-atproto-bsky-topics': 'music'} : {}),
         },
-      )
-      expect(call).toHaveBeenNthCalledWith(
-        2,
-        expect.anything(),
-        expect.anything(),
-        {headers},
-      )
+      })
+      expect(feedCalls[1][2]).toEqual({headers})
     },
   )
 
@@ -111,7 +110,10 @@ describe.each([
         .mockResolvedValueOnce(Response.json({feed: []}))
         .mockResolvedValueOnce(Response.json({feed: [], cursor: 'next'}))
       const api = new CustomFeedAPI({
-        client: {did: undefined} as unknown as Client,
+        client: {
+          did: undefined,
+          call: jest.fn().mockResolvedValue({}),
+        } as unknown as Client,
         feedParams: {feed},
       })
 
@@ -126,6 +128,9 @@ describe.each([
           expect(headers.get(key)).toBe(
             feed === DISCOVER_FEED_URI ? value : null,
           )
+        }
+        for (const key of geoHeaders) {
+          expect(headers.get(key)).toBeNull()
         }
       }
     },

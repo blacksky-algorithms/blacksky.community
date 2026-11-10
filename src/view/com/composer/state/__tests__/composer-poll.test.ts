@@ -1,5 +1,5 @@
-import {RichText} from '@atproto/api'
 
+import {RichText} from '@bsky/sdk/richtext'
 import {type AssemblyRef} from '#/lib/api/poll'
 import {type ComposerImage} from '#/state/gallery'
 import {type Gif} from '#/features/gifPicker/types'

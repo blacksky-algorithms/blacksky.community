@@ -1,4 +1,4 @@
-import {type AppBskyFeedDefs} from '@atproto/api'
+import {type app} from '#/lexicons'
 import {QueryClient} from '@tanstack/react-query'
 
 jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
@@ -23,7 +23,7 @@ const LEGACY_POST = 'at://did:plc:alice/community.blacksky.feed.post/3klegacy'
 const SPACE_POST =
   'at://did:plc:space/space/community.blacksky.feed/test/did:plc:alice/app.bsky.feed.post/3kspace'
 
-function post(uri: string): AppBskyFeedDefs.PostView {
+function post(uri: string): app.bsky.feed.defs.PostView {
   return {
     uri,
     cid: 'bafyrei post',
@@ -35,7 +35,7 @@ function post(uri: string): AppBskyFeedDefs.PostView {
 
 function cachePost(
   queryClient: QueryClient,
-  cachedPost: AppBskyFeedDefs.PostView,
+  cachedPost: app.bsky.feed.defs.PostView,
 ) {
   queryClient.setQueryData([POST_FEED_QUERY_KEY_ROOT, 'following'], {
     pages: [{feed: [{post: cachedPost}]}],
