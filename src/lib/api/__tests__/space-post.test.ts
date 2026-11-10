@@ -26,7 +26,12 @@ jest.mock('../space-write', () => ({
 
 const SPACE = 'at://did:plc:space/space/community.blacksky.feed/private'
 const OTHER = 'at://did:plc:other/space/community.blacksky.feed/private'
-const client = {} as AtpAgent
+const client = {} as Client
+const clients = {
+  appviewClient: client,
+  chatClient: client,
+  pdsClient: client,
+}
 const queryClient = {} as QueryClient
 
 const thread = (embed: object = {}, id = 'draft-operation-1') =>
@@ -51,7 +56,8 @@ describe(postToSpace, () => {
 
   it('refuses a quote from another space before embed resolution', async () => {
     await expect(
-      postToSpace(client, queryClient, SPACE, {
+      postToSpace(queryClient, SPACE, {
+        ...clients,
         thread: thread({
           quote: {
             uri: `${OTHER}/did:plc:author/app.bsky.feed.post/3kquote`,
@@ -65,7 +71,7 @@ describe(postToSpace, () => {
   })
 
   it('uses the stable protocol-valid draft id as the record key', async () => {
-    await postToSpace(client, queryClient, SPACE, {thread: thread()})
+    await postToSpace(queryClient, SPACE, {...clients, thread: thread()})
 
     expect(spaceCreateRecord).toHaveBeenCalledWith(
       client,
@@ -77,10 +83,10 @@ describe(postToSpace, () => {
   })
 
   it('derives a stable record key from a saved draft id and post index', async () => {
-    const opts = {thread: thread(), draftId: '3mabcde234567'}
+    const opts = {...clients, thread: thread(), draftId: '3mabcde234567'}
 
-    await postToSpace(client, queryClient, SPACE, opts)
-    await postToSpace(client, queryClient, SPACE, opts)
+    await postToSpace(queryClient, SPACE, opts)
+    await postToSpace(queryClient, SPACE, opts)
 
     expect(spaceCreateRecord).toHaveBeenNthCalledWith(
       1,
@@ -102,7 +108,10 @@ describe(postToSpace, () => {
 
   it('rejects an invalid draft id before writing', async () => {
     await expect(
-      postToSpace(client, queryClient, SPACE, {thread: thread({}, 'bad/id')}),
+      postToSpace(queryClient, SPACE, {
+        ...clients,
+        thread: thread({}, 'bad/id'),
+      }),
     ).rejects.toThrow(/record key/i)
 
     expect(spaceCreateRecord).not.toHaveBeenCalled()

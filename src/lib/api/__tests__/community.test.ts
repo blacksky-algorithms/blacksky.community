@@ -1,9 +1,4 @@
 
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
-  jsonToLex: (value: unknown) => value,
-}))
-
 import {type Client} from '@atproto/lex'
 import {
   BLUESKY_FALLBACK_PROXY_HEADER,
@@ -26,15 +21,15 @@ describe('communityXrpc', () => {
     BLUESKY_PROXY_HEADER.set(originalHeader)
   })
 
-  function mockAgent() {
+  function mockClient() {
     const fetchHandler = jest.fn<Promise<Response>, [string, RequestInit]>()
     fetchHandler.mockResolvedValue(new Response('{}'))
-    return {agent: {fetchHandler} as unknown as BskyAgent, fetchHandler}
+    return {client: {agent: {fetchHandler}} as unknown as Client, fetchHandler}
   }
 
   it('always targets the home appview, even when the global proxy header is flipped', async () => {
     BLUESKY_PROXY_HEADER.set(BLUESKY_FALLBACK_PROXY_HEADER)
-    const {client, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
     await communityXrpc(client, 'community.blacksky.feed.getCommunityTimeline')
 
@@ -48,7 +43,7 @@ describe('communityXrpc', () => {
   })
 
   it('can target a configured content store', async () => {
-    const {client, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
     await communityXrpc(client, 'community.blacksky.feed.submitPost', {
       body: {text: 'hello'},
@@ -64,7 +59,7 @@ describe('communityXrpc', () => {
   })
 
   it('serializes repeated primitive parameters and omits empty values', async () => {
-    const {client, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
     await communityXrpc(
       client,
@@ -91,7 +86,7 @@ describe('communityXrpc', () => {
   })
 
   it('fetches space likes through the permission-aware endpoint', async () => {
-    const {client, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -131,7 +126,7 @@ describe('communityXrpc', () => {
   })
 
   it('converts custom space quote views into standard renderer views', async () => {
-    const {client, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({

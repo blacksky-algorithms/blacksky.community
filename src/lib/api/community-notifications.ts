@@ -1,7 +1,6 @@
-import {type Client} from '@atproto/lex'
+import {type Client, XrpcResponseError} from '@atproto/lex'
 
 import {HOME_APPVIEW_PINNED_OPTS} from '#/lib/constants'
-import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
 import {app, community} from '#/lexicons'
 
 export const LIST_NOTIFICATIONS_METHOD =
@@ -13,9 +12,19 @@ export const GET_UNREAD_COUNT_METHOD =
  * An appview that predates these methods answers 501 MethodNotImplemented. The
  * standard methods then return the public notifications, which is everything
  * such an appview knows about.
+ *
+ * The name is read from the response body: the client also derives it from a
+ * bare 501, which any intermediary can answer.
  */
 function isUnsupportedMethod(e: unknown): boolean {
-  return getErrorStatus(e) === 501 && getErrorName(e) === 'MethodNotImplemented'
+  if (!(e instanceof XrpcResponseError) || e.status !== 501) return false
+  const body = e.body
+  return (
+    typeof body === 'object' &&
+    body !== null &&
+    'error' in body &&
+    body.error === 'MethodNotImplemented'
+  )
 }
 
 export async function listNotifications(

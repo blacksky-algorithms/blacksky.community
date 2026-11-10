@@ -29,7 +29,7 @@ type Call = {
 }
 type MockResponse = {status?: number; body?: unknown}
 
-function agentWith(
+function clientWith(
   response: MockResponse | MockResponse[] = {},
   signedIn = true,
 ) {
@@ -37,8 +37,10 @@ function agentWith(
   const responses = Array.isArray(response) ? response : [response]
   let responseIndex = 0
   const client = {
-    ...(signedIn ? {session: {did: 'did:plc:me'}} : {}),
-    fetchHandler(path: string, init: RequestInit) {
+    ...(signedIn ? {did: 'did:plc:me'} : {}),
+    agent: {fetchHandler},
+  } as unknown as Client
+  function fetchHandler(path: string, init: RequestInit) {
       const current = responses[Math.min(responseIndex++, responses.length - 1)]
       const status = current.status ?? 200
       calls.push({
@@ -54,9 +56,8 @@ function agentWith(
           Promise.resolve(
             current.body ?? {uri: 'at://space/record', cid: 'bafyreinew'},
           ),
-      } as unknown as Response)
-    },
-  } as unknown as BskyAgent
+    } as unknown as Response)
+  }
   return {client, calls}
 }
 
@@ -65,7 +66,7 @@ const bodyOf = (call: Call): Record<string, unknown> =>
 
 describe('space writes', () => {
   it('posts to the account’s own pds without a proxy header', async () => {
-    const {client, calls} = agentWith()
+    const {client, calls} = clientWith()
     await spaceCreateRecord(client, SPACE, POST_COLLECTION, {
       $type: POST_COLLECTION,
       text: 'hello',
@@ -86,7 +87,7 @@ describe('space writes', () => {
   })
 
   it('uses an explicit stable rkey or generates a protocol key', async () => {
-    const {client, calls} = agentWith()
+    const {client, calls} = clientWith()
     await spaceCreateRecord(client, SPACE, POST_COLLECTION, {}, '3kxyz')
     expect(bodyOf(calls[0]).rkey).toBe('3kxyz')
 
@@ -101,7 +102,7 @@ describe('space writes', () => {
       createdAt: '2026-08-26T12:00:00.000Z',
     }
     const original = {uri: 'at://space/original', cid: 'bafyreioriginal'}
-    const {client, calls} = agentWith([
+    const {client, calls} = clientWith([
       {body: original},
       {status: 400, body: {error: 'RecordExists'}},
       {body: {...original, value: record}},
@@ -137,7 +138,7 @@ describe('space writes', () => {
   })
 
   it('writes a like into the permissioned repo, never the public one', async () => {
-    const {client, calls} = agentWith()
+    const {client, calls} = clientWith()
     await spaceLike(client, SPACE, SUBJECT)
 
     // The one thing that must never happen: com.atproto.repo.createRecord with
@@ -152,7 +153,7 @@ describe('space writes', () => {
   })
 
   it('unlikes by the rkey of the like record', async () => {
-    const {client, calls} = agentWith({body: {}})
+    const {client, calls} = clientWith({body: {}})
     await spaceUnlike(
       client,
       SPACE,
@@ -169,14 +170,14 @@ describe('space writes', () => {
   })
 
   it('deletes one of the caller’s own records', async () => {
-    const {client, calls} = agentWith({body: {}})
+    const {client, calls} = clientWith({body: {}})
     await spaceDeleteRecord(client, SPACE, POST_COLLECTION, '3kpost')
     expect(bodyOf(calls[0]).rkey).toBe('3kpost')
     expect(bodyOf(calls[0]).repo).toBe('did:plc:me')
   })
 
   it('fails before issuing a request when the client is signed out', async () => {
-    const {client, calls} = agentWith({}, false)
+    const {client, calls} = clientWith({}, false)
 
     await expect(
       spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
@@ -188,7 +189,7 @@ describe('space writes', () => {
   })
 
   it('reads a 404 as “this pds has no space support”', async () => {
-    const {client} = agentWith({status: 404})
+    const {client} = clientWith({status: 404})
     // A PDS that never heard of the method answers 404 rather than an XRPC
     // error; that is how a foreign-PDS account is recognised so the UI can
     // offer migration instead of a generic failure.
@@ -198,7 +199,7 @@ describe('space writes', () => {
   })
 
   it('surfaces the host’s own message on other failures', async () => {
-    const {client} = agentWith({
+    const {client} = clientWith({
       status: 429,
       body: {error: 'RateLimitExceeded', message: 'records quota exceeded'},
     })
@@ -208,7 +209,7 @@ describe('space writes', () => {
   })
 
   it('refuses a response that names no record', async () => {
-    const {client} = agentWith({body: {cid: 'bafyreinew'}})
+    const {client} = clientWith({body: {cid: 'bafyreinew'}})
     await expect(
       spaceCreateRecord(client, SPACE, POST_COLLECTION, {}),
     ).rejects.toThrow(/no record reference/)
@@ -220,7 +221,7 @@ const PUBLIC_LIKE = 'at://did:plc:alice/app.bsky.feed.like/3klike'
 
 describe('interaction routing', () => {
   it('likes a space post into its own space', async () => {
-    const {client, calls} = agentWith()
+    const {client, calls} = clientWith()
 
     await spaceLikeIfSpace(client, SUBJECT.uri, SUBJECT.cid)
 
@@ -234,7 +235,7 @@ describe('interaction routing', () => {
   })
 
   it('unlikes and deletes within the space the record belongs to', async () => {
-    const {client, calls} = agentWith({body: {}})
+    const {client, calls} = clientWith({body: {}})
 
     await spaceUnlikeIfSpace(
       client,
@@ -266,7 +267,7 @@ describe('interaction routing', () => {
     ['unlike', (a: Client) => spaceUnlikeIfSpace(a, PUBLIC_LIKE)],
     ['delete', (a: Client) => spaceDeleteIfSpace(a, PUBLIC_POST)],
   ])('leaves a public %s to the public repo', (_name, run) => {
-    const {client, calls} = agentWith()
+    const {client, calls} = clientWith()
 
     // null means "not mine" — the caller falls back to the ordinary client call.
     expect(run(client)).toBeNull()
