@@ -49,12 +49,9 @@ export function EventCoverPicker({
   const onCamera = async () => {
     if (!(await requestCameraAccessIfNeeded())) return
     try {
-      onChange(
-        await compressIfNeeded(
-          await openCamera({aspect: [ASPECT, 1]}),
-          IMAGE_SIZE_CONFIG_2K_1MB,
-        ),
-      )
+      const image = await openCamera({aspect: [ASPECT, 1]})
+      if (!image) return
+      onChange(await compressIfNeeded(image, IMAGE_SIZE_CONFIG_2K_1MB))
     } catch (e) {
       if (!isCancelledError(e)) {
         logger.warn('Failed to take event cover photo', {error: e})

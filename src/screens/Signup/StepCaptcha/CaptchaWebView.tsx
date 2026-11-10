@@ -3,7 +3,7 @@ import {WebView, type WebViewNavigation} from 'react-native-webview'
 import {type ShouldStartLoadRequest} from 'react-native-webview/lib/WebViewTypes'
 
 import {logger} from '#/logger'
-import {type SignupState} from '#/screens/Signup/state'
+import {type CaptchaWebViewProps} from './CaptchaWebView.shared'
 
 const ALLOWED_HOSTS = [
   'bsky.social',
@@ -50,21 +50,7 @@ export function CaptchaWebView({
   onComplete,
   onSuccess,
   onError,
-}: {
-  url: string
-  /**
-   * Optional URL to load if `url` fails (e.g. the attestation endpoint 404s on
-   * a PDS that hasn't been updated). Lets us try attestation first and fall
-   * back to the standard captcha without ever breaking account creation.
-   */
-  fallbackUrl?: string
-  stateParam: string
-  state?: SignupState
-  onFallback?: (statusCode?: number) => void
-  onComplete: () => void
-  onSuccess: (code: string) => void
-  onError: (error: unknown) => void
-}) {
+}: CaptchaWebViewProps) {
   // The URL currently loaded in the WebView. Starts at `url` and switches to
   // `fallbackUrl` once if the primary endpoint fails to load. Callers should
   // key this component on `url` so a changed primary URL remounts and resets

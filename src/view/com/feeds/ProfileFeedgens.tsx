@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react'
 import {
-  findNodeHandle,
   type ListRenderItemInfo,
   type StyleProp,
   useWindowDimensions,
@@ -26,8 +25,10 @@ import {useSession} from '#/state/session'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
+import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {LoadMoreRetryBtn} from '#/view/com/util/LoadMoreRetryBtn'
+import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, ios, useTheme} from '#/alf'
 import * as FeedCard from '#/components/FeedCard'
 import {HashtagWide_Stroke1_Corner0_Rounded as HashtagWideIcon} from '#/components/icons/Hashtag'
@@ -38,10 +39,6 @@ const LOADING = {_reactKey: '__loading__'}
 const EMPTY = {_reactKey: '__empty__'}
 const ERROR_ITEM = {_reactKey: '__error__'}
 const LOAD_MORE_ERROR_ITEM = {_reactKey: '__load_more_error__'}
-
-interface SectionRef {
-  scrollToTop: () => void
-}
 
 interface ProfileFeedgensProps {
   ref?: React.Ref<SectionRef>
@@ -117,19 +114,24 @@ export function ProfileFeedgens({
     queryClient.invalidateQueries({queryKey: RQKEY(did)})
   }, [scrollElRef, queryClient, headerOffset, did])
 
-  useImperativeHandle(ref, () => ({
-    scrollToTop: onScrollToTop,
-  }))
-
-  const onRefresh = useCallback(async () => {
-    setIsPTRing(true)
+  const refresh = useCallback(async () => {
     try {
       await refetch()
     } catch (err) {
       logger.error('Failed to refresh feeds', {message: err})
     }
+  }, [refetch])
+
+  useImperativeHandle(ref, () => ({
+    scrollToTop: onScrollToTop,
+    refresh,
+  }))
+
+  const onRefresh = useCallback(async () => {
+    setIsPTRing(true)
+    await refresh()
     setIsPTRing(false)
-  }, [refetch, setIsPTRing])
+  }, [refresh, setIsPTRing])
 
   const onEndReached = useCallback(async () => {
     if (isFetchingNextPage || !hasNextPage || isError) return
@@ -219,7 +221,7 @@ export function ProfileFeedgens({
 
   useEffect(() => {
     if (IS_IOS && enabled && scrollElRef.current) {
-      const nativeTag = findNodeHandle(scrollElRef.current)
+      const nativeTag = findListNativeTag(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }
   }, [enabled, scrollElRef, setScrollViewTag])

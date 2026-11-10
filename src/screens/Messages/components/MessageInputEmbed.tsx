@@ -253,9 +253,9 @@ function MessageInputPostEmbed({
           </View>
           <ContentHider modui={moderation.ui('contentView')}>
             <PostAlerts
+              post={post}
               modui={moderation.ui('contentView')}
               style={a.py_xs}
-              size="sm"
             />
             {rt.text && (
               <RichText

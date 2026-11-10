@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.check.json",
+  "compilerOptions": {
+    /*
+     * Mirrors Metro's resolution order for platform=ios.
+     */
+    "moduleSuffixes": [".ios", ".native", ""]
+  },
+  /*
+   * Web-only sources are never bundled for native platforms; checking them
+   * here resolves their platform-split imports to the native variants.
+   */
+  "exclude": [
+    "src/platform/*.android-check.d.ts",
+    "src/platform/*.web-check.d.ts",
+    "src/**/*.web.ts",
+    "src/**/*.web.tsx"
+  ]
+}

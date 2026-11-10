@@ -56,8 +56,6 @@ function isLoopback() {
   )
 }
 
-// oauth-client-browser 0.3.40 (oauth-client 0.5.x) ignores `onDelete` /
-// `onUpdate` constructor options, so these are wired to the client's events.
 const sessionHooks = {
   onDelete(sub: string, cause: unknown) {
     const category = categorizeOauthError(cause)
@@ -184,6 +182,7 @@ function createWebOAuthClient() {
       },
       ...oauthResolutionOptions,
       fetch: oauthInstrumentedFetch,
+      ...sessionHooks,
     })
   }
 
@@ -205,16 +204,11 @@ function createWebOAuthClient() {
     },
     ...oauthResolutionOptions,
     fetch: oauthInstrumentedFetch,
+    ...sessionHooks,
   })
 }
 
 const BSKY_OAUTH_CLIENT = createWebOAuthClient()
-BSKY_OAUTH_CLIENT.addEventListener('deleted', event => {
-  sessionHooks.onDelete(event.detail.sub, event.detail.cause)
-})
-BSKY_OAUTH_CLIENT.addEventListener('updated', event => {
-  sessionHooks.onUpdate(event.detail.sub)
-})
 
 export function getOAuthClient() {
   return BSKY_OAUTH_CLIENT
@@ -225,3 +219,13 @@ export const TERMINAL_OAUTH_ERRORS = [
   TokenRevokedError,
   TokenInvalidError,
 ]
+
+export function signInNativeAndroid(
+  _client: unknown,
+  _identifier: string,
+  _options: {signal?: AbortSignal} = {},
+): Promise<never> {
+  return Promise.reject(
+    new Error('signInNativeAndroid is not available on web'),
+  )
+}

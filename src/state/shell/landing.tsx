@@ -1,4 +1,11 @@
-import {createContext, useContext, useEffect, useState} from 'react'
+import {
+  createContext,
+  type Dispatch,
+  type SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 import {logger} from '#/logger'
 
@@ -26,7 +33,7 @@ type LandingType =
   | GroupInviteLanding
   | undefined
 
-type SetContext = (v: LandingType) => void
+type SetContext = Dispatch<SetStateAction<LandingType>>
 
 const PENDING_GROUP_INVITE_KEY = 'blacksky.pendingGroupInvite'
 
@@ -57,7 +64,7 @@ function readPendingGroupInvite(): GroupInviteLanding | undefined {
 
 const stateContext = createContext<LandingType>(undefined)
 stateContext.displayName = 'ActiveLandingStateContext'
-const setContext = createContext<SetContext>((_: LandingType) => {})
+const setContext = createContext<SetContext>(() => {})
 setContext.displayName = 'ActiveLandingSetContext'
 
 export function Provider({children}: {children: React.ReactNode}) {
@@ -98,17 +105,18 @@ export const useActiveStarterPack = () => {
 
 export const useSetActiveStarterPack = () => {
   const setLanding = useSetActiveLanding()
-  const currentLanding = useActiveLanding()
   return (pack: {uri: string; isClip?: boolean} | undefined) => {
     if (!pack) {
       setLanding(undefined)
     } else {
-      if (currentLanding && currentLanding.type !== 'starterpack') {
-        logger.debug(
-          `[landing] Replacing ${currentLanding.type} landing with starterpack`,
-        )
-      }
-      setLanding({type: 'starterpack', ...pack})
+      setLanding(currentLanding => {
+        if (currentLanding && currentLanding.type !== 'starterpack') {
+          logger.debug(
+            `[landing] Replacing ${currentLanding.type} landing with starterpack`,
+          )
+        }
+        return {type: 'starterpack', ...pack}
+      })
     }
   }
 }

@@ -54,9 +54,11 @@ function stateWithVideo(): ComposerState {
               video: {
                 status: 'uploading',
                 progress: 0,
+                compressionSkipped: false,
                 abortController,
                 asset: {} as never,
                 video: {} as never,
+                telemetry: {} as never,
                 altText: '',
                 captions: [],
               },

@@ -268,6 +268,7 @@ describe('composer polls', () => {
         type: 'embed_add_video',
         asset: {} as never,
         abortController: new AbortController(),
+        telemetry: {} as never,
       },
       {type: 'embed_add_uri', uri: 'https://example.com/article'},
       {
@@ -759,6 +760,7 @@ describe('composer polls and post targets', () => {
       type: 'embed_add_video',
       asset: {} as never,
       abortController: new AbortController(),
+      telemetry: {} as never,
     })
     state = updatePost(state, 1, {type: 'embed_add_poll'})
     const media = state.thread.posts[0].embed.media
@@ -777,6 +779,7 @@ describe('composer polls and post targets', () => {
       type: 'embed_add_video',
       asset: {} as never,
       abortController: new AbortController(),
+      telemetry: {} as never,
     })
     state = updatePost(state, 1, {type: 'embed_add_poll'})
     const media = state.thread.posts[0].embed.media

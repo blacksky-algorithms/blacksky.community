@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {StyleSheet} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import {ScrollForwarderView} from 'react-native-scroll-forwarder'
 import {
   type AppBskyActorDefs,
   moderateProfile,
@@ -45,6 +46,7 @@ import {ProfileHeader, ProfileHeaderLoading} from '#/screens/Profile/Header'
 import {CommunityFeedSection} from '#/screens/Profile/Sections/CommunityFeed'
 import {ProfileFeedSection} from '#/screens/Profile/Sections/Feed'
 import {ProfileLabelsSection} from '#/screens/Profile/Sections/Labels'
+import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, useTheme} from '#/alf'
 import {Circle_And_Square_Stroke1_Corner0_Rounded_Filled as CircleAndSquareIcon} from '#/components/icons/CircleAndSquare'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
@@ -58,11 +60,6 @@ import {ProfileStarterPacks} from '#/components/StarterPack/ProfileStarterPacks'
 import {useAnalytics} from '#/analytics'
 import {ProfileEvents} from '#/features/events/components/ProfileEvents'
 import {navigate} from '#/Navigation'
-import {ExpoScrollForwarderView} from '../../../modules/expo-scroll-forwarder'
-
-interface SectionRef {
-  scrollToTop: () => void
-}
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Profile'>
 export function ProfileScreen(props: Props) {
@@ -215,6 +212,7 @@ function ProfileScreenLoaded({
     enabled: !!profile.associated?.labeler,
   })
   const [currentPage, setCurrentPage] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const {_} = useLingui()
   const ax = useAnalytics()
 
@@ -293,6 +291,9 @@ function ProfileScreenLoaded({
   if (showFiltersTab) {
     filtersIndex = nextIndex++
   }
+  if (showListsTab && hasLabeler) {
+    listsIndex = nextIndex++
+  }
   if (showPostsTab) {
     postsIndex = nextIndex++
   }
@@ -320,35 +321,24 @@ function ProfileScreenLoaded({
   if (showStarterPacksTab) {
     starterPacksIndex = nextIndex++
   }
-  if (showListsTab) {
+  if (showListsTab && !hasLabeler) {
     listsIndex = nextIndex++
   }
 
-  const scrollSectionToTop = useCallback(
+  const sectionRefAt = useCallback(
     (index: number) => {
-      if (index === filtersIndex) {
-        labelsSectionRef.current?.scrollToTop()
-      } else if (index === postsIndex) {
-        postsSectionRef.current?.scrollToTop()
-      } else if (index === communityIndex) {
-        communitySectionRef.current?.scrollToTop()
-      } else if (index === repliesIndex) {
-        repliesSectionRef.current?.scrollToTop()
-      } else if (index === mediaIndex) {
-        mediaSectionRef.current?.scrollToTop()
-      } else if (index === videosIndex) {
-        videosSectionRef.current?.scrollToTop()
-      } else if (index === likesIndex) {
-        likesSectionRef.current?.scrollToTop()
-      } else if (index === eventsIndex) {
-        eventsSectionRef.current?.scrollToTop()
-      } else if (index === feedsIndex) {
-        feedsSectionRef.current?.scrollToTop()
-      } else if (index === starterPacksIndex) {
-        starterPacksSectionRef.current?.scrollToTop()
-      } else if (index === listsIndex) {
-        listsSectionRef.current?.scrollToTop()
-      }
+      if (index === filtersIndex) return labelsSectionRef
+      if (index === postsIndex) return postsSectionRef
+      if (index === communityIndex) return communitySectionRef
+      if (index === repliesIndex) return repliesSectionRef
+      if (index === mediaIndex) return mediaSectionRef
+      if (index === videosIndex) return videosSectionRef
+      if (index === likesIndex) return likesSectionRef
+      if (index === eventsIndex) return eventsSectionRef
+      if (index === feedsIndex) return feedsSectionRef
+      if (index === starterPacksIndex) return starterPacksSectionRef
+      if (index === listsIndex) return listsSectionRef
+      return undefined
     },
     [
       filtersIndex,
@@ -363,6 +353,13 @@ function ProfileScreenLoaded({
       listsIndex,
       starterPacksIndex,
     ],
+  )
+
+  const scrollSectionToTop = useCallback(
+    (index: number) => {
+      sectionRefAt(index)?.current?.scrollToTop()
+    },
+    [sectionRefAt],
   )
 
   useFocusEffect(
@@ -404,6 +401,12 @@ function ProfileScreenLoaded({
     ],
   })
 
+  const onRefresh = async () => {
+    setIsRefreshing(true)
+    await sectionRefAt(currentPage)?.current?.refresh?.()
+    setIsRefreshing(false)
+  }
+
   // rendering
   // =
 
@@ -413,7 +416,10 @@ function ProfileScreenLoaded({
     setMinimumHeight: (height: number) => void
   }) => {
     return (
-      <ExpoScrollForwarderView scrollViewTag={scrollViewTag}>
+      <ScrollForwarderView
+        scrollViewTag={scrollViewTag}
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}>
         <ProfileHeader
           profile={profile}
           labeler={labelerInfo}
@@ -423,7 +429,7 @@ function ProfileScreenLoaded({
           isPlaceholderProfile={showPlaceholder}
           setMinimumHeight={setMinimumHeight}
         />
-      </ExpoScrollForwarderView>
+      </ScrollForwarderView>
     )
   }
 

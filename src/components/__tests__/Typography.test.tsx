@@ -5,7 +5,7 @@ import {Text} from '#/components/Typography'
 
 const mockUITextView = jest.fn()
 
-jest.mock('react-native-uitextview', () => {
+jest.mock('@bsky.app/react-native-uitextview', () => {
   const {Text: RNText} = jest.requireActual<typeof ReactNative>('react-native')
   return {
     UITextView: (props: {children: React.ReactNode}) => {
