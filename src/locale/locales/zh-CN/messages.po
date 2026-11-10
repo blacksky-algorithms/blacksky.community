@@ -539,6 +539,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "超过 {0} 条申请"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -569,6 +575,10 @@ msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
 msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "无障碍设置"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "成人内容"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "成人内容标记"
 msgid "Adult sexual abuse content"
 msgstr "成人性虐待内容"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "详细设置"
 
@@ -2792,8 +2802,8 @@ msgstr "等待审核"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "屏蔽该用户或离开对话（多选）"
 msgid "Blocked"
 msgstr "已被屏蔽"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "已屏蔽账户"
 
@@ -3293,8 +3303,8 @@ msgstr "需要相机权限"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "取消登录以便您检查用户名"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "已屏蔽该内容"
 msgid "Content by {authorName}"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "内容过滤器"
 
@@ -5084,7 +5094,7 @@ msgstr "禁用此邀请链接？"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "停用"
 
@@ -5667,7 +5677,7 @@ msgstr "启用"
 msgid "Enable {0} only"
 msgstr "仅启用 {0}"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "启用成人内容显示"
 
@@ -5721,7 +5731,7 @@ msgstr "启用热门话题"
 msgid "Enable trending videos in your Discover feed"
 msgstr "在你的“Discover”动态源中启用热门视频"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "启用"
 
@@ -5813,7 +5823,7 @@ msgstr "输入你的电子邮箱地址"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "正在寻找朋友……"
 msgid "Finish"
 msgstr "完成"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "抱歉，动态源服务器返回错误响应。请联系动态源的维
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "抱歉，我们无法找到该动态源。它似乎已被删除。"
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "抱歉，看起来在加载数据时遇到了问题。请查看下方获取更多详情。如果问题仍然存在，请联系我们。"
 
@@ -8011,7 +8021,7 @@ msgstr "输入新的密码"
 msgid "Interaction limited"
 msgstr "已限制互动"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "互动选项"
 
@@ -8907,8 +8917,8 @@ msgstr "日志"
 msgid "Logged out"
 msgstr "已登出"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "管理已保存的动态源"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "管理认证设置"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "审核收件箱设置"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "内容审核"
 
@@ -9244,6 +9254,7 @@ msgstr "内容审核详情"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "内容审核收件箱"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "已更新内容审核列表"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "内容审核列表"
 
@@ -9301,7 +9312,7 @@ msgstr "内容审核设置"
 msgid "Moderation states"
 msgstr "内容审核状态"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "隐藏字词和标签"
 msgid "Muted"
 msgstr "已隐藏"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "已隐藏账户"
 
@@ -9469,7 +9480,7 @@ msgstr "已隐藏的账户不会出现在你的通知或时间线里面。隐藏
 msgid "Muted by \"{0}\""
 msgstr "被“{0}”隐藏"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "隐藏字词和标签"
 
@@ -10539,7 +10550,7 @@ msgstr "开启信息选项"
 msgid "Open moderation debug page"
 msgstr "开启内容审核调试页面"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "开启隐藏字词和标签设置"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr ""
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "将此动态源从已保存的动态源中删除"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "删除不可用的内容审核服务"
 
@@ -12265,7 +12276,7 @@ msgstr "已从你的动态源中删除"
 msgid "Removed post"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "已删除不可用的服务"
 
@@ -13961,7 +13972,7 @@ msgstr "显示内容"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "以 {0} 登录"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "列表中的部分内容审核服务不再可用。"
 
@@ -14257,7 +14268,7 @@ msgstr "出了点问题"
 msgid "Something went wrong, please try again"
 msgstr "出了点问题，请重试"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "新手包能使你与朋友分享你喜欢的动态源与人物。"
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "你输入的出生日期表明你未满18周岁，你可能无法使用�
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "切换以启用或停用成人内容"
 
@@ -16098,8 +16109,8 @@ msgstr "无法连接到你的服务，请检查网络连接并重试。"
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "无法连接到服务，请检查网络连接。"
@@ -16450,7 +16461,7 @@ msgstr "更新邀请链接"
 msgid "Update to {domain}"
 msgstr "更新至 {domain}"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "用户名只能包含字母（a-z）、数字及连字符（-）"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "值："
 msgid "Verification failed, please try again."
 msgstr "无法授予认证，请重试。"
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "认证设置"
 
@@ -17055,11 +17066,11 @@ msgstr "查看此动态源被谁喜欢"
 msgid "View video"
 msgstr "查看视频"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "查看你已屏蔽的账户"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "查看你的默认帖文互动选项"
 
@@ -17068,11 +17079,15 @@ msgstr "查看你的默认帖文互动选项"
 msgid "View your feeds and explore more"
 msgstr "查看你的动态源并探索更多内容"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "查看你的内容审核列表"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "查看你隐藏的账户"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "我们不会存储你朋友的电话号码或发送任何信息"
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "我们估计还需要 {estimatedTime} 才能完成你的账户准备。"
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "我们无法确定你是否有权上传视频，请重试。"
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "我们无法加载你的出生日期偏好设置，请重试。"
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "我们暂时无法记载你已配置的标记者。"
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "你当前使用的账户代码 <0>{0}</0> 将自动预留给你，以便你能够在日后随时切换回来。"
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

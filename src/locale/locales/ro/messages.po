@@ -539,6 +539,12 @@ msgstr "Peste {0}"
 msgid "{0}+ requests"
 msgstr "Peste {0} de cereri"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "{accountCount, plural, one {un cont} few {# conturi} other {# de conturi
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, one {un cont} few {# conturi} other {# de conturi}}, {feedCount, plural, one {un flux} few {# fluxuri} other {# de fluxuri}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "Setări de accesibilitate"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "Conținut pentru adulți"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "Etichete conținut pentru adulți"
 msgid "Adult sexual abuse content"
 msgstr "Abuz sexual asupra adulților"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "Complex"
 
@@ -2792,8 +2802,8 @@ msgstr "În așteptarea examinării"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "Blocați utilizatorului și/sau părăsiți această conversație"
 msgid "Blocked"
 msgstr "Blocat"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "Conturi blocate"
 
@@ -3293,8 +3303,8 @@ msgstr "Este necesar accesul la cameră"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "Anulează conectarea pentru a putea verifica numele de utilizator"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "Conținut blocat"
 msgid "Content by {authorName}"
 msgstr "Conținut de {authorName}"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "Filtre de conținut"
 
@@ -5084,7 +5094,7 @@ msgstr "Dezactivați acest link de invitație?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "Dezactivat"
 
@@ -5667,7 +5677,7 @@ msgstr "Activare"
 msgid "Enable {0} only"
 msgstr "Activare doar {0}"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "Activare conținut pentru adulți"
 
@@ -5721,7 +5731,7 @@ msgstr "Activare subiecte în tendințe"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Activare videoclipuri în tendințe în fluxul dvs. Descoperă"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "Activat"
 
@@ -5813,7 +5823,7 @@ msgstr "Introduceți-vă adresa de e-mail"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "Se găsesc prietenii..."
 msgid "Finish"
 msgstr "Finalizare"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "Hmm, serverul fluxului a dat un răspuns rău. Vă rugăm să comunicaț
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "Hmm, avem probleme cu găsirea acestui flux. S-ar putea să fi fost șters."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "Hmmmm, se pare că avem probleme la încărcarea acestor date. Vedeți mai jos pentru mai multe detalii. Dacă această problemă persistă, vă rugăm să ne contactați."
 
@@ -8011,7 +8021,7 @@ msgstr "Introduceți parola nouă"
 msgid "Interaction limited"
 msgstr "Interacțiune limitată"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "Setări de interacțiune"
 
@@ -8907,8 +8917,8 @@ msgstr "Jurnal"
 msgid "Logged out"
 msgstr "Deconectat"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "Gestionați fluxurile salvate"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "Gestionați setările de verificare"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "Setări inbox moderare"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "Moderare"
 
@@ -9244,6 +9254,7 @@ msgstr "Detalii moderare"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Inbox moderare"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "Listă de moderare actualizată"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "Liste de moderare"
 
@@ -9301,7 +9312,7 @@ msgstr "setări de moderare"
 msgid "Moderation states"
 msgstr "Stări moderare"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "Amuțire cuvinte & etichete"
 msgid "Muted"
 msgstr "Amuțită"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "Conturi amuțite"
 
@@ -9469,7 +9480,7 @@ msgstr "Conturile amuțite au postările lor eliminate din fluxul dvs. și din n
 msgid "Muted by \"{0}\""
 msgstr "Amuțit de „{0}”"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "Cuvinte & etichete amuțite"
 
@@ -10539,7 +10550,7 @@ msgstr "Deschideți opțiunile pentru mesaje"
 msgid "Open moderation debug page"
 msgstr "Deschideți pagina de depanare pentru moderare"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "Deschideți cuvinte amuțite și setări etichete"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "Reîncărcați notificarea"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "Eliminați acest flux din fluxurile dvs. salvate"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "Eliminați serviciile de moderare indisponibile"
 
@@ -12265,7 +12276,7 @@ msgstr "Eliminat din fluxurile dvs."
 msgid "Removed post"
 msgstr "Postare eliminată"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "Eliminați serviciile indisponibile"
 
@@ -13961,7 +13972,7 @@ msgstr "Afișează conținutul"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "Conectați-vă ca {0}"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "Unele servicii de moderare din lista dvs. nu mai sunt disponibile."
 
@@ -14257,7 +14268,7 @@ msgstr "Ceva nu a mers bine"
 msgid "Something went wrong, please try again"
 msgstr "Ceva n-a mers bine, vă rugăm să încercați din nou"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "Pachetele de pornire vă permit să partajați cu ușurință fluxurile 
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "Data nașterii pe care ați introdus-o indică faptul că aveți sub 18 
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "Comutați pentru a activa sau dezactiva conținutul pentru adulți"
 
@@ -16098,8 +16109,8 @@ msgstr "Nu vă putem contacta serviciul. Verificați conexiunea la internet și 
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "Serviciul dvs. nu poate fi contactat. Vă rugăm să vă verificați conexiunea la internet."
@@ -16450,7 +16461,7 @@ msgstr "Actualizați linkul de invitație"
 msgid "Update to {domain}"
 msgstr "Actualizare la {domain}"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "Numele de utilizator trebuie să conțină doar litere (a-z), cifre și cratime"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "Valoare:"
 msgid "Verification failed, please try again."
 msgstr "Verificare eșuată, încercați din nou."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "Setări de verificare"
 
@@ -17055,11 +17066,11 @@ msgstr "Vizualizați utilizatorii care apreciază acest flux"
 msgid "View video"
 msgstr "Vizualizare videoclip"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "Vizualizați conturile dvs. blocate"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "Vedeți setările implicite de interacțiune cu postări"
 
@@ -17068,11 +17079,15 @@ msgstr "Vedeți setările implicite de interacțiune cu postări"
 msgid "View your feeds and explore more"
 msgstr "Vizualizați-vă fluxurile și explorați mai multe"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "Vizualizați listele dvs. de moderare"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "Vizualizați conturile dvs. amuțite"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "Nu stocăm numerele de telefon ale prietenilor dvs. și nu trimitem nici
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "Estimăm {estimatedTime} până când contul dvs. este gata."
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "Nu am reușit să determinăm dacă aveți permisiunea de a încărca vi
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "Nu am putut încărca preferințele dvs. privind data nașterii. Vă rugăm să încercați din nou."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "Nu am putut încărca etichetatorii dvs. configurați în acest moment."
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "Identificatorul dvs. actual <0>{0}</0> va rămâne automat rezervat pentru dvs. Puteți reveni oricând la acesta din acest cont."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

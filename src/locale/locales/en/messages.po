@@ -534,6 +534,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "{0}+ requests"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr "{0}+ updates"
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -565,6 +571,10 @@ msgstr "{accountCount, plural, one {# account} other {# accounts}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr "{badge, plural, one {# update} other {# updates}}"
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1556,7 +1566,7 @@ msgid "Accessibility Settings"
 msgstr ""
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2026,7 +2036,7 @@ msgid "Adult Content"
 msgstr ""
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr "Adult content can only be enabled via the Web at <0>{0}</0>."
 
@@ -2043,7 +2053,7 @@ msgstr ""
 msgid "Adult sexual abuse content"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr ""
 
@@ -2787,8 +2797,8 @@ msgstr "Awaiting review"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3060,7 +3070,7 @@ msgstr "Block user and/or leave this conversation"
 msgid "Blocked"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr ""
 
@@ -3288,8 +3298,8 @@ msgstr "Camera access needed"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3352,7 +3362,7 @@ msgstr "Cancelled"
 msgid "Cancels signing in so you can check your username"
 msgstr "Cancels signing in so you can check your username"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr "Cancels the sign-in process"
 
@@ -4130,7 +4140,7 @@ msgstr ""
 msgid "Content by {authorName}"
 msgstr "Content by {authorName}"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr ""
 
@@ -5079,7 +5089,7 @@ msgstr "Disable this invite link?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr ""
 
@@ -5662,7 +5672,7 @@ msgstr ""
 msgid "Enable {0} only"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr ""
 
@@ -5716,7 +5726,7 @@ msgstr ""
 msgid "Enable trending videos in your Discover feed"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr ""
 
@@ -5808,7 +5818,7 @@ msgstr ""
 msgid "Enter your handle"
 msgstr "Enter your handle"
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr "Enter your handle (e.g. alice.bsky.social)"
 
@@ -6702,7 +6712,7 @@ msgstr ""
 msgid "Finish"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr "Finishing sign-in… complete it in your browser, or cancel."
 
@@ -7661,7 +7671,7 @@ msgstr ""
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr ""
 
@@ -8006,7 +8016,7 @@ msgstr ""
 msgid "Interaction limited"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr ""
 
@@ -8902,8 +8912,8 @@ msgstr ""
 msgid "Logged out"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr "Login"
 
@@ -8982,7 +8992,7 @@ msgstr "Make your first post to announce your arrival."
 msgid "Manage saved feeds"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr ""
 
@@ -9224,7 +9234,7 @@ msgid "Mod inbox settings"
 msgstr "Mod inbox settings"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr ""
 
@@ -9239,6 +9249,7 @@ msgstr ""
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Moderation inbox"
@@ -9274,7 +9285,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr ""
 
@@ -9296,7 +9307,7 @@ msgstr ""
 msgid "Moderation states"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9446,7 +9457,7 @@ msgstr ""
 msgid "Muted"
 msgstr "Muted"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr ""
 
@@ -9464,7 +9475,7 @@ msgstr ""
 msgid "Muted by \"{0}\""
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr ""
 
@@ -10534,7 +10545,7 @@ msgstr ""
 msgid "Open moderation debug page"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr ""
 
@@ -10923,8 +10934,8 @@ msgid "Pass/Unsure"
 msgstr "Pass/Unsure"
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -11996,7 +12007,7 @@ msgstr "Reload notice"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12200,7 +12211,7 @@ msgstr "Remove the event to add media"
 msgid "Remove this feed from your saved feeds"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr ""
 
@@ -12260,7 +12271,7 @@ msgstr ""
 msgid "Removed post"
 msgstr "Removed post"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr ""
 
@@ -13956,7 +13967,7 @@ msgstr ""
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13984,7 +13995,7 @@ msgstr ""
 msgid "Sign in as {fullDraftHandle}"
 msgstr "Sign in as {fullDraftHandle}"
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr "Sign in as {handle}"
 
@@ -14174,7 +14185,7 @@ msgstr "Some account features may be restricted. Strikes come off your record ov
 msgid "Some community members can reply"
 msgstr "Some community members can reply"
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr ""
 
@@ -14252,7 +14263,7 @@ msgstr ""
 msgid "Something went wrong, please try again"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14431,7 +14442,7 @@ msgstr ""
 msgid "Starting discussion..."
 msgstr "Starting discussion..."
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr "Starts the sign-in process"
 
@@ -15006,7 +15017,7 @@ msgstr ""
 msgid "The Blacksky Trending"
 msgstr "The Blacksky Trending"
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr "The Blacksky web application"
 
@@ -15906,7 +15917,7 @@ msgstr "Toggle tall content"
 msgid "Toggle tallest card"
 msgstr "Toggle tallest card"
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr ""
 
@@ -16093,8 +16104,8 @@ msgstr ""
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
@@ -16445,7 +16456,7 @@ msgstr "Update invite link"
 msgid "Update to {domain}"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr "Update your birthdate"
 
@@ -16647,7 +16658,7 @@ msgstr "Username must be at least 3 characters"
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr "Username or handle"
 
@@ -16673,7 +16684,7 @@ msgstr ""
 msgid "Verification failed, please try again."
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr ""
 
@@ -17050,11 +17061,11 @@ msgstr ""
 msgid "View video"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr ""
 
@@ -17063,11 +17074,15 @@ msgstr ""
 msgid "View your feeds and explore more"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr "View your moderation inbox"
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr ""
 
@@ -17199,7 +17214,7 @@ msgstr "We couldn't find an account at {didOrHandle}."
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 
@@ -17240,11 +17255,11 @@ msgstr ""
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr "We found more than one account with that name. Which one is yours?"
 
@@ -17302,7 +17317,7 @@ msgstr ""
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr ""
 
@@ -18331,7 +18346,7 @@ msgstr "Your content was restored"
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 

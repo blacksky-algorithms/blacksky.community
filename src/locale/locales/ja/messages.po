@@ -539,6 +539,12 @@ msgstr "{0}件以上"
 msgid "{0}+ requests"
 msgstr "{0}件以上のリクエスト"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "{accountCount, plural, other {#アカウント}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, other {#アカウント}}、{feedCount, plural, other {#個のフィード}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "アクセシビリティの設定"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "成人向けコンテンツ"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "成人向けコンテンツのラベル"
 msgid "Adult sexual abuse content"
 msgstr "成人向けの性的虐待コンテンツ"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "高度な設定"
 
@@ -2792,8 +2802,8 @@ msgstr "レビュー待ち"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "ユーザーをブロックするかこの会話から退出（あるい
 msgid "Blocked"
 msgstr "ブロックされています"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "ブロック中のアカウント"
 
@@ -3293,8 +3303,8 @@ msgstr "カメラへのアクセスが必要です"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "ユーザー名を確認するためにサインインをキャンセル"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "ブロックされたコンテンツ"
 msgid "Content by {authorName}"
 msgstr "{authorName}によるコンテンツ"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "コンテンツのフィルター"
 
@@ -5084,7 +5094,7 @@ msgstr "この招待リンクを無効にしますか？"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "無効"
 
@@ -5667,7 +5677,7 @@ msgstr "有効にする"
 msgid "Enable {0} only"
 msgstr "{0}のみ有効にする"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "成人向けコンテンツを有効にする"
 
@@ -5721,7 +5731,7 @@ msgstr "トレンド・トピックを有効にする"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Discoverフィードでトレンド・ビデオを有効にする"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "有効"
 
@@ -5813,7 +5823,7 @@ msgstr "メールアドレスを入力してください"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "友達を見つける…"
 msgid "Finish"
 msgstr "完了"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "フィードサーバーの反応が悪いようです。この問題を
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "このフィードが見つからないようです。もしかしたら削除されたのかもしれません。"
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "このデータの読み込みに問題があるようです。詳細は以下をご覧ください。この問題が解決しない場合は、サポートにご連絡ください。"
 
@@ -8011,7 +8021,7 @@ msgstr "新しいパスワードを入力"
 msgid "Interaction limited"
 msgstr "反応が制限されています"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "反応関連の設定"
 
@@ -8907,8 +8917,8 @@ msgstr "ログ"
 msgid "Logged out"
 msgstr "ログアウト中"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "保存されたフィードを管理"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "認証設定の管理"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "モデレーション受信トレイの設定"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "モデレーション"
 
@@ -9244,6 +9254,7 @@ msgstr "モデレーションの詳細"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "モデレーション受信トレイ"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "モデレーションリストを更新しました"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "モデレーションリスト"
 
@@ -9301,7 +9312,7 @@ msgstr "モデレーションの設定"
 msgid "Moderation states"
 msgstr "モデレーションのステータス"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "ワードとタグをミュート"
 msgid "Muted"
 msgstr "ミュート済み"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "ミュート中のアカウント"
 
@@ -9469,7 +9480,7 @@ msgstr "ミュート中のアカウントの投稿は、フィードや通知か
 msgid "Muted by \"{0}\""
 msgstr "「{0}」によってミュート中"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "ミュートしたワードとタグ"
 
@@ -10539,7 +10550,7 @@ msgstr "メッセージのオプションを開く"
 msgid "Open moderation debug page"
 msgstr "モデレーションデバッグページを開く"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "ミュートしたワードとタグの設定を開く"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "通知を再読み込み"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "保存されたフィードからこのフィードを削除"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "利用できないモデレーションサービスを削除"
 
@@ -12265,7 +12276,7 @@ msgstr "あなたのフィードから削除しました"
 msgid "Removed post"
 msgstr "削除された投稿"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "利用できないサービスを削除しました"
 
@@ -13961,7 +13972,7 @@ msgstr "コンテンツを表示"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "{0}としてサインイン"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "リスト中のいくつかのモデレーションサービスは利用できません。"
 
@@ -14257,7 +14268,7 @@ msgstr "何らかの問題が発生したようです"
 msgid "Something went wrong, please try again"
 msgstr "何らかの問題が発生したようなので、もう一度お試しください"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "スターターパックを使ってお気に入りのフィードやユ
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "入力した生年月日は、あなたが18歳未満であることを�
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "成人向けコンテンツの有効化/無効化を切り替え"
 
@@ -16098,8 +16109,8 @@ msgstr "サービスに接続できません。インターネットの接続を
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "あなたのサービスに接続できません。インターネットの接続を確認してください。"
@@ -16450,7 +16461,7 @@ msgstr "招待リンクを更新"
 msgid "Update to {domain}"
 msgstr "{domain}に更新"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "ユーザー名はアルファベット（a-z）、数字、ハイフンのみ使用できます"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "値："
 msgid "Verification failed, please try again."
 msgstr "認証に失敗しました。再度試してください。"
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "認証設定"
 
@@ -17055,11 +17066,11 @@ msgstr "このフィードにいいねしたユーザーを見る"
 msgid "View video"
 msgstr "ビデオを表示"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "ブロックしたアカウントを見る"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "投稿への反応のデフォルト設定を表示"
 
@@ -17068,11 +17079,15 @@ msgstr "投稿への反応のデフォルト設定を表示"
 msgid "View your feeds and explore more"
 msgstr "フィードを表示し、さらにフィードを探す"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "モデレーションリストを見る"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "ミュートしたアカウントを見る"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "お友達の電話番号を保存したり、メッセージを送信し
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "あなたのアカウントが準備できるまで{estimatedTime}ほどかかります。"
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "あなたがビデオのアップロードを許可されているかど
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "生年月日の設定を読み込むことができませんでした。もう一度お試しください。"
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "現在設定されたラベラーを読み込めません。"
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "あなたの現在のハンドル<0>{0}</0>は自動的に予約されたままになります。いつでもこのアカウントに戻すことができます。"
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

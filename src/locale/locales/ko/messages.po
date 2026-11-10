@@ -539,6 +539,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "{0}+개 요청"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "계정 {accountCount, plural, other {#개}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "계정 {accountCount, plural, other {#개}}, 피드 {feedCount, plural, other {#개}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "접근성 설정"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "성인 콘텐츠"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "성인 콘텐츠 라벨"
 msgid "Adult sexual abuse content"
 msgstr "성인 성착취물"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "고급"
 
@@ -2792,8 +2802,8 @@ msgstr "검토 대기 중"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "사용자를 차단하거나 이 대화에서 나가기"
 msgid "Blocked"
 msgstr "차단됨"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "차단한 계정"
 
@@ -3293,8 +3303,8 @@ msgstr "카메라 접근 권한이 필요합니다"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "사용자 이름을 확인할 수 있도록 로그인을 취소합니다"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "콘텐츠 차단됨"
 msgid "Content by {authorName}"
 msgstr "{authorName} 님의 콘텐츠"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "콘텐츠 필터"
 
@@ -5084,7 +5094,7 @@ msgstr "이 초대 링크를 비활성화하시겠습니까?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "사용 안 함"
 
@@ -5667,7 +5677,7 @@ msgstr "활성화"
 msgid "Enable {0} only"
 msgstr "{0}에서만 사용"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "성인 콘텐츠 활성화"
 
@@ -5721,7 +5731,7 @@ msgstr "인기 주제 사용"
 msgid "Enable trending videos in your Discover feed"
 msgstr "둘러보기 피드에서 인기 동영상 사용"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "사용"
 
@@ -5813,7 +5823,7 @@ msgstr "이메일 주소 입력"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "친구 찾는 중…"
 msgid "Finish"
 msgstr "완료"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "피드 서버에서 잘못된 응답을 보냈습니다. 피드 소유�
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "이 피드를 찾는 데 문제가 있습니다. 피드가 삭제되었을 수 있습니다."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "이 데이터를 불러오는 데 문제가 있는 것 같습니다. 자세한 내용은 아래를 참조하세요. 이 문제가 지속되면 문의해 주세요."
 
@@ -8011,7 +8021,7 @@ msgstr "새 비밀번호를 입력합니다"
 msgid "Interaction limited"
 msgstr "상호작용 제한됨"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "상호작용 설정"
 
@@ -8907,8 +8917,8 @@ msgstr "로그"
 msgid "Logged out"
 msgstr "로그아웃됨"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "저장된 피드 관리"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "인증 설정 관리"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "검토 수신함 설정"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "검토"
 
@@ -9244,6 +9254,7 @@ msgstr "검토 세부 정보"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "검토 수신함"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "검토 리스트를 업데이트했습니다"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "검토 리스트"
 
@@ -9301,7 +9312,7 @@ msgstr "검토 설정"
 msgid "Moderation states"
 msgstr "검토 상태"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "단어 및 태그 뮤트"
 msgid "Muted"
 msgstr "뮤트됨"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "뮤트한 계정"
 
@@ -9469,7 +9480,7 @@ msgstr "계정을 뮤트하면 피드와 알림에서 해당 계정의 게시물
 msgid "Muted by \"{0}\""
 msgstr "‘{0}’에 의해 뮤트됨"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "뮤트한 단어 및 태그"
 
@@ -10539,7 +10550,7 @@ msgstr "메시지 옵션 열기"
 msgid "Open moderation debug page"
 msgstr "검토 디버그 페이지 열기"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "뮤트한 단어 및 태그 설정 열기"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "안내 다시 불러오기"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "저장된 피드에서 이 피드를 제거합니다"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "사용할 수 없는 검토 서비스 제거"
 
@@ -12265,7 +12276,7 @@ msgstr "내 피드에서 제거했습니다"
 msgid "Removed post"
 msgstr "제거된 게시물"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "사용할 수 없는 서비스를 제거했습니다"
 
@@ -13961,7 +13972,7 @@ msgstr "콘텐츠를 표시합니다"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "{0}(으)로 로그인"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "리스트에 있는 일부 검토 서비스를 더 이상 사용할 수 없습니다."
 
@@ -14257,7 +14268,7 @@ msgstr "문제가 발생했습니다"
 msgid "Something went wrong, please try again"
 msgstr "문제가 발생했습니다. 다시 시도해 주세요."
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "스타터 팩을 사용하면 좋아하는 피드와 사용자를 친구
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "입력하신 생년월일에 따르면 회원님은 만 18세 미만입�
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "성인 콘텐츠 활성화 또는 비활성화 전환"
 
@@ -16098,8 +16109,8 @@ msgstr "서비스에 연결할 수 없습니다. 인터넷 연결 상태를 확�
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "서비스에 연결할 수 없습니다. 인터넷 연결 상태를 확인해 주세요."
@@ -16450,7 +16461,7 @@ msgstr "초대 링크 업데이트"
 msgid "Update to {domain}"
 msgstr "{domain}(으)로 변경"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "사용자 이름에는 영문자(a-z), 숫자, 하이픈만 사용할 수 있습니다"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "값:"
 msgid "Verification failed, please try again."
 msgstr "인증하지 못했습니다. 다시 시도해 주세요."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "인증 설정"
 
@@ -17055,11 +17066,11 @@ msgstr "이 피드를 좋아하는 사용자 보기"
 msgid "View video"
 msgstr "동영상 보기"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "내가 차단한 계정 보기"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "기본 게시물 상호작용 설정 보기"
 
@@ -17068,11 +17079,15 @@ msgstr "기본 게시물 상호작용 설정 보기"
 msgid "View your feeds and explore more"
 msgstr "내 피드를 보거나 새 피드 탐색하기"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "내 검토 리스트 보기"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "내가 뮤트한 계정 보기"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "Bluesky는 친구들의 전화번호를 저장하거나 메시지를 전
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "계정이 준비될 때까지 {estimatedTime}이 걸릴 것으로 예상됩니다."
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "동영상을 업로드할 수 있는지 확인할 수 없습니다. 다�
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "생년월일 설정을 불러올 수 없습니다. 다시 시도해 주세요."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "현재 구성된 라벨러를 불러올 수 없습니다."
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "현재 핸들 <0>{0}</0>은 자동으로 예약된 상태로 유지됩니다. 이 계정에서 언제든지 다시 전환할 수 있습니다."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

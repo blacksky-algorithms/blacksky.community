@@ -539,6 +539,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "{0}+ eskaera"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "{accountCount, plural, one {kontu #} other {# kontu}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, one {kontu #} other {# kontu}}, {feedCount, plural, one {feed #} other {# feed}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "Erabilerraztasun Doikuntzak"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "Eduki heldua"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "Eduki Heldu etiketak"
 msgid "Adult sexual abuse content"
 msgstr "Helduentzako sexu-abusuen edukia"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "Aurreratua"
 
@@ -2792,8 +2802,8 @@ msgstr "Berrikuspenaren zain"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "Blokeatu erabiltzailea eta/edo utzi elkarrizketa hau"
 msgid "Blocked"
 msgstr "Blokeatua"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "Blokeatutako kontuak"
 
@@ -3293,8 +3303,8 @@ msgstr "Kamerarako sarbidea behar da"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "Ez du saioa hasten erabiltzaile-izena egiaztatu ahal izateko"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "Edukia Blokeatuta"
 msgid "Content by {authorName}"
 msgstr "{authorName}-ren edukia"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "Eduki-iragazkiak"
 
@@ -5084,7 +5094,7 @@ msgstr "Gonbidapen-esteka hau desgaitu?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "Desgaituta"
 
@@ -5667,7 +5677,7 @@ msgstr "Gaitu"
 msgid "Enable {0} only"
 msgstr "Gaitu {0} soilik"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "Gaitu helduentzako edukia"
 
@@ -5721,7 +5731,7 @@ msgstr "Gaitu joera-gaiak"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Gaitu joera bideoak zure Aurkitu feedean"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "Gaituta"
 
@@ -5813,7 +5823,7 @@ msgstr "Sartu zure posta elektroniko helbidea"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "Lagunak bilatzen..."
 msgid "Finish"
 msgstr "Amaitu"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "Mmm, feed zerbitzariak erantzun txarra eman du. Mesedez, jakinarazi feed
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "Mmm, arazoak ditugu feed hau aurkitzeko. Baliteke ezabatu izana."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "Mmmmm, badirudi arazoak ditugula datu hauek kargatzeko. Ikus behean xehetasun gehiagorako. Arazo honek jarraitzen badu, jar zaitez gurekin harremanetan."
 
@@ -8011,7 +8021,7 @@ msgstr "Idatzi pasahitz berria"
 msgid "Interaction limited"
 msgstr "Elkarrekintza mugatua"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "Interakzio ezarpenak"
 
@@ -8907,8 +8917,8 @@ msgstr "Erregistroa"
 msgid "Logged out"
 msgstr "Saioa itxita"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "Kudeatu gordetako feedak"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "Kudeatu egiaztapen-ezarpenak"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "Moderazio sarrera-ontziko ezarpenak"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "Moderazioa"
 
@@ -9244,6 +9254,7 @@ msgstr "Moderazio xehetasunak"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Moderazio sarrera-ontzia"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "Moderazio-zerrenda eguneratuta"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "Moderazio zerrendak"
 
@@ -9301,7 +9312,7 @@ msgstr "moderazio ezarpenak"
 msgid "Moderation states"
 msgstr "Moderazio-egoerak"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "Mututu hitzak eta etiketak"
 msgid "Muted"
 msgstr "Mutututa"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "Mutututako kontuak"
 
@@ -9469,7 +9480,7 @@ msgstr "Mutututako kontuei postak kendu zaizkie zure feedetatik eta jakinarazpen
 msgid "Muted by \"{0}\""
 msgstr "\"{0}\"-k mututua"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "Mutututako hitzak eta etiketak"
 
@@ -10539,7 +10550,7 @@ msgstr "Ireki mezuen aukerak"
 msgid "Open moderation debug page"
 msgstr "Ireki moderazioaren arazketa orria"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "Ireki mutututako hitzen eta etiketen ezarpenak"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "Birkargatzeko oharra"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "Kendu feed hau gordetako zure feedetatik"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "Kendu erabilgarri ez dauden moderazio zerbitzuak"
 
@@ -12265,7 +12276,7 @@ msgstr "Zure feedetatik kenduta"
 msgid "Removed post"
 msgstr "Kendutako posta"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "Kendu erabilgarri ez dauden zerbitzuak"
 
@@ -13961,7 +13972,7 @@ msgstr "Edukia erakusten du"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "Hasi saioa {0} gisa"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "Zure zerrendako moderazio zerbitzu batzuk ez daude jada eskuragarri."
 
@@ -14257,7 +14268,7 @@ msgstr "Zerbait gaizki joan da"
 msgid "Something went wrong, please try again"
 msgstr "Arazoren bat izan da. Mesedez, saiatu berriro"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "Abio Multzoek zure gogoko feedak eta jendea zure lagunekin partekatzeko 
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "Sartu duzun jaiotze-datak 18 urtetik beherakoa zarela esan nahi du. Bali
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "Aldatu helduentzako edukia gaitzeko edo desgaitzeko"
 
@@ -16098,8 +16109,8 @@ msgstr "Ezin da zure zerbitzuarekin harremanetan jarri. Mesedez, egiaztatu zure 
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "Ezin da zure zerbitzuarekin harremanetan jarri. Mesedez, egiaztatu zure Interneteko konexioa."
@@ -16450,7 +16461,7 @@ msgstr "Eguneratu gonbidapen-esteka"
 msgid "Update to {domain}"
 msgstr "Eguneratu {domain}ra"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "Erabiltzaile-izenak letrak (a-z), zenbakiak eta marratxoak bakarrik izan behar ditu"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "Balioa:"
 msgid "Verification failed, please try again."
 msgstr "Egiaztapena huts egin du, saiatu berriro."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "Egiaztapen-ezarpenak"
 
@@ -17055,11 +17066,11 @@ msgstr "Ikusi feed hau gogoko duten erabiltzaileak"
 msgid "View video"
 msgstr "Bideoa ikusi"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "Ikusi zuk blokeatutako kontuak"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "Ikusi post interakzio-ezarpen lehenetsiak"
 
@@ -17068,11 +17079,15 @@ msgstr "Ikusi post interakzio-ezarpen lehenetsiak"
 msgid "View your feeds and explore more"
 msgstr "Ikusi zure feedak eta arakatu gehiago"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "Ikusi zure moderazio zerrendak"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "Ikusi zuk mutututako kontuak"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "Ez ditugu zure lagunen telefono zenbakiak gordetzen edo mezurik bidaltze
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "{estimatedTime} kalkulatzen dugu zure kontua prest egon arte."
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "Ezin izan dugu zehaztu bideoak kargatzeko baimena duzun ala ez. Mesedez,
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "Ezin izan ditugu kargatu zure jaiotze dataren hobespenak. Mesedez, saiatu berriro."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "Une honetan ezin izan ditugu kargatu konfiguratutako etiketatzaileak."
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "Zure oraingo handlea <0>{0}</0> zuretzako automatikoki erreserbatuko da. Edozein momentutan berriro aukeratu dezakezu kontu honetatik."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

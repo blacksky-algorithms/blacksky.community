@@ -539,6 +539,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "{0}+ petoj"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "{accountCount, plural, one {# konto} other {# kontoj}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, one {# konto} other {# kontoj}}, {feedCount, plural, one {# fluo} other {# fluoj}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "Alireblecaj agordoj"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "Poradolta enhavo"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "Etikedoj pri poradolta enhavo"
 msgid "Adult sexual abuse content"
 msgstr "Seksperforto farita al plenaĝuloj"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "Altnivelaj"
 
@@ -2792,8 +2802,8 @@ msgstr "Atendanta revizion"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "Bloki uzanton kaj/aŭ foriri el ĉi tiu konversacio"
 msgid "Blocked"
 msgstr "Blokita"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "Blokitaj kontoj"
 
@@ -3293,8 +3303,8 @@ msgstr "Aliro al kamerao estas bezonata"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "Nuligas ensaluton por kontroli vian uzantnomon"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "Enhavo blokita"
 msgid "Content by {authorName}"
 msgstr "Enhavo de {authorName}"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "Filtriloj por la enhavo"
 
@@ -5084,7 +5094,7 @@ msgstr "Ĉu malŝalti ĉi tiun invitligilon?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "Malŝaltita"
 
@@ -5667,7 +5677,7 @@ msgstr "Ŝalti"
 msgid "Enable {0} only"
 msgstr "Ŝalti nur {0}"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "Videbligi poradoltan enhavon"
 
@@ -5721,7 +5731,7 @@ msgstr "Videbligi furorajn temojn"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Videbligi furorajn videaĵojn en via fluo Malkovri"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "Ŝaltita"
 
@@ -5813,7 +5823,7 @@ msgstr "Entajpu vian retpoŝtadreson"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "Trovado de amikoj..."
 msgid "Finish"
 msgstr "Fini"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "Hmm, la servilo de la fluo misrespondis. Bonvolu sciigi posedanton de la
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "Hmm, ni ne sukcesas trovi ĉi tiun fluon. Eble ĝi estis forigita."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "Hmmmm, ŝajne ni havas problemon ŝargi ĉi tiun datumon. Rigardu sube por pliaj detaloj. Se la problemo daŭras, bonvolu kontakti nin."
 
@@ -8011,7 +8021,7 @@ msgstr "Entajpu novan pasvorton"
 msgid "Interaction limited"
 msgstr "Interago limigita"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "Agordoj pri interagado"
 
@@ -8907,8 +8917,8 @@ msgstr "Protokolo"
 msgid "Logged out"
 msgstr "Elsalutinta"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "Administri la konservitajn fluojn"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "Administri konfirmadajn agordojn"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr ""
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "Kontrolado"
 
@@ -9244,6 +9254,7 @@ msgstr "Detaloj pri la kontrolo"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Kontrolada enirkesto"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "Kontrol-listo ĝisdatigita"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "Kontrol-listoj"
 
@@ -9301,7 +9312,7 @@ msgstr "agordoj pri kontrolado"
 msgid "Moderation states"
 msgstr "Statoj de kontrolado"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "Silentigi vortojn kaj kradvortojn"
 msgid "Muted"
 msgstr "Silentigita"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "Silentigitaj kontoj"
 
@@ -9469,7 +9480,7 @@ msgstr "Kiam vi silentigas konton, ties afiŝoj estos forigitaj el via fluo kaj 
 msgid "Muted by \"{0}\""
 msgstr "Silentigita de \"{0}\""
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "Silentigitaj vortoj kaj kradvortoj"
 
@@ -10539,7 +10550,7 @@ msgstr "Malfermi opciojn de mesaĝoj"
 msgid "Open moderation debug page"
 msgstr "Malfermi la paĝon de kontrolada sencimigo"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "Malfermi agordojn de silentigitaj vortoj kaj kradvortoj"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "Reŝargi atentigon"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "Forigi ĉi tiun fluon el viaj konservitaj fluoj"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "Forigi la nedisponeblajn kontrol-servojn"
 
@@ -12265,7 +12276,7 @@ msgstr "Forigite el viaj fluoj"
 msgid "Removed post"
 msgstr "Forigis afiŝon"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "La nedisponeblaj servoj estis forigitaj"
 
@@ -13961,7 +13972,7 @@ msgstr "Montras la enhavon"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "Ensaluti kiel {0}"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "Iuj kontrol-servoj en via listo ne plu disponeblas."
 
@@ -14257,7 +14268,7 @@ msgstr "Io misfunkciis"
 msgid "Something went wrong, please try again"
 msgstr "Io misokazis, bonvolu reprovi"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "Startpakoj ebligas al vi konigi viajn plej ŝatatajn fluojn kaj kontojn 
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "La naskiĝdato kiun vi entajpis signifas, ke vi aĝas malpli ol 18 jaroj
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "Baskuligi por ebligi aŭ malebligi poradoltan enhavon"
 
@@ -16098,8 +16109,8 @@ msgstr "Ne eblis konekti al via servo. Bonvolu kontroli vian retkonekton kaj rep
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "Ne eblas kontakti vian servon. Bonvolu kontroli vian interretan konekton."
@@ -16450,7 +16461,7 @@ msgstr "Aktualigi invitligilon"
 msgid "Update to {domain}"
 msgstr "Ŝanĝi al {domain}"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "Uzantnomo devas enhavi nur literojn (a-z), numerojn kaj dividstrekojn"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "Valoro:"
 msgid "Verification failed, please try again."
 msgstr "Konfirmado malsukcesis, bonvolu reprovi."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "Konfirmadaj agordoj"
 
@@ -17055,11 +17066,11 @@ msgstr "Vidi uzantojn, kiuj ŝatis ĉi tiun fluon"
 msgid "View video"
 msgstr "Vidi videaĵon"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "Vidi viajn blokitajn kontojn"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "Vidi viajn defaŭltajn interagajn agordojn de afiŝoj"
 
@@ -17068,11 +17079,15 @@ msgstr "Vidi viajn defaŭltajn interagajn agordojn de afiŝoj"
 msgid "View your feeds and explore more"
 msgstr "Vidi viajn fluojn kaj esplori pli"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "Montru viajn kontrol-listojn"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "Vidi viajn silentigitajn kontojn"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "Ni ne konservas telefonnumerojn de viaj amikoj kaj sendas neniujn mesaĝ
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "Ni taksas, ke via konto pretos post {estimatedTime}."
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "Ni ne povis determini ĉu vi rajtas alŝuti videaĵojn. Bonvolu provi de
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "Ni ne povis ŝargi viajn preferojn pri naskiĝdato. Bonvolu provi denove."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "Ni ne eblis ŝargi viajn konfiguritajn etikedilojn nuntempe."
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "Via nuna identigilo, <0>{0}</0>, estos aŭtomate rezervita por vi. Vi povos denove ekuzi ĝin iam ajn de ĉi tiu konto."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

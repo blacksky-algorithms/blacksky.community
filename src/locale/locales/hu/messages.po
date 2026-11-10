@@ -539,6 +539,12 @@ msgstr "Több, mint {0}"
 msgid "{0}+ requests"
 msgstr "Több, mint {0} kérelem"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -570,6 +576,10 @@ msgstr "{accountCount, plural, other {# fiók}}"
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
 msgstr "{accountCount, plural, other {# fiók}}, {feedCount, plural, other {# hírfolyam}}"
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
+msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
 msgid "{count, plural, =0 {No requests to join} one {# request to join} other {# requests to join}}"
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "Akadálymentesítés"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "Felnőtt tartalom"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "Felnőtt tartalmi feljegyzések"
 msgid "Adult sexual abuse content"
 msgstr "Felnőttek szexuális kizsákmányolása"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "Haladó beállítások"
 
@@ -2792,8 +2802,8 @@ msgstr "Átvizsgálásra vár"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "A másik fél letiltása és/vagy a beszélgetés elhagyása"
 msgid "Blocked"
 msgstr "Letiltva"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "Letiltott fiókok"
 
@@ -3293,8 +3303,8 @@ msgstr "Kamera-hozzáférés szükséges"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "Bejelentkezés megszakítása a felhasználónév ellenőrzése érdekében"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "Letiltottad a tartalmat"
 msgid "Content by {authorName}"
 msgstr "Egyéb tartalom – Szerző: {authorName}"
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "Tartalomszűrés"
 
@@ -5084,7 +5094,7 @@ msgstr "Meghívó letiltása"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "Letiltva"
 
@@ -5667,7 +5677,7 @@ msgstr "Engedélyezés"
 msgid "Enable {0} only"
 msgstr "Csak a(z) {0} engedélyezése"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "Felnőtt tartalmak megjelenítése"
 
@@ -5721,7 +5731,7 @@ msgstr "Felkapott témakörök megjelenítése"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Felkapott videók megjelenítése a Követett hírfolyamon"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "Engedélyezve"
 
@@ -5813,7 +5823,7 @@ msgstr "Add meg az e-mail-címedet"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "Ismerősök felkutatása folyamatban…"
 msgid "Finish"
 msgstr "Befejezés"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "Hmm… Úgy tűnik, hogy a hírfolyamkiszolgáló helytelen választ ado
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "Hmm… A hírfolyam felkeresése meghiúsult. Lehetséges, hogy már nem létezik."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "Hmmmm… Az adatok betöltése meghiúsult. A részleteket alább láthatod. Ha a probléma fennáll, jelentsd nekünk."
 
@@ -8011,7 +8021,7 @@ msgstr "Új jelszó megadása"
 msgid "Interaction limited"
 msgstr "A kapcsolatbalépés korlátozott"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "Kapcsolatbalépési beállítások"
 
@@ -8907,8 +8917,8 @@ msgstr "Napló"
 msgid "Logged out"
 msgstr "Kijelentkezve"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "Mentett hírfolyamok kezelése"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "Hitelesítési beállítások"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "Moderátorüzeneti beállítások"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "Moderálás"
 
@@ -9244,6 +9254,7 @@ msgstr "Moderálási részletek"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Moderátori üzenetek"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "Moderálólista frissítve"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "Moderálólisták"
 
@@ -9301,7 +9312,7 @@ msgstr "moderálási beállítások"
 msgid "Moderation states"
 msgstr "Moderálási állapotok"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "Szavak és címkék elnémítása"
 msgid "Muted"
 msgstr "Elnémítva"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "Elnémított fiókok"
 
@@ -9469,7 +9480,7 @@ msgstr "Egy elnémított fiók nem fog megjelenni a hírfolyamaidban és nem kap
 msgid "Muted by \"{0}\""
 msgstr "Némítás forrása: {0}"
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "Elnémított szavak és címkék"
 
@@ -10539,7 +10550,7 @@ msgstr "Üzenetlehetőségek megnyitása"
 msgid "Open moderation debug page"
 msgstr "Moderálási hibakeresési oldal megnyitása"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "Elnémított szavak és címkék beállításainak megnyitása"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr "Értesítés újratöltése"
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "Eltávolítás a mentett hírfolyamok közül"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "Nem elérhető moderálási szolgáltatások eltávolítása"
 
@@ -12265,7 +12276,7 @@ msgstr "Eltávolítva a hírfolyamgyűjteményből"
 msgid "Removed post"
 msgstr "Bejegyzés eltávolítva"
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "Nem elérhető szolgáltatások eltávolítva"
 
@@ -13961,7 +13972,7 @@ msgstr "Tartalom megjelenítése"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "Bejelentkezés, mint {0}"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "A feliratkozott moderálólisták némelyike már nem elérhető."
 
@@ -14257,7 +14268,7 @@ msgstr "Valami balul sült el"
 msgid "Something went wrong, please try again"
 msgstr "Valami balul sült el. Próbáld újra"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "Egy kezdőcsomag segítségével megoszthatod a kedvenc hírfolyamaidat 
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15013,7 +15024,7 @@ msgstr "A megadott születési dátum szerint még nem vagy felnőttkorú. Ez az
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15913,7 +15924,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "Felnőtt tartalmak be/ki"
 
@@ -16100,8 +16111,8 @@ msgstr "A kiszolgáló nem található. Ellenőrizd az internetkapcsolatot, majd
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "A szolgáltatással való kapcsolatfelvétel meghiúsult. Ellenőrizd az internetkapcsolatot."
@@ -16452,7 +16463,7 @@ msgstr "Meghívó frissítése"
 msgid "Update to {domain}"
 msgstr "Frissítés erre: {domain}"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16654,7 +16665,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "A felhasználónév csak az angol ábécé betűit (A–Z), számokat és kötőjeleket tartalmazhat"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16680,7 +16691,7 @@ msgstr "Érték:"
 msgid "Verification failed, please try again."
 msgstr "A hitelesítés meghiúsult. Próbáld újra."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "Hitelesítési beállítások"
 
@@ -17057,11 +17068,11 @@ msgstr "A hírfolyamot kedvelő felhasználók megtekintése"
 msgid "View video"
 msgstr "Videó megtekintése"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "Letiltott felhasználók megtekintése"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "Alapértelmezett kapcsolatbalépési beállítások megtekintése"
 
@@ -17070,11 +17081,15 @@ msgstr "Alapértelmezett kapcsolatbalépési beállítások megtekintése"
 msgid "View your feeds and explore more"
 msgstr "Hírfolyamgyűjtemény megnyitása és további hírfolyamok felfedezése"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "Moderálólisták megtekintése"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "Elnémított fiókok megjelenítése"
 
@@ -17206,7 +17221,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17247,11 +17262,11 @@ msgstr "Nem tároljuk az ismerőseid telefonszámait és nem küldünk nekik üz
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "A fiókod elkészültéig becsült hátralévő idő: {estimatedTime}"
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17309,7 +17324,7 @@ msgstr "A videófeltöltési jogosultságod ellenőrzése meghiúsult. Próbáld
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "A születési dátumod beállításainak betöltése meghiúsult. Próbáld újra."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "A feljegyzőid betöltése meghiúsult."
 
@@ -18338,7 +18353,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "Lefoglaljuk a jelenlegi felhasználónevedet (<0>{0}</0>), így bármikor visszaválthatsz rá."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 

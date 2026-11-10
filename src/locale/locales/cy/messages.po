@@ -539,6 +539,12 @@ msgstr "{0}+"
 msgid "{0}+ requests"
 msgstr "{0}+ cais"
 
+#. Displayed when the number of notifications exceeds the cap – for example, 99+ notifications
+#. placeholder {0}: i18n.number(UNREAD_NOTIFICATION_CAP - 1)
+#: src/screens/Moderation/index.tsx:176
+msgid "{0}+ updates"
+msgstr ""
+
 #. How many days have passed, displayed in a narrow form
 #. placeholder {0}: diff.value
 #: src/lib/hooks/useTimeAgo.ts:171
@@ -569,6 +575,10 @@ msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/StarterPackSubjectPreview.tsx:71
 msgid "{accountCount, plural, one {# account} other {# accounts}}, {feedCount, plural, one {# feed} other {# feeds}}"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:182
+msgid "{badge, plural, one {# update} other {# updates}}"
 msgstr ""
 
 #: src/screens/Messages/JoinRequests.tsx:427
@@ -1561,7 +1571,7 @@ msgid "Accessibility Settings"
 msgstr "Gosodiadau Hygyrchedd"
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:247
+#: src/screens/Login/LoginForm.tsx:246
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -2031,7 +2041,7 @@ msgid "Adult Content"
 msgstr "Cynnwys Oedolion"
 
 #. placeholder {0}: BSKY_APP_HOST.replace(/^https?:\/\//, '').replace( /\/$/, '', )
-#: src/screens/Moderation/index.tsx:414
+#: src/screens/Moderation/index.tsx:480
 msgid "Adult content can only be enabled via the Web at <0>{0}</0>."
 msgstr ""
 
@@ -2048,7 +2058,7 @@ msgstr "Labeli Cynnwys Oedolion"
 msgid "Adult sexual abuse content"
 msgstr "Cynnwys camdriniaeth rywiol oedolion"
 
-#: src/screens/Moderation/index.tsx:461
+#: src/screens/Moderation/index.tsx:527
 msgid "Advanced"
 msgstr "Uwch"
 
@@ -2792,8 +2802,8 @@ msgstr "Yn aros am adolygiad"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:340
-#: src/screens/Login/LoginForm.tsx:346
+#: src/screens/Login/LoginForm.tsx:339
+#: src/screens/Login/LoginForm.tsx:345
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -3065,7 +3075,7 @@ msgstr "Rhwystro defnyddiwr a/neu adael y sgwrs hon"
 msgid "Blocked"
 msgstr "Ddim ar gael"
 
-#: src/screens/Moderation/index.tsx:316
+#: src/screens/Moderation/index.tsx:382
 msgid "Blocked accounts"
 msgstr "Cyfrifon wedi'u rhwystro"
 
@@ -3293,8 +3303,8 @@ msgstr "Mae angen mynediad i'r camera"
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:353
-#: src/screens/Login/LoginForm.tsx:360
+#: src/screens/Login/LoginForm.tsx:352
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3357,7 +3367,7 @@ msgstr ""
 msgid "Cancels signing in so you can check your username"
 msgstr "Yn diddymu mewngofnodi fel y gallwch wirio'ch enw defnyddiwr"
 
-#: src/screens/Login/LoginForm.tsx:354
+#: src/screens/Login/LoginForm.tsx:353
 msgid "Cancels the sign-in process"
 msgstr ""
 
@@ -4135,7 +4145,7 @@ msgstr "Cynnwys wedi'i Rhwystro"
 msgid "Content by {authorName}"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:349
+#: src/screens/Moderation/index.tsx:415
 msgid "Content filters"
 msgstr "Hidlo cynnwys"
 
@@ -5084,7 +5094,7 @@ msgstr "Analluogi'r ddolen gwahodd?"
 #: src/lib/moderation/useLabelBehaviorDescription.ts:35
 #: src/lib/moderation/useLabelBehaviorDescription.ts:45
 #: src/lib/moderation/useLabelBehaviorDescription.ts:71
-#: src/screens/Moderation/index.tsx:383
+#: src/screens/Moderation/index.tsx:449
 msgid "Disabled"
 msgstr "Analluogwyd"
 
@@ -5667,7 +5677,7 @@ msgstr "Galluogi"
 msgid "Enable {0} only"
 msgstr "Galluogi dim ond {0}"
 
-#: src/screens/Moderation/index.tsx:370
+#: src/screens/Moderation/index.tsx:436
 msgid "Enable adult content"
 msgstr "Galluogi cynnwys oedolion"
 
@@ -5721,7 +5731,7 @@ msgstr "Galluogi pynciau sy'n trendio"
 msgid "Enable trending videos in your Discover feed"
 msgstr "Galluogi fideos sy'n trendio yn eich ffrwd Darganfod"
 
-#: src/screens/Moderation/index.tsx:381
+#: src/screens/Moderation/index.tsx:447
 msgid "Enabled"
 msgstr "Galluogwyd"
 
@@ -5813,7 +5823,7 @@ msgstr "Rhowch eich cyfeiriad e-bost"
 msgid "Enter your handle"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:274
+#: src/screens/Login/LoginForm.tsx:273
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr ""
 
@@ -6707,7 +6717,7 @@ msgstr "Yn chwilio am ffrindiau..."
 msgid "Finish"
 msgstr "Gorffen"
 
-#: src/screens/Login/LoginForm.tsx:333
+#: src/screens/Login/LoginForm.tsx:332
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr ""
 
@@ -7666,7 +7676,7 @@ msgstr "Hmm, rhoddodd y gweinydd ffrydio ymateb gwael. Rhowch wybod i berchennog
 msgid "Hmm, we're having trouble finding this feed. It may have been deleted."
 msgstr "Hmm, rydyn ni'n cael trafferth dod o hyd i'r ffrwd yma. Efallai ei fod wedi'i ddileu."
 
-#: src/screens/Moderation/index.tsx:61
+#: src/screens/Moderation/index.tsx:65
 msgid "Hmmmm, it seems we're having trouble loading this data. See below for more details. If this issue persists, please contact us."
 msgstr "Hmmm, mae'n ymddangos ein bod yn cael trafferth llwytho'r data hwn. Gweler isod am ragor o fanylion. Os bydd y mater hwn yn parhau, cysylltwch â ni."
 
@@ -8011,7 +8021,7 @@ msgstr "Mewnbynnu cyfrinair newydd"
 msgid "Interaction limited"
 msgstr "Rhyngweithio yn gyfyngedig"
 
-#: src/screens/Moderation/index.tsx:256
+#: src/screens/Moderation/index.tsx:322
 msgid "Interaction settings"
 msgstr "Gosodiadau rhyngweithio"
 
@@ -8907,8 +8917,8 @@ msgstr "Cofnod"
 msgid "Logged out"
 msgstr "Wedi allgofnodi"
 
-#: src/screens/Login/LoginForm.tsx:366
-#: src/screens/Login/LoginForm.tsx:373
+#: src/screens/Login/LoginForm.tsx:365
+#: src/screens/Login/LoginForm.tsx:372
 msgid "Login"
 msgstr ""
 
@@ -8987,7 +8997,7 @@ msgstr ""
 msgid "Manage saved feeds"
 msgstr "Rheoli ffrydiau wedi'u cadw"
 
-#: src/screens/Moderation/index.tsx:326
+#: src/screens/Moderation/index.tsx:392
 msgid "Manage verification settings"
 msgstr "Rheoli gosodiadau dilysu"
 
@@ -9229,7 +9239,7 @@ msgid "Mod inbox settings"
 msgstr "Gosodiadau blwch derbyn cymedroli"
 
 #: src/Navigation.tsx:228
-#: src/screens/Moderation/index.tsx:100
+#: src/screens/Moderation/index.tsx:104
 msgid "Moderation"
 msgstr "Cymedroli"
 
@@ -9244,6 +9254,7 @@ msgstr "Manylion cymedroli"
 #. Name for a feature flag
 #: src/analytics/features/index.ts:169
 #: src/Navigation.tsx:233
+#: src/screens/Moderation/index.tsx:288
 #: src/screens/ModerationInbox/index.tsx:106
 msgid "Moderation inbox"
 msgstr "Blwch derbyn cymedroli"
@@ -9279,7 +9290,7 @@ msgctxt "toast"
 msgid "Moderation list updated"
 msgstr "Rhestr cymedroli wedi'i diweddaru"
 
-#: src/screens/Moderation/index.tsx:286
+#: src/screens/Moderation/index.tsx:352
 msgid "Moderation lists"
 msgstr "Rhestrau cymedroli"
 
@@ -9301,7 +9312,7 @@ msgstr "gosodiadau cymedroli"
 msgid "Moderation states"
 msgstr "Cyflyrau cymedroli"
 
-#: src/screens/Moderation/index.tsx:240
+#: src/screens/Moderation/index.tsx:306
 #: src/screens/Settings/Settings.tsx:199
 #: src/screens/Settings/Settings.tsx:210
 msgid "Moderation tools"
@@ -9451,7 +9462,7 @@ msgstr "Tewi geiriau a thagiau"
 msgid "Muted"
 msgstr "Wedi'i dewi"
 
-#: src/screens/Moderation/index.tsx:301
+#: src/screens/Moderation/index.tsx:367
 msgid "Muted accounts"
 msgstr "Cyfrifon wedi'u tewi"
 
@@ -9469,7 +9480,7 @@ msgstr "Mae postiadau cyfrifon wedi'u tewi'n cael eu tynnu o'ch ffrydiau a'ch hy
 msgid "Muted by \"{0}\""
 msgstr "Wedi'i dewi gan \"{0}\""
 
-#: src/screens/Moderation/index.tsx:271
+#: src/screens/Moderation/index.tsx:337
 msgid "Muted words & tags"
 msgstr "Geiriau a thagiau wedi'u tewi"
 
@@ -10539,7 +10550,7 @@ msgstr "Agor dewisiadau neges"
 msgid "Open moderation debug page"
 msgstr "Agor tudalen dadfygio cymedroli"
 
-#: src/screens/Moderation/index.tsx:267
+#: src/screens/Moderation/index.tsx:333
 msgid "Open muted words and tags settings"
 msgstr "Agor gosodiadau geiriau wedi'u tewi a thagiau"
 
@@ -10928,8 +10939,8 @@ msgid "Pass/Unsure"
 msgstr ""
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:284
-#: src/screens/Login/LoginForm.tsx:289
+#: src/screens/Login/LoginForm.tsx:283
+#: src/screens/Login/LoginForm.tsx:288
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -12001,7 +12012,7 @@ msgstr ""
 #: src/screens/Bookmarks.tsx:260
 #: src/screens/Messages/ConversationSettings/Member.tsx:162
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
-#: src/screens/Moderation/index.tsx:481
+#: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
 #: src/view/com/composer/event/EventCoverPicker.tsx:139
 #: src/view/com/composer/event/EventEditor.tsx:151
@@ -12205,7 +12216,7 @@ msgstr ""
 msgid "Remove this feed from your saved feeds"
 msgstr "Tynnu'r ffrydiwr hwn o'ch ffrydiau wedi'u cadw"
 
-#: src/screens/Moderation/index.tsx:477
+#: src/screens/Moderation/index.tsx:543
 msgid "Remove unavailable moderation services"
 msgstr "Tynnu gwasanaethau cymedroli sydd ddim ar gael"
 
@@ -12265,7 +12276,7 @@ msgstr "Wedi'i dynnu o'ch ffrydiau"
 msgid "Removed post"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:184
+#: src/screens/Moderation/index.tsx:224
 msgid "Removed unavailable services"
 msgstr "Tynnu gwasanaethau sydd ddim ar gael"
 
@@ -13961,7 +13972,7 @@ msgstr "Yn dangos y cynnwys"
 #: src/screens/Hashtag.tsx:233
 #: src/screens/Login/index.tsx:124
 #: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:244
+#: src/screens/Login/LoginForm.tsx:243
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
@@ -13989,7 +14000,7 @@ msgstr "Mewngofnodi fel {0}"
 msgid "Sign in as {fullDraftHandle}"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:313
+#: src/screens/Login/LoginForm.tsx:312
 msgid "Sign in as {handle}"
 msgstr ""
 
@@ -14179,7 +14190,7 @@ msgstr ""
 msgid "Some community members can reply"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:470
+#: src/screens/Moderation/index.tsx:536
 msgid "Some moderation services in your list are no longer available."
 msgstr "Dyw rhai gwasanaethau cymedroli sydd ar eich rhestr ddim ar gael bellach."
 
@@ -14257,7 +14268,7 @@ msgstr "Aeth rhywbeth o'i le"
 msgid "Something went wrong, please try again"
 msgstr "Aeth rhywbeth o'i le, ceisiwch eto"
 
-#: src/screens/Moderation/index.tsx:112
+#: src/screens/Moderation/index.tsx:116
 #: src/screens/Profile/Sections/Labels.tsx:185
 #: src/screens/Settings/BetaFeaturesSettings.tsx:110
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:90
@@ -14436,7 +14447,7 @@ msgstr "Mae Pecynnau Cychwyn yn gadael i chi rannu'ch hoff ffrydiau a phobl gyda
 msgid "Starting discussion..."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:367
+#: src/screens/Login/LoginForm.tsx:366
 msgid "Starts the sign-in process"
 msgstr ""
 
@@ -15011,7 +15022,7 @@ msgstr "Mae'r dyddiad geni rydych wedi'i gyflwyno'n golygu eich bod yn iau na 18
 msgid "The Blacksky Trending"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:417
+#: src/screens/Moderation/index.tsx:483
 msgid "The Blacksky web application"
 msgstr ""
 
@@ -15911,7 +15922,7 @@ msgstr ""
 msgid "Toggle tallest card"
 msgstr ""
 
-#: src/screens/Moderation/index.tsx:373
+#: src/screens/Moderation/index.tsx:439
 msgid "Toggle to enable or disable adult content"
 msgstr "Toglo i alluogi neu analluogi cynnwys oedolion"
 
@@ -16098,8 +16109,8 @@ msgstr "Methu cysylltu â'ch gwasanaeth. Gwiriwch eich cysylltiad rhyngrwyd a rh
 #: src/screens/Login/index.tsx:98
 #: src/screens/Login/LoginForm.tsx:88
 #: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:164
-#: src/screens/Login/LoginForm.tsx:220
+#: src/screens/Login/LoginForm.tsx:163
+#: src/screens/Login/LoginForm.tsx:219
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr "Methu cysylltu â'ch gwasanaeth. Gwiriwch eich cysylltiad rhyngrwyd."
@@ -16450,7 +16461,7 @@ msgstr "Diweddaru dolen gwahodd"
 msgid "Update to {domain}"
 msgstr "Diweddaru i {domain}"
 
-#: src/screens/Moderation/index.tsx:397
+#: src/screens/Moderation/index.tsx:463
 msgid "Update your birthdate"
 msgstr ""
 
@@ -16652,7 +16663,7 @@ msgstr ""
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr "Gall enw defnyddiwr gynnwys dim ond llythrennau (a-z), rifau a chyplysnodau"
 
-#: src/screens/Login/LoginForm.tsx:254
+#: src/screens/Login/LoginForm.tsx:253
 msgid "Username or handle"
 msgstr ""
 
@@ -16678,7 +16689,7 @@ msgstr "Gwerth:"
 msgid "Verification failed, please try again."
 msgstr "Methodd y dilysu, ceisiwch eto."
 
-#: src/screens/Moderation/index.tsx:331
+#: src/screens/Moderation/index.tsx:397
 msgid "Verification settings"
 msgstr "Gosodiadau dilysu"
 
@@ -17055,11 +17066,11 @@ msgstr "Gweld defnyddwyr sy'n hoffi'r ffrwd hon"
 msgid "View video"
 msgstr "Gweld fideo"
 
-#: src/screens/Moderation/index.tsx:311
+#: src/screens/Moderation/index.tsx:377
 msgid "View your blocked accounts"
 msgstr "Gweld eich cyfrifon sydd wedi'u rhwystro"
 
-#: src/screens/Moderation/index.tsx:251
+#: src/screens/Moderation/index.tsx:317
 msgid "View your default post interaction settings"
 msgstr "Gweld eich gosodiadau rhyngweithio postiadau rhagosodedig"
 
@@ -17068,11 +17079,15 @@ msgstr "Gweld eich gosodiadau rhyngweithio postiadau rhagosodedig"
 msgid "View your feeds and explore more"
 msgstr "Gweld eich ffrydiau ac archwilio mwy"
 
-#: src/screens/Moderation/index.tsx:281
+#: src/screens/Moderation/index.tsx:282
+msgid "View your moderation inbox"
+msgstr ""
+
+#: src/screens/Moderation/index.tsx:347
 msgid "View your moderation lists"
 msgstr "Gweld eich rhestrau cymedroli"
 
-#: src/screens/Moderation/index.tsx:296
+#: src/screens/Moderation/index.tsx:362
 msgid "View your muted accounts"
 msgstr "Gweld eich cyfrifon wedi tewi"
 
@@ -17204,7 +17219,7 @@ msgstr ""
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:229
+#: src/screens/Login/LoginForm.tsx:228
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr ""
 
@@ -17245,11 +17260,11 @@ msgstr "Dydyn ni ddim yn cadw rhifau ffôn eich ffrindiau nac yn anfon unrhyw ne
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "Rydym yn amcangyfrif {estimatedTime} nes bod eich cyfrif yn barod."
 
-#: src/screens/Login/LoginForm.tsx:325
+#: src/screens/Login/LoginForm.tsx:324
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:305
+#: src/screens/Login/LoginForm.tsx:304
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr ""
 
@@ -17307,7 +17322,7 @@ msgstr "Doedden ni ddim yn gallu penderfynu a ydych yn cael llwytho fideos i fyn
 msgid "We were unable to load your birthdate preferences. Please try again."
 msgstr "Doedd dim modd llwytho eich dewis o ddyddiad geni. Ceisiwch eto."
 
-#: src/screens/Moderation/index.tsx:496
+#: src/screens/Moderation/index.tsx:562
 msgid "We were unable to load your configured labelers at this time."
 msgstr "Doedden ni ddim yn gallu llwytho eich labeli ffurfweddu ar hyn o bryd."
 
@@ -18336,7 +18351,7 @@ msgstr ""
 msgid "Your current handle <0>{0}</0> will automatically remain reserved for you. You can switch back to it at any time from this account."
 msgstr "Bydd eich enw dangos presennol <0>{0}</0> yn cael ei gadw'n awtomatig i chi. Gallwch newid yn ôl iddo unrhyw bryd o'r cyfrif hwn."
 
-#: src/screens/Moderation/index.tsx:393
+#: src/screens/Moderation/index.tsx:459
 msgid "Your declared age is under 18, so adult content is turned off and cannot be enabled. If this is a mistake, you can <0>update your birthdate</0>."
 msgstr ""
 
