@@ -14,7 +14,6 @@ import {
   type EventView,
   RSVP_GOING,
   RSVP_INTERESTED,
-  RSVP_NOTGOING,
   type RsvpStatus,
 } from '../types'
 
@@ -55,11 +54,6 @@ export function RsvpButtons({
       status: RSVP_INTERESTED,
       label: _(msg`Interested`),
       removeLabel: _(msg`Interested, tap to remove`),
-    },
-    {
-      status: RSVP_NOTGOING,
-      label: _(msg`Not going`),
-      removeLabel: _(msg`Not going, tap to remove`),
     },
   ]
   return (

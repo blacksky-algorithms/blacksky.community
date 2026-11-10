@@ -31,7 +31,6 @@ import {
   type EventView,
   RSVP_GOING,
   RSVP_INTERESTED,
-  RSVP_NOTGOING,
   type RsvpStatus,
   type RsvpView,
 } from '#/features/events/types'
@@ -276,12 +275,6 @@ function RsvpChoices({event}: {event: EventView}) {
       emoji: '🤔',
       label: _(msg`Interested`),
       removeLabel: _(msg`Interested, tap to remove`),
-    },
-    {
-      status: RSVP_NOTGOING,
-      emoji: '😢',
-      label: _(msg`Not going`),
-      removeLabel: _(msg`Not going, tap to remove`),
     },
   ]
   const onPress = (status: RsvpStatus) =>
