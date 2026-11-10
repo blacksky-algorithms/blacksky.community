@@ -65,7 +65,7 @@ describe('session', () => {
         "accounts": [],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -154,7 +154,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -492,7 +492,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -554,7 +554,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -647,7 +647,7 @@ describe('session', () => {
         "accounts": [],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -827,7 +827,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -1023,16 +1023,19 @@ describe('session', () => {
       handle: 'alice.test',
       isOauthSession: true,
     }
-    const agent = new AtpAgent({service: account.service})
     let state = run(getInitialState([]), [
-      {type: 'switched-to-account', newAgent: agent, newAccount: account},
+      {
+        type: 'switched-to-account',
+        newBundle: makeBundle(account.service),
+        newAccount: account,
+      },
     ])
 
     state = run(state, [
       {type: 'oauth-session-terminated', accountDid: account.did},
     ])
 
-    expect(state.currentAgentState.did).toBeUndefined()
+    expect(state.currentBundleState.did).toBeUndefined()
     expect(state.accounts).toEqual([account])
     expect(state.needsPersist).toBe(true)
   })
@@ -1050,11 +1053,17 @@ describe('session', () => {
       handle: 'bob.test',
       isOauthSession: true,
     }
-    const aliceAgent = new AtpAgent({service: alice.service})
-    const bobAgent = new AtpAgent({service: bob.service})
     const state = run(getInitialState([]), [
-      {type: 'switched-to-account', newAgent: aliceAgent, newAccount: alice},
-      {type: 'switched-to-account', newAgent: bobAgent, newAccount: bob},
+      {
+        type: 'switched-to-account',
+        newBundle: makeBundle(alice.service),
+        newAccount: alice,
+      },
+      {
+        type: 'switched-to-account',
+        newBundle: makeBundle(bob.service),
+        newAccount: bob,
+      },
     ])
 
     const next = reducer(state, {
@@ -1063,7 +1072,7 @@ describe('session', () => {
     })
 
     expect(next).toBe(state)
-    expect(next.currentAgentState.did).toBe(bob.did)
+    expect(next.currentBundleState.did).toBe(bob.did)
   })
 
   it('bails out of update on identical objects', () => {
@@ -1569,7 +1578,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -1726,7 +1735,7 @@ describe('session', () => {
         ],
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
