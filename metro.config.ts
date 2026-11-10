@@ -51,6 +51,17 @@ let config = getSentryExpoConfig(import.meta.dirname, {
           platform,
         )
       }
+      /*
+       * @atproto/oauth-client-expo imports its platform-split entry with an
+       * explicit `.js` extension, which Metro does not map to the `.native.js`
+       * and `.web.js` files.
+       */
+      if (
+        moduleName === './expo-oauth-client.js' &&
+        context.originModulePath.includes('@atproto/oauth-client-expo')
+      ) {
+        return context.resolveRequest(context, './expo-oauth-client', platform)
+      }
       if (
         process.env.BSKY_PROFILE &&
         moduleName.endsWith('ReactNativeRenderer-prod')
