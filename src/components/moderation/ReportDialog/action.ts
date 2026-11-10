@@ -1,22 +1,21 @@
-import {
-  type $Typed,
-  BSKY_LABELER_DID,
-  type ChatBskyConvoDefs,
-  type ComAtprotoModerationCreateReport,
-} from '@atproto/api'
+import {type AtUriString, type DidString} from '@atproto/syntax'
+import {api} from '@bsky/sdk'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {com} from '#/lexicons'
 import {NEW_TO_OLD_REASONS_MAP, REPORT_MOD_TOOL_NAME} from './const'
 import {type ReportState} from './state'
 import {type ParsedReportSubject} from './types'
 
+type ReportInput = com.atproto.moderation.createReport.$InputBody
+
 export function useSubmitReportMutation() {
   const {_} = useLingui()
-  const agent = useAgent()
+  const client = useAppviewClient()
 
   return useMutation({
     async mutationFn({
@@ -59,13 +58,7 @@ export function useSubmitReportMutation() {
         reasonType = backwardsCompatibleReasonType
       }
 
-      let report:
-        | ComAtprotoModerationCreateReport.InputSchema
-        | (Omit<ComAtprotoModerationCreateReport.InputSchema, 'subject'> & {
-            subject:
-              | $Typed<ChatBskyConvoDefs.MessageRef>
-              | $Typed<ChatBskyConvoDefs.ConvoRef>
-          })
+      let report: ReportInput
 
       switch (subject.type) {
         case 'account': {
@@ -74,7 +67,8 @@ export function useSubmitReportMutation() {
             reason: state.details,
             subject: {
               $type: 'com.atproto.admin.defs#repoRef',
-              did: subject.did,
+              // the parsed subject holds the did as a plain string
+              did: subject.did as DidString,
             },
           }
           break
@@ -83,13 +77,21 @@ export function useSubmitReportMutation() {
         case 'post':
         case 'list':
         case 'feed':
-        case 'starterPack': {
+        case 'starterPack':
+        case 'profileLink':
+        case 'article':
+        case 'photo':
+        case 'publication':
+        case 'gallery':
+        case 'livestream':
+        case 'record': {
           report = {
             reasonType,
             reason: state.details,
             subject: {
               $type: 'com.atproto.repo.strongRef',
-              uri: subject.uri,
+              // the parsed subject carries an at-uri read off a view
+              uri: subject.uri as AtUriString,
               cid: subject.cid,
             },
           }
@@ -99,12 +101,12 @@ export function useSubmitReportMutation() {
           report = {
             reasonType,
             reason: state.details,
-            subject: {
+            subject: toOpenSubject({
               $type: 'chat.bsky.convo.defs#messageRef',
               messageId: subject.message.id,
               convoId: subject.convoId,
               did: subject.message.sender.did,
-            },
+            }),
           }
           break
         }
@@ -112,11 +114,11 @@ export function useSubmitReportMutation() {
           report = {
             reasonType,
             reason: state.details,
-            subject: {
+            subject: toOpenSubject({
               $type: 'chat.bsky.convo.defs#convoRef',
               convoId: subject.convoId,
               did: subject.did,
-            },
+            }),
           }
           break
         }
@@ -126,7 +128,7 @@ export function useSubmitReportMutation() {
         state.includeVideoTimestamp &&
         videoTimestampSeconds != null &&
         subject.type === 'post' &&
-        labeler.creator.did === BSKY_LABELER_DID
+        labeler.creator.did === api.moderation.did
           ? {videoTimestampSeconds}
           : undefined
 
@@ -145,13 +147,38 @@ export function useSubmitReportMutation() {
           report,
         })
       } else {
-        await agent.createModerationReport(report, {
-          encoding: 'application/json',
-          headers: {
-            'atproto-proxy': `${labeler.creator.did}#atproto_labeler`,
-          },
+        /*
+         * Reports go to the labeler the user selected rather than Bluesky's, so
+         * the proxy target is built per call from that labeler's creator did.
+         *
+         * We never read the response, so skip parsing and validating it. Some
+         * third-party labelers return report ids outside JS's safe integer
+         * range, which the lex client rejects even though the report was
+         * accepted. Both options are needed: strict parsing and schema
+         * validation each reject the id on their own.
+         */
+        await client.call(com.atproto.moderation.createReport, report, {
+          service: `${labeler.creator.did}#atproto_labeler`,
+          validateResponse: false,
+          strictResponseProcessing: false,
         })
       }
     },
   })
+}
+
+/**
+ * Widen a chat convo ref into `createReport`'s subject union.
+ *
+ * The lexicon declares only `com.atproto.admin.defs#repoRef` and
+ * `com.atproto.repo.strongRef`, but leaves the union OPEN, and the chat service
+ * accepts its own refs there. An open union types its unknown arm as
+ * `{$type: Unknown$Type}`, which a concrete chat ref does not structurally
+ * satisfy, so the widening is asserted here once rather than at each call site.
+ */
+function toOpenSubject(ref: {
+  $type: string
+  [key: string]: unknown
+}): ReportInput['subject'] {
+  return ref as unknown as ReportInput['subject']
 }

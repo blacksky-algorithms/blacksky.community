@@ -1,21 +1,13 @@
-import {View} from 'react-native'
-import {type AppBskyFeedDefs, AtUri, moderateProfile} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {makeProfileLink} from '#/lib/routes/links'
-import {sanitizeDisplayName} from '#/lib/strings/display-names'
-import {useModerationOpts} from '#/state/preferences/moderation-opts'
-import {useLikedBySampleQuery} from '#/state/queries/post-liked-by'
-import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
-import {AvatarStack} from '#/components/AvatarStack'
-import {InlineLinkText, Link} from '#/components/Link'
+import {Link} from '#/components/Link'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
-import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-
-const AVI_SIZE = 20
+import {type app} from '#/lexicons'
 
 /**
  * The plain "N likes" stat for the expanded anchor post, linking to the likes
@@ -25,7 +17,7 @@ export function LikesStat({
   post,
   href,
 }: {
-  post: AppBskyFeedDefs.PostView
+  post: app.bsky.feed.defs.PostView
   /** Overrides the default link, e.g. for posts whose uri is not an at-uri. */
   href?: string
 }) {
@@ -73,7 +65,7 @@ export function KnownLikers({
   post,
   href,
 }: {
-  post: AppBskyFeedDefs.PostView
+  post: app.bsky.feed.defs.PostView
   /** Overrides the default link, e.g. for posts whose uri is not an at-uri. */
   href?: string
 }) {

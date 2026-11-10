@@ -8,7 +8,7 @@ import {gateDeactivateAccount} from '#/lib/api/gatekeeper'
 import {useBrand} from '#/lib/community/BrandContext'
 import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {logger} from '#/logger'
-import {useAgent, useSession, useSessionApi} from '#/state/session'
+import {usePdsClient, useSession, useSessionApi} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogOuterProps} from '#/components/Dialog'
@@ -19,6 +19,7 @@ import {Lock_Stroke2_Corner2_Rounded as Lock} from '#/components/icons/Lock'
 import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
+import {com} from '#/lexicons'
 
 export function DeactivateAccountDialog({
   control,
@@ -40,7 +41,7 @@ function DeactivateAccountDialogInner({
   const t = useTheme()
   const {_} = useLingui()
   const brand = useBrand()
-  const agent = useAgent()
+  const client = usePdsClient()
   const {currentAccount} = useSession()
   const {logoutCurrentAccount} = useSessionApi()
   const [pending, setPending] = useState(false)
@@ -66,7 +67,7 @@ function DeactivateAccountDialogInner({
           password,
         })
       } else {
-        await agent.com.atproto.server.deactivateAccount({})
+        await client.call(com.atproto.server.deactivateAccount, {})
       }
       control.close(() => {
         logoutCurrentAccount('Deactivated')
@@ -91,11 +92,10 @@ function DeactivateAccountDialogInner({
       logger.error(e, {
         message: 'Failed to deactivate account',
       })
-    } finally {
-      setPending(false)
     }
+    setPending(false)
   }, [
-    agent,
+    client,
     control,
     logoutCurrentAccount,
     _,

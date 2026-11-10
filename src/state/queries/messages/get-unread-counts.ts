@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query'
 
-import {DM_SERVICE_HEADERS} from '#/lib/constants'
-import {useAgent, useSession} from '#/state/session'
+import {useChatClient, useSession} from '#/state/session'
+import {chat} from '#/lexicons'
 import {STALE} from '..'
 
 const RQKEY_ROOT = 'convo-unread-counts'
@@ -17,18 +17,16 @@ export const UNREAD_ACCEPTED_CAP = 100
 export const UNREAD_REQUEST_CAP = 100
 
 export function useUnreadCountsQuery() {
-  const agent = useAgent()
+  const client = useChatClient()
   const {hasSession} = useSession()
   const includeGroupChats = true
 
   return useQuery({
     queryKey: RQKEY(includeGroupChats),
     queryFn: async () => {
-      const {data} = await agent.chat.bsky.convo.getUnreadCounts(
-        {includeGroupChats},
-        {headers: DM_SERVICE_HEADERS},
-      )
-      return data
+      return await client.call(chat.bsky.convo.getUnreadCounts, {
+        includeGroupChats,
+      })
     },
     staleTime: STALE.SECONDS.FIFTEEN,
     enabled: hasSession,

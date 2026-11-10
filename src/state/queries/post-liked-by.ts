@@ -1,21 +1,18 @@
-import {
-  type AppBskyActorDefs,
-  type AppBskyFeedGetLikes,
-  type BskyAgent,
-} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type AtUriString} from '@atproto/syntax'
 import {
   type InfiniteData,
   type QueryClient,
   type QueryKey,
   useInfiniteQuery,
-  useQuery,
 } from '@tanstack/react-query'
 
 import {getSpacePostLikes} from '#/lib/api/community'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
 
 const PAGE_SIZE = 30
 type RQPageParam = string | undefined
@@ -25,37 +22,36 @@ const RQKEY_ROOT = 'liked-by'
 export const RQKEY = (resolvedUri: string) => [RQKEY_ROOT, resolvedUri]
 
 export async function fetchLikedByPage(
-  agent: BskyAgent,
+  client: Client,
   resolvedUri: string,
   cursor?: string,
-): Promise<AppBskyFeedGetLikes.OutputSchema> {
+): Promise<app.bsky.feed.getLikes.$OutputBody> {
   if (isSpaceRecordUri(resolvedUri)) {
-    return getSpacePostLikes(agent, {
+    return getSpacePostLikes(client, {
       uri: resolvedUri,
       limit: PAGE_SIZE,
       cursor,
     })
   }
-  const res = await agent.getLikes({
-    uri: resolvedUri,
+  return await client.call(app.bsky.feed.getLikes, {
+    uri: resolvedUri as AtUriString,
     limit: PAGE_SIZE,
     cursor,
   })
-  return res.data
 }
 
 export function useLikedByQuery(resolvedUri: string | undefined) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useInfiniteQuery<
-    AppBskyFeedGetLikes.OutputSchema,
+    app.bsky.feed.getLikes.$OutputBody,
     Error,
-    InfiniteData<AppBskyFeedGetLikes.OutputSchema>,
+    InfiniteData<app.bsky.feed.getLikes.$OutputBody>,
     QueryKey,
     RQPageParam
   >({
     queryKey: RQKEY(resolvedUri || ''),
     async queryFn({pageParam}: {pageParam: RQPageParam}) {
-      return fetchLikedByPage(agent, resolvedUri || '', pageParam)
+      return fetchLikedByPage(client, resolvedUri || '', pageParam)
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -74,14 +70,16 @@ export const createLikedBySampleQueryKey = (args: {uri: string}) =>
   createQueryKey(likedBySampleQueryKeyRoot, args)
 
 export async function fetchLikedBySample(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
-): Promise<AppBskyFeedGetLikes.OutputSchema> {
+): Promise<app.bsky.feed.getLikes.$OutputBody> {
   if (isSpaceRecordUri(uri)) {
-    return getSpacePostLikes(agent, {uri, limit: SAMPLE_SIZE})
+    return getSpacePostLikes(client, {uri, limit: SAMPLE_SIZE})
   }
-  const res = await agent.getLikes({uri, limit: SAMPLE_SIZE})
-  return res.data
+  return await client.call(app.bsky.feed.getLikes, {
+    uri: uri as AtUriString,
+    limit: SAMPLE_SIZE,
+  })
 }
 
 /**
@@ -91,10 +89,10 @@ export async function fetchLikedBySample(
  * perturb the liked-by screen's pagination.
  */
 export function useLikedBySampleQuery({uri}: {uri: string | undefined}) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery({
     queryKey: createLikedBySampleQueryKey({uri: uri ?? ''}),
-    queryFn: () => fetchLikedBySample(agent, uri ?? ''),
+    queryFn: () => fetchLikedBySample(client, uri ?? ''),
     staleTime: STALE.MINUTES.FIVE,
     enabled: !!uri,
     /*
@@ -108,9 +106,9 @@ export function useLikedBySampleQuery({uri}: {uri: string | undefined}) {
 export function* findAllProfilesInQueryData(
   queryClient: QueryClient,
   did: string,
-): Generator<AppBskyActorDefs.ProfileView, void> {
+): Generator<app.bsky.actor.defs.ProfileView, void> {
   const queryDatas = queryClient.getQueriesData<
-    InfiniteData<AppBskyFeedGetLikes.OutputSchema>
+    InfiniteData<app.bsky.feed.getLikes.$OutputBody>
   >({
     queryKey: [RQKEY_ROOT],
   })
@@ -123,20 +121,6 @@ export function* findAllProfilesInQueryData(
         if (like.actor.did === did) {
           yield like.actor
         }
-      }
-    }
-  }
-  const sampleQueryDatas =
-    queryClient.getQueriesData<AppBskyFeedGetLikes.OutputSchema>({
-      queryKey: [likedBySampleQueryKeyRoot],
-    })
-  for (const [_queryKey, queryData] of sampleQueryDatas) {
-    if (!queryData?.likes) {
-      continue
-    }
-    for (const like of queryData.likes) {
-      if (like.actor.did === did) {
-        yield like.actor
       }
     }
   }

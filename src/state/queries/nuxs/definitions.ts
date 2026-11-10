@@ -7,18 +7,24 @@ export enum Nux {
   ExploreInterestsCard = 'ExploreInterestsCard',
   InitialVerificationAnnouncement = 'InitialVerificationAnnouncement',
   ActivitySubscriptions = 'ActivitySubscriptions',
+  AtmosphereNux = 'AtmosphereNux',
   AgeAssuranceDismissibleNotice = 'AgeAssuranceDismissibleNotice',
   AgeAssuranceDismissibleFeedBanner = 'AgeAssuranceDismissibleFeedBanner',
   BookmarksAnnouncement = 'BookmarksAnnouncement',
   FindContactsAnnouncement = 'FindContactsAnnouncement',
   FindContactsDismissibleBanner = 'FindContactsDismissibleBanner',
   LiveNowBetaDialog = 'LiveNowBetaDialog',
-  LiveNowBetaNudge = 'LiveNowBetaNudge',
   DraftsAnnouncement = 'DraftsAnnouncement',
   GroupChatsAnnouncement = 'GroupChatsAnnouncement',
   InviteFriendsAnnouncement = 'InviteFriendsAnnouncement',
   ComposerPoll = 'ComposerPoll',
   Midterms2026Card = 'Midterms2026Card',
+  IPadBetaAnnouncement = 'IPadBetaAnnouncement',
+
+  /*
+   * Blocking announcements. New IDs are required for each new announcement.
+   */
+  PolicyUpdate202508 = 'PolicyUpdate202508',
 }
 
 export const nuxNames = new Set(Object.values(Nux))
@@ -38,6 +44,10 @@ export type AppNux = BaseNux<
     }
   | {
       id: Nux.ActivitySubscriptions
+      data: undefined
+    }
+  | {
+      id: Nux.AtmosphereNux
       data: undefined
     }
   | {
@@ -65,10 +75,6 @@ export type AppNux = BaseNux<
       data: undefined
     }
   | {
-      id: Nux.LiveNowBetaNudge
-      data: undefined
-    }
-  | {
       id: Nux.DraftsAnnouncement
       data: undefined
     }
@@ -86,6 +92,7 @@ export type AppNux = BaseNux<
     }
   | {
       id: Nux.Midterms2026Card
+      id: Nux.IPadBetaAnnouncement
       data: undefined
     }
 >
@@ -95,16 +102,17 @@ export const NuxSchemas: Record<Nux, zod.ZodObject<any> | undefined> = {
   [Nux.ExploreInterestsCard]: undefined,
   [Nux.InitialVerificationAnnouncement]: undefined,
   [Nux.ActivitySubscriptions]: undefined,
+  [Nux.AtmosphereNux]: undefined,
   [Nux.AgeAssuranceDismissibleNotice]: undefined,
   [Nux.AgeAssuranceDismissibleFeedBanner]: undefined,
   [Nux.BookmarksAnnouncement]: undefined,
   [Nux.FindContactsAnnouncement]: undefined,
   [Nux.FindContactsDismissibleBanner]: undefined,
   [Nux.LiveNowBetaDialog]: undefined,
-  [Nux.LiveNowBetaNudge]: undefined,
   [Nux.DraftsAnnouncement]: undefined,
   [Nux.GroupChatsAnnouncement]: undefined,
   [Nux.InviteFriendsAnnouncement]: undefined,
   [Nux.ComposerPoll]: undefined,
   [Nux.Midterms2026Card]: undefined,
+  [Nux.IPadBetaAnnouncement]: undefined,
 }

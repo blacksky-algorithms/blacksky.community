@@ -23,6 +23,7 @@ export async function openPicker(opts?: ImagePickerOptions) {
     quality: 1,
     selectionLimit: 1,
     ...opts,
+    shouldDownloadFromNetwork: true,
     legacy: true,
     preferredAssetRepresentationMode:
       UIImagePickerPreferredAssetRepresentationMode.Automatic,
@@ -58,9 +59,12 @@ export async function openUnifiedPicker({
     quality: 1,
     allowsMultipleSelection: true,
     legacy: true,
-    // Forcing base64 on web preloads the whole video, killing mobile Safari tabs.
+    // Reading videos as base64 can fail in the browser before callers have a
+    // chance to validate the file size. Web callers can read image files from
+    // the `file` returned on each asset after validation instead.
     base64: false,
     selectionLimit: IS_IOS ? selectionCountRemaining : undefined,
+    shouldDownloadFromNetwork: true,
     preferredAssetRepresentationMode:
       UIImagePickerPreferredAssetRepresentationMode.Automatic,
     videoExportPreset: VideoExportPreset.Passthrough,

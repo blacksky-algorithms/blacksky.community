@@ -15,6 +15,7 @@ import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
+import {useSetPostTitle} from '#/lib/hooks/useSetPostTitle'
 import {
   FeedFeedbackProvider,
   type StateContext as FeedFeedbackStateContext,
@@ -92,6 +93,8 @@ export function PostThread({uri}: {uri: string}) {
     return {hasParents}
   }, [thread.data.items])
 
+  useSetPostTitle(anchor?.value.post.author)
+
   // Track post:view event when anchor post is viewed
   const seenPostUriRef = useRef<string | null>(null)
   useEffect(() => {
@@ -105,6 +108,7 @@ export function PostThread({uri}: {uri: string}) {
       ax.metric('post:view', {
         uri: post.uri,
         authorDid: post.author.did,
+        isReply: !!post.record.reply,
         logContext: 'Post',
         feedDescriptor: feedFeedback.feedDescriptor,
       })
@@ -162,8 +166,8 @@ export function PostThread({uri}: {uri: string}) {
   const totalParentCount = useRef(0) // recomputed below
   const totalChildrenCount = useRef(thread.data.items.length) // recomputed below
   const listRef = useRef<ListMethods>(null)
-  const anchorRef = useRef<View | null>(null)
-  const headerRef = useRef<View | null>(null)
+  const anchorRef = useRef<React.ComponentRef<typeof View> | null>(null)
+  const headerRef = useRef<React.ComponentRef<typeof View> | null>(null)
 
   /*
    * On a cold load, parents are not prepended until the anchor post has

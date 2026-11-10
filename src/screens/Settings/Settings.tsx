@@ -1,7 +1,9 @@
 import {useState} from 'react'
 import {Alert, LayoutAnimation, Linking, Pressable, View} from 'react-native'
 import {useReducedMotion} from 'react-native-reanimated'
-import {type AppBskyActorDefs, moderateProfile} from '@atproto/api'
+import {removeNuxs} from '@bsky/sdk'
+import {moderateProfile} from '@bsky/sdk/moderation'
+import {plural} from '@lingui/core/macro'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
@@ -9,6 +11,7 @@ import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {HELP_DESK_URL, HITSLOP_10} from '#/lib/constants'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {useApplyPullRequestOTAUpdate} from '#/lib/hooks/useOTAUpdates'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -21,8 +24,14 @@ import {clearStorage} from '#/state/persisted'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useDeleteActorDeclaration} from '#/state/queries/messages/actor-declaration'
 import {Nux, useResetNuxs} from '#/state/queries/nuxs'
+import {useModerationInboxUnreadCountQuery} from '#/state/queries/moderation-inbox'
 import {useProfileQuery, useProfilesQuery} from '#/state/queries/profile'
-import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
+import {
+  type SessionAccount,
+  usePdsClient,
+  useSession,
+  useSessionApi,
+} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
@@ -65,12 +74,22 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_INTERNAL, IS_IOS, IS_NATIVE} from '#/env'
 import {useActorStatus} from '#/features/liveNow'
+import {type app} from '#/lexicons'
 import {useActivitySubscriptionsNudged} from '#/storage/hooks/activity-subscriptions-nudged'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Settings'>
 export function SettingsScreen({}: Props) {
   const ax = useAnalytics()
   const {t: l} = useLingui()
+  const isModerationInboxEnabled = ax.features.enabled(
+    ax.features.ModerationInboxEnable,
+  )
+  const unreadCountQuery = useModerationInboxUnreadCountQuery(
+    isModerationInboxEnabled,
+  )
+  const unreadCount = isModerationInboxEnabled
+    ? (unreadCountQuery.data?.unreadCounts.total ?? 0)
+    : 0
   const reducedMotion = useReducedMotion()
   const {logoutEveryAccount} = useSessionApi()
   const {accounts, currentAccount} = useSession()
@@ -183,11 +202,20 @@ export function SettingsScreen({}: Props) {
           </SettingsList.LinkItem>
           <SettingsList.LinkItem
             to="/moderation"
-            label={l`Moderation and content filters`}>
+            label={l`Moderation tools`}
+            accessibilityHint={
+              unreadCount > 0
+                ? plural(unreadCount, {
+                    one: '# unread update',
+                    other: '# unread updates',
+                  })
+                : undefined
+            }>
             <SettingsList.ItemIcon icon={HandIcon} />
             <SettingsList.ItemText>
-              <Trans>Moderation and content filters</Trans>
+              <Trans>Moderation tools</Trans>
             </SettingsList.ItemText>
+            <SettingsList.BadgeCount count={unreadCount} />
           </SettingsList.LinkItem>
           <SettingsList.LinkItem
             to="/settings/ai-preferences"
@@ -322,7 +350,7 @@ export function SettingsScreen({}: Props) {
 function ProfilePreview({
   profile,
 }: {
-  profile: AppBskyActorDefs.ProfileViewDetailed
+  profile: app.bsky.actor.defs.ProfileViewDetailed
 }) {
   const t = useTheme()
   const {gtMobile} = useBreakpoints()
@@ -355,29 +383,20 @@ function ProfilePreview({
           a.align_center,
           a.justify_center,
           a.w_full,
+          a.pt_sm,
         ]}>
         <Text
           emoji
           testID="profileHeaderDisplayName"
           numberOfLines={1}
           style={[
-            a.pt_sm,
             t.atoms.text,
             gtMobile ? a.text_4xl : a.text_3xl,
             a.font_bold,
           ]}>
           {displayName}
         </Text>
-        <ProfileBadges
-          profile={shadow}
-          size="xl"
-          interactive
-          style={[
-            {
-              marginTop: platform({web: 8, ios: 8, android: 10}),
-            },
-          ]}
-        />
+        <ProfileBadges profile={shadow} size="xl" interactive />
       </View>
       <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
         {sanitizeHandle(profile.handle, '@')}
@@ -412,7 +431,9 @@ function DevOptions() {
   }
 
   const resetOnboarding = () => {
-    navigation.navigate('Home')
+    navigation.dispatch(
+      getHomeNavigationAction(navigation.getState(), 'navigate'),
+    )
     onboardingDispatch({type: 'start'})
     Toast.show(l`Onboarding reset`)
   }
@@ -587,7 +608,7 @@ function AccountRow({
   pendingDid,
   onPressSwitchAccount,
 }: {
-  profile?: AppBskyActorDefs.ProfileViewDetailed
+  profile?: app.bsky.actor.defs.ProfileViewDetailed
   account: SessionAccount
   pendingDid: string | null
   onPressSwitchAccount: (

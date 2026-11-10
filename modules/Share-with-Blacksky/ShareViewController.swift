@@ -4,6 +4,7 @@ import AVKit
 let IMAGE_EXTENSIONS: [String] = ["png", "jpg", "jpeg", "gif", "heic"]
 let MOVIE_EXTENSIONS: [String] = ["mov", "mp4", "m4v"]
 let MAX_IMAGES = 10
+let queryValueAllowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
 
 enum URLType: String, CaseIterable {
   case image
@@ -55,11 +56,9 @@ class ShareViewController: UIViewController {
   }
 
   private func handleText(item: NSItemProvider) async {
-    if let data = try? await item.loadItem(forTypeIdentifier: "public.text") as? String {
-      if let encoded = data.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-         let url = URL(string: "\(self.appScheme)://intent/compose?text=\(encoded)") {
-        _ = self.openURL(url)
-      }
+    if let data = try? await item.loadItem(forTypeIdentifier: "public.text") as? String,
+       let url = self.composeUrl(param: "text", value: data) {
+      _ = self.openURL(url)
     }
     self.completeRequest()
   }
@@ -74,8 +73,7 @@ class ShareViewController: UIViewController {
         await handleVideos(items: [item])
         return
       case .other:
-        if let encoded = data.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-           let url = URL(string: "\(self.appScheme)://intent/compose?text=\(encoded)") {
+        if let url = self.composeUrl(param: "text", value: data.absoluteString) {
           _ = self.openURL(url)
         }
       }
@@ -117,8 +115,7 @@ class ShareViewController: UIViewController {
     }
 
     if valid,
-       let encoded = imageUris.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-       let url = URL(string: "\(self.appScheme)://intent/compose?imageUris=\(encoded)") {
+       let url = self.composeUrl(param: "imageUris", value: imageUris) {
       _ = self.openURL(url)
     }
 
@@ -130,7 +127,7 @@ class ShareViewController: UIViewController {
 
     if let dataUrl = try? await firstItem?.loadItem(forTypeIdentifier: "public.movie") as? URL {
       if let videoUriInfo = saveVideoWithInfo(dataUrl),
-         let url = URL(string: "\(self.appScheme)://intent/compose?videoUri=\(videoUriInfo)") {
+         let url = self.composeUrl(param: "videoUri", value: videoUriInfo) {
         _ = self.openURL(url)
       }
     }
@@ -172,6 +169,17 @@ class ShareViewController: UIViewController {
 
     let size = track.naturalSize.applying(track.preferredTransform)
     return "\(tempUrl.absoluteString)|\(size.width)|\(size.height)"
+  }
+
+  /// Builds `<scheme>://intent/compose?<param>=<value>`. The value is encoded
+  /// with only RFC 3986 unreserved characters left as-is, because the app
+  /// parses the link with `URLSearchParams`, which splits on `&`/`=` and reads
+  /// `+` as a space.
+  private func composeUrl(param: String, value: String) -> URL? {
+    guard let encoded = value.addingPercentEncoding(withAllowedCharacters: queryValueAllowed) else {
+      return nil
+    }
+    return URL(string: "\(self.appScheme)://intent/compose?\(param)=\(encoded)")
   }
 
   private func completeRequest() {

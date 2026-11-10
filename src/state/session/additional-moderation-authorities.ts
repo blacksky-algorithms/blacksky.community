@@ -1,4 +1,4 @@
-import {AtpAgent} from '@atproto/api'
+import {Client} from '@atproto/lex'
 
 import {logger} from '#/logger'
 
@@ -78,8 +78,12 @@ export function configureAdditionalModerationAuthorities() {
   let additionalLabelers: string[] = []
 
   additionalLabelers.push(BLACKSKY_LABELER)
+  /*
+   * Merge with whatever is already on the static rather than replacing it, so
+   * `switchToBskyAppLabeler`'s entry survives.
+   */
   const appLabelers = Array.from(
-    new Set([...AtpAgent.appLabelers, ...additionalLabelers]),
+    new Set<string>([...Client.appLabelers, ...additionalLabelers]),
   )
 
   logger.info(`applying mod authorities`, {
@@ -87,5 +91,19 @@ export function configureAdditionalModerationAuthorities() {
     appLabelers,
   })
 
-  AtpAgent.configure({appLabelers})
+  configureGlobalAppLabelers(appLabelers)
+}
+
+/**
+ * Set the global app labelers on the lex `Client` static, which every client
+ * reads, so a request carries the same `;redact` authorities whether or not
+ * there is a session behind it.
+ *
+ * It is a single global producer by design. The PDS client opts out with
+ * `appLabelers: null` (see `clients.ts`) because that service takes no
+ * moderation authorities. Appview and chat requests each carry one copy from
+ * their respective clients.
+ */
+export function configureGlobalAppLabelers(dids: string[]) {
+  Client.configure({appLabelers: dids as `did:${string}:${string}`[]})
 }

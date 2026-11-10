@@ -1,8 +1,9 @@
 import {type Insets, Platform} from 'react-native'
-import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
+import {type Service} from '@atproto/lex'
+import {api} from '@bsky/sdk'
 
-import {type ProxyHeaderValue} from '#/state/session/agent'
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV} from '#/env'
+import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV, MOD_PROXY_DID} from '#/env'
+import {type app} from '#/lexicons'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -27,7 +28,8 @@ export const EMBED_SERVICE = 'https://embed.bsky.app'
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
 export const BSKY_DOWNLOAD_URL = 'https://blacksky.community/download'
 export const ACCOUNT_MIGRATION_URL = 'https://move.blacksky.community'
-export const STARTER_PACK_MAX_SIZE = 150
+export const STARTER_PACK_DEFAULT_SIZE = 150
+export const STARTER_PACK_MAX_SIZE = 500
 export const CARD_ASPECT_RATIO = 1200 / 630
 
 // HACK
@@ -60,6 +62,7 @@ export function FEEDBACK_FORM_URL(_params: {
 
 export const MAX_DISPLAY_NAME = 64
 export const MAX_DESCRIPTION = 256
+export const MAX_PRONOUNS = 20
 
 export const MAX_GRAPHEME_LENGTH = 300
 
@@ -74,6 +77,9 @@ export const MAX_GROUP_NAME_GRAPHEME_LENGTH = 50
 export const MAX_ALT_TEXT = 2000
 
 export const MAX_REPORT_REASON_GRAPHEME_LENGTH = 2000
+
+/** Moderation inbox badges display 99+ at or above this unread count. */
+export const UNREAD_NOTIFICATION_CAP = 100
 
 export function IS_TEST_USER(handle?: string) {
   return handle && handle?.endsWith('.test')
@@ -121,6 +127,18 @@ export function LINK_META_PROXY(_serviceUrl: string) {
 
   return PROD_LINK_META_PROXY
 }
+
+export const STAGING_LINK_FAVICON_PROXY =
+  'https://cardyb.staging.bsky.dev/v1/favicon?url='
+
+export const PROD_LINK_FAVICON_PROXY = 'https://cardyb.bsky.app/v1/favicon?url='
+
+/** Serves a page's favicon as a PNG, at most 64px. */
+export function LINK_FAVICON_PROXY() {
+  return IS_DEV ? STAGING_LINK_FAVICON_PROXY : PROD_LINK_FAVICON_PROXY
+}
+
+export const STATUS_PAGE_URL = 'https://status.bsky.app/'
 
 // Hitslop constants
 export const createHitslop = (size: number): Insets => ({
@@ -171,7 +189,7 @@ export const VIDEO_SAVED_FEED = {
 }
 
 export const RECOMMENDED_SAVED_FEEDS: Pick<
-  AppBskyActorDefs.SavedFeed,
+  app.bsky.actor.defs.SavedFeed,
   'type' | 'value' | 'pinned'
 >[] = [DISCOVER_SAVED_FEED, TIMELINE_SAVED_FEED]
 
@@ -233,45 +251,65 @@ export const APPVIEW_STATUS_URL = `${PUBLIC_APPVIEW}/status/indexer`
 
 export const BLUESKY_FALLBACK_PROXY_DID = 'did:web:api.bsky.app'
 export const BLUESKY_FALLBACK_PROXY_HEADER =
-  `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+  `${BLUESKY_FALLBACK_PROXY_DID}#bsky_appview` as Service
 
 // Immutable, unlike BLUESKY_PROXY_HEADER below — use for calls that must not
 // follow that mutable header.
 export const HOME_PROXY_HEADER =
-  `${BLUESKY_PROXY_DID}#bsky_appview` as ProxyHeaderValue
+  `${BLUESKY_PROXY_DID}#bsky_appview` as Service
 
-export const HOME_APPVIEW_PINNED_OPTS = {
-  headers: {'atproto-proxy': HOME_PROXY_HEADER},
-}
+export const HOME_APPVIEW_PINNED_OPTS = {service: HOME_PROXY_HEADER}
 
 export const BLUESKY_APPVIEW_PINNED_OPTS = {
-  headers: {'atproto-proxy': BLUESKY_FALLBACK_PROXY_HEADER},
+  service: BLUESKY_FALLBACK_PROXY_HEADER,
 }
 
-export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
+export const DEV_ENV_APPVIEW =
+  process.env.EXPO_PUBLIC_DEV_ENV_APPVIEW_URL || 'http://localhost:2584'
 
 // temp hack for e2e - esb
 export const BLUESKY_PROXY_HEADER = {
   value: `${BLUESKY_PROXY_DID}#bsky_appview`,
   get() {
-    return this.value as ProxyHeaderValue
+    return this.value as Service
   },
   set(value: string) {
     this.value = value
   },
 }
 
-export const DM_SERVICE_HEADERS = {
-  'atproto-proxy': `${CHAT_PROXY_DID}#bsky_chat`,
-}
+/**
+ * The chat service's proxy target, in the `did#service_id` form a lex client's
+ * `service` option takes. A client constructed with it emits `atproto-proxy:
+ * <this value>` on every request, which is what routes `chat.bsky.*` calls to
+ * the chat service.
+ *
+ * The DID comes from the env-configurable `CHAT_PROXY_DID` (via
+ * `EXPO_PUBLIC_CHAT_PROXY_DID`) rather than a hard-coded constant, so the
+ * target can be retargeted per environment.
+ */
+export const CHAT_PROXY_SERVICE: Service = `${CHAT_PROXY_DID}#bsky_chat`
 
-export const BLUESKY_MOD_SERVICE_HEADERS = {
-  'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-}
+/**
+ * Moderation service, in the `did#service_id` form a lex client's per-call
+ * `service` option takes. Passing it emits `atproto-proxy: <this value>` on that
+ * one request. The DID defaults to Bluesky's labeler but can be overridden for
+ * local Ozone development.
+ *
+ * Reports and appeals aimed at a DIFFERENT labeler build their own value from
+ * that labeler's creator did instead, so this is a per-call option rather than a
+ * client-level one like {@link CHAT_PROXY_SERVICE}.
+ */
+export const MOD_PROXY_SERVICE: Service = `${MOD_PROXY_DID || api.moderation.did}#atproto_labeler`
 
-export const BLUESKY_NOTIF_SERVICE_HEADERS = {
-  'atproto-proxy': `${BLUESKY_PROXY_DID}#bsky_notif`,
-}
+/**
+ * The notification service's proxy target, in the `did#service_id` form a lex
+ * client's per-call `service` option takes. Passing it emits `atproto-proxy:
+ * <this value>` on that one request, which is what routes push registration to
+ * the notification service (replaces the old
+ * `BLUESKY_NOTIF_SERVICE_HEADERS`).
+ */
+export const NOTIF_SERVICE: Service = `${BLUESKY_PROXY_DID}#bsky_notif`
 
 export const webLinks = {
   tos: `https://www.blackskyweb.xyz/about/support/tos`,

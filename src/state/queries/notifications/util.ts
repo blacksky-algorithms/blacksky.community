@@ -1,17 +1,11 @@
+import {type Client} from '@atproto/lex'
+import {type AtUriString} from '@atproto/syntax'
 import {
-  type AppBskyFeedDefs,
-  AppBskyFeedLike,
-  AppBskyFeedPost,
-  AppBskyFeedRepost,
-  type AppBskyGraphDefs,
-  AppBskyGraphStarterpack,
-  type AppBskyNotificationListNotifications,
-  type AtpAgent,
   hasMutedWord,
   jsonToLex,
   moderateNotification,
   type ModerationOpts,
-} from '@atproto/api'
+} from '@bsky/sdk/moderation'
 import {type QueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
@@ -20,12 +14,17 @@ import {listNotifications} from '#/lib/api/community-notifications'
 import {isCommunityPostUri} from '#/lib/api/community-post'
 import {toPostView} from '#/lib/api/space-views'
 import {labelIsHideableOffense} from '#/lib/moderation'
+import {isInGroupedFeed} from '#/state/queries/notifications/grouped/membership'
+import {type GroupedNotificationsFeed} from '#/state/queries/notifications/grouped/types'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {precacheProfile} from '../profile'
 import {
   type FeedNotification,
   type FeedPage,
+  type Notification,
   type NotificationType,
+  type UnreadCheck,
 } from './types'
 
 const GROUPABLE_REASONS = [
@@ -43,7 +42,7 @@ const MS_2DAY = MS_1HR * 48
 // =
 
 export async function fetchPage({
-  agent,
+  client,
   cursor,
   limit,
   queryClient,
@@ -52,7 +51,7 @@ export async function fetchPage({
   fetchAdditionalData,
   reasons,
 }: {
-  agent: AtpAgent
+  client: Client
   cursor: string | undefined
   limit: number
   queryClient: QueryClient
@@ -64,7 +63,7 @@ export async function fetchPage({
   page: FeedPage
   indexedAt: string | undefined
 }> {
-  const data = await listNotifications(agent, {limit, cursor, reasons})
+  const data = await listNotifications(client, {limit, cursor, reasons})
 
   const indexedAt = data.notifications[0]?.indexedAt
 
@@ -79,7 +78,7 @@ export async function fetchPage({
   // we fetch subjects of notifications (usually posts) now instead of lazily
   // in the UI to avoid relayouts
   if (fetchAdditionalData) {
-    const subjects = await fetchSubjects(agent, notifsGrouped)
+    const subjects = await fetchSubjects(client, notifsGrouped)
     for (const notif of notifsGrouped) {
       if (notif.subjectUri) {
         if (
@@ -109,17 +108,69 @@ export async function fetchPage({
       cursor: data.cursor,
       seenAt,
       items: notifsGrouped,
-      priority: data.priority ?? false,
     },
     indexedAt,
   }
+}
+
+/**
+ * Summarizes an unread check's page for the grouped notifications feeds; see
+ * `UnreadCheck`.
+ */
+export function summarizeUnreadCheck(
+  page: FeedPage,
+  requestedAt: number,
+): UnreadCheck {
+  const newestUnreadAt: UnreadCheck['newestUnreadAt'] = {
+    all: undefined,
+    'people-i-follow': undefined,
+    followers: undefined,
+    conversations: undefined,
+    activity: undefined,
+  }
+  const feeds = Object.keys(newestUnreadAt) as GroupedNotificationsFeed[]
+  for (const item of page.items) {
+    for (const notif of [item.notification, ...(item.additional ?? [])]) {
+      if (notif.isRead) continue
+      const indexedAt = Date.parse(notif.indexedAt)
+      for (const feed of feeds) {
+        if (
+          indexedAt > (newestUnreadAt[feed] ?? -Infinity) &&
+          isInGroupedFeed(feed, notif)
+        ) {
+          newestUnreadAt[feed] = indexedAt
+        }
+      }
+    }
+  }
+  return {requestedAt, newestUnreadAt}
+}
+
+/**
+ * An unread check once everything indexed up to `seenAt` has been marked
+ * read, as the next check would find it.
+ */
+export function markUnreadCheckSeen(
+  check: UnreadCheck | undefined,
+  seenAt: number,
+): UnreadCheck | undefined {
+  if (!check) return check
+  const newestUnreadAt = {...check.newestUnreadAt}
+  for (const feed of Object.keys(
+    newestUnreadAt,
+  ) as GroupedNotificationsFeed[]) {
+    if ((newestUnreadAt[feed] ?? -Infinity) <= seenAt) {
+      newestUnreadAt[feed] = undefined
+    }
+  }
+  return {...check, newestUnreadAt}
 }
 
 // internal methods
 // =
 
 export function shouldFilterNotif(
-  notif: AppBskyNotificationListNotifications.Notification,
+  notif: Notification,
   moderationOpts: ModerationOpts | undefined,
   hideFollowNotifications: boolean | undefined,
 ): boolean {
@@ -135,10 +186,7 @@ export function shouldFilterNotif(
   }
   if (
     notif.reason === 'subscribed-post' &&
-    bsky.dangerousIsType<AppBskyFeedPost.Record>(
-      notif.record,
-      AppBskyFeedPost.isRecord,
-    ) &&
+    bsky.isType(app.bsky.feed.post, notif.record) &&
     hasMutedWord({
       mutedWords: moderationOpts.prefs.mutedWords,
       text: notif.record.text,
@@ -156,9 +204,7 @@ export function shouldFilterNotif(
   return moderateNotification(notif, moderationOpts).ui('contentList').filter
 }
 
-export function groupNotifications(
-  notifs: AppBskyNotificationListNotifications.Notification[],
-): FeedNotification[] {
+export function groupNotifications(notifs: Notification[]): FeedNotification[] {
   const groupedNotifs: FeedNotification[] = []
   for (const notif of notifs) {
     const ts = +new Date(notif.indexedAt)
@@ -214,11 +260,11 @@ export function groupNotifications(
 }
 
 export async function fetchSubjects(
-  agent: AtpAgent,
+  client: Client,
   groupedNotifs: FeedNotification[],
 ): Promise<{
-  posts: Map<string, AppBskyFeedDefs.PostView>
-  starterPacks: Map<string, AppBskyGraphDefs.StarterPackViewBasic>
+  posts: Map<string, app.bsky.feed.defs.PostView>
+  starterPacks: Map<string, app.bsky.graph.defs.StarterPackViewBasic>
 }> {
   const postUris = new Set<string>()
   const communityPostUris = new Set<string>()
@@ -235,19 +281,23 @@ export async function fetchSubjects(
       packUris.add(notif.notification.reasonSubject)
     }
   }
-  const postUriChunks = chunk(Array.from(postUris), 25)
-  const packUriChunks = chunk(Array.from(packUris), 25)
+  /*
+   * Both uri sets are collected from notification fields the server already
+   * validated as at-uris, so the branded cast reflects what the values are.
+   */
+  const postUriChunks = chunk(Array.from(postUris) as AtUriString[], 25)
+  const packUriChunks = chunk(Array.from(packUris) as AtUriString[], 25)
   const postsChunks = await Promise.all(
     postUriChunks.map(uris =>
-      agent.app.bsky.feed
-        .getPosts({uris})
-        .then(res => res.data.posts)
-        .catch(_e => [] as AppBskyFeedDefs.PostView[]),
+      client
+        .call(app.bsky.feed.getPosts, {uris})
+        .then(data => data.posts)
+        .catch(() => [] as app.bsky.feed.defs.PostView[]),
     ),
   )
   const communityPostsResults = await Promise.all(
     Array.from(communityPostUris).map(uri =>
-      communityXrpc(agent, 'community.blacksky.feed.getCommunityPost', {
+      communityXrpc(client, 'community.blacksky.feed.getCommunityPost', {
         params: {uri},
       })
         .then(async res => {
@@ -260,16 +310,16 @@ export async function fetchSubjects(
   )
   const packsChunks = await Promise.all(
     packUriChunks.map(uris =>
-      agent.app.bsky.graph
-        .getStarterPacks({uris})
-        .then(res => res.data.starterPacks)
-        .catch(_e => [] as AppBskyGraphDefs.StarterPackViewBasic[]),
+      client
+        .call(app.bsky.graph.getStarterPacks, {uris})
+        .then(data => data.starterPacks)
+        .catch(() => [] as app.bsky.graph.defs.StarterPackViewBasic[]),
     ),
   )
-  const postsMap = new Map<string, AppBskyFeedDefs.PostView>()
-  const packsMap = new Map<string, AppBskyGraphDefs.StarterPackViewBasic>()
+  const postsMap = new Map<string, app.bsky.feed.defs.PostView>()
+  const packsMap = new Map<string, app.bsky.graph.defs.StarterPackViewBasic>()
   for (const post of postsChunks.flat()) {
-    if (AppBskyFeedPost.isRecord(post.record)) {
+    if (bsky.isType(app.bsky.feed.post, post.record)) {
       postsMap.set(post.uri, post)
     }
   }
@@ -277,7 +327,7 @@ export async function fetchSubjects(
     if (post) postsMap.set(post.uri, post)
   }
   for (const pack of packsChunks.flat()) {
-    if (AppBskyGraphStarterpack.isRecord(pack.record)) {
+    if (bsky.isType(app.bsky.graph.starterpack, pack.record)) {
       packsMap.set(pack.uri, pack)
     }
   }
@@ -287,9 +337,7 @@ export async function fetchSubjects(
   }
 }
 
-function toKnownType(
-  notif: AppBskyNotificationListNotifications.Notification,
-): NotificationType {
+function toKnownType(notif: Notification): NotificationType {
   if (notif.reason === 'like') {
     if (notif.reasonSubject?.includes('feed.generator')) {
       return 'feedgen-like'
@@ -317,7 +365,7 @@ function toKnownType(
 
 function getSubjectUri(
   type: NotificationType,
-  notif: AppBskyNotificationListNotifications.Notification,
+  notif: Notification,
 ): string | undefined {
   if (
     type === 'reply' ||
@@ -333,14 +381,8 @@ function getSubjectUri(
     type === 'repost-via-repost'
   ) {
     if (
-      bsky.dangerousIsType<AppBskyFeedRepost.Record>(
-        notif.record,
-        AppBskyFeedRepost.isRecord,
-      ) ||
-      bsky.dangerousIsType<AppBskyFeedLike.Record>(
-        notif.record,
-        AppBskyFeedLike.isRecord,
-      )
+      bsky.isType(app.bsky.feed.repost, notif.record) ||
+      bsky.isType(app.bsky.feed.like, notif.record)
     ) {
       return typeof notif.record.subject?.uri === 'string'
         ? notif.record.subject?.uri

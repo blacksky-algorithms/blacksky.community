@@ -1,11 +1,8 @@
 import {useMemo} from 'react'
 import {Pressable, View} from 'react-native'
 import {Image} from 'expo-image'
-import {
-  type AppBskyUnspeccedDefs,
-  moderateProfile,
-  RichText as RichTextApi,
-} from '@atproto/api'
+import {moderateProfile} from '@bsky/sdk/moderation'
+import {RichText as RichTextApi} from '@bsky/sdk/richtext'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
@@ -14,25 +11,45 @@ import {
   useTrendingSettingsApi,
 } from '#/state/preferences/trending'
 import {
+  DEFAULT_FETCH_LIMIT,
   DEFAULT_LIMIT,
   useGetTrendsQuery,
 } from '#/state/queries/trending/useGetTrendsQuery'
 import {useTrendingConfig} from '#/state/service-config'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {formatCount} from '#/view/com/util/numeric/format'
-import {atoms as a, useGutters, useTheme, type ViewStyleProp} from '#/alf'
+import {
+  atoms as a,
+  useAlf,
+  useGutters,
+  useTheme,
+  type ViewStyleProp,
+} from '#/alf'
+import {useNativeFontScale} from '#/alf/util/dimensions'
 import {AvatarStack} from '#/components/AvatarStack'
 import {Trending3_Stroke2_Corner1_Rounded as TrendingIcon} from '#/components/icons/Trending'
 import {Link} from '#/components/Link'
 import * as Prompt from '#/components/Prompt'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
-import {useTrendingTopicSeen} from '#/components/TrendingTopics'
+import {
+  getTrendingTopicFeedUri,
+  TrendingTopicsPrompt,
+  useTrendingTopicSeen,
+} from '#/components/TrendingTopics'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {type app} from '#/lexicons'
 import * as ModuleHeader from '../components/ModuleHeader'
 
 const IMAGE_SIZE = 56
+
+/** Reserves space for two-digit ranks at the current app and system font sizes. */
+function useRankWidth() {
+  const {fonts} = useAlf()
+  const nativeFontScale = useNativeFontScale()
+  return 28 * fonts.scaleMultiplier * nativeFontScale
+}
 
 export function ExploreTrendingTopics() {
   const {enabled} = useTrendingConfig()
@@ -56,7 +73,10 @@ function Inner() {
     error,
     isLoading,
     isRefetching,
-  } = useGetTrendsQuery({limit: topicCount})
+  } = useGetTrendsQuery({
+    fetchLimit: Math.min(topicCount * 2, DEFAULT_FETCH_LIMIT),
+    limit: topicCount,
+  })
   const noTopics = !isLoading && !error && !trending?.trends?.length
   const showLoading = isLoading || isRefetching
 
@@ -90,6 +110,7 @@ function Inner() {
                   onPress={() => {
                     ax.metric('trendingTopic:click', {
                       context: 'explore',
+                      feedUri: getTrendingTopicFeedUri(trend),
                       rank,
                       recId: trending.recId,
                     })
@@ -99,11 +120,8 @@ function Inner() {
             })}
       </View>
 
-      <Prompt.Basic
+      <TrendingTopicsPrompt
         control={trendingPrompt}
-        title={l`Hide trending topics?`}
-        description={l`You can update this later from your settings.`}
-        confirmButtonCta={l`Hide`}
         onConfirm={() => {
           ax.metric('trendingTopics:hide', {context: 'explore:trending'})
           setTrendingDisabled(true)
@@ -120,7 +138,7 @@ export function TrendRow({
   children,
   onPress,
 }: ViewStyleProp & {
-  trend: AppBskyUnspeccedDefs.TrendView
+  trend: app.bsky.unspecced.defs.TrendView
   rank: number
   recId?: string
   children?: React.ReactNode
@@ -129,10 +147,11 @@ export function TrendRow({
   const t = useTheme()
   const {t: l, i18n} = useLingui()
   const gutters = useGutters([0, 'base'])
+  const rankWidth = useRankWidth()
 
   const actors = useModerateTrendingActors(trend.actors)
   const formattedPostCount = formatCount(i18n, trend.postCount)
-  useTrendingTopicSeen('explore', rank, recId)
+  useTrendingTopicSeen('explore', getTrendingTopicFeedUri(trend), rank, recId)
 
   const description = useMemo(() => {
     if (!trend.description) return
@@ -157,10 +176,12 @@ export function TrendRow({
           <View style={[gutters, a.w_full, a.flex_row, a.py_md, a.gap_sm]}>
             <Text
               style={[
+                a.flex_shrink_0,
                 a.text_md,
                 a.font_medium,
                 t.atoms.text_contrast_low,
                 {
+                  width: rankWidth,
                   fontVariant: ['tabular-nums'],
                 },
               ]}>
@@ -231,7 +252,7 @@ export function TrendRow({
 
 // Unused atm, but leaving here so we don't lose localization. -dsb
 export function useCategoryDisplayName(
-  category: AppBskyUnspeccedDefs.TrendView['category'],
+  category: app.bsky.unspecced.defs.TrendView['category'],
 ) {
   const {t: l} = useLingui()
 
@@ -263,6 +284,7 @@ export function useCategoryDisplayName(
 export function TrendingTopicRowSkeleton() {
   const t = useTheme()
   const gutters = useGutters([0, 'base'])
+  const rankWidth = useRankWidth()
 
   return (
     <View
@@ -275,7 +297,7 @@ export function TrendingTopicRowSkeleton() {
         a.border_b,
         t.atoms.border_contrast_low,
       ]}>
-      <View style={[{width: 20}]}>
+      <View style={[a.flex_shrink_0, {width: rankWidth}]}>
         <LoadingPlaceholder width={17} height={17} style={[a.rounded_full]} />
       </View>
       <View style={[a.flex_1, a.gap_2xs]}>
@@ -307,7 +329,7 @@ export function TrendingTopicRowSkeleton() {
 }
 
 function useModerateTrendingActors(
-  actors: AppBskyUnspeccedDefs.TrendView['actors'],
+  actors: app.bsky.unspecced.defs.TrendView['actors'],
 ) {
   const moderationOpts = useModerationOpts()
 

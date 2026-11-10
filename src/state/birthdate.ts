@@ -1,8 +1,9 @@
 import {useMemo} from 'react'
+import {setPersonalDetails} from '@bsky/sdk'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 
 import {preferencesQueryKey} from '#/state/queries/preferences'
-import {useAgent, useSession} from '#/state/session'
+import {usePdsClient, useSession} from '#/state/session'
 import {IS_DEV} from '#/env'
 import {account} from '#/storage'
 
@@ -50,17 +51,19 @@ export function useIsBirthdateUpdateAllowed() {
 
 export function useBirthdateMutation() {
   const queryClient = useQueryClient()
-  const agent = useAgent()
+  const {currentAccount} = useSession()
+  const pdsClient = usePdsClient()
 
   return useMutation<void, unknown, {birthDate: Date}>({
     mutationFn: async ({birthDate}: {birthDate: Date}) => {
-      const bday = birthDate.toISOString()
-      await agent.setPersonalDetails({birthDate: bday})
+      await pdsClient.call(setPersonalDetails, {birthDate})
       // triggers a refetch, which re-derives the age gate in moderation-opts
       await queryClient.invalidateQueries({
         queryKey: preferencesQueryKey,
       })
-      snoozeBirthdateUpdateAllowedForDid(agent.sessionManager.did!)
+      if (currentAccount) {
+        snoozeBirthdateUpdateAllowedForDid(currentAccount.did)
+      }
     },
   })
 }

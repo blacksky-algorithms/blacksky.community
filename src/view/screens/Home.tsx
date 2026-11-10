@@ -4,10 +4,15 @@ import {
   Reanimated3DefaultSpringConfig,
   withSpring,
 } from 'react-native-reanimated'
+import {useLingui} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
+import {
+  DISCOVER_FEED_URI,
+  PROD_DEFAULT_FEED,
+  TIMELINE_SAVED_FEED,
+} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'
@@ -16,6 +21,7 @@ import {
   type HomeTabNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
+import {getLocalizedFeedName} from '#/lib/strings/feed-names'
 import {emitSoftReset} from '#/state/events'
 import {
   type SavedFeedSourceInfo,
@@ -45,7 +51,7 @@ import {
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import * as Layout from '#/components/Layout'
 import {useAnalytics} from '#/analytics'
-import {IS_LIQUID_GLASS, IS_WEB} from '#/env'
+import {IS_NATIVE, IS_WEB} from '#/env'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
 type Props = NativeStackScreenProps<HomeTabNavigatorParams, 'Home' | 'Start'>
@@ -88,7 +94,7 @@ export function HomeScreen(props: Props) {
 
   if (preferences && pinnedFeedInfos && !isPinnedFeedsLoading) {
     return (
-      <Layout.Screen testID="HomeScreen" noInsetTop={IS_LIQUID_GLASS}>
+      <Layout.Screen testID="HomeScreen" noInsetTop={IS_NATIVE}>
         <HomeHeaderModeProvider>
           <HomeScreenReady
             {...props}
@@ -116,6 +122,7 @@ function HomeScreenReady({
   preferences: UsePreferencesQueryResponse
   pinnedFeedInfos: SavedFeedSourceInfo[]
 }) {
+  const {i18n} = useLingui()
   const ax = useAnalytics()
   const brand = useBrand()
   const allFeeds = useMemo(
@@ -128,13 +135,14 @@ function HomeScreenReady({
   const maybeFoundIndex = allFeeds.indexOf(maybeRawSelectedFeed)
   const selectedIndex = Math.max(0, maybeFoundIndex)
   const maybeSelectedFeed: FeedDescriptor | undefined = allFeeds[selectedIndex]
+  const selectedFeedInfo = pinnedFeedInfos[selectedIndex]
   const requestNotificationsPermission = useRequestNotificationsPermission()
 
-  useSetTitle(pinnedFeedInfos[selectedIndex]?.displayName)
+  useSetTitle(selectedFeedInfo && getLocalizedFeedName(selectedFeedInfo, i18n))
   useOTAUpdates()
 
   useEffect(() => {
-    requestNotificationsPermission('Home')
+    void requestNotificationsPermission('Home')
   }, [requestNotificationsPermission])
 
   const pagerRef = useRef<PagerRef>(null)
@@ -153,7 +161,7 @@ function HomeScreenReady({
   const headerMode = useHomeHeaderMode()
   const showHeader = useCallback(() => {
     'worklet'
-    headerMode.set(() =>
+    headerMode.set(
       withSpring(0, {
         ...Reanimated3DefaultSpringConfig,
         overshootClamping: true,
@@ -227,7 +235,10 @@ function HomeScreenReady({
             testID="homeScreenFeedTabs"
             onPressSelected={onPressSelected}
             feeds={[
-              {displayName: 'Following', uri: 'following'},
+              {
+                displayName: 'Following',
+                uri: TIMELINE_SAVED_FEED.value,
+              },
               {displayName: brand.metadata.displayName, uri: 'demo'},
             ]}
           />

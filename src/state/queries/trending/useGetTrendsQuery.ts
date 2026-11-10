@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {type AppBskyUnspeccedGetTrends, hasMutedWord} from '@atproto/api'
+import {hasMutedWord} from '@bsky/sdk/moderation'
 import {useQuery} from '@tanstack/react-query'
 
 import {
@@ -11,9 +11,11 @@ import {getContentLanguages} from '#/state/preferences/languages'
 import {STALE} from '#/state/queries'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 
-export const DEFAULT_LIMIT = 5
+export const DEFAULT_LIMIT = 10
+export const DEFAULT_FETCH_LIMIT = 20
 
 type QueryProps = {
+  fetchLimit?: number
   limit?: number
   refetchOnWindowFocus?: boolean
 }
@@ -27,13 +29,29 @@ function dedupe<T extends {link: string}>(trends: T[]): T[] {
   })
 }
 
-export const createGetTrendsQueryKey = (limit?: number) =>
-  limit === undefined ? ['trends'] : ['trends', {limit}]
+export function filterTrends(
+  trends: app.bsky.unspecced.getTrends.$OutputBody['trends'],
+  mutedWords: Parameters<typeof hasMutedWord>[0]['mutedWords'],
+  limit: number,
+) {
+  return dedupe(
+    trends.filter(trend => {
+      return !hasMutedWord({
+        mutedWords,
+        text: `${trend.topic} ${trend.displayName} ${trend.category}`,
+      })
+    }),
+  ).slice(0, limit)
+}
+
+export const createGetTrendsQueryKey = (fetchLimit?: number) =>
+  fetchLimit === undefined ? ['trends'] : ['trends', {limit: fetchLimit}]
 
 const PUBLIC_API = 'https://api.blacksky.community'
 
 export function useGetTrendsQuery(props: QueryProps = {}) {
   const {data: preferences} = usePreferencesQuery()
+  const fetchLimit = props.fetchLimit ?? DEFAULT_FETCH_LIMIT
   const limit = props.limit ?? DEFAULT_LIMIT
   const mutedWords = useMemo(() => {
     return preferences?.moderationPrefs?.mutedWords || []
@@ -43,7 +61,7 @@ export function useGetTrendsQuery(props: QueryProps = {}) {
     enabled: !!preferences,
     refetchOnWindowFocus: props.refetchOnWindowFocus,
     staleTime: STALE.MINUTES.THREE,
-    queryKey: createGetTrendsQueryKey(limit),
+    queryKey: createGetTrendsQueryKey(fetchLimit),
     queryFn: async () => {
       const contentLangs = getContentLanguages().join(',')
       const params = new URLSearchParams({limit: String(limit)})
@@ -66,20 +84,13 @@ export function useGetTrendsQuery(props: QueryProps = {}) {
       return data
     },
     select: useCallback(
-      (data: AppBskyUnspeccedGetTrends.OutputSchema) => {
+      (data: app.bsky.unspecced.getTrends.$OutputBody) => {
         return {
           recId: data.recIdStr,
-          trends: dedupe(
-            (data.trends ?? []).filter(t => {
-              return !hasMutedWord({
-                mutedWords,
-                text: `${t.topic} ${t.displayName} ${t.category}`,
-              })
-            }),
-          ),
+          trends: filterTrends(data.trends ?? [], mutedWords, limit),
         }
       },
-      [mutedWords],
+      [limit, mutedWords],
     ),
   })
 }

@@ -1,16 +1,13 @@
 import {useCallback} from 'react'
-import {
-  type AppBskyActorDefs,
-  moderateProfile,
-  type ModerationOpts,
-} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {searchAppviewOpts} from '#/lib/api/search-routing'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from './preferences'
 
@@ -28,7 +25,7 @@ export function useActorAutocompleteQuery(
   limit?: number,
 ) {
   const moderationOpts = useModerationOpts()
-  const agent = useAgent()
+  const client = useAppviewClient()
 
   prefix = prefix.toLowerCase().trim()
   if (prefix.endsWith('.')) {
@@ -36,12 +33,13 @@ export function useActorAutocompleteQuery(
     prefix = prefix.slice(0, -1)
   }
 
-  return useQuery<AppBskyActorDefs.ProfileViewBasic[]>({
+  return useQuery<app.bsky.actor.defs.ProfileViewBasic[]>({
     staleTime: STALE.MINUTES.ONE,
     queryKey: RQKEY(prefix || ''),
     async queryFn() {
-      const res = prefix
-        ? await agent.searchActorsTypeahead(
+      const data = prefix
+        ? await client.call(
+            app.bsky.actor.searchActorsTypeahead,
             {
               q: prefix,
               limit: limit || 8,
@@ -49,10 +47,10 @@ export function useActorAutocompleteQuery(
             searchAppviewOpts(),
           )
         : undefined
-      return res?.data.actors || []
+      return data?.actors || []
     },
     select: useCallback(
-      (data: AppBskyActorDefs.ProfileViewBasic[]) => {
+      (data: app.bsky.actor.defs.ProfileViewBasic[]) => {
         return computeSuggestions({
           q: prefix,
           searched: data,
@@ -69,11 +67,11 @@ export type ActorAutocompleteFn = ReturnType<typeof useActorAutocompleteFn>
 export function useActorAutocompleteFn() {
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
-  const agent = useAgent()
+  const client = useAppviewClient()
 
   return useCallback(
-    async ({query, limit = 8}: {query: string; limit?: number}) => {
-      query = query.toLowerCase()
+    async ({query: rawQuery, limit = 8}: {query: string; limit?: number}) => {
+      const query = rawQuery.toLowerCase()
       let res
       if (query) {
         try {
@@ -81,7 +79,8 @@ export function useActorAutocompleteFn() {
             staleTime: STALE.MINUTES.ONE,
             queryKey: RQKEY(query || ''),
             queryFn: () =>
-              agent.searchActorsTypeahead(
+              client.call(
+                app.bsky.actor.searchActorsTypeahead,
                 {
                   q: query,
                   limit,
@@ -98,11 +97,11 @@ export function useActorAutocompleteFn() {
 
       return computeSuggestions({
         q: query,
-        searched: res?.data.actors,
+        searched: res?.actors,
         moderationOpts: moderationOpts || DEFAULT_MOD_OPTS,
       })
     },
-    [queryClient, moderationOpts, agent],
+    [queryClient, moderationOpts, client],
   )
 }
 
@@ -112,10 +111,10 @@ function computeSuggestions({
   moderationOpts,
 }: {
   q?: string
-  searched?: AppBskyActorDefs.ProfileViewBasic[]
+  searched?: app.bsky.actor.defs.ProfileViewBasic[]
   moderationOpts: ModerationOpts
 }) {
-  let items: AppBskyActorDefs.ProfileViewBasic[] = []
+  let items: app.bsky.actor.defs.ProfileViewBasic[] = []
   for (const item of searched) {
     if (!items.find(item2 => item2.handle === item.handle)) {
       items.push(item)

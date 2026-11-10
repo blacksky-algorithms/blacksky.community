@@ -1,8 +1,8 @@
+import {type app} from '#/lexicons'
 /**
  * Types for draft display and local media tracking.
- * Server draft types come from @atproto/api.
+ * Server draft types come from the generated `#/lexicons` modules.
  */
-import {type AppBskyDraftDefs} from '@atproto/api'
 
 import {type PollDraft} from '#/lib/api/poll'
 import {type EventDraft} from '#/features/events/draft'
@@ -60,7 +60,7 @@ export type DraftSummary = {
   /** ISO timestamp of last update */
   updatedAt: string
   /** The full draft data from the server */
-  draft: AppBskyDraftDefs.Draft
+  draft: app.bsky.draft.defs.Draft
   /** All posts in the draft for full display */
   posts: DraftPostDisplay[]
   /** Metadata about the draft for display purposes */
