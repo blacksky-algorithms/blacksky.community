@@ -100,8 +100,9 @@ import {
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {useAnalytics} from '#/analytics'
-import {useEventWriteMutation} from '#/features/events/queries'
 import {ownEventUriOf} from '#/features/events/url'
+
+const PUBLIC_POST_URI = /^at:\/\/[^/]+\/app\.bsky\.feed\.post\/[^/]+$/
 
 let PostMenuItems = ({
   post,
@@ -149,12 +150,13 @@ let PostMenuItems = ({
   const brand = useBrand()
   const ownEventUri = useMemo(
     () =>
-      currentAccount && ax.features.enabled(ax.features.EventsEnable)
+      currentAccount &&
+      ax.features.enabled(ax.features.EventsEnable) &&
+      PUBLIC_POST_URI.test(post.uri)
         ? ownEventUriOf(post.embed, currentAccount, [brand.web.domains.main])
         : undefined,
-    [currentAccount, ax, post.embed, brand],
+    [currentAccount, ax, post.uri, post.embed, brand],
   )
-  const {mutateAsync: writeEvent} = useEventWriteMutation(ownEventUri ?? '')
   const postInteractionSettingsDialogControl = useDialogControl()
   const quotePostDetachConfirmControl = useDialogControl()
   const hideReplyConfirmControl = useDialogControl()
@@ -211,10 +213,14 @@ let PostMenuItems = ({
     return postPermalink(postAuthor, postUri)
   }, [postUri, postAuthor])
 
-  const onDeletePost = () => {
-    deletePostMutate({uri: postUri}).then(
+  const onDeletePost = (eventUri?: string) => {
+    deletePostMutate({uri: postUri, eventUri}).then(
       () => {
-        Toast.show(l({message: 'Post deleted', context: 'toast'}))
+        Toast.show(
+          eventUri
+            ? l({message: 'Post and event deleted', context: 'toast'})
+            : l({message: 'Post deleted', context: 'toast'}),
+        )
 
         const route = getCurrentRoute(navigation.getState())
         if (route.name === 'PostThread') {
@@ -237,23 +243,16 @@ let PostMenuItems = ({
       },
       e => {
         logger.error('Failed to delete post', {message: e})
-        Toast.show(l`Failed to delete post, please try again`, {
-          type: 'error',
-        })
+        Toast.show(
+          eventUri
+            ? l`Failed to delete the post and event, please try again`
+            : l`Failed to delete post, please try again`,
+          {
+            type: 'error',
+          },
+        )
       },
     )
-  }
-
-  const onDeletePostAndEvent = () => {
-    writeEvent(null).then(onDeletePost, e => {
-      logger.error('Failed to delete event', {message: e})
-      Toast.show(
-        l`Couldn't delete the event, so the post was kept. Try again.`,
-        {
-          type: 'error',
-        },
-      )
-    })
   }
 
   const onToggleThreadMute = () => {
@@ -809,7 +808,7 @@ let PostMenuItems = ({
           <Prompt.Content>
             <Prompt.TitleText>{l`Delete this post?`}</Prompt.TitleText>
             <Prompt.DescriptionText>
-              {l`This post created an event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted.`}
+              {l`This post links to your event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted.`}
             </Prompt.DescriptionText>
           </Prompt.Content>
           <Prompt.Actions>
@@ -817,13 +816,13 @@ let PostMenuItems = ({
               testID="deletePostAndEventBtn"
               cta={l`Delete post and event`}
               color="negative"
-              onPress={onDeletePostAndEvent}
+              onPress={() => onDeletePost(ownEventUri)}
             />
             <Prompt.Action
               testID="deletePostOnlyBtn"
               cta={l`Delete post only`}
               color="secondary"
-              onPress={onDeletePost}
+              onPress={() => onDeletePost()}
             />
             <Prompt.Cancel />
           </Prompt.Actions>
@@ -833,7 +832,7 @@ let PostMenuItems = ({
           control={deletePromptControl}
           title={l`Delete this post?`}
           description={l`If you remove this post, you won't be able to recover it.`}
-          onConfirm={onDeletePost}
+          onConfirm={() => onDeletePost()}
           confirmButtonCta={l`Delete`}
           confirmButtonColor="negative"
         />

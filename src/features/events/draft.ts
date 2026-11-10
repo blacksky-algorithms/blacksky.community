@@ -223,20 +223,30 @@ export function applyEventEdits(
     country,
     cover: cover ?? undefined,
   })
-  const record: Record<string, unknown> = {
-    ...original,
-    name: built.name,
-    startsAt: built.startsAt,
-  }
-  for (const key of ['description', 'endsAt'] as const) {
+  const record = {...original}
+  const take = (key: string) => {
     if (built[key]) record[key] = built[key]
     else delete record[key]
   }
+  if (edited.name.trim() !== initial.name.trim()) take('name')
+  if (edited.description.trim() !== initial.description.trim()) {
+    take('description')
+  }
+  if (edited.startsAt !== initial.startsAt) take('startsAt')
+  if (edited.endsAt !== initial.endsAt) take('endsAt')
   if (edited.location.trim() !== initial.location.trim()) {
-    delete record.mode
-    delete record.locations
-    if (built.mode) record.mode = built.mode
-    if (built.locations) record.locations = built.locations
+    const links =
+      original.mode === `${EVENT_COLLECTION}#hybrid` &&
+      built.mode === `${EVENT_COLLECTION}#inperson` &&
+      Array.isArray(original.locations)
+        ? original.locations.filter(l => (l as {uri?: unknown})?.uri)
+        : []
+    take('locations')
+    take('mode')
+    if (links.length) {
+      record.locations = [...(built.locations as unknown[]), ...links]
+      record.mode = original.mode
+    }
   }
   if (cover !== undefined) {
     const others = (Array.isArray(original.media) ? original.media : []).filter(

@@ -78,15 +78,23 @@ export function makeEventLink(
   return `/event/${actor}/${rkey}`
 }
 
-/** The event a post links to, when that event belongs to `account`. */
+/**
+ * The event a post links to on our own event pages, when it belongs to
+ * `account`. Links to other event apps don't count: we didn't write those.
+ */
 export function ownEventUriOf(
   embed: AppBskyFeedDefs.PostView['embed'],
   account: {did: string; handle: string},
   brandDomains: string[] = [],
 ): string | undefined {
   if (!AppBskyEmbedExternal.isView(embed)) return
-  const ref = parseEventUrl(embed.external.uri, brandDomains)
-  if (!ref || (ref.actor !== account.did && ref.actor !== account.handle)) {
+  const {uri} = embed.external
+  const ref = parseEventUrl(uri, brandDomains)
+  if (
+    !ref ||
+    !new URL(uri).pathname.startsWith('/event/') ||
+    (ref.actor !== account.did && ref.actor !== account.handle)
+  ) {
     return
   }
   return eventAtUri(account.did, ref.rkey)

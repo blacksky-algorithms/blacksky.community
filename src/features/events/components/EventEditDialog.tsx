@@ -11,7 +11,7 @@ import {type PostAction} from '#/view/com/composer/state/composer'
 import * as Dialog from '#/components/Dialog'
 import * as Toast from '#/components/Toast'
 import {applyEventEdits, type EventDraft, eventDraftFromRecord} from '../draft'
-import {EVENT_RQKEY, useEventWriteMutation} from '../queries'
+import {EVENT_RQKEY, EventGoneError, useEventWriteMutation} from '../queries'
 import {type ParsedEvent} from '../record'
 import {type EventView} from '../types'
 
@@ -44,8 +44,10 @@ function EditForm({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
   const [initial] = useState(() => eventDraftFromRecord(parsed, event.thumb))
   const [draft, setDraft] = useState(initial)
   const latest = useRef(draft)
+  const isSaving = useRef(false)
 
   const save = async (edited: EventDraft) => {
+    isSaving.current = true
     try {
       const coverChanged = edited.cover !== initial.cover
       const cover = !coverChanged
@@ -53,13 +55,11 @@ function EditForm({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
         : edited.cover
           ? await uploadEventCover(agent, edited.cover, undefined)
           : null
-      await write(
-        applyEventEdits(
-          event.record as Record<string, unknown>,
-          initial,
-          edited,
-          {country: getLocales()[0]?.regionCode ?? undefined, cover},
-        ),
+      await write(current =>
+        applyEventEdits(current, initial, edited, {
+          country: getLocales()[0]?.regionCode ?? undefined,
+          cover,
+        }),
       )
       if (coverChanged) {
         queryClient.setQueryData<EventView | null>(
@@ -80,15 +80,17 @@ function EditForm({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
     } catch (e) {
       logger.error('Failed to update event', {safeMessage: e})
       Toast.show(
-        e instanceof Error && e.message
-          ? e.message
+        e instanceof EventGoneError
+          ? l`This event no longer exists.`
           : l`Couldn't save the event. Try again.`,
         {type: 'error'},
       )
+      isSaving.current = false
     }
   }
 
   const dispatch = (action: PostAction) => {
+    if (isSaving.current) return
     let next = latest.current
     if (action.type === 'embed_update_event') {
       next = {...next, ...action.fields}

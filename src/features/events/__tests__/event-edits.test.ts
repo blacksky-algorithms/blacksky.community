@@ -134,4 +134,77 @@ describe('applyEventEdits', () => {
       `${C}#cancelled`,
     )
   })
+
+  it('leaves untouched times exactly as stored', () => {
+    const local = {
+      ...original,
+      startsAt: '2027-01-14T19:00:00-05:00',
+      endsAt: '2027-01-14T22:00:00-05:00',
+    }
+    const draft = eventDraftFromRecord(parseEventRecord(local)!, undefined)
+    const record = applyEventEdits(local, draft, {...draft, name: 'New'}, {})
+    expect(record.startsAt).toBe('2027-01-14T19:00:00-05:00')
+    expect(record.endsAt).toBe('2027-01-14T22:00:00-05:00')
+  })
+
+  it('does not invent an end when an open-ended event moves earlier', () => {
+    const {endsAt: _endsAt, ...open} = original
+    const draft = eventDraftFromRecord(parseEventRecord(open)!, undefined)
+    const record = applyEventEdits(
+      open,
+      draft,
+      {...draft, startsAt: '2027-01-14T00:00:00.000Z'},
+      {},
+    )
+    expect(record.startsAt).toBe('2027-01-14T00:00:00.000Z')
+    expect(record).not.toHaveProperty('endsAt')
+  })
+
+  it('does not write a start the event never had', () => {
+    const {startsAt: _startsAt, endsAt: _endsAt, ...undated} = original
+    const draft = eventDraftFromRecord(parseEventRecord(undated)!, undefined)
+    const record = applyEventEdits(undated, draft, {...draft, name: 'New'}, {})
+    expect(record).not.toHaveProperty('startsAt')
+    expect(record).not.toHaveProperty('endsAt')
+  })
+
+  it('applies edits on top of the newer record', () => {
+    const newer = {...original, status: `${C}#cancelled`, description: 'Newer'}
+    const record = applyEventEdits(
+      newer,
+      initial,
+      {...initial, name: 'Renamed'},
+      {},
+    )
+    expect(record).toMatchObject({
+      name: 'Renamed',
+      status: `${C}#cancelled`,
+      description: 'Newer',
+    })
+  })
+
+  it("keeps a hybrid event's join link when its place changes", () => {
+    const link = {$type: `${C}#uri`, uri: 'https://zoom.us/j/1'}
+    const hybrid = {
+      ...original,
+      mode: `${C}#hybrid`,
+      locations: [original.locations[0], link],
+    }
+    const draft = eventDraftFromRecord(parseEventRecord(hybrid)!, undefined)
+    const record = applyEventEdits(
+      hybrid,
+      draft,
+      {...draft, location: 'The Library'},
+      {country: 'US'},
+    )
+    expect(record.mode).toBe(`${C}#hybrid`)
+    expect(record.locations).toEqual([
+      {
+        $type: 'community.lexicon.location.address',
+        name: 'The Library',
+        country: 'US',
+      },
+      link,
+    ])
+  })
 })

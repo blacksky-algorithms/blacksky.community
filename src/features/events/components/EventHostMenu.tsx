@@ -13,6 +13,7 @@ import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Tra
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
+import {useAnalytics} from '#/analytics'
 import {useEventWriteMutation} from '../queries'
 import {type ParsedEvent} from '../record'
 import {EVENT_COLLECTION, type EventView} from '../types'
@@ -26,6 +27,7 @@ export function EventHostMenu({
   parsed: ParsedEvent
 }) {
   const {t: l} = useLingui()
+  const ax = useAnalytics()
   const {currentAccount} = useSession()
   const navigation = useNavigation<NavigationProp>()
   const editControl = useDialogControl()
@@ -33,14 +35,19 @@ export function EventHostMenu({
   const deleteControl = useDialogControl()
   const {mutateAsync: write} = useEventWriteMutation(event.uri)
 
-  if (currentAccount?.did !== event.creator.did) return null
+  if (
+    currentAccount?.did !== event.creator.did ||
+    !ax.features.enabled(ax.features.EventsEnable)
+  ) {
+    return null
+  }
 
   const onCancel = async () => {
     try {
-      await write({
-        ...(event.record as Record<string, unknown>),
+      await write(current => ({
+        ...current,
         status: `${EVENT_COLLECTION}#cancelled`,
-      })
+      }))
       Toast.show(l({message: 'Event cancelled', context: 'toast'}))
     } catch (e) {
       logger.error('Failed to cancel event', {safeMessage: e})

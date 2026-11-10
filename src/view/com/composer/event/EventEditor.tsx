@@ -73,7 +73,7 @@ export function EventEditor({
     dispatch({type: 'embed_remove_event'})
   }
   const linkImage = useLinkImage(
-    event.step === 'cover' && !event.cover && !event.coverRemoved
+    !isEditing && event.step === 'cover' && !event.cover && !event.coverRemoved
       ? eventLocationUrl(event)
       : undefined,
   )

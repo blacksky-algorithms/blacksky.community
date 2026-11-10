@@ -36,4 +36,13 @@ describe('ownEventUriOf', () => {
     ).toBeUndefined()
     expect(ownEventUriOf(undefined, me)).toBeUndefined()
   })
+
+  it("ignores other apps' links to my events, which we didn't write", () => {
+    for (const uri of [
+      'https://smokesignal.events/me.test/3kevent',
+      'https://atmo.rsvp/p/me.test/e/3kevent',
+    ]) {
+      expect(ownEventUriOf(external(uri), me)).toBeUndefined()
+    }
+  })
 })

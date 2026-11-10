@@ -1,4 +1,5 @@
-import {AtUri, type BskyAgent} from '@atproto/api'
+import {AtUri, type BskyAgent, ComAtprotoRepoPutRecord} from '@atproto/api'
+import {retry} from '@atproto/common-web'
 import {
   type InfiniteData,
   type QueryClient,
@@ -272,34 +273,57 @@ export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
   })
 }
 
+export class EventGoneError extends Error {}
+
 /**
- * Writes the host's own event record: a new record replaces it, `null`
- * deletes it. The result is written through to the cache, since the AppView
- * lags the write.
+ * Changes the host's own event record. An update runs against the record as
+ * the PDS has it now and is swapped in only if that is still current, since
+ * the AppView's copy lags and other apps can write it too. `null` deletes.
+ * The result is written through to the cache for the same lag.
  */
 export function useEventWriteMutation(uri: string) {
   const agent = useAgent()
   const queryClient = useQueryClient()
-  return useMutation<void, Error, Record<string, unknown> | null>({
-    mutationFn: async record => {
+  const queryKey = EVENT_RQKEY(uri)
+  return useMutation<
+    Record<string, unknown> | null,
+    Error,
+    ((current: Record<string, unknown>) => Record<string, unknown>) | null
+  >({
+    mutationFn: async update => {
       const {host: repo, rkey} = new AtUri(uri)
-      if (record) {
+      const collection = EVENT_COLLECTION
+      if (!update) {
+        await agent.com.atproto.repo.deleteRecord({repo, collection, rkey})
+        return null
+      }
+      const swap = async () => {
+        const {data} = await agent.com.atproto.repo
+          .getRecord({repo, collection, rkey})
+          .catch((e: unknown) => {
+            throw e instanceof Error &&
+              e.message.includes('Could not locate record')
+              ? new EventGoneError()
+              : e
+          })
+        const record = update(data.value)
         await agent.com.atproto.repo.putRecord({
           repo,
-          collection: EVENT_COLLECTION,
+          collection,
           rkey,
           record,
+          swapRecord: data.cid ?? null,
         })
-      } else {
-        await agent.com.atproto.repo.deleteRecord({
-          repo,
-          collection: EVENT_COLLECTION,
-          rkey,
-        })
+        return record
       }
+      return retry(swap, {
+        maxRetries: 5,
+        retryable: e => e instanceof ComAtprotoRepoPutRecord.InvalidSwapError,
+      })
     },
-    onSuccess: (_result, record) => {
-      queryClient.setQueryData<EventView | null>(EVENT_RQKEY(uri), prev =>
+    onMutate: () => queryClient.cancelQueries({queryKey}),
+    onSuccess: record => {
+      queryClient.setQueryData<EventView | null>(queryKey, prev =>
         record ? prev && {...prev, record} : null,
       )
       void queryClient.invalidateQueries({queryKey: [MY_EVENTS_RQKEY_ROOT]})

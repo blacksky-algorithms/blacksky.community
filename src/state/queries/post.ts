@@ -23,6 +23,7 @@ import {useAgent, useSession} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
+import {EVENT_RQKEY} from '#/features/events/queries'
 import {useIsThreadMuted, useSetThreadMute} from '../cache/thread-mutes'
 import {findProfileQueryData} from './profile'
 
@@ -382,8 +383,21 @@ const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 export function usePostDeleteMutation() {
   const queryClient = useQueryClient()
   const agent = useAgent()
-  return useMutation<void, Error, {uri: string}>({
-    mutationFn: async ({uri}) => {
+  return useMutation<void, Error, {uri: string; eventUri?: string}>({
+    mutationFn: async ({uri, eventUri}) => {
+      if (eventUri) {
+        const post = new AtUri(uri)
+        const event = new AtUri(eventUri)
+        await agent.com.atproto.repo.applyWrites({
+          repo: post.hostname,
+          writes: [post, event].map(({collection, rkey}) => ({
+            $type: 'com.atproto.repo.applyWrites#delete' as const,
+            collection,
+            rkey,
+          })),
+        })
+        return
+      }
       // Checked before AtUri sees the URI: a space URI misparses there.
       const spaceDelete = spaceDeleteIfSpace(agent, uri)
       if (spaceDelete) {
@@ -418,6 +432,9 @@ export function usePostDeleteMutation() {
     },
     onSuccess(_, variables) {
       updatePostShadow(queryClient, variables.uri, {isDeleted: true})
+      if (variables.eventUri) {
+        queryClient.setQueryData(EVENT_RQKEY(variables.eventUri), null)
+      }
     },
   })
 }
