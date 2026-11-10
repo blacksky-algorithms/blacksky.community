@@ -44,9 +44,11 @@ const STEPS: EventDraftStep[] = ['details', 'when', 'cover']
 export function EventEditor({
   event,
   dispatch,
+  isEditing,
 }: {
   event: EventDraft
   dispatch: (action: PostAction) => void
+  isEditing?: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -137,7 +139,7 @@ export function EventEditor({
               </Menu.Group>
             </Menu.Outer>
           </Menu.Root>
-        ) : (
+        ) : isEditing ? null : (
           <Button
             testID="removeEventBtn"
             label={l`Remove event`}
@@ -224,7 +226,13 @@ export function EventEditor({
             )}
             <Button
               testID="eventContinueBtn"
-              label={isLastStep ? l`Create event` : l`Continue`}
+              label={
+                isLastStep
+                  ? isEditing
+                    ? l`Save changes`
+                    : l`Create event`
+                  : l`Continue`
+              }
               size="small"
               variant="solid"
               color="primary"
@@ -238,7 +246,11 @@ export function EventEditor({
               }}>
               <ButtonText>
                 {isLastStep ? (
-                  <Trans>Create event</Trans>
+                  isEditing ? (
+                    <Trans>Save changes</Trans>
+                  ) : (
+                    <Trans>Create event</Trans>
+                  )
                 ) : (
                   <Trans>Continue</Trans>
                 )}

@@ -929,7 +929,7 @@ async function resolveAssembly(
   }
 }
 
-async function uploadEventCover(
+export async function uploadEventCover(
   agent: AtpAgent,
   cover: EventCover,
   onStateChange: ((state: string) => void) | undefined,

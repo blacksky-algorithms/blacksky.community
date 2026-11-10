@@ -415,4 +415,26 @@ describe('EventEditor', () => {
     expect(mockLinkImage).not.toHaveBeenCalled()
     expect(getByTestId('coverShown')).toHaveTextContent('none')
   })
+
+  it('offers Save changes and no Remove when editing a published event', () => {
+    const {getByTestId, queryByTestId} = render(
+      <EventEditor
+        event={{
+          step: 'cover',
+          name: 'Party',
+          description: '',
+          location: '',
+          startsAt: '2027-01-15T00:00:00.000Z',
+          endsAt: '2027-01-15T00:00:00.000Z',
+        }}
+        dispatch={jest.fn()}
+        isEditing
+      />,
+    )
+    expect(queryByTestId('removeEventBtn')).toBeNull()
+    expect(getByTestId('eventContinueBtn')).toHaveProp(
+      'accessibilityLabel',
+      'Save changes',
+    )
+  })
 })

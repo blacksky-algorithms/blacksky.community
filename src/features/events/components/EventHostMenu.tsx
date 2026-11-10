@@ -8,6 +8,7 @@ import {Button, ButtonIcon} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {CircleX_Stroke2_Corner0_Rounded as CancelIcon} from '#/components/icons/CircleX'
 import {DotGrid3x1_Stroke2_Corner0_Rounded as DotsIcon} from '#/components/icons/DotGrid'
+import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -15,6 +16,7 @@ import * as Toast from '#/components/Toast'
 import {useEventWriteMutation} from '../queries'
 import {type ParsedEvent} from '../record'
 import {EVENT_COLLECTION, type EventView} from '../types'
+import {EventEditDialog} from './EventEditDialog'
 
 export function EventHostMenu({
   event,
@@ -26,6 +28,7 @@ export function EventHostMenu({
   const {t: l} = useLingui()
   const {currentAccount} = useSession()
   const navigation = useNavigation<NavigationProp>()
+  const editControl = useDialogControl()
   const cancelControl = useDialogControl()
   const deleteControl = useDialogControl()
   const {mutateAsync: write} = useEventWriteMutation(event)
@@ -75,6 +78,15 @@ export function EventHostMenu({
         </Menu.Trigger>
         <Menu.Outer>
           <Menu.Group>
+            <Menu.Item
+              testID="editEventBtn"
+              label={l`Edit event`}
+              onPress={() => editControl.open()}>
+              <Menu.ItemText>
+                <Trans>Edit event</Trans>
+              </Menu.ItemText>
+              <Menu.ItemIcon icon={PencilIcon} />
+            </Menu.Item>
             {!parsed.cancelled && (
               <Menu.Item
                 testID="cancelEventBtn"
@@ -98,6 +110,7 @@ export function EventHostMenu({
           </Menu.Group>
         </Menu.Outer>
       </Menu.Root>
+      <EventEditDialog control={editControl} event={event} parsed={parsed} />
       <Prompt.Basic
         control={cancelControl}
         title={l`Cancel this event?`}
