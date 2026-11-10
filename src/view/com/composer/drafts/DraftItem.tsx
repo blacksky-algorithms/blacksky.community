@@ -412,7 +412,8 @@ function DraftEventPreview({event}: {event: EventDraft}) {
           {_(
             msg({
               message: 'Event',
-              comment: 'Label on a draft preview showing the draft has an event',
+              comment:
+                'Label on a draft preview showing the draft has an event',
             }),
           )}
         </Text>

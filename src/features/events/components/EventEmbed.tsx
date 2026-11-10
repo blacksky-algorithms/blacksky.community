@@ -81,54 +81,54 @@ export function EventEmbedCard({
   const cover = coverUrl(event)
   const poster = eventPoster(event.uri, parsed)
   const content = (
-        <View style={[a.w_full]}>
-          {cover ? (
-            <Image
-              source={{uri: cover}}
-              alt={_(msg`Cover image for ${parsed.name}`)}
-              accessibilityIgnoresInvertColors
-              style={[a.w_full, {aspectRatio: 2}]}
-              contentFit="cover"
-            />
-          ) : (
-            <LinearGradientBackground
-              gradient={poster.gradient}
-              style={[
-                a.w_full,
-                a.align_center,
-                a.justify_center,
-                {aspectRatio: 3},
-              ]}>
-              <Text style={{fontSize: 48}}>{poster.emoji}</Text>
-            </LinearGradientBackground>
-          )}
-          <View style={[a.p_md, a.gap_xs]}>
-            {(parsed.cancelled || phase === 'current') && (
-              <Text
-                style={[
-                  a.text_xs,
-                  a.font_bold,
-                  {
-                    color: parsed.cancelled
-                      ? t.palette.negative_500
-                      : t.palette.primary_500,
-                  },
-                ]}>
-                {parsed.cancelled ? (
-                  <Trans>Cancelled</Trans>
-                ) : (
-                  <Trans>Happening now</Trans>
-                )}
-              </Text>
+    <View style={[a.w_full]}>
+      {cover ? (
+        <Image
+          source={{uri: cover}}
+          alt={_(msg`Cover image for ${parsed.name}`)}
+          accessibilityIgnoresInvertColors
+          style={[a.w_full, {aspectRatio: 2}]}
+          contentFit="cover"
+        />
+      ) : (
+        <LinearGradientBackground
+          gradient={poster.gradient}
+          style={[
+            a.w_full,
+            a.align_center,
+            a.justify_center,
+            {aspectRatio: 3},
+          ]}>
+          <Text style={{fontSize: 48}}>{poster.emoji}</Text>
+        </LinearGradientBackground>
+      )}
+      <View style={[a.p_md, a.gap_xs]}>
+        {(parsed.cancelled || phase === 'current') && (
+          <Text
+            style={[
+              a.text_xs,
+              a.font_bold,
+              {
+                color: parsed.cancelled
+                  ? t.palette.negative_500
+                  : t.palette.primary_500,
+              },
+            ]}>
+            {parsed.cancelled ? (
+              <Trans>Cancelled</Trans>
+            ) : (
+              <Trans>Happening now</Trans>
             )}
-            <Text
-              numberOfLines={2}
-              style={[a.text_lg, a.font_bold, a.leading_snug]}>
-              {parsed.name}
-            </Text>
-            <EventMeta event={event} parsed={parsed} />
-          </View>
-        </View>
+          </Text>
+        )}
+        <Text
+          numberOfLines={2}
+          style={[a.text_lg, a.font_bold, a.leading_snug]}>
+          {parsed.name}
+        </Text>
+        <EventMeta event={event} parsed={parsed} />
+      </View>
+    </View>
   )
   return (
     <View

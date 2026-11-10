@@ -189,9 +189,7 @@ export function EventEditor({
       {stepIndex >= 0 && (
         <View style={[a.flex_row, a.align_center, a.justify_between]}>
           <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-            <View
-              style={{width: 12, height: 12, backgroundColor: stepColor}}
-            />
+            <View style={{width: 12, height: 12, backgroundColor: stepColor}} />
             <Text
               testID="eventStepLabel"
               style={[
