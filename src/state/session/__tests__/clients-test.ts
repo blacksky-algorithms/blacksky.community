@@ -28,6 +28,7 @@ import {
   getUnauthenticatedThrowingClient,
   NotAuthenticatedError,
   routeSessionToPds,
+  sessionAuthWins,
 } from '../clients'
 import {sessionAccountToSessionData} from '../session-data'
 import {
@@ -376,6 +377,47 @@ describe('routeSessionToPds', () => {
     expect(urlsOf(fetchMock)).toEqual([
       `${DIDDOC_PDS_HOST}/xrpc/com.atproto.server.getSession`,
     ])
+  })
+})
+
+describe('sessionAuthWins', () => {
+  let fetchMock: MockFetch
+
+  beforeEach(() => {
+    fetchMock = makeProfileFetch()
+  })
+
+  it('sends the session token in place of a caller-supplied one', async () => {
+    const session = makeSession(fetchMock)
+
+    await sessionAuthWins(session).fetchHandler(
+      '/xrpc/com.atproto.server.getSession',
+      {
+        headers: {
+          Authorization: 'Bearer service-token',
+          'atproto-proxy': 'did:web:feed.example#bsky_fg',
+        },
+      },
+    )
+
+    const headers = headersFor(fetchMock, 'com.atproto.server.getSession')
+    expect(headers.get('authorization')).toBe('Bearer access-jwt')
+    expect(headers.get('atproto-proxy')).toBe('did:web:feed.example#bsky_fg')
+  })
+
+  it('rejects the same request on the bare session', async () => {
+    const session = makeSession(fetchMock)
+
+    await expect(
+      session.fetchHandler('/xrpc/com.atproto.server.getSession', {
+        headers: {Authorization: 'Bearer service-token'},
+      }),
+    ).rejects.toThrow(TypeError)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('passes through the session did', () => {
+    expect(sessionAuthWins(makeSession(fetchMock)).did).toBe(DID)
   })
 })
 

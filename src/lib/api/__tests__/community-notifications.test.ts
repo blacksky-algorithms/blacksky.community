@@ -5,7 +5,9 @@ import {HOME_PROXY_HEADER} from '#/lib/constants'
 import {createLexClient} from '#/lib/lexClient'
 import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
 import {
+  GET_GROUPED_NOTIFICATIONS_METHOD,
   GET_UNREAD_COUNT_METHOD,
+  getGroupedNotifications,
   getUnreadCount,
   LIST_NOTIFICATIONS_METHOD,
   listNotifications,
@@ -17,6 +19,46 @@ const PUBLIC_URI = 'at://did:plc:alice/app.bsky.feed.post/3kpublic'
 const CID = 'bafyreiacsg6vsw7ppwbnowzsdgstulhrwftirtcnvkcbnfgvhwjrnzfmsu'
 const STANDARD_LIST = 'app.bsky.notification.listNotifications'
 const STANDARD_COUNT = 'app.bsky.notification.getUnreadCount'
+const STANDARD_GROUPED = 'app.bsky.notification.getGroupedNotifications'
+
+function groupedBody(method: string, post: string, postViewType: string) {
+  return {
+    cursor: 'next',
+    groups: [
+      {
+        $type: `${method}#group`,
+        id: 'like-1',
+        isRead: false,
+        indexedAt: '2026-09-01T00:00:00.000Z',
+        count: 1,
+        kind: {
+          $type: `${method}#likeGroup`,
+          post,
+          items: [{actor: 'did:plc:alice'}],
+        },
+      },
+    ],
+    relatedViews: [
+      {
+        $type: 'app.bsky.actor.defs#profileViewBasic',
+        did: 'did:plc:alice',
+        handle: 'alice.test',
+      },
+      {
+        $type: postViewType,
+        uri: post,
+        cid: CID,
+        author: {did: 'did:plc:me', handle: 'me.test'},
+        record: {
+          $type: 'app.bsky.feed.post',
+          text: 'hello',
+          createdAt: '2026-09-01T00:00:00.000Z',
+        },
+        indexedAt: '2026-09-01T00:00:00.000Z',
+      },
+    ],
+  }
+}
 
 function notification(uri: string) {
   return {
@@ -150,6 +192,50 @@ describe('community notification API', () => {
 
     await expect(listNotifications(client, {limit: 30})).rejects.toBeDefined()
     expect(fetchHandler).toHaveBeenCalledTimes(1)
+  })
+
+  it('reads grouped notifications on space records in the standard shape', async () => {
+    const {client, fetchHandler, request} = mockClient()
+    fetchHandler.mockResolvedValue(
+      json(
+        groupedBody(
+          GET_GROUPED_NOTIFICATIONS_METHOD,
+          PRIVATE_URI,
+          'community.blacksky.feed.defs#spacePostView',
+        ),
+      ),
+    )
+
+    await expect(
+      getGroupedNotifications(client, {feed: 'all', limit: 30}),
+    ).resolves.toEqual(
+      groupedBody(STANDARD_GROUPED, PRIVATE_URI, 'app.bsky.feed.defs#postView'),
+    )
+
+    expect(fetchHandler).toHaveBeenCalledTimes(1)
+    expect(request(0).method).toBe(GET_GROUPED_NOTIFICATIONS_METHOD)
+    expect(request(0).query.get('feed')).toBe('all')
+    expect(request(0).proxy).toBe(HOME_PROXY_HEADER)
+  })
+
+  it('falls back to the standard grouped notifications on the home appview', async () => {
+    const {client, fetchHandler, request} = mockClient()
+    const body = groupedBody(
+      STANDARD_GROUPED,
+      PUBLIC_URI,
+      'app.bsky.feed.defs#postView',
+    )
+    fetchHandler
+      .mockResolvedValueOnce(unsupported())
+      .mockResolvedValueOnce(json(body))
+
+    await expect(
+      getGroupedNotifications(client, {feed: 'followers', limit: 1}),
+    ).resolves.toEqual(body)
+
+    expect(request(1).method).toBe(STANDARD_GROUPED)
+    expect(request(1).query.get('feed')).toBe('followers')
+    expect(request(1).proxy).toBe(HOME_PROXY_HEADER)
   })
 
   it('returns the community unread count', async () => {

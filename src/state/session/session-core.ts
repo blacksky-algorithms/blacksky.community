@@ -17,6 +17,7 @@ import {
   getPublicAppviewClient,
   getUnauthenticatedThrowingClient,
   routeSessionToPds,
+  sessionAuthWins,
 } from './clients'
 import {addSessionErrorLog} from './logging'
 import {
@@ -140,10 +141,11 @@ export function buildBundle(
    * so an invalid value would throw from every client call; discard it here
    * and let the session route against its own service instead.
    */
-  const agent =
+  const agent = sessionAuthWins(
     storedPdsUrl && canParseUrl(storedPdsUrl)
       ? routeSessionToPds(session, storedPdsUrl)
-      : session
+      : session,
+  )
   return {
     session,
     appviewClient: buildAppviewClient(agent),

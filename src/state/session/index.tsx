@@ -657,10 +657,12 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       /*
        * Cancel pending work when another tab logs out the account this tab
        * considers current. Do not cancel unrelated work between logged-out tabs.
+       * An OAuth account persists no tokens, so its flag marks it signed in.
        */
-      const syncedDid = syncedAccount?.refreshJwt
-        ? syncedAccount.did
-        : undefined
+      const syncedDid =
+        syncedAccount?.refreshJwt || syncedAccount?.isOauthSession
+          ? syncedAccount.did
+          : undefined
       if (
         syncedDid === undefined &&
         state.currentBundleState.did !== undefined

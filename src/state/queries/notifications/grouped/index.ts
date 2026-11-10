@@ -6,6 +6,7 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {getGroupedNotifications} from '#/lib/api/community-notifications'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {getNextCursor} from '#/state/queries/notifications/grouped/cursor'
@@ -128,10 +129,7 @@ export async function peekGroupedNotifications(
   feed: GroupedNotificationsFeed,
 ): Promise<GroupedNotificationsPeek> {
   const requestedAt = Date.now()
-  const res = await client.call(app.bsky.notification.getGroupedNotifications, {
-    feed,
-    limit: 1,
-  })
+  const res = await getGroupedNotifications(client, {feed, limit: 1})
   return {requestedAt, newestAt: getNewestAt(res.groups)}
 }
 
@@ -173,14 +171,11 @@ export function useGroupedNotificationsQuery({
     queryKey: createGroupedNotificationsQueryKey({feed}),
     async queryFn({pageParam}): Promise<LoadedGroupedNotificationsPage> {
       const requestedAt = Date.now()
-      const res = await client.call(
-        app.bsky.notification.getGroupedNotifications,
-        {
-          feed,
-          limit: PAGE_SIZE,
-          cursor: pageParam,
-        },
-      )
+      const res = await getGroupedNotifications(client, {
+        feed,
+        limit: PAGE_SIZE,
+        cursor: pageParam,
+      })
       return {...hydratePage(res, {viewerDid}), requestedAt}
     },
     initialPageParam: undefined as string | undefined,

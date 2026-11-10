@@ -1,5 +1,5 @@
 import {TID} from '@atproto/common-web'
-import {type Client} from '@atproto/lex'
+import {type Client, lexStringify, type LexValue} from '@atproto/lex'
 
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 
@@ -58,7 +58,8 @@ async function spaceXrpc(
     // Deliberately no `atproto-proxy`: this write belongs to the account's own
     // PDS, not the appview.
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body),
+    // Blob references are CID objects, which plain JSON does not encode as links.
+    body: lexStringify(body as LexValue),
   })
 }
 

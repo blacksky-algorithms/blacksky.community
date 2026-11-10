@@ -128,6 +128,27 @@ export function routeSessionToPds(
   }
 }
 
+/*
+ * `PasswordSession` throws on a request that already carries an Authorization
+ * header, where an OAuth session replaces it. Callers that attach their own
+ * token to a proxied request rely on the replacement.
+ */
+export function sessionAuthWins(agent: Agent): Agent {
+  return {
+    get did() {
+      return agent.did
+    },
+    fetchHandler(path, init) {
+      const headers = new Headers(init.headers)
+      if (!headers.has('authorization')) {
+        return agent.fetchHandler(path, init)
+      }
+      headers.delete('authorization')
+      return agent.fetchHandler(path, {...init, headers})
+    },
+  }
+}
+
 /** Thrown when a write/auth-only client is used with no active session. */
 export class NotAuthenticatedError extends Error {
   constructor(op = 'this operation') {

@@ -552,4 +552,37 @@ describe('cross-tab sync', () => {
     expect(mockDisposeBundle).toHaveBeenCalledWith(resumedBundle)
     expect(mockRebuilds.length).toBe(0)
   })
+
+  it('keeps pending work when another tab updates the same OAuth account', async () => {
+    const account = makeAccount({
+      accessJwt: undefined,
+      refreshJwt: undefined,
+      isOauthSession: true,
+    })
+    const bundle = makeBundle(account)
+    const {api} = await renderLoggedIn(account, bundle)
+
+    /* a switch to a second, password account is in flight */
+    const other = makeAccount({did: 'did:plc:other'})
+    const resumedBundle = makeBundle(other)
+    let finishResume!: (value: unknown) => void
+    mockResume.mockReturnValueOnce(
+      new Promise(resolve => {
+        finishResume = resolve
+      }),
+    )
+    const pending = api.resumeSession(other)
+
+    const updated = {...account, emailConfirmed: false}
+    act(() => {
+      emitSynced({accounts: [updated, other], currentAccount: updated})
+    })
+
+    await act(async () => {
+      finishResume({bundle: resumedBundle, account: other})
+      await pending
+    })
+
+    expect(mockDisposeBundle).not.toHaveBeenCalledWith(resumedBundle)
+  })
 })

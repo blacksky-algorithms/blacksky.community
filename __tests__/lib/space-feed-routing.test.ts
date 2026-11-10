@@ -23,6 +23,8 @@ type FakeClient = {
   getFeed: jest.Mock
   agent: {fetchHandler: jest.Mock}
   call: jest.Mock
+  labelers: Set<string>
+  xrpcDefaults: {appLabelers: null}
 }
 
 function client({did}: {did?: string}): FakeClient {
@@ -58,6 +60,8 @@ function client({did}: {did?: string}): FakeClient {
     fetchHandler,
     getFeed,
     agent: {fetchHandler},
+    labelers: new Set(),
+    xrpcDefaults: {appLabelers: null},
     call: jest.fn((method: unknown, params: unknown) =>
       method === com.atproto.repo.getRecord
         ? Promise.resolve({value: config})

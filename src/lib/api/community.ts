@@ -1,4 +1,4 @@
-import {type Client, jsonToLex} from '@atproto/lex'
+import {Client, jsonToLex, lexStringify} from '@atproto/lex'
 import {type AtUriString} from '@atproto/syntax'
 
 import {HOME_PROXY_HEADER} from '#/lib/constants'
@@ -6,6 +6,22 @@ import {type app} from '#/lexicons'
 import {toPostView} from './space-views'
 
 export type CommunityXrpcParam = string | number | boolean
+
+/*
+ * A raw request skips the client's own header construction, so the moderation
+ * authorities it would have sent are added here in the same form.
+ */
+function acceptLabelers(client: Client): string | undefined {
+  const appLabelers =
+    client.xrpcDefaults.appLabelers === undefined
+      ? Client.appLabelers
+      : client.xrpcDefaults.appLabelers
+  const labelers = [
+    ...Array.from(appLabelers ?? [], did => `${did};redact`),
+    ...client.labelers,
+  ]
+  return labelers.length > 0 ? labelers.join(', ') : undefined
+}
 
 export async function communityXrpc(
   client: Client,
@@ -37,13 +53,18 @@ export async function communityXrpc(
       ? `${opts.serviceDid}#bsky_appview`
       : HOME_PROXY_HEADER,
   }
+  const labelers = acceptLabelers(client)
+  if (labelers) {
+    headers['atproto-accept-labelers'] = labelers
+  }
   const init: RequestInit = {
     method: opts?.body ? 'POST' : 'GET',
     headers,
   }
   if (opts?.body) {
     headers['Content-Type'] = 'application/json'
-    init.body = JSON.stringify(opts.body)
+    // Blob references are CID objects, which plain JSON does not encode as links.
+    init.body = lexStringify(opts.body)
   }
   return client.agent.fetchHandler(path, init)
 }

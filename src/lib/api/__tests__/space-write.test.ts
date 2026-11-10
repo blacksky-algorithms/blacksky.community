@@ -1,5 +1,8 @@
-import {type Client} from '@atproto/lex'
-import {describe, expect, it} from '@jest/globals'
+// The repo-wide stub of this module cannot encode a blob reference.
+jest.unmock('multiformats/cid')
+
+import {type Client, jsonToLex} from '@atproto/lex'
+import {describe, expect, it, jest} from '@jest/globals'
 
 import {
   LIKE_COLLECTION,
@@ -64,6 +67,25 @@ const bodyOf = (call: Call): Record<string, unknown> =>
   JSON.parse(call.body) as Record<string, unknown>
 
 describe('space writes', () => {
+  it('encodes a blob reference in a record as a link', async () => {
+    const {client, calls} = clientWith()
+    const link = 'bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku'
+    const image = jsonToLex({
+      $type: 'blob',
+      ref: {$link: link},
+      mimeType: 'image/png',
+      size: 10,
+    })
+
+    await spaceCreateRecord(client, SPACE, POST_COLLECTION, {
+      $type: POST_COLLECTION,
+      text: 'hello',
+      embed: {$type: 'app.bsky.embed.images', images: [{image, alt: ''}]},
+    })
+
+    expect(calls[0].body).toContain(`"ref":{"$link":"${link}"}`)
+  })
+
   it('posts to the account’s own pds without a proxy header', async () => {
     const {client, calls} = clientWith()
     await spaceCreateRecord(client, SPACE, POST_COLLECTION, {

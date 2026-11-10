@@ -1,3 +1,5 @@
+import {isPlainObject} from '@atproto/lex'
+
 import {type app} from '#/lexicons'
 
 /**
@@ -30,10 +32,6 @@ const TYPE_MAP: Record<string, string> = {
     'app.bsky.unspecced.defs#threadItemNotFound',
   [`${DEFS}#spaceThreadItemBlocked`]:
     'app.bsky.unspecced.defs#threadItemBlocked',
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
 function rename(value: unknown): unknown {
