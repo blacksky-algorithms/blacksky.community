@@ -58,11 +58,11 @@ module.exports = function (_config) {
       icon: './assets/app-icons/ios_icon_default_next.png',
       userInterfaceStyle: 'automatic',
       primaryColor: '#006AFF',
-      newArchEnabled: false,
       ios: {
         supportsTablet: false,
         bundleIdentifier: 'community.blacksky.app',
         buildNumber: process.env.BSKY_IOS_BUILD_NUMBER ?? '1',
+        appleTeamId: process.env.EXPO_APPLE_TEAM_ID,
         config: {
           usesNonExemptEncryption: false,
         },
@@ -85,6 +85,7 @@ module.exports = function (_config) {
             'an',
             'ast',
             'ca',
+            'cs',
             'cy',
             'da',
             'de',
@@ -131,6 +132,7 @@ module.exports = function (_config) {
             'group.community.blacksky.app',
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
+          'com.apple.developer.declared-age-range': true,
         },
         privacyManifests: {
           NSPrivacyCollectedDataTypes: [

@@ -21,6 +21,7 @@ import {
   type PollDraft,
 } from '#/lib/api/poll'
 import {isSpacePostUrl} from '#/lib/api/space-permalink'
+import {type VideoTelemetry} from '#/lib/media/video/telemetry'
 import {type SelfLabel} from '#/lib/moderation'
 import {insertMentionAt} from '#/lib/strings/mention-manip'
 import {shortenLinks} from '#/lib/strings/rich-text-manip'
@@ -102,6 +103,7 @@ export type PostAction =
       type: 'embed_add_video'
       asset: ImagePickerAsset
       abortController: AbortController
+      telemetry: VideoTelemetry
     }
   | {type: 'embed_remove_video'}
   | {type: 'embed_update_video'; videoAction: VideoAction}
@@ -637,7 +639,11 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       if (!prevMedia) {
         nextMedia = {
           type: 'video',
-          video: createVideoState(action.asset, action.abortController),
+          video: createVideoState(
+            action.asset,
+            action.abortController,
+            action.telemetry,
+          ),
         }
       }
       return {

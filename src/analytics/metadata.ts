@@ -7,6 +7,7 @@ export type BaseMetadata = {
   bundleDate: number
   referrerSrc: string
   referrerUrl: string
+  isBetaUser?: boolean
 }
 
 export type GeolocationMetadata = {
@@ -67,7 +68,7 @@ export function getMetadataForLogger({
   base,
   geolocation,
   session,
-}: Metadata): Record<string, any> {
+}: Metadata): Record<string, unknown> {
   return {
     deviceId: base.deviceId,
     sessionId: base.sessionId,

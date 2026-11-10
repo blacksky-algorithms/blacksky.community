@@ -225,3 +225,13 @@ export const TERMINAL_OAUTH_ERRORS = [
   TokenRevokedError,
   TokenInvalidError,
 ]
+
+export function signInNativeAndroid(
+  _client: unknown,
+  _identifier: string,
+  _options: {signal?: AbortSignal} = {},
+): Promise<never> {
+  return Promise.reject(
+    new Error('signInNativeAndroid is not available on web'),
+  )
+}

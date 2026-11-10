@@ -3,9 +3,7 @@ import {AppState, type AppStateStatus, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
 import {AppBskyGraphStarterpack, XRPCError} from '@atproto/api'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
-import {Trans} from '@lingui/react/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 
 import {DEFAULT_BRAND_CONFIG, useBrand} from '#/lib/community/BrandContext'
@@ -42,7 +40,7 @@ export function Signup({
   onPressSignIn?: (handle: string) => void
 }) {
   const ax = useAnalytics()
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const brand = useBrand()
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
@@ -136,10 +134,8 @@ export function Signup({
         value:
           serviceError instanceof XRPCError &&
           serviceError.error === 'RateLimitExceeded'
-            ? _(
-                msg`Your service is receiving too many requests. Please wait a few minutes and try again.`,
-              )
-            : _(msg`Unable to contact your service. Please try again shortly.`),
+            ? l`Your service is receiving too many requests. Please wait a few minutes and try again.`
+            : l`Unable to contact your service. Please try again shortly.`,
       })
     } else if (serviceInfo) {
       dispatch({
@@ -149,13 +145,13 @@ export function Signup({
       })
       dispatch({type: 'setError', value: ''})
     }
-  }, [_, serviceInfo, isError, serviceError, availableHandles])
+  }, [l, serviceInfo, isError, serviceError, availableHandles])
 
   useEffect(() => {
     if (state.pendingSubmit) {
       if (!state.pendingSubmit.mutableProcessed) {
         state.pendingSubmit.mutableProcessed = true
-        submit(state, dispatch)
+        void submit(state, dispatch)
       }
     }
   }, [state, dispatch, submit])

@@ -1,5 +1,6 @@
 import {useMemo, useState} from 'react'
 import {View} from 'react-native'
+import {useSift} from '@bsky.app/sift'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -34,6 +35,7 @@ import {
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {IS_WEB} from '#/env'
 import {HandleSuggestions} from './HandleSuggestions'
 
 export function StepHandle({
@@ -53,6 +55,13 @@ export function StepHandle({
     state.serviceDescription?.availableUserDomains?.[0] ||
     ''
   const isNextLoading = useThrottledValue(state.isLoading, 500)
+
+  /*
+   * Web anchors a floating Sift dropdown of suggestions to the input; native
+   * renders them inline and ignores this. `offset` leaves a small gap below the
+   * anchor, matching the inline `mt_xs` spacing.
+   */
+  const sift = useSift({offset: a.p_xs.padding, placement: 'bottom-start'})
 
   const validCheck = validateServiceHandle(draftValue, selectedDomain)
 
@@ -195,6 +204,15 @@ export function StepHandle({
     ax.metric('signup:backPressed', {activeStep: state.activeStep})
   }
 
+  /*
+   * Web-only Sift wiring. The anchor is the input section, whose bottom edge in
+   * the taken-and-valid state sits right below the availability error, so the
+   * floating dropdown lands beneath it. The input ref feeds Sift's keyboard
+   * handling and the combobox a11y props describe the typeahead relationship.
+   * Native ignores all of this and renders suggestions inline.
+   */
+  const {ref: inputAnchorRef, ...comboboxProps} = sift.targetProps
+
   return (
     <View style={[a.flex_1, a.gap_lg]}>
       <AppBar
@@ -220,34 +238,41 @@ export function StepHandle({
         </Text>
       </View>
 
-      <FieldGroupCard>
-        <InputGroup
-          testID="handleInput"
-          label={_(msg`Handle`)}
-          icon={At}
-          value={draftValue}
-          placeholder={_(msg`Enter your handle`)}
-          onChangeText={val => {
-            if (state.error) {
-              dispatch({type: 'setError', value: ''})
-            }
-            setSubmitFoundTaken(false)
-            setDraftValue(val.toLowerCase())
-          }}
-          supportingText={supportingText}
-          errorText={errorText}
-          trailing={
-            isHandleAvailable?.available && draftValue.length > 0 ? (
-              <Check size="md" style={{color: t.palette.positive_600}} />
-            ) : undefined
-          }
-          keyboardType="ascii-capable"
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoFocus
-          autoComplete="off"
-        />
-      </FieldGroupCard>
+      <View
+        collapsable={false}
+        ref={IS_WEB ? sift.refs.setAnchor : undefined}
+        onLayout={IS_WEB ? () => void sift.updatePosition() : undefined}>
+        <FieldGroupCard>
+          <InputGroup
+            ref={IS_WEB ? inputAnchorRef : undefined}
+            inputProps={IS_WEB ? comboboxProps : undefined}
+            testID="handleInput"
+              label={_(msg`Handle`)}
+              icon={At}
+              value={draftValue}
+              placeholder={_(msg`Enter your handle`)}
+              onChangeText={val => {
+                if (state.error) {
+                  dispatch({type: 'setError', value: ''})
+                }
+                setSubmitFoundTaken(false)
+                setDraftValue(val.toLowerCase())
+              }}
+              supportingText={supportingText}
+              errorText={errorText}
+              trailing={
+                isHandleAvailable?.available && draftValue.length > 0 ? (
+                  <Check size="md" style={{color: t.palette.positive_600}} />
+                ) : undefined
+              }
+              keyboardType="ascii-capable"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+              autoComplete="off"
+            />
+        </FieldGroupCard>
+      </View>
       <View style={a.gap_sm}>
         {state.serviceDescription?.availableUserDomains
           .filter(
@@ -316,6 +341,7 @@ export function StepHandle({
         isHandleAvailable?.suggestions &&
         isHandleAvailable.suggestions.length > 0 && (
           <HandleSuggestions
+            sift={sift}
             suggestions={isHandleAvailable.suggestions}
             onSelect={suggestion => {
               const handlePart = suggestion.handle.includes('.')

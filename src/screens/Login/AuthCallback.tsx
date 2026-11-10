@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Expo OAuth types do not resolve in Linux CI */
 import {useEffect} from 'react'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -16,17 +15,17 @@ export function AuthCallback() {
   const navigation = useNavigation<NavigationProp>()
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       try {
         const client = getOAuthClient()
-        const result = await client.init()
-        if (result?.session) {
+        const session = await client.handleCallback()
+        if (session) {
           await login(
             {
               service: '',
               identifier: '',
               password: '',
-              oauthSession: result.session,
+              oauthSession: session,
             },
             'LoginForm',
           )

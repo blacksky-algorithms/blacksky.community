@@ -9,6 +9,7 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
+import {useLogoVariant} from '#/view/icons/useLogoVariant'
 import {
   AppClipOverlay,
   postAppClipMessage,

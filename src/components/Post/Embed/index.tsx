@@ -302,11 +302,7 @@ function PostNotFoundEmbed({
       <QuoteEmbed
         {...rest}
         embed={{type: 'post', view: fallbackRecord}}
-        viewContext={
-          rest.viewContext === PostEmbedViewContext.Feed
-            ? PostEmbedViewContext.FeedEmbedRecordWithMedia
-            : undefined
-        }
+        viewContext={rest.viewContext}
         isWithinQuote={rest.isWithinQuote}
         allowNestedQuotes={false}
       />
@@ -402,7 +398,11 @@ export function QuoteEmbed({
         linkDisabled
       />
       {moderation ? (
-        <PostAlerts modui={moderation.ui('contentView')} style={[a.py_xs]} />
+        <PostAlerts
+          post={quote}
+          modui={moderation.ui('contentView')}
+          style={[a.py_xs]}
+        />
       ) : null}
       {richText ? (
         <RichText
@@ -433,7 +433,7 @@ export function QuoteEmbed({
   return (
     <GalleryBleed>
       <View
-        style={[a.mt_sm]}
+        style={[viewContext !== PostEmbedViewContext.ChatMessage && a.mt_sm]}
         onPointerEnter={linkDisabled ? undefined : onPointerEnter}
         onPointerLeave={linkDisabled ? undefined : onPointerLeave}>
         <ContentHider

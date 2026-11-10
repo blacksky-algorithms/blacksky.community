@@ -6,6 +6,7 @@ import {msg, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
 import {
+  VIDEO_10_MINUTE_MAX_DURATION_MS,
   VIDEO_MAX_DURATION_MS,
   VIDEO_MAX_SIZE,
   VIDEO_MAX_SIZE_MB,
@@ -22,8 +23,10 @@ import {Button} from '#/components/Button'
 import {useSheetWrapper} from '#/components/Dialog/sheet-wrapper'
 import {Image_Stroke2_Corner0_Rounded as ImageIcon} from '#/components/icons/Image'
 import * as toast from '#/components/Toast'
+import {useAnalytics} from '#/analytics'
 import {IS_NATIVE, IS_WEB} from '#/env'
 import {isAnimatedGif} from './videos/isAnimatedGif'
+import {hasWebCodecs} from './videos/metadata'
 
 export type SelectMediaButtonProps = {
   disabled?: boolean
@@ -235,9 +238,11 @@ async function processImagePickerAssets(
   {
     selectionCountRemaining,
     allowedAssetTypes,
+    videoMaxDurationMs,
   }: {
     selectionCountRemaining: number
     allowedAssetTypes: AssetType | undefined
+    videoMaxDurationMs: number
   },
 ) {
   /*
@@ -291,9 +296,15 @@ async function processImagePickerAssets(
       /*
        * Filesize appears to be stable across all platforms, so we can use it
        * to filter out large files on web. On native, we compress these anyway,
-       * so we only check on web.
+       * so we only check on web. On web, we can reject early if the browser
+       * doesn't support WebCodecs.
        */
-      if (IS_WEB && asset.fileSize && asset.fileSize > VIDEO_MAX_SIZE) {
+      if (
+        IS_WEB &&
+        !hasWebCodecs() &&
+        asset.fileSize &&
+        asset.fileSize > VIDEO_MAX_SIZE
+      ) {
         errors.add(SelectedAssetError.FileTooBig)
         continue
       }
@@ -309,8 +320,7 @@ async function processImagePickerAssets(
     if (type === 'gif') {
       /*
        * Filesize appears to be stable across all platforms, so we can use it
-       * to filter out large files on web. On native, we compress GIFs as
-       * videos anyway, so we only check on web.
+       * to filter out large files. We can't compress GIFs on either platform.
        */
       if (IS_WEB && asset.fileSize && asset.fileSize > VIDEO_MAX_SIZE) {
         errors.add(SelectedAssetError.FileTooBig)
@@ -348,7 +358,7 @@ async function processImagePickerAssets(
           supportedAssets[0].duration = supportedAssets[0].duration * 1000
         }
 
-        if (supportedAssets[0].duration > VIDEO_MAX_DURATION_MS) {
+        if (supportedAssets[0].duration > videoMaxDurationMs) {
           errors.add(SelectedAssetError.VideoTooLong)
           supportedAssets = []
         }
@@ -379,6 +389,13 @@ export function SelectMediaButton({
   autoOpen,
 }: SelectMediaButtonProps) {
   const {_} = useLingui()
+  const ax = useAnalytics()
+  const allow10MinuteVideos = ax.features.enabled(
+    ax.features.VideoAllow10MinuteEnable,
+  )
+  const videoMaxDurationMs = allow10MinuteVideos
+    ? VIDEO_10_MINUTE_MAX_DURATION_MS
+    : VIDEO_MAX_DURATION_MS
   const {requestPhotoAccessIfNeeded} = usePhotoLibraryPermission()
   const {requestVideoAccessIfNeeded} = useVideoLibraryPermission()
   const sheetWrapper = useSheetWrapper()
@@ -398,6 +415,7 @@ export function SelectMediaButton({
       } = await processImagePickerAssets(rawAssets, {
         selectionCountRemaining,
         allowedAssetTypes,
+        videoMaxDurationMs,
       })
 
       /*
@@ -422,9 +440,9 @@ export function SelectMediaButton({
           [SelectedAssetError.MaxVideos]: _(
             msg`You can only select one video at a time.`,
           ),
-          [SelectedAssetError.VideoTooLong]: _(
-            msg`Videos must be less than 3 minutes long.`,
-          ),
+          [SelectedAssetError.VideoTooLong]: allow10MinuteVideos
+            ? _(msg`Videos must be 10 minutes or less.`)
+            : _(msg`Videos must be less than 3 minutes long.`),
           [SelectedAssetError.MaxGIFs]: _(
             msg`You can only select one GIF at a time.`,
           ),
@@ -444,7 +462,14 @@ export function SelectMediaButton({
         errors,
       })
     },
-    [_, onSelectAssets, selectionCountRemaining, allowedAssetTypes],
+    [
+      _,
+      onSelectAssets,
+      selectionCountRemaining,
+      allowedAssetTypes,
+      videoMaxDurationMs,
+      allow10MinuteVideos,
+    ],
   )
 
   const onPressSelectMedia = useCallback(async () => {
@@ -467,7 +492,7 @@ export function SelectMediaButton({
     }
 
     const {assets, canceled} = await sheetWrapper(
-      openUnifiedPicker({selectionCountRemaining}),
+      openUnifiedPicker({selectionCountRemaining, videoMaxDurationMs}),
     )
 
     if (canceled) return
@@ -480,6 +505,7 @@ export function SelectMediaButton({
     sheetWrapper,
     processSelectedAssets,
     selectionCountRemaining,
+    videoMaxDurationMs,
   ])
 
   useEffect(() => {

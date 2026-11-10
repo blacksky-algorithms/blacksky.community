@@ -7,7 +7,12 @@ import {nanoid} from 'nanoid/non-secure'
 import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {AbortError} from '#/lib/async/cancelable'
 import {ServerError} from '#/lib/media/video/errors'
-import {type CompressedVideo} from '#/lib/media/video/types'
+import {
+  type CompressedVideo,
+  type VideoUploadTransport,
+} from '#/lib/media/video/types'
+import {Features, features} from '#/analytics/features'
+import {MultipartFallbackError, uploadVideoMultipart} from './multipart/upload'
 import {getVideoUploadLimits} from './upload.shared'
 import {createVideoEndpointUrl, mimeToExt} from './util'
 
@@ -19,6 +24,7 @@ export async function uploadVideo({
   signal,
   i18n,
   isPrivate,
+  onTransport,
 }: {
   video: CompressedVideo
   agent: AtpAgent
@@ -27,11 +33,32 @@ export async function uploadVideo({
   signal: AbortSignal
   i18n: I18n
   isPrivate: boolean
+  onTransport?: (transport: VideoUploadTransport) => void
 }) {
   if (signal.aborted) {
     throw new AbortError()
   }
   await getVideoUploadLimits(agent, i18n)
+
+  // The multipart endpoints have no private flag, so a private upload always
+  // takes the single-request path.
+  if (!isPrivate && features.isOn(Features.VideoMultipartUploadEnable)) {
+    try {
+      return await uploadVideoMultipart({
+        video,
+        agent,
+        setProgress,
+        signal,
+        onStarted: () => onTransport?.('multipart'),
+      })
+    } catch (err) {
+      if (!(err instanceof MultipartFallbackError)) throw err
+      onTransport?.('legacy-fallback')
+      setProgress(0)
+    }
+  } else {
+    onTransport?.('legacy')
+  }
 
   const uri = createVideoEndpointUrl('/xrpc/app.bsky.video.uploadVideo', {
     did,

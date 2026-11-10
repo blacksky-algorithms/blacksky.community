@@ -59,7 +59,7 @@ export function useIntentHandler() {
         groupInviteIntent(groupInviteMatch[1])
         return
       }
-      const referrerInfo = Referrer.getReferrerInfo()
+      const referrerInfo = await Referrer.getReferrerInfo()
       if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
         ax.metric('deepLink:referrerReceived', {
           to: url,
@@ -97,11 +97,19 @@ export function useIntentHandler() {
         }
         case 'apply-ota': {
           const channel = params.get('channel')
+          const releaseVersion = params.get('releaseVersion')
+          const buildNumber = params.get(
+            IS_IOS ? 'iosBuildNumber' : 'androidBuildNumber',
+          )
+          const appVersion =
+            releaseVersion && buildNumber
+              ? `${releaseVersion}.${buildNumber}`
+              : null
           if (!channel) {
             Alert.alert('Error', 'No channel provided to look for.')
-          } else {
-            tryApplyUpdate(channel)
+            return
           }
+          tryApplyUpdate(channel, appVersion)
           return
         }
         default: {

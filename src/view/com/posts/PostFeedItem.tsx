@@ -43,7 +43,6 @@ import {
   maybeApplyGalleryOffsetStyles,
 } from '#/components/images/Gallery'
 import {ContentHider} from '#/components/moderation/ContentHider'
-import {LabelsOnMyPost} from '#/components/moderation/LabelsOnMe'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
 import {type AppModerationCause} from '#/components/Pills'
 import {Embed} from '#/components/Post/Embed'
@@ -426,7 +425,6 @@ let FeedItemInner = ({
                   isParentNotFound={isParentNotFound}
                 />
               )}
-            <LabelsOnMyPost post={post} />
             <PostContent
               moderation={moderation}
               richText={richText}
@@ -498,6 +496,7 @@ let PostContent = ({
       ignoreMute
       childContainerStyle={styles.contentHiderChild}>
       <PostAlerts
+        post={post}
         modui={moderation.ui('contentList')}
         style={[a.pb_xs]}
         additionalCauses={additionalPostAlerts}

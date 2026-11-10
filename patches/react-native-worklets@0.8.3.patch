@@ -1,0 +1,80 @@
+diff --git a/Common/cpp/worklets/RunLoop/EventLoop.cpp b/Common/cpp/worklets/RunLoop/EventLoop.cpp
+index a5f026538c4ebbcb49c77cca14c00103d190eeec..704b9e6570f63368128fe063767ef7c6de291db1 100644
+--- a/Common/cpp/worklets/RunLoop/EventLoop.cpp
++++ b/Common/cpp/worklets/RunLoop/EventLoop.cpp
+@@ -1,4 +1,7 @@
+ #include <worklets/RunLoop/EventLoop.h>
++#include <algorithm>
++#include <chrono>
++#include <mutex>
+ 
+ #include <memory>
+ #include <string>
+diff --git a/Common/cpp/worklets/RunLoop/EventLoop.h b/Common/cpp/worklets/RunLoop/EventLoop.h
+index 885bbbe2a8c1d17eab1af7cad06da3e12b9e15ff..f4a27f6794180da6c99ea76975aa54bc9c2203af 100644
+--- a/Common/cpp/worklets/RunLoop/EventLoop.h
++++ b/Common/cpp/worklets/RunLoop/EventLoop.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <jsi/jsi.h>
++#include <mutex>
+ #include <worklets/RunLoop/AsyncQueue.h>
+ 
+ #include <atomic>
+diff --git a/Common/cpp/worklets/SharedItems/Serializable.cpp b/Common/cpp/worklets/SharedItems/Serializable.cpp
+index 62672f75b8522e538d017ea53c44a3b9c71361f1..e286437c12c4bb420d86802942e641c1aae24690 100644
+--- a/Common/cpp/worklets/SharedItems/Serializable.cpp
++++ b/Common/cpp/worklets/SharedItems/Serializable.cpp
+@@ -1,4 +1,5 @@
+ #include <jsi/jsi.h>
++#include <algorithm>
+ #include <worklets/SharedItems/Serializable.h>
+ #include <worklets/SharedItems/SerializableFactory.h>
+ 
+diff --git a/Common/cpp/worklets/SharedItems/Serializable.h b/Common/cpp/worklets/SharedItems/Serializable.h
+index 1c20158074ff6833bfc77b5b2c4497de91b3fd7a..dbbb572a1f0db7f758b0251df2da88021b0d364e 100644
+--- a/Common/cpp/worklets/SharedItems/Serializable.h
++++ b/Common/cpp/worklets/SharedItems/Serializable.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <worklets/Compat/StableApi.h>
++#include <optional>
+ #include <worklets/Registries/WorkletRuntimeRegistry.h>
+ 
+ #include <jsi/jsi.h>
+diff --git a/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp b/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
+index 1f64e794b64f6fd508a77fc791a4f80e8730e9a1..0a53d26de8c63f322a573e9303f40a08bcd09977 100644
+--- a/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
++++ b/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include <react/debug/react_native_assert.h>
+ 
++#include <iterator>
+ #include <memory>
+ #include <sstream>
+ #include <string>
+diff --git a/Common/cpp/worklets/Tools/WorkletsJSIUtils.h b/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
+index 975819a7e13dab02418ec9e0e64984f1b57640bc..b818a66bbd7d92958e1fd54b0b6c243b07d031ec 100644
+--- a/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
++++ b/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <jsi/jsi.h>
++#include <iterator>
+ #include <react/debug/react_native_assert.h>
+ #include <memory>
+ #include <string>
+diff --git a/apple/worklets/apple/AnimationFrameQueue.mm b/apple/worklets/apple/AnimationFrameQueue.mm
+index b93cd2c625ef8a03415ce23c6fc584e51d3696a9..53086495006099fdb4735f253741f134d8409194 100644
+--- a/apple/worklets/apple/AnimationFrameQueue.mm
++++ b/apple/worklets/apple/AnimationFrameQueue.mm
+@@ -1,4 +1,5 @@
+ #import <worklets/Tools/FeatureFlags.h>
++#include <mutex>
+ #import <worklets/apple/AnimationFrameQueue.h>
+ #import <worklets/apple/AssertJavaScriptQueue.h>
+ #import <worklets/apple/AssertTurboModuleManagerQueue.h>

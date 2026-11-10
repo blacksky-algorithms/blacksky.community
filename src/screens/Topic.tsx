@@ -1,8 +1,7 @@
 import {useCallback, useMemo, useState} from 'react'
 import {type ListRenderItemInfo, View} from 'react-native'
 import {type AppBskyFeedDefs} from '@atproto/api'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
+import {useLingui} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useInfiniteQuery} from '@tanstack/react-query'
 
@@ -13,7 +12,7 @@ import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {shareUrl} from '#/lib/sharing'
 import {cleanError} from '#/lib/strings/errors'
 import {enforceLen} from '#/lib/strings/helpers'
-import {useSearchPostsQuery} from '#/state/queries/search-posts'
+import {useSearchPostsV2Query} from '#/state/queries/search-posts-v2'
 import {TOPIC_FEED_QUERY_KEY_ROOT} from '#/state/queries/topic-feed'
 import {useAgent} from '#/state/session'
 import {Pager} from '#/view/com/pager/Pager'
@@ -41,7 +40,7 @@ export default function TopicScreen({
   route,
 }: NativeStackScreenProps<CommonNavigatorParams, 'Topic'>) {
   const {topic: topicParam} = route.params
-  const {_} = useLingui()
+  const {t: l} = useLingui()
 
   const isTopicId = /^\d+$/.test(topicParam)
 
@@ -50,13 +49,13 @@ export default function TopicScreen({
   )
 
   const headerTitle = useMemo(() => {
-    return topicName ? enforceLen(topicName, 30, true, 'middle') : _(msg`Topic`)
-  }, [topicName, _])
+    return topicName ? enforceLen(topicName, 30, true, 'middle') : l`Topic`
+  }, [topicName, l])
 
   const onShare = useCallback(() => {
     const url = new URL('https://blacksky.community')
     url.pathname = `/topic/${topicParam}`
-    shareUrl(url.toString())
+    void shareUrl(url.toString())
   }, [topicParam])
 
   if (isTopicId) {
@@ -70,7 +69,7 @@ export default function TopicScreen({
             </Layout.Header.Content>
             <Layout.Header.Slot>
               <Button
-                label={_(msg`Share`)}
+                label={l`Share`}
                 size="small"
                 variant="ghost"
                 color="primary"
@@ -105,7 +104,7 @@ function CuratedTopicFeed({
   topicId: string
   onTopicName: (name: string) => void
 }) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const initialNumToRender = useInitialNumToRender()
   const [isPTR, setIsPTR] = useState(false)
   const trackPostView = usePostViewTracking('Topic')
@@ -168,7 +167,7 @@ function CuratedTopicFeed({
 
   const onEndReached = useCallback(() => {
     if (isFetchingNextPage || !hasNextPage || error) return
-    fetchNextPage()
+    void fetchNextPage()
   }, [isFetchingNextPage, hasNextPage, error, fetchNextPage])
 
   return (
@@ -179,7 +178,7 @@ function CuratedTopicFeed({
           isError={isError}
           onRetry={refetch}
           emptyType="results"
-          emptyMessage={_(msg`We couldn't find any results for that topic.`)}
+          emptyMessage={l`We couldn't find any results for that topic.`}
         />
       ) : (
         <List
@@ -187,7 +186,7 @@ function CuratedTopicFeed({
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           refreshing={isPTR}
-          onRefresh={onRefresh}
+          onRefresh={() => void onRefresh()}
           onEndReached={onEndReached}
           onEndReachedThreshold={4}
           onItemSeen={trackPostView}
@@ -218,7 +217,7 @@ function LegacyTopicScreen({
   headerTitle: string
   onShare: () => void
 }) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const [activeTab, setActiveTab] = useState(0)
 
   const onPageSelected = useCallback((index: number) => {
@@ -228,7 +227,7 @@ function LegacyTopicScreen({
   const sections = useMemo(() => {
     return [
       {
-        title: _(msg`Top`),
+        title: l`Top`,
         component: (
           <TopicScreenTab
             topic={topicParam}
@@ -238,7 +237,7 @@ function LegacyTopicScreen({
         ),
       },
       {
-        title: _(msg`Latest`),
+        title: l`Latest`,
         component: (
           <TopicScreenTab
             topic={topicParam}
@@ -248,7 +247,7 @@ function LegacyTopicScreen({
         ),
       },
     ]
-  }, [_, topicParam, activeTab])
+  }, [l, topicParam, activeTab])
 
   return (
     <Layout.Screen>
@@ -263,7 +262,7 @@ function LegacyTopicScreen({
               </Layout.Header.Content>
               <Layout.Header.Slot>
                 <Button
-                  label={_(msg`Share`)}
+                  label={l`Share`}
                   size="small"
                   variant="ghost"
                   color="primary"
@@ -296,7 +295,7 @@ function TopicScreenTab({
   sort: 'top' | 'latest'
   active: boolean
 }) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const initialNumToRender = useInitialNumToRender()
   const [isPTR, setIsPTR] = useState(false)
   const trackPostView = usePostViewTracking('Topic')
@@ -311,7 +310,7 @@ function TopicScreenTab({
     refetch,
     fetchNextPage,
     hasNextPage,
-  } = useSearchPostsQuery({
+  } = useSearchPostsV2Query({
     query: decodeURIComponent(topic),
     sort,
     enabled: active,
@@ -329,7 +328,7 @@ function TopicScreenTab({
 
   const onEndReached = useCallback(() => {
     if (isFetchingNextPage || !hasNextPage || error) return
-    fetchNextPage()
+    void fetchNextPage()
   }, [isFetchingNextPage, hasNextPage, error, fetchNextPage])
 
   return (
@@ -340,7 +339,7 @@ function TopicScreenTab({
           isError={isError}
           onRetry={refetch}
           emptyType="results"
-          emptyMessage={_(msg`We couldn't find any results for that topic.`)}
+          emptyMessage={l`We couldn't find any results for that topic.`}
         />
       ) : (
         <List
@@ -348,7 +347,7 @@ function TopicScreenTab({
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           refreshing={isPTR}
-          onRefresh={onRefresh}
+          onRefresh={() => void onRefresh()}
           onEndReached={onEndReached}
           onEndReachedThreshold={4}
           onItemSeen={trackPostView}

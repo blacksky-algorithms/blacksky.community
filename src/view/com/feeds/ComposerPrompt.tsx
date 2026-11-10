@@ -116,6 +116,9 @@ export function ComposerPrompt() {
       const image = await openCamera({
         mediaTypes: 'images',
       })
+      if (!image) {
+        return
+      }
 
       const imageUris = [
         {
@@ -164,7 +167,6 @@ export function ComposerPrompt() {
         }),
         web({
           cursor: 'pointer',
-          outline: 'none',
         }),
         pressed && web({outline: 'none'}),
       ]}>
