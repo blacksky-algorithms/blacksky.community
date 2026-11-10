@@ -40,7 +40,7 @@ export function ConnectedApps() {
       name: 'Germ',
       description: _(msg`Encrypted DMs`),
       color: '#7ee541',
-      image: require('../../../assets/images/germ_logo.webp'),
+      image: require('../../../assets/icons/community/germ_logo.webp'),
     },
     {
       name: 'Offprint',
