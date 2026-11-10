@@ -1,4 +1,4 @@
-appId: xyz.blueskyweb.app
+appId: community.blacksky.app
 ---
 # Following v2 restores Home Following across a restart, from the snapshot
 # its query persister wrote, then puts posts made meanwhile above the restored
@@ -43,7 +43,7 @@ appId: xyz.blueskyweb.app
     env:
       SERVER_PATH: ?newposts=5&text=Newer%20post
 - launchApp:
-    appId: "xyz.blueskyweb.app"
+    appId: "community.blacksky.app"
 
 # The feed comes back as it was, and the posts bob made go above it once the
 # list is at rest, out of view. Only a restore prepend shows the pill.

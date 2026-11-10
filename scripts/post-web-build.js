@@ -68,62 +68,109 @@ fs.writeFileSync(templateFile, outputLines.join('\n'))
 // Generate fonts.html — preload + @font-face for the splash, using the same
 // content-hashed paths Metro emits for the bundle. Avoids shipping a duplicate
 // font copy under /static/media/ and ensures the preload is actually used.
-const fontsDir = path.join(distDir, 'assets', 'assets', 'fonts', 'inter')
-function findFontHash(prefix) {
-  if (!fs.existsSync(fontsDir)) return null
-  const match = fs
-    .readdirSync(fontsDir)
-    .find(name => name.startsWith(prefix) && name.endsWith('.woff2'))
-  return match || null
-}
-const interRegular = findFontHash('InterVariable.')
-const interItalic = findFontHash('InterVariable-Italic.')
-if (!interRegular || !interItalic) {
-  throw new Error(
-    `Could not find Inter font files in ${fontsDir}. ` +
-      'Update post-web-build.js if the font emit path changed.',
+const fontsRoot = '/assets/assets/fonts/'
+const splashFonts = [
+  {
+    family: 'InterVariable',
+    file: 'inter/InterVariable.woff2',
+    format: 'woff2',
+    weight: '300 1000',
+    style: 'normal',
+    preload: true,
+  },
+  {
+    family: 'InterVariableItalic',
+    file: 'inter/InterVariable-Italic.woff2',
+    format: 'woff2',
+    weight: '300 1000',
+    style: 'italic',
+  },
+  {
+    family: 'BasteB',
+    file: 'baste_b/BasteB-Regular.woff2',
+    format: 'woff2',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'AzeretMonoVariable',
+    file: 'azeret_mono/AzeretMono-VariableFont_wght.ttf',
+    format: 'truetype',
+    weight: '100 900',
+    style: 'normal',
+  },
+  {
+    family: 'RubikVariable',
+    file: 'rubik/Rubik-VariableFont_wght.ttf',
+    format: 'truetype',
+    weight: '100 900',
+    style: 'normal',
+  },
+]
+
+function findHashedFont(file) {
+  const dir = path.join(
+    distDir,
+    'assets',
+    'assets',
+    'fonts',
+    path.dirname(file),
   )
+  const ext = path.extname(file)
+  const prefix = `${path.basename(file, ext)}.`
+  const hashed =
+    fs.existsSync(dir) &&
+    fs
+      .readdirSync(dir)
+      .find(name => name.startsWith(prefix) && name.endsWith(ext))
+  if (!hashed) {
+    throw new Error(
+      `Could not find ${file} in ${dir}. ` +
+        'Update post-web-build.js if the font emit path changed.',
+    )
+  }
+  return `${fontsRoot}${path.dirname(file)}/${hashed}`
 }
 
-const interFontPath = '/assets/assets/fonts/inter/'
+for (const font of splashFonts) {
+  font.hashedPath = findHashedFont(font.file)
+}
+
 /*
  * The static index.html references the fonts by their unhashed names, but
  * Metro emits them content-hashed. Rewrite dist/index.html in place so the
  * font preload and @font-face URLs resolve when serving dist/ directly.
  */
-const fixedIndexHtml = indexHtml
-  .replaceAll(
-    '/assets/assets/fonts/inter/InterVariable.woff2',
-    `${interFontPath}${interRegular}`,
-  )
-  .replaceAll(
-    '/assets/assets/fonts/inter/InterVariable-Italic.woff2',
-    `${interFontPath}${interItalic}`,
-  )
+const fixedIndexHtml = splashFonts.reduce(
+  (html, font) => html.replaceAll(`${fontsRoot}${font.file}`, font.hashedPath),
+  indexHtml,
+)
 if (fixedIndexHtml !== indexHtml) {
   console.log('Rewriting font paths in dist/index.html to hashed filenames')
   fs.writeFileSync(path.join(distDir, 'index.html'), fixedIndexHtml)
 }
 
-const interRegularPath = `{{ staticCDNHost }}/static${interFontPath}${interRegular}`
-const interItalicPath = `{{ staticCDNHost }}/static${interFontPath}${interItalic}`
+const cdnFontPath = font => `{{ staticCDNHost }}/static${font.hashedPath}`
 
-const fontsHtml = `<link rel="preload" as="font" type="font/woff2" href="${interRegularPath}" crossorigin>
+const fontsHtml = `${splashFonts
+  .filter(font => font.preload)
+  .map(
+    font =>
+      `<link rel="preload" as="font" type="font/${font.format}" href="${cdnFontPath(font)}" crossorigin>`,
+  )
+  .join('\n')}
 <style>
-  @font-face {
-    font-family: 'InterVariable';
-    src: url("${interRegularPath}") format('woff2');
-    font-weight: 300 1000;
-    font-style: normal;
+${splashFonts
+  .map(
+    font => `  @font-face {
+    font-family: '${font.family}';
+    src: url("${cdnFontPath(font)}") format('${font.format}');
+    font-weight: ${font.weight};
+    font-style: ${font.style};
     font-display: swap;
-  }
-  @font-face {
-    font-family: 'InterVariableItalic';
-    src: url("${interItalicPath}") format('woff2');
-    font-weight: 300 1000;
-    font-style: italic;
-    font-display: swap;
-  }
+  }`,
+  )
+  .join('\n')}
 </style>
 `
 console.log(`Writing ${fontsTemplateFile}`)
@@ -172,12 +219,12 @@ if (
   process.env.SENTRY_AUTH_TOKEN &&
   process.env.SENTRY_AUTH_TOKEN != 'unknown'
 ) {
-  const releasePackage = 'xyz.blueskyweb.app'
+  const releasePackage = 'community.blacksky.app'
   const release =
     process.env.SENTRY_RELEASE ||
     `${releasePackage}@${require(path.join(projectRoot, 'package.json')).version}`
   /*
-   * The runtime reports `xyz.blueskyweb.app@` + (EXPO_PUBLIC_RELEASE_VERSION
+   * The runtime reports `community.blacksky.app@` + (EXPO_PUBLIC_RELEASE_VERSION
    * || package.json version) (SENTRY_RELEASE in src/env/common.ts), so maps
    * uploaded under a bogus release never match incoming events. "null" and
    * "undefined" catch `jq -r '.version'` stringifying a missing package.json
@@ -201,9 +248,9 @@ if (
     'sourcemaps',
     'upload',
     '--org',
-    'blueskyweb',
+    'blacksky-algorithms',
     '--project',
-    'app',
+    'social-app',
     '--release',
     release,
     ...(dist ? ['--dist', dist] : []),

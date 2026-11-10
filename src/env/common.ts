@@ -120,7 +120,7 @@ export const SENTRY_DSN: string | undefined = process.env.EXPO_PUBLIC_SENTRY_DSN
  * name. Source map uploads must use the same name, see `SENTRY_RELEASE` in
  * the CI workflows, `Dockerfile` and `scripts/post-web-build.js`.
  */
-export const SENTRY_RELEASE = `xyz.blueskyweb.app@${RELEASE_VERSION}`
+export const SENTRY_RELEASE = `community.blacksky.app@${RELEASE_VERSION}`
 
 /**
  * Bitdrift API key. If undefined, Bitdrift should be disabled.

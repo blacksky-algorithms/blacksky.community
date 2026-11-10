@@ -24,10 +24,12 @@ function asUri(value: string) {
   return value as `${string}:${string}`
 }
 
-const kawaii = Asset.fromModule(require('../../../assets/kawaii.png')).uri // 1920x1080
-const kawaiiSmol = Asset.fromModule(
-  require('../../../assets/kawaii_smol.png'),
-).uri // 246x138
+const landscape = Asset.fromModule(
+  require('../../../assets/images/bookmarks_announcement_nux.png'),
+).uri // 2986x1256
+const landscapeSmall = Asset.fromModule(
+  require('../../../assets/images/initial_verification_announcement_1.png'),
+).uri // 706x320
 const welcome = Asset.fromModule(
   require('../../../assets/images/welcome-modal-bg.jpg'),
 ).uri // 1432x1025
@@ -163,10 +165,10 @@ function ImageContent() {
           <ImageFrame uri={welcome} width={120} height={160} />
         </Gallery.Item>
         <Gallery.Item label={l`Square frame`}>
-          <ImageFrame uri={kawaii} width={140} height={140} />
+          <ImageFrame uri={landscape} width={140} height={140} />
         </Gallery.Item>
         <Gallery.Item label={l`Landscape frame`}>
-          <ImageFrame uri={kawaiiSmol} width={220} height={124} />
+          <ImageFrame uri={landscapeSmall} width={220} height={124} />
         </Gallery.Item>
       </Gallery.Root>
       <CaptionText>120×160, 140×140, 220×124</CaptionText>
@@ -184,11 +186,11 @@ function ImageAdapter() {
 
   const adapterImages: app.bsky.embed.images.ViewImage[] = [
     {
-      thumb: asUri(kawaii),
-      fullsize: asUri(kawaii),
-      alt: l`A kawaii scene`,
+      thumb: asUri(landscape),
+      fullsize: asUri(landscape),
+      alt: l`A wide illustration`,
       // Landscape wider than the carousel allows, so it's cropped
-      aspectRatio: {width: 1920, height: 1080},
+      aspectRatio: {width: 2986, height: 1256},
     },
     {
       thumb: asUri(welcome),
@@ -197,9 +199,9 @@ function ImageAdapter() {
       aspectRatio: {width: 1432, height: 1025},
     },
     {
-      thumb: asUri(kawaiiSmol),
-      fullsize: asUri(kawaiiSmol),
-      alt: l`A small kawaii scene with no ratio on record`,
+      thumb: asUri(landscapeSmall),
+      fullsize: asUri(landscapeSmall),
+      alt: l`A small illustration with no ratio on record`,
       // No ratio: starts square, then learns it from the loaded thumbnail
       aspectRatio: undefined,
     },
@@ -290,7 +292,7 @@ function MixedContent() {
             <Card width={140} height={240} title={l`Tall`} tone="negative" />
           </Gallery.Item>
           <Gallery.Item label={l`Image`}>
-            <ImageFrame uri={kawaii} width={180} height={120} />
+            <ImageFrame uri={landscape} width={180} height={120} />
           </Gallery.Item>
           <Gallery.Item
             label={l`Wide card`}

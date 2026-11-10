@@ -16,7 +16,7 @@ import {Text} from '#/components/Typography'
 const avatars: NewPostsPillAuthor[] = [
   {
     did: 'storybook:one',
-    avatar: Asset.fromModule(require('../../../../assets/kawaii.png')).uri,
+    avatar: Asset.fromModule(require('../../../../assets/logo.png')).uri,
   },
   {
     did: 'storybook:two',
@@ -26,7 +26,8 @@ const avatars: NewPostsPillAuthor[] = [
   },
   {
     did: 'storybook:three',
-    avatar: Asset.fromModule(require('../../../../assets/kawaii_smol.png')).uri,
+    avatar: Asset.fromModule(require('../../../../assets/default-avatar.png'))
+      .uri,
   },
 ]
 
