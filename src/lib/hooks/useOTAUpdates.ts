@@ -322,7 +322,12 @@ export function useApplyPullRequestOTAUpdate() {
 
     setPending(true)
     try {
-      await setExtraParams()
+      // An abandoned switch clears the override, so name the running channel again.
+      if (currentChannel && isCurrentlyRunningNonStandardChannel) {
+        await setExtraParamsPullRequest(currentChannel)
+      } else {
+        await setExtraParams()
+      }
 
       const res = await checkForUpdateAsync()
       if (!res.isAvailable) {
