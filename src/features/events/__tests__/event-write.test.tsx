@@ -37,7 +37,7 @@ function setup() {
     defaultOptions: {mutations: {retry: false}},
   })
   queryClient.setQueryData(EVENT_RQKEY(URI), event)
-  const {result} = renderHook(() => useEventWriteMutation(event), {
+  const {result} = renderHook(() => useEventWriteMutation(URI), {
     wrapper: ({children}) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     ),

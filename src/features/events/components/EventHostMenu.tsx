@@ -31,7 +31,7 @@ export function EventHostMenu({
   const editControl = useDialogControl()
   const cancelControl = useDialogControl()
   const deleteControl = useDialogControl()
-  const {mutateAsync: write} = useEventWriteMutation(event)
+  const {mutateAsync: write} = useEventWriteMutation(event.uri)
 
   if (currentAccount?.did !== event.creator.did) return null
 

@@ -22,6 +22,7 @@ import {
   isPeerModLabelableUri,
 } from '#/lib/api/community-post'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
+import {useBrand} from '#/lib/community'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {
@@ -99,6 +100,8 @@ import {
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {useAnalytics} from '#/analytics'
+import {useEventWriteMutation} from '#/features/events/queries'
+import {ownEventUriOf} from '#/features/events/url'
 
 let PostMenuItems = ({
   post,
@@ -143,6 +146,15 @@ let PostMenuItems = ({
   const reportDialogControl = useReportDialogControl()
   const labelDialogControl = useLabelDialogControl()
   const deletePromptControl = useDialogControl()
+  const brand = useBrand()
+  const ownEventUri = useMemo(
+    () =>
+      currentAccount && ax.features.enabled(ax.features.EventsEnable)
+        ? ownEventUriOf(post.embed, currentAccount, [brand.web.domains.main])
+        : undefined,
+    [currentAccount, ax, post.embed, brand],
+  )
+  const {mutateAsync: writeEvent} = useEventWriteMutation(ownEventUri ?? '')
   const postInteractionSettingsDialogControl = useDialogControl()
   const quotePostDetachConfirmControl = useDialogControl()
   const hideReplyConfirmControl = useDialogControl()
@@ -230,6 +242,18 @@ let PostMenuItems = ({
         })
       },
     )
+  }
+
+  const onDeletePostAndEvent = () => {
+    writeEvent(null).then(onDeletePost, e => {
+      logger.error('Failed to delete event', {message: e})
+      Toast.show(
+        l`Couldn't delete the event, so the post was kept. Try again.`,
+        {
+          type: 'error',
+        },
+      )
+    })
   }
 
   const onToggleThreadMute = () => {
@@ -780,14 +804,40 @@ let PostMenuItems = ({
           </>
         )}
       </Menu.Outer>
-      <Prompt.Basic
-        control={deletePromptControl}
-        title={l`Delete this post?`}
-        description={l`If you remove this post, you won't be able to recover it.`}
-        onConfirm={onDeletePost}
-        confirmButtonCta={l`Delete`}
-        confirmButtonColor="negative"
-      />
+      {ownEventUri ? (
+        <Prompt.Outer control={deletePromptControl} testID="confirmModal">
+          <Prompt.Content>
+            <Prompt.TitleText>{l`Delete this post?`}</Prompt.TitleText>
+            <Prompt.DescriptionText>
+              {l`This post created an event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted.`}
+            </Prompt.DescriptionText>
+          </Prompt.Content>
+          <Prompt.Actions>
+            <Prompt.Action
+              testID="deletePostAndEventBtn"
+              cta={l`Delete post and event`}
+              color="negative"
+              onPress={onDeletePostAndEvent}
+            />
+            <Prompt.Action
+              testID="deletePostOnlyBtn"
+              cta={l`Delete post only`}
+              color="secondary"
+              onPress={onDeletePost}
+            />
+            <Prompt.Cancel />
+          </Prompt.Actions>
+        </Prompt.Outer>
+      ) : (
+        <Prompt.Basic
+          control={deletePromptControl}
+          title={l`Delete this post?`}
+          description={l`If you remove this post, you won't be able to recover it.`}
+          onConfirm={onDeletePost}
+          confirmButtonCta={l`Delete`}
+          confirmButtonColor="negative"
+        />
+      )}
       <ReportDialog
         control={reportDialogControl}
         subject={{

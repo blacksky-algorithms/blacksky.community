@@ -41,7 +41,7 @@ function EditForm({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
   const agent = useAgent()
   const queryClient = useQueryClient()
   const control = Dialog.useDialogContext()
-  const {mutateAsync: write} = useEventWriteMutation(event)
+  const {mutateAsync: write} = useEventWriteMutation(event.uri)
   const [initial] = useState(() => eventDraftFromRecord(parsed, event.thumb))
   const [draft, setDraft] = useState(initial)
   const latest = useRef(draft)

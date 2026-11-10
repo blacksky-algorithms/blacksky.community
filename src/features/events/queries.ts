@@ -277,12 +277,12 @@ export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
  * deletes it. The result is written through to the cache, since the AppView
  * lags the write.
  */
-export function useEventWriteMutation(event: EventView) {
+export function useEventWriteMutation(uri: string) {
   const agent = useAgent()
   const queryClient = useQueryClient()
   return useMutation<void, Error, Record<string, unknown> | null>({
     mutationFn: async record => {
-      const {host: repo, rkey} = new AtUri(event.uri)
+      const {host: repo, rkey} = new AtUri(uri)
       if (record) {
         await agent.com.atproto.repo.putRecord({
           repo,
@@ -299,9 +299,8 @@ export function useEventWriteMutation(event: EventView) {
       }
     },
     onSuccess: (_result, record) => {
-      queryClient.setQueryData(
-        EVENT_RQKEY(event.uri),
-        record ? {...event, record} : null,
+      queryClient.setQueryData<EventView | null>(EVENT_RQKEY(uri), prev =>
+        record ? prev && {...prev, record} : null,
       )
       void queryClient.invalidateQueries({queryKey: [MY_EVENTS_RQKEY_ROOT]})
     },

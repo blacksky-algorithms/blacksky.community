@@ -1,3 +1,5 @@
+import {AppBskyEmbedExternal, type AppBskyFeedDefs} from '@atproto/api'
+
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {EVENT_COLLECTION} from './types'
 
@@ -74,4 +76,18 @@ export function makeEventLink(
       ? creator.handle
       : creator.did
   return `/event/${actor}/${rkey}`
+}
+
+/** The event a post links to, when that event belongs to `account`. */
+export function ownEventUriOf(
+  embed: AppBskyFeedDefs.PostView['embed'],
+  account: {did: string; handle: string},
+  brandDomains: string[] = [],
+): string | undefined {
+  if (!AppBskyEmbedExternal.isView(embed)) return
+  const ref = parseEventUrl(embed.external.uri, brandDomains)
+  if (!ref || (ref.actor !== account.did && ref.actor !== account.handle)) {
+    return
+  }
+  return eventAtUri(account.did, ref.rkey)
 }
