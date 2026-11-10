@@ -15,7 +15,7 @@ import {
   launchImageLibraryAsync,
   UIImagePickerPreferredAssetRepresentationMode,
 } from 'expo-image-picker'
-import {useLingui, Trans} from '@lingui/react/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 
 import {FEEDBACK_FORM_URL, IMAGE_SIZE_CONFIG_2K_1MB} from '#/lib/constants'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
