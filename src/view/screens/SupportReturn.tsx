@@ -16,6 +16,7 @@ import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
 import {STRIPE_API_URL} from '#/env/common'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'SupportReturn'>
 export const SupportReturnScreen = (_props: Props) => {
@@ -52,7 +53,9 @@ export const SupportReturnScreen = (_props: Props) => {
   }, [])
 
   const handleBackToHome = useCallback(() => {
-    navigation.navigate('Home')
+    navigation.dispatch(
+      getHomeNavigationAction(navigation.getState(), 'navigate'),
+    )
   }, [navigation])
 
   return (

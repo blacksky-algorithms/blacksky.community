@@ -18,6 +18,7 @@ import {AppBar, Eyebrow} from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID, IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
+import {type CaptchaError} from '#/screens/Signup/StepCaptcha/CaptchaWebView.shared'
 
 const CAPTCHA_PATH = '/gate/signup'
 const ATTEST_PATH = '/gate/signup/attempt-attest'
@@ -174,14 +175,21 @@ function StepCaptchaInner({
   )
 
   const onError = useCallback(
-    (error?: unknown) => {
+    (error: CaptchaError) => {
       dispatch({
         type: 'setError',
         value: _(msg`Error receiving captcha response.`),
       })
-      ax.metric('signup:captchaFailure', {reason: 'webview-error'})
+      ax.metric('signup:captchaFailure', {
+        reason: error.reason,
+        host: error.host,
+        statusCode: error.statusCode,
+      })
       logger.error('Signup: captcha response error', {
-        safeMessage: error,
+        reason: error.reason,
+        host: error.host,
+        statusCode: error.statusCode,
+        safeMessage: error.cause,
       })
     },
     [_, ax, dispatch],

@@ -47,6 +47,7 @@ import {
 } from './feeds'
 import {GRAZE_PARTNER, MIDTERMS_CTAS, type MidtermsCta} from './partners'
 import {type AtUriString} from '@atproto/syntax'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Midterms'>
 
@@ -191,7 +192,11 @@ function MidtermsFlow() {
             size="large"
             color="primary"
             style={[a.flex_1]}
-            onPress={() => navigation.navigate('Home')}>
+            onPress={() =>
+              navigation.dispatch(
+                getHomeNavigationAction(navigation.getState(), 'navigate'),
+              )
+            }>
             <ButtonText>
               <Trans>Go to Home</Trans>
             </ButtonText>

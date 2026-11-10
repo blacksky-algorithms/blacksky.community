@@ -22,6 +22,7 @@ import {type PressableScale} from '#/lib/custom-animations/PressableScale'
 import {useNavigationTabState} from '#/lib/hooks/useNavigationTabState'
 import {getTabState, TabState} from '#/lib/routes/helpers'
 import {
+  getCommonNavigationAction,
   getTabNavigationAction,
   getTabResetAction,
 } from '#/lib/routes/navigation'
@@ -349,7 +350,12 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   }, [navigation, navigateToSecondaryTab, setDrawerOpen, ax])
 
   const onPressSupport = useCallback(() => {
-    navigation.navigate('Support')
+    navigation.dispatch(
+      getCommonNavigationAction(
+        {name: 'Support', params: undefined},
+        navigation.getState(),
+      ),
+    )
     setDrawerOpen(false)
   }, [navigation, setDrawerOpen])
 

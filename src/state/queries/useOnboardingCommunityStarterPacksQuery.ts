@@ -59,6 +59,7 @@ export function useOnboardingCommunityStarterPacksQuery({
         starterPacks: hydrated.filter(
           (p): p is app.bsky.graph.defs.StarterPackView => p !== null,
         ),
+        recId: undefined as string | undefined,
       }
     },
   })

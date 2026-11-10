@@ -8,6 +8,7 @@ import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
 import {getOAuthClient} from '#/state/session/oauth-client'
 import * as Toast from '#/components/Toast'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 export function AuthCallback() {
   const {_} = useLingui()
@@ -30,13 +31,17 @@ export function AuthCallback() {
             'LoginForm',
           )
         }
-        navigation.replace('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'replace'),
+        )
       } catch (e) {
         logger.error('OAuth callback failed', {
           error: e instanceof Error ? e.message : String(e),
         })
         Toast.show(_(msg`Sign-in failed. Please try again.`), {type: 'error'})
-        navigation.replace('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'replace'),
+        )
       }
     })()
   }, [_, login, navigation])

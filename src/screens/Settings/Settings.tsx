@@ -424,7 +424,9 @@ function DevOptions() {
   const resetMidterms = () => {
     resetNuxs([Nux.Midterms2026Card], {
       onSuccess: () => {
-        navigation.navigate('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'navigate'),
+        )
         Toast.show(l`Midterms banner reset`)
       },
     })

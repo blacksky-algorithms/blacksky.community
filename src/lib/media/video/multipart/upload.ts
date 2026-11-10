@@ -1,7 +1,6 @@
 import {type Client} from '@atproto/lex'
 import {nanoid} from 'nanoid/non-secure'
 
-import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {AbortError} from '#/lib/async/cancelable'
 import {type CompressedVideo} from '#/lib/media/video/types'
 import {shouldRetryError} from '#/lib/strings/errors'

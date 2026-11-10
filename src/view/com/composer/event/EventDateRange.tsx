@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {Keyboard, Pressable, View} from 'react-native'
-import DatePicker from 'react-native-date-picker'
+import {DateTimePicker} from '@expo/ui/community/datetime-picker'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, useTheme} from '#/alf'
@@ -10,8 +10,21 @@ import {Text} from '#/components/Typography'
 import {type EventTimeField} from '#/features/events/draft'
 import {type EventDateRangeProps} from './EventDateRange.types'
 import {DateBox, FieldLabelText} from './EventFields'
+import {IS_ANDROID} from '#/env'
 
 const FIELDS = ['startsAt', 'endsAt'] as const
+
+function withDate(current: Date, picked: Date): Date {
+  const next = new Date(current)
+  next.setFullYear(picked.getFullYear(), picked.getMonth(), picked.getDate())
+  return next
+}
+
+function withTime(current: Date, picked: Date): Date {
+  const next = new Date(current)
+  next.setHours(picked.getHours(), picked.getMinutes(), 0, 0)
+  return next
+}
 
 export function EventDateRange({
   startsAt,
@@ -24,6 +37,7 @@ export function EventDateRange({
   const control = Dialog.useDialogControl()
   const [field, setField] = useState<EventTimeField>('startsAt')
   const values = {startsAt, endsAt}
+  const selected = new Date(values[field])
   const labels = {startsAt: l`Start date`, endsAt: l`End date`}
   const short = (iso: string) =>
     i18n.date(new Date(iso), {
@@ -109,17 +123,48 @@ export function EventDateRange({
               })}
             </View>
             <View style={[a.w_full, a.align_center]}>
-              <DatePicker
-                key={field}
-                mode="datetime"
-                theme={t.scheme}
-                locale={i18n.locale}
-                date={new Date(values[field])}
-                onDateChange={date => onChange(field, date.toISOString())}
-                aria-label={labels[field]}
-                accessibilityLabel={labels[field]}
-                accessibilityHint={l`Choose the date and time`}
-              />
+              {IS_ANDROID ? (
+                <>
+                  <DateTimePicker
+                    key={`${field}-date`}
+                    style={a.w_full}
+                    mode="date"
+                    presentation="inline"
+                    themeVariant={t.scheme}
+                    value={selected}
+                    onValueChange={(_event, date) =>
+                      onChange(field, withDate(selected, date).toISOString())
+                    }
+                    testID={`${field}DatePicker`}
+                  />
+                  <DateTimePicker
+                    key={`${field}-time`}
+                    style={a.w_full}
+                    mode="time"
+                    presentation="inline"
+                    themeVariant={t.scheme}
+                    value={selected}
+                    onValueChange={(_event, date) =>
+                      onChange(field, withTime(selected, date).toISOString())
+                    }
+                    testID={`${field}TimePicker`}
+                  />
+                </>
+              ) : (
+                <DateTimePicker
+                  key={field}
+                  style={a.w_full}
+                  mode="datetime"
+                  display="spinner"
+                  themeVariant={t.scheme}
+                  locale={i18n.locale.replace(/-/g, '_')}
+                  value={selected}
+                  onValueChange={(_event, date) =>
+                    onChange(field, date.toISOString())
+                  }
+                  testID={`${field}Picker`}
+                />
+              )}
             </View>
             <Button
               label={l`Done`}
