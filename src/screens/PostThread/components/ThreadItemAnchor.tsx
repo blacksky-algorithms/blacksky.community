@@ -33,8 +33,9 @@ import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {KnownLikers, LikesStat} from '#/screens/PostThread/components/LikesStat'
 import {ThreadItemAnchorFollowButton} from '#/screens/PostThread/components/ThreadItemAnchorFollowButton'
 import {
-  hasThreadItemPostNumber,
+  POST_NUMBER_INLINE_OFFSET,
   ThreadItemPostNumber,
+  useHasThreadItemPostNumber,
 } from '#/screens/PostThread/components/ThreadItemPostNumber'
 import {
   LINEAR_AVI_WIDTH,
@@ -50,6 +51,7 @@ import {GalleryBleed} from '#/components/images/Gallery'
 import {Link} from '#/components/Link'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
+import * as ReportDialogMetadataContext from '#/components/moderation/ReportDialog/ReportDialogMetadataContext'
 import {type AppModerationCause} from '#/components/Pills'
 import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
 import {TranslatedPost} from '#/components/Post/Translated'
@@ -86,16 +88,16 @@ export function ThreadItemAnchor({
   }
 
   return (
-    <ThreadItemAnchorInner
-      // Safeguard from clobbering per-post state below:
-      key={postShadow.uri}
-      item={item}
-      isRoot={isRoot}
-      postShadow={postShadow}
-      onPostSuccess={onPostSuccess}
-      threadgateRecord={threadgateRecord}
-      postSource={postSource}
-    />
+    <ReportDialogMetadataContext.Provider key={postShadow.uri}>
+      <ThreadItemAnchorInner
+        item={item}
+        isRoot={isRoot}
+        postShadow={postShadow}
+        onPostSuccess={onPostSuccess}
+        threadgateRecord={threadgateRecord}
+        postSource={postSource}
+      />
+    </ReportDialogMetadataContext.Provider>
   )
 }
 
@@ -191,6 +193,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   const post = postShadow
   const record = item.value.post.record
   const postNumbering = item.value
+  const showPostNumber = useHasThreadItemPostNumber(postNumbering)
   const moderation = item.moderation
   const authorShadow = useProfileShadow(post.author)
   const {isActive: live} = useActorStatus(post.author)
@@ -412,8 +415,9 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   style={[a.flex_1, a.text_lg]}
                   authorHandle={post.author.handle}
                   shouldProxyLinks={true}
+                  suffixOffset={POST_NUMBER_INLINE_OFFSET}
                   suffix={
-                    hasThreadItemPostNumber(postNumbering) ? (
+                    showPostNumber ? (
                       <ThreadItemPostNumber value={postNumbering} />
                     ) : undefined
                   }

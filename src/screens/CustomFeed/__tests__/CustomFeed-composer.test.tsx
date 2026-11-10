@@ -72,9 +72,9 @@ jest.mock('#/view/com/util/fab/FAB', () => {
     ),
   }
 })
-jest.mock('#/screens/Profile/components/ProfileFeedHeader', () => ({
-  ProfileFeedHeader: () => null,
-  ProfileFeedHeaderSkeleton: () => null,
+jest.mock('#/screens/CustomFeed/components/CustomFeedHeader', () => ({
+  CustomFeedHeader: () => null,
+  CustomFeedHeaderSkeleton: () => null,
 }))
 jest.mock('#/components/Layout', () => {
   const {View} = require('react-native')
@@ -87,7 +87,7 @@ jest.mock('#/alf', () => ({
   useTheme: () => ({palette: {white: '#fff'}}),
 }))
 
-import {ProfileFeedScreen, ProfileFeedScreenInner} from '../index'
+import {CustomFeedScreen, CustomFeedScreenInner} from '../index'
 
 const FEED_URI = 'at://did:plc:test/app.bsky.feed.generator/private'
 const FEED_DESCRIPTOR = `feedgen|${FEED_URI}` as const
@@ -104,7 +104,7 @@ function wrapper({children}: React.PropsWithChildren) {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
 }
 
-describe('ProfileFeed composer context', () => {
+describe('CustomFeed composer context', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseResolveUriQuery.mockReturnValue({
@@ -115,9 +115,9 @@ describe('ProfileFeed composer context', () => {
     })
   })
 
-  it('passes the resolved active feed to the ProfileFeed FAB composer', () => {
+  it('passes the resolved active feed to the CustomFeed FAB composer', () => {
     const {getByTestId} = render(
-      <ProfileFeedScreenInner
+      <CustomFeedScreenInner
         preferences={{} as UsePreferencesQueryResponse}
         feedInfo={FEED_INFO}
         feedParams={undefined}
@@ -136,9 +136,9 @@ describe('ProfileFeed composer context', () => {
         params: {name: 'did:plc:test', rkey: 'private'},
       },
       navigation: {setParams: mockSetParams},
-    } as unknown as React.ComponentProps<typeof ProfileFeedScreen>
+    } as unknown as React.ComponentProps<typeof CustomFeedScreen>
 
-    render(<ProfileFeedScreen {...props} />, {wrapper})
+    render(<CustomFeedScreen {...props} />, {wrapper})
 
     await waitFor(() => {
       expect(mockSetParams).toHaveBeenCalledWith({

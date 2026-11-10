@@ -46,13 +46,13 @@ export type CommonNavigatorParams = {
     space?: string
   }
   PostQuotes: {name: string; rkey: string; collection?: string; space?: string}
-  ProfileFeed: {
+  CustomFeed: {
     name: string
     rkey: string
     feedCacheKey?: 'discover' | 'explore' | undefined
     resolvedFeed?: string
   }
-  ProfileFeedLikedBy: {name: string; rkey: string}
+  CustomFeedLikedBy: {name: string; rkey: string}
   ProfileLabelerLikedBy: {name: string}
   Debug: undefined
   DebugMod: undefined

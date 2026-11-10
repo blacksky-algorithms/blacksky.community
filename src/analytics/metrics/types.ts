@@ -640,6 +640,8 @@ export type Events = {
   }
   'profile:mute': {}
   'profile:unmute': {}
+  'profile:muteReposts': {}
+  'profile:unmuteReposts': {}
   'profile:block': {}
   'profile:unblock': {}
   'suggestedUser:follow': {
@@ -998,6 +1000,7 @@ export type Events = {
     reason: string
     labeler: string
     details: boolean
+    videoTimestamp: boolean
   }
   'reportDialog:failure': {}
 
@@ -1559,7 +1562,7 @@ export type Events = {
   // === Video upload funnel (Frontend Spec section D) ===
   // Every event carries uploadId (client-generated UUID, ties one upload
   // session end-to-end) + engine (compression engine id, e.g.
-  // native:react-native-compressor@1.13.0). jobId is added once the server
+  // native:@bsky.app/video-compressor@0.2.0). jobId is added once the server
   // returns it. Sizes / codecs / dimensions / timings only - never content.
   'video:upload:picked': {
     uploadId: string
@@ -1578,7 +1581,7 @@ export type Events = {
   // Native-only. Raw container metadata returned by the new module's probe()
   // (bitrate, codec, HDR, frame rate, rotation, etc.). Fires once per upload
   // between compressStarted and the compressSkipped/compressCompleted decision.
-  // The web (mediabunny) and legacy rn-compressor engines do not surface this.
+  // The web mediabunny engine also emits this from its own probe.
   'video:upload:probed': {
     uploadId: string
     engine: string
@@ -1675,4 +1678,25 @@ export type Events = {
   }
 
   'post:likedBy:click': {}
+
+  /*
+   * Beta features settings screen
+   */
+
+  // user toggled "Enable beta features"; fired only after the preference
+  // write succeeds
+  'betaFeatures:toggle': {
+    enabled: boolean
+    /** Gate keys of beta features active for this user at toggle time */
+    betaFeatureKeys: string[]
+  }
+  // user pressed the "Share feedback" button, opening the dialog
+  'betaFeatures:feedback:open': {
+    betaFeatureKeys: string[]
+  }
+  // user submitted feedback and it was sent successfully
+  'betaFeatures:feedback:submit': {
+    betaFeatureKeys: string[]
+    feedbackLength: number
+  }
 }
