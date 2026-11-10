@@ -1406,13 +1406,9 @@ msgstr ""
 msgid "A discussion cannot be combined with media, a link card or a quote."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:46
+#: src/components/Gallery/Storybook.tsx:48
 msgid "A horizontal strip of any content. Each item keeps its own width and height, and the strip is as tall as the tallest one."
 msgstr "어떤 콘텐츠든 담을 수 있는 가로 스트립입니다. 각 항목은 고유한 너비와 높이를 유지하며, 스트립의 높이는 가장 큰 항목에 맞춰집니다."
-
-#: src/components/Gallery/Storybook.tsx:189
-msgid "A kawaii scene"
-msgstr "귀여운 장면"
 
 #: src/screens/ModerationInbox/components/hooks/useActionedSubjectLabels.ts:68
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:87
@@ -1441,7 +1437,7 @@ msgstr ""
 msgid "A label was removed from your post"
 msgstr "내 게시물에서 라벨이 제거되었습니다"
 
-#: src/components/Gallery/Storybook.tsx:375
+#: src/components/Gallery/Storybook.tsx:377
 msgid "A little more content than the first card."
 msgstr ""
 
@@ -1489,12 +1485,16 @@ msgstr "내가 참여하기 전에 보내진 메시지에 보내는 답장"
 msgid "A selected recipient is not followed by the sender."
 msgstr "선택한 수신자를 발신자가 팔로우하지 않았습니다."
 
-#: src/components/Gallery/Storybook.tsx:202
-msgid "A small kawaii scene with no ratio on record"
-msgstr "비율이 기록되지 않은 작은 귀여운 장면"
+#: src/components/Gallery/Storybook.tsx:204
+msgid "A small illustration with no ratio on record"
+msgstr ""
 
 #: src/lib/api/index.ts:126
 msgid "A thread can only have one discussion."
+msgstr ""
+
+#: src/components/Gallery/Storybook.tsx:191
+msgid "A wide illustration"
 msgstr ""
 
 #: src/Navigation.tsx:578
@@ -1717,7 +1717,7 @@ msgstr "조치 취해짐"
 #. placeholder {0}: nav.index
 #. placeholder {1}: nav.previous
 #. placeholder {2}: nav.events
-#: src/components/Gallery/Storybook.tsx:659
+#: src/components/Gallery/Storybook.tsx:661
 msgid "Active index {0} (from {1}), {2} user navigation events"
 msgstr "활성 인덱스 {0} ({1}에서), {2}개의 사용자 탐색 이벤트"
 
@@ -1742,7 +1742,7 @@ msgstr "활동 알림"
 #: src/components/dialogs/StarterPackDialog.tsx:364
 #: src/components/dialogs/StarterPackDialog.tsx:376
 #: src/components/dms/AddMembersFlow.tsx:410
-#: src/components/Gallery/Storybook.tsx:550
+#: src/components/Gallery/Storybook.tsx:552
 msgid "Add"
 msgstr "추가"
 
@@ -1840,7 +1840,7 @@ msgstr "앱 비밀번호 추가"
 msgid "Add automation label to account"
 msgstr "계정에 자동화 라벨 추가"
 
-#: src/components/Gallery/Storybook.tsx:539
+#: src/components/Gallery/Storybook.tsx:541
 msgid "Add card"
 msgstr "카드 추가"
 
@@ -2238,7 +2238,7 @@ msgstr "{0}(으)로 이메일을 보냈습니다. 이 이메일에는 아래에 
 msgid "An email was sent about your account"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:757
+#: src/components/Gallery/Storybook.tsx:759
 msgid "An empty gallery takes up no space. A single item behaves like any other, without dragging or arrow key navigation to go anywhere."
 msgstr "빈 갤러리는 공간을 차지하지 않습니다. 단일 항목은 다른 항목과 동일하게 동작하며, 어디로든 이동하기 위한 드래그나 화살표 키 탐색이 없습니다."
 
@@ -2918,6 +2918,11 @@ msgstr "생년월일"
 msgid "Birthday"
 msgstr "생년월일"
 
+#. Description of a beta feature (iPad support)
+#: src/screens/Settings/BetaFeaturesSettings.tsx:79
+msgid "Blacksky adapts to your iPad’s screen in any orientation or window size."
+msgstr ""
+
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:659
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
 msgstr ""
@@ -2928,6 +2933,10 @@ msgstr ""
 
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:41
 msgid "Blacksky is more fun with friends"
+msgstr ""
+
+#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
+msgid "Blacksky is part of a growing network of hundreds of social apps. Your account unlocks them all."
 msgstr ""
 
 #: src/screens/Midterms/index.tsx:262
@@ -3099,11 +3108,6 @@ msgstr "블룸스크롤링 북스카이"
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#. Description of a beta feature (iPad support)
-#: src/screens/Settings/BetaFeaturesSettings.tsx:79
-msgid "Bluesky adapts to your iPad’s screen in any orientation or window size."
-msgstr "Bluesky가 모든 방향이나 창 크기에서 iPad 화면에 맞게 조정됩니다."
-
 #: src/components/contacts/screens/GetContacts.tsx:237
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
 msgstr "Bluesky는 ‘해시’라고 불리는 인코딩된 디지털 지문을 생성하고 일치하는 해시를 찾아 친구들을 찾도록 도와줍니다."
@@ -3115,10 +3119,6 @@ msgstr "Bluesky는 호스팅 제공자를 선택할 수 있는 개방형 네트�
 #: src/components/contacts/screens/ViewMatches.tsx:323
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "Bluesky는 친구들과 함께하면 더욱 즐거워집니다. 친구들을 초대해 볼까요? <0/>"
-
-#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
-msgid "Bluesky is part of a growing network of hundreds of social apps. Your account unlocks them all."
-msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:96
 #: src/screens/ModerationInbox/Report.tsx:74
@@ -3199,7 +3199,7 @@ msgstr "주제 {displayName} 탐색하기"
 msgid "Button to go back to the home timeline"
 msgstr "홈 타임라인으로 돌아가려면 버튼을 누르세요"
 
-#: src/components/Gallery/Storybook.tsx:412
+#: src/components/Gallery/Storybook.tsx:414
 msgid "Buttons and text fields work without starting a drag. Type, select text with the arrow keys, and click. The last item uses the focus render function to make its own button the keyboard target, which Enter and Space should press."
 msgstr "드래그를 시작하지 않고도 버튼과 텍스트 필드가 작동합니다. 입력하고, 화살표 키로 텍스트를 선택하고, 클릭하세요. 마지막 항목은 포커스 렌더링 함수를 사용하여 자체 버튼을 키보드 대상으로 지정하며, Enter 및 Space 키로 누를 수 있습니다."
 
@@ -3379,36 +3379,36 @@ msgid "Captions & alt text"
 msgstr "자막 및 대체 텍스트"
 
 #. placeholder {0}: card.id
-#: src/components/Gallery/Storybook.tsx:642
-#: src/components/Gallery/Storybook.tsx:647
+#: src/components/Gallery/Storybook.tsx:644
+#: src/components/Gallery/Storybook.tsx:649
 msgid "Card {0}"
 msgstr "카드 {0}"
 
-#: src/components/Gallery/Storybook.tsx:371
+#: src/components/Gallery/Storybook.tsx:373
 msgid "Card {index}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:277
+#: src/components/Gallery/Storybook.tsx:279
 msgid "Cards and images of different sizes"
 msgstr "다양한 크기의 카드와 이미지"
 
-#: src/components/Gallery/Storybook.tsx:723
+#: src/components/Gallery/Storybook.tsx:725
 msgid "Cards in a constrained panel"
 msgstr "제한된 패널 안의 카드"
 
-#: src/components/Gallery/Storybook.tsx:269
+#: src/components/Gallery/Storybook.tsx:271
 msgid "Cards of different widths and heights, an image, and a card wider than the gallery. The strip is as tall as the tallest card, and nothing is cropped or resized."
 msgstr "너비와 높이가 서로 다른 카드, 이미지, 그리고 갤러리보다 넓은 카드. 스트립은 가장 높은 카드와 동일한 높이이며, 아무것도 잘리거나 크기가 조정되지 않습니다."
 
-#: src/components/Gallery/Storybook.tsx:325
+#: src/components/Gallery/Storybook.tsx:327
 msgid "Cards stretch to the tallest sibling. Shortening or removing the tall card should let the whole row shrink again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:740
+#: src/components/Gallery/Storybook.tsx:742
 msgid "Cards that bleed to the container edges"
 msgstr "컨테이너 가장자리까지 꽉 차는 카드"
 
-#: src/components/Gallery/Storybook.tsx:628
+#: src/components/Gallery/Storybook.tsx:630
 msgid "Cards that change"
 msgstr "변경되는 카드"
 
@@ -3475,7 +3475,7 @@ msgstr "신고 카테고리 변경"
 msgid "Change report reason"
 msgstr "신고 이유 변경"
 
-#: src/components/Gallery/Storybook.tsx:531
+#: src/components/Gallery/Storybook.tsx:533
 msgid "Change the items from outside. Resizing, reordering, and revealing are not user navigation, so the event count should only go up when you swipe, drag, or use the arrow keys."
 msgstr "외부에서 항목을 변경하세요. 크기 조정, 재정렬 및 표시는 사용자 탐색이 아니므로 이벤트 수는 스와이프하거나 드래그하거나 화살표 키를 사용할 때만 증가해야 합니다."
 
@@ -3504,7 +3504,7 @@ msgstr "변경 사항을 저장했습니다"
 msgid "Changes to the Starter Pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr "리스트를 만든 후에는 스타터 팩의 변경 사항이 리스트에 반영되지 않습니다. 리스트는 별도의 사본으로 저장됩니다."
 
-#: src/components/Gallery/Storybook.tsx:529
+#: src/components/Gallery/Storybook.tsx:531
 msgid "Changing content"
 msgstr "콘텐츠 변경하기"
 
@@ -4092,7 +4092,7 @@ msgstr "서비스에 연결 중…"
 msgid "Connecting…"
 msgstr "연결 중…"
 
-#: src/components/Gallery/Storybook.tsx:695
+#: src/components/Gallery/Storybook.tsx:697
 msgid "Constrained and bleeding containers"
 msgstr "제한된 컨테이너와 블리딩 컨테이너"
 
@@ -4549,7 +4549,7 @@ msgstr ""
 msgid "Couldn't upload the event image. Try again, or remove the image."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:422
+#: src/components/Gallery/Storybook.tsx:424
 msgid "Counter"
 msgstr "카운터"
 
@@ -4557,7 +4557,7 @@ msgstr "카운터"
 msgid "Country code"
 msgstr "국가 코드"
 
-#: src/components/Gallery/Storybook.tsx:455
+#: src/components/Gallery/Storybook.tsx:457
 msgid "Counts how many times it was focused and pressed"
 msgstr "포커스되고 눌린 횟수를 집계합니다"
 
@@ -5648,11 +5648,11 @@ msgstr "임베드 동영상 플레이어"
 msgid "Embedding"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:755
+#: src/components/Gallery/Storybook.tsx:757
 msgid "Empty and single"
 msgstr "비었거나 단일 갤러리"
 
-#: src/components/Gallery/Storybook.tsx:764
+#: src/components/Gallery/Storybook.tsx:766
 msgid "Empty gallery"
 msgstr "빈 갤러리"
 
@@ -5729,11 +5729,11 @@ msgstr "사용"
 msgid "Encrypted DMs"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:654
+#: src/components/Gallery/Storybook.tsx:656
 msgid "End"
 msgstr "끝"
 
-#: src/components/Gallery/Storybook.tsx:653
+#: src/components/Gallery/Storybook.tsx:655
 msgid "End card"
 msgstr "끝 카드"
 
@@ -5835,7 +5835,7 @@ msgstr "전체화면으로 봅니다"
 msgid "Entertainment"
 msgstr "엔터테인먼트"
 
-#: src/components/Gallery/Storybook.tsx:354
+#: src/components/Gallery/Storybook.tsx:356
 msgid "Equal-height cards"
 msgstr ""
 
@@ -6715,9 +6715,9 @@ msgstr ""
 msgid "Focus code input"
 msgstr "코드 입력란에 포커싱하기"
 
-#: src/components/Gallery/Storybook.tsx:448
-#: src/components/Gallery/Storybook.tsx:454
-#: src/components/Gallery/Storybook.tsx:476
+#: src/components/Gallery/Storybook.tsx:450
+#: src/components/Gallery/Storybook.tsx:456
+#: src/components/Gallery/Storybook.tsx:478
 msgid "Focus target"
 msgstr "대상에 포커스"
 
@@ -6725,7 +6725,7 @@ msgstr "대상에 포커스"
 msgid "Focus the search field"
 msgstr "검색 필드에 포커스"
 
-#: src/components/Gallery/Storybook.tsx:481
+#: src/components/Gallery/Storybook.tsx:483
 msgid "Focused {focusCount} times"
 msgstr "{focusCount}번 포커스됨"
 
@@ -7009,15 +7009,15 @@ msgstr "다음 사용자가 작성"
 msgid "Further violations of our Community Guidelines could lead to permanent suspension."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:43
+#: src/components/Gallery/Storybook.tsx:45
 msgid "Gallery"
 msgstr "갤러리"
 
-#: src/components/Gallery/Storybook.tsx:440
+#: src/components/Gallery/Storybook.tsx:442
 msgid "Gallery text field"
 msgstr "갤러리 텍스트 필드"
 
-#: src/components/Gallery/Storybook.tsx:772
+#: src/components/Gallery/Storybook.tsx:774
 msgid "Gallery with one item"
 msgstr "항목이 하나인 갤러리"
 
@@ -7806,7 +7806,7 @@ msgstr "개발자라면 직접 서버를 호스팅할 수 있습니다."
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr "핸들이나 이메일을 변경하려는 경우 비활성화하기 전에 변경하세요."
 
-#: src/components/Gallery/Storybook.tsx:292
+#: src/components/Gallery/Storybook.tsx:294
 #: src/components/images/ImageLayoutGridItem.tsx:94
 msgid "Image"
 msgstr "이미지"
@@ -7834,11 +7834,11 @@ msgstr "이미지 캐시를 지웠습니다"
 msgid "Image cache cleared, freed {0}"
 msgstr "이미지 캐시를 지우고 {0}를 확보했습니다"
 
-#: src/components/Gallery/Storybook.tsx:152
+#: src/components/Gallery/Storybook.tsx:154
 msgid "Image content"
 msgstr "이미지 콘텐츠"
 
-#: src/components/Gallery/Storybook.tsx:160
+#: src/components/Gallery/Storybook.tsx:162
 msgid "Image frames in different shapes"
 msgstr "다양한 모양의 이미지 프레임"
 
@@ -7995,7 +7995,7 @@ msgstr "동영상 타임스탬프 포함 ({videoTimestamp})"
 msgid "Incorrect password. Please try again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:425
+#: src/components/Gallery/Storybook.tsx:427
 msgid "Increment counter"
 msgstr "카운터 증가"
 
@@ -8015,11 +8015,11 @@ msgstr "상호작용 제한됨"
 msgid "Interaction settings"
 msgstr "상호작용 설정"
 
-#: src/components/Gallery/Storybook.tsx:410
+#: src/components/Gallery/Storybook.tsx:412
 msgid "Interactive children"
 msgstr "대화형 하위 요소"
 
-#: src/components/Gallery/Storybook.tsx:420
+#: src/components/Gallery/Storybook.tsx:422
 msgid "Interactive items"
 msgstr "대화형 항목"
 
@@ -8035,11 +8035,11 @@ msgstr ""
 msgid "Interested, tap to remove"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:635
+#: src/components/Gallery/Storybook.tsx:637
 msgid "Intro"
 msgstr "인트로"
 
-#: src/components/Gallery/Storybook.tsx:634
+#: src/components/Gallery/Storybook.tsx:636
 msgid "Intro card"
 msgstr "인트로 카드"
 
@@ -8326,7 +8326,7 @@ msgstr ""
 msgid "Labels on your account"
 msgstr "내 계정의 라벨"
 
-#: src/components/Gallery/Storybook.tsx:168
+#: src/components/Gallery/Storybook.tsx:170
 msgid "Landscape frame"
 msgstr "가로 프레임"
 
@@ -8826,7 +8826,7 @@ msgstr "새 알림 불러오기"
 msgid "Load new posts"
 msgstr "새 게시물 불러오기"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:137
+#: src/view/screens/Storybook/NewPostsPill.tsx:138
 msgid "Load new posts from the people you follow"
 msgstr "팔로우하는 사용자의 새 게시물 불러오기"
 
@@ -8946,7 +8946,7 @@ msgstr ""
 msgid "Make adjustments to email settings for your account"
 msgstr "계정의 이메일 설정 조정하기"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make narrow"
 msgstr "좁게 만들기"
 
@@ -8958,23 +8958,23 @@ msgstr "나를 위해 만들기"
 msgid "Make sure this is where you intend to go!"
 msgstr "이곳이 당신이 가고자 하는 곳인지 확인하세요!"
 
-#: src/components/Gallery/Storybook.tsx:584
+#: src/components/Gallery/Storybook.tsx:586
 msgid "Make the first card taller or shorter"
 msgstr "첫 번째 카드를 더 높게 또는 낮게 만들기"
 
-#: src/components/Gallery/Storybook.tsx:594
+#: src/components/Gallery/Storybook.tsx:596
 msgid "Make the first card wider or narrower"
 msgstr "첫 번째 카드를 더 넓게 또는 좁게 만들기"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel narrow"
 msgstr "패널을 좁게 만들기"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel wide"
 msgstr "패널을 넓게 만들기"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make wide"
 msgstr "넓게 만들기"
 
@@ -9076,11 +9076,11 @@ msgstr "{0}에 저장된 미디어"
 msgid "Media stored on another device"
 msgstr "다른 기기에 저장된 미디어"
 
-#: src/components/Gallery/Storybook.tsx:285
+#: src/components/Gallery/Storybook.tsx:287
 msgid "Medium"
 msgstr "중간"
 
-#: src/components/Gallery/Storybook.tsx:284
+#: src/components/Gallery/Storybook.tsx:286
 msgid "Medium card"
 msgstr "중간 카드"
 
@@ -9220,7 +9220,7 @@ msgstr ""
 msgid "Missing media"
 msgstr "미디어 찾을 수 없음"
 
-#: src/components/Gallery/Storybook.tsx:267
+#: src/components/Gallery/Storybook.tsx:269
 msgid "Mixed content and sizes"
 msgstr "혼합된 콘텐츠 및 크기"
 
@@ -9676,7 +9676,7 @@ msgstr "새 게시물"
 msgid "New posts"
 msgstr "새 게시물"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:136
+#: src/view/screens/Storybook/NewPostsPill.tsx:137
 msgid "New posts are ready to load from the people you follow"
 msgstr "팔로우하는 사용자의 새 게시물을 불러올 준비가 되었습니다"
 
@@ -10252,8 +10252,8 @@ msgid "On"
 msgstr "켜기"
 
 #: src/screens/Settings/components/AlgoVisibilityOptOut.tsx:43
-msgid "On Bluesky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
-msgstr "이 설정은 Bluesky에서 내 게시물이 나를 팔로우하는 사람들에게만 둘러보기 피드에 표시되도록 합니다. 다른 앱은 자체 알고리즘 추천에 이 설정을 적용할지 선택할 수 있습니다."
+msgid "On Blacksky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
+msgstr ""
 
 #: src/components/StarterPack/QrCode.tsx:80
 msgid "on<0><1/><2><3/></2></0>"
@@ -10263,7 +10263,7 @@ msgstr "<0><1/><2><3/></2></0>"
 msgid "Onboarding reset"
 msgstr "온보딩 재설정"
 
-#: src/components/Gallery/Storybook.tsx:673
+#: src/components/Gallery/Storybook.tsx:675
 msgid "One"
 msgstr "하나"
 
@@ -10315,7 +10315,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:775
+#: src/components/Gallery/Storybook.tsx:777
 msgid "Only"
 msgstr "유일"
 
@@ -10340,7 +10340,7 @@ msgstr "관리자만 참여 요청을 승인할 수 있습니다."
 msgid "Only admins can reject join requests."
 msgstr "관리자만 참여 요청을 거부할 수 있습니다."
 
-#: src/components/Gallery/Storybook.tsx:774
+#: src/components/Gallery/Storybook.tsx:776
 msgid "Only card"
 msgstr "카드만"
 
@@ -10616,8 +10616,8 @@ msgstr ""
 #. placeholder {0}: link.url
 #: src/features/profileLinks/components/LinkPreviewSheet.tsx:85
 #: src/features/profileLinks/components/ProfileLinks.tsx:164
-msgid "Opens {0} outside Bluesky"
-msgstr "Bluesky 외부에서 {0}(을)를 엽니다"
+msgid "Opens {0} outside Blacksky"
+msgstr ""
 
 #: src/view/shell/desktop/Feeds.tsx:188
 msgid "Opens {displayName} feed"
@@ -10678,13 +10678,10 @@ msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:309
+#: src/view/com/auth/NativeSplashScreen.tsx:141
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:141
-msgid "Opens flow to create a new Bluesky account"
-msgstr "새 Bluesky 계정을 만드는 화면을 엽니다"
 
 #. placeholder {0}: brand.web.title
 #: src/view/com/auth/SplashScreen.web.tsx:120
@@ -10692,13 +10689,10 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:295
+#: src/view/com/auth/NativeSplashScreen.tsx:170
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:170
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "존재하는 Bluesky 계정에 로그인하는 화면을 엽니다"
 
 #: src/components/images/Gallery/index.tsx:305
 msgid "Opens full image"
@@ -10901,7 +10895,7 @@ msgstr "소유자"
 msgid "Owner must lock the group before leaving."
 msgstr "소유자는 나가기 전에 그룹을 잠가야 합니다."
 
-#: src/components/Gallery/Storybook.tsx:737
+#: src/components/Gallery/Storybook.tsx:739
 msgid "Padded container"
 msgstr "여백 있는 컨테이너"
 
@@ -11374,11 +11368,11 @@ msgstr ""
 msgid "Porn"
 msgstr "음란물"
 
-#: src/components/Gallery/Storybook.tsx:162
+#: src/components/Gallery/Storybook.tsx:164
 msgid "Portrait frame"
 msgstr "세로 프레임"
 
-#: src/components/Gallery/Storybook.tsx:154
+#: src/components/Gallery/Storybook.tsx:156
 msgid "Portrait, square, and landscape frames as plain children. The frames, not the gallery, decide the sizes."
 msgstr "일반 자식 요소로서의 세로, 정사각형, 가로 프레임. 갤러리가 아닌 프레임이 크기를 결정합니다."
 
@@ -11589,7 +11583,7 @@ msgstr "다시 시도하려면 누르기"
 msgid "Press to view followers of this account that you also follow"
 msgstr "내가 팔로우하는 이 계정의 팔로워를 보려면 누르세요"
 
-#: src/components/Gallery/Storybook.tsx:486
+#: src/components/Gallery/Storybook.tsx:488
 msgid "Pressed {pressCount} times"
 msgstr "{pressCount}번 눌림"
 
@@ -11672,7 +11666,7 @@ msgstr "동영상 처리 중…"
 msgid "Processing..."
 msgstr "처리 중…"
 
-#: src/components/Gallery/Storybook.tsx:241
+#: src/components/Gallery/Storybook.tsx:243
 msgid "Production image adapter"
 msgstr "프로덕션 이미지 어댑터"
 
@@ -12098,11 +12092,11 @@ msgstr "피드를 제거하시겠습니까?"
 msgid "Remove filter"
 msgstr "필터 제거하기"
 
-#: src/components/Gallery/Storybook.tsx:570
+#: src/components/Gallery/Storybook.tsx:572
 msgid "Remove first"
 msgstr "첫 카드 제거"
 
-#: src/components/Gallery/Storybook.tsx:564
+#: src/components/Gallery/Storybook.tsx:566
 msgid "Remove first card"
 msgstr "첫 카드 제거"
 
@@ -12149,11 +12143,11 @@ msgstr "이미지 제거"
 msgid "Remove label {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:560
+#: src/components/Gallery/Storybook.tsx:562
 msgid "Remove last"
 msgstr "마지막 카드 제거"
 
-#: src/components/Gallery/Storybook.tsx:554
+#: src/components/Gallery/Storybook.tsx:556
 msgid "Remove last card"
 msgstr "마지막 카드 제거"
 
@@ -12870,7 +12864,7 @@ msgstr "이전 페이지로 돌아갑니다"
 msgid "Returns to the previous step"
 msgstr "이전 단계로 돌아갑니다"
 
-#: src/components/Gallery/Storybook.tsx:622
+#: src/components/Gallery/Storybook.tsx:624
 msgid "Reveal last"
 msgstr "마지막 카드 표시"
 
@@ -12878,15 +12872,15 @@ msgstr "마지막 카드 표시"
 msgid "Reveal password"
 msgstr "비밀번호 표시하기"
 
-#: src/components/Gallery/Storybook.tsx:614
+#: src/components/Gallery/Storybook.tsx:616
 msgid "Reveal the last card"
 msgstr "마지막 카드 표시"
 
-#: src/components/Gallery/Storybook.tsx:580
+#: src/components/Gallery/Storybook.tsx:582
 msgid "Reverse"
 msgstr "뒤집기"
 
-#: src/components/Gallery/Storybook.tsx:574
+#: src/components/Gallery/Storybook.tsx:576
 msgid "Reverse the order"
 msgstr "순서 뒤집기"
 
@@ -13882,7 +13876,7 @@ msgstr "답글 더 보기"
 msgid "Show muted or blocked accounts"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:604
+#: src/components/Gallery/Storybook.tsx:606
 msgid "Show or hide the intro card"
 msgstr "인트로 카드 표시 또는 숨기기"
 
@@ -14101,7 +14095,7 @@ msgstr ""
 msgid "Since"
 msgstr "시작일"
 
-#: src/components/Gallery/Storybook.tsx:303
+#: src/components/Gallery/Storybook.tsx:305
 msgid "Sizes: 100×80, 220×160, 140×240, 180×120, and a wide card of {wideCardSize}×100, which is the gallery width of {galleryWidth} plus 80."
 msgstr "크기: 100×80, 220×160, 140×240, 180×120, 그리고 갤러리 너비 {galleryWidth}에 80을 더한 {wideCardSize}×100의 넓은 카드."
 
@@ -14136,11 +14130,11 @@ msgstr "다음 단계로 건너뛰기"
 msgid "slide"
 msgstr "슬라이드"
 
-#: src/components/Gallery/Storybook.tsx:282
+#: src/components/Gallery/Storybook.tsx:284
 msgid "Small"
 msgstr "작게"
 
-#: src/components/Gallery/Storybook.tsx:280
+#: src/components/Gallery/Storybook.tsx:282
 msgid "Small card"
 msgstr "작은 카드"
 
@@ -14336,7 +14330,7 @@ msgstr "스포츠"
 msgid "Spot posts your friends and follows have liked."
 msgstr "친구와 팔로우하는 사람이 좋아요를 누른 게시물을 확인해 보세요."
 
-#: src/components/Gallery/Storybook.tsx:165
+#: src/components/Gallery/Storybook.tsx:167
 msgid "Square frame"
 msgstr "정사각형 프레임"
 
@@ -14504,7 +14498,7 @@ msgstr ""
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:323
+#: src/components/Gallery/Storybook.tsx:325
 msgid "Stretching cards"
 msgstr ""
 
@@ -14759,15 +14753,15 @@ msgstr "시스템 로그"
 msgid "Tags only"
 msgstr "태그만"
 
-#: src/components/Gallery/Storybook.tsx:290
+#: src/components/Gallery/Storybook.tsx:292
 msgid "Tall"
 msgstr "높게"
 
-#: src/components/Gallery/Storybook.tsx:590
+#: src/components/Gallery/Storybook.tsx:592
 msgid "Tall / short"
 msgstr "높게/낮게"
 
-#: src/components/Gallery/Storybook.tsx:288
+#: src/components/Gallery/Storybook.tsx:290
 msgid "Tall card"
 msgstr "높은 카드"
 
@@ -14837,7 +14831,7 @@ msgstr "탭하여 모든 반응을 표시합니다"
 msgid "Tap to view reactions"
 msgstr "탭하여 반응을 봅니다"
 
-#: src/components/Gallery/Storybook.tsx:431
+#: src/components/Gallery/Storybook.tsx:433
 msgid "Tapped {count} times"
 msgstr "{count}번 탭함"
 
@@ -14901,7 +14895,7 @@ msgstr "서비스 이용약관"
 msgid "Text & tags"
 msgstr "텍스트 및 태그"
 
-#: src/components/Gallery/Storybook.tsx:436
+#: src/components/Gallery/Storybook.tsx:438
 msgid "Text field"
 msgstr "텍스트 필드"
 
@@ -14911,7 +14905,7 @@ msgstr "텍스트 필드"
 msgid "Text input field"
 msgstr "텍스트 입력 필드"
 
-#: src/components/Gallery/Storybook.tsx:493
+#: src/components/Gallery/Storybook.tsx:495
 msgid "Text: “{text}”"
 msgstr "텍스트: “{text}”"
 
@@ -14924,12 +14918,12 @@ msgid "Thank you for your support!"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:117
-msgid "Thanks for helping keep Bluesky safe. This post violated our <0>Community Guidelines</0>."
-msgstr "Bluesky를 안전하게 유지하는 데 도움을 주셔서 감사합니다. 이 게시물은 <0>커뮤니티 가이드라인</0>을 위반했습니다."
+msgid "Thanks for helping keep Blacksky safe. This post violated our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:130
-msgid "Thanks for helping keep Bluesky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
-msgstr "Bluesky를 안전하게 유지하는 데 도움을 주셔서 감사합니다. 회원님의 신고를 검토하고 조치를 취했습니다. <0>커뮤니티 가이드라인</0>을 확인해 보세요."
+msgid "Thanks for helping keep Blacksky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:83
 msgid "Thanks for your feedback!"
@@ -15001,7 +14995,7 @@ msgid "The appeal window has closed."
 msgstr "이의신청 기간이 종료되었습니다."
 
 #: src/screens/Atmosphere/ActivityTab.tsx:34
-msgid "The Atmosphere is the open network Bluesky is built on. When people you follow are active on the Atmosphere, you can see it here."
+msgid "The Atmosphere is the open network Blacksky is built on. When people you follow are active on the Atmosphere, you can see it here."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:139
@@ -15021,7 +15015,7 @@ msgstr ""
 msgid "The Blacksky web application"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:243
+#: src/components/Gallery/Storybook.tsx:245
 msgid "The carousel used for post images. Tap an image to open the lightbox, change images, and close it: it should land on the right thumbnail. The first and last images are cropped, and the third learns its size when it loads."
 msgstr "게시물 이미지에 사용되는 캐러셀입니다. 이미지를 탭하여 라이트박스를 열고, 이미지를 변경한 후 닫으면 올바른 섬네일로 이동합니다. 첫 번째와 마지막 이미지는 잘려 있으며, 세 번째 이미지는 불러올 때 크기를 인식합니다."
 
@@ -15069,7 +15063,7 @@ msgstr "현재 계정에서 다음 서비스를 사용할 수 있습니다: {all
 msgid "The following settings will be used as your defaults when creating new posts. You can edit these for a specific post from the composer."
 msgstr "새 게시물을 작성할 때 다음 설정이 기본값으로 사용됩니다. 작성기에서 특정 게시물에 대해 이러한 설정을 변경할 수 있습니다."
 
-#: src/components/Gallery/Storybook.tsx:697
+#: src/components/Gallery/Storybook.tsx:699
 msgid "The gallery fills whatever width it has. Inside a bleed ancestor, the first and last items line up with the padded content while the rest run to the outer edge."
 msgstr "갤러리는 주어진 너비를 모두 채웁니다. 잘리는 상위 요소 내부에서는 첫 번째와 마지막 항목이 패딩된 콘텐츠와 정렬되고 나머지는 바깥쪽 가장자리까지 확장됩니다."
 
@@ -15136,7 +15130,7 @@ msgstr "컨텍스트 메뉴 제목"
 msgid "The Terms of Service have been moved to"
 msgstr "서비스 이용약관을 다음으로 이동했습니다:"
 
-#: src/components/Gallery/Storybook.tsx:769
+#: src/components/Gallery/Storybook.tsx:771
 msgid "The two lines above should touch."
 msgstr "위의 두 선이 맞닿아야 합니다."
 
@@ -15406,7 +15400,7 @@ msgstr ""
 msgid "This can’t be undone, and all of your recent searches will be removed."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:379
+#: src/components/Gallery/Storybook.tsx:381
 msgid "This card has enough text to wrap over many lines. Its siblings should stretch to match its height without stretching any images or imposing a fixed height. When this text disappears, all of the cards should shrink again."
 msgstr ""
 
@@ -15623,8 +15617,8 @@ msgid "This labeler hasn't declared what labels it publishes, and may not be act
 msgstr "이 라벨러는 라벨을 등록하지 않았으며 활성화되어 있지 않을 수 있습니다."
 
 #: src/features/profileLinks/components/LinkFormDialog.tsx:248
-msgid "This link can’t be added. It goes to a site that’s blocked on Bluesky."
-msgstr "이 링크는 추가할 수 없습니다. Bluesky에서 차단된 사이트로 연결됩니다."
+msgid "This link can’t be added. It goes to a site that’s blocked on Blacksky."
+msgstr ""
 
 #: src/components/dialogs/LinkWarning.tsx:95
 msgid "This link is taking you to the following website:"
@@ -15858,7 +15852,7 @@ msgstr "스레드 설정"
 msgid "Threats or incitement"
 msgstr "위협 또는 선동"
 
-#: src/components/Gallery/Storybook.tsx:679
+#: src/components/Gallery/Storybook.tsx:681
 msgid "Three"
 msgstr "셋"
 
@@ -15903,17 +15897,17 @@ msgctxt "Notifications section header"
 msgid "Today"
 msgstr "오늘"
 
-#: src/components/Gallery/Storybook.tsx:610
+#: src/components/Gallery/Storybook.tsx:612
 msgid "Toggle intro"
 msgstr "인트로 표시/숨기기"
 
-#: src/components/Gallery/Storybook.tsx:332
-#: src/components/Gallery/Storybook.tsx:338
+#: src/components/Gallery/Storybook.tsx:334
+#: src/components/Gallery/Storybook.tsx:340
 msgid "Toggle tall content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:342
-#: src/components/Gallery/Storybook.tsx:348
+#: src/components/Gallery/Storybook.tsx:344
+#: src/components/Gallery/Storybook.tsx:350
 msgid "Toggle tallest card"
 msgstr ""
 
@@ -16011,7 +16005,7 @@ msgid "Trending GIFs"
 msgstr "인기 GIF"
 
 #: src/features/trendingWidget/Sync.native.tsx:46
-msgid "Trending on Bluesky"
+msgid "Trending on Blacksky"
 msgstr ""
 
 #: src/components/interstitials/FeedTrendingTopics.tsx:126
@@ -16077,7 +16071,7 @@ msgstr "TV"
 msgid "Twilight"
 msgstr "박명"
 
-#: src/components/Gallery/Storybook.tsx:676
+#: src/components/Gallery/Storybook.tsx:678
 msgid "Two"
 msgstr "둘"
 
@@ -17520,15 +17514,15 @@ msgstr "이 스타터 팩을 검토해야 하는 이유는 무엇인가요?"
 msgid "Why should this user be reviewed?"
 msgstr "이 사용자를 검토해야 하는 이유는 무엇인가요?"
 
-#: src/components/Gallery/Storybook.tsx:298
+#: src/components/Gallery/Storybook.tsx:300
 msgid "Wide"
 msgstr "넓게"
 
-#: src/components/Gallery/Storybook.tsx:600
+#: src/components/Gallery/Storybook.tsx:602
 msgid "Wide / narrow"
 msgstr "넓게/좁게"
 
-#: src/components/Gallery/Storybook.tsx:296
+#: src/components/Gallery/Storybook.tsx:298
 msgid "Wide card"
 msgstr "넓은 카드"
 
@@ -18235,7 +18229,7 @@ msgid "Your account is suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:50
-msgid "Your account is suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:41
@@ -18245,7 +18239,7 @@ msgid "Your account is temporarily suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:55
-msgid "Your account is temporarily suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is temporarily suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/components/dms/InitiateChatFlow.tsx:829
@@ -18321,8 +18315,8 @@ msgid "Your contact {name}"
 msgstr "연락처에 있는 {name} 님"
 
 #: src/screens/Notifications/components/NotificationItem/kinds/profile.tsx:355
-msgid "Your contact <0/> is on Bluesky"
-msgstr "연락처에 있는 <0/> 님이 Bluesky에 있습니다"
+msgid "Your contact <0/> is on Blacksky"
+msgstr ""
 
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:104
 msgid "Your content"

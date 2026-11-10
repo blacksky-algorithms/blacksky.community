@@ -82,7 +82,7 @@ function LinkPreviewSheetInner({
           <Button
             testID="profileLinkPreviewOpenBtn"
             label={l`Open link`}
-            accessibilityHint={l`Opens ${link.url} outside Bluesky`}
+            accessibilityHint={l`Opens ${link.url} outside Blacksky`}
             onPress={e => control.close(() => onOpen(link, e))}
             size="large"
             color="primary">

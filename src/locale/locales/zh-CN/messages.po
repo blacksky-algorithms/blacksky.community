@@ -1406,12 +1406,8 @@ msgstr ""
 msgid "A discussion cannot be combined with media, a link card or a quote."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:46
+#: src/components/Gallery/Storybook.tsx:48
 msgid "A horizontal strip of any content. Each item keeps its own width and height, and the strip is as tall as the tallest one."
-msgstr ""
-
-#: src/components/Gallery/Storybook.tsx:189
-msgid "A kawaii scene"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/hooks/useActionedSubjectLabels.ts:68
@@ -1441,7 +1437,7 @@ msgstr ""
 msgid "A label was removed from your post"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:375
+#: src/components/Gallery/Storybook.tsx:377
 msgid "A little more content than the first card."
 msgstr ""
 
@@ -1489,12 +1485,16 @@ msgstr "回复你加入之前发送的信息"
 msgid "A selected recipient is not followed by the sender."
 msgstr "选择的收信人未被发信人关注。"
 
-#: src/components/Gallery/Storybook.tsx:202
-msgid "A small kawaii scene with no ratio on record"
+#: src/components/Gallery/Storybook.tsx:204
+msgid "A small illustration with no ratio on record"
 msgstr ""
 
 #: src/lib/api/index.ts:126
 msgid "A thread can only have one discussion."
+msgstr ""
+
+#: src/components/Gallery/Storybook.tsx:191
+msgid "A wide illustration"
 msgstr ""
 
 #: src/Navigation.tsx:578
@@ -1717,7 +1717,7 @@ msgstr ""
 #. placeholder {0}: nav.index
 #. placeholder {1}: nav.previous
 #. placeholder {2}: nav.events
-#: src/components/Gallery/Storybook.tsx:659
+#: src/components/Gallery/Storybook.tsx:661
 msgid "Active index {0} (from {1}), {2} user navigation events"
 msgstr ""
 
@@ -1742,7 +1742,7 @@ msgstr "活动通知"
 #: src/components/dialogs/StarterPackDialog.tsx:364
 #: src/components/dialogs/StarterPackDialog.tsx:376
 #: src/components/dms/AddMembersFlow.tsx:410
-#: src/components/Gallery/Storybook.tsx:550
+#: src/components/Gallery/Storybook.tsx:552
 msgid "Add"
 msgstr "添加"
 
@@ -1840,7 +1840,7 @@ msgstr "添加应用密码"
 msgid "Add automation label to account"
 msgstr "添加自动化标记至此账户"
 
-#: src/components/Gallery/Storybook.tsx:539
+#: src/components/Gallery/Storybook.tsx:541
 msgid "Add card"
 msgstr ""
 
@@ -2238,7 +2238,7 @@ msgstr "已发送一封电子邮件至 {0}。它包含你需要在下方输入�
 msgid "An email was sent about your account"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:757
+#: src/components/Gallery/Storybook.tsx:759
 msgid "An empty gallery takes up no space. A single item behaves like any other, without dragging or arrow key navigation to go anywhere."
 msgstr ""
 
@@ -2918,6 +2918,11 @@ msgstr "出生日期"
 msgid "Birthday"
 msgstr "出生日期"
 
+#. Description of a beta feature (iPad support)
+#: src/screens/Settings/BetaFeaturesSettings.tsx:79
+msgid "Blacksky adapts to your iPad’s screen in any orientation or window size."
+msgstr ""
+
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:659
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
 msgstr ""
@@ -2928,6 +2933,10 @@ msgstr ""
 
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:41
 msgid "Blacksky is more fun with friends"
+msgstr ""
+
+#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
+msgid "Blacksky is part of a growing network of hundreds of social apps. Your account unlocks them all."
 msgstr ""
 
 #: src/screens/Midterms/index.tsx:262
@@ -3099,11 +3108,6 @@ msgstr "标签搜索"
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#. Description of a beta feature (iPad support)
-#: src/screens/Settings/BetaFeaturesSettings.tsx:79
-msgid "Bluesky adapts to your iPad’s screen in any orientation or window size."
-msgstr ""
-
 #: src/components/contacts/screens/GetContacts.tsx:237
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
 msgstr "Bluesky 通过产生并比对称为“哈希值”的数字指纹，来帮助朋友之间相互找到彼此。"
@@ -3115,10 +3119,6 @@ msgstr "Bluesky 是一个开放的社交网络，你可以自行选择托管服�
 #: src/components/contacts/screens/ViewMatches.tsx:323
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "与朋友一起使用 Bluesky 更有趣。你想要邀请一些朋友加入吗？<0/>"
-
-#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
-msgid "Bluesky is part of a growing network of hundreds of social apps. Your account unlocks them all."
-msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:96
 #: src/screens/ModerationInbox/Report.tsx:74
@@ -3199,7 +3199,7 @@ msgstr "浏览话题 {displayName}"
 msgid "Button to go back to the home timeline"
 msgstr "返回到主页时间线的按钮"
 
-#: src/components/Gallery/Storybook.tsx:412
+#: src/components/Gallery/Storybook.tsx:414
 msgid "Buttons and text fields work without starting a drag. Type, select text with the arrow keys, and click. The last item uses the focus render function to make its own button the keyboard target, which Enter and Space should press."
 msgstr ""
 
@@ -3379,36 +3379,36 @@ msgid "Captions & alt text"
 msgstr "字幕及替代文本"
 
 #. placeholder {0}: card.id
-#: src/components/Gallery/Storybook.tsx:642
-#: src/components/Gallery/Storybook.tsx:647
+#: src/components/Gallery/Storybook.tsx:644
+#: src/components/Gallery/Storybook.tsx:649
 msgid "Card {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:371
+#: src/components/Gallery/Storybook.tsx:373
 msgid "Card {index}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:277
+#: src/components/Gallery/Storybook.tsx:279
 msgid "Cards and images of different sizes"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:723
+#: src/components/Gallery/Storybook.tsx:725
 msgid "Cards in a constrained panel"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:269
+#: src/components/Gallery/Storybook.tsx:271
 msgid "Cards of different widths and heights, an image, and a card wider than the gallery. The strip is as tall as the tallest card, and nothing is cropped or resized."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:325
+#: src/components/Gallery/Storybook.tsx:327
 msgid "Cards stretch to the tallest sibling. Shortening or removing the tall card should let the whole row shrink again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:740
+#: src/components/Gallery/Storybook.tsx:742
 msgid "Cards that bleed to the container edges"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:628
+#: src/components/Gallery/Storybook.tsx:630
 msgid "Cards that change"
 msgstr ""
 
@@ -3475,7 +3475,7 @@ msgstr "更改举报类型"
 msgid "Change report reason"
 msgstr "更改举报原因"
 
-#: src/components/Gallery/Storybook.tsx:531
+#: src/components/Gallery/Storybook.tsx:533
 msgid "Change the items from outside. Resizing, reordering, and revealing are not user navigation, so the event count should only go up when you swipe, drag, or use the arrow keys."
 msgstr ""
 
@@ -3504,7 +3504,7 @@ msgstr "已保存更改"
 msgid "Changes to the Starter Pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr "列表在创建后将是一个独立副本，任何对新手包的更改将不会影响已创建的列表。"
 
-#: src/components/Gallery/Storybook.tsx:529
+#: src/components/Gallery/Storybook.tsx:531
 msgid "Changing content"
 msgstr ""
 
@@ -4092,7 +4092,7 @@ msgstr "正在连接到服务……"
 msgid "Connecting…"
 msgstr "连接中……"
 
-#: src/components/Gallery/Storybook.tsx:695
+#: src/components/Gallery/Storybook.tsx:697
 msgid "Constrained and bleeding containers"
 msgstr ""
 
@@ -4549,7 +4549,7 @@ msgstr ""
 msgid "Couldn't upload the event image. Try again, or remove the image."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:422
+#: src/components/Gallery/Storybook.tsx:424
 msgid "Counter"
 msgstr ""
 
@@ -4557,7 +4557,7 @@ msgstr ""
 msgid "Country code"
 msgstr "国家代码"
 
-#: src/components/Gallery/Storybook.tsx:455
+#: src/components/Gallery/Storybook.tsx:457
 msgid "Counts how many times it was focused and pressed"
 msgstr ""
 
@@ -5648,11 +5648,11 @@ msgstr "嵌入式视频播放器"
 msgid "Embedding"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:755
+#: src/components/Gallery/Storybook.tsx:757
 msgid "Empty and single"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:764
+#: src/components/Gallery/Storybook.tsx:766
 msgid "Empty gallery"
 msgstr ""
 
@@ -5729,11 +5729,11 @@ msgstr "启用"
 msgid "Encrypted DMs"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:654
+#: src/components/Gallery/Storybook.tsx:656
 msgid "End"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:653
+#: src/components/Gallery/Storybook.tsx:655
 msgid "End card"
 msgstr ""
 
@@ -5835,7 +5835,7 @@ msgstr "进入全屏模式"
 msgid "Entertainment"
 msgstr "娱乐"
 
-#: src/components/Gallery/Storybook.tsx:354
+#: src/components/Gallery/Storybook.tsx:356
 msgid "Equal-height cards"
 msgstr ""
 
@@ -6715,9 +6715,9 @@ msgstr ""
 msgid "Focus code input"
 msgstr "聚焦代码栏位"
 
-#: src/components/Gallery/Storybook.tsx:448
-#: src/components/Gallery/Storybook.tsx:454
-#: src/components/Gallery/Storybook.tsx:476
+#: src/components/Gallery/Storybook.tsx:450
+#: src/components/Gallery/Storybook.tsx:456
+#: src/components/Gallery/Storybook.tsx:478
 msgid "Focus target"
 msgstr ""
 
@@ -6725,7 +6725,7 @@ msgstr ""
 msgid "Focus the search field"
 msgstr "聚焦搜索栏"
 
-#: src/components/Gallery/Storybook.tsx:481
+#: src/components/Gallery/Storybook.tsx:483
 msgid "Focused {focusCount} times"
 msgstr ""
 
@@ -7009,15 +7009,15 @@ msgstr "来自这些人"
 msgid "Further violations of our Community Guidelines could lead to permanent suspension."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:43
+#: src/components/Gallery/Storybook.tsx:45
 msgid "Gallery"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:440
+#: src/components/Gallery/Storybook.tsx:442
 msgid "Gallery text field"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:772
+#: src/components/Gallery/Storybook.tsx:774
 msgid "Gallery with one item"
 msgstr ""
 
@@ -7806,7 +7806,7 @@ msgstr "如果你是开发者，你可以自行托管服务器。"
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr "如果你想更改你的账户代码或电子邮箱，请记得在停用之前进行更改。"
 
-#: src/components/Gallery/Storybook.tsx:292
+#: src/components/Gallery/Storybook.tsx:294
 #: src/components/images/ImageLayoutGridItem.tsx:94
 msgid "Image"
 msgstr "图片"
@@ -7834,11 +7834,11 @@ msgstr "已清除图片缓存"
 msgid "Image cache cleared, freed {0}"
 msgstr "已清除图片缓存，释放了{0}"
 
-#: src/components/Gallery/Storybook.tsx:152
+#: src/components/Gallery/Storybook.tsx:154
 msgid "Image content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:160
+#: src/components/Gallery/Storybook.tsx:162
 msgid "Image frames in different shapes"
 msgstr ""
 
@@ -7995,7 +7995,7 @@ msgstr "包含视频时间戳（{videoTimestamp}）"
 msgid "Incorrect password. Please try again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:425
+#: src/components/Gallery/Storybook.tsx:427
 msgid "Increment counter"
 msgstr ""
 
@@ -8015,11 +8015,11 @@ msgstr "已限制互动"
 msgid "Interaction settings"
 msgstr "互动选项"
 
-#: src/components/Gallery/Storybook.tsx:410
+#: src/components/Gallery/Storybook.tsx:412
 msgid "Interactive children"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:420
+#: src/components/Gallery/Storybook.tsx:422
 msgid "Interactive items"
 msgstr ""
 
@@ -8035,11 +8035,11 @@ msgstr ""
 msgid "Interested, tap to remove"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:635
+#: src/components/Gallery/Storybook.tsx:637
 msgid "Intro"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:634
+#: src/components/Gallery/Storybook.tsx:636
 msgid "Intro card"
 msgstr ""
 
@@ -8326,7 +8326,7 @@ msgstr ""
 msgid "Labels on your account"
 msgstr "你账户上的标记"
 
-#: src/components/Gallery/Storybook.tsx:168
+#: src/components/Gallery/Storybook.tsx:170
 msgid "Landscape frame"
 msgstr ""
 
@@ -8826,7 +8826,7 @@ msgstr "加载更多通知"
 msgid "Load new posts"
 msgstr "加载更多帖文"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:137
+#: src/view/screens/Storybook/NewPostsPill.tsx:138
 msgid "Load new posts from the people you follow"
 msgstr "加载来自你关注的用户的新帖文"
 
@@ -8946,7 +8946,7 @@ msgstr ""
 msgid "Make adjustments to email settings for your account"
 msgstr "调整你账户关联的电子邮箱设置"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make narrow"
 msgstr ""
 
@@ -8958,23 +8958,23 @@ msgstr "帮我选择"
 msgid "Make sure this is where you intend to go!"
 msgstr "请确认目标页面地址是否正确！"
 
-#: src/components/Gallery/Storybook.tsx:584
+#: src/components/Gallery/Storybook.tsx:586
 msgid "Make the first card taller or shorter"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:594
+#: src/components/Gallery/Storybook.tsx:596
 msgid "Make the first card wider or narrower"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel narrow"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel wide"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make wide"
 msgstr ""
 
@@ -9076,11 +9076,11 @@ msgstr "媒体文件已存储到{0}"
 msgid "Media stored on another device"
 msgstr "媒体文件已存储到其他设备"
 
-#: src/components/Gallery/Storybook.tsx:285
+#: src/components/Gallery/Storybook.tsx:287
 msgid "Medium"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:284
+#: src/components/Gallery/Storybook.tsx:286
 msgid "Medium card"
 msgstr ""
 
@@ -9220,7 +9220,7 @@ msgstr ""
 msgid "Missing media"
 msgstr "缺失媒体文件"
 
-#: src/components/Gallery/Storybook.tsx:267
+#: src/components/Gallery/Storybook.tsx:269
 msgid "Mixed content and sizes"
 msgstr ""
 
@@ -9676,7 +9676,7 @@ msgstr "新帖文"
 msgid "New posts"
 msgstr "新帖文"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:136
+#: src/view/screens/Storybook/NewPostsPill.tsx:137
 msgid "New posts are ready to load from the people you follow"
 msgstr "有来自你关注之人的新帖文可以加载"
 
@@ -10252,8 +10252,8 @@ msgid "On"
 msgstr "开"
 
 #: src/screens/Settings/components/AlgoVisibilityOptOut.tsx:43
-msgid "On Bluesky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
-msgstr "在 Bluesky 上，这代表你的帖文只会在 Discover 动态源中显示给跟随你的用户，第三方应用可以选择在其算法推荐设置中采用此配置。"
+msgid "On Blacksky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
+msgstr ""
 
 #: src/components/StarterPack/QrCode.tsx:80
 msgid "on<0><1/><2><3/></2></0>"
@@ -10263,7 +10263,7 @@ msgstr "于<0><1/><2><3/></2></0>"
 msgid "Onboarding reset"
 msgstr "重新开始入门引导"
 
-#: src/components/Gallery/Storybook.tsx:673
+#: src/components/Gallery/Storybook.tsx:675
 msgid "One"
 msgstr ""
 
@@ -10315,7 +10315,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:775
+#: src/components/Gallery/Storybook.tsx:777
 msgid "Only"
 msgstr ""
 
@@ -10340,7 +10340,7 @@ msgstr "只有管理员可以接受加入申请。"
 msgid "Only admins can reject join requests."
 msgstr "只有管理员可以拒绝加入申请。"
 
-#: src/components/Gallery/Storybook.tsx:774
+#: src/components/Gallery/Storybook.tsx:776
 msgid "Only card"
 msgstr ""
 
@@ -10616,7 +10616,7 @@ msgstr ""
 #. placeholder {0}: link.url
 #: src/features/profileLinks/components/LinkPreviewSheet.tsx:85
 #: src/features/profileLinks/components/ProfileLinks.tsx:164
-msgid "Opens {0} outside Bluesky"
+msgid "Opens {0} outside Blacksky"
 msgstr ""
 
 #: src/view/shell/desktop/Feeds.tsx:188
@@ -10678,13 +10678,10 @@ msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:309
+#: src/view/com/auth/NativeSplashScreen.tsx:141
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:141
-msgid "Opens flow to create a new Bluesky account"
-msgstr "开启创建新 Bluesky 账户流程"
 
 #. placeholder {0}: brand.web.title
 #: src/view/com/auth/SplashScreen.web.tsx:120
@@ -10692,13 +10689,10 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:295
+#: src/view/com/auth/NativeSplashScreen.tsx:170
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:170
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "开启登录到你现有的 Bluesky 账户流程"
 
 #: src/components/images/Gallery/index.tsx:305
 msgid "Opens full image"
@@ -10901,7 +10895,7 @@ msgstr "所有者"
 msgid "Owner must lock the group before leaving."
 msgstr "所有者必须在离开前锁定群组。"
 
-#: src/components/Gallery/Storybook.tsx:737
+#: src/components/Gallery/Storybook.tsx:739
 msgid "Padded container"
 msgstr ""
 
@@ -11374,11 +11368,11 @@ msgstr ""
 msgid "Porn"
 msgstr "色情"
 
-#: src/components/Gallery/Storybook.tsx:162
+#: src/components/Gallery/Storybook.tsx:164
 msgid "Portrait frame"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:154
+#: src/components/Gallery/Storybook.tsx:156
 msgid "Portrait, square, and landscape frames as plain children. The frames, not the gallery, decide the sizes."
 msgstr ""
 
@@ -11589,7 +11583,7 @@ msgstr "点按以重试"
 msgid "Press to view followers of this account that you also follow"
 msgstr "点按此处以查看同样关注该账户的关注者"
 
-#: src/components/Gallery/Storybook.tsx:486
+#: src/components/Gallery/Storybook.tsx:488
 msgid "Pressed {pressCount} times"
 msgstr ""
 
@@ -11672,7 +11666,7 @@ msgstr "正在处理视频……"
 msgid "Processing..."
 msgstr "处理中……"
 
-#: src/components/Gallery/Storybook.tsx:241
+#: src/components/Gallery/Storybook.tsx:243
 msgid "Production image adapter"
 msgstr ""
 
@@ -12098,11 +12092,11 @@ msgstr "要删除动态源吗？"
 msgid "Remove filter"
 msgstr "移除筛选器"
 
-#: src/components/Gallery/Storybook.tsx:570
+#: src/components/Gallery/Storybook.tsx:572
 msgid "Remove first"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:564
+#: src/components/Gallery/Storybook.tsx:566
 msgid "Remove first card"
 msgstr ""
 
@@ -12149,11 +12143,11 @@ msgstr "删除图片"
 msgid "Remove label {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:560
+#: src/components/Gallery/Storybook.tsx:562
 msgid "Remove last"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:554
+#: src/components/Gallery/Storybook.tsx:556
 msgid "Remove last card"
 msgstr ""
 
@@ -12870,7 +12864,7 @@ msgstr "返回上一页"
 msgid "Returns to the previous step"
 msgstr "返回上一步"
 
-#: src/components/Gallery/Storybook.tsx:622
+#: src/components/Gallery/Storybook.tsx:624
 msgid "Reveal last"
 msgstr ""
 
@@ -12878,15 +12872,15 @@ msgstr ""
 msgid "Reveal password"
 msgstr "显示密码"
 
-#: src/components/Gallery/Storybook.tsx:614
+#: src/components/Gallery/Storybook.tsx:616
 msgid "Reveal the last card"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:580
+#: src/components/Gallery/Storybook.tsx:582
 msgid "Reverse"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:574
+#: src/components/Gallery/Storybook.tsx:576
 msgid "Reverse the order"
 msgstr ""
 
@@ -13882,7 +13876,7 @@ msgstr "显示更多回复"
 msgid "Show muted or blocked accounts"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:604
+#: src/components/Gallery/Storybook.tsx:606
 msgid "Show or hide the intro card"
 msgstr ""
 
@@ -14101,7 +14095,7 @@ msgstr ""
 msgid "Since"
 msgstr "自"
 
-#: src/components/Gallery/Storybook.tsx:303
+#: src/components/Gallery/Storybook.tsx:305
 msgid "Sizes: 100×80, 220×160, 140×240, 180×120, and a wide card of {wideCardSize}×100, which is the gallery width of {galleryWidth} plus 80."
 msgstr ""
 
@@ -14136,11 +14130,11 @@ msgstr "跳至下一步"
 msgid "slide"
 msgstr "幻灯片"
 
-#: src/components/Gallery/Storybook.tsx:282
+#: src/components/Gallery/Storybook.tsx:284
 msgid "Small"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:280
+#: src/components/Gallery/Storybook.tsx:282
 msgid "Small card"
 msgstr ""
 
@@ -14336,7 +14330,7 @@ msgstr "运动"
 msgid "Spot posts your friends and follows have liked."
 msgstr "发现你的好友和关注的人喜欢过的帖文。"
 
-#: src/components/Gallery/Storybook.tsx:165
+#: src/components/Gallery/Storybook.tsx:167
 msgid "Square frame"
 msgstr ""
 
@@ -14504,7 +14498,7 @@ msgstr ""
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:323
+#: src/components/Gallery/Storybook.tsx:325
 msgid "Stretching cards"
 msgstr ""
 
@@ -14759,15 +14753,15 @@ msgstr "系统日志"
 msgid "Tags only"
 msgstr "仅限标签"
 
-#: src/components/Gallery/Storybook.tsx:290
+#: src/components/Gallery/Storybook.tsx:292
 msgid "Tall"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:590
+#: src/components/Gallery/Storybook.tsx:592
 msgid "Tall / short"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:288
+#: src/components/Gallery/Storybook.tsx:290
 msgid "Tall card"
 msgstr ""
 
@@ -14837,7 +14831,7 @@ msgstr "点击以显示所有反应"
 msgid "Tap to view reactions"
 msgstr "点击以显示反应"
 
-#: src/components/Gallery/Storybook.tsx:431
+#: src/components/Gallery/Storybook.tsx:433
 msgid "Tapped {count} times"
 msgstr ""
 
@@ -14901,7 +14895,7 @@ msgstr "服务条款"
 msgid "Text & tags"
 msgstr "文本及标签"
 
-#: src/components/Gallery/Storybook.tsx:436
+#: src/components/Gallery/Storybook.tsx:438
 msgid "Text field"
 msgstr ""
 
@@ -14911,7 +14905,7 @@ msgstr ""
 msgid "Text input field"
 msgstr "文本输入框"
 
-#: src/components/Gallery/Storybook.tsx:493
+#: src/components/Gallery/Storybook.tsx:495
 msgid "Text: “{text}”"
 msgstr ""
 
@@ -14924,11 +14918,11 @@ msgid "Thank you for your support!"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:117
-msgid "Thanks for helping keep Bluesky safe. This post violated our <0>Community Guidelines</0>."
+msgid "Thanks for helping keep Blacksky safe. This post violated our <0>Community Guidelines</0>."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:130
-msgid "Thanks for helping keep Bluesky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
+msgid "Thanks for helping keep Blacksky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
 msgstr ""
 
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:83
@@ -15001,7 +14995,7 @@ msgid "The appeal window has closed."
 msgstr ""
 
 #: src/screens/Atmosphere/ActivityTab.tsx:34
-msgid "The Atmosphere is the open network Bluesky is built on. When people you follow are active on the Atmosphere, you can see it here."
+msgid "The Atmosphere is the open network Blacksky is built on. When people you follow are active on the Atmosphere, you can see it here."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:139
@@ -15021,7 +15015,7 @@ msgstr ""
 msgid "The Blacksky web application"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:243
+#: src/components/Gallery/Storybook.tsx:245
 msgid "The carousel used for post images. Tap an image to open the lightbox, change images, and close it: it should land on the right thumbnail. The first and last images are cropped, and the third learns its size when it loads."
 msgstr ""
 
@@ -15069,7 +15063,7 @@ msgstr "你的账户可使用以下服务：{allowedServices}"
 msgid "The following settings will be used as your defaults when creating new posts. You can edit these for a specific post from the composer."
 msgstr "在发布新帖文时，以下设置将被用作默认值。你可以通过帖文编辑器针对特定帖文编辑这些设置。"
 
-#: src/components/Gallery/Storybook.tsx:697
+#: src/components/Gallery/Storybook.tsx:699
 msgid "The gallery fills whatever width it has. Inside a bleed ancestor, the first and last items line up with the padded content while the rest run to the outer edge."
 msgstr ""
 
@@ -15136,7 +15130,7 @@ msgstr "上下文菜单对应的主题"
 msgid "The Terms of Service have been moved to"
 msgstr "服务条款已移动到"
 
-#: src/components/Gallery/Storybook.tsx:769
+#: src/components/Gallery/Storybook.tsx:771
 msgid "The two lines above should touch."
 msgstr ""
 
@@ -15406,7 +15400,7 @@ msgstr ""
 msgid "This can’t be undone, and all of your recent searches will be removed."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:379
+#: src/components/Gallery/Storybook.tsx:381
 msgid "This card has enough text to wrap over many lines. Its siblings should stretch to match its height without stretching any images or imposing a fixed height. When this text disappears, all of the cards should shrink again."
 msgstr ""
 
@@ -15623,7 +15617,7 @@ msgid "This labeler hasn't declared what labels it publishes, and may not be act
 msgstr "此标记者尚未公开他发布的标记类型，也可能不再提供服务。"
 
 #: src/features/profileLinks/components/LinkFormDialog.tsx:248
-msgid "This link can’t be added. It goes to a site that’s blocked on Bluesky."
+msgid "This link can’t be added. It goes to a site that’s blocked on Blacksky."
 msgstr ""
 
 #: src/components/dialogs/LinkWarning.tsx:95
@@ -15858,7 +15852,7 @@ msgstr "讨论串偏好设置"
 msgid "Threats or incitement"
 msgstr "威胁或煽动行为"
 
-#: src/components/Gallery/Storybook.tsx:679
+#: src/components/Gallery/Storybook.tsx:681
 msgid "Three"
 msgstr ""
 
@@ -15903,17 +15897,17 @@ msgctxt "Notifications section header"
 msgid "Today"
 msgstr "今天"
 
-#: src/components/Gallery/Storybook.tsx:610
+#: src/components/Gallery/Storybook.tsx:612
 msgid "Toggle intro"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:332
-#: src/components/Gallery/Storybook.tsx:338
+#: src/components/Gallery/Storybook.tsx:334
+#: src/components/Gallery/Storybook.tsx:340
 msgid "Toggle tall content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:342
-#: src/components/Gallery/Storybook.tsx:348
+#: src/components/Gallery/Storybook.tsx:344
+#: src/components/Gallery/Storybook.tsx:350
 msgid "Toggle tallest card"
 msgstr ""
 
@@ -16011,7 +16005,7 @@ msgid "Trending GIFs"
 msgstr "热门 GIFs"
 
 #: src/features/trendingWidget/Sync.native.tsx:46
-msgid "Trending on Bluesky"
+msgid "Trending on Blacksky"
 msgstr ""
 
 #: src/components/interstitials/FeedTrendingTopics.tsx:126
@@ -16077,7 +16071,7 @@ msgstr "电视节目"
 msgid "Twilight"
 msgstr "暮光"
 
-#: src/components/Gallery/Storybook.tsx:676
+#: src/components/Gallery/Storybook.tsx:678
 msgid "Two"
 msgstr ""
 
@@ -17520,15 +17514,15 @@ msgstr "此新手包为何需要受到审核？"
 msgid "Why should this user be reviewed?"
 msgstr "此用户为何需要受到审核？"
 
-#: src/components/Gallery/Storybook.tsx:298
+#: src/components/Gallery/Storybook.tsx:300
 msgid "Wide"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:600
+#: src/components/Gallery/Storybook.tsx:602
 msgid "Wide / narrow"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:296
+#: src/components/Gallery/Storybook.tsx:298
 msgid "Wide card"
 msgstr ""
 
@@ -18235,7 +18229,7 @@ msgid "Your account is suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:50
-msgid "Your account is suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:41
@@ -18245,7 +18239,7 @@ msgid "Your account is temporarily suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:55
-msgid "Your account is temporarily suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is temporarily suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/components/dms/InitiateChatFlow.tsx:829
@@ -18321,7 +18315,7 @@ msgid "Your contact {name}"
 msgstr "你的联系人 {name}"
 
 #: src/screens/Notifications/components/NotificationItem/kinds/profile.tsx:355
-msgid "Your contact <0/> is on Bluesky"
+msgid "Your contact <0/> is on Blacksky"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:104

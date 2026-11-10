@@ -1406,13 +1406,9 @@ msgstr ""
 msgid "A discussion cannot be combined with media, a link card or a quote."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:46
+#: src/components/Gallery/Storybook.tsx:48
 msgid "A horizontal strip of any content. Each item keeps its own width and height, and the strip is as tall as the tallest one."
 msgstr "任意のコンテンツの水平ストリップ。各アイテムはそれぞれ独自の幅と高さを保持し、ストリップは最も高いものと同じ高さになります。"
-
-#: src/components/Gallery/Storybook.tsx:189
-msgid "A kawaii scene"
-msgstr "かわいいシーン"
 
 #: src/screens/ModerationInbox/components/hooks/useActionedSubjectLabels.ts:68
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:87
@@ -1441,7 +1437,7 @@ msgstr ""
 msgid "A label was removed from your post"
 msgstr "あなたの投稿からラベルが削除されました"
 
-#: src/components/Gallery/Storybook.tsx:375
+#: src/components/Gallery/Storybook.tsx:377
 msgid "A little more content than the first card."
 msgstr ""
 
@@ -1489,12 +1485,16 @@ msgstr "参加する前に送られたメッセージへの返信"
 msgid "A selected recipient is not followed by the sender."
 msgstr "選択された受信者は送信者がフォローしていません。"
 
-#: src/components/Gallery/Storybook.tsx:202
-msgid "A small kawaii scene with no ratio on record"
-msgstr "アスペクト比の記録がない小さなかわいいシーン"
+#: src/components/Gallery/Storybook.tsx:204
+msgid "A small illustration with no ratio on record"
+msgstr ""
 
 #: src/lib/api/index.ts:126
 msgid "A thread can only have one discussion."
+msgstr ""
+
+#: src/components/Gallery/Storybook.tsx:191
+msgid "A wide illustration"
 msgstr ""
 
 #: src/Navigation.tsx:578
@@ -1717,7 +1717,7 @@ msgstr "対応済み"
 #. placeholder {0}: nav.index
 #. placeholder {1}: nav.previous
 #. placeholder {2}: nav.events
-#: src/components/Gallery/Storybook.tsx:659
+#: src/components/Gallery/Storybook.tsx:661
 msgid "Active index {0} (from {1}), {2} user navigation events"
 msgstr "アクティブなインデックス {0}（{1} から）、{2} 件のユーザーナビゲーションイベント"
 
@@ -1742,7 +1742,7 @@ msgstr "アクティビティの通知"
 #: src/components/dialogs/StarterPackDialog.tsx:364
 #: src/components/dialogs/StarterPackDialog.tsx:376
 #: src/components/dms/AddMembersFlow.tsx:410
-#: src/components/Gallery/Storybook.tsx:550
+#: src/components/Gallery/Storybook.tsx:552
 msgid "Add"
 msgstr "追加"
 
@@ -1840,7 +1840,7 @@ msgstr "アプリパスワードを追加"
 msgid "Add automation label to account"
 msgstr "アカウントに自動化ラベルを追加"
 
-#: src/components/Gallery/Storybook.tsx:539
+#: src/components/Gallery/Storybook.tsx:541
 msgid "Add card"
 msgstr "カードを追加"
 
@@ -2238,7 +2238,7 @@ msgstr "メールが{0}に送信されました。以下に入力できる確認
 msgid "An email was sent about your account"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:757
+#: src/components/Gallery/Storybook.tsx:759
 msgid "An empty gallery takes up no space. A single item behaves like any other, without dragging or arrow key navigation to go anywhere."
 msgstr "空のギャラリーはスペースを取りません。1項目の場合は他と同じように動作しますが、ドラッグや矢印キーでの移動はできません。"
 
@@ -2918,6 +2918,11 @@ msgstr "生年月日"
 msgid "Birthday"
 msgstr "生年月日"
 
+#. Description of a beta feature (iPad support)
+#: src/screens/Settings/BetaFeaturesSettings.tsx:79
+msgid "Blacksky adapts to your iPad’s screen in any orientation or window size."
+msgstr ""
+
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:659
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
 msgstr ""
@@ -2928,6 +2933,10 @@ msgstr ""
 
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:41
 msgid "Blacksky is more fun with friends"
+msgstr ""
+
+#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
+msgid "Blacksky is part of a growing network of hundreds of social apps. Your account unlocks them all."
 msgstr ""
 
 #: src/screens/Midterms/index.tsx:262
@@ -3099,11 +3108,6 @@ msgstr "bloomscrolling booksky"
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#. Description of a beta feature (iPad support)
-#: src/screens/Settings/BetaFeaturesSettings.tsx:79
-msgid "Bluesky adapts to your iPad’s screen in any orientation or window size."
-msgstr "BlueskyはiPadの画面にどの向きでも、どんなウィンドウサイズでも対応します。"
-
 #: src/components/contacts/screens/GetContacts.tsx:237
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
 msgstr "Blueskyは、「ハッシュ」と呼ばれるエンコードされたデジタル指紋を作成し、一致するハッシュを探すことでお互いを見つけるのに役立てます。"
@@ -3115,10 +3119,6 @@ msgstr "Bluesky は、ホスティング プロバイダーを選択できるオ
 #: src/components/contacts/screens/ViewMatches.tsx:323
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "Blueskyは友達ともっと楽しいです。あなたの友達を招待しますか？<0/>"
-
-#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
-msgid "Bluesky is part of a growing network of hundreds of social apps. Your account unlocks them all."
-msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:96
 #: src/screens/ModerationInbox/Report.tsx:74
@@ -3199,7 +3199,7 @@ msgstr "{displayName}というトピックを見る"
 msgid "Button to go back to the home timeline"
 msgstr "ホームタイムラインに戻るボタン"
 
-#: src/components/Gallery/Storybook.tsx:412
+#: src/components/Gallery/Storybook.tsx:414
 msgid "Buttons and text fields work without starting a drag. Type, select text with the arrow keys, and click. The last item uses the focus render function to make its own button the keyboard target, which Enter and Space should press."
 msgstr "ボタンとテキストフィールドは、ドラッグを開始しなくても動作します。入力したり、矢印キーでテキストを選択したり、クリックしたりできます。最後のアイテムはフォーカスレンダー関数を使用して、自身のボタンをキーボードのターゲットにしており、EnterキーとSpaceキーで押すことができます。"
 
@@ -3379,36 +3379,36 @@ msgid "Captions & alt text"
 msgstr "キャプション＆ALTテキスト"
 
 #. placeholder {0}: card.id
-#: src/components/Gallery/Storybook.tsx:642
-#: src/components/Gallery/Storybook.tsx:647
+#: src/components/Gallery/Storybook.tsx:644
+#: src/components/Gallery/Storybook.tsx:649
 msgid "Card {0}"
 msgstr "カード{0}"
 
-#: src/components/Gallery/Storybook.tsx:371
+#: src/components/Gallery/Storybook.tsx:373
 msgid "Card {index}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:277
+#: src/components/Gallery/Storybook.tsx:279
 msgid "Cards and images of different sizes"
 msgstr "さまざまなサイズのカードと画像"
 
-#: src/components/Gallery/Storybook.tsx:723
+#: src/components/Gallery/Storybook.tsx:725
 msgid "Cards in a constrained panel"
 msgstr "制約されたパネル内のカード"
 
-#: src/components/Gallery/Storybook.tsx:269
+#: src/components/Gallery/Storybook.tsx:271
 msgid "Cards of different widths and heights, an image, and a card wider than the gallery. The strip is as tall as the tallest card, and nothing is cropped or resized."
 msgstr "幅と高さが異なるカード、画像、そしてギャラリーより幅が広いカード。ストリップは最も背の高いカードと同じ高さで、何も切り取られたりサイズ変更されたりしません。"
 
-#: src/components/Gallery/Storybook.tsx:325
+#: src/components/Gallery/Storybook.tsx:327
 msgid "Cards stretch to the tallest sibling. Shortening or removing the tall card should let the whole row shrink again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:740
+#: src/components/Gallery/Storybook.tsx:742
 msgid "Cards that bleed to the container edges"
 msgstr "コンテナの端まで広がるカード"
 
-#: src/components/Gallery/Storybook.tsx:628
+#: src/components/Gallery/Storybook.tsx:630
 msgid "Cards that change"
 msgstr "変化するカード"
 
@@ -3475,7 +3475,7 @@ msgstr "レポートカテゴリの変更"
 msgid "Change report reason"
 msgstr "報告の理由を変更"
 
-#: src/components/Gallery/Storybook.tsx:531
+#: src/components/Gallery/Storybook.tsx:533
 msgid "Change the items from outside. Resizing, reordering, and revealing are not user navigation, so the event count should only go up when you swipe, drag, or use the arrow keys."
 msgstr "外部からアイテムを変更してください。サイズ変更、並び替え、表示はユーザーによるナビゲーションではないため、イベントカウントはスワイプ、ドラッグ、または矢印キーを使用した場合にのみ増加するはずです。"
 
@@ -3504,7 +3504,7 @@ msgstr "変更を保存しました"
 msgid "Changes to the Starter Pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr "作成後、スターターパックへの変更はリストに反映されません。リストは独立したコピーとなります。"
 
-#: src/components/Gallery/Storybook.tsx:529
+#: src/components/Gallery/Storybook.tsx:531
 msgid "Changing content"
 msgstr "コンテンツの変更"
 
@@ -4092,7 +4092,7 @@ msgstr "サービスに接続中…"
 msgid "Connecting…"
 msgstr "接続中…"
 
-#: src/components/Gallery/Storybook.tsx:695
+#: src/components/Gallery/Storybook.tsx:697
 msgid "Constrained and bleeding containers"
 msgstr "制約付きかつブリーディングコンテナ"
 
@@ -4549,7 +4549,7 @@ msgstr ""
 msgid "Couldn't upload the event image. Try again, or remove the image."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:422
+#: src/components/Gallery/Storybook.tsx:424
 msgid "Counter"
 msgstr "カウンター"
 
@@ -4557,7 +4557,7 @@ msgstr "カウンター"
 msgid "Country code"
 msgstr "国コード"
 
-#: src/components/Gallery/Storybook.tsx:455
+#: src/components/Gallery/Storybook.tsx:457
 msgid "Counts how many times it was focused and pressed"
 msgstr "何回フォーカスされて押されたかカウントします"
 
@@ -5648,11 +5648,11 @@ msgstr "埋め込みビデオプレーヤー"
 msgid "Embedding"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:755
+#: src/components/Gallery/Storybook.tsx:757
 msgid "Empty and single"
 msgstr "空とシングル"
 
-#: src/components/Gallery/Storybook.tsx:764
+#: src/components/Gallery/Storybook.tsx:766
 msgid "Empty gallery"
 msgstr "空のギャラリー"
 
@@ -5729,11 +5729,11 @@ msgstr "有効"
 msgid "Encrypted DMs"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:654
+#: src/components/Gallery/Storybook.tsx:656
 msgid "End"
 msgstr "終わり"
 
-#: src/components/Gallery/Storybook.tsx:653
+#: src/components/Gallery/Storybook.tsx:655
 msgid "End card"
 msgstr "終わりのカード"
 
@@ -5835,7 +5835,7 @@ msgstr "フルスクリーンで表示"
 msgid "Entertainment"
 msgstr "エンターテインメント"
 
-#: src/components/Gallery/Storybook.tsx:354
+#: src/components/Gallery/Storybook.tsx:356
 msgid "Equal-height cards"
 msgstr ""
 
@@ -6715,9 +6715,9 @@ msgstr ""
 msgid "Focus code input"
 msgstr "コード入力にフォーカス"
 
-#: src/components/Gallery/Storybook.tsx:448
-#: src/components/Gallery/Storybook.tsx:454
-#: src/components/Gallery/Storybook.tsx:476
+#: src/components/Gallery/Storybook.tsx:450
+#: src/components/Gallery/Storybook.tsx:456
+#: src/components/Gallery/Storybook.tsx:478
 msgid "Focus target"
 msgstr "フォーカスターゲット"
 
@@ -6725,7 +6725,7 @@ msgstr "フォーカスターゲット"
 msgid "Focus the search field"
 msgstr "検索フィールドにフォーカスする"
 
-#: src/components/Gallery/Storybook.tsx:481
+#: src/components/Gallery/Storybook.tsx:483
 msgid "Focused {focusCount} times"
 msgstr "{focusCount}回フォーカスされた"
 
@@ -7009,15 +7009,15 @@ msgstr "これらの人から"
 msgid "Further violations of our Community Guidelines could lead to permanent suspension."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:43
+#: src/components/Gallery/Storybook.tsx:45
 msgid "Gallery"
 msgstr "ギャラリー"
 
-#: src/components/Gallery/Storybook.tsx:440
+#: src/components/Gallery/Storybook.tsx:442
 msgid "Gallery text field"
 msgstr "ギャラリーのテキストフィールド"
 
-#: src/components/Gallery/Storybook.tsx:772
+#: src/components/Gallery/Storybook.tsx:774
 msgid "Gallery with one item"
 msgstr "1項目のギャラリー"
 
@@ -7806,7 +7806,7 @@ msgstr "あなたが開発者ならば、自分でサーバーをホストでき
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr "ハンドルやメールアドレスを変えるのであれば、無効化の前に変更してください。"
 
-#: src/components/Gallery/Storybook.tsx:292
+#: src/components/Gallery/Storybook.tsx:294
 #: src/components/images/ImageLayoutGridItem.tsx:94
 msgid "Image"
 msgstr "画像"
@@ -7834,11 +7834,11 @@ msgstr "画像のキャッシュをクリアしました"
 msgid "Image cache cleared, freed {0}"
 msgstr "画像のキャッシュをクリアし、 {0} が解放されました"
 
-#: src/components/Gallery/Storybook.tsx:152
+#: src/components/Gallery/Storybook.tsx:154
 msgid "Image content"
 msgstr "画像コンテンツ"
 
-#: src/components/Gallery/Storybook.tsx:160
+#: src/components/Gallery/Storybook.tsx:162
 msgid "Image frames in different shapes"
 msgstr "さまざまな形状の画像フレーム"
 
@@ -7995,7 +7995,7 @@ msgstr "ビデオのタイムスタンプを含める（{videoTimestamp}）"
 msgid "Incorrect password. Please try again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:425
+#: src/components/Gallery/Storybook.tsx:427
 msgid "Increment counter"
 msgstr "増分カウンター"
 
@@ -8015,11 +8015,11 @@ msgstr "反応が制限されています"
 msgid "Interaction settings"
 msgstr "反応関連の設定"
 
-#: src/components/Gallery/Storybook.tsx:410
+#: src/components/Gallery/Storybook.tsx:412
 msgid "Interactive children"
 msgstr "インタラクティブな子要素"
 
-#: src/components/Gallery/Storybook.tsx:420
+#: src/components/Gallery/Storybook.tsx:422
 msgid "Interactive items"
 msgstr "インタラクティブなアイテム"
 
@@ -8035,11 +8035,11 @@ msgstr ""
 msgid "Interested, tap to remove"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:635
+#: src/components/Gallery/Storybook.tsx:637
 msgid "Intro"
 msgstr "イントロ"
 
-#: src/components/Gallery/Storybook.tsx:634
+#: src/components/Gallery/Storybook.tsx:636
 msgid "Intro card"
 msgstr "イントロカード"
 
@@ -8326,7 +8326,7 @@ msgstr ""
 msgid "Labels on your account"
 msgstr "あなたのアカウントのラベル"
 
-#: src/components/Gallery/Storybook.tsx:168
+#: src/components/Gallery/Storybook.tsx:170
 msgid "Landscape frame"
 msgstr "横向きフレーム"
 
@@ -8826,7 +8826,7 @@ msgstr "最新の通知を読み込む"
 msgid "Load new posts"
 msgstr "最新の投稿を読み込む"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:137
+#: src/view/screens/Storybook/NewPostsPill.tsx:138
 msgid "Load new posts from the people you follow"
 msgstr "フォロー中のユーザーから新しい投稿を読み込む"
 
@@ -8946,7 +8946,7 @@ msgstr ""
 msgid "Make adjustments to email settings for your account"
 msgstr "アカウントのメール設定を調整する"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make narrow"
 msgstr "狭くする"
 
@@ -8958,23 +8958,23 @@ msgstr "私のために作って"
 msgid "Make sure this is where you intend to go!"
 msgstr "意図した場所であることを確認してください！"
 
-#: src/components/Gallery/Storybook.tsx:584
+#: src/components/Gallery/Storybook.tsx:586
 msgid "Make the first card taller or shorter"
 msgstr "最初のカードを高くするか低くする"
 
-#: src/components/Gallery/Storybook.tsx:594
+#: src/components/Gallery/Storybook.tsx:596
 msgid "Make the first card wider or narrower"
 msgstr "最初のカードを広くするか狭くする"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel narrow"
 msgstr "パネルを狭くする"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel wide"
 msgstr "パネルを広くする"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make wide"
 msgstr "広くする"
 
@@ -9076,11 +9076,11 @@ msgstr "{0} に保存されているメディア"
 msgid "Media stored on another device"
 msgstr "他のデバイスに保存されているメディア"
 
-#: src/components/Gallery/Storybook.tsx:285
+#: src/components/Gallery/Storybook.tsx:287
 msgid "Medium"
 msgstr "中くらい"
 
-#: src/components/Gallery/Storybook.tsx:284
+#: src/components/Gallery/Storybook.tsx:286
 msgid "Medium card"
 msgstr "中くらいのカード"
 
@@ -9220,7 +9220,7 @@ msgstr ""
 msgid "Missing media"
 msgstr "メディアが見つかりません"
 
-#: src/components/Gallery/Storybook.tsx:267
+#: src/components/Gallery/Storybook.tsx:269
 msgid "Mixed content and sizes"
 msgstr "混合コンテンツとサイズ"
 
@@ -9676,7 +9676,7 @@ msgstr "新しい投稿"
 msgid "New posts"
 msgstr "新しい投稿"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:136
+#: src/view/screens/Storybook/NewPostsPill.tsx:137
 msgid "New posts are ready to load from the people you follow"
 msgstr "フォロー中のユーザーからの新しい投稿を読み込む準備ができました"
 
@@ -10252,8 +10252,8 @@ msgid "On"
 msgstr "有効"
 
 #: src/screens/Settings/components/AlgoVisibilityOptOut.tsx:43
-msgid "On Bluesky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
-msgstr "Blueskyでは、これはあなたの投稿があなたをフォローしている人にのみDiscoverフィードに表示されることを意味します。他のアプリは、独自の推薦アルゴリズムでこの設定を使用するかもしれません。"
+msgid "On Blacksky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
+msgstr ""
 
 #: src/components/StarterPack/QrCode.tsx:80
 msgid "on<0><1/><2><3/></2></0>"
@@ -10263,7 +10263,7 @@ msgstr "<0><1/><2><3/></2></0>"
 msgid "Onboarding reset"
 msgstr "オンボーディングのリセット"
 
-#: src/components/Gallery/Storybook.tsx:673
+#: src/components/Gallery/Storybook.tsx:675
 msgid "One"
 msgstr "1つ"
 
@@ -10315,7 +10315,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:775
+#: src/components/Gallery/Storybook.tsx:777
 msgid "Only"
 msgstr "単一"
 
@@ -10340,7 +10340,7 @@ msgstr "管理者のみが参加リクエストを受け付けることができ
 msgid "Only admins can reject join requests."
 msgstr "管理者のみが参加リクエストを拒否することができます。"
 
-#: src/components/Gallery/Storybook.tsx:774
+#: src/components/Gallery/Storybook.tsx:776
 msgid "Only card"
 msgstr "カードのみ"
 
@@ -10616,8 +10616,8 @@ msgstr ""
 #. placeholder {0}: link.url
 #: src/features/profileLinks/components/LinkPreviewSheet.tsx:85
 #: src/features/profileLinks/components/ProfileLinks.tsx:164
-msgid "Opens {0} outside Bluesky"
-msgstr "{0}をBlueskyの外で開く"
+msgid "Opens {0} outside Blacksky"
+msgstr ""
 
 #: src/view/shell/desktop/Feeds.tsx:188
 msgid "Opens {displayName} feed"
@@ -10678,13 +10678,10 @@ msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:309
+#: src/view/com/auth/NativeSplashScreen.tsx:141
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:141
-msgid "Opens flow to create a new Bluesky account"
-msgstr "新しいBlueskyのアカウントを作成するフローを開く"
 
 #. placeholder {0}: brand.web.title
 #: src/view/com/auth/SplashScreen.web.tsx:120
@@ -10692,13 +10689,10 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:295
+#: src/view/com/auth/NativeSplashScreen.tsx:170
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:170
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "既存のBlueskyアカウントにサインインする画面を開きます"
 
 #: src/components/images/Gallery/index.tsx:305
 msgid "Opens full image"
@@ -10901,7 +10895,7 @@ msgstr "オーナー"
 msgid "Owner must lock the group before leaving."
 msgstr "オーナーは退出する前にグループをロックしなければなりません。"
 
-#: src/components/Gallery/Storybook.tsx:737
+#: src/components/Gallery/Storybook.tsx:739
 msgid "Padded container"
 msgstr "パディングされたコンテナ"
 
@@ -11374,11 +11368,11 @@ msgstr ""
 msgid "Porn"
 msgstr "ポルノ"
 
-#: src/components/Gallery/Storybook.tsx:162
+#: src/components/Gallery/Storybook.tsx:164
 msgid "Portrait frame"
 msgstr "縦向きフレーム"
 
-#: src/components/Gallery/Storybook.tsx:154
+#: src/components/Gallery/Storybook.tsx:156
 msgid "Portrait, square, and landscape frames as plain children. The frames, not the gallery, decide the sizes."
 msgstr "単純な子要素として縦向き、正方形、横向きのフレーム。サイズを決定するのはギャラリーではなく、フレーム。"
 
@@ -11589,7 +11583,7 @@ msgstr "再実行する"
 msgid "Press to view followers of this account that you also follow"
 msgstr "あなたもフォローしているこのアカウントのフォロワーを見る"
 
-#: src/components/Gallery/Storybook.tsx:486
+#: src/components/Gallery/Storybook.tsx:488
 msgid "Pressed {pressCount} times"
 msgstr "{pressCount}回押された"
 
@@ -11672,7 +11666,7 @@ msgstr "ビデオを処理中…"
 msgid "Processing..."
 msgstr "処理中…"
 
-#: src/components/Gallery/Storybook.tsx:241
+#: src/components/Gallery/Storybook.tsx:243
 msgid "Production image adapter"
 msgstr "プロダクション用イメージアダプター"
 
@@ -12098,11 +12092,11 @@ msgstr "フィードを削除しますか？"
 msgid "Remove filter"
 msgstr "フィルターを削除"
 
-#: src/components/Gallery/Storybook.tsx:570
+#: src/components/Gallery/Storybook.tsx:572
 msgid "Remove first"
 msgstr "最初を削除"
 
-#: src/components/Gallery/Storybook.tsx:564
+#: src/components/Gallery/Storybook.tsx:566
 msgid "Remove first card"
 msgstr "最初のカードを削除"
 
@@ -12149,11 +12143,11 @@ msgstr "イメージを削除"
 msgid "Remove label {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:560
+#: src/components/Gallery/Storybook.tsx:562
 msgid "Remove last"
 msgstr "最後を削除"
 
-#: src/components/Gallery/Storybook.tsx:554
+#: src/components/Gallery/Storybook.tsx:556
 msgid "Remove last card"
 msgstr "最後のカードを削除"
 
@@ -12870,7 +12864,7 @@ msgstr "前のページに戻る"
 msgid "Returns to the previous step"
 msgstr "前のステップに戻る"
 
-#: src/components/Gallery/Storybook.tsx:622
+#: src/components/Gallery/Storybook.tsx:624
 msgid "Reveal last"
 msgstr "最後を表示"
 
@@ -12878,15 +12872,15 @@ msgstr "最後を表示"
 msgid "Reveal password"
 msgstr "パスワードを表示"
 
-#: src/components/Gallery/Storybook.tsx:614
+#: src/components/Gallery/Storybook.tsx:616
 msgid "Reveal the last card"
 msgstr "最後のカードを表示"
 
-#: src/components/Gallery/Storybook.tsx:580
+#: src/components/Gallery/Storybook.tsx:582
 msgid "Reverse"
 msgstr "逆順"
 
-#: src/components/Gallery/Storybook.tsx:574
+#: src/components/Gallery/Storybook.tsx:576
 msgid "Reverse the order"
 msgstr "順序を逆にする"
 
@@ -13882,7 +13876,7 @@ msgstr "さらに返信を表示"
 msgid "Show muted or blocked accounts"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:604
+#: src/components/Gallery/Storybook.tsx:606
 msgid "Show or hide the intro card"
 msgstr "イントロカードを表示または非表示にする"
 
@@ -14101,7 +14095,7 @@ msgstr ""
 msgid "Since"
 msgstr "次の日付以降"
 
-#: src/components/Gallery/Storybook.tsx:303
+#: src/components/Gallery/Storybook.tsx:305
 msgid "Sizes: 100×80, 220×160, 140×240, 180×120, and a wide card of {wideCardSize}×100, which is the gallery width of {galleryWidth} plus 80."
 msgstr "サイズ: 100×80、220×160、140×240、180×120、および{wideCardSize}×100のワイドカード（ギャラリー幅{galleryWidth}に80を加えた値）。"
 
@@ -14136,11 +14130,11 @@ msgstr "次のステップへスキップ"
 msgid "slide"
 msgstr "スライド"
 
-#: src/components/Gallery/Storybook.tsx:282
+#: src/components/Gallery/Storybook.tsx:284
 msgid "Small"
 msgstr "小"
 
-#: src/components/Gallery/Storybook.tsx:280
+#: src/components/Gallery/Storybook.tsx:282
 msgid "Small card"
 msgstr "小さいカード"
 
@@ -14336,7 +14330,7 @@ msgstr "スポーツ"
 msgid "Spot posts your friends and follows have liked."
 msgstr "あなたの友達やフォローしている人がいいねした投稿を見つける。"
 
-#: src/components/Gallery/Storybook.tsx:165
+#: src/components/Gallery/Storybook.tsx:167
 msgid "Square frame"
 msgstr "正方形フレーム"
 
@@ -14504,7 +14498,7 @@ msgstr ""
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:323
+#: src/components/Gallery/Storybook.tsx:325
 msgid "Stretching cards"
 msgstr ""
 
@@ -14759,15 +14753,15 @@ msgstr "システムログ"
 msgid "Tags only"
 msgstr "タグのみ"
 
-#: src/components/Gallery/Storybook.tsx:290
+#: src/components/Gallery/Storybook.tsx:292
 msgid "Tall"
 msgstr "背が高い"
 
-#: src/components/Gallery/Storybook.tsx:590
+#: src/components/Gallery/Storybook.tsx:592
 msgid "Tall / short"
 msgstr "背が高い/短い"
 
-#: src/components/Gallery/Storybook.tsx:288
+#: src/components/Gallery/Storybook.tsx:290
 msgid "Tall card"
 msgstr "背が高いカード"
 
@@ -14837,7 +14831,7 @@ msgstr "タップしてすべてのリアクションを表示"
 msgid "Tap to view reactions"
 msgstr "タップしてリアクションを表示"
 
-#: src/components/Gallery/Storybook.tsx:431
+#: src/components/Gallery/Storybook.tsx:433
 msgid "Tapped {count} times"
 msgstr "{count}回タップされた"
 
@@ -14901,7 +14895,7 @@ msgstr "利用規約"
 msgid "Text & tags"
 msgstr "テキストとタグ"
 
-#: src/components/Gallery/Storybook.tsx:436
+#: src/components/Gallery/Storybook.tsx:438
 msgid "Text field"
 msgstr "テキストフィールド"
 
@@ -14911,7 +14905,7 @@ msgstr "テキストフィールド"
 msgid "Text input field"
 msgstr "テキストの入力フィールド"
 
-#: src/components/Gallery/Storybook.tsx:493
+#: src/components/Gallery/Storybook.tsx:495
 msgid "Text: “{text}”"
 msgstr "テキスト:「{text}」"
 
@@ -14924,12 +14918,12 @@ msgid "Thank you for your support!"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:117
-msgid "Thanks for helping keep Bluesky safe. This post violated our <0>Community Guidelines</0>."
-msgstr "Blueskyを安全な状態にするためにご協力いただきありがとうございます。この投稿は<0>コミュニティガイドライン</0>に違反していました。"
+msgid "Thanks for helping keep Blacksky safe. This post violated our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:130
-msgid "Thanks for helping keep Bluesky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
-msgstr "Blueskyを安全な状態にするためにご協力いただきありがとうございます。あなたの報告を確認し、対応を行いました。<0>コミュニティガイドライン</0>をご覧ください。"
+msgid "Thanks for helping keep Blacksky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:83
 msgid "Thanks for your feedback!"
@@ -15001,7 +14995,7 @@ msgid "The appeal window has closed."
 msgstr "異議申し立ての受付期間は終了しました。"
 
 #: src/screens/Atmosphere/ActivityTab.tsx:34
-msgid "The Atmosphere is the open network Bluesky is built on. When people you follow are active on the Atmosphere, you can see it here."
+msgid "The Atmosphere is the open network Blacksky is built on. When people you follow are active on the Atmosphere, you can see it here."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:139
@@ -15021,7 +15015,7 @@ msgstr ""
 msgid "The Blacksky web application"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:243
+#: src/components/Gallery/Storybook.tsx:245
 msgid "The carousel used for post images. Tap an image to open the lightbox, change images, and close it: it should land on the right thumbnail. The first and last images are cropped, and the third learns its size when it loads."
 msgstr "投稿画像に使用されるカルーセル。画像をタップしてライトボックスを開き、画像を切り替えて閉じると、正しいサムネイルに戻るはずです。最初と最後の画像はトリミングされており、3番目の画像は読み込み時にサイズを認識します。"
 
@@ -15069,7 +15063,7 @@ msgstr "以下のサービスがあなたのアカウントで有効になって
 msgid "The following settings will be used as your defaults when creating new posts. You can edit these for a specific post from the composer."
 msgstr "新しい投稿を作成する場合、以下の設定がデフォルトとして使用されます。個々の投稿に対する設定は編集画面から変更できます。"
 
-#: src/components/Gallery/Storybook.tsx:697
+#: src/components/Gallery/Storybook.tsx:699
 msgid "The gallery fills whatever width it has. Inside a bleed ancestor, the first and last items line up with the padded content while the rest run to the outer edge."
 msgstr "ギャラリーは利用可能な幅いっぱいに広がります。ブリード祖先の内側では、最初と最後のアイテムはパディングされたコンテンツに揃い、残りは外側の端まで広がります。"
 
@@ -15136,7 +15130,7 @@ msgstr "コンテキストメニューの件名"
 msgid "The Terms of Service have been moved to"
 msgstr "サービス規約は移動しました"
 
-#: src/components/Gallery/Storybook.tsx:769
+#: src/components/Gallery/Storybook.tsx:771
 msgid "The two lines above should touch."
 msgstr "上の2本の線は接しているはずです。"
 
@@ -15406,7 +15400,7 @@ msgstr ""
 msgid "This can’t be undone, and all of your recent searches will be removed."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:379
+#: src/components/Gallery/Storybook.tsx:381
 msgid "This card has enough text to wrap over many lines. Its siblings should stretch to match its height without stretching any images or imposing a fixed height. When this text disappears, all of the cards should shrink again."
 msgstr ""
 
@@ -15623,8 +15617,8 @@ msgid "This labeler hasn't declared what labels it publishes, and may not be act
 msgstr "このラベラーはどのようなラベルを発行しているか宣言しておらず、活動していない可能性もあります。"
 
 #: src/features/profileLinks/components/LinkFormDialog.tsx:248
-msgid "This link can’t be added. It goes to a site that’s blocked on Bluesky."
-msgstr "このリンクは追加できません。Blueskyでブロックされているサイトへのリンクです。"
+msgid "This link can’t be added. It goes to a site that’s blocked on Blacksky."
+msgstr ""
 
 #: src/components/dialogs/LinkWarning.tsx:95
 msgid "This link is taking you to the following website:"
@@ -15858,7 +15852,7 @@ msgstr "スレッドの設定"
 msgid "Threats or incitement"
 msgstr "脅迫または扇動"
 
-#: src/components/Gallery/Storybook.tsx:679
+#: src/components/Gallery/Storybook.tsx:681
 msgid "Three"
 msgstr "3"
 
@@ -15903,17 +15897,17 @@ msgctxt "Notifications section header"
 msgid "Today"
 msgstr "今日"
 
-#: src/components/Gallery/Storybook.tsx:610
+#: src/components/Gallery/Storybook.tsx:612
 msgid "Toggle intro"
 msgstr "イントロの切り替え"
 
-#: src/components/Gallery/Storybook.tsx:332
-#: src/components/Gallery/Storybook.tsx:338
+#: src/components/Gallery/Storybook.tsx:334
+#: src/components/Gallery/Storybook.tsx:340
 msgid "Toggle tall content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:342
-#: src/components/Gallery/Storybook.tsx:348
+#: src/components/Gallery/Storybook.tsx:344
+#: src/components/Gallery/Storybook.tsx:350
 msgid "Toggle tallest card"
 msgstr ""
 
@@ -16011,7 +16005,7 @@ msgid "Trending GIFs"
 msgstr "人気のGIF"
 
 #: src/features/trendingWidget/Sync.native.tsx:46
-msgid "Trending on Bluesky"
+msgid "Trending on Blacksky"
 msgstr ""
 
 #: src/components/interstitials/FeedTrendingTopics.tsx:126
@@ -16077,7 +16071,7 @@ msgstr "テレビ"
 msgid "Twilight"
 msgstr "トワイライト"
 
-#: src/components/Gallery/Storybook.tsx:676
+#: src/components/Gallery/Storybook.tsx:678
 msgid "Two"
 msgstr "2"
 
@@ -17520,15 +17514,15 @@ msgstr "なぜこのスターターパックをレビューする必要があり
 msgid "Why should this user be reviewed?"
 msgstr "なぜこのユーザーをレビューする必要がありますか？"
 
-#: src/components/Gallery/Storybook.tsx:298
+#: src/components/Gallery/Storybook.tsx:300
 msgid "Wide"
 msgstr "幅が広い"
 
-#: src/components/Gallery/Storybook.tsx:600
+#: src/components/Gallery/Storybook.tsx:602
 msgid "Wide / narrow"
 msgstr "幅が広い/狭い"
 
-#: src/components/Gallery/Storybook.tsx:296
+#: src/components/Gallery/Storybook.tsx:298
 msgid "Wide card"
 msgstr "幅が広いカード"
 
@@ -18235,7 +18229,7 @@ msgid "Your account is suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:50
-msgid "Your account is suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:41
@@ -18245,7 +18239,7 @@ msgid "Your account is temporarily suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:55
-msgid "Your account is temporarily suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is temporarily suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/components/dms/InitiateChatFlow.tsx:829
@@ -18321,8 +18315,8 @@ msgid "Your contact {name}"
 msgstr "あなたの連絡先 {name}"
 
 #: src/screens/Notifications/components/NotificationItem/kinds/profile.tsx:355
-msgid "Your contact <0/> is on Bluesky"
-msgstr "あなたの連絡先<0/>がBlueskyにいます"
+msgid "Your contact <0/> is on Blacksky"
+msgstr ""
 
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:104
 msgid "Your content"

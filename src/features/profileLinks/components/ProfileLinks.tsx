@@ -161,7 +161,7 @@ function ProfileLinksRow({
             did={profile.did}
             arrow
             opensLink
-            hint={l`Opens ${getLinkHost(link.url)} outside Bluesky`}
+            hint={l`Opens ${getLinkHost(link.url)} outside Blacksky`}
             onPress={() => {
               playTapHaptic()
               logClick(link)

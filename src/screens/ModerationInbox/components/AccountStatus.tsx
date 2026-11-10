@@ -48,12 +48,12 @@ export function AccountStatus({
             : l`Your account has moderation actions`
   const description = isTakenDown ? (
     <Trans>
-      Your account is suspended on Bluesky. See your notices for details and
+      Your account is suspended on Blacksky. See your notices for details and
       available appeal options.
     </Trans>
   ) : isSuspended ? (
     <Trans>
-      Your account is temporarily suspended on Bluesky. See your notices for
+      Your account is temporarily suspended on Blacksky. See your notices for
       details and available appeal options.
     </Trans>
   ) : status === 'atRisk' && enforcement && hasActiveStrikes ? (

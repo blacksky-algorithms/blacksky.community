@@ -61,7 +61,7 @@ export function AtmosphereNux() {
             style={[a.text_sm, a.leading_snug, {color: 'white', maxWidth: 260}]}
             numberOfLines={4}>
             <Trans>
-              Bluesky is part of a growing network of hundreds of social apps.
+              Blacksky is part of a growing network of hundreds of social apps.
               Your account unlocks them all.
             </Trans>
           </Text>

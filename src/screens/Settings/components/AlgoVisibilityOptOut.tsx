@@ -41,7 +41,7 @@ export function AlgoVisibilityOptOut() {
 
       <Text style={[a.leading_snug, t.atoms.text_contrast_high]}>
         <Trans>
-          On Bluesky, this means your posts will only appear in the Discover
+          On Blacksky, this means your posts will only appear in the Discover
           feed to people who follow you. Other apps can choose to use this
           preference in their own algorithmic recommendations.
         </Trans>

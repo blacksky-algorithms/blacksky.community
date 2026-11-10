@@ -75,7 +75,7 @@ function TrendingTopicsWidget(
             color={textColor}
             maxLines={1}
             style={{fontSize: 15, fontWeight: 'bold'}}>
-            {props.title ?? 'Trending on Bluesky'}
+            {props.title ?? 'Trending on Blacksky'}
           </Text>
         </Row>
       </Button>

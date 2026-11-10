@@ -169,7 +169,7 @@ function TrendingTopicsWidget(
           ]}>
           {isSmall
             ? (props.shortTitle ?? 'Trending')
-            : (props.title ?? 'Trending on Bluesky')}
+            : (props.title ?? 'Trending on Blacksky')}
         </Text>
         <Spacer minLength={0} />
       </HStack>

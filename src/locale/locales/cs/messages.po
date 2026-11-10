@@ -1406,13 +1406,9 @@ msgstr ""
 msgid "A discussion cannot be combined with media, a link card or a quote."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:46
+#: src/components/Gallery/Storybook.tsx:48
 msgid "A horizontal strip of any content. Each item keeps its own width and height, and the strip is as tall as the tallest one."
 msgstr "Vodorovný pruh libovolného obsahu. Každá položka si zachovává vlastní šířku a výšku a pruh je tak vysoký jako nejvyšší z nich."
-
-#: src/components/Gallery/Storybook.tsx:189
-msgid "A kawaii scene"
-msgstr "Kawaii scéna"
 
 #: src/screens/ModerationInbox/components/hooks/useActionedSubjectLabels.ts:68
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:87
@@ -1441,7 +1437,7 @@ msgstr ""
 msgid "A label was removed from your post"
 msgstr "Z vašeho příspěvku byl odstraněn štítek"
 
-#: src/components/Gallery/Storybook.tsx:375
+#: src/components/Gallery/Storybook.tsx:377
 msgid "A little more content than the first card."
 msgstr ""
 
@@ -1489,12 +1485,16 @@ msgstr "Odpověď na zprávu odeslanou před tím, než jste se připojili"
 msgid "A selected recipient is not followed by the sender."
 msgstr "Vybraný příjemce není sledován odesílatelem."
 
-#: src/components/Gallery/Storybook.tsx:202
-msgid "A small kawaii scene with no ratio on record"
-msgstr "Malá kawaii scéna bez zaznamenaného poměru stran"
+#: src/components/Gallery/Storybook.tsx:204
+msgid "A small illustration with no ratio on record"
+msgstr ""
 
 #: src/lib/api/index.ts:126
 msgid "A thread can only have one discussion."
+msgstr ""
+
+#: src/components/Gallery/Storybook.tsx:191
+msgid "A wide illustration"
 msgstr ""
 
 #: src/Navigation.tsx:578
@@ -1717,7 +1717,7 @@ msgstr "Přijatá opatření"
 #. placeholder {0}: nav.index
 #. placeholder {1}: nav.previous
 #. placeholder {2}: nav.events
-#: src/components/Gallery/Storybook.tsx:659
+#: src/components/Gallery/Storybook.tsx:661
 msgid "Active index {0} (from {1}), {2} user navigation events"
 msgstr "Aktivní index {0} (z {1}), {2} uživatelské navigační události"
 
@@ -1742,7 +1742,7 @@ msgstr "Oznámení o aktivitě"
 #: src/components/dialogs/StarterPackDialog.tsx:364
 #: src/components/dialogs/StarterPackDialog.tsx:376
 #: src/components/dms/AddMembersFlow.tsx:410
-#: src/components/Gallery/Storybook.tsx:550
+#: src/components/Gallery/Storybook.tsx:552
 msgid "Add"
 msgstr "Přidat"
 
@@ -1840,7 +1840,7 @@ msgstr "Přidat heslo aplikace"
 msgid "Add automation label to account"
 msgstr "Přidat automatický štítek k účtu"
 
-#: src/components/Gallery/Storybook.tsx:539
+#: src/components/Gallery/Storybook.tsx:541
 msgid "Add card"
 msgstr "Přidat kartu"
 
@@ -2238,7 +2238,7 @@ msgstr "E-mail byl odeslán na {0}. Obsahuje potvrzovací kód, který můžete 
 msgid "An email was sent about your account"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:757
+#: src/components/Gallery/Storybook.tsx:759
 msgid "An empty gallery takes up no space. A single item behaves like any other, without dragging or arrow key navigation to go anywhere."
 msgstr "Prázdná galerie nezabírá žádné místo. Jediná položka se chová jako každá jiná, bez přetahování nebo navigace šipkami kamkoli."
 
@@ -2918,6 +2918,11 @@ msgstr "Datum narození"
 msgid "Birthday"
 msgstr "Narozeniny"
 
+#. Description of a beta feature (iPad support)
+#: src/screens/Settings/BetaFeaturesSettings.tsx:79
+msgid "Blacksky adapts to your iPad’s screen in any orientation or window size."
+msgstr ""
+
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:659
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
 msgstr ""
@@ -2928,6 +2933,10 @@ msgstr ""
 
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:41
 msgid "Blacksky is more fun with friends"
+msgstr ""
+
+#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
+msgid "Blacksky is part of a growing network of hundreds of social apps. Your account unlocks them all."
 msgstr ""
 
 #: src/screens/Midterms/index.tsx:262
@@ -3099,11 +3108,6 @@ msgstr "bloomscrolling booksky"
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#. Description of a beta feature (iPad support)
-#: src/screens/Settings/BetaFeaturesSettings.tsx:79
-msgid "Bluesky adapts to your iPad’s screen in any orientation or window size."
-msgstr "Bluesky se přizpůsobí obrazovce vašeho iPadu v jakékoli orientaci nebo velikosti okna."
-
 #: src/components/contacts/screens/GetContacts.tsx:237
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
 msgstr "Bluesky pomáhá přátelům najít se navzájem vytvořením zakódovaného digitálního otisku, nazvaného \"hash\" a pak hledáním odpovídajících hashů."
@@ -3115,10 +3119,6 @@ msgstr "Bluesky je otevřená síť, kde si můžete vybrat svého poskytovatele
 #: src/components/contacts/screens/ViewMatches.tsx:323
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "Bluesky je zábavnější s přáteli. Chcete pozvat některé z vašich přátel? <0/>"
-
-#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
-msgid "Bluesky is part of a growing network of hundreds of social apps. Your account unlocks them all."
-msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:96
 #: src/screens/ModerationInbox/Report.tsx:74
@@ -3199,7 +3199,7 @@ msgstr "Procházet téma {displayName}"
 msgid "Button to go back to the home timeline"
 msgstr "Tlačítko pro návrat na domácí časovou osu"
 
-#: src/components/Gallery/Storybook.tsx:412
+#: src/components/Gallery/Storybook.tsx:414
 msgid "Buttons and text fields work without starting a drag. Type, select text with the arrow keys, and click. The last item uses the focus render function to make its own button the keyboard target, which Enter and Space should press."
 msgstr "Tlačítka a textová pole fungují bez zahájení přetahování. Pište, vybírejte text pomocí šipek a klikejte. Poslední položka používá funkci pro vykreslení fokusu, aby se její vlastní tlačítko stalo cílem klávesnice, což by měly stisknout klávesy Enter a Mezerník."
 
@@ -3379,36 +3379,36 @@ msgid "Captions & alt text"
 msgstr "Titulky a alternativní text"
 
 #. placeholder {0}: card.id
-#: src/components/Gallery/Storybook.tsx:642
-#: src/components/Gallery/Storybook.tsx:647
+#: src/components/Gallery/Storybook.tsx:644
+#: src/components/Gallery/Storybook.tsx:649
 msgid "Card {0}"
 msgstr "Karta {0}"
 
-#: src/components/Gallery/Storybook.tsx:371
+#: src/components/Gallery/Storybook.tsx:373
 msgid "Card {index}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:277
+#: src/components/Gallery/Storybook.tsx:279
 msgid "Cards and images of different sizes"
 msgstr "Karty a obrázky různých velikostí"
 
-#: src/components/Gallery/Storybook.tsx:723
+#: src/components/Gallery/Storybook.tsx:725
 msgid "Cards in a constrained panel"
 msgstr "Karty v omezeném panelu"
 
-#: src/components/Gallery/Storybook.tsx:269
+#: src/components/Gallery/Storybook.tsx:271
 msgid "Cards of different widths and heights, an image, and a card wider than the gallery. The strip is as tall as the tallest card, and nothing is cropped or resized."
 msgstr "Karty různých šířek a výšek, obrázek a karta širší než galerie. Pás je tak vysoký jako nejvyšší karta a nic není oříznuto ani změněno ve velikosti."
 
-#: src/components/Gallery/Storybook.tsx:325
+#: src/components/Gallery/Storybook.tsx:327
 msgid "Cards stretch to the tallest sibling. Shortening or removing the tall card should let the whole row shrink again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:740
+#: src/components/Gallery/Storybook.tsx:742
 msgid "Cards that bleed to the container edges"
 msgstr "Karty, které zasahují až k okrajům kontejneru"
 
-#: src/components/Gallery/Storybook.tsx:628
+#: src/components/Gallery/Storybook.tsx:630
 msgid "Cards that change"
 msgstr "Karty, které se mění"
 
@@ -3475,7 +3475,7 @@ msgstr "Změnit kategorii hlášení"
 msgid "Change report reason"
 msgstr "Změnit důvod hlášení"
 
-#: src/components/Gallery/Storybook.tsx:531
+#: src/components/Gallery/Storybook.tsx:533
 msgid "Change the items from outside. Resizing, reordering, and revealing are not user navigation, so the event count should only go up when you swipe, drag, or use the arrow keys."
 msgstr "Změňte položky zvenčí. Změna velikosti, přeuspořádání a odhalení nejsou navigací uživatele, takže počet událostí by se měl zvýšit pouze při přejetí prstem, přetažení nebo použití šipek."
 
@@ -3504,7 +3504,7 @@ msgstr "Změny uloženy"
 msgid "Changes to the Starter Pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr "Změny Startovacího balíčku nebudou po vytvoření zohledněny v seznamu. Seznam bude nezávislá kopie."
 
-#: src/components/Gallery/Storybook.tsx:529
+#: src/components/Gallery/Storybook.tsx:531
 msgid "Changing content"
 msgstr "Změna obsahu"
 
@@ -4092,7 +4092,7 @@ msgstr "Připojování ke službě..."
 msgid "Connecting…"
 msgstr "Připojování…"
 
-#: src/components/Gallery/Storybook.tsx:695
+#: src/components/Gallery/Storybook.tsx:697
 msgid "Constrained and bleeding containers"
 msgstr "Omezené a přetékající kontejnery"
 
@@ -4549,7 +4549,7 @@ msgstr ""
 msgid "Couldn't upload the event image. Try again, or remove the image."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:422
+#: src/components/Gallery/Storybook.tsx:424
 msgid "Counter"
 msgstr "Počítadlo"
 
@@ -4557,7 +4557,7 @@ msgstr "Počítadlo"
 msgid "Country code"
 msgstr "Kód země"
 
-#: src/components/Gallery/Storybook.tsx:455
+#: src/components/Gallery/Storybook.tsx:457
 msgid "Counts how many times it was focused and pressed"
 msgstr "Počítá, kolikrát byl zaměřen a stisknut"
 
@@ -5648,11 +5648,11 @@ msgstr "Vestavěný přehrávač videa"
 msgid "Embedding"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:755
+#: src/components/Gallery/Storybook.tsx:757
 msgid "Empty and single"
 msgstr "Prázdná a jedna"
 
-#: src/components/Gallery/Storybook.tsx:764
+#: src/components/Gallery/Storybook.tsx:766
 msgid "Empty gallery"
 msgstr "Prázdná galerie"
 
@@ -5729,11 +5729,11 @@ msgstr "Povoleno"
 msgid "Encrypted DMs"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:654
+#: src/components/Gallery/Storybook.tsx:656
 msgid "End"
 msgstr "Konec"
 
-#: src/components/Gallery/Storybook.tsx:653
+#: src/components/Gallery/Storybook.tsx:655
 msgid "End card"
 msgstr "Závěrečná karta"
 
@@ -5835,7 +5835,7 @@ msgstr "Přejde do režimu celé obrazovky"
 msgid "Entertainment"
 msgstr "Zábava"
 
-#: src/components/Gallery/Storybook.tsx:354
+#: src/components/Gallery/Storybook.tsx:356
 msgid "Equal-height cards"
 msgstr ""
 
@@ -6715,9 +6715,9 @@ msgstr ""
 msgid "Focus code input"
 msgstr "Zaměřit pole pro kód"
 
-#: src/components/Gallery/Storybook.tsx:448
-#: src/components/Gallery/Storybook.tsx:454
-#: src/components/Gallery/Storybook.tsx:476
+#: src/components/Gallery/Storybook.tsx:450
+#: src/components/Gallery/Storybook.tsx:456
+#: src/components/Gallery/Storybook.tsx:478
 msgid "Focus target"
 msgstr "Cíl zaostření"
 
@@ -6725,7 +6725,7 @@ msgstr "Cíl zaostření"
 msgid "Focus the search field"
 msgstr "Zaměřit vyhledávací pole"
 
-#: src/components/Gallery/Storybook.tsx:481
+#: src/components/Gallery/Storybook.tsx:483
 msgid "Focused {focusCount} times"
 msgstr "Zaměřeno {focusCount}krát"
 
@@ -7009,15 +7009,15 @@ msgstr "Od těchto lidí"
 msgid "Further violations of our Community Guidelines could lead to permanent suspension."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:43
+#: src/components/Gallery/Storybook.tsx:45
 msgid "Gallery"
 msgstr "Galerie"
 
-#: src/components/Gallery/Storybook.tsx:440
+#: src/components/Gallery/Storybook.tsx:442
 msgid "Gallery text field"
 msgstr "Textové pole galerie"
 
-#: src/components/Gallery/Storybook.tsx:772
+#: src/components/Gallery/Storybook.tsx:774
 msgid "Gallery with one item"
 msgstr "Galerie s jednou položkou"
 
@@ -7806,7 +7806,7 @@ msgstr "Pokud jste vývojář, můžete si hostovat vlastní server."
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr "Pokud se snažíte změnit svoje uživatelské jméno nebo e-mail, udělejte to před deaktivací."
 
-#: src/components/Gallery/Storybook.tsx:292
+#: src/components/Gallery/Storybook.tsx:294
 #: src/components/images/ImageLayoutGridItem.tsx:94
 msgid "Image"
 msgstr "Obrázek"
@@ -7834,11 +7834,11 @@ msgstr "Mezipaměť obrázků vymazána"
 msgid "Image cache cleared, freed {0}"
 msgstr "Mezipaměť obrázků vymazána, uvolněno {0}"
 
-#: src/components/Gallery/Storybook.tsx:152
+#: src/components/Gallery/Storybook.tsx:154
 msgid "Image content"
 msgstr "Obsah obrázku"
 
-#: src/components/Gallery/Storybook.tsx:160
+#: src/components/Gallery/Storybook.tsx:162
 msgid "Image frames in different shapes"
 msgstr "Rámečky obrázků v různých tvarech"
 
@@ -7995,7 +7995,7 @@ msgstr "Zahrnout časové razítko videa ({videoTimestamp})"
 msgid "Incorrect password. Please try again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:425
+#: src/components/Gallery/Storybook.tsx:427
 msgid "Increment counter"
 msgstr "Zvýšit počítadlo"
 
@@ -8015,11 +8015,11 @@ msgstr "Interakce omezeny"
 msgid "Interaction settings"
 msgstr "Nastavení interakcí"
 
-#: src/components/Gallery/Storybook.tsx:410
+#: src/components/Gallery/Storybook.tsx:412
 msgid "Interactive children"
 msgstr "Interaktivní potomci"
 
-#: src/components/Gallery/Storybook.tsx:420
+#: src/components/Gallery/Storybook.tsx:422
 msgid "Interactive items"
 msgstr "Interaktivní položky"
 
@@ -8035,11 +8035,11 @@ msgstr ""
 msgid "Interested, tap to remove"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:635
+#: src/components/Gallery/Storybook.tsx:637
 msgid "Intro"
 msgstr "Úvod"
 
-#: src/components/Gallery/Storybook.tsx:634
+#: src/components/Gallery/Storybook.tsx:636
 msgid "Intro card"
 msgstr "Úvodní karta"
 
@@ -8326,7 +8326,7 @@ msgstr ""
 msgid "Labels on your account"
 msgstr "Štítky na vašem účtu"
 
-#: src/components/Gallery/Storybook.tsx:168
+#: src/components/Gallery/Storybook.tsx:170
 msgid "Landscape frame"
 msgstr "Rámeček na šířku"
 
@@ -8826,7 +8826,7 @@ msgstr "Načíst nová oznámení"
 msgid "Load new posts"
 msgstr "Načíst nové příspěvky"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:137
+#: src/view/screens/Storybook/NewPostsPill.tsx:138
 msgid "Load new posts from the people you follow"
 msgstr "Načíst nové příspěvky od lidí, které sledujete"
 
@@ -8946,7 +8946,7 @@ msgstr ""
 msgid "Make adjustments to email settings for your account"
 msgstr "Upravte nastavení e-mailu pro váš účet"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make narrow"
 msgstr "Zúžit"
 
@@ -8958,23 +8958,23 @@ msgstr "Vytvořit jeden pro mě"
 msgid "Make sure this is where you intend to go!"
 msgstr "Ujistěte se, že jdete tam, kam opravdu chcete!"
 
-#: src/components/Gallery/Storybook.tsx:584
+#: src/components/Gallery/Storybook.tsx:586
 msgid "Make the first card taller or shorter"
 msgstr "Udělat první kartu vyšší nebo nižší"
 
-#: src/components/Gallery/Storybook.tsx:594
+#: src/components/Gallery/Storybook.tsx:596
 msgid "Make the first card wider or narrower"
 msgstr "Udělat první kartu širší nebo užší"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel narrow"
 msgstr "Zúžit panel"
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel wide"
 msgstr "Rozšířit panel"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make wide"
 msgstr "Rozšířit"
 
@@ -9076,11 +9076,11 @@ msgstr "Média uložená na: {0}"
 msgid "Media stored on another device"
 msgstr "Média uložená na jiném zařízení"
 
-#: src/components/Gallery/Storybook.tsx:285
+#: src/components/Gallery/Storybook.tsx:287
 msgid "Medium"
 msgstr "Střední"
 
-#: src/components/Gallery/Storybook.tsx:284
+#: src/components/Gallery/Storybook.tsx:286
 msgid "Medium card"
 msgstr "Střední karta"
 
@@ -9220,7 +9220,7 @@ msgstr ""
 msgid "Missing media"
 msgstr "Chybějící média"
 
-#: src/components/Gallery/Storybook.tsx:267
+#: src/components/Gallery/Storybook.tsx:269
 msgid "Mixed content and sizes"
 msgstr "Smíšený obsah a velikosti"
 
@@ -9676,7 +9676,7 @@ msgstr "Nový příspěvek"
 msgid "New posts"
 msgstr "Nové příspěvky"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:136
+#: src/view/screens/Storybook/NewPostsPill.tsx:137
 msgid "New posts are ready to load from the people you follow"
 msgstr "Nové příspěvky od lidí, které sledujete, jsou připraveny k načtení"
 
@@ -10252,8 +10252,8 @@ msgid "On"
 msgstr "Zapnuto"
 
 #: src/screens/Settings/components/AlgoVisibilityOptOut.tsx:43
-msgid "On Bluesky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
-msgstr "Na Bluesky to znamená, že vaše příspěvky se budou zobrazovat ve feedu Objevit pouze lidem, kteří vás sledují. Ostatní aplikace se mohou rozhodnout použít tuto předvolbu ve svých vlastních algoritmických doporučeních."
+msgid "On Blacksky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
+msgstr ""
 
 #: src/components/StarterPack/QrCode.tsx:80
 msgid "on<0><1/><2><3/></2></0>"
@@ -10263,7 +10263,7 @@ msgstr "na<0><1/><2><3/></2></0>"
 msgid "Onboarding reset"
 msgstr "Resetovat onboarding"
 
-#: src/components/Gallery/Storybook.tsx:673
+#: src/components/Gallery/Storybook.tsx:675
 msgid "One"
 msgstr "Jeden"
 
@@ -10315,7 +10315,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:775
+#: src/components/Gallery/Storybook.tsx:777
 msgid "Only"
 msgstr "Pouze"
 
@@ -10340,7 +10340,7 @@ msgstr "Požadavky na přidání mohou přijímat pouze správci."
 msgid "Only admins can reject join requests."
 msgstr "Požadavky na přidání mohou odmítat pouze správci."
 
-#: src/components/Gallery/Storybook.tsx:774
+#: src/components/Gallery/Storybook.tsx:776
 msgid "Only card"
 msgstr "Pouze karta"
 
@@ -10616,8 +10616,8 @@ msgstr ""
 #. placeholder {0}: link.url
 #: src/features/profileLinks/components/LinkPreviewSheet.tsx:85
 #: src/features/profileLinks/components/ProfileLinks.tsx:164
-msgid "Opens {0} outside Bluesky"
-msgstr "Otevře {0} mimo Bluesky"
+msgid "Opens {0} outside Blacksky"
+msgstr ""
 
 #: src/view/shell/desktop/Feeds.tsx:188
 msgid "Opens {displayName} feed"
@@ -10678,13 +10678,10 @@ msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:309
+#: src/view/com/auth/NativeSplashScreen.tsx:141
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:141
-msgid "Opens flow to create a new Bluesky account"
-msgstr "Otevře průvodce vytvořením nového účtu Bluesky"
 
 #. placeholder {0}: brand.web.title
 #: src/view/com/auth/SplashScreen.web.tsx:120
@@ -10692,13 +10689,10 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:295
+#: src/view/com/auth/NativeSplashScreen.tsx:170
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:170
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "Otevře průvodce pro přihlášení do vašeho stávajícího účtu Bluesky"
 
 #: src/components/images/Gallery/index.tsx:305
 msgid "Opens full image"
@@ -10901,7 +10895,7 @@ msgstr "Vlastník"
 msgid "Owner must lock the group before leaving."
 msgstr "Vlastník musí před odchodem skupinu uzamknout."
 
-#: src/components/Gallery/Storybook.tsx:737
+#: src/components/Gallery/Storybook.tsx:739
 msgid "Padded container"
 msgstr "Kontejner s odsazením"
 
@@ -11374,11 +11368,11 @@ msgstr ""
 msgid "Porn"
 msgstr "Porno"
 
-#: src/components/Gallery/Storybook.tsx:162
+#: src/components/Gallery/Storybook.tsx:164
 msgid "Portrait frame"
 msgstr "Rámeček na výšku"
 
-#: src/components/Gallery/Storybook.tsx:154
+#: src/components/Gallery/Storybook.tsx:156
 msgid "Portrait, square, and landscape frames as plain children. The frames, not the gallery, decide the sizes."
 msgstr "Rámečky na výšku, čtvercové a na šířku jako prosté potomky. O velikostech rozhodují rámečky, nikoli galerie."
 
@@ -11589,7 +11583,7 @@ msgstr "Stisknutím to zkuste znovu"
 msgid "Press to view followers of this account that you also follow"
 msgstr "Stisknutím zobrazíte sledující tohoto účtu, které také sledujete"
 
-#: src/components/Gallery/Storybook.tsx:486
+#: src/components/Gallery/Storybook.tsx:488
 msgid "Pressed {pressCount} times"
 msgstr "Stisknuto {pressCount}krát"
 
@@ -11672,7 +11666,7 @@ msgstr "Zpracovávání videa..."
 msgid "Processing..."
 msgstr "Zpracovává se..."
 
-#: src/components/Gallery/Storybook.tsx:241
+#: src/components/Gallery/Storybook.tsx:243
 msgid "Production image adapter"
 msgstr "Produkční adaptér obrázků"
 
@@ -12098,11 +12092,11 @@ msgstr "Odebrat kanál?"
 msgid "Remove filter"
 msgstr "Odebrat filtr"
 
-#: src/components/Gallery/Storybook.tsx:570
+#: src/components/Gallery/Storybook.tsx:572
 msgid "Remove first"
 msgstr "Odebrat první"
 
-#: src/components/Gallery/Storybook.tsx:564
+#: src/components/Gallery/Storybook.tsx:566
 msgid "Remove first card"
 msgstr "Odebrat první kartu"
 
@@ -12149,11 +12143,11 @@ msgstr "Odstranit obrázek"
 msgid "Remove label {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:560
+#: src/components/Gallery/Storybook.tsx:562
 msgid "Remove last"
 msgstr "Odebrat poslední"
 
-#: src/components/Gallery/Storybook.tsx:554
+#: src/components/Gallery/Storybook.tsx:556
 msgid "Remove last card"
 msgstr "Odebrat poslední kartu"
 
@@ -12870,7 +12864,7 @@ msgstr "Vrátí se na předchozí stránku"
 msgid "Returns to the previous step"
 msgstr "Vrátí se na předchozí krok"
 
-#: src/components/Gallery/Storybook.tsx:622
+#: src/components/Gallery/Storybook.tsx:624
 msgid "Reveal last"
 msgstr "Odhalit poslední"
 
@@ -12878,15 +12872,15 @@ msgstr "Odhalit poslední"
 msgid "Reveal password"
 msgstr "Zobrazit heslo"
 
-#: src/components/Gallery/Storybook.tsx:614
+#: src/components/Gallery/Storybook.tsx:616
 msgid "Reveal the last card"
 msgstr "Odhalit poslední kartu"
 
-#: src/components/Gallery/Storybook.tsx:580
+#: src/components/Gallery/Storybook.tsx:582
 msgid "Reverse"
 msgstr "Obrátit"
 
-#: src/components/Gallery/Storybook.tsx:574
+#: src/components/Gallery/Storybook.tsx:576
 msgid "Reverse the order"
 msgstr "Obrátit pořadí"
 
@@ -13882,7 +13876,7 @@ msgstr "Zobrazit další odpovědi"
 msgid "Show muted or blocked accounts"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:604
+#: src/components/Gallery/Storybook.tsx:606
 msgid "Show or hide the intro card"
 msgstr "Zobrazit nebo skrýt úvodní kartu"
 
@@ -14101,7 +14095,7 @@ msgstr ""
 msgid "Since"
 msgstr "Od"
 
-#: src/components/Gallery/Storybook.tsx:303
+#: src/components/Gallery/Storybook.tsx:305
 msgid "Sizes: 100×80, 220×160, 140×240, 180×120, and a wide card of {wideCardSize}×100, which is the gallery width of {galleryWidth} plus 80."
 msgstr "Velikosti: 100×80, 220×160, 140×240, 180×120 a široká karta {wideCardSize}×100, což je šířka galerie {galleryWidth} plus 80."
 
@@ -14136,11 +14130,11 @@ msgstr "Přeskočit na další krok"
 msgid "slide"
 msgstr "snímek"
 
-#: src/components/Gallery/Storybook.tsx:282
+#: src/components/Gallery/Storybook.tsx:284
 msgid "Small"
 msgstr "Malá"
 
-#: src/components/Gallery/Storybook.tsx:280
+#: src/components/Gallery/Storybook.tsx:282
 msgid "Small card"
 msgstr "Malá karta"
 
@@ -14336,7 +14330,7 @@ msgstr "Sport"
 msgid "Spot posts your friends and follows have liked."
 msgstr "Zobrazovat příspěvky, které se líbily vašim přátelům a lidem, které sledujete."
 
-#: src/components/Gallery/Storybook.tsx:165
+#: src/components/Gallery/Storybook.tsx:167
 msgid "Square frame"
 msgstr "Čtvercový rámeček"
 
@@ -14504,7 +14498,7 @@ msgstr ""
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:323
+#: src/components/Gallery/Storybook.tsx:325
 msgid "Stretching cards"
 msgstr ""
 
@@ -14759,15 +14753,15 @@ msgstr "Systémový protokol"
 msgid "Tags only"
 msgstr "Pouze štítky"
 
-#: src/components/Gallery/Storybook.tsx:290
+#: src/components/Gallery/Storybook.tsx:292
 msgid "Tall"
 msgstr "Vysoký"
 
-#: src/components/Gallery/Storybook.tsx:590
+#: src/components/Gallery/Storybook.tsx:592
 msgid "Tall / short"
 msgstr "Vysoký / nízký"
 
-#: src/components/Gallery/Storybook.tsx:288
+#: src/components/Gallery/Storybook.tsx:290
 msgid "Tall card"
 msgstr "Vysoká karta"
 
@@ -14837,7 +14831,7 @@ msgstr "Klepnutím zobrazíte všechny reakce"
 msgid "Tap to view reactions"
 msgstr "Klepnutím zobrazíte reakce"
 
-#: src/components/Gallery/Storybook.tsx:431
+#: src/components/Gallery/Storybook.tsx:433
 msgid "Tapped {count} times"
 msgstr "Klepnuto {count}krát"
 
@@ -14901,7 +14895,7 @@ msgstr "Podmínky služby"
 msgid "Text & tags"
 msgstr "Text a štítky"
 
-#: src/components/Gallery/Storybook.tsx:436
+#: src/components/Gallery/Storybook.tsx:438
 msgid "Text field"
 msgstr "Textové pole"
 
@@ -14911,7 +14905,7 @@ msgstr "Textové pole"
 msgid "Text input field"
 msgstr "Pole pro zadání textu"
 
-#: src/components/Gallery/Storybook.tsx:493
+#: src/components/Gallery/Storybook.tsx:495
 msgid "Text: “{text}”"
 msgstr "Text: „{text}“"
 
@@ -14924,12 +14918,12 @@ msgid "Thank you for your support!"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:117
-msgid "Thanks for helping keep Bluesky safe. This post violated our <0>Community Guidelines</0>."
-msgstr "Děkujeme, že pomáháte udržovat Bluesky v bezpečí. Tento příspěvek porušil naše <0>Pravidla komunity</0>."
+msgid "Thanks for helping keep Blacksky safe. This post violated our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:130
-msgid "Thanks for helping keep Bluesky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
-msgstr "Děkujeme, že pomáháte udržovat Bluesky bezpečné. Vaše nahlášení jsme prověřili a podnikli jsme kroky. Přečtěte si naše <0>Pravidla komunity</0>."
+msgid "Thanks for helping keep Blacksky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
+msgstr ""
 
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:83
 msgid "Thanks for your feedback!"
@@ -15001,7 +14995,7 @@ msgid "The appeal window has closed."
 msgstr "Lhůta pro odvolání vypršela."
 
 #: src/screens/Atmosphere/ActivityTab.tsx:34
-msgid "The Atmosphere is the open network Bluesky is built on. When people you follow are active on the Atmosphere, you can see it here."
+msgid "The Atmosphere is the open network Blacksky is built on. When people you follow are active on the Atmosphere, you can see it here."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:139
@@ -15021,7 +15015,7 @@ msgstr ""
 msgid "The Blacksky web application"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:243
+#: src/components/Gallery/Storybook.tsx:245
 msgid "The carousel used for post images. Tap an image to open the lightbox, change images, and close it: it should land on the right thumbnail. The first and last images are cropped, and the third learns its size when it loads."
 msgstr "Karusel používaný pro obrázky příspěvků. Klepnutím na obrázek jej otevřete v lightboxu, přepínejte mezi obrázky a zavřete jej: měl by přistát na správném náhledu. První a poslední obrázek jsou oříznuté a třetí zjistí svou velikost při načtení."
 
@@ -15069,7 +15063,7 @@ msgstr "Pro váš účet jsou povoleny následující služby: {allowedServices}
 msgid "The following settings will be used as your defaults when creating new posts. You can edit these for a specific post from the composer."
 msgstr "Následující nastavení budou použita jako výchozí při vytváření nových příspěvků. U konkrétního příspěvku je můžete upravit v editoru."
 
-#: src/components/Gallery/Storybook.tsx:697
+#: src/components/Gallery/Storybook.tsx:699
 msgid "The gallery fills whatever width it has. Inside a bleed ancestor, the first and last items line up with the padded content while the rest run to the outer edge."
 msgstr "Galerie vyplní jakoukoli šířku, kterou má k dispozici. Uvnitř předka s přesahem se první a poslední položky zarovnají s odsazeným obsahem, zatímco ostatní sahají až k vnějšímu okraji."
 
@@ -15136,7 +15130,7 @@ msgstr "Předmět kontextové nabídky"
 msgid "The Terms of Service have been moved to"
 msgstr "Podmínky služby byly přesunuty na"
 
-#: src/components/Gallery/Storybook.tsx:769
+#: src/components/Gallery/Storybook.tsx:771
 msgid "The two lines above should touch."
 msgstr "Dvě čáry výše by se měly dotýkat."
 
@@ -15406,7 +15400,7 @@ msgstr ""
 msgid "This can’t be undone, and all of your recent searches will be removed."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:379
+#: src/components/Gallery/Storybook.tsx:381
 msgid "This card has enough text to wrap over many lines. Its siblings should stretch to match its height without stretching any images or imposing a fixed height. When this text disappears, all of the cards should shrink again."
 msgstr ""
 
@@ -15623,8 +15617,8 @@ msgid "This labeler hasn't declared what labels it publishes, and may not be act
 msgstr "Tento labeler neuvedl, jaké štítky vydává, a nemusí být aktivní."
 
 #: src/features/profileLinks/components/LinkFormDialog.tsx:248
-msgid "This link can’t be added. It goes to a site that’s blocked on Bluesky."
-msgstr "Tento odkaz nelze přidat. Vede na stránku, která je na Bluesky blokována."
+msgid "This link can’t be added. It goes to a site that’s blocked on Blacksky."
+msgstr ""
 
 #: src/components/dialogs/LinkWarning.tsx:95
 msgid "This link is taking you to the following website:"
@@ -15858,7 +15852,7 @@ msgstr "Předvolby vláken"
 msgid "Threats or incitement"
 msgstr "Vyhrožování nebo podněcování"
 
-#: src/components/Gallery/Storybook.tsx:679
+#: src/components/Gallery/Storybook.tsx:681
 msgid "Three"
 msgstr "Tři"
 
@@ -15903,17 +15897,17 @@ msgctxt "Notifications section header"
 msgid "Today"
 msgstr "Dnes"
 
-#: src/components/Gallery/Storybook.tsx:610
+#: src/components/Gallery/Storybook.tsx:612
 msgid "Toggle intro"
 msgstr "Přepnout úvod"
 
-#: src/components/Gallery/Storybook.tsx:332
-#: src/components/Gallery/Storybook.tsx:338
+#: src/components/Gallery/Storybook.tsx:334
+#: src/components/Gallery/Storybook.tsx:340
 msgid "Toggle tall content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:342
-#: src/components/Gallery/Storybook.tsx:348
+#: src/components/Gallery/Storybook.tsx:344
+#: src/components/Gallery/Storybook.tsx:350
 msgid "Toggle tallest card"
 msgstr ""
 
@@ -16011,7 +16005,7 @@ msgid "Trending GIFs"
 msgstr "Populární GIFy"
 
 #: src/features/trendingWidget/Sync.native.tsx:46
-msgid "Trending on Bluesky"
+msgid "Trending on Blacksky"
 msgstr ""
 
 #: src/components/interstitials/FeedTrendingTopics.tsx:126
@@ -16077,7 +16071,7 @@ msgstr "TV"
 msgid "Twilight"
 msgstr "Soumrak"
 
-#: src/components/Gallery/Storybook.tsx:676
+#: src/components/Gallery/Storybook.tsx:678
 msgid "Two"
 msgstr "Dva"
 
@@ -17520,15 +17514,15 @@ msgstr "Proč by měl být tento Startovací balíček zkontrolován?"
 msgid "Why should this user be reviewed?"
 msgstr "Proč by měl být tento uživatel zkontrolován?"
 
-#: src/components/Gallery/Storybook.tsx:298
+#: src/components/Gallery/Storybook.tsx:300
 msgid "Wide"
 msgstr "Široký"
 
-#: src/components/Gallery/Storybook.tsx:600
+#: src/components/Gallery/Storybook.tsx:602
 msgid "Wide / narrow"
 msgstr "Široký / úzký"
 
-#: src/components/Gallery/Storybook.tsx:296
+#: src/components/Gallery/Storybook.tsx:298
 msgid "Wide card"
 msgstr "Široká karta"
 
@@ -18235,7 +18229,7 @@ msgid "Your account is suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:50
-msgid "Your account is suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:41
@@ -18245,7 +18239,7 @@ msgid "Your account is temporarily suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:55
-msgid "Your account is temporarily suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is temporarily suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/components/dms/InitiateChatFlow.tsx:829
@@ -18321,8 +18315,8 @@ msgid "Your contact {name}"
 msgstr "Váš kontakt {name}"
 
 #: src/screens/Notifications/components/NotificationItem/kinds/profile.tsx:355
-msgid "Your contact <0/> is on Bluesky"
-msgstr "Váš kontakt <0/> je na Bluesky"
+msgid "Your contact <0/> is on Blacksky"
+msgstr ""
 
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:104
 msgid "Your content"

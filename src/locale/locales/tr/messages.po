@@ -1406,12 +1406,8 @@ msgstr ""
 msgid "A discussion cannot be combined with media, a link card or a quote."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:46
+#: src/components/Gallery/Storybook.tsx:48
 msgid "A horizontal strip of any content. Each item keeps its own width and height, and the strip is as tall as the tallest one."
-msgstr ""
-
-#: src/components/Gallery/Storybook.tsx:189
-msgid "A kawaii scene"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/hooks/useActionedSubjectLabels.ts:68
@@ -1441,7 +1437,7 @@ msgstr ""
 msgid "A label was removed from your post"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:375
+#: src/components/Gallery/Storybook.tsx:377
 msgid "A little more content than the first card."
 msgstr ""
 
@@ -1489,12 +1485,16 @@ msgstr "Siz katılmadan önce gönderilen bir mesaja yanıt"
 msgid "A selected recipient is not followed by the sender."
 msgstr "Seçilmiş alıcılardan biri gönderen tarafından takip edilmiyor."
 
-#: src/components/Gallery/Storybook.tsx:202
-msgid "A small kawaii scene with no ratio on record"
+#: src/components/Gallery/Storybook.tsx:204
+msgid "A small illustration with no ratio on record"
 msgstr ""
 
 #: src/lib/api/index.ts:126
 msgid "A thread can only have one discussion."
+msgstr ""
+
+#: src/components/Gallery/Storybook.tsx:191
+msgid "A wide illustration"
 msgstr ""
 
 #: src/Navigation.tsx:578
@@ -1717,7 +1717,7 @@ msgstr ""
 #. placeholder {0}: nav.index
 #. placeholder {1}: nav.previous
 #. placeholder {2}: nav.events
-#: src/components/Gallery/Storybook.tsx:659
+#: src/components/Gallery/Storybook.tsx:661
 msgid "Active index {0} (from {1}), {2} user navigation events"
 msgstr ""
 
@@ -1742,7 +1742,7 @@ msgstr "Etkinlik bildirimleri"
 #: src/components/dialogs/StarterPackDialog.tsx:364
 #: src/components/dialogs/StarterPackDialog.tsx:376
 #: src/components/dms/AddMembersFlow.tsx:410
-#: src/components/Gallery/Storybook.tsx:550
+#: src/components/Gallery/Storybook.tsx:552
 msgid "Add"
 msgstr "Ekle"
 
@@ -1840,7 +1840,7 @@ msgstr "Uygulama Şifresi Ekle"
 msgid "Add automation label to account"
 msgstr "Hesaba otomasyon işareti ekle"
 
-#: src/components/Gallery/Storybook.tsx:539
+#: src/components/Gallery/Storybook.tsx:541
 msgid "Add card"
 msgstr ""
 
@@ -2238,7 +2238,7 @@ msgstr "{0} adresine bir e-posta gönderildi. Aşağıda girebileceğiniz bir on
 msgid "An email was sent about your account"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:757
+#: src/components/Gallery/Storybook.tsx:759
 msgid "An empty gallery takes up no space. A single item behaves like any other, without dragging or arrow key navigation to go anywhere."
 msgstr ""
 
@@ -2918,6 +2918,11 @@ msgstr "Doğum tarihi"
 msgid "Birthday"
 msgstr "Doğum günü"
 
+#. Description of a beta feature (iPad support)
+#: src/screens/Settings/BetaFeaturesSettings.tsx:79
+msgid "Blacksky adapts to your iPad’s screen in any orientation or window size."
+msgstr ""
+
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:659
 msgid "Blacksky cannot confirm the authenticity of the claimed date."
 msgstr ""
@@ -2928,6 +2933,10 @@ msgstr ""
 
 #: src/screens/Onboarding/StepFindContactsIntro/index.tsx:41
 msgid "Blacksky is more fun with friends"
+msgstr ""
+
+#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
+msgid "Blacksky is part of a growing network of hundreds of social apps. Your account unlocks them all."
 msgstr ""
 
 #: src/screens/Midterms/index.tsx:262
@@ -3099,11 +3108,6 @@ msgstr "bloomscrolling booksky"
 msgid "Bluesky"
 msgstr "Bluesky"
 
-#. Description of a beta feature (iPad support)
-#: src/screens/Settings/BetaFeaturesSettings.tsx:79
-msgid "Bluesky adapts to your iPad’s screen in any orientation or window size."
-msgstr ""
-
 #: src/components/contacts/screens/GetContacts.tsx:237
 msgid "Bluesky helps friends find each other by creating an encoded digital fingerprint, called a \"hash\", and then looking for matching hashes."
 msgstr "Bluesky \"özüt\" (\"hash\") denen şifreli bir sayısal parmakizi oluşturup eşleşen özütleri arayarak arkadaşların birbirini bulmasına yardımcı olur."
@@ -3115,10 +3119,6 @@ msgstr "Bluesky, barındırma sağlayıcınızı seçebileceğiniz açık bir a�
 #: src/components/contacts/screens/ViewMatches.tsx:323
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "Bluesky arkadaşlarla daha eğlenceli. Sizinkilerden bazılarını davet etmek ister misiniz? <0/>"
-
-#: src/screens/Atmosphere/components/AtmosphereNux.tsx:63
-msgid "Bluesky is part of a growing network of hundreds of social apps. Your account unlocks them all."
-msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:96
 #: src/screens/ModerationInbox/Report.tsx:74
@@ -3199,7 +3199,7 @@ msgstr "{displayName} konusunu görüntüle"
 msgid "Button to go back to the home timeline"
 msgstr "Ana akışa geri dönüş butonu"
 
-#: src/components/Gallery/Storybook.tsx:412
+#: src/components/Gallery/Storybook.tsx:414
 msgid "Buttons and text fields work without starting a drag. Type, select text with the arrow keys, and click. The last item uses the focus render function to make its own button the keyboard target, which Enter and Space should press."
 msgstr ""
 
@@ -3379,36 +3379,36 @@ msgid "Captions & alt text"
 msgstr "Altyazılar ve alternatif metin"
 
 #. placeholder {0}: card.id
-#: src/components/Gallery/Storybook.tsx:642
-#: src/components/Gallery/Storybook.tsx:647
+#: src/components/Gallery/Storybook.tsx:644
+#: src/components/Gallery/Storybook.tsx:649
 msgid "Card {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:371
+#: src/components/Gallery/Storybook.tsx:373
 msgid "Card {index}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:277
+#: src/components/Gallery/Storybook.tsx:279
 msgid "Cards and images of different sizes"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:723
+#: src/components/Gallery/Storybook.tsx:725
 msgid "Cards in a constrained panel"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:269
+#: src/components/Gallery/Storybook.tsx:271
 msgid "Cards of different widths and heights, an image, and a card wider than the gallery. The strip is as tall as the tallest card, and nothing is cropped or resized."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:325
+#: src/components/Gallery/Storybook.tsx:327
 msgid "Cards stretch to the tallest sibling. Shortening or removing the tall card should let the whole row shrink again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:740
+#: src/components/Gallery/Storybook.tsx:742
 msgid "Cards that bleed to the container edges"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:628
+#: src/components/Gallery/Storybook.tsx:630
 msgid "Cards that change"
 msgstr ""
 
@@ -3475,7 +3475,7 @@ msgstr "Rapor kategorisini değiştir"
 msgid "Change report reason"
 msgstr "Rapor gerekçesini değiştir"
 
-#: src/components/Gallery/Storybook.tsx:531
+#: src/components/Gallery/Storybook.tsx:533
 msgid "Change the items from outside. Resizing, reordering, and revealing are not user navigation, so the event count should only go up when you swipe, drag, or use the arrow keys."
 msgstr ""
 
@@ -3504,7 +3504,7 @@ msgstr "Değişiklikler kaydedildi"
 msgid "Changes to the Starter Pack will not be reflected in the list after creation. The list will be an independent copy."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:529
+#: src/components/Gallery/Storybook.tsx:531
 msgid "Changing content"
 msgstr ""
 
@@ -4092,7 +4092,7 @@ msgstr "Servise bağlanılıyor..."
 msgid "Connecting…"
 msgstr "Bağlanıyor…"
 
-#: src/components/Gallery/Storybook.tsx:695
+#: src/components/Gallery/Storybook.tsx:697
 msgid "Constrained and bleeding containers"
 msgstr ""
 
@@ -4549,7 +4549,7 @@ msgstr ""
 msgid "Couldn't upload the event image. Try again, or remove the image."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:422
+#: src/components/Gallery/Storybook.tsx:424
 msgid "Counter"
 msgstr ""
 
@@ -4557,7 +4557,7 @@ msgstr ""
 msgid "Country code"
 msgstr "Ülke kodu"
 
-#: src/components/Gallery/Storybook.tsx:455
+#: src/components/Gallery/Storybook.tsx:457
 msgid "Counts how many times it was focused and pressed"
 msgstr ""
 
@@ -5648,11 +5648,11 @@ msgstr "Gömülü video oynatıcı"
 msgid "Embedding"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:755
+#: src/components/Gallery/Storybook.tsx:757
 msgid "Empty and single"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:764
+#: src/components/Gallery/Storybook.tsx:766
 msgid "Empty gallery"
 msgstr ""
 
@@ -5729,11 +5729,11 @@ msgstr "Etkinleştirildi"
 msgid "Encrypted DMs"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:654
+#: src/components/Gallery/Storybook.tsx:656
 msgid "End"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:653
+#: src/components/Gallery/Storybook.tsx:655
 msgid "End card"
 msgstr ""
 
@@ -5835,7 +5835,7 @@ msgstr "Tam ekrana geçer"
 msgid "Entertainment"
 msgstr "Eğlence"
 
-#: src/components/Gallery/Storybook.tsx:354
+#: src/components/Gallery/Storybook.tsx:356
 msgid "Equal-height cards"
 msgstr ""
 
@@ -6715,9 +6715,9 @@ msgstr ""
 msgid "Focus code input"
 msgstr "Kod giriş alanına odaklan"
 
-#: src/components/Gallery/Storybook.tsx:448
-#: src/components/Gallery/Storybook.tsx:454
-#: src/components/Gallery/Storybook.tsx:476
+#: src/components/Gallery/Storybook.tsx:450
+#: src/components/Gallery/Storybook.tsx:456
+#: src/components/Gallery/Storybook.tsx:478
 msgid "Focus target"
 msgstr ""
 
@@ -6725,7 +6725,7 @@ msgstr ""
 msgid "Focus the search field"
 msgstr "Arama alanına odaklan"
 
-#: src/components/Gallery/Storybook.tsx:481
+#: src/components/Gallery/Storybook.tsx:483
 msgid "Focused {focusCount} times"
 msgstr ""
 
@@ -7009,15 +7009,15 @@ msgstr "Bu kişilerden"
 msgid "Further violations of our Community Guidelines could lead to permanent suspension."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:43
+#: src/components/Gallery/Storybook.tsx:45
 msgid "Gallery"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:440
+#: src/components/Gallery/Storybook.tsx:442
 msgid "Gallery text field"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:772
+#: src/components/Gallery/Storybook.tsx:774
 msgid "Gallery with one item"
 msgstr ""
 
@@ -7806,7 +7806,7 @@ msgstr "Eğer bir geliştiriciyseniz kendi sunucunuzu barındırabilirsiniz."
 msgid "If you're trying to change your handle or email, do so before you deactivate."
 msgstr "Eğer kullanıcı adınızı veya e-postanızı değiştirmeye çalışıyorsanız, bunu devre dışı bırakmadan önce yapın."
 
-#: src/components/Gallery/Storybook.tsx:292
+#: src/components/Gallery/Storybook.tsx:294
 #: src/components/images/ImageLayoutGridItem.tsx:94
 msgid "Image"
 msgstr "Görsel"
@@ -7834,11 +7834,11 @@ msgstr "Görsel önbelleği temizlendi"
 msgid "Image cache cleared, freed {0}"
 msgstr "Görsel önbelleği temizlendi, {0} yer açıldı"
 
-#: src/components/Gallery/Storybook.tsx:152
+#: src/components/Gallery/Storybook.tsx:154
 msgid "Image content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:160
+#: src/components/Gallery/Storybook.tsx:162
 msgid "Image frames in different shapes"
 msgstr ""
 
@@ -7995,7 +7995,7 @@ msgstr "Video zaman damgasını ({videoTimestamp}) dahil et"
 msgid "Incorrect password. Please try again."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:425
+#: src/components/Gallery/Storybook.tsx:427
 msgid "Increment counter"
 msgstr ""
 
@@ -8015,11 +8015,11 @@ msgstr "Etkileşim sınırlandırıldı"
 msgid "Interaction settings"
 msgstr "Etkileşim ayarları"
 
-#: src/components/Gallery/Storybook.tsx:410
+#: src/components/Gallery/Storybook.tsx:412
 msgid "Interactive children"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:420
+#: src/components/Gallery/Storybook.tsx:422
 msgid "Interactive items"
 msgstr ""
 
@@ -8035,11 +8035,11 @@ msgstr ""
 msgid "Interested, tap to remove"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:635
+#: src/components/Gallery/Storybook.tsx:637
 msgid "Intro"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:634
+#: src/components/Gallery/Storybook.tsx:636
 msgid "Intro card"
 msgstr ""
 
@@ -8326,7 +8326,7 @@ msgstr ""
 msgid "Labels on your account"
 msgstr "Hesabınızdaki işaretler"
 
-#: src/components/Gallery/Storybook.tsx:168
+#: src/components/Gallery/Storybook.tsx:170
 msgid "Landscape frame"
 msgstr ""
 
@@ -8826,7 +8826,7 @@ msgstr "Yeni bildirimleri yükle"
 msgid "Load new posts"
 msgstr "Yeni gönderileri yükle"
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:137
+#: src/view/screens/Storybook/NewPostsPill.tsx:138
 msgid "Load new posts from the people you follow"
 msgstr ""
 
@@ -8946,7 +8946,7 @@ msgstr ""
 msgid "Make adjustments to email settings for your account"
 msgstr "Hesabınız için e-posta ayarlarınızı düzenleyin"
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make narrow"
 msgstr ""
 
@@ -8958,23 +8958,23 @@ msgstr "Benim için bir tane yap"
 msgid "Make sure this is where you intend to go!"
 msgstr "Bu gitmek istediğiniz yer olduğundan emin olun!"
 
-#: src/components/Gallery/Storybook.tsx:584
+#: src/components/Gallery/Storybook.tsx:586
 msgid "Make the first card taller or shorter"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:594
+#: src/components/Gallery/Storybook.tsx:596
 msgid "Make the first card wider or narrower"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel narrow"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:704
+#: src/components/Gallery/Storybook.tsx:706
 msgid "Make the panel wide"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:710
+#: src/components/Gallery/Storybook.tsx:712
 msgid "Make wide"
 msgstr ""
 
@@ -9076,11 +9076,11 @@ msgstr "{0} cihazında depolanan görsel"
 msgid "Media stored on another device"
 msgstr "Başka cihazda depolanan görsel"
 
-#: src/components/Gallery/Storybook.tsx:285
+#: src/components/Gallery/Storybook.tsx:287
 msgid "Medium"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:284
+#: src/components/Gallery/Storybook.tsx:286
 msgid "Medium card"
 msgstr ""
 
@@ -9220,7 +9220,7 @@ msgstr ""
 msgid "Missing media"
 msgstr "Kayıp medya"
 
-#: src/components/Gallery/Storybook.tsx:267
+#: src/components/Gallery/Storybook.tsx:269
 msgid "Mixed content and sizes"
 msgstr ""
 
@@ -9676,7 +9676,7 @@ msgstr "Yeni gönderi"
 msgid "New posts"
 msgstr ""
 
-#: src/view/screens/Storybook/NewPostsPill.tsx:136
+#: src/view/screens/Storybook/NewPostsPill.tsx:137
 msgid "New posts are ready to load from the people you follow"
 msgstr ""
 
@@ -10252,7 +10252,7 @@ msgid "On"
 msgstr "Açık"
 
 #: src/screens/Settings/components/AlgoVisibilityOptOut.tsx:43
-msgid "On Bluesky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
+msgid "On Blacksky, this means your posts will only appear in the Discover feed to people who follow you. Other apps can choose to use this preference in their own algorithmic recommendations."
 msgstr ""
 
 #: src/components/StarterPack/QrCode.tsx:80
@@ -10263,7 +10263,7 @@ msgstr "<0><1/><2><3/></2></0>"
 msgid "Onboarding reset"
 msgstr "Onboarding sıfırlama"
 
-#: src/components/Gallery/Storybook.tsx:673
+#: src/components/Gallery/Storybook.tsx:675
 msgid "One"
 msgstr ""
 
@@ -10315,7 +10315,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:775
+#: src/components/Gallery/Storybook.tsx:777
 msgid "Only"
 msgstr ""
 
@@ -10340,7 +10340,7 @@ msgstr "Yalnızca yöneticiler katılma taleplerini kabul edebilir."
 msgid "Only admins can reject join requests."
 msgstr "Yalnızca yöneticiler katılma taleplerini reddedebilir."
 
-#: src/components/Gallery/Storybook.tsx:774
+#: src/components/Gallery/Storybook.tsx:776
 msgid "Only card"
 msgstr ""
 
@@ -10616,7 +10616,7 @@ msgstr ""
 #. placeholder {0}: link.url
 #: src/features/profileLinks/components/LinkPreviewSheet.tsx:85
 #: src/features/profileLinks/components/ProfileLinks.tsx:164
-msgid "Opens {0} outside Bluesky"
+msgid "Opens {0} outside Blacksky"
 msgstr ""
 
 #: src/view/shell/desktop/Feeds.tsx:188
@@ -10678,13 +10678,10 @@ msgid "Opens flow to create a new {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:309
+#: src/view/com/auth/NativeSplashScreen.tsx:141
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:141
-msgid "Opens flow to create a new Bluesky account"
-msgstr "Yeni bir Bluesky hesabı oluşturma adımlarını açar"
 
 #. placeholder {0}: brand.web.title
 #: src/view/com/auth/SplashScreen.web.tsx:120
@@ -10692,13 +10689,10 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:295
+#: src/view/com/auth/NativeSplashScreen.tsx:170
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr ""
-
-#: src/view/com/auth/NativeSplashScreen.tsx:170
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "Var olan Bluesky hesabınıza giriş yapma adımlarını açar"
 
 #: src/components/images/Gallery/index.tsx:305
 msgid "Opens full image"
@@ -10901,7 +10895,7 @@ msgstr "Sahibi"
 msgid "Owner must lock the group before leaving."
 msgstr "Ayrılmadan önce sahibi grubu kilitlemek zorundadır."
 
-#: src/components/Gallery/Storybook.tsx:737
+#: src/components/Gallery/Storybook.tsx:739
 msgid "Padded container"
 msgstr ""
 
@@ -11374,11 +11368,11 @@ msgstr ""
 msgid "Porn"
 msgstr "Pornografi"
 
-#: src/components/Gallery/Storybook.tsx:162
+#: src/components/Gallery/Storybook.tsx:164
 msgid "Portrait frame"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:154
+#: src/components/Gallery/Storybook.tsx:156
 msgid "Portrait, square, and landscape frames as plain children. The frames, not the gallery, decide the sizes."
 msgstr ""
 
@@ -11589,7 +11583,7 @@ msgstr "Yeniden denemek için basın"
 msgid "Press to view followers of this account that you also follow"
 msgstr "Bu hesabın sizin de takip ettiğiniz takipçilerini görmek için basın"
 
-#: src/components/Gallery/Storybook.tsx:486
+#: src/components/Gallery/Storybook.tsx:488
 msgid "Pressed {pressCount} times"
 msgstr ""
 
@@ -11672,7 +11666,7 @@ msgstr "Video işleniyor..."
 msgid "Processing..."
 msgstr "İşleniyor..."
 
-#: src/components/Gallery/Storybook.tsx:241
+#: src/components/Gallery/Storybook.tsx:243
 msgid "Production image adapter"
 msgstr ""
 
@@ -12098,11 +12092,11 @@ msgstr "Akış kaldırılsın mı?"
 msgid "Remove filter"
 msgstr "Filtreyi kaldır"
 
-#: src/components/Gallery/Storybook.tsx:570
+#: src/components/Gallery/Storybook.tsx:572
 msgid "Remove first"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:564
+#: src/components/Gallery/Storybook.tsx:566
 msgid "Remove first card"
 msgstr ""
 
@@ -12149,11 +12143,11 @@ msgstr "Resmi kaldır"
 msgid "Remove label {0}"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:560
+#: src/components/Gallery/Storybook.tsx:562
 msgid "Remove last"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:554
+#: src/components/Gallery/Storybook.tsx:556
 msgid "Remove last card"
 msgstr ""
 
@@ -12870,7 +12864,7 @@ msgstr "Önceki sayfaya döner"
 msgid "Returns to the previous step"
 msgstr "Önceki adıma döner"
 
-#: src/components/Gallery/Storybook.tsx:622
+#: src/components/Gallery/Storybook.tsx:624
 msgid "Reveal last"
 msgstr ""
 
@@ -12878,15 +12872,15 @@ msgstr ""
 msgid "Reveal password"
 msgstr "Şifreyi göster"
 
-#: src/components/Gallery/Storybook.tsx:614
+#: src/components/Gallery/Storybook.tsx:616
 msgid "Reveal the last card"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:580
+#: src/components/Gallery/Storybook.tsx:582
 msgid "Reverse"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:574
+#: src/components/Gallery/Storybook.tsx:576
 msgid "Reverse the order"
 msgstr ""
 
@@ -13882,7 +13876,7 @@ msgstr "Daha fazla yanıt göster"
 msgid "Show muted or blocked accounts"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:604
+#: src/components/Gallery/Storybook.tsx:606
 msgid "Show or hide the intro card"
 msgstr ""
 
@@ -14101,7 +14095,7 @@ msgstr ""
 msgid "Since"
 msgstr "Başlangıç tarihi"
 
-#: src/components/Gallery/Storybook.tsx:303
+#: src/components/Gallery/Storybook.tsx:305
 msgid "Sizes: 100×80, 220×160, 140×240, 180×120, and a wide card of {wideCardSize}×100, which is the gallery width of {galleryWidth} plus 80."
 msgstr ""
 
@@ -14136,11 +14130,11 @@ msgstr "Sonraki adıma atla"
 msgid "slide"
 msgstr "slayt"
 
-#: src/components/Gallery/Storybook.tsx:282
+#: src/components/Gallery/Storybook.tsx:284
 msgid "Small"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:280
+#: src/components/Gallery/Storybook.tsx:282
 msgid "Small card"
 msgstr ""
 
@@ -14336,7 +14330,7 @@ msgstr "Spor"
 msgid "Spot posts your friends and follows have liked."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:165
+#: src/components/Gallery/Storybook.tsx:167
 msgid "Square frame"
 msgstr ""
 
@@ -14504,7 +14498,7 @@ msgstr ""
 msgid "Streamplace media is turned off. Turn it on in Settings → Content and media → External media."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:323
+#: src/components/Gallery/Storybook.tsx:325
 msgid "Stretching cards"
 msgstr ""
 
@@ -14759,15 +14753,15 @@ msgstr "Sistem günlüğü"
 msgid "Tags only"
 msgstr "Yalnızca etiketler"
 
-#: src/components/Gallery/Storybook.tsx:290
+#: src/components/Gallery/Storybook.tsx:292
 msgid "Tall"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:590
+#: src/components/Gallery/Storybook.tsx:592
 msgid "Tall / short"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:288
+#: src/components/Gallery/Storybook.tsx:290
 msgid "Tall card"
 msgstr ""
 
@@ -14837,7 +14831,7 @@ msgstr "Tüm tepkileri göstermek için dokunun"
 msgid "Tap to view reactions"
 msgstr "Tepkileri görmek için dokunun"
 
-#: src/components/Gallery/Storybook.tsx:431
+#: src/components/Gallery/Storybook.tsx:433
 msgid "Tapped {count} times"
 msgstr ""
 
@@ -14901,7 +14895,7 @@ msgstr "Hizmet Şartları"
 msgid "Text & tags"
 msgstr "Metin ve etiketler"
 
-#: src/components/Gallery/Storybook.tsx:436
+#: src/components/Gallery/Storybook.tsx:438
 msgid "Text field"
 msgstr ""
 
@@ -14911,7 +14905,7 @@ msgstr ""
 msgid "Text input field"
 msgstr "Metin giriş alanı"
 
-#: src/components/Gallery/Storybook.tsx:493
+#: src/components/Gallery/Storybook.tsx:495
 msgid "Text: “{text}”"
 msgstr ""
 
@@ -14924,11 +14918,11 @@ msgid "Thank you for your support!"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:117
-msgid "Thanks for helping keep Bluesky safe. This post violated our <0>Community Guidelines</0>."
+msgid "Thanks for helping keep Blacksky safe. This post violated our <0>Community Guidelines</0>."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:130
-msgid "Thanks for helping keep Bluesky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
+msgid "Thanks for helping keep Blacksky safe. We reviewed your report and took action. Read our <0>Community Guidelines</0>."
 msgstr ""
 
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:83
@@ -15001,7 +14995,7 @@ msgid "The appeal window has closed."
 msgstr ""
 
 #: src/screens/Atmosphere/ActivityTab.tsx:34
-msgid "The Atmosphere is the open network Bluesky is built on. When people you follow are active on the Atmosphere, you can see it here."
+msgid "The Atmosphere is the open network Blacksky is built on. When people you follow are active on the Atmosphere, you can see it here."
 msgstr ""
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:139
@@ -15021,7 +15015,7 @@ msgstr ""
 msgid "The Blacksky web application"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:243
+#: src/components/Gallery/Storybook.tsx:245
 msgid "The carousel used for post images. Tap an image to open the lightbox, change images, and close it: it should land on the right thumbnail. The first and last images are cropped, and the third learns its size when it loads."
 msgstr ""
 
@@ -15069,7 +15063,7 @@ msgstr "Şu servisler hesabınız için etkindir: {allowedServices}"
 msgid "The following settings will be used as your defaults when creating new posts. You can edit these for a specific post from the composer."
 msgstr "Aşağıdaki ayarlar yeni gönderi oluştururken varsayılan olarak kullanılacaktır. Bunları içerik üreticisine ait belirli bir gönderi için düzenleyebilirsiniz."
 
-#: src/components/Gallery/Storybook.tsx:697
+#: src/components/Gallery/Storybook.tsx:699
 msgid "The gallery fills whatever width it has. Inside a bleed ancestor, the first and last items line up with the padded content while the rest run to the outer edge."
 msgstr ""
 
@@ -15136,7 +15130,7 @@ msgstr "Bağlam menüsünün konusu"
 msgid "The Terms of Service have been moved to"
 msgstr "Hizmet Şartları taşındı"
 
-#: src/components/Gallery/Storybook.tsx:769
+#: src/components/Gallery/Storybook.tsx:771
 msgid "The two lines above should touch."
 msgstr ""
 
@@ -15406,7 +15400,7 @@ msgstr ""
 msgid "This can’t be undone, and all of your recent searches will be removed."
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:379
+#: src/components/Gallery/Storybook.tsx:381
 msgid "This card has enough text to wrap over many lines. Its siblings should stretch to match its height without stretching any images or imposing a fixed height. When this text disappears, all of the cards should shrink again."
 msgstr ""
 
@@ -15623,7 +15617,7 @@ msgid "This labeler hasn't declared what labels it publishes, and may not be act
 msgstr "Bu işaretleyici hangi işaretleri yayınladığını şimdilik bildirmedi ve etkin olmayabilir."
 
 #: src/features/profileLinks/components/LinkFormDialog.tsx:248
-msgid "This link can’t be added. It goes to a site that’s blocked on Bluesky."
+msgid "This link can’t be added. It goes to a site that’s blocked on Blacksky."
 msgstr ""
 
 #: src/components/dialogs/LinkWarning.tsx:95
@@ -15858,7 +15852,7 @@ msgstr "Konu Tercihleri"
 msgid "Threats or incitement"
 msgstr "Tehditler ya da kışkırtma"
 
-#: src/components/Gallery/Storybook.tsx:679
+#: src/components/Gallery/Storybook.tsx:681
 msgid "Three"
 msgstr ""
 
@@ -15903,17 +15897,17 @@ msgctxt "Notifications section header"
 msgid "Today"
 msgstr "Bugün"
 
-#: src/components/Gallery/Storybook.tsx:610
+#: src/components/Gallery/Storybook.tsx:612
 msgid "Toggle intro"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:332
-#: src/components/Gallery/Storybook.tsx:338
+#: src/components/Gallery/Storybook.tsx:334
+#: src/components/Gallery/Storybook.tsx:340
 msgid "Toggle tall content"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:342
-#: src/components/Gallery/Storybook.tsx:348
+#: src/components/Gallery/Storybook.tsx:344
+#: src/components/Gallery/Storybook.tsx:350
 msgid "Toggle tallest card"
 msgstr ""
 
@@ -16011,7 +16005,7 @@ msgid "Trending GIFs"
 msgstr "Gündem GIFler"
 
 #: src/features/trendingWidget/Sync.native.tsx:46
-msgid "Trending on Bluesky"
+msgid "Trending on Blacksky"
 msgstr ""
 
 #: src/components/interstitials/FeedTrendingTopics.tsx:126
@@ -16077,7 +16071,7 @@ msgstr "TV"
 msgid "Twilight"
 msgstr "Alacakaranlık"
 
-#: src/components/Gallery/Storybook.tsx:676
+#: src/components/Gallery/Storybook.tsx:678
 msgid "Two"
 msgstr ""
 
@@ -17520,15 +17514,15 @@ msgstr ""
 msgid "Why should this user be reviewed?"
 msgstr "Bu kullanıcı neden gözden geçirilmeli?"
 
-#: src/components/Gallery/Storybook.tsx:298
+#: src/components/Gallery/Storybook.tsx:300
 msgid "Wide"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:600
+#: src/components/Gallery/Storybook.tsx:602
 msgid "Wide / narrow"
 msgstr ""
 
-#: src/components/Gallery/Storybook.tsx:296
+#: src/components/Gallery/Storybook.tsx:298
 msgid "Wide card"
 msgstr ""
 
@@ -18235,7 +18229,7 @@ msgid "Your account is suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:50
-msgid "Your account is suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:41
@@ -18245,7 +18239,7 @@ msgid "Your account is temporarily suspended"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:55
-msgid "Your account is temporarily suspended on Bluesky. See your notices for details and available appeal options."
+msgid "Your account is temporarily suspended on Blacksky. See your notices for details and available appeal options."
 msgstr ""
 
 #: src/components/dms/InitiateChatFlow.tsx:829
@@ -18321,7 +18315,7 @@ msgid "Your contact {name}"
 msgstr "Bağlantınız {name}"
 
 #: src/screens/Notifications/components/NotificationItem/kinds/profile.tsx:355
-msgid "Your contact <0/> is on Bluesky"
+msgid "Your contact <0/> is on Blacksky"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/util/noticeLabels.ts:104

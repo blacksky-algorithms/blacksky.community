@@ -43,7 +43,7 @@ export function TrendingTopicsWidgetSync() {
       comment:
         'Header of the small Trending Topics home screen widget, next to the Bluesky logo. Keep it short.',
     }),
-    title: l`Trending on Bluesky`,
+    title: l`Trending on Blacksky`,
   }
 
   useEffect(() => {

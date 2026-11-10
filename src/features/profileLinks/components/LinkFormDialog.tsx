@@ -245,7 +245,7 @@ function LinkFormInner({
     shownError === 'invalid'
       ? l`That doesn’t look like a link. Try something like yoursite.com.`
       : shownError === 'blocked'
-        ? l`This link can’t be added. It goes to a site that’s blocked on Bluesky.`
+        ? l`This link can’t be added. It goes to a site that’s blocked on Blacksky.`
         : shownError === 'shortener'
           ? l`Short links can’t be added. Use the full link instead.`
           : shownError === 'insecure'

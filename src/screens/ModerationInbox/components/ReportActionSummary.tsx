@@ -115,7 +115,7 @@ export function ReportActionSummary({
   } else if (isPost && actionTaken) {
     description = (
       <Trans>
-        Thanks for helping keep Bluesky safe. This post violated our{' '}
+        Thanks for helping keep Blacksky safe. This post violated our{' '}
         <InlineLinkText
           to={webLinks.community}
           label={l`Read our Community Guidelines`}
@@ -128,7 +128,7 @@ export function ReportActionSummary({
   } else if (actionTaken) {
     description = (
       <Trans>
-        Thanks for helping keep Bluesky safe. We reviewed your report and took
+        Thanks for helping keep Blacksky safe. We reviewed your report and took
         action. Read our{' '}
         <InlineLinkText
           to={webLinks.community}

@@ -353,7 +353,7 @@ export function ContactMatchNotification({
           }>
           <Item.PrimaryText>
             <Trans>
-              Your contact <Item.Name profile={actor} /> is on Bluesky
+              Your contact <Item.Name profile={actor} /> is on Blacksky
             </Trans>
           </Item.PrimaryText>
         </Item.HeadlineWithButton>

@@ -32,7 +32,7 @@ export function AtmosphereActivityTab() {
                 {maxWidth: 300},
               ]}>
               <Trans>
-                The Atmosphere is the open network Bluesky is built on. When
+                The Atmosphere is the open network Blacksky is built on. When
                 people you follow are active on the Atmosphere, you can see it
                 here.
               </Trans>
