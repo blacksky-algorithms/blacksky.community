@@ -24,6 +24,9 @@ overrides:
   'psl': '1.9.0'
   '@types/psl': '1.1.1'
   'react-native-screens': '4.30.1'
+  # @atproto/oauth-client-expo asks for the SDK 54 release; a second copy of a
+  # native module must not ship.
+  'expo-web-browser': '58.0.7'
 allowBuilds:
   '@sentry/cli': true
   '@swc/core': false
