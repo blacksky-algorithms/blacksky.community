@@ -157,7 +157,6 @@ export const LoginForm = ({
       try {
         await login({service: serviceUrl, identifier, password}, 'LoginForm')
       } catch (e) {
-        const errMsg = String(e)
         if (isNetworkError(e)) {
           setError(
             _(
@@ -165,7 +164,7 @@ export const LoginForm = ({
             ),
           )
         } else {
-          setError(cleanError(errMsg))
+          setError(cleanError(e))
         }
       } finally {
         setIsProcessing(false)
@@ -231,7 +230,7 @@ export const LoginForm = ({
         )
       } else {
         logger.warn('Failed to start OAuth sign-in', {error: errMsg})
-        setError(cleanError(errMsg))
+        setError(cleanError(e))
       }
     } finally {
       setIsProcessing(false)

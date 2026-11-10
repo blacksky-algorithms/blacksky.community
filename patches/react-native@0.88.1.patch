@@ -1,3 +1,15 @@
+diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
+index aac492a4f30714720128866a16766f50141fdeb3..b70faf2bc86b43d95f73e9abad330d19ea149b62 100644
+--- a/React/DevSupport/RCTPackagerConnection.mm
++++ b/React/DevSupport/RCTPackagerConnection.mm
+@@ -9,6 +9,7 @@
+ 
+ #import <objc/runtime.h>
+ #import <algorithm>
++#import <mutex>
+ #import <vector>
+ 
+ #import <React/RCTAssert.h>
 diff --git a/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm b/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm
 index 5333370ec079d4978d6eeb2a79de7cdb1ddad610..378a8ae9d676522d602f06e245e4d22018a29a0e 100644
 --- a/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm
@@ -293,6 +305,28 @@ index d44d1e02ca5115d929a6d71516c5c734f2e1b19d..d2b9a33e457fd926d1623130a0ecd8b6
      layer.contents = (id)image.CGImage;
      layer.contentsScale = image.scale;
  
+diff --git a/React/Profiler/RCTProfile.m b/React/Profiler/RCTProfile.m
+index 47e2c86ac6f367b1e210fd1cf9f4242cdfb41a60..0fa82e112f6ac02c807f1710e577db0d80c255b3 100644
+--- a/React/Profiler/RCTProfile.m
++++ b/React/Profiler/RCTProfile.m
+@@ -448,7 +448,7 @@ BOOL RCTProfileIsProfiling(void)
+ void RCTProfileInit(RCTBridge *bridge)
+ {
+   // TODO: enable assert JS thread from any file (and assert here)
+-  BOOL wasProfiling = atomic_fetch_or(&RCTProfileProfiling, 1);
++  BOOL wasProfiling = atomic_exchange(&RCTProfileProfiling, 1);
+   if (wasProfiling) {
+     return;
+   }
+@@ -493,7 +493,7 @@ void RCTProfileInit(RCTBridge *bridge)
+ void RCTProfileEnd(RCTBridge *bridge, void (^callback)(NSString *))
+ {
+   // assert JavaScript thread here again
+-  BOOL wasProfiling = atomic_fetch_and(&RCTProfileProfiling, 0);
++  BOOL wasProfiling = atomic_exchange(&RCTProfileProfiling, 0);
+   if (!wasProfiling) {
+     return;
+   }
 diff --git a/ReactAndroid/hermes-engine/build.gradle.kts b/ReactAndroid/hermes-engine/build.gradle.kts
 index 0a1ea2abc558505f734b584066feef723bb93c00..97d829a24760741d1a3d8cbfa5c6b4c88a080357 100644
 --- a/ReactAndroid/hermes-engine/build.gradle.kts
@@ -343,6 +377,32 @@ index ae2e36ca1ed64d9f6cb44e6c2519a17fcca3ca18..0eeeb63b1225a3c575abb257a79aaef6
      val intersects = clippingRect.intersects(child.left, child.top, child.right, child.bottom)
      var needUpdateClippingRecursive = false
  
+diff --git a/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.cpp b/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.cpp
+index 7e3ce3b5d1fa8603ffbaa72d86280b4e6f8dd8af..0a9c0839632e8fb243dd0b648ada4897cdc806a0 100644
+--- a/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.cpp
++++ b/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.cpp
+@@ -114,6 +114,8 @@ HermesRuntimeAgentDelegate::HermesRuntimeAgentDelegate(
+               runtimeTargetDelegate,
+               std::move(runtimeExecutor))) {}
+ 
++HermesRuntimeAgentDelegate::~HermesRuntimeAgentDelegate() = default;
++
+ bool HermesRuntimeAgentDelegate::handleRequest(
+     const cdp::PreparsedRequest& req) {
+   return impl_->handleRequest(req);
+diff --git a/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.h b/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.h
+index 778e14615f5429bab7bafa0f70dc3f5b2dae97d1..8b0c433fed23eb3ce6f12c51063e6fbc42d5d9fa 100644
+--- a/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.h
++++ b/ReactCommon/hermes/inspector-modern/chrome/HermesRuntimeAgentDelegate.h
+@@ -57,6 +57,8 @@ class HermesRuntimeAgentDelegate : public RuntimeAgentDelegate {
+       HermesRuntimeTargetDelegate &runtimeTargetDelegate,
+       RuntimeExecutor runtimeExecutor);
+ 
++  ~HermesRuntimeAgentDelegate() override;
++
+   /**
+    * Handle a CDP request. The response will be sent over the provided
+    * \c FrontendChannel synchronously or asynchronously.
 diff --git a/ReactCommon/react/renderer/components/text/ParagraphShadowNode.cpp b/ReactCommon/react/renderer/components/text/ParagraphShadowNode.cpp
 index 17b14c439f16534365c1fb41b3f10a4e12f59001..9c46cd9906ad31621534009a6151e0042972d134 100644
 --- a/ReactCommon/react/renderer/components/text/ParagraphShadowNode.cpp
