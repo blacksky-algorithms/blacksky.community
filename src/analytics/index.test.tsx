@@ -350,7 +350,9 @@ it('flushes queued metrics with emission-time sessions and a stable device ID', 
   jest
     .mocked(metrics.track)
     .mockImplementation((...args) => client.track(...args))
-  const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ok: true})
+  const fetchMock = jest
+    .spyOn(global, 'fetch')
+    .mockResolvedValue({ok: true} as Response)
   render(<Tree />)
   const metric = ax.metric
   metric('state:foreground', {})
@@ -381,7 +383,7 @@ it('keeps passive metrics, logs, evaluations, flushes and retries separate from 
   const fetchMock = jest
     .spyOn(global, 'fetch')
     .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-    .mockResolvedValue({ok: true})
+    .mockResolvedValue({ok: true} as Response)
   render(<Tree />)
   const feature = installFeature()
   jest.setSystemTime(lastEventAt + 30 * 60_000)

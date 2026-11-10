@@ -75,6 +75,9 @@
     }
   },
   "src/analytics/index.test.tsx": {
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 2
+    },
     "typescript/no-unsafe-call": {
       "count": 3
     },
