@@ -66,16 +66,21 @@ const stripSentryDebug = ({types}) => ({
   },
 })
 
-const workletsPluginOptions = {
-  bundleMode: true,
-  strictGlobal: true, // optional, but recommended
-}
-
 /**
  * @param {import("@babel/core").ConfigAPI} api
  * @returns {import("@babel/core").InputOptions}
  */
 module.exports = function (api) {
+  const workletsPluginOptions = {
+    /*
+     * Bundle mode writes each worklet to a file as it transforms. Jest
+     * transforms in parallel workers, so a worker can load a file another is
+     * still writing.
+     */
+    bundleMode: !api.env('test'),
+    strictGlobal: true, // optional, but recommended
+  }
+
   return {
     presets: [
       [
