@@ -441,4 +441,23 @@ describe('EventEditor', () => {
       'Save changes',
     )
   })
+
+  it('titles the first step for editing', () => {
+    const {getByText, queryByText} = render(
+      <EventEditor
+        event={{
+          step: 'details',
+          name: 'Party',
+          description: '',
+          location: '',
+          startsAt: '2027-01-15T00:00:00.000Z',
+          endsAt: '2027-01-15T00:00:00.000Z',
+        }}
+        dispatch={jest.fn()}
+        isEditing
+      />,
+    )
+    expect(getByText('Edit your event')).toBeTruthy()
+    expect(queryByText('Create your event')).toBeNull()
+  })
 })

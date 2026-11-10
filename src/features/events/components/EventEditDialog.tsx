@@ -30,7 +30,6 @@ export function EventEditDialog({
       <Dialog.Handle />
       <Dialog.ScrollableInner label={l`Edit event`}>
         <EditForm event={event} parsed={parsed} />
-        <Dialog.Close />
       </Dialog.ScrollableInner>
     </Dialog.Outer>
   )

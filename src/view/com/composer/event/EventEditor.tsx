@@ -83,13 +83,15 @@ export function EventEditor({
     <View
       testID="eventEditor"
       style={[
-        a.mt_lg,
         a.gap_xl,
-        a.rounded_md,
-        {padding: 13},
-        a.border,
-        t.atoms.border_contrast_low,
-        t.atoms.bg_contrast_25,
+        !isEditing && [
+          a.mt_lg,
+          a.rounded_md,
+          {padding: 13},
+          a.border,
+          t.atoms.border_contrast_low,
+          t.atoms.bg_contrast_25,
+        ],
       ]}>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         <View style={[a.flex_row, a.align_center, a.gap_xs]}>
@@ -158,7 +160,7 @@ export function EventEditor({
       </View>
 
       {event.step === 'details' && (
-        <DetailsStep event={event} update={update} />
+        <DetailsStep event={event} update={update} isEditing={isEditing} />
       )}
       {event.step === 'when' && <WhenStep event={event} update={update} />}
       {event.step === 'cover' && (
@@ -268,9 +270,11 @@ export function EventEditor({
 function DetailsStep({
   event,
   update,
+  isEditing,
 }: {
   event: EventDraft
   update: (fields: Partial<EventDraftFields>) => void
+  isEditing?: boolean
 }) {
   const {t: l} = useLingui()
   const nameCount = countGraphemes(event.name.trim())
@@ -280,7 +284,11 @@ function DetailsStep({
     <View style={[a.gap_sm]}>
       <View>
         <FieldLabelText>
-          <Trans>Create your event</Trans>
+          {isEditing ? (
+            <Trans>Edit your event</Trans>
+          ) : (
+            <Trans>Create your event</Trans>
+          )}
         </FieldLabelText>
         <TextField.Root isInvalid={nameCount > EVENT_NAME_MAX_GRAPHEMES}>
           <TextField.Input
