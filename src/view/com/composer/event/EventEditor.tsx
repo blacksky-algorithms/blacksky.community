@@ -139,17 +139,19 @@ export function EventEditor({
               </Menu.Group>
             </Menu.Outer>
           </Menu.Root>
-        ) : isEditing ? null : (
+        ) : (
           <Button
-            testID="removeEventBtn"
-            label={l`Remove event`}
+            testID={isEditing ? 'discardEventEditsBtn' : 'removeEventBtn'}
+            label={isEditing ? l`Discard changes` : l`Remove event`}
             size="tiny"
             variant="solid"
             color="secondary"
             style={[t.atoms.bg, a.px_lg, {height: 28}]}
-            onPress={remove}>
+            onPress={
+              isEditing ? () => dispatch({type: 'embed_remove_event'}) : remove
+            }>
             <ButtonText style={[a.text_xs, t.atoms.text_contrast_medium]}>
-              <Trans>Remove</Trans>
+              {isEditing ? <Trans>Discard</Trans> : <Trans>Remove</Trans>}
             </ButtonText>
           </Button>
         )}

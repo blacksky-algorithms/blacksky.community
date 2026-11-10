@@ -416,7 +416,8 @@ describe('EventEditor', () => {
     expect(getByTestId('coverShown')).toHaveTextContent('none')
   })
 
-  it('offers Save changes and no Remove when editing a published event', () => {
+  it('offers Save changes and Discard when editing a published event', () => {
+    const dispatch = jest.fn()
     const {getByTestId, queryByTestId} = render(
       <EventEditor
         event={{
@@ -427,11 +428,14 @@ describe('EventEditor', () => {
           startsAt: '2027-01-15T00:00:00.000Z',
           endsAt: '2027-01-15T00:00:00.000Z',
         }}
-        dispatch={jest.fn()}
+        dispatch={dispatch}
         isEditing
       />,
     )
     expect(queryByTestId('removeEventBtn')).toBeNull()
+    fireEvent.press(getByTestId('discardEventEditsBtn'))
+    expect(dispatch).toHaveBeenCalledWith({type: 'embed_remove_event'})
+    expect(mockMetric).not.toHaveBeenCalled()
     expect(getByTestId('eventContinueBtn')).toHaveProp(
       'accessibilityLabel',
       'Save changes',
