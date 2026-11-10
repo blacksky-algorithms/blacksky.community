@@ -373,6 +373,8 @@ export type Events = {
   'composer:poll:open': {}
   'composer:poll:remove': {}
   'composer:poll:statementAdd': {count: number}
+  'composer:event:open': {}
+  'composer:event:remove': {}
   'composer:image:edit': {
     platform: Platform['OS']
   }
@@ -1252,6 +1254,12 @@ export type Events = {
   'share:press:recentDm': {}
   'share:press:embed': {}
 
+  'event:create': {
+    uri: string
+    hasDescription: boolean
+    hasLocation: boolean
+    hasCover: boolean
+  }
   'assembly:create': {
     conversationId: string
     statementCount: number

@@ -23,21 +23,28 @@ import {
 import {type VideoState} from '#/view/com/composer/state/video'
 import {type AnalyticsContextType} from '#/analytics'
 import {getDeviceId} from '#/analytics/identifiers'
+import {decodeEventDraft, encodeEventDraft} from '#/features/events/draft'
 import {type Gif} from '#/features/gifPicker/types'
 import {logger} from './logger'
 import {type DraftPostDisplay, type DraftSummary} from './schema'
 import * as storage from './storage'
 
 const DRAFT_POLL_KEY = 'communityBlackskyPoll'
+const DRAFT_EVENT_KEY = 'communityBlackskyEvent'
 
 // app.bsky.draft.defs is not ours to extend, so the poll travels as an extra
 // property that the draft schema passes through untouched.
 type DraftPostWithPoll = AppBskyDraftDefs.DraftPost & {
   [DRAFT_POLL_KEY]?: unknown
+  [DRAFT_EVENT_KEY]?: unknown
 }
 
 function readDraftPoll(post: DraftPostWithPoll) {
   return decodePollDraft(post[DRAFT_POLL_KEY])
+}
+
+function readDraftEvent(post: DraftPostWithPoll) {
+  return decodeEventDraft(post[DRAFT_EVENT_KEY])
 }
 
 const TENOR_HOSTNAME = 'media.tenor.com'
@@ -154,6 +161,12 @@ async function postDraftToServerPost(
     ;(draftPost as DraftPostWithPoll)[DRAFT_POLL_KEY] = assembly
       ? {statements, assembly}
       : {statements}
+  }
+
+  if (post.embed.event) {
+    ;(draftPost as DraftPostWithPoll)[DRAFT_EVENT_KEY] = encodeEventDraft(
+      post.embed.event,
+    )
   }
 
   // Add quote record embed
@@ -454,6 +467,7 @@ export function draftViewToSummary({
       video: videos[0], // Only one video per post
       gif,
       poll: readDraftPoll(post),
+      event: readDraftEvent(post),
     }
   })
 
@@ -656,6 +670,17 @@ export async function draftToComposerPosts(
         !restoredVideos.has(index)
       ) {
         embed.poll = poll
+      }
+      const event = readDraftEvent(post)
+      if (
+        event &&
+        !embed.poll &&
+        !embed.media &&
+        !embed.link &&
+        !embed.quote &&
+        !restoredVideos.has(index)
+      ) {
+        embed.event = event
       }
 
       // Parse labels

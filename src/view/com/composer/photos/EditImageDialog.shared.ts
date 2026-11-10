@@ -7,4 +7,5 @@ export type EditImageDialogProps = {
   onChange: (next: ComposerImage) => void
   aspectRatio?: number
   circularCrop?: boolean
+  preselectCrop?: boolean
 }
