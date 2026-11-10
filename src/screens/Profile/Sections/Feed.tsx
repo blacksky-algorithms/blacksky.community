@@ -1,5 +1,11 @@
-import {useCallback, useEffect, useImperativeHandle, useState} from 'react'
-import {findNodeHandle, View} from 'react-native'
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
+import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -11,12 +17,13 @@ import {
   RQKEY as FEED_RQKEY,
 } from '#/state/queries/post-feed'
 import {truncateAndInvalidate} from '#/state/queries/util'
-import {PostFeed} from '#/view/com/posts/PostFeed'
+import {PostFeed, type PostFeedRef} from '#/view/com/posts/PostFeed'
 import {
   EmptyState,
   type EmptyStateButtonProps,
 } from '#/view/com/util/EmptyState'
 import {type ListRef} from '#/view/com/util/List'
+import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {LoadLatestBtn} from '#/view/com/util/load-latest/LoadLatestBtn'
 import {atoms as a, ios, useTheme} from '#/alf'
 import {EditBig_Stroke1_Corner0_Rounded as EditIcon} from '#/components/icons/EditBig'
@@ -53,6 +60,7 @@ export function ProfileFeedSection({
   const queryClient = useQueryClient()
   const [hasNew, setHasNew] = useState(false)
   const [isScrolledDown, setIsScrolledDown] = useState(false)
+  const postFeedRef = useRef<PostFeedRef>(null)
   const shouldUseAdjustedNumToRender = feed.endsWith('posts_and_author_threads')
   const isVideoFeed = IS_NATIVE && feed.endsWith('posts_with_video')
   const adjustedInitialNumToRender = useInitialNumToRender({
@@ -69,6 +77,9 @@ export function ProfileFeedSection({
 
   useImperativeHandle(ref, () => ({
     scrollToTop: onScrollToTop,
+    refresh: async () => {
+      await postFeedRef.current?.refreshFeed()
+    },
   }))
 
   const renderPostsEmpty = useCallback(() => {
@@ -87,7 +98,7 @@ export function ProfileFeedSection({
 
   useEffect(() => {
     if (IS_IOS && isFocused && scrollElRef.current) {
-      const nativeTag = findNodeHandle(scrollElRef.current)
+      const nativeTag = findListNativeTag(scrollElRef.current)
       setScrollViewTag(nativeTag)
     }
   }, [isFocused, scrollElRef, setScrollViewTag])
@@ -110,6 +121,7 @@ export function ProfileFeedSection({
           shouldUseAdjustedNumToRender ? adjustedInitialNumToRender : undefined
         }
         isVideoFeed={isVideoFeed}
+        ref={postFeedRef}
       />
       {(isScrolledDown || hasNew) && (
         <LoadLatestBtn

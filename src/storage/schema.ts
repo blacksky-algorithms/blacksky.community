@@ -30,6 +30,11 @@ export type Device = {
   demoMode: boolean
   activitySubscriptionsNudged?: boolean
   threadgateNudged?: boolean
+  pendingOTAUpdate?: {
+    attemptedAt: number
+    channel: string
+    updateId: string
+  }
 }
 
 export type Account = {
@@ -56,4 +61,16 @@ export type Account = {
    * src/lib/community/useCommunityBrandSync.ts.
    */
   brandConfig?: ComputedBrandConfig
+
+  /**
+   * Cached from preferences (`bskyAppState.isBetaUser`) so the GrowthBook
+   * `isBetaUser` attribute can be set synchronously at analytics init, before
+   * beta-gated features (e.g. SearchV2Enable) are first evaluated. Written back
+   * when preferences load.
+   *
+   * Scoped per account, since `isBetaUser` is account-specific preference data.
+   * Reading it globally would let a beta account's value leak into a non-beta
+   * account after a switch, until that account's preferences loaded.
+   */
+  isBetaUser?: boolean
 }

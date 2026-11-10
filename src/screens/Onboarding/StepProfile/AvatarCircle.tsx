@@ -1,8 +1,7 @@
 import {useMemo} from 'react'
 import {Pressable, View} from 'react-native'
 import {Image as ExpoImage} from 'expo-image'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
+import {useLingui} from '@lingui/react/macro'
 
 import {AvatarCreatorCircle} from '#/screens/Onboarding/StepProfile/AvatarCreatorCircle'
 import {useAvatar} from '#/screens/Onboarding/StepProfile/index'
@@ -16,7 +15,7 @@ export function AvatarCircle({
   openLibrary: () => unknown
   openCreator: () => unknown
 }) {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const {avatar} = useAvatar()
 
   const styles = useMemo(
@@ -42,7 +41,7 @@ export function AvatarCircle({
     <Pressable
       accessibilityRole="button"
       accessibilityHint=""
-      accessibilityLabel={_(msg`Select an avatar`)}
+      accessibilityLabel={l`Select an avatar`}
       onPress={avatar.useCreatedAvatar ? openCreator : openLibrary}>
       {avatar.useCreatedAvatar ? (
         <AvatarCreatorCircle avatar={avatar} size={200} />

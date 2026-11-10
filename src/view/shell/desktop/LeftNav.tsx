@@ -554,10 +554,10 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
   const contextualFeed =
     currentRoute.name === 'Home'
       ? (selectedFeed ?? pinnedFeedInfos?.[0]?.feedDescriptor)
-      : currentRoute.name === 'ProfileFeed'
+      : currentRoute.name === 'CustomFeed'
         ? ((
             currentRoute.params as
-              | CommonNavigatorParams['ProfileFeed']
+              | CommonNavigatorParams['CustomFeed']
               | undefined
           )?.resolvedFeed as FeedDescriptor | undefined)
         : undefined

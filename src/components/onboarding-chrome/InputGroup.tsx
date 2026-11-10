@@ -45,6 +45,8 @@ export type InputGroupProps = {
   errorText?: string
   showDivider?: boolean
   testID?: string
+  /** Extra props for the underlying input, e.g. combobox accessibility props. */
+  inputProps?: Partial<TextInputProps>
 }
 
 export const InputGroup = forwardRef<TextInput, InputGroupProps>(
@@ -76,6 +78,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
       errorText,
       showDivider = false,
       testID,
+      inputProps,
     },
     ref,
   ) {
@@ -123,6 +126,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
 
     const input = (
       <TextInput
+        {...inputProps}
         ref={ref}
         testID={testID}
         accessibilityLabel={editable ? label : undefined}

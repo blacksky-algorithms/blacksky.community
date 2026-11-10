@@ -29,7 +29,7 @@ function renderItem({
   )
 }
 
-function keyExtractor(item: ActorDefs.ProfileViewBasic) {
+function keyExtractor(item: ActorDefs.ProfileView) {
   return item.did
 }
 

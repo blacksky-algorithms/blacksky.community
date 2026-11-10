@@ -24,6 +24,7 @@ import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {GalleryBleed} from '#/components/images/Gallery'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
+import * as ReportDialogMetadataContext from '#/components/moderation/ReportDialog/ReportDialogMetadataContext'
 import {StandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed'
 import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/utils'
 import {RichText} from '#/components/RichText'
@@ -71,7 +72,11 @@ export function Embed({embed: rawEmbed, ...rest}: EmbedProps) {
     }
     case 'post_with_media': {
       return (
-        <View style={rest.style}>
+        <View
+          style={[
+            rest.style,
+            rest.viewContext === PostEmbedViewContext.ChatMessage && a.gap_sm,
+          ]}>
           <MediaEmbed embed={embed.media} {...rest} />
           <RecordEmbed embed={embed.view} {...rest} />
         </View>
@@ -302,11 +307,7 @@ function PostNotFoundEmbed({
       <QuoteEmbed
         {...rest}
         embed={{type: 'post', view: fallbackRecord}}
-        viewContext={
-          rest.viewContext === PostEmbedViewContext.Feed
-            ? PostEmbedViewContext.FeedEmbedRecordWithMedia
-            : undefined
-        }
+        viewContext={rest.viewContext}
         isWithinQuote={rest.isWithinQuote}
         allowNestedQuotes={false}
       />
@@ -392,7 +393,7 @@ export function QuoteEmbed({
   } = useInteractionState()
 
   const contents = (
-    <>
+    <ReportDialogMetadataContext.Provider key={quote.uri}>
       <PostMeta
         author={quote.author}
         moderation={moderation}
@@ -402,7 +403,11 @@ export function QuoteEmbed({
         linkDisabled
       />
       {moderation ? (
-        <PostAlerts modui={moderation.ui('contentView')} style={[a.py_xs]} />
+        <PostAlerts
+          post={quote}
+          modui={moderation.ui('contentView')}
+          style={[a.py_xs]}
+        />
       ) : null}
       {richText ? (
         <RichText
@@ -427,13 +432,13 @@ export function QuoteEmbed({
           post={quote}
         />
       )}
-    </>
+    </ReportDialogMetadataContext.Provider>
   )
 
   return (
     <GalleryBleed>
       <View
-        style={[a.mt_sm]}
+        style={[viewContext !== PostEmbedViewContext.ChatMessage && a.mt_sm]}
         onPointerEnter={linkDisabled ? undefined : onPointerEnter}
         onPointerLeave={linkDisabled ? undefined : onPointerLeave}>
         <ContentHider

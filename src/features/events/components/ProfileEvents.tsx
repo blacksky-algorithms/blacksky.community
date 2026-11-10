@@ -1,10 +1,5 @@
 import {useCallback, useEffect, useImperativeHandle, useState} from 'react'
-import {
-  findNodeHandle,
-  type ListRenderItemInfo,
-  useWindowDimensions,
-  View,
-} from 'react-native'
+import {type ListRenderItemInfo, useWindowDimensions, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -14,7 +9,9 @@ import {useSession} from '#/state/session'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {List, type ListRef} from '#/view/com/util/List'
+import {findListNativeTag} from '#/view/com/util/listNativeTag'
 import {FeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
+import {type SectionRef} from '#/screens/Profile/Sections/types'
 import {atoms as a, ios} from '#/alf'
 import {CalendarDays_Stroke2_Corner0_Rounded as CalendarIcon} from '#/components/icons/CalendarDays'
 import {ListFooter} from '#/components/Lists'
@@ -22,10 +19,6 @@ import {IS_IOS} from '#/env'
 import {useMyEventsTimeline} from '../queries'
 import {type EventView, RSVP_GOING, RSVP_INTERESTED} from '../types'
 import {EventCard} from './EventCard'
-
-interface SectionRef {
-  scrollToTop: () => void
-}
 
 function keyExtractor(item: EventView) {
   return item.uri
@@ -59,6 +52,14 @@ export function ProfileEvents({
     refetch,
   } = useMyEventsTimeline(enabled)
 
+  const refresh = useCallback(async () => {
+    try {
+      await refetch()
+    } catch (err) {
+      logger.error('Failed to refresh events', {message: err})
+    }
+  }, [refetch])
+
   useImperativeHandle(ref, () => ({
     scrollToTop: () => {
       scrollElRef.current?.scrollToOffset({
@@ -66,23 +67,20 @@ export function ProfileEvents({
         offset: -headerOffset,
       })
     },
+    refresh,
   }))
 
   useEffect(() => {
     if (IS_IOS && enabled && scrollElRef.current) {
-      setScrollViewTag(findNodeHandle(scrollElRef.current))
+      setScrollViewTag(findListNativeTag(scrollElRef.current))
     }
   }, [enabled, scrollElRef, setScrollViewTag])
 
   const onRefresh = useCallback(async () => {
     setIsPTRing(true)
-    try {
-      await refetch()
-    } catch (err) {
-      logger.error('Failed to refresh events', {message: err})
-    }
+    await refresh()
     setIsPTRing(false)
-  }, [refetch])
+  }, [refresh])
 
   const onEndReached = useCallback(() => {
     if (isFetchingNextPage || !hasNextPage || error) return

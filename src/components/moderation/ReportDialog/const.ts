@@ -1,13 +1,27 @@
+import {applicationId} from 'expo-application'
 import {
   ComAtprotoModerationDefs as RootReportDefs,
   ToolsOzoneReportDefs as OzoneReportDefs,
 } from '@atproto/api'
 
 import {type ParsedReportSubject} from '#/components/moderation/ReportDialog/types'
+import {IS_ANDROID, IS_IOS, IS_WEB} from '#/env'
 
 export const DMCA_LINK =
   'https://blackskyweb.xyz/about/support/tos/#9-strongclaims-of-copyright-infringementstrong'
 export const SUPPORT_PAGE = 'https://www.blackskyweb.xyz/about/support'
+export const NCII_FORM = 'https://forms.bsky.app/f/ncii'
+
+/**
+ * Identifies this client as the source of a report.
+ */
+export const REPORT_MOD_TOOL_NAME = IS_IOS
+  ? `bsky-app/ios/${applicationId}`
+  : IS_ANDROID
+    ? `bsky-app/android/${applicationId}`
+    : IS_WEB
+      ? `bsky-web/${window.location.hostname}`
+      : 'bsky' // Should never occur
 
 export const NEW_TO_OLD_REASON_MAPPING: Record<string, string> = {}
 

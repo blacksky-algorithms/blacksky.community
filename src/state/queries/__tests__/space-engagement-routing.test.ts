@@ -9,7 +9,7 @@ jest.mock('#/lib/api/community', () => ({
 }))
 jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
 
-import {fetchLikedByPage} from '../post-liked-by'
+import {fetchLikedByPage, fetchLikedBySample} from '../post-liked-by'
 import {fetchPostQuotesPage} from '../post-quotes'
 import {fetchRepostedByPage} from '../post-reposted-by'
 
@@ -93,6 +93,29 @@ describe('post engagement routing', () => {
       limit: 30,
       cursor: undefined,
     })
+  })
+
+  it('samples known likers of a space post from the permission-aware endpoint', async () => {
+    const {agent, getLikes} = mockAgent()
+
+    await fetchLikedBySample(agent, SPACE_POST)
+
+    expect(getLikes).not.toHaveBeenCalled()
+    expect(mockGetSpacePostLikes).toHaveBeenCalledTimes(1)
+    expect(mockGetSpacePostLikes).toHaveBeenCalledWith(agent, {
+      uri: SPACE_POST,
+      limit: 100,
+    })
+  })
+
+  it('samples known likers of a public post from the standard endpoint', async () => {
+    const {agent, getLikes} = mockAgent()
+
+    await fetchLikedBySample(agent, PUBLIC_POST)
+
+    expect(mockGetSpacePostLikes).not.toHaveBeenCalled()
+    expect(getLikes).toHaveBeenCalledTimes(1)
+    expect(getLikes).toHaveBeenCalledWith({uri: PUBLIC_POST, limit: 100})
   })
 
   it('never calls the standard repost endpoint for a space URI', async () => {

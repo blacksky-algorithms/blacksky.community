@@ -364,7 +364,7 @@ export function useGetPopularFeedsQuery(options?: GetPopularFeedsOptions) {
       count += page.feeds.length
     }
     if (count < limit && (data?.pages.length || 0) < 6) {
-      query.fetchNextPage()
+      void query.fetchNextPage()
       lastPageCountRef.current = data?.pages?.length || 0
     }
   }, [query, limit])
@@ -637,7 +637,7 @@ export function usePinnedFeedsInfos() {
       hasSession ? pinnedItems.map(f => f.value) : brandPinnedValues,
     ),
     gcTime: GCTIME.INFINITY,
-    staleTime: STALE.INFINITY,
+    staleTime: STALE.MINUTES.FIFTEEN,
     enabled: !isLoadingPrefs,
     select: injectCommunity,
     queryFn: async () => {
@@ -773,6 +773,16 @@ export function useSavedFeeds() {
   const {data: preferences, isLoading: isLoadingPrefs} = usePreferencesQuery()
   const savedItems = preferences?.savedFeeds ?? []
   const queryClient = useQueryClient()
+  // Must keep its identity between renders: the query client turns structural
+  // sharing off, so a fresh object here reads as new data on every render.
+  const placeholder = useMemo(
+    () => ({
+      // The likely count before we try to resolve them.
+      count: savedItems.length,
+      feeds: [] as SavedFeedItem[],
+    }),
+    [savedItems.length],
+  )
 
   return useQuery({
     queryKey: createPinnedFeedInfosQueryKey(
@@ -782,15 +792,7 @@ export function useSavedFeeds() {
     gcTime: GCTIME.INFINITY,
     staleTime: STALE.INFINITY,
     enabled: !isLoadingPrefs,
-    placeholderData: previousData => {
-      return (
-        previousData || {
-          // The likely count before we try to resolve them.
-          count: savedItems.length,
-          feeds: [],
-        }
-      )
-    },
+    placeholderData: previousData => previousData || placeholder,
     queryFn: async () => {
       const resolvedFeeds = new Map<string, AppBskyFeedDefs.GeneratorView>()
       const resolvedLists = new Map<string, AppBskyGraphDefs.ListView>()

@@ -23,3 +23,6 @@ export const Image_Stroke2_Corner0_Rounded = createStrokeSVG({
   viewBox: '0 0 24 24',
   strokeWidth: 2,
 })
+
+// Upstream's current name for the same glyph.
+export const Image_Stroke2_Corner2_Rounded = Image_Stroke2_Corner0_Rounded

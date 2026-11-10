@@ -58,11 +58,11 @@ module.exports = function (_config) {
       icon: './assets/app-icons/ios_icon_default_next.png',
       userInterfaceStyle: 'automatic',
       primaryColor: '#006AFF',
-      newArchEnabled: false,
       ios: {
         supportsTablet: false,
         bundleIdentifier: 'community.blacksky.app',
         buildNumber: process.env.BSKY_IOS_BUILD_NUMBER ?? '1',
+        appleTeamId: process.env.EXPO_APPLE_TEAM_ID,
         config: {
           usesNonExemptEncryption: false,
         },
@@ -85,6 +85,7 @@ module.exports = function (_config) {
             'an',
             'ast',
             'ca',
+            'cs',
             'cy',
             'da',
             'de',
@@ -131,6 +132,7 @@ module.exports = function (_config) {
             'group.community.blacksky.app',
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
+          'com.apple.developer.declared-age-range': true,
         },
         privacyManifests: {
           NSPrivacyCollectedDataTypes: [
@@ -287,14 +289,6 @@ module.exports = function (_config) {
                   git: 'https://github.com/bluesky-social/MCEmojiPicker.git',
                   branch: 'main',
                 },
-                // MMKVCore 2.4.1's AESCrypt.cpp calls memset_s on the MMKV_APPLE
-                // path, which fails to compile under Xcode 26 (memset_s is only
-                // declared when __STDC_WANT_LIB_EXT1__ == 1). Pinning MMKV alone is
-                // not enough: MMKV depends on MMKVCore with an open-ended range, so
-                // MMKVCore still floats to 2.4.1. Pin MMKVCore itself to 2.4.0 (which
-                // does not use memset_s) until upstream fixes it.
-                {name: 'MMKV', version: '2.4.0'},
-                {name: 'MMKVCore', version: '2.4.0'},
               ],
             },
             android: {

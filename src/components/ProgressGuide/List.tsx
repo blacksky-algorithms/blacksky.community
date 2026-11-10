@@ -5,9 +5,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
-import {Trans} from '@lingui/react/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 
 import {useBrand} from '#/lib/community/BrandContext'
 import {useProfileFollowsQuery} from '#/state/queries/profile-follows'
@@ -30,7 +28,7 @@ const TOTAL_AVATARS = 10
 
 export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
   const t = useTheme()
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const brand = useBrand()
   const {gtPhone} = useBreakpoints()
   const {rightNavVisible} = useLayoutBreakpoints()
@@ -68,14 +66,14 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
         ]}>
         <View style={[a.flex_row, a.justify_between, a.align_center]}>
           <View style={a.flex_1}>
-            <Eyebrow label={_(msg`Welcome to ${brand.metadata.displayName}`)} />
+            <Eyebrow label={l`Welcome to ${brand.metadata.displayName}`} />
           </View>
           <Button
             variant="ghost"
             size="tiny"
             color="primary"
             shape="round"
-            label={_(msg`Dismiss welcome message`)}
+            label={l`Dismiss welcome message`}
             onPress={endProgressGuide}>
             <ButtonIcon icon={Times} />
           </Button>
@@ -114,7 +112,7 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
             size="tiny"
             color="secondary"
             shape="round"
-            label={_(msg`Dismiss getting started guide`)}
+            label={l`Dismiss getting started guide`}
             onPress={endProgressGuide}
             style={[a.bg_transparent, {marginTop: -6, marginRight: -6}]}>
             <ButtonIcon icon={Times} size="xs" />
@@ -141,16 +139,14 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
             <ProgressGuideTask
               current={guide.numLikes + 1}
               total={10 + 1}
-              title={_(msg`Like 10 posts`)}
-              subtitle={_(msg`Teach our algorithm what you like`)}
+              title={l`Like 10 posts`}
+              subtitle={l`Teach our algorithm what you like`}
             />
             <ProgressGuideTask
               current={guide.numFollows + 1}
               total={7 + 1}
-              title={_(msg`Follow 7 accounts`)}
-              subtitle={_(
-                msg`${brand.metadata.displayName} is better with friends!`,
-              )}
+              title={l`Follow 7 accounts`}
+              subtitle={l`${brand.metadata.displayName} is better with friends!`}
             />
           </>
         )}

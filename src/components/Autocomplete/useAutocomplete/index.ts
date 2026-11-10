@@ -122,6 +122,7 @@ export function useAutocomplete({
   return {
     query: q,
     items,
+    isFetching: query.isFetching,
   }
 }
 
