@@ -17,6 +17,7 @@ import {
   type ThreadDraft,
   threadHasPoll,
 } from '../composer'
+import {type UriString} from '@atproto/lex'
 
 jest.mock('#/lib/api/community-feed', () => ({
   isSpaceBackedFeed: (config: {space?: string} | undefined) => !!config?.space,
@@ -168,7 +169,10 @@ function threadWith(overrides: Partial<ThreadDraft>): ThreadDraft {
 function threadQuoting(uri: string): ThreadDraft {
   const state = withPosts(threadOfTwo(), (post, index) =>
     index === 1
-      ? {...post, embed: {...post.embed, quote: {type: 'link', uri}}}
+      ? {
+          ...post,
+          embed: {...post.embed, quote: {type: 'link', uri: uri as UriString}},
+        }
       : post,
   )
   return state.thread
@@ -913,7 +917,10 @@ describe('isPollPostable', () => {
 
   it('is false when the poll shares the post with another attachment', () => {
     const post = pollPost('Which one?', ['first'])
-    const link = {type: 'link' as const, uri: 'https://example.com/article'}
+    const link = {
+      type: 'link' as const,
+      uri: 'https://example.com/article' as UriString,
+    }
 
     expect(isPollPostable({...post, embed: {...post.embed, link}})).toBe(false)
     expect(isPollPostable({...post, embed: {...post.embed, quote: link}})).toBe(

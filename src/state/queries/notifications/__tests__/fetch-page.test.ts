@@ -14,7 +14,7 @@ const SPACE = 'at://did:plc:tenant/space/community.blacksky.feed/private'
 const PRIVATE_URI = `${SPACE}/did:plc:alice/app.bsky.feed.post/3kprivate`
 
 describe(fetchPage, () => {
-  const client = {} as AtpAgent
+  const client = {} as Client
   const queryClient = new QueryClient()
 
   beforeEach(() => {

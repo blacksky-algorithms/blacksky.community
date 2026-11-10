@@ -5,6 +5,7 @@ import {
   configureAdultContentLabelDefs,
   withAdultContentBehavior,
 } from '../adult-content-labels'
+import {type DidString} from '@atproto/syntax'
 
 const AUTHOR = 'did:plc:author'
 const LABELER = 'did:plc:labeler'
@@ -28,7 +29,7 @@ const CONTEXTS = [
 ] as const
 
 const label = (val: string, src: string): com.atproto.label.defs.Label => ({
-  src,
+  src: src as DidString,
   uri: URI,
   cid: CID,
   val,
@@ -63,7 +64,7 @@ const labelerView = (
   $type: 'app.bsky.labeler.defs#labelerViewDetailed',
   uri: `at://${did}/app.bsky.labeler.service/self`,
   cid: 'bafyreilabeler',
-  creator: {did, handle: 'labeler.test'},
+  creator: {did: did as DidString, handle: 'labeler.test'},
   policies: {
     labelValues: defs.map(d => d.identifier!),
     labelValueDefinitions: defs.map(d => ({

@@ -112,11 +112,11 @@ let warn: jest.SpyInstance
 
 function setup() {
   const fetchHandler = jest.fn()
-  const applyWrites = jest.fn(() => {
+  const applyWrites = jest.fn((_input: unknown) => {
     events.push('applyWrites')
     return Promise.resolve({})
   })
-  const getPosts = jest.fn(() => {
+  const getPosts = jest.fn((_input: unknown) => {
     events.push('getPosts')
     return Promise.resolve({
       posts: [

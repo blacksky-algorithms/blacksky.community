@@ -19,6 +19,7 @@ import {
   RSVP_NOTGOING,
 } from '../types'
 import {makeEventLink, parseEventUrl} from '../url'
+import {type app, type com} from '#/lexicons'
 
 describe('parseEventRecord', () => {
   it('reads the published fields and common extensions', () => {
@@ -366,7 +367,7 @@ describe('coverUrl', () => {
     uri: 'at://did:plc:host/community.lexicon.calendar.event/k',
     val,
     cts: '2026-09-29T00:00:00.000Z',
-  })
+  }) as com.atproto.label.defs.Label
 
   it('hides the cover when the event carries a sensitive label', () => {
     expect(coverUrl({thumb: 'https://cdn/x', labels: [label('porn')]})).toBe(
@@ -441,15 +442,16 @@ describe('eventPoster', () => {
 
 describe('isLiveOnStreamplace', () => {
   const streamer = {did: 'did:plc:host', handle: 'Host.example.com'}
-  const status = (uri: string, isActive = true) => ({
-    status: 'app.bsky.actor.status#live',
-    isActive,
-    record: {},
-    embed: {
-      $type: 'app.bsky.embed.external#view',
-      external: {uri, title: '', description: ''},
-    },
-  })
+  const status = (uri: string, isActive = true) =>
+    ({
+      status: 'app.bsky.actor.status#live',
+      isActive,
+      record: {},
+      embed: {
+        $type: 'app.bsky.embed.external#view',
+        external: {uri, title: '', description: ''},
+      },
+    }) as app.bsky.actor.defs.StatusView
 
   it('is live when the status points at the same channel by DID or handle', () => {
     expect(

@@ -129,7 +129,6 @@ describe('lazy post menu anchoring', () => {
         richText={{} as never}
         timestamp="2026-09-27T00:00:00.000Z"
         logContext="Post"
-        forceGoogleTranslate={false}
       />,
     )
 

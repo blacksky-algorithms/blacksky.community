@@ -1,6 +1,7 @@
 
 import {type ModerationOpts} from '@bsky/sdk/moderation'
 import {visibleMessages} from '../visible'
+import {type app} from '#/lexicons'
 
 jest.mock('@bsky/sdk/moderation', () => ({
   ...jest.requireActual('@bsky/sdk/moderation'),
@@ -16,7 +17,8 @@ const m = (did: string) => ({
   text: 'x',
   indexedAt: '',
 })
-const profile = (did: string) => ({did, handle: did})
+const profile = (did: string) =>
+  ({did, handle: did}) as app.bsky.actor.defs.ProfileViewDetailed
 
 it('hides unknown, filtered and blurred authors', () => {
   const profiles = new Map([

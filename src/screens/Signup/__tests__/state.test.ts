@@ -84,7 +84,7 @@ it('keeps provider metadata when reselecting the current community', () => {
     serviceUrl: 'https://example.com',
     userDomain: '.example.com',
     serviceDescription: {
-      did: 'did:web:example.com',
+      did: 'did:web:example.com' as const,
       availableUserDomains: ['.example.com'],
     },
   }

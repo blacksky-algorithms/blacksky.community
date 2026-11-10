@@ -16,7 +16,7 @@ describe('MergeFeedAPI', () => {
       regionCode: '13',
       city: '東京',
       ip: '192.0.2.1',
-    })
+    } as never)
     const call = jest.fn().mockResolvedValue({feed: []})
     const thirdPartyFeed = 'at://did:example:feed/app.bsky.feed.generator/test'
     const api = new MergeFeedAPI({

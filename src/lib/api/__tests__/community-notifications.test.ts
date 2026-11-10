@@ -91,7 +91,7 @@ describe('community notification API', () => {
     const body = listBody(PUBLIC_URI)
     fetchHandler.mockResolvedValue(json(body))
 
-    await expect(listNotifications(client, {})).resolves.toEqual(body)
+    await expect(listNotifications(client, {limit: 30})).resolves.toEqual(body)
   })
 
   it('falls back only for a 501 MethodNotImplemented response', async () => {
@@ -127,7 +127,7 @@ describe('community notification API', () => {
     const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(json({error, message: error}, status))
 
-    const failure: unknown = await listNotifications(client, {}).catch(
+    const failure: unknown = await listNotifications(client, {limit: 30}).catch(
       (e: unknown) => e,
     )
 
@@ -140,7 +140,7 @@ describe('community notification API', () => {
     const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(json({}, 501))
 
-    await expect(listNotifications(client, {})).rejects.toBeDefined()
+    await expect(listNotifications(client, {limit: 30})).rejects.toBeDefined()
     expect(fetchHandler).toHaveBeenCalledTimes(1)
   })
 
@@ -148,7 +148,7 @@ describe('community notification API', () => {
     const {client, fetchHandler} = mockClient()
     fetchHandler.mockRejectedValue(new Error('offline'))
 
-    await expect(listNotifications(client, {})).rejects.toBeDefined()
+    await expect(listNotifications(client, {limit: 30})).rejects.toBeDefined()
     expect(fetchHandler).toHaveBeenCalledTimes(1)
   })
 

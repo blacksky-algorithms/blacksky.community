@@ -1019,7 +1019,7 @@ describe('session', () => {
   it('ends an active OAuth session while keeping the remembered account', () => {
     const account = {
       service: 'https://alice.com',
-      did: 'did:plc:alice',
+      did: 'did:plc:alice' as const,
       handle: 'alice.test',
       isOauthSession: true,
     }
@@ -1043,13 +1043,13 @@ describe('session', () => {
   it('ignores OAuth termination for an inactive account', () => {
     const alice = {
       service: 'https://alice.com',
-      did: 'did:plc:alice',
+      did: 'did:plc:alice' as const,
       handle: 'alice.test',
       isOauthSession: true,
     }
     const bob = {
       service: 'https://bob.com',
-      did: 'did:plc:bob',
+      did: 'did:plc:bob' as const,
       handle: 'bob.test',
       isOauthSession: true,
     }

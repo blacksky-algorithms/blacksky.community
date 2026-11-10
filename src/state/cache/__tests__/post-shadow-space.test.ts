@@ -17,6 +17,7 @@ import {
   updatePostShadow,
 } from '#/state/cache/post-shadow'
 import {RQKEY_ROOT as POST_FEED_QUERY_KEY_ROOT} from '#/state/queries/post-feed'
+import {type AtUriString} from '@atproto/syntax'
 
 const PUBLIC_POST = 'at://did:plc:alice/app.bsky.feed.post/3kpublic'
 const LEGACY_POST = 'at://did:plc:alice/community.blacksky.feed.post/3klegacy'
@@ -25,7 +26,7 @@ const SPACE_POST =
 
 function post(uri: string): app.bsky.feed.defs.PostView {
   return {
-    uri,
+    uri: uri as AtUriString,
     cid: 'bafyrei post',
     author: {did: 'did:plc:alice', handle: 'alice.test'},
     record: {$type: 'app.bsky.feed.post', text: 'hello'},
@@ -52,7 +53,9 @@ describe('post shadow URI matching', () => {
       cachePost(queryClient, cachedPost)
 
       expect(() =>
-        updatePostShadow(queryClient, uri, {likeUri: `${uri}/like`}),
+        updatePostShadow(queryClient, uri, {
+          likeUri: `${uri}/like` as AtUriString,
+        }),
       ).not.toThrow()
       expect(dangerousGetPostShadow(cachedPost)?.likeUri).toBe(`${uri}/like`)
     },

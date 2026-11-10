@@ -121,7 +121,7 @@ jest.mock('../create-account', () => ({
 import {Provider, useSession, useSessionApi} from '#/state/session'
 import {
   type OnSessionChange,
-  type SessionBundle,
+  type PasswordSessionBundle as SessionBundle,
 } from '#/state/session/session-core'
 import {type SessionApiContext} from '#/state/session/types'
 

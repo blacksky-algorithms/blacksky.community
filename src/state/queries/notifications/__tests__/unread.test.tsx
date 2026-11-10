@@ -80,7 +80,6 @@ const page: FeedPage = {
   cursor: undefined,
   seenAt: new Date('2026-09-01T00:00:00.000Z'),
   items: [],
-  priority: false,
 }
 
 const unreadNotification = {
@@ -91,7 +90,7 @@ const unreadNotification = {
   record: {$type: 'app.bsky.feed.post', text: 'private'},
   isRead: false,
   indexedAt: '2026-09-01T00:00:00.000Z',
-}
+} as unknown as app.bsky.notification.listNotifications.Notification
 const visiblePage: FeedPage = {
   ...page,
   items: [

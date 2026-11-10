@@ -155,7 +155,7 @@ describe('useAtmosphereExploreQuery', () => {
       regionCode: '13',
       city: '東京',
       ip: '2001:db8::1',
-    })
+    } as never)
 
     const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
@@ -183,14 +183,14 @@ describe('useAtmosphereExploreQuery', () => {
     client.call.mockResolvedValue(data)
     jest
       .mocked(device.get)
-      .mockReturnValue({countryCode: 'JP', regionCode: '13'})
+      .mockReturnValue({countryCode: 'JP', regionCode: '13'} as never)
 
     const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     jest
       .mocked(device.get)
-      .mockReturnValue({countryCode: 'US', regionCode: undefined})
+      .mockReturnValue({countryCode: 'US', regionCode: undefined} as never)
     await act(async () => {
       await result.current.refetch()
     })

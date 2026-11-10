@@ -78,7 +78,9 @@ describe('permissioned-space post engagement components', () => {
 
   it('mounts quotes and requests the space quotes endpoint', async () => {
     expect(() =>
-      render(<PostQuotes uri={SPACE_POST} />, {wrapper}),
+      render(<PostQuotes uri={SPACE_POST} quoteSort="latest" active />, {
+        wrapper,
+      }),
     ).not.toThrow()
 
     await waitFor(() => {

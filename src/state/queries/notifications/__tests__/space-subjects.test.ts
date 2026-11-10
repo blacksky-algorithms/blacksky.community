@@ -1,10 +1,6 @@
 
 const mockCommunityXrpc = jest.fn()
 
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
-  jsonToLex: (value: unknown) => value,
-}))
 jest.mock('#/lib/api/community', () => ({
   communityXrpc: (...args: unknown[]) => mockCommunityXrpc(...args),
 }))
@@ -13,6 +9,7 @@ jest.mock('#/state/queries/profile', () => ({precacheProfile: jest.fn()}))
 import {type Client} from '@atproto/lex'
 import {type FeedNotification} from '../types'
 import {fetchSubjects} from '../util'
+import {app} from '#/lexicons'
 
 const SPACE = 'at://did:plc:space/space/community.blacksky.feed/test'
 
@@ -44,17 +41,13 @@ describe('space notification subject hydration', () => {
         ),
     )
     const getPosts = jest.fn()
-    const getStarterPacks = jest.fn().mockResolvedValue({
-      data: {starterPacks: []},
-    })
+    const getStarterPacks = jest.fn().mockResolvedValue({starterPacks: []})
     const client = {
-      app: {
-        bsky: {
-          feed: {getPosts},
-          graph: {getStarterPacks},
-        },
-      },
-    } as unknown as AtpAgent
+      call: (method: unknown, params: unknown) =>
+        method === app.bsky.feed.getPosts
+          ? getPosts(params)
+          : getStarterPacks(params),
+    } as unknown as Client
 
     const result = await fetchSubjects(client, notifications)
 

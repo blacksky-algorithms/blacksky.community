@@ -134,7 +134,11 @@ const PAGE_URL = `${ORIGIN}/${CONVERSATION_ID}`
 const TOPIC = 'Should the garden stay open late?'
 const VIEWER = 'did:plc:viewer'
 
-const LINK = {uri: PAGE_URL, title: TOPIC, description: '1. Yes, until sunset'}
+const LINK = {
+  uri: PAGE_URL,
+  title: TOPIC,
+  description: '1. Yes, until sunset',
+} as app.bsky.embed.external.ViewExternal
 const PARAMS: EmbedPlayerParams = {
   type: 'assembly_conversation',
   source: 'assembly',
@@ -852,7 +856,7 @@ describe('post text reaching the card', () => {
     }
   }
 
-  const embed = {$type: 'app.bsky.embed.external#view', external: LINK}
+  const embed = {$type: 'app.bsky.embed.external#view' as const, external: LINK}
 
   it('hides the topic of an embed in a post that asks the same', async () => {
     serve({})

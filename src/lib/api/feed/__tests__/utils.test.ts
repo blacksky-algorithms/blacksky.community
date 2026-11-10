@@ -41,7 +41,7 @@ describe('createBskyFeedHeaders', () => {
         regionCode: '13',
         city: '東京',
         ip: '2001:db8::1',
-      })
+      } as never)
 
       expect(
         createBskyFeedHeaders(`at://${did}/app.bsky.feed.generator/test`),
