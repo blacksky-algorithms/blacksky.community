@@ -22,10 +22,12 @@ export function RsvpButtons({
   event,
   logContext,
   size = 'small',
+  disabled,
 }: {
   event: EventView
   logContext: RsvpLogContext
   size?: 'small' | 'large'
+  disabled?: boolean
 }) {
   const {_} = useLingui()
   const requireAuth = useRequireAuth()
@@ -72,7 +74,7 @@ export function RsvpButtons({
             label={selected ? choice.removeLabel : choice.label}
             size={size}
             color={selected ? 'primary' : 'secondary'}
-            disabled={isPending}
+            disabled={isPending || disabled}
             style={[a.flex_1, a.px_xs]}
             onPress={() => onPress(choice.status)}>
             {selected && <ButtonIcon icon={CheckIcon} />}

@@ -39,6 +39,13 @@ import {
   type LinkFacetMatch,
   suggestLinkCardUri,
 } from '#/view/com/composer/text-input/text-input-util'
+import {
+  createEventDraft,
+  type EventDraft,
+  type EventDraftFields,
+  type EventDraftStep,
+  isEventDraftPublishable,
+} from '#/features/events/draft'
 import {type Gif} from '#/features/gifPicker/types'
 import {
   createVideoState,
@@ -82,6 +89,7 @@ export type EmbedDraft = {
   // This field may end up ignored if we have more important things to display than a link card:
   link: Link | undefined
   poll?: PollDraft
+  event?: EventDraft
 }
 
 export type PostDraft = {
@@ -117,11 +125,25 @@ export type PostAction =
   | {type: 'embed_remove_poll_statement'; index: number}
   | {type: 'embed_set_poll_assembly'; assembly: AssemblyRef}
   | {type: 'embed_remove_poll'}
+  | {type: 'embed_add_event'}
+  | {type: 'embed_update_event'; fields: Partial<EventDraftFields>}
+  | {type: 'embed_set_event_step'; step: EventDraftStep}
+  | {type: 'embed_remove_event'}
 
 export function postHasAttachment(post: PostDraft): boolean {
   return Boolean(
-    post.embed.media || post.embed.link || post.embed.quote || post.embed.poll,
+    post.embed.media ||
+    post.embed.link ||
+    post.embed.quote ||
+    post.embed.poll ||
+    post.embed.event,
   )
+}
+
+// A poll or an event fills the post's only external embed, so nothing else
+// can be attached alongside it.
+function hasExclusiveEmbed(embed: EmbedDraft): boolean {
+  return !!(embed.poll || embed.event)
 }
 
 export function postHasContent(post: PostDraft): boolean {
@@ -134,6 +156,17 @@ export function isPollPostable(post: PostDraft): boolean {
   return (
     isPollTopicPublishable(post.richtext.text) &&
     isPollDraftPublishable(poll) &&
+    !post.embed.media &&
+    !post.embed.link &&
+    !post.embed.quote
+  )
+}
+
+export function isEventPostable(post: PostDraft): boolean {
+  const event = post.embed.event
+  if (!event) return true
+  return (
+    isEventDraftPublishable(event) &&
     !post.embed.media &&
     !post.embed.link &&
     !post.embed.quote
@@ -263,11 +296,19 @@ export function threadHasPoll(thread: ThreadDraft): boolean {
   return thread.posts.some(post => post.embed.poll)
 }
 
-function keepFirstPoll(posts: PostDraft[]): PostDraft[] {
-  const first = posts.findIndex(post => post.embed.poll)
+export const isEventAllowed = isPollAllowed
+
+export function threadHasEvent(thread: ThreadDraft): boolean {
+  return thread.posts.some(post => post.embed.event)
+}
+
+function keepFirst(posts: PostDraft[], key: 'poll' | 'event'): PostDraft[] {
+  const first = posts.findIndex(post => post.embed[key])
   return posts.map((post, index) =>
-    post.embed.poll && index !== first
-      ? postReducer(post, {type: 'embed_remove_poll'})
+    post.embed[key] && index !== first
+      ? postReducer(post, {
+          type: key === 'poll' ? 'embed_remove_poll' : 'embed_remove_event',
+        })
       : post,
   )
 }
@@ -279,7 +320,8 @@ function applyTargetChange(
   const clearVideos =
     hasSpaceVideoTarget(state.thread) !== hasSpaceVideoTarget(nextThread)
   const clearPolls = threadHasPoll(nextThread) && !isPublicTarget(nextThread)
-  if (!clearVideos && !clearPolls) {
+  const clearEvents = threadHasEvent(nextThread) && !isPublicTarget(nextThread)
+  if (!clearVideos && !clearPolls && !clearEvents) {
     return {
       ...state,
       isDirty: true,
@@ -292,9 +334,13 @@ function applyTargetChange(
       clearVideos && post.embed.media?.type === 'video'
         ? postReducer(post, {type: 'embed_remove_video'})
         : post
-    return clearPolls && withoutVideo.embed.poll
-      ? postReducer(withoutVideo, {type: 'embed_remove_poll'})
-      : withoutVideo
+    const withoutPoll =
+      clearPolls && withoutVideo.embed.poll
+        ? postReducer(withoutVideo, {type: 'embed_remove_poll'})
+        : withoutVideo
+    return clearEvents && withoutPoll.embed.event
+      ? postReducer(withoutPoll, {type: 'embed_remove_event'})
+      : withoutPoll
   })
   return {
     ...state,
@@ -389,6 +435,13 @@ export function composerReducer(
       if (
         action.postAction.type === 'embed_add_poll' &&
         (threadHasPoll(state.thread) || !isPollAllowed(state.thread, undefined))
+      ) {
+        return state
+      }
+      if (
+        action.postAction.type === 'embed_add_event' &&
+        (threadHasEvent(state.thread) ||
+          !isEventAllowed(state.thread, undefined))
       ) {
         return state
       }
@@ -493,7 +546,7 @@ export function composerReducer(
         loadedMediaMap: loadedMedia,
         originalLocalRefs,
         thread: {
-          posts: keepFirstPoll(posts),
+          posts: keepFirst(keepFirst(posts, 'poll'), 'event'),
           postgate: createPostgateRecord({
             post: '',
             embeddingRules: postgateEmbeddingRules,
@@ -543,7 +596,7 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_images': {
-      if (action.images.length === 0 || state.embed.poll) {
+      if (action.images.length === 0 || hasExclusiveEmbed(state.embed)) {
         return state
       }
       const prevMedia = state.embed.media
@@ -629,7 +682,7 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       return state
     }
     case 'embed_add_video': {
-      if (state.embed.poll) {
+      if (hasExclusiveEmbed(state.embed)) {
         return state
       }
       const prevMedia = state.embed.media
@@ -682,7 +735,7 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_uri': {
-      if (state.embed.poll) {
+      if (hasExclusiveEmbed(state.embed)) {
         return state
       }
       const prevQuote = state.embed.quote
@@ -732,7 +785,7 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       }
     }
     case 'embed_add_gif': {
-      if (state.embed.poll) {
+      if (hasExclusiveEmbed(state.embed)) {
         return state
       }
       const prevMedia = state.embed.media
@@ -862,6 +915,41 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
           ...state.embed,
           poll: undefined,
         },
+      }
+    }
+    case 'embed_add_event': {
+      if (postHasAttachment(state)) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {...state.embed, event: createEventDraft()},
+      }
+    }
+    case 'embed_update_event': {
+      const event = state.embed.event
+      if (!event) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {...state.embed, event: {...event, ...action.fields}},
+      }
+    }
+    case 'embed_set_event_step': {
+      const event = state.embed.event
+      if (!event) {
+        return state
+      }
+      return {
+        ...state,
+        embed: {...state.embed, event: {...event, step: action.step}},
+      }
+    }
+    case 'embed_remove_event': {
+      return {
+        ...state,
+        embed: {...state.embed, event: undefined},
       }
     }
   }
