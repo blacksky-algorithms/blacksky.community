@@ -1,11 +1,17 @@
+import {type DidString} from '@atproto/syntax'
+import {
+  interpretLabelValueDefinitions,
+  type LabelPreference,
+  LABELS,
+  moderatePost,
+  type ModerationOpts,
+} from '@bsky/sdk/moderation'
 
-import {LABELS, interpretLabelValueDefinitions, moderatePost, type LabelPreference, type ModerationOpts} from '@bsky/sdk/moderation'
 import {type app, type com} from '#/lexicons'
 import {
   configureAdultContentLabelDefs,
   withAdultContentBehavior,
 } from '../adult-content-labels'
-import {type DidString} from '@atproto/syntax'
 
 const AUTHOR = 'did:plc:author'
 const LABELER = 'did:plc:labeler'

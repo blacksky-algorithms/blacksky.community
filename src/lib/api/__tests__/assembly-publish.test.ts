@@ -1,9 +1,9 @@
 import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
-import {app, com} from '#/lexicons'
 import {logger} from '#/logger'
 import {fetchResolveLinkQuery} from '#/state/queries/resolve-link'
+import {app, com} from '#/lexicons'
 import {AssemblyError, ensureAssembly} from '../assembly'
 import {admitFeedPost, fetchCommunityFeedTarget} from '../community-feed'
 import {post, ReplyDeletedError, resolveEmbed} from '../index'
@@ -515,9 +515,7 @@ describe('replying with a poll', () => {
 
   it('starts no assembly when the parent is gone', async () => {
     const ctx = setup()
-    ctx.getPosts.mockImplementation(() =>
-      Promise.resolve({posts: []} as never),
-    )
+    ctx.getPosts.mockImplementation(() => Promise.resolve({posts: []} as never))
 
     await expect(
       post(queryClient, {
@@ -560,7 +558,10 @@ describe('the poll thumbnail', () => {
     const ctx = setup()
     arrange()
 
-    const result = await post(queryClient, {...ctx.clients, thread: pollThread()})
+    const result = await post(queryClient, {
+      ...ctx.clients,
+      thread: pollThread(),
+    })
 
     expect(mockUploadBlob).toHaveBeenCalledTimes(uploads)
     expect(ctx.applyWrites).toHaveBeenCalledTimes(1)

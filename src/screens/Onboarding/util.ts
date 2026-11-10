@@ -5,6 +5,7 @@ import {
   type DidString,
   toDatetimeString,
 } from '@atproto/syntax'
+import {addLabeler} from '@bsky/sdk'
 import chunk from 'lodash.chunk'
 
 import {until} from '#/lib/async/until'
@@ -12,7 +13,6 @@ import {type ComputedBrandConfig} from '#/lib/community/types'
 import {logger} from '#/logger'
 import {readLabelers, saveLabelers} from '#/state/session/moderation'
 import {app, com} from '#/lexicons'
-import {addLabeler} from '@bsky/sdk'
 
 export async function bulkWriteFollows(
   pdsClient: Client,

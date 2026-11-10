@@ -1,7 +1,7 @@
-import {app} from '#/lexicons'
 import {useRef, useState} from 'react'
 import {ScrollView, View} from 'react-native'
 import {Image} from 'expo-image'
+import {type AtUriString} from '@atproto/syntax'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useMutation, useQuery} from '@tanstack/react-query'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -38,6 +39,7 @@ import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {app} from '#/lexicons'
 import {
   ALL_MIDTERMS_FEED_URIS,
   ELECTION_DESK_FEED_URI,
@@ -46,8 +48,6 @@ import {
   US_STATES,
 } from './feeds'
 import {GRAZE_PARTNER, MIDTERMS_CTAS, type MidtermsCta} from './partners'
-import {type AtUriString} from '@atproto/syntax'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Midterms'>
 

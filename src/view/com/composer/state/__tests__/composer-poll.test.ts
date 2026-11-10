@@ -1,5 +1,6 @@
-
+import {type UriString} from '@atproto/lex'
 import {RichText} from '@bsky/sdk/richtext'
+
 import {type AssemblyRef} from '#/lib/api/poll'
 import {type ComposerImage} from '#/state/gallery'
 import {type Gif} from '#/features/gifPicker/types'
@@ -17,7 +18,6 @@ import {
   type ThreadDraft,
   threadHasPoll,
 } from '../composer'
-import {type UriString} from '@atproto/lex'
 
 jest.mock('#/lib/api/community-feed', () => ({
   isSpaceBackedFeed: (config: {space?: string} | undefined) => !!config?.space,

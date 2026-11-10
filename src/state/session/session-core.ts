@@ -9,6 +9,7 @@ import {PUBLIC_BSKY_SERVICE} from '#/lib/constants'
 import {canParseUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
 import {features} from '#/analytics'
+import {reportProxiedFetch} from '../appview-health'
 import {
   buildAppviewClient,
   buildChatClient,
@@ -17,7 +18,6 @@ import {
   getUnauthenticatedThrowingClient,
   routeSessionToPds,
 } from './clients'
-import {reportProxiedFetch} from '../appview-health'
 import {addSessionErrorLog} from './logging'
 import {
   configureModerationForAccount,
@@ -428,10 +428,8 @@ export async function createSessionBundleAndLogin(
   configureModerationForAccount(bundle, earlyAccount)
 
   // Preparation may auto-refresh the session while hooks are still disarmed.
-  const account = await finishPreparation(
-    bundle,
-    gates,
-    () => sessionDataToSessionAccountOrThrow(session),
+  const account = await finishPreparation(bundle, gates, () =>
+    sessionDataToSessionAccountOrThrow(session),
   )
   hooks.arm()
   return {account, bundle}

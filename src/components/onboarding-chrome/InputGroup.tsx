@@ -9,9 +9,9 @@ import {
 } from 'react-native'
 
 import {applyFonts, atoms as a, useAlf, useTheme} from '#/alf'
+import {type MutableTextStyle} from '#/alf/fonts'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
-import {type MutableTextStyle} from '#/alf/fonts'
 
 export const FIELD_BG = '#262644'
 export const FIELD_BORDER = '#464985'

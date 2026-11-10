@@ -304,12 +304,7 @@ export function getDeepLinkAnalyticsTarget(url: string): string {
 }
 
 export type DeepLinkDestinationKind =
-  | 'post'
-  | 'profile'
-  | 'starterPack'
-  | 'event'
-  | 'groupInvite'
-  | 'other'
+  'post' | 'profile' | 'starterPack' | 'event' | 'groupInvite' | 'other'
 
 export function getDeepLinkDestinationKind(
   url: string,

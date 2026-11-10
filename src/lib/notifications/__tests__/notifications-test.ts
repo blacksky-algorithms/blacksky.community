@@ -1,9 +1,9 @@
-import {type Client} from '@atproto/lex'
 import * as Notifications from 'expo-notifications'
+import {type Client} from '@atproto/lex'
 
 import {PUBLIC_APPVIEW_DID} from '#/lib/constants'
-import {app} from '#/lexicons'
 import {unregisterPushToken} from '#/lib/notifications/notifications'
+import {app} from '#/lexicons'
 
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(),

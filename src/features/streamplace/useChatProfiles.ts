@@ -1,8 +1,8 @@
-import {app} from '#/lexicons'
 import {useEffect, useRef, useState} from 'react'
+import {type DidString} from '@atproto/syntax'
 
 import {useAppviewClient} from '#/state/session'
-import {type DidString} from '@atproto/syntax'
+import {app} from '#/lexicons'
 
 const BATCH = 25
 

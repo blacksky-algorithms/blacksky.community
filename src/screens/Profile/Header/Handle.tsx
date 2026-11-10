@@ -5,7 +5,6 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
-import {sanitizePronouns} from '#/lib/strings/pronouns'
 import {type Shadow} from '#/state/cache/types'
 import {atoms as a, useTheme, web} from '#/alf'
 import {NewskieDialog} from '#/components/dialogs/NewskieDialog'

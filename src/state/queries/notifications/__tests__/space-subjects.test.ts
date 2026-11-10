@@ -1,4 +1,3 @@
-
 const mockCommunityXrpc = jest.fn()
 
 jest.mock('#/lib/api/community', () => ({
@@ -7,9 +6,10 @@ jest.mock('#/lib/api/community', () => ({
 jest.mock('#/state/queries/profile', () => ({precacheProfile: jest.fn()}))
 
 import {type Client} from '@atproto/lex'
+
+import {app} from '#/lexicons'
 import {type FeedNotification} from '../types'
 import {fetchSubjects} from '../util'
-import {app} from '#/lexicons'
 
 const SPACE = 'at://did:plc:space/space/community.blacksky.feed/test'
 

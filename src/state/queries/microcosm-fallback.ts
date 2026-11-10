@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {AtUri} from '@atproto/syntax'
-import {type app, type com} from '#/lexicons'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {PUBLIC_APPVIEW, VIDEO_SERVICE} from '#/lib/constants'
+import {type com} from '#/lexicons'
 import {isDidBlocked} from './my-blocked-accounts'
 import {isDidMuted} from './my-muted-accounts'
 

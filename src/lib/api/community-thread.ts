@@ -1,4 +1,5 @@
 import {type Client} from '@atproto/lex'
+
 import {communityXrpc} from '#/lib/api/community'
 import {toSpaceThreadBody} from '#/lib/api/space-views'
 

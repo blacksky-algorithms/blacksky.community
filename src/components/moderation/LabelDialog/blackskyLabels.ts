@@ -1,6 +1,6 @@
-import {type com} from '#/lexicons'
 import {useLabelersDetailedInfoQuery} from '#/state/queries/labeler'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
+import {type com} from '#/lexicons'
 
 /**
  * Hardcoded fallback for the Blacksky labeler's label-value definitions. Used

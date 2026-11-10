@@ -1,8 +1,7 @@
-import {jsonToLex, type Client} from '@atproto/lex'
+import {useMemo} from 'react'
+import {type Client, jsonToLex} from '@atproto/lex'
 import {AtUri} from '@atproto/syntax'
 import {moderatePost, type ModerationDecision} from '@bsky/sdk/moderation'
-import {app} from '#/lexicons'
-import {useMemo} from 'react'
 import {
   type InfiniteData,
   type QueryClient,
@@ -24,6 +23,7 @@ import {
   makeUriMatcher,
 } from '#/state/queries/util'
 import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 const PAGE_SIZE = 30

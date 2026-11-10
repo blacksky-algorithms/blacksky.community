@@ -2,9 +2,9 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {logger} from '#/logger'
 import {usePdsClient} from '#/state/session'
+import {com} from '#/lexicons'
 import {type ChatMessage} from './live-state'
 import {type PendingMessage, reconcilePending} from './pending'
-import {com} from '#/lexicons'
 
 const COLLECTION = 'place.stream.chat.message'
 export const CHAT_DELIVERY_TIMEOUT_MS = 10_000

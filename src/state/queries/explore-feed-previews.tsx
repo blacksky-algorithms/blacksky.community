@@ -26,9 +26,9 @@ import {
 } from '#/state/queries/post-feed'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {
+  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
-  didOrHandleUriMatches,
   makeUriMatcher,
 } from '#/state/queries/util'
 import {useAppviewClient} from '#/state/session'

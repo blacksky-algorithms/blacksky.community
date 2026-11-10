@@ -26,6 +26,7 @@ import {
 import {PasswordField} from '#/components/forms/PasswordField'
 import * as TextField from '#/components/forms/TextField'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
+import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
@@ -33,7 +34,6 @@ import * as toast from '#/components/Toast'
 import {Span, Text} from '#/components/Typography'
 import {chat, com} from '#/lexicons'
 import {resetToTab} from '#/Navigation'
-import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 
 const WHITESPACE_RE = /\s/gu
 const PASSWORD_MIN_LENGTH = 8

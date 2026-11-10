@@ -143,10 +143,11 @@ export function PrivacyAndSecuritySettingsScreen({}: Props) {
                 <Admonition.Content>
                   <Admonition.Text>
                     <Trans>
-                      Note: {brand.metadata.displayName} is part of the Atmosphere, an open public
-                      network. These settings ask other apps and websites to
-                      limit your visibility, but they can choose not to. Your
-                      public content may still appear elsewhere.
+                      Note: {brand.metadata.displayName} is part of the
+                      Atmosphere, an open public network. These settings ask
+                      other apps and websites to limit your visibility, but they
+                      can choose not to. Your public content may still appear
+                      elsewhere.
                     </Trans>
                   </Admonition.Text>
                   <Admonition.Text>

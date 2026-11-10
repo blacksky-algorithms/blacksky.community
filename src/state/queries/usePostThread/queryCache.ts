@@ -1,6 +1,5 @@
 import {useCallback} from 'react'
 import {type $Typed} from '@atproto/lex'
-import {AtUri} from '@atproto/syntax'
 import {type QueryClient, useQueryClient} from '@tanstack/react-query'
 
 import {type ValidFeedPostNumbering} from '#/lib/api/feed-manip'

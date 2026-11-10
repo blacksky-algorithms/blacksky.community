@@ -38,8 +38,7 @@ import {TranslatedPost} from '#/components/Post/Translated'
 import {PostControls} from '#/components/PostControls'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
-import {app} from '#/lexicons'
-import * as bsky from '#/types/bsky'
+import {type app} from '#/lexicons'
 
 export function Post({
   post,

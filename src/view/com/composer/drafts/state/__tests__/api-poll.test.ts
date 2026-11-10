@@ -1,16 +1,17 @@
 import {RichText} from '@bsky/sdk/richtext'
-import {type app} from '#/lexicons'
+
 import {type AssemblyRef} from '#/lib/api/poll'
+import {type LinkResolvers} from '#/lib/api/resolve'
 import {
   type ComposerState,
   type PostDraft,
 } from '#/view/com/composer/state/composer'
+import {type app} from '#/lexicons'
 import {
   composerStateToDraft,
   draftToComposerPosts,
   draftViewToSummary,
 } from '../api'
-import {type LinkResolvers} from '#/lib/api/resolve'
 
 jest.mock('../storage', () => ({
   mediaExists: jest.fn(() => true),

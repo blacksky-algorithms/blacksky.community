@@ -1,9 +1,9 @@
+import {Client} from '@atproto/lex'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {buildSyntheticEmbedViewRecord} from './microcosm-fallback'
-import {Client} from '@atproto/lex'
 
 const RQKEY_ROOT = 'embed-fallback'
 export const RQKEY = (uri: string) => [RQKEY_ROOT, uri]

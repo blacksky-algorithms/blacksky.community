@@ -92,9 +92,9 @@ import {
   disposeBundle,
   finishPreparation,
   makeSessionHooks,
+  type PasswordSessionBundle as SessionBundle,
   registerBundleKillSwitch,
   sessionAccountToSessionData,
-  type PasswordSessionBundle as SessionBundle,
   sessionDataToSessionAccount,
 } from '../session-core'
 import {

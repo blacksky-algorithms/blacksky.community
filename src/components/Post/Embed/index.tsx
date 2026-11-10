@@ -1,7 +1,6 @@
 import {useCallback, useMemo} from 'react'
 import {View} from 'react-native'
 import {type $Typed} from '@atproto/lex'
-import {AtUri} from '@atproto/syntax'
 import {
   mergeModUIResults,
   moderatePost,
@@ -13,7 +12,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {getEmbedCreator} from '#/lib/at-card'
 import {useBrand} from '#/lib/community'
-import {makeProfileLink, postPermalink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {getChatInviteCodeFromUrl} from '#/lib/strings/url-helpers'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useEmbedFallback} from '#/state/queries/embed-fallback'

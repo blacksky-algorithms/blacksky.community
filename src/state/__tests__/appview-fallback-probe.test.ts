@@ -1,4 +1,3 @@
-
 import {type Client, XrpcResponseError} from '@atproto/lex'
 
 import {BLUESKY_APPVIEW_PINNED_OPTS} from '#/lib/constants'

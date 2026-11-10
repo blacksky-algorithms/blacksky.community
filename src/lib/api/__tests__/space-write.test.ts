@@ -1,5 +1,4 @@
 import {type Client} from '@atproto/lex'
-import {type com} from '#/lexicons'
 import {describe, expect, it} from '@jest/globals'
 
 import {
@@ -41,21 +40,21 @@ function clientWith(
     agent: {fetchHandler},
   } as unknown as Client
   function fetchHandler(path: string, init: RequestInit) {
-      const current = responses[Math.min(responseIndex++, responses.length - 1)]
-      const status = current.status ?? 200
-      calls.push({
-        path,
-        method: init.method,
-        headers: (init.headers ?? {}) as Record<string, string>,
-        body: typeof init.body === 'string' ? init.body : '',
-      })
-      return Promise.resolve({
-        ok: status < 400,
-        status,
-        json: () =>
-          Promise.resolve(
-            current.body ?? {uri: 'at://space/record', cid: 'bafyreinew'},
-          ),
+    const current = responses[Math.min(responseIndex++, responses.length - 1)]
+    const status = current.status ?? 200
+    calls.push({
+      path,
+      method: init.method,
+      headers: (init.headers ?? {}) as Record<string, string>,
+      body: typeof init.body === 'string' ? init.body : '',
+    })
+    return Promise.resolve({
+      ok: status < 400,
+      status,
+      json: () =>
+        Promise.resolve(
+          current.body ?? {uri: 'at://space/record', cid: 'bafyreinew'},
+        ),
     } as unknown as Response)
   }
   return {client, calls}

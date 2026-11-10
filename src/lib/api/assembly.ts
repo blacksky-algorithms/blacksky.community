@@ -1,12 +1,12 @@
-import {type Client} from '@atproto/lex'
 import {TID} from '@atproto/common-web'
+import {type Client} from '@atproto/lex'
+import {type UriString} from '@atproto/syntax'
 
 import {type AssemblyRef, normalizePollText} from '#/lib/api/poll'
 import {isNetworkError} from '#/lib/strings/errors'
 import {ASSEMBLY_SERVICE_DID, ASSEMBLY_URL} from '#/env'
-import {getServiceAuthToken} from './service-auth'
 import {com} from '#/lexicons'
-import {type UriString} from '@atproto/syntax'
+import {getServiceAuthToken} from './service-auth'
 
 export const ASSEMBLY_CONVERSATION_COLLECTION =
   'community.blacksky.assembly.conversation'

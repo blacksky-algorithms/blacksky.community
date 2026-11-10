@@ -1,5 +1,5 @@
-import {jsonToLex, type Client} from '@atproto/lex'
-import {type app} from '#/lexicons'
+import {type Client, jsonToLex} from '@atproto/lex'
+
 import {communityXrpc} from '#/lib/api/community'
 import {type SpaceFeedPage, toSpaceFeedPage} from '#/lib/api/space-views'
 

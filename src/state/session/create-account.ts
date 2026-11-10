@@ -118,7 +118,7 @@ export async function createSessionBundleAndCreateAccount(
   void verifyAndRepairAccountIndexing({
     getProfile: () =>
       bundle.appviewClient.call(app.bsky.actor.getProfile, {
-        actor: earlyAccount.did as `did:${string}:${string}`,
+        actor: earlyAccount.did,
       }),
     getHandle: () => liveSessionData(bundle)?.handle,
     updateHandle: handle =>

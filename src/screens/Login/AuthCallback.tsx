@@ -3,12 +3,12 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
 import {getOAuthClient} from '#/state/session/oauth-client'
 import * as Toast from '#/components/Toast'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 export function AuthCallback() {
   const {_} = useLingui()

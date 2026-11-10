@@ -1,8 +1,8 @@
-import {app} from '#/lexicons'
 import {parseStreamplaceActor} from '#/features/streamplace/url'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {eventPhase} from './format'
 import {type ParsedEvent} from './record'
-import * as bsky from '#/types/bsky'
 
 const LIVE_GRACE_MS = 60 * 60 * 1000
 

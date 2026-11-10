@@ -1,5 +1,6 @@
-import {type app} from '#/lexicons'
 import {QueryClient} from '@tanstack/react-query'
+
+import {type app} from '#/lexicons'
 
 jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
 jest.mock('#/state/queries/notifications/feed', () => ({
@@ -12,12 +13,13 @@ jest.mock('#/state/queries/usePostThread', () => ({
   usePostThreadContext: jest.fn(),
 }))
 
+import {type AtUriString} from '@atproto/syntax'
+
 import {
   dangerousGetPostShadow,
   updatePostShadow,
 } from '#/state/cache/post-shadow'
 import {RQKEY_ROOT as POST_FEED_QUERY_KEY_ROOT} from '#/state/queries/post-feed'
-import {type AtUriString} from '@atproto/syntax'
 
 const PUBLIC_POST = 'at://did:plc:alice/app.bsky.feed.post/3kpublic'
 const LEGACY_POST = 'at://did:plc:alice/community.blacksky.feed.post/3klegacy'

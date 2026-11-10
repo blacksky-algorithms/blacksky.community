@@ -1,9 +1,9 @@
 import {type BlobRef} from '@atproto/lex'
+import {type UriString} from '@atproto/syntax'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {EVENT_COLLECTION} from './types'
-import {type UriString} from '@atproto/syntax'
 
 export const EVENT_NAME_MAX_GRAPHEMES = 180
 export const EVENT_DESCRIPTION_MAX_GRAPHEMES = 1000

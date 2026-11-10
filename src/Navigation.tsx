@@ -56,10 +56,8 @@ import {
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
 import {
-  CHAT_INVITE_CODE_REGEX,
   getDeepLinkAnalyticsTarget,
   getDeepLinkDestinationKind,
-  GROUP_INVITE_CODE_REGEX,
 } from '#/lib/strings/url-helpers'
 import {emitSoftReset} from '#/state/events'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'

@@ -5,8 +5,7 @@ import {Nux} from '#/state/queries/nuxs/definitions'
 jest.mock('@lingui/react', () => {
   const format = (
     message:
-      | {message?: string; values?: Record<string, string | number>}
-      | string,
+      {message?: string; values?: Record<string, string | number>} | string,
   ) => {
     if (typeof message === 'string') return message
     return (message.message ?? '').replace(/{(\w+)}/g, (_, key: string) =>
@@ -84,8 +83,7 @@ type NuxState =
   | {
       status: 'ready'
       nux:
-        | {id: Nux.ComposerPoll; completed: boolean; data: undefined}
-        | undefined
+        {id: Nux.ComposerPoll; completed: boolean; data: undefined} | undefined
     }
   | {status: 'loading' | 'error'; nux: undefined}
 

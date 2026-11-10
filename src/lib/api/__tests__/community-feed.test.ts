@@ -1,4 +1,3 @@
-
 import {type Client, XrpcResponseError} from '@atproto/lex'
 
 import {com} from '#/lexicons'
@@ -65,7 +64,9 @@ describe('community feed API', () => {
   it('loads config and generator records from the feed owner at the same rkey', async () => {
     const {client, getRecord} = mockClient()
 
-    await expect(fetchCommunityFeedConfig(client, feed)).resolves.toEqual(config)
+    await expect(fetchCommunityFeedConfig(client, feed)).resolves.toEqual(
+      config,
+    )
     await expect(fetchFeedServiceDid(client, feed)).resolves.toBe(serviceDid)
 
     expect(getRecord).toHaveBeenNthCalledWith(1, {

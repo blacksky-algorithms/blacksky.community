@@ -1,5 +1,5 @@
-
 import {type Client} from '@atproto/lex'
+
 import {
   BLUESKY_FALLBACK_PROXY_HEADER,
   BLUESKY_PROXY_HEADER,

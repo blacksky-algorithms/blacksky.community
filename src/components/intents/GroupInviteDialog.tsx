@@ -25,6 +25,7 @@ import {
   GroupInviteClientError,
   GroupInviteError,
 } from '#/lib/api/group-invites'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {logger} from '#/logger'
 import {
@@ -48,7 +49,6 @@ import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {useIntentDialogs} from './IntentDialogs'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 export function GroupInviteDialog() {
   const {groupInviteDialogControl, groupInviteState, setGroupInviteState} =

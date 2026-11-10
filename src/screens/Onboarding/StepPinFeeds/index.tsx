@@ -1,4 +1,3 @@
-import {app} from '#/lexicons'
 import {useState} from 'react'
 import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
@@ -26,6 +25,7 @@ import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 const AVATAR_SAMPLE = 5

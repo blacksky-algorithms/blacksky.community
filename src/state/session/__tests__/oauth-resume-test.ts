@@ -2,10 +2,7 @@ import {type OAuthSession, TokenRefreshError} from '@atproto/oauth-client'
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 
 import {com} from '#/lexicons'
-import {
-  resumeOAuthSessionBundleWithRetry,
-  withTimeout,
-} from '../oauth-agent'
+import {resumeOAuthSessionBundleWithRetry, withTimeout} from '../oauth-agent'
 import {emitOauthTelemetry} from '../oauth-telemetry'
 import {type SessionAccount} from '../types'
 
@@ -98,7 +95,10 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
       .mockResolvedValueOnce(okSession())
     mockRestore.mockResolvedValue(fakeSession(fetchHandler))
 
-    const {account} = await resumeOAuthSessionBundleWithRetry(storedAccount, true)
+    const {account} = await resumeOAuthSessionBundleWithRetry(
+      storedAccount,
+      true,
+    )
 
     expect(account.handle).toBe('alice.fresh')
     expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -127,10 +127,7 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
       },
     ])
 
-    const data = await bundle.pdsClient.call(
-      com.atproto.server.getSession,
-      {},
-    )
+    const data = await bundle.pdsClient.call(com.atproto.server.getSession, {})
     expect(data.handle).toBe('alice.fresh')
     expect(mockRestore).toHaveBeenCalledTimes(3)
   })
@@ -159,7 +156,10 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
     async (error, message, errorCategory) => {
       mockRestore.mockResolvedValue(fakeSession(dpopError(error, message)))
 
-      const {account} = await resumeOAuthSessionBundleWithRetry(storedAccount, true)
+      const {account} = await resumeOAuthSessionBundleWithRetry(
+        storedAccount,
+        true,
+      )
 
       expect(account).toEqual(storedAccount)
       expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -188,7 +188,10 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
   it('keeps the stored account when the token refresh request fails', async () => {
     mockRestore.mockRejectedValue(new TypeError('Network request failed'))
 
-    const {account} = await resumeOAuthSessionBundleWithRetry(storedAccount, true)
+    const {account} = await resumeOAuthSessionBundleWithRetry(
+      storedAccount,
+      true,
+    )
 
     expect(account).toEqual(storedAccount)
     expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -204,9 +207,9 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
       ),
     )
 
-    await expect(resumeOAuthSessionBundleWithRetry(storedAccount)).rejects.toThrow(
-      'NotEnoughResources',
-    )
+    await expect(
+      resumeOAuthSessionBundleWithRetry(storedAccount),
+    ).rejects.toThrow('NotEnoughResources')
     expect(mockRestore).toHaveBeenCalledTimes(2)
     expect(degradedEvents()).toEqual([])
   })

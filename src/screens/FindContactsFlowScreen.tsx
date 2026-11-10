@@ -4,6 +4,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useFocusEffect, usePreventRemove} from '@react-navigation/native'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -16,7 +17,6 @@ import {useFindContactsFlowState} from '#/components/contacts/state'
 import * as Layout from '#/components/Layout'
 import {ScreenTransition} from '#/components/ScreenTransition'
 import {IS_NATIVE} from '#/env'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'FindContactsFlow'>
 export function FindContactsFlowScreen({navigation}: Props) {

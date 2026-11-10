@@ -1,4 +1,5 @@
 import {type Client} from '@atproto/lex'
+
 import {BLUESKY_APPVIEW_PINNED_OPTS} from '#/lib/constants'
 import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
 import {metrics} from '#/analytics/metrics'

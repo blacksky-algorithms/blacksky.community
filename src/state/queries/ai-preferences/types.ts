@@ -1,10 +1,7 @@
 export const AI_PREFERENCE_NSID = 'community.lexicon.preference.ai'
 
 export type AIPreferenceCategory =
-  | 'training'
-  | 'inference'
-  | 'syntheticContent'
-  | 'embedding'
+  'training' | 'inference' | 'syntheticContent' | 'embedding'
 
 export const AI_PREFERENCE_CATEGORIES: AIPreferenceCategory[] = [
   'training',
@@ -35,9 +32,7 @@ export type AICollectionScope = {
 }
 
 export type AIPreferenceScope =
-  | AIGlobalScope
-  | AIEntityScope
-  | AICollectionScope
+  AIGlobalScope | AIEntityScope | AICollectionScope
 
 export type AIPreferenceSet = {
   training?: AIPreferenceField

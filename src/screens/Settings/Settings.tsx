@@ -1,7 +1,6 @@
 import {useState} from 'react'
 import {Alert, LayoutAnimation, Linking, Pressable, View} from 'react-native'
 import {useReducedMotion} from 'react-native-reanimated'
-import {removeNuxs} from '@bsky/sdk'
 import {moderateProfile} from '@bsky/sdk/moderation'
 import {plural} from '@lingui/core/macro'
 import {Trans, useLingui} from '@lingui/react/macro'
@@ -23,22 +22,17 @@ import * as persisted from '#/state/persisted'
 import {clearStorage} from '#/state/persisted'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useDeleteActorDeclaration} from '#/state/queries/messages/actor-declaration'
-import {Nux, useResetNuxs} from '#/state/queries/nuxs'
 import {useModerationInboxUnreadCountQuery} from '#/state/queries/moderation-inbox'
+import {Nux, useResetNuxs} from '#/state/queries/nuxs'
 import {useProfileQuery, useProfilesQuery} from '#/state/queries/profile'
-import {
-  type SessionAccount,
-  usePdsClient,
-  useSession,
-  useSessionApi,
-} from '#/state/session'
+import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {GrowthbookDialog} from '#/screens/Settings/components/GrowthbookDialog'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
-import {atoms as a, platform, tokens, useBreakpoints, useTheme} from '#/alf'
+import {atoms as a, tokens, useBreakpoints, useTheme} from '#/alf'
 import {AvatarStackWithFetch} from '#/components/AvatarStack'
 import {useIsFindContactsFeatureEnabledBasedOnGeolocation} from '#/components/contacts/country-allowlist'
 import {useDialogControl} from '#/components/Dialog'

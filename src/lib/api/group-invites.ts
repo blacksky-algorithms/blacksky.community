@@ -1,4 +1,5 @@
 import {type Client} from '@atproto/lex'
+
 import {ACORN_SERVICE_URL} from '#/env'
 import {getServiceAuthToken} from './service-auth'
 

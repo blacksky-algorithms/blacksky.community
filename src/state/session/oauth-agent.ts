@@ -5,11 +5,7 @@ import {BSKY_SERVICE} from '#/lib/constants'
 import {logger} from '#/logger'
 import {reportProxiedFetch} from '#/state/appview-health'
 import {com} from '#/lexicons'
-import {
-  buildAppviewClient,
-  buildChatClient,
-  buildPdsClient,
-} from './clients'
+import {buildAppviewClient, buildChatClient, buildPdsClient} from './clients'
 import {configureModerationForAccount} from './moderation'
 import {getOAuthClient, TERMINAL_OAUTH_ERRORS} from './oauth-client'
 import {

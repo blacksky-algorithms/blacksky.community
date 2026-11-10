@@ -1,5 +1,6 @@
-import {type app} from '#/lexicons'
 import {type InfiniteData, type QueryClient} from '@tanstack/react-query'
+
+import {type app} from '#/lexicons'
 
 /**
  * Query key for the curated topic feed (consumed by Topic.tsx).

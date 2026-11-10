@@ -1,7 +1,8 @@
 import {
-  LABELS,
   type InterpretedLabelValueDefinition,
+  LABELS,
 } from '@bsky/sdk/moderation'
+
 import {SELF_LABELS} from '../moderation'
 
 const ADULT_LABEL_VALS = [...SELF_LABELS, 'gore'] as const

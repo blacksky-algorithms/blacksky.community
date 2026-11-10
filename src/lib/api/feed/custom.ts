@@ -4,8 +4,6 @@ import {
   XrpcResponseError,
 } from '@atproto/lex'
 
-import {PUBLIC_APPVIEW} from '#/lib/constants'
-import {createLexClient} from '#/lib/lexClient'
 import {
   type CommunityFeedConfig,
   fetchCommunityFeedConfigStrict,
@@ -14,6 +12,8 @@ import {
 } from '#/lib/api/community-feed'
 import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {fetchSpaceFeed, signInRequiredError} from '#/lib/api/space-feed'
+import {PUBLIC_APPVIEW} from '#/lib/constants'
+import {createLexClient} from '#/lib/lexClient'
 import {
   getAppLanguageAsContentLanguage,
   getContentLanguages,

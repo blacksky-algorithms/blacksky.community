@@ -1,7 +1,6 @@
-import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
-import {type app} from '#/lexicons'
 import {useMemo} from 'react'
 import {ActivityIndicator, View} from 'react-native'
+import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {Trans} from '@lingui/react/macro'
 
 import {useCommunityFeedQuery} from '#/state/queries/community-feed'
@@ -9,6 +8,7 @@ import {TimeElapsed} from '#/view/com/util/TimeElapsed'
 import {atoms as a, useTheme} from '#/alf'
 import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
+import {type app} from '#/lexicons'
 
 export function CommunityFeed({actor}: {actor: string}) {
   const t = useTheme()

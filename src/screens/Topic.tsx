@@ -1,5 +1,6 @@
 import {useCallback, useMemo, useState} from 'react'
 import {type ListRenderItemInfo, View} from 'react-native'
+import {type AtUriString} from '@atproto/syntax'
 import {useLingui} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useInfiniteQuery} from '@tanstack/react-query'
@@ -24,7 +25,6 @@ import {ArrowOutOfBoxModified_Stroke2_Corner2_Rounded as Share} from '#/componen
 import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
 import {app} from '#/lexicons'
-import {type AtUriString} from '@atproto/syntax'
 
 const TOPICS_API = 'https://api.blacksky.community'
 const PAGE_SIZE = 25

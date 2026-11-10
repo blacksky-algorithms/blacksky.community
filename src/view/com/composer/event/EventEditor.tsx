@@ -1,5 +1,6 @@
 import {View} from 'react-native'
 import {getLocales} from 'expo-localization'
+import {type HandleString} from '@atproto/syntax'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
@@ -38,7 +39,6 @@ import {
 } from '#/features/events/draft'
 import {parseEventRecord} from '#/features/events/record'
 import {eventAtUri} from '#/features/events/url'
-import {type HandleString} from '@atproto/syntax'
 
 const STEPS: EventDraftStep[] = ['details', 'when', 'cover']
 

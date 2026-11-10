@@ -7,10 +7,10 @@ import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {Text} from '#/components/Typography'
+import {IS_ANDROID} from '#/env'
 import {type EventTimeField} from '#/features/events/draft'
 import {type EventDateRangeProps} from './EventDateRange.types'
 import {DateBox, FieldLabelText} from './EventFields'
-import {IS_ANDROID} from '#/env'
 
 const FIELDS = ['startsAt', 'endsAt'] as const
 

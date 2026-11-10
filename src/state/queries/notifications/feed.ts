@@ -17,7 +17,6 @@
  */
 
 import {useCallback, useMemo, useRef} from 'react'
-import {AtUri} from '@atproto/syntax'
 import {moderatePost} from '@bsky/sdk/moderation'
 import {
   type InfiniteData,
@@ -40,7 +39,6 @@ import {
   makeUriMatcher,
   useAutoPagination,
 } from '../util'
-import {nextAutoPaginationAttemptCount, shouldAutoPaginate} from './pagination'
 import {type FeedPage} from './types'
 import {useUnreadNotificationsApi} from './unread'
 import {fetchPage} from './util'

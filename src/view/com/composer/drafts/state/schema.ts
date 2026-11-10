@@ -1,11 +1,10 @@
-import {type app} from '#/lexicons'
 /**
  * Types for draft display and local media tracking.
  * Server draft types come from the generated `#/lexicons` modules.
  */
-
 import {type PollDraft} from '#/lib/api/poll'
 import {type EventDraft} from '#/features/events/draft'
+import {type app} from '#/lexicons'
 
 /**
  * Reference to locally cached media file for display

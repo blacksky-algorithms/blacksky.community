@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
-import {TextInput, View} from 'react-native'
+import {type TextInput, View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 import * as EmailValidator from 'email-validator'
 import type tldts from 'tldts'

@@ -17,7 +17,6 @@ import * as ProfileCard from '#/components/ProfileCard'
 import {Text} from '#/components/Typography'
 import {type FullVerificationState} from '#/components/verification'
 import {VerificationRemovePrompt} from '#/components/verification/VerificationRemovePrompt'
-import {useAnalytics} from '#/analytics'
 import {type app} from '#/lexicons'
 import type * as bsky from '#/types/bsky'
 

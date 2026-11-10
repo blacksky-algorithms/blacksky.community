@@ -45,9 +45,9 @@ import {useFeedTuners} from '../preferences/feed-tuners'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {usePreferencesQuery} from './preferences'
 import {
+  didOrHandleUriMatches,
   embedViewRecordToPostView,
   getEmbeddedPost,
-  didOrHandleUriMatches,
   makeUriMatcher,
   useAutoPagination,
 } from './util'

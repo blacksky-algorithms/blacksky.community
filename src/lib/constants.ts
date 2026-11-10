@@ -255,8 +255,7 @@ export const BLUESKY_FALLBACK_PROXY_HEADER =
 
 // Immutable, unlike BLUESKY_PROXY_HEADER below — use for calls that must not
 // follow that mutable header.
-export const HOME_PROXY_HEADER =
-  `${BLUESKY_PROXY_DID}#bsky_appview` as Service
+export const HOME_PROXY_HEADER = `${BLUESKY_PROXY_DID}#bsky_appview` as Service
 
 export const HOME_APPVIEW_PINNED_OPTS = {service: HOME_PROXY_HEADER}
 

@@ -12,7 +12,8 @@ jest.mock('#/analytics', () => ({
 jest.mock('#/state/session', () => ({
   usePdsClient: () => ({
     call: (method: unknown, input: unknown) => {
-      const {com} = jest.requireActual<typeof import('#/lexicons')>('#/lexicons')
+      const {com} =
+        jest.requireActual<typeof import('#/lexicons')>('#/lexicons')
       if (method === com.atproto.repo.createRecord) {
         return mockCreateRecord(input)
       }

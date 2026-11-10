@@ -1,7 +1,6 @@
-import {RichText} from '@bsky/sdk/richtext'
-import {type app, com} from '#/lexicons'
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {Image, Pressable, StyleSheet, View} from 'react-native'
+import {RichText} from '@bsky/sdk/richtext'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {assemblyReportUrl, assemblyUrl} from '#/lib/api/assembly'
@@ -15,6 +14,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {ASSEMBLY_URL} from '#/env'
+import {type app, com} from '#/lexicons'
 import {VoteButtons} from './VoteButtons'
 
 const ASSEMBLY_API = `${ASSEMBLY_URL.replace(/\/+$/, '')}/api/v3`

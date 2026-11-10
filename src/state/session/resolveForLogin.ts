@@ -1,8 +1,9 @@
 import {type DidString, type HandleString} from '@atproto/syntax'
+
 import {BSKY_SERVICE, PUBLIC_BSKY_SERVICE} from '#/lib/constants'
+import {createServiceClient} from '#/lib/lexClient'
 import {isNetworkError} from '#/lib/strings/errors'
 import {buildHandleCandidates} from '#/lib/strings/handles'
-import {createServiceClient} from '#/lib/lexClient'
 import {getErrorStatus} from '#/lib/xrpc-error'
 import {com} from '#/lexicons'
 

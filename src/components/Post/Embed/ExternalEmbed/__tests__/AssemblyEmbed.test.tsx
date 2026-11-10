@@ -1,6 +1,5 @@
-import {RichText} from '@bsky/sdk/richtext'
-import {type app} from '#/lexicons'
 import {type ReactNode} from 'react'
+import {RichText} from '@bsky/sdk/richtext'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
 import {
@@ -10,6 +9,8 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native'
+
+import {type app} from '#/lexicons'
 
 jest.mock('#/env', () => ({
   ...jest.requireActual<Record<string, unknown>>('#/env'),

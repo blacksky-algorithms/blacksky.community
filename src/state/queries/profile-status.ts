@@ -1,11 +1,11 @@
+import {type DidString} from '@atproto/syntax'
 import {useQuery} from '@tanstack/react-query'
 
+import {isXrpcError} from '#/lib/xrpc-error'
 import {STALE} from '#/state/queries'
 import {useAppviewClient} from '#/state/session'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
 import {app, com} from '#/lexicons'
-import {isXrpcError} from '#/lib/xrpc-error'
-import {type DidString} from '@atproto/syntax'
 
 export const BLUESKY_MOD_DID = 'did:plc:ar7c4by46qjdydhdevvrndac'
 export const BLUESKY_MOD_EMAIL = 'moderation@blueskyweb.xyz'
@@ -104,7 +104,7 @@ export function useProfileStatusSource(
       let handle: string = src
       try {
         const profileRes = await client.call(app.bsky.actor.getProfile, {
-          actor: src as DidString,
+          actor: src,
         })
         handle = profileRes.handle || src
       } catch {

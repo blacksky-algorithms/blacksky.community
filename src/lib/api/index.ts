@@ -36,10 +36,10 @@ import {
   pollTopicFromText,
 } from '#/lib/api/poll'
 import {imageToThumb} from '#/lib/api/resolve'
+import {type LinkResolvers} from '#/lib/api/resolve'
 import {spaceOfPostUrl} from '#/lib/api/space-permalink'
 import {postToSpace} from '#/lib/api/space-post'
 import {isSpaceRecordUri, spaceOfRecordUri} from '#/lib/api/space-uri'
-import {type LinkResolvers} from '#/lib/api/resolve'
 import {withCreator} from '#/lib/at-card'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'

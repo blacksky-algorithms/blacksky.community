@@ -1,9 +1,10 @@
-import {jsonToLex, type Client} from '@atproto/lex'
+import {type Client, jsonToLex} from '@atproto/lex'
 import {AtUri} from '@atproto/syntax'
-import {app} from '#/lexicons'
+
 import {communityXrpc} from '#/lib/api/community'
 import {isSpaceRecordUri, parseSpaceUri} from '#/lib/api/space-uri'
 import {toPostView} from '#/lib/api/space-views'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'

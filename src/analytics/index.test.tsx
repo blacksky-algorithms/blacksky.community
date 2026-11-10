@@ -350,9 +350,7 @@ it('flushes queued metrics with emission-time sessions and a stable device ID', 
   jest
     .mocked(metrics.track)
     .mockImplementation((...args) => client.track(...args))
-  const fetchMock = jest
-    .spyOn(global, 'fetch')
-    .mockResolvedValue({ok: true} as Response)
+  const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ok: true})
   render(<Tree />)
   const metric = ax.metric
   metric('state:foreground', {})
@@ -383,7 +381,7 @@ it('keeps passive metrics, logs, evaluations, flushes and retries separate from 
   const fetchMock = jest
     .spyOn(global, 'fetch')
     .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-    .mockResolvedValue({ok: true} as Response)
+    .mockResolvedValue({ok: true})
   render(<Tree />)
   const feature = installFeature()
   jest.setSystemTime(lastEventAt + 30 * 60_000)
@@ -528,7 +526,9 @@ it('uses context device identity when setting attributes triggers synchronous ev
 
 it('registers current-account callbacks before provider attribute updates evaluate gates', () => {
   function AccountTree({did}: {did: string}) {
-    return <Tree key={did} session={{did, isBlackskyPds: did === 'did:plc:a'}} />
+    return (
+      <Tree key={did} session={{did, isBlackskyPds: did === 'did:plc:a'}} />
+    )
   }
   const view = render(<AccountTree did="did:plc:a" />)
   const feature = installFeature('did')

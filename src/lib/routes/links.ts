@@ -1,7 +1,6 @@
 import {AtUri} from '@atproto/syntax'
 
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
-import {isInvalidHandle} from '#/lib/strings/handles'
 import {type app} from '#/lexicons'
 
 export function makeProfileLink(

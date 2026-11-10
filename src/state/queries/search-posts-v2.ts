@@ -1,5 +1,4 @@
 import {useCallback, useMemo, useRef} from 'react'
-import {AtUri} from '@atproto/syntax'
 import {moderatePost} from '@bsky/sdk/moderation'
 import {
   type InfiniteData,

@@ -1,4 +1,3 @@
-import {type com} from '#/lexicons'
 import {useRef, useState} from 'react'
 import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
 import {msg} from '@lingui/core/macro'
@@ -27,6 +26,7 @@ import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {IS_E2E} from '#/env'
+import {type com} from '#/lexicons'
 import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({

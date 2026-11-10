@@ -1,4 +1,3 @@
-
 const mockGetSpacePostLikes = jest.fn()
 const mockGetSpacePostQuotes = jest.fn()
 

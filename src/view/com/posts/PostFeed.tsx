@@ -50,7 +50,7 @@ import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {List, type ListRef} from '#/view/com/util/List'
 import {LoadMoreRetryBtn} from '#/view/com/util/LoadMoreRetryBtn'
 import {type VideoFeedSourceContext} from '#/screens/VideoFeed/types'
-import {atoms as a, useBreakpoints, useLayoutBreakpoints, useTheme} from '#/alf'
+import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {ProgressGuide, SuggestedFollows} from '#/components/FeedInterstitials'
 import {
   PostFeedVideoGridRow,

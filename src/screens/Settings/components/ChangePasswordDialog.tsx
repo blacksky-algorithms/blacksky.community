@@ -3,7 +3,6 @@ import {useWindowDimensions, View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 import * as EmailValidator from 'email-validator'
 
-import {useBrand} from '#/lib/community/BrandContext'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {checkAndFormatResetCode} from '#/lib/strings/password'
 import {matchXrpcError} from '#/lib/xrpc-error'

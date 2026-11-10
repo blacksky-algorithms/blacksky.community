@@ -1,6 +1,5 @@
 import {memo, useCallback, useMemo} from 'react'
 import {Text as RNText, View} from 'react-native'
-import {AtUri} from '@atproto/syntax'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 

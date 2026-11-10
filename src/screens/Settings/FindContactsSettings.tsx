@@ -12,6 +12,7 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {wait} from '#/lib/async/wait'
 import {HITSLOP_10} from '#/lib/constants'
 import {isBlockedOrBlocking, isMuted} from '#/lib/moderation/blocked-and-muted'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -53,7 +54,6 @@ import {InviteFriendsDialog} from '#/features/inviteFriends'
 import {app} from '#/lexicons'
 import type * as bsky from '#/types/bsky'
 import {bulkWriteFollows} from '../Onboarding/util'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<
   CommonNavigatorParams,

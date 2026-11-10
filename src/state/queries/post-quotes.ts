@@ -1,5 +1,5 @@
 import {type Client} from '@atproto/lex'
-import {AtUri, type AtUriString} from '@atproto/syntax'
+import {type AtUriString} from '@atproto/syntax'
 import {
   type InfiniteData,
   type QueryClient,

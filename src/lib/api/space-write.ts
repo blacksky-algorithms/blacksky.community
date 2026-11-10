@@ -1,5 +1,5 @@
-import {type Client} from '@atproto/lex'
 import {TID} from '@atproto/common-web'
+import {type Client} from '@atproto/lex'
 
 import {parseSpaceRecordUri, spaceUriOf} from '#/lib/api/space-uri'
 

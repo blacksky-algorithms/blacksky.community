@@ -1,11 +1,6 @@
 import {useCallback} from 'react'
 import {type Client} from '@atproto/lex'
-import {
-  AtUri,
-  type AtUriString,
-  type DidString,
-  type HandleString,
-} from '@atproto/syntax'
+import {AtUri, type AtUriString, type HandleString} from '@atproto/syntax'
 import {deleteLike, deletePost, deleteRepost, like, repost} from '@bsky/sdk'
 import {
   type QueryClient,
@@ -412,7 +407,7 @@ export function usePostDeleteMutation() {
         // any partial failure converges to both being gone. Remove the PDS
         // stub first (deleteRecord is a no-op if already absent)...
         await pdsClient.call(com.atproto.repo.deleteRecord, {
-          repo: parsedUri.host as DidString,
+          repo: parsedUri.host,
           collection: COMMUNITY_POST_COLLECTION,
           rkey: parsedUri.rkey,
         })

@@ -3,8 +3,8 @@ import {useLingui} from '@lingui/react/macro'
 
 import {type PollVoteValue} from '#/lib/api/poll'
 import {atoms as a, useTheme} from '#/alf'
-import {Text} from '#/components/Typography'
 import {Pressable} from '#/components/Pressable'
+import {Text} from '#/components/Typography'
 
 const AGREE = '#61C554'
 const DISAGREE = '#F40B42'

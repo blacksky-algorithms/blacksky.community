@@ -8,11 +8,7 @@ import {useLingui} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {
-  DISCOVER_FEED_URI,
-  PROD_DEFAULT_FEED,
-  TIMELINE_SAVED_FEED,
-} from '#/lib/constants'
+import {PROD_DEFAULT_FEED, TIMELINE_SAVED_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'

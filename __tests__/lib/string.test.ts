@@ -517,7 +517,8 @@ describe('parseEmbedPlayerFromUrl', () => {
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://blacksky.community/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri:
+        'https://blacksky.community/iframe/youtube.html?videoId=videoId&start=0',
     },
     {
       type: 'youtube_video',
@@ -540,7 +541,8 @@ describe('parseEmbedPlayerFromUrl', () => {
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://blacksky.community/iframe/youtube.html?videoId=videoId&start=0',
+      playerUri:
+        'https://blacksky.community/iframe/youtube.html?videoId=videoId&start=0',
     },
     {
       type: 'youtube_video',

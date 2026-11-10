@@ -13,6 +13,7 @@ import {communityXrpc} from '#/lib/api/community'
 import {STALE} from '#/state/queries'
 import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import {useAnalytics} from '#/analytics'
+import {com} from '#/lexicons'
 import {applyRsvp, type RsvpLogContext, rsvpMetricStatus} from './rsvp-state'
 import {mergeEventTimeline} from './timeline'
 import {
@@ -21,7 +22,6 @@ import {
   type RsvpStatus,
   type RsvpView,
 } from './types'
-import {com} from '#/lexicons'
 
 const EVENT_RQKEY_ROOT = 'calendar-event'
 export const EVENT_RQKEY = (uri: string) => [EVENT_RQKEY_ROOT, uri]

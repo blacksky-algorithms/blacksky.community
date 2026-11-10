@@ -1,5 +1,6 @@
 import {type Client} from '@atproto/lex'
-import {type AtIdentifierString, AtUri} from '@atproto/syntax'
+import {AtUri} from '@atproto/syntax'
+
 import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {isSpaceUri} from '#/lib/api/space-uri'
 import {isRecordNotFoundError} from '#/lib/xrpc-error'
@@ -116,7 +117,7 @@ export async function fetchCommunityFeedConfigStrict(
   if (!uri.rkey) return null
   try {
     const data = await client.call(com.atproto.repo.getRecord, {
-      repo: uri.host as AtIdentifierString,
+      repo: uri.host,
       collection: COMMUNITY_FEED_CONFIG_COLLECTION,
       rkey: uri.rkey,
     })
@@ -137,7 +138,7 @@ async function fetchFeedGenerator(
     const uri = new AtUri(feed)
     if (!uri.rkey) return null
     const data = await client.call(com.atproto.repo.getRecord, {
-      repo: uri.host as AtIdentifierString,
+      repo: uri.host,
       collection: 'app.bsky.feed.generator',
       rkey: uri.rkey,
     })

@@ -1,7 +1,7 @@
-import {type Un$Typed} from '@atproto/lex'
 import {useCallback, useState} from 'react'
 import {View} from 'react-native'
 import {TID} from '@atproto/common-web'
+import {type Un$Typed} from '@atproto/lex'
 import {type AtUriString, toDatetimeString} from '@atproto/syntax'
 import {overwriteSavedFeeds, setInterestsPref, upsertProfile} from '@bsky/sdk'
 import {msg} from '@lingui/core/macro'
@@ -48,8 +48,8 @@ import {
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import * as bsky from '#/types/bsky'
 import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 
 export function StepFinished() {
   const {state, dispatch} = useOnboardingInternalState()

@@ -10,8 +10,7 @@ import {
 jest.mock('@lingui/react', () => {
   const format = (
     message:
-      | {message?: string; values?: Record<string, string | number>}
-      | string,
+      {message?: string; values?: Record<string, string | number>} | string,
   ) => {
     if (typeof message === 'string') return message
     return (message.message ?? '').replace(/{(\w+)}/g, (_, key: string) =>

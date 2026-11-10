@@ -1,5 +1,5 @@
 import {type $Typed} from '@atproto/lex'
-import {AtUri, toDatetimeString} from '@atproto/syntax'
+import {toDatetimeString} from '@atproto/syntax'
 import {
   type InfiniteData,
   type QueryClient,

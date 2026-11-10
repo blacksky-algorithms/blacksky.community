@@ -1,6 +1,6 @@
-import {moderatePost} from '@bsky/sdk/moderation'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ActivityIndicator, type ListRenderItemInfo, View} from 'react-native'
+import {moderatePost} from '@bsky/sdk/moderation'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'

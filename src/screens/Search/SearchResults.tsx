@@ -1,5 +1,5 @@
 import {memo, useCallback, useMemo, useState} from 'react'
-import {ActivityIndicator, View} from 'react-native'
+import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'

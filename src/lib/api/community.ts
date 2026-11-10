@@ -1,8 +1,9 @@
-import {jsonToLex, type Client} from '@atproto/lex'
-import {type app} from '#/lexicons'
-import {HOME_PROXY_HEADER} from '#/lib/constants'
-import {toPostView} from './space-views'
+import {type Client, jsonToLex} from '@atproto/lex'
 import {type AtUriString} from '@atproto/syntax'
+
+import {HOME_PROXY_HEADER} from '#/lib/constants'
+import {type app} from '#/lexicons'
+import {toPostView} from './space-views'
 
 export type CommunityXrpcParam = string | number | boolean
 

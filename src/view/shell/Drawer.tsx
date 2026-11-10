@@ -7,8 +7,8 @@ import {
   View,
 } from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {msg, plural} from '@lingui/core/macro'
-import {Plural, Trans, useLingui} from '@lingui/react/macro'
+import {plural} from '@lingui/core/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 import {type NavigationState} from '@react-navigation/native'
 import {StackActions, useNavigation} from '@react-navigation/native'
 
@@ -957,7 +957,6 @@ function MenuItem({
 
 function ExtraLinks() {
   const {t: l} = useLingui()
-  const t = useTheme()
   const brand = useBrand()
 
   return (

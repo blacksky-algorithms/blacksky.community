@@ -1,7 +1,7 @@
-
 import {type ModerationOpts} from '@bsky/sdk/moderation'
-import {visibleMessages} from '../visible'
+
 import {type app} from '#/lexicons'
+import {visibleMessages} from '../visible'
 
 jest.mock('@bsky/sdk/moderation', () => ({
   ...jest.requireActual('@bsky/sdk/moderation'),

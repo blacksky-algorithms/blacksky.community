@@ -3,9 +3,9 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {usePdsClient, useSession} from '#/state/session'
+import {com} from '#/lexicons'
 import {buildGlobalRecord, type Patch} from './serde'
 import {AI_PREFERENCE_NSID, type AIPreferenceRecord} from './types'
-import {com} from '#/lexicons'
 
 const RQKEY_ROOT = 'ai-preferences'
 

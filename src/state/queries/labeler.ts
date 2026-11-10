@@ -14,7 +14,6 @@ import {
   preferencesQueryKey,
   usePreferencesQuery,
 } from '#/state/queries/preferences'
-import {createQueryKey} from '#/state/queries/util'
 import {useAppviewClient, usePdsClient} from '#/state/session'
 import {app} from '#/lexicons'
 

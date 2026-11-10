@@ -1,7 +1,5 @@
 export type GroupInviteE2EFailureStage =
-  | 'saved-feed-update'
-  | 'saved-feed-add'
-  | 'navigation'
+  'saved-feed-update' | 'saved-feed-add' | 'navigation'
 
 /** Production builds never inject client-side failures. */
 export function setGroupInviteE2EFailure(

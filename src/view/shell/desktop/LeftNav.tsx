@@ -31,8 +31,8 @@ import {
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
-import {usePinnedFeedsInfos} from '#/state/queries/feed'
 import {useHomeBadge} from '#/state/home-badge'
+import {usePinnedFeedsInfos} from '#/state/queries/feed'
 import {useFetchHandle} from '#/state/queries/handle'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useModerationInboxUnreadCountQuery} from '#/state/queries/moderation-inbox'
@@ -618,8 +618,7 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
       : currentRoute.name === 'CustomFeed'
         ? ((
             currentRoute.params as
-              | CommonNavigatorParams['CustomFeed']
-              | undefined
+              CommonNavigatorParams['CustomFeed'] | undefined
           )?.resolvedFeed as FeedDescriptor | undefined)
         : undefined
   const {openComposer} = useOpenComposer(contextualFeed)
@@ -704,8 +703,7 @@ export function DesktopLeftNav({
 
   // splitview uses the minimal variant of the leftnav. unfortunately there's no easy
   // way to thread this data through because of the view hierarchy, so just check the route name
-  const isMessagesRelatedScreen =
-    !IS_NATIVE && routeName.startsWith('Messages')
+  const isMessagesRelatedScreen = !IS_NATIVE && routeName.startsWith('Messages')
   const {leftNavMinimal: leftNavMinimalBreakpoint, centerColumnOffset} =
     useLayoutBreakpoints()
   const numUnreadNotifications = useUnreadNotifications()

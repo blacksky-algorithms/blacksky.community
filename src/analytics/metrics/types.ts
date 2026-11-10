@@ -5,10 +5,7 @@
 import {type Platform} from 'react-native'
 
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
-import {
-  type VideoCompressSkipReason,
-  type VideoUploadTransport,
-} from '#/lib/media/video/types'
+import {type VideoCompressSkipReason} from '#/lib/media/video/types'
 import {type DeepLinkDestinationKind} from '#/lib/strings/url-helpers'
 import {type GroupedNotificationsFeed} from '#/state/queries/notifications/grouped/types'
 import {type NotificationType} from '#/state/queries/notifications/types'

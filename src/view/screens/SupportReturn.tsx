@@ -5,6 +5,7 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -16,7 +17,6 @@ import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {IS_WEB} from '#/env'
 import {STRIPE_API_URL} from '#/env/common'
-import {getHomeNavigationAction} from '#/lib/routes/navigation'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'SupportReturn'>
 export const SupportReturnScreen = (_props: Props) => {

@@ -2,12 +2,12 @@ import {useEffect, useReducer, useState} from 'react'
 import {AppState, type AppStateStatus, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
-import {tokens} from '@bsky.app/alf'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 
 import {DEFAULT_BRAND_CONFIG, useBrand} from '#/lib/community/BrandContext'
 import {fetchBrandBySlug} from '#/lib/community/resolveBrand'
+import {getErrorName} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
 import {useStarterPackQuery} from '#/state/queries/starter-packs'
@@ -32,7 +32,6 @@ import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID} from '#/env'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
-import {getErrorName} from '#/lib/xrpc-error'
 
 export function Signup({
   onPressBack,

@@ -1,10 +1,10 @@
-import {app} from '#/lexicons'
+import {type AtIdentifierString} from '@atproto/syntax'
 import {useQuery} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {useAppviewClient} from '#/state/session'
-import {type AtIdentifierString} from '@atproto/syntax'
+import {app} from '#/lexicons'
 
 export const createOnboardingCommunityStarterPacksQueryKey = (did?: string) => [
   'onboarding-community-starter-packs',

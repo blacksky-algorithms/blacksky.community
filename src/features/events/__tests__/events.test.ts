@@ -1,6 +1,7 @@
 import {describe, expect, it} from '@jest/globals'
 import {setupI18n} from '@lingui/core'
 
+import {type app, type com} from '#/lexicons'
 import {
   eventDateParts,
   eventLinkLabel,
@@ -19,7 +20,6 @@ import {
   RSVP_NOTGOING,
 } from '../types'
 import {makeEventLink, parseEventUrl} from '../url'
-import {type app, type com} from '#/lexicons'
 
 describe('parseEventRecord', () => {
   it('reads the published fields and common extensions', () => {
@@ -362,12 +362,13 @@ describe('mergeEventTimeline', () => {
 })
 
 describe('coverUrl', () => {
-  const label = (val: string) => ({
-    src: 'did:plc:labeler',
-    uri: 'at://did:plc:host/community.lexicon.calendar.event/k',
-    val,
-    cts: '2026-09-29T00:00:00.000Z',
-  }) as com.atproto.label.defs.Label
+  const label = (val: string) =>
+    ({
+      src: 'did:plc:labeler',
+      uri: 'at://did:plc:host/community.lexicon.calendar.event/k',
+      val,
+      cts: '2026-09-29T00:00:00.000Z',
+    }) as com.atproto.label.defs.Label
 
   it('hides the cover when the event carries a sensitive label', () => {
     expect(coverUrl({thumb: 'https://cdn/x', labels: [label('porn')]})).toBe(
