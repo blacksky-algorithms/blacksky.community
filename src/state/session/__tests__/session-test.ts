@@ -1831,6 +1831,48 @@ describe('session', () => {
     expect(state.currentBundleState.did).toBe('alice-did')
     expect(state.needsPersist).toBe(true)
   })
+
+  it('patches a changed handle and email, and keeps them when the patch has none', () => {
+    let state = getInitialState([])
+    state = run(state, [
+      {
+        type: 'switched-to-account',
+        newBundle: makeBundle('https://alice.com'),
+        newAccount: makeAccount('https://alice.com', {
+          active: true,
+          did: 'alice-did',
+          handle: 'alice.test',
+          accessJwt: 'alice-access-jwt-1',
+          refreshJwt: 'alice-refresh-jwt-1',
+          email: 'alice@foo.bar',
+          emailAuthFactor: false,
+          emailConfirmed: false,
+        }),
+      },
+      {
+        type: 'partial-refresh-session',
+        accountDid: 'alice-did',
+        patch: {
+          handle: 'alice.example',
+          email: 'alice@new.example',
+          emailConfirmed: false,
+          emailAuthFactor: false,
+        },
+      },
+    ])
+    expect(state.accounts[0].handle).toBe('alice.example')
+    expect(state.accounts[0].email).toBe('alice@new.example')
+
+    state = run(state, [
+      {
+        type: 'partial-refresh-session',
+        accountDid: 'alice-did',
+        patch: {emailConfirmed: true, emailAuthFactor: false},
+      },
+    ])
+    expect(state.accounts[0].handle).toBe('alice.example')
+    expect(state.accounts[0].email).toBe('alice@new.example')
+  })
 })
 
 function run(initialState: State, actions: Action[]): State {

@@ -65,7 +65,8 @@ export type Action =
       patch: Pick<
         SessionAccount,
         'emailConfirmed' | 'emailAuthFactor' | 'active' | 'status'
-      >
+      > &
+        Partial<Pick<SessionAccount, 'handle' | 'email'>>
     }
 
 function createPublicBundleState(): BundleState {
@@ -269,6 +270,8 @@ let reducer = (state: State, action: Action): State => {
           if (a.did === accountDid) {
             return {
               ...a,
+              handle: patch.handle ?? a.handle,
+              email: patch.email ?? a.email,
               emailConfirmed: patch.emailConfirmed ?? a.emailConfirmed,
               emailAuthFactor: patch.emailAuthFactor ?? a.emailAuthFactor,
               active: patch.active,

@@ -51,7 +51,8 @@ export const upsertProfile: Action<UpsertProfileInput, void> = async (
         collection: COLLECTION,
         rkey: 'self',
         record: {...updated, $type: COLLECTION},
-        swapRecord: existing?.cid,
+        // `null` asserts the record is still absent, so two first writes cannot both land.
+        swapRecord: existing ? existing.cid : null,
       })
       return
     } catch (e) {

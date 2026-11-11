@@ -38,7 +38,7 @@ function mockClient() {
         ([, init]) =>
           JSON.parse(init.body as string) as {
             record: Record<string, unknown>
-            swapRecord?: string
+            swapRecord?: string | null
           },
       )
   return {client, fetchHandler, puts}
@@ -91,7 +91,7 @@ describe('upsertProfile', () => {
       $type: 'app.bsky.actor.profile',
       displayName: 'New',
     })
-    expect(puts()[0].swapRecord).toBeUndefined()
+    expect(puts()[0].swapRecord).toBeNull()
   })
 
   it('writes nothing when the profile cannot be read', async () => {

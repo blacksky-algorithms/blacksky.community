@@ -57,7 +57,14 @@ export async function getPostgateRecord({
         }),
     )
 
-    if (data.value && bsky.matches(app.bsky.feed.postgate, data.value)) {
+    /*
+     * Lenient, because a record this reads as missing is then overwritten: a
+     * strict failure on a legacy datetime would drop its existing rules.
+     */
+    if (
+      data.value &&
+      bsky.matches(app.bsky.feed.postgate, data.value, {strict: false})
+    ) {
       return data.value
     } else {
       return undefined
