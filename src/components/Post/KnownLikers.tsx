@@ -1,9 +1,8 @@
 import {type StyleProp, type ViewStyle} from 'react-native'
-import {AtUri} from '@atproto/syntax'
 import {moderateProfile} from '@bsky/sdk/moderation'
 import {Trans, useLingui} from '@lingui/react/macro'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {atoms as a, useTheme} from '#/alf'
@@ -46,8 +45,7 @@ export function KnownLikers({
     return null
   }
 
-  const urip = new AtUri(post.uri)
-  const likesHref = makeProfileLink(post.author, 'post', urip.rkey, 'liked-by')
+  const likesHref = postPermalink(post.author, post.uri, 'liked-by')
   const aviStackProfiles = knownLikersAndModeration
     .slice(0, 3)
     .map(({actor}) => actor)

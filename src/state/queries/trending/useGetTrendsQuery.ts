@@ -65,7 +65,7 @@ export function useGetTrendsQuery(props: QueryProps = {}) {
     queryKey: createGetTrendsQueryKey(fetchLimit),
     queryFn: async () => {
       const contentLangs = getContentLanguages().join(',')
-      const params = new URLSearchParams({limit: String(limit)})
+      const params = new URLSearchParams({limit: String(fetchLimit)})
       const res = await fetch(
         `${PUBLIC_API}/xrpc/app.bsky.unspecced.getTrends?${params}`,
         {
