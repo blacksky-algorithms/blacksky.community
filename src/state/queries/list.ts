@@ -1,11 +1,6 @@
 import {type $Typed, type Client} from '@atproto/lex'
 import {AtUri, type AtUriString, toDatetimeString} from '@atproto/syntax'
-import {
-  blockActorList,
-  muteActorList,
-  unblockActorList,
-  unmuteActorList,
-} from '@bsky/sdk'
+import {blockActorList, muteActorList, unmuteActorList} from '@bsky/sdk'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import chunk from 'lodash.chunk'
 
@@ -387,7 +382,21 @@ export function useListBlockMutation() {
       if (block) {
         await pdsClient.call(blockActorList, {list: uri as AtUriString})
       } else {
-        await pdsClient.call(unblockActorList, {list: uri as AtUriString})
+        /*
+         * The SDK's unblock helper looks the block up through the client it
+         * deletes with, which would ask the account server's own appview
+         * rather than the one this app reads from.
+         */
+        const res = await appviewClient.call(app.bsky.graph.getList, {
+          list: uri as AtUriString,
+          limit: 1,
+        })
+        const blocked = res.list.viewer?.blocked
+        if (blocked) {
+          await pdsClient.delete(app.bsky.graph.listblock, {
+            rkey: new AtUri(blocked).rkey,
+          })
+        }
       }
 
       await whenAppViewReady(appviewClient, uri, v => {
