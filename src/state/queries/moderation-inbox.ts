@@ -324,8 +324,14 @@ export function useUpdateModerationInboxNotificationPreferencesMutation() {
 
 export function useUpdateModerationInboxSeenMutation({
   silent = false,
+  moderationService,
 }: {
   silent?: boolean
+  /**
+   * The service whose item is being read. A report or notice opened from
+   * another service must be marked seen there, not on the default one.
+   */
+  moderationService?: DidString
 } = {}) {
   const {t: l} = useLingui()
   const client = useAppviewClient()
@@ -336,7 +342,9 @@ export function useUpdateModerationInboxSeenMutation({
   return useMutation({
     mutationFn: async (input: tools.ozone.inbox.updateSeen.$InputBody) =>
       await client.call(tools.ozone.inbox.updateSeen, input, {
-        service: MOD_PROXY_SERVICE,
+        service: moderationService
+          ? `${moderationService}#atproto_labeler`
+          : MOD_PROXY_SERVICE,
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey})

@@ -72,6 +72,22 @@ export function getCommunitySpaceUri(
     : undefined
 }
 
+/** A community post read the server answered with an error status. */
+export class CommunityPostError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message)
+    this.name = 'CommunityPostError'
+  }
+
+  /** The post is gone or the viewer may not read it; retrying will not help. */
+  get isUnavailable() {
+    return this.status >= 400 && this.status < 500
+  }
+}
+
 /**
  * Read one community post by URI.
  *
@@ -89,10 +105,13 @@ export async function fetchCommunityPostView(
       message?: string
       error?: string
     }
-    throw new Error(body.message || body.error || `HTTP ${res.status}`)
+    throw new CommunityPostError(
+      body.message || body.error || `HTTP ${res.status}`,
+      res.status,
+    )
   }
   const data = jsonToLex(await res.json()) as {post?: unknown}
   const post = toPostView(data.post)
-  if (!post) throw new Error('Community post not found')
+  if (!post) throw new CommunityPostError('Community post not found', 404)
   return post
 }

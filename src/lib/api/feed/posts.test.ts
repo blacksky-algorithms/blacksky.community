@@ -1,6 +1,9 @@
 import {type Client} from '@atproto/lex'
 
-import {fetchCommunityPostView} from '#/lib/api/community-post'
+import {
+  CommunityPostError,
+  fetchCommunityPostView,
+} from '#/lib/api/community-post'
 import {app} from '#/lexicons'
 import {PostListFeedAPI} from './posts'
 
@@ -54,13 +57,26 @@ describe('PostListFeedAPI', () => {
   it('leaves out a community post the viewer can no longer read', async () => {
     jest
       .mocked(fetchCommunityPostView)
-      .mockRejectedValue(new Error('NotAMember'))
+      .mockRejectedValue(new CommunityPostError('NotAMember', 403))
     const {api} = setup([PRIVATE, PUBLIC])
 
     const page = await api.fetch({})
 
     expect(page.feed.map(item => item.post.uri)).toEqual([PUBLIC])
   })
+
+  it.each([
+    ['a server error', new CommunityPostError('down', 503)],
+    ['a network failure', new TypeError('Network request failed')],
+  ])(
+    'fails the page on %s rather than showing fewer posts',
+    async (_name, e) => {
+      jest.mocked(fetchCommunityPostView).mockRejectedValue(e)
+      const {api} = setup([PRIVATE, PUBLIC])
+
+      await expect(api.fetch({})).rejects.toBe(e)
+    },
+  )
 
   it('skips the standard route when every post is community content', async () => {
     const {api, call} = setup([PRIVATE])

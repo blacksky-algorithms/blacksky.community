@@ -134,7 +134,13 @@ export function PostSubjectPreview({
                 testID="moderationInboxOpenPost"
                 to={{
                   screen: 'PostThread',
-                  params: {name: uri.host, rkey: uri.rkey},
+                  params: {
+                    name: uri.host,
+                    rkey: uri.rkey,
+                    ...(uri.collection === 'app.bsky.feed.post'
+                      ? {}
+                      : {collection: uri.collection}),
+                  },
                 }}
                 label={l`Open post`}
                 size="tiny"

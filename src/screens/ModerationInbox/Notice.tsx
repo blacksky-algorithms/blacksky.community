@@ -60,14 +60,15 @@ export function ModerationInboxNoticeDetailsScreen({
   const {t: l} = useLingui()
   const ax = useAnalytics()
   const {currentAccount, hasSession} = useSession()
-  const {mutate: markSeen} = useUpdateModerationInboxSeenMutation({
-    silent: true,
-  })
   const moderationOpts = useModerationOpts()
   const isEnabled = ax.features.enabled(ax.features.ModerationInboxEnable)
   const moderationService = isValidDid(route.params?.moderationService)
     ? route.params.moderationService
     : undefined
+  const {mutate: markSeen} = useUpdateModerationInboxSeenMutation({
+    silent: true,
+    moderationService,
+  })
   const rawSubject = route.params?.subject
   const subject = isValidDid(rawSubject)
     ? rawSubject

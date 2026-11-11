@@ -1,6 +1,7 @@
 import {type Client, type XrpcRequestParams} from '@atproto/lex'
 
 import {
+  CommunityPostError,
   fetchCommunityPostView,
   isCommunityPostUri,
 } from '#/lib/api/community-post'
@@ -48,7 +49,8 @@ export class PostListFeedAPI implements FeedAPI {
     /*
      * `getPosts` only takes at-uris and only serves public posts, so community
      * and permissioned-space posts are read one by one through the
-     * membership-gated route. One the viewer can no longer read is left out.
+     * membership-gated route. One the viewer can no longer read is left out;
+     * any other failure fails the page, so the feed shows its error and retries.
      */
     const community = this.params.uris.filter(uri => isCommunityPostUri(uri))
     const standard = this.params.uris.filter(uri => !isCommunityPostUri(uri))
@@ -58,7 +60,12 @@ export class PostListFeedAPI implements FeedAPI {
         : {posts: []},
       Promise.all(
         community.map(uri =>
-          fetchCommunityPostView(this.client, uri).catch(() => undefined),
+          fetchCommunityPostView(this.client, uri).catch((e: unknown) => {
+            if (e instanceof CommunityPostError && e.isUnavailable) {
+              return undefined
+            }
+            throw e
+          }),
         ),
       ),
     ])
