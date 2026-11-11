@@ -2,12 +2,11 @@ import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
-import {colors} from '#/lib/styles'
 import {atoms as a} from '#/alf'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import {Text} from '#/components/Typography'
 
 const SHIM_SIZE = 13
-const LIME = colors.green2
 
 export function Eyebrow({
   step,
@@ -19,6 +18,7 @@ export function Eyebrow({
   label?: string
 }) {
   const {_} = useLingui()
+  const {accent} = useChromeColors()
 
   let text: string | undefined
   if (step != null && total != null) {
@@ -37,7 +37,7 @@ export function Eyebrow({
         style={{
           width: SHIM_SIZE,
           height: SHIM_SIZE,
-          backgroundColor: LIME,
+          backgroundColor: accent,
         }}
       />
       <Text
@@ -48,7 +48,7 @@ export function Eyebrow({
             fontSize: 14,
             letterSpacing: -0.5,
             textTransform: 'uppercase',
-            color: LIME,
+            color: accent,
           },
         ]}>
         {text}

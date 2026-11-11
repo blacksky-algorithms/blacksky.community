@@ -10,12 +10,9 @@ import {
 
 import {applyFonts, atoms as a, useAlf, useTheme} from '#/alf'
 import {type Props as SVGIconProps} from '#/components/icons/common'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import {Text} from '#/components/Typography'
 
-export const FIELD_BG = '#262644'
-export const FIELD_BORDER = '#464985'
-const PLACEHOLDER = '#7878A5'
-const INPUT_TEXT_COLOR = '#F8FAF9'
 const RADIUS = 8
 
 export type InputGroupProps = {
@@ -81,6 +78,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
   ) {
     const {fonts} = useAlf()
     const t = useTheme()
+    const c = useChromeColors()
     const [focused, setFocused] = useState(false)
 
     const hasError = errorText != null
@@ -96,7 +94,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
       a.font_mono,
       {
         fontSize: 14,
-        color: INPUT_TEXT_COLOR,
+        color: c.inputText,
         padding: 0,
         textTransform: uppercaseValue ? ('uppercase' as const) : undefined,
       },
@@ -108,7 +106,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
       a.align_center,
       a.gap_sm,
       {
-        backgroundColor: FIELD_BG,
+        backgroundColor: c.fieldBg,
         borderColor,
         borderWidth: 1,
         borderRadius: RADIUS,
@@ -118,7 +116,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
     ]
 
     const iconEl = Icon ? (
-      <Icon width={24} style={{color: PLACEHOLDER, flexShrink: 0}} />
+      <Icon width={24} style={{color: c.placeholder, flexShrink: 0}} />
     ) : null
 
     const input = (
@@ -132,7 +130,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder ? placeholder.toUpperCase() : undefined}
-        placeholderTextColor={PLACEHOLDER}
+        placeholderTextColor={c.placeholder}
         keyboardAppearance={t.scheme}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
@@ -217,7 +215,7 @@ export const InputGroup = forwardRef<TextInput, InputGroupProps>(
               marginHorizontal: -16,
               marginTop: 16,
               marginBottom: 16,
-              backgroundColor: FIELD_BORDER,
+              backgroundColor: c.fieldBorder,
             }}
           />
         ) : null}

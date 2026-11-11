@@ -19,14 +19,12 @@ import {StepFinished} from '#/screens/Onboarding/StepFinished'
 import {StepPinFeeds} from '#/screens/Onboarding/StepPinFeeds'
 import {StepProfile} from '#/screens/Onboarding/StepProfile'
 import {atoms as a, useTheme} from '#/alf'
-import {useForceDarkTheme} from '#/alf/util/useColorModeTheme'
 import {Portal} from '#/components/Portal'
 import {ScreenTransition} from '#/components/ScreenTransition'
 
 const BLACKSKY_HANDLE_DOMAIN = 'blacksky.app'
 
 export function Onboarding() {
-  useForceDarkTheme()
   const t = useTheme()
   const agent = useAgent()
 
