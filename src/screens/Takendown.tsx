@@ -9,12 +9,10 @@ import {useMutation} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {useBrand} from '#/lib/community/BrandContext'
-import {
-  MAX_REPORT_REASON_GRAPHEME_LENGTH,
-  MOD_PROXY_SERVICE,
-} from '#/lib/constants'
+import {MAX_REPORT_REASON_GRAPHEME_LENGTH} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
 import {useAppviewClient, useSession, useSessionApi} from '#/state/session'
+import {BLACKSKY_MOD_SERVICE} from '#/state/session/additional-moderation-authorities'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
@@ -64,7 +62,7 @@ export function Takendown() {
           },
           reason: appealText,
         },
-        {service: MOD_PROXY_SERVICE},
+        {service: BLACKSKY_MOD_SERVICE},
       )
     },
     onSuccess: () => setReason(''),
