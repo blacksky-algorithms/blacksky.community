@@ -31,6 +31,7 @@ import {type UsePreferencesQueryResponse} from '#/state/queries/preferences/type
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
+import {CommunityFeedPage} from '#/view/com/feeds/CommunityFeedPage'
 import {HomeHeader} from '#/view/com/home/HomeHeader'
 import {
   Pager,
@@ -313,6 +314,14 @@ function HomeScreenReady({
                 renderEmptyState={renderFollowingEmptyState}
                 renderEndOfFeed={FollowingEndOfFeed}
                 feedInfo={feedInfo}
+              />
+            )
+          }
+          if (feed === 'community') {
+            return (
+              <CommunityFeedPage
+                key={feed}
+                isPageFocused={maybeSelectedFeed === feed}
               />
             )
           }

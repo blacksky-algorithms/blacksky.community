@@ -3,6 +3,13 @@ import {type Client} from '@atproto/lex'
 import {app} from '#/lexicons'
 import {FALLBACK_MARKER_POST, HomeFeedAPI} from './home'
 
+// The custom feed API first asks whether a feed is community-gated; Discover is not.
+jest.mock('#/lib/api/community-feed', () => ({
+  ...jest.requireActual<typeof import('#/lib/api/community-feed')>(
+    '#/lib/api/community-feed',
+  ),
+  fetchCommunityFeedConfigStrict: jest.fn(() => Promise.resolve(null)),
+}))
 jest.mock('#/state/preferences/languages', () => ({
   getAppLanguageAsContentLanguage: () => '',
   getContentLanguages: () => [],

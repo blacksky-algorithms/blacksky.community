@@ -72,6 +72,13 @@ import {
 
 // The app-wide mock of `multiformats/cid` can't tell a CID from anything else.
 jest.unmock('multiformats/cid')
+// The custom feed API first asks whether a feed is community-gated; these are not.
+jest.mock('#/lib/api/community-feed', () => ({
+  ...jest.requireActual<typeof import('#/lib/api/community-feed')>(
+    '#/lib/api/community-feed',
+  ),
+  fetchCommunityFeedConfigStrict: jest.fn(() => Promise.resolve(null)),
+}))
 jest.mock('#/state/preferences/languages', () => ({
   getAppLanguageAsContentLanguage: () => '',
   getContentLanguages: () => [],
