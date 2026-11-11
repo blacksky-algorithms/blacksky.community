@@ -281,9 +281,10 @@ describe('moderateNotification', () => {
       ).toBeUndefined()
     })
 
-    it('keeps follow-backs and everything else', () => {
-      const followBack = get('follow-back', 'followBack')
-      expect(moderateNotification(followBack, args)).toBe(followBack)
+    it('drops a follow-back too, which is a follow like any other', () => {
+      expect(
+        moderateNotification(get('follow-back', 'followBack'), args),
+      ).toBeUndefined()
     })
 
     it('keeps follows when the setting is off', () => {

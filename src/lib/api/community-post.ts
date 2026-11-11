@@ -9,7 +9,7 @@ import * as bsky from '#/types/bsky'
 
 export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'
 
-const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
+export const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 const PEER_MOD_LABELABLE_COLLECTIONS = [
   'app.bsky.feed.post',
   COMMUNITY_POST_COLLECTION,

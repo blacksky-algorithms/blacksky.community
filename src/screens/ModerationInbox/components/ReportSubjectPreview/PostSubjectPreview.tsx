@@ -23,6 +23,11 @@ type Report = Pick<
   'subject' | 'record'
 >
 
+// Lenient, so a post that still holds a legacy blob reference is not reported as unavailable.
+function matchesPostRecord(value: unknown): value is app.bsky.feed.post.Main {
+  return bsky.matches(app.bsky.feed.post, value, {strict: false})
+}
+
 export function PostSubjectPreview({
   report,
   enforcement,
@@ -48,9 +53,9 @@ export function PostSubjectPreview({
     report.subject.cid === postQuery.data.cid
       ? postQuery.data
       : undefined
-  const record = bsky.matches(app.bsky.feed.post, report.record)
+  const record = matchesPostRecord(report.record)
     ? report.record
-    : post && bsky.matches(app.bsky.feed.post, post.record)
+    : post && matchesPostRecord(post.record)
       ? post.record
       : undefined
   /*
@@ -61,7 +66,7 @@ export function PostSubjectPreview({
     allowOwnRecordSnapshot &&
     hasSession &&
     uri.host === currentAccount?.did &&
-    bsky.matches(app.bsky.feed.post, report.record)
+    matchesPostRecord(report.record)
   const parentUri =
     record?.reply && isAtUriString(record.reply.parent.uri, {strict: false})
       ? new AtUri(record.reply.parent.uri)

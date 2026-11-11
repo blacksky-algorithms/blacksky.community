@@ -1,5 +1,9 @@
 import {type Client, type XrpcRequestParams} from '@atproto/lex'
 
+import {
+  fetchCommunityPostView,
+  isCommunityPostUri,
+} from '#/lib/api/community-post'
 import {logger} from '#/logger'
 import {app} from '#/lexicons'
 import {type FeedAPI, type FeedAPIResponse} from './types'
@@ -41,12 +45,34 @@ export class PostListFeedAPI implements FeedAPI {
      * way - its `success` flag was only ever true - so the empty-page branch
      * this replaces was unreachable.
      */
-    const data = await this.client.call(app.bsky.feed.getPosts, {
-      ...this.params,
+    /*
+     * `getPosts` only takes at-uris and only serves public posts, so community
+     * and permissioned-space posts are read one by one through the
+     * membership-gated route. One the viewer can no longer read is left out.
+     */
+    const community = this.params.uris.filter(uri => isCommunityPostUri(uri))
+    const standard = this.params.uris.filter(uri => !isCommunityPostUri(uri))
+    const [data, communityPosts] = await Promise.all([
+      standard.length > 0
+        ? this.client.call(app.bsky.feed.getPosts, {uris: standard})
+        : {posts: []},
+      Promise.all(
+        community.map(uri =>
+          fetchCommunityPostView(this.client, uri).catch(() => undefined),
+        ),
+      ),
+    ])
+    const byUri = new Map<string, app.bsky.feed.defs.PostView>()
+    for (const post of [...data.posts, ...communityPosts]) {
+      if (post) byUri.set(post.uri, post)
+    }
+    const posts = this.params.uris.flatMap(uri => {
+      const post = byUri.get(uri)
+      return post ? [post] : []
     })
-    this.peek = {post: data.posts[0]}
+    this.peek = {post: posts[0]}
     return {
-      feed: data.posts.map(post => ({post})),
+      feed: posts.map(post => ({post})),
     }
   }
 }

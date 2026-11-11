@@ -23,7 +23,7 @@ msgid "Your account may already be suspended or at risk of suspension. See your 
 msgstr ""
 
 #. placeholder {0}: record.text
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:95
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:100
 msgid "“{0}”"
 msgstr "“{0}”"
 
@@ -32,7 +32,7 @@ msgstr "“{0}”"
 msgid "\"{interestsDisplayName}\" category (active)"
 msgstr "‘{interestsDisplayName}’ 카테고리 (활성)"
 
-#: src/screens/ModerationInbox/Report.tsx:211
+#: src/screens/ModerationInbox/Report.tsx:214
 msgid "“{note}”"
 msgstr "“{note}”"
 
@@ -251,7 +251,7 @@ msgid "{0, plural, one {Load # new post} other {Load # new posts}}"
 msgstr "{0, plural, other {새 게시물 #개 불러오기}}"
 
 #. placeholder {0}: policies.length
-#: src/screens/ModerationInbox/Notice.tsx:273
+#: src/screens/ModerationInbox/Notice.tsx:276
 msgid "{0, plural, one {Rule violated:} other {Rules violated:}}"
 msgstr "{0, plural, other {위반한 규칙:}}"
 
@@ -636,7 +636,7 @@ msgstr "참여 요청 {count, plural, other {#+개}}"
 msgid "{date} at {time}"
 msgstr "{date} {time}"
 
-#: src/screens/ModerationInbox/Notice.tsx:424
+#: src/screens/ModerationInbox/Notice.tsx:427
 msgid "{detailsLength} of {MAX_REPORT_REASON_GRAPHEME_LENGTH} characters used"
 msgstr "{MAX_REPORT_REASON_GRAPHEME_LENGTH}자 중 {detailsLength}자 사용됨"
 
@@ -1145,7 +1145,7 @@ msgstr "{requestCount, plural, other {#개 요청}}"
 msgid "{requestCount}+ requests"
 msgstr "{requestCount}+개 요청"
 
-#: src/screens/ModerationInbox/Notice.tsx:245
+#: src/screens/ModerationInbox/Notice.tsx:248
 msgid "{serviceName} removed your content for violating our <0>Community Guidelines</0>."
 msgstr "{serviceName}(이)가 <0>커뮤니티 가이드라인</0>을 위반한 콘텐츠를 제거했습니다."
 
@@ -2262,7 +2262,7 @@ msgstr "오류 발생"
 msgid "An error occurred"
 msgstr "오류 발생"
 
-#: src/view/com/composer/state/video.ts:506
+#: src/view/com/composer/state/video.ts:510
 msgid "An error occurred while compressing the video."
 msgstr "동영상을 압축하는 동안 오류가 발생했습니다."
 
@@ -2310,11 +2310,11 @@ msgstr "QR 코드를 저장하는 동안 오류가 발생했습니다"
 msgid "An error occurred while trying to follow all"
 msgstr "모두 팔로우하려고 하는 동안 오류가 발생했습니다"
 
-#: src/view/com/composer/state/video.ts:558
+#: src/view/com/composer/state/video.ts:566
 msgid "An error occurred while uploading the video. {message}"
 msgstr "동영상을 업로드하는 동안 오류가 발생했습니다. {message}"
 
-#: src/view/com/composer/state/video.ts:550
+#: src/view/com/composer/state/video.ts:558
 msgid "An error occurred while uploading the video. Please check your internet connection and try again."
 msgstr "동영상을 업로드하는 동안 오류가 발생했습니다. 인터넷 연결 상태를 확인하고 다시 시도해 주세요."
 
@@ -2488,9 +2488,9 @@ msgstr ""
 #: src/components/moderation/LabelsOnMeDialog.tsx:169
 #: src/components/moderation/LabelsOnMeDialog.tsx:172
 #: src/components/moderation/ModerationDetailsDialog.tsx:223
-#: src/screens/ModerationInbox/Notice.tsx:477
-#: src/screens/ModerationInbox/Report.tsx:180
-#: src/screens/ModerationInbox/Report.tsx:181
+#: src/screens/ModerationInbox/Notice.tsx:480
+#: src/screens/ModerationInbox/Report.tsx:183
+#: src/screens/ModerationInbox/Report.tsx:184
 msgid "Appeal"
 msgstr "이의신청"
 
@@ -2522,7 +2522,7 @@ msgstr "라이브 스트리밍 정지 이의신청"
 msgid "Appeal resolved"
 msgstr "이의신청 해결됨"
 
-#: src/screens/ModerationInbox/Notice.tsx:417
+#: src/screens/ModerationInbox/Notice.tsx:420
 msgid "Appeal submitted"
 msgstr "이의신청을 제출했습니다"
 
@@ -2546,9 +2546,9 @@ msgstr "일시 정지 이의신청"
 #: src/screens/Messages/components/ChatDisabled.tsx:79
 #: src/screens/Messages/components/ChatDisabled.tsx:130
 #: src/screens/Messages/components/ChatDisabled.tsx:132
-#: src/screens/ModerationInbox/Notice.tsx:322
-#: src/screens/ModerationInbox/Notice.tsx:333
-#: src/screens/ModerationInbox/Notice.tsx:472
+#: src/screens/ModerationInbox/Notice.tsx:325
+#: src/screens/ModerationInbox/Notice.tsx:336
+#: src/screens/ModerationInbox/Notice.tsx:475
 msgid "Appeal this decision"
 msgstr "이 결정에 이의신청"
 
@@ -2953,6 +2953,11 @@ msgstr ""
 msgid "Blacksky is partnering with Graze to provide up-to-date, community-curated information about the US midterm elections in 2026."
 msgstr ""
 
+#: src/screens/ModerationInbox/Notice.tsx:98
+#: src/screens/ModerationInbox/Report.tsx:76
+msgid "Blacksky Moderation Service"
+msgstr ""
+
 #: src/features/inviteFriends/InviteScannerScreen.tsx:110
 msgid "Blacksky needs camera access to scan QR codes from other profiles."
 msgstr ""
@@ -3130,8 +3135,8 @@ msgstr "Bluesky는 호스팅 제공자를 선택할 수 있는 개방형 네트�
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "Bluesky는 친구들과 함께하면 더욱 즐거워집니다. 친구들을 초대해 볼까요? <0/>"
 
-#: src/screens/ModerationInbox/Notice.tsx:96
-#: src/screens/ModerationInbox/Report.tsx:74
+#: src/screens/ModerationInbox/Notice.tsx:99
+#: src/screens/ModerationInbox/Report.tsx:77
 msgid "Bluesky Moderation Service"
 msgstr "Bluesky 검토 서비스"
 
@@ -3311,7 +3316,7 @@ msgstr "카메라 접근 권한이 필요합니다"
 #: src/screens/Messages/ConversationSettings/prompts.tsx:124
 #: src/screens/Messages/ConversationSettings/prompts.tsx:148
 #: src/screens/Messages/ConversationSettings/prompts.tsx:172
-#: src/screens/ModerationInbox/Notice.tsx:436
+#: src/screens/ModerationInbox/Notice.tsx:439
 #: src/screens/Profile/Header/EditProfileDialog.tsx:333
 #: src/screens/Profile/Header/EditProfileDialog.tsx:341
 #: src/screens/Search/components/AdvancedSearchDialog/index.tsx:202
@@ -3336,7 +3341,7 @@ msgstr "카메라 접근 권한이 필요합니다"
 msgid "Cancel"
 msgstr "취소"
 
-#: src/screens/ModerationInbox/Notice.tsx:429
+#: src/screens/ModerationInbox/Notice.tsx:432
 msgid "Cancel appeal"
 msgstr "이의신청 취소"
 
@@ -4090,7 +4095,7 @@ msgstr "인증 코드"
 msgid "Connect with people and conversations that match your interests."
 msgstr ""
 
-#: src/screens/Onboarding/StepFinished/index.tsx:294
+#: src/screens/Onboarding/StepFinished/index.tsx:295
 msgid "Connected apps"
 msgstr ""
 
@@ -4174,7 +4179,7 @@ msgstr "콘텐츠 복구됨"
 msgid "Content that may be disturbing or inappropriate for some audiences."
 msgstr ""
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:100
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:102
 msgid "Content unavailable"
 msgstr "사용할 수 없는 콘텐츠"
 
@@ -4198,7 +4203,7 @@ msgstr "컨텍스트 메뉴 배경을 클릭하여 메뉴를 닫습니다."
 #: src/screens/Onboarding/StepAssembly/index.tsx:59
 #: src/screens/Onboarding/StepBelong/index.tsx:109
 #: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
-#: src/screens/Onboarding/StepFinished/index.tsx:319
+#: src/screens/Onboarding/StepFinished/index.tsx:320
 #: src/screens/Onboarding/StepInterests/index.tsx:87
 #: src/screens/Onboarding/StepPinFeeds/index.tsx:105
 #: src/screens/Onboarding/StepProfile/index.tsx:351
@@ -6385,7 +6390,7 @@ msgstr "신고를 보내지 못했습니다"
 msgid "Failed to submit appeal, please try again."
 msgstr "이의신청을 제출하지 못했습니다. 다시 시도해 주세요."
 
-#: src/screens/ModerationInbox/Notice.tsx:390
+#: src/screens/ModerationInbox/Notice.tsx:393
 msgid "Failed to submit appeal. Please try again."
 msgstr "이의신청을 제출하지 못했습니다. 다시 시도해 주세요."
 
@@ -6631,7 +6636,7 @@ msgctxt "search"
 msgid "Filters"
 msgstr "필터"
 
-#: src/screens/Onboarding/StepFinished/index.tsx:319
+#: src/screens/Onboarding/StepFinished/index.tsx:320
 msgid "Finalizing"
 msgstr "마무리 중"
 
@@ -6951,7 +6956,7 @@ msgstr "글꼴 크기"
 msgid "Food"
 msgstr "음식"
 
-#: src/screens/ModerationInbox/Notice.tsx:307
+#: src/screens/ModerationInbox/Notice.tsx:310
 msgid "For more information about our appeals and redress process, please see our <0>Terms of Service</0>."
 msgstr "이의신청 및 구제 절차에 대한 자세한 내용은 <0>서비스 이용약관</0>을 참고해 주세요."
 
@@ -7263,7 +7268,7 @@ msgstr "{0} 님의 프로필로 이동"
 msgid "Go to {firstAuthorName}'s profile"
 msgstr "{firstAuthorName} 님의 프로필로 이동"
 
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:75
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:76
 #: src/screens/Notifications/components/NotificationItem/Item/profile.tsx:640
 #: src/screens/Notifications/components/NotificationItem/Item/text.tsx:113
 msgid "Go to {name}’s profile"
@@ -7548,7 +7553,7 @@ msgid "Hidden list"
 msgstr "숨겨진 리스트"
 
 #. Shown in place of the text of a post that is hidden by the viewer’s moderation settings
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:210
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:211
 msgid "Hidden post"
 msgstr "숨겨진 게시물"
 
@@ -7684,7 +7689,7 @@ msgstr "이 데이터를 불러오는 데 문제가 있는 것 같습니다. 자
 msgid "Hmmmm, we couldn't load that moderation service."
 msgstr "검토 서비스를 불러올 수 없습니다."
 
-#: src/view/com/composer/state/video.ts:520
+#: src/view/com/composer/state/video.ts:528
 msgid "Hold up! We’re gradually giving access to video, and you’re still waiting in line. Check back soon!"
 msgstr "잠깐! 동영상에 대한 접근 권한이 점차적으로 제공되고 있지만 아직은 기다려야 합니다. 나중에 다시 확인해 주세요!"
 
@@ -7913,20 +7918,20 @@ msgid "Imported on {0}"
 msgstr "{0}에 가져옴"
 
 #. In a notification about a mention or quote, the post is a reply to another person’s post. {subject} is that person’s name, followed by a preview of their post
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:266
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:267
 msgid "in reply to <0>{subject}</0>: {previewNode}"
 msgstr "<0>{subject}</0>에게 보내는 답글: {previewNode}"
 
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:170
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:171
 msgid "in reply to a blocked post"
 msgstr "차단된 게시물에 보내는 답글"
 
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:175
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:176
 msgid "in reply to a deleted post"
 msgstr "삭제된 게시물에 보내는 답글"
 
 #. In a notification about a mention or quote, the post is a reply to the viewer’s own post. Followed by a preview of that post
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:262
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:263
 msgid "in reply to you: {previewNode}"
 msgstr ""
 
@@ -8840,8 +8845,8 @@ msgstr "새 게시물 불러오기"
 msgid "Load new posts from the people you follow"
 msgstr "팔로우하는 사용자의 새 게시물 불러오기"
 
-#: src/screens/ModerationInbox/Notice.tsx:181
-#: src/screens/ModerationInbox/Notice.tsx:190
+#: src/screens/ModerationInbox/Notice.tsx:184
+#: src/screens/ModerationInbox/Notice.tsx:193
 msgid "Load older actions"
 msgstr "이전 조치 불러오기"
 
@@ -10166,7 +10171,7 @@ msgid "Nothing saved yet"
 msgstr "아직 저장된 게시물이 없습니다"
 
 #: src/Navigation.tsx:248
-#: src/screens/ModerationInbox/Notice.tsx:143
+#: src/screens/ModerationInbox/Notice.tsx:146
 msgid "Notice"
 msgstr "알림"
 
@@ -10278,7 +10283,7 @@ msgstr "온보딩 재설정"
 msgid "One"
 msgstr "하나"
 
-#: src/screens/Onboarding/StepFinished/index.tsx:298
+#: src/screens/Onboarding/StepFinished/index.tsx:299
 msgid "One account, a whole network"
 msgstr ""
 
@@ -10455,7 +10460,7 @@ msgstr "카메라 열기"
 #: src/components/dms/ChatInvite/Root.tsx:108
 #: src/components/intents/GroupChatJoinDialog.tsx:454
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/ChatSubjectPreview.tsx:32
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:46
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:47
 msgid "Open chat"
 msgstr "대화 열기"
 
@@ -10463,7 +10468,7 @@ msgstr "대화 열기"
 msgid "Open chat member options for {displayName}"
 msgstr "{displayName} 님의 대화 멤버 옵션 열기"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:46
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/index.tsx:47
 msgid "Open content"
 msgstr "콘텐츠 열기"
 
@@ -10563,8 +10568,8 @@ msgstr ""
 msgid "Open pack"
 msgstr "팩 열기"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:134
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:138
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:139
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:143
 #: src/screens/ModerationInbox/components/SubjectPreview.tsx:51
 msgid "Open post"
 msgstr "게시물 열기"
@@ -11220,7 +11225,7 @@ msgstr ""
 msgid "Please complete the verification captcha."
 msgstr "인증 캡차를 완료해 주세요."
 
-#: src/view/com/composer/state/video.ts:544
+#: src/view/com/composer/state/video.ts:552
 msgid "Please confirm your email address to upload videos."
 msgstr "동영상을 업로드하려면 이메일 주소를 인증해 주세요."
 
@@ -11510,7 +11515,7 @@ msgstr ""
 msgid "Post type"
 msgstr "게시물 유형"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:147
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:152
 msgid "Post unavailable"
 msgstr "사용할 수 없는 게시물"
 
@@ -11520,14 +11525,14 @@ msgid "Post unpinned"
 msgstr "게시물을 고정 해제했습니다"
 
 #. Shown in place of the text of a post that has no text, only images, video, a link or a quoted post
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:216
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:217
 msgid "Post with media"
 msgstr "미디어가 포함된 게시물"
 
 #. placeholder {0}: i18n.date(POSTED_AT, { month: 'short', day: 'numeric', year: 'numeric', })
 #. placeholder {0}: i18n.date(new Date(record.createdAt), {dateStyle: 'medium'})
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:121
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:151
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:126
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:156
 #: src/screens/ModerationInbox/components/SubjectPreview.tsx:35
 msgid "Posted {0}"
 msgstr "{0}에 게시함"
@@ -11894,11 +11899,11 @@ msgstr "답글 더 보기"
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:121
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:135
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:148
-#: src/screens/ModerationInbox/Notice.tsx:249
+#: src/screens/ModerationInbox/Notice.tsx:252
 msgid "Read our Community Guidelines"
 msgstr "커뮤니티 가이드라인 읽기"
 
-#: src/screens/ModerationInbox/Notice.tsx:312
+#: src/screens/ModerationInbox/Notice.tsx:315
 msgid "Read our Terms of Service"
 msgstr "서비스 이용약관 읽기"
 
@@ -11924,14 +11929,14 @@ msgstr "진솔한 대화."
 msgid "Real people."
 msgstr "진짜 사람들."
 
-#: src/screens/ModerationInbox/Notice.tsx:510
-#: src/screens/ModerationInbox/Notice.tsx:528
+#: src/screens/ModerationInbox/Notice.tsx:513
+#: src/screens/ModerationInbox/Notice.tsx:531
 #: src/screens/Takendown.tsx:160
 #: src/screens/Takendown.tsx:168
 msgid "Reason for appeal"
 msgstr "이의신청 이유"
 
-#: src/screens/ModerationInbox/Report.tsx:198
+#: src/screens/ModerationInbox/Report.tsx:201
 msgid "Reason:"
 msgstr "이유:"
 
@@ -11994,8 +11999,8 @@ msgstr "참여 요청 거절하기"
 msgid "Reload conversations"
 msgstr "대화 다시 불러오기"
 
-#: src/screens/ModerationInbox/Notice.tsx:494
-#: src/screens/ModerationInbox/Notice.tsx:503
+#: src/screens/ModerationInbox/Notice.tsx:497
+#: src/screens/ModerationInbox/Notice.tsx:506
 msgid "Reload notice"
 msgstr "안내 다시 불러오기"
 
@@ -12307,7 +12312,7 @@ msgid "Replace with Discover"
 msgstr "‘둘러보기’로 교체"
 
 #. In a notification, someone replied to another person’s post. {subject} is that person’s name, followed by a preview of their post
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:255
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:256
 msgid "replied to <0>{subject}</0>: {previewNode}"
 msgstr "<0>{subject}</0>에게 보내는 답글: {previewNode}"
 
@@ -12316,7 +12321,7 @@ msgctxt "description"
 msgid "Replied to <0><1/></0>"
 msgstr "<0><1/></0> 님에게 보내는 답글"
 
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:168
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:169
 msgid "replied to a blocked post"
 msgstr "차단된 게시물에 보내는 답글"
 
@@ -12325,7 +12330,7 @@ msgctxt "description"
 msgid "Replied to a blocked post"
 msgstr "차단된 게시물에 보내는 답글"
 
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:173
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:174
 msgid "replied to a deleted post"
 msgstr "삭제된 게시물에 보내는 답글"
 
@@ -12340,7 +12345,7 @@ msgid "Replied to you"
 msgstr "나에게 보내는 답글"
 
 #. In a notification, someone replied to the viewer’s own post. Followed by a preview of that post
-#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:251
+#: src/screens/Notifications/components/NotificationItem/Item/post.tsx:252
 msgid "replied to you: {previewNode}"
 msgstr ""
 
@@ -12382,7 +12387,7 @@ msgstr "이 게시물에 대한 답글은 비활성화되어 있습니다."
 
 #: src/components/dms/MessageContextMenu.tsx:181
 #: src/components/dms/MessageContextMenu.tsx:184
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:90
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:95
 msgid "Reply"
 msgstr "답글 보내기"
 
@@ -12419,7 +12424,7 @@ msgstr "답글 정렬"
 msgid "Reply to {handle}"
 msgstr "{handle} 님에게 보내는 답글"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:89
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:94
 msgid "Reply to {parentName}"
 msgstr "{parentName} 님에게 보내는 답글"
 
@@ -14521,7 +14526,7 @@ msgstr ""
 #: src/features/liveNow/components/GoLiveDisabledDialog.tsx:138
 #: src/screens/Messages/components/ChatDisabled.tsx:174
 #: src/screens/Messages/components/ChatDisabled.tsx:176
-#: src/screens/ModerationInbox/Notice.tsx:451
+#: src/screens/ModerationInbox/Notice.tsx:454
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:164
 msgid "Submit"
 msgstr "제출"
@@ -14534,7 +14539,7 @@ msgstr ""
 msgid "Submit a statement →"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:444
+#: src/screens/ModerationInbox/Notice.tsx:447
 #: src/screens/Takendown.tsx:78
 msgid "Submit appeal"
 msgstr "이의신청 제출"
@@ -14878,7 +14883,7 @@ msgstr "본인에 대해 간단히 소개해 주세요"
 msgid "Tell us a little more"
 msgstr "좀 더 자세히 알려주세요"
 
-#: src/screens/ModerationInbox/Notice.tsx:483
+#: src/screens/ModerationInbox/Notice.tsx:486
 msgid "Tell us why you believe this decision was a mistake. We will review your appeal along with the original content."
 msgstr "이 결정이 잘못되었다고 생각하는 이유를 알려주세요. 원본 콘텐츠와 함께 이의신청을 검토하겠습니다."
 
@@ -15000,8 +15005,8 @@ msgstr "내 콘텐츠에 대한 조치가 철회되었습니다"
 msgid "The app will be restarted"
 msgstr "앱을 다시 시작합니다"
 
-#: src/screens/ModerationInbox/Notice.tsx:340
-#: src/screens/ModerationInbox/Notice.tsx:381
+#: src/screens/ModerationInbox/Notice.tsx:343
+#: src/screens/ModerationInbox/Notice.tsx:384
 msgid "The appeal window has closed."
 msgstr "이의신청 기간이 종료되었습니다."
 
@@ -15095,32 +15100,32 @@ msgstr "답글을 보내려는 게시물은 작성자가 언어를 {suggestedLan
 msgid "The Privacy Policy has been moved to <0/>"
 msgstr "개인정보 처리방침을 <0/>(으)로 이동했습니다"
 
-#: src/view/com/composer/state/video.ts:491
+#: src/view/com/composer/state/video.ts:495
 msgid "The processed video is too large. Please try again with a smaller file."
 msgstr "처리된 동영상이 너무 큽니다. 더 작은 파일로 다시 시도해 주세요."
 
-#: src/view/com/composer/state/video.ts:466
+#: src/view/com/composer/state/video.ts:470
 msgid "The selected video could not be encoded."
 msgstr "선택한 동영상을 인코딩할 수 없습니다."
 
-#: src/view/com/composer/state/video.ts:456
+#: src/view/com/composer/state/video.ts:460
 msgid "The selected video could not be processed."
 msgstr "선택한 동영상을 처리할 수 없습니다."
 
-#: src/view/com/composer/state/video.ts:486
+#: src/view/com/composer/state/video.ts:490
 msgid "The selected video has an unsupported aspect ratio."
 msgstr "선택한 동영상의 화면 비율이 지원되지 않습니다."
 
-#: src/view/com/composer/state/video.ts:502
-#: src/view/com/composer/state/video.ts:541
+#: src/view/com/composer/state/video.ts:506
+#: src/view/com/composer/state/video.ts:549
 msgid "The selected video is larger than {VIDEO_MAX_SIZE_MB} MB. Please try again with a smaller file."
 msgstr "선택한 동영상이 {VIDEO_MAX_SIZE_MB} MB보다 큽니다. 더 작은 파일로 다시 시도해 주세요."
 
-#: src/view/com/composer/state/video.ts:484
+#: src/view/com/composer/state/video.ts:488
 msgid "The selected video is too long."
 msgstr "선택한 동영상이 너무 깁니다."
 
-#: src/view/com/composer/state/video.ts:488
+#: src/view/com/composer/state/video.ts:492
 msgid "The selected video uses an unsupported format."
 msgstr "선택한 동영상이 지원되지 않는 형식을 사용합니다."
 
@@ -15155,7 +15160,7 @@ msgstr "입력한 인증 코드가 올바르지 않습니다. 올바른 인증 �
 msgid "The verification provider was unable to send a code to your phone number. Please check your phone number and try again."
 msgstr "인증 서비스 제공업체에서 회원님의 전화번호로 인증 코드를 보낼 수 없습니다. 전화번호를 확인한 후 다시 시도해 주세요."
 
-#: src/view/com/composer/state/video.ts:469
+#: src/view/com/composer/state/video.ts:473
 msgid "The video could not be uploaded to your hosting provider. Please try again."
 msgstr "동영상을 호스팅 제공자에 업로드할 수 없습니다. 다시 시도해 주세요."
 
@@ -15446,7 +15451,7 @@ msgstr "이 코드는 유효하지 않습니다. 새 코드를 받으려면 다�
 msgid "This confirmation code is not valid. Please try again."
 msgstr "인증 코드가 유효하지 않습니다. 다시 시도해 주세요."
 
-#: src/screens/ModerationInbox/Notice.tsx:387
+#: src/screens/ModerationInbox/Notice.tsx:390
 msgid "This content could not be appealed. Please reload the notice and try again."
 msgstr "이 콘텐츠에 대해 이의신청할 수 없습니다. 알림을 새로 불러온 후 다시 시도해 주세요."
 
@@ -15753,11 +15758,11 @@ msgstr ""
 msgid "This stream is offline"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:384
+#: src/screens/ModerationInbox/Notice.tsx:387
 msgid "This subject can no longer be appealed."
 msgstr "이 대상은 더 이상 이의신청할 수 없습니다."
 
-#: src/screens/ModerationInbox/Notice.tsx:378
+#: src/screens/ModerationInbox/Notice.tsx:381
 msgid "This subject has already been appealed."
 msgstr "이 대상은 이미 이의신청했습니다."
 
@@ -16265,7 +16270,7 @@ msgstr "사용자를 언팔로우합니다"
 msgid "Unfortunately, none of your subscribed labelers supports this report type."
 msgstr "죄송합니다. 구독하는 라벨러 중 이 신고 유형을 지원하는 라벨러가 없습니다."
 
-#: src/screens/ModerationInbox/Report.tsx:186
+#: src/screens/ModerationInbox/Report.tsx:189
 msgid "Unknown report reason"
 msgstr "알 수 없는 신고 이유"
 
@@ -16575,7 +16580,7 @@ msgid "Use this to sign in to the other app along with your handle."
 msgstr "이 비밀번호와 핸들을 사용하여 다른 앱에 로그인하세요."
 
 #. placeholder {0}: brand.metadata.displayName
-#: src/screens/Onboarding/StepFinished/index.tsx:307
+#: src/screens/Onboarding/StepFinished/index.tsx:308
 msgid "Use your {0} account to blog, live stream, post short videos, and more, across a growing ecosystem of apps."
 msgstr ""
 
@@ -16781,7 +16786,7 @@ msgstr "스타터 팩 <0/><1>{starterPackName}</1>(을)를 통해"
 msgid "Video"
 msgstr "동영상"
 
-#: src/view/com/composer/state/video.ts:477
+#: src/view/com/composer/state/video.ts:481
 msgid "Video failed to process"
 msgstr "동영상을 처리하지 못했습니다"
 
@@ -17314,7 +17319,7 @@ msgstr "내 신고를 검토한 결과, 규칙을 위반하지 않는 것으로 
 msgid "We sent an email to <0>{0}</0> containing a link. Please click on it to complete the email verification process."
 msgstr "링크가 포함된 이메일을 <0>{0}</0>(으)로 보냈습니다. 이메일 인증 절차를 완료하려면 해당 링크를 클릭하세요."
 
-#: src/view/com/composer/state/video.ts:524
+#: src/view/com/composer/state/video.ts:532
 msgid "We were unable to determine if you are allowed to upload videos. Please try again."
 msgstr "동영상을 업로드할 수 있는지 확인할 수 없습니다. 다시 시도해 주세요."
 
@@ -17427,7 +17432,7 @@ msgstr "스타터 팩의 이름을 무엇으로 할까요?"
 msgid "What feeds do you want to see?"
 msgstr ""
 
-#: src/screens/ModerationInbox/Report.tsx:193
+#: src/screens/ModerationInbox/Report.tsx:196
 msgid "What you reported"
 msgstr "신고 내용"
 
@@ -17673,7 +17678,7 @@ msgstr "라이브 중"
 msgid "You are no longer live"
 msgstr "더 이상 라이브 중이 아닙니다"
 
-#: src/view/com/composer/state/video.ts:517
+#: src/view/com/composer/state/video.ts:525
 msgid "You are not allowed to upload videos."
 msgstr "동영상을 업로드할 수 없습니다."
 
@@ -17722,7 +17727,7 @@ msgstr "대화 데이터를 ‘JSONL’ 파일로 다운로드할 수도 있습�
 msgid "You can always opt out and delete your data"
 msgstr "언제든지 동의를 철회하고 데이터를 삭제할 수 있습니다"
 
-#: src/screens/ModerationInbox/Notice.tsx:302
+#: src/screens/ModerationInbox/Notice.tsx:305
 msgid "You can appeal once per decision. A different moderator will review the appeal."
 msgstr "결정당 한 번만 이의신청할 수 있습니다. 다른 검토자가 이의신청을 검토합니다."
 
@@ -17770,7 +17775,7 @@ msgstr "대화 기록은 읽을 수 있지만 새 메시지는 보낼 수 없습
 msgid "You can select up to {MAX_GALLERY_IMAGES, plural, other {# images}} in total."
 msgstr "총 {MAX_GALLERY_IMAGES, plural, other {#개}}까지 선택할 수 있습니다."
 
-#: src/screens/ModerationInbox/Notice.tsx:297
+#: src/screens/ModerationInbox/Notice.tsx:300
 msgid "You can submit one account appeal at a time. A different moderator will review the appeal."
 msgstr "한 번에 하나의 계정만 이의신청을 제출할 수 있습니다. 다른 검토자가 이의신청을 검토합니다."
 
@@ -18168,11 +18173,11 @@ msgstr "필터의 최대 수인 {MAX_FILTERS, plural, other {#개}}에 도달했
 msgid "You've reached the start of the active content."
 msgstr "활성 콘텐츠의 시작 부분에 도달했습니다."
 
-#: src/view/com/composer/state/video.ts:528
+#: src/view/com/composer/state/video.ts:536
 msgid "You've reached your daily limit for video uploads (too many bytes)"
 msgstr "동영상 업로드 일일 한도에 도달했습니다 (용량이 너무 큼)"
 
-#: src/view/com/composer/state/video.ts:532
+#: src/view/com/composer/state/video.ts:540
 msgid "You've reached your daily limit for video uploads (too many videos)"
 msgstr "동영상 업로드 일일 한도에 도달했습니다 (동영상 수가 너무 많음)"
 
@@ -18234,7 +18239,7 @@ msgstr ""
 msgid "Your account is hosted elsewhere, so it cannot post to a private community feed. You can read it, but posting needs an account hosted here."
 msgstr ""
 
-#: src/view/com/composer/state/video.ts:536
+#: src/view/com/composer/state/video.ts:544
 msgid "Your account is not yet old enough to upload videos. Please try again later."
 msgstr "내 계정은 아직 동영상을 업로드할 수 없습니다. 나중에 다시 시도해 주세요."
 
@@ -18297,7 +18302,7 @@ msgstr "내 계정이 일시 정지되었습니다"
 msgid "Your account was temporarily suspended for {hours, plural, one {# hour} other {# hours}}"
 msgstr "내 계정이 {hours, plural, other {#시간}} 동안 일시 정지되었습니다"
 
-#: src/screens/ModerationInbox/Notice.tsx:240
+#: src/screens/ModerationInbox/Notice.tsx:243
 msgid "Your appeal has been submitted and is awaiting review."
 msgstr "이의신청이 제출되었으며 검토를 기다리고 있습니다."
 
@@ -18397,7 +18402,7 @@ msgstr "내 전체 핸들: <0>@{0}</0>"
 msgid "Your hosting provider can’t be detected from an email address, so the default Bluesky service will be used. Enter your username instead, or set your provider manually."
 msgstr "이메일 주소에서 호스팅 제공자를 감지할 수 없어 기본 Bluesky 서비스가 사용됩니다. 대신 핸들을 입력하거나 제공자를 수동으로 설정하세요."
 
-#: src/view/com/composer/state/video.ts:473
+#: src/view/com/composer/state/video.ts:477
 msgid "Your hosting provider does not support videos this large. Please try again with a smaller file."
 msgstr "호스팅 제공자가 이렇게 큰 동영상을 지원하지 않습니다. 더 작은 파일로 다시 시도해 주세요."
 
@@ -18430,7 +18435,7 @@ msgstr "뮤트한 단어"
 msgid "Your name, avatar, the name of the group chat, and the number of members will be visible to everyone."
 msgstr "이름, 프로필 사진, 그룹 대화 이름, 멤버 수가 모든 사람에게 공개됩니다."
 
-#: src/screens/ModerationInbox/Report.tsx:208
+#: src/screens/ModerationInbox/Report.tsx:211
 msgid "Your note:"
 msgstr "내 메모:"
 
@@ -18494,7 +18499,7 @@ msgid "Your reply was sent"
 msgstr "답글을 보냈습니다"
 
 #: src/Navigation.tsx:243
-#: src/screens/ModerationInbox/Report.tsx:115
+#: src/screens/ModerationInbox/Report.tsx:118
 msgid "Your report"
 msgstr "내 신고"
 

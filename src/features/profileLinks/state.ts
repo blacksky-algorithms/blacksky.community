@@ -17,7 +17,8 @@ import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
 import {usePdsClient} from '#/state/session'
-import {app} from '#/lexicons'
+import {app, com} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {
   filterModeratedLinkViews,
   linksFromProfileView,
@@ -67,8 +68,18 @@ export function useOwnProfileLinksQuery(did: DidString, {enabled = true} = {}) {
     queryFn: async (): Promise<ProfileLink[]> => {
       let refs: StrongRef[] | undefined
       try {
-        const res = await pdsClient.get(app.bsky.actor.profile, {repo: did})
-        refs = res.value.links
+        /*
+         * Read as stored: the typed record read validates strictly and fails
+         * on a profile that still holds a legacy blob reference.
+         */
+        const res = await pdsClient.call(com.atproto.repo.getRecord, {
+          repo: did,
+          collection: app.bsky.actor.profile.$type,
+          rkey: 'self',
+        })
+        refs = bsky.matches(app.bsky.actor.profile, res.value, {strict: false})
+          ? res.value.links
+          : undefined
       } catch (e) {
         if (isRecordNotFoundError(e)) return []
         throw e

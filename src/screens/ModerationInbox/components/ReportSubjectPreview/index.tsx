@@ -2,6 +2,7 @@ import {View} from 'react-native'
 import {AtUri, isAtUriString} from '@atproto/syntax'
 import {Trans, useLingui} from '@lingui/react/macro'
 
+import {COMMUNITY_POST_COLLECTION} from '#/lib/api/community-post'
 import {useSession} from '#/state/session'
 import {useReportSubjectLabel} from '#/screens/ModerationInbox/components/hooks/useReportSubjectLabel'
 import {atoms as a, useTheme} from '#/alf'
@@ -68,6 +69,7 @@ export function ReportSubjectPreview({
   } else {
     switch (uri?.collection) {
       case 'app.bsky.feed.post':
+      case COMMUNITY_POST_COLLECTION:
         preview = (
           <PostSubjectPreview
             report={report}
@@ -157,6 +159,11 @@ function getSubjectLink(
     switch (uri.collection) {
       case 'app.bsky.feed.post':
         return {screen: 'PostThread', params: {name, rkey}}
+      case COMMUNITY_POST_COLLECTION:
+        return {
+          screen: 'PostThread',
+          params: {name, rkey, collection: uri.collection},
+        }
       case 'app.bsky.graph.list':
         return {screen: 'ProfileList', params: {name, rkey}}
       case 'app.bsky.feed.generator':

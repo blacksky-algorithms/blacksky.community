@@ -151,7 +151,7 @@ let mockPreferences:
     }
   | undefined
 
-const DISCOVER = PROD_DEFAULT_FEED('whats-hot')
+const DISCOVER = PROD_DEFAULT_FEED('blacksky-trend')
 const CUSTOM = 'at://did:plc:author/app.bsky.feed.generator/custom'
 
 /** How many pages each fake endpoint has. */

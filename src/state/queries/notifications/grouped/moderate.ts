@@ -58,7 +58,10 @@ export function moderateNotification(
     hideFollowNotifications,
   }: NotificationModerationArgs,
 ): NotificationView | undefined {
-  if (hideFollowNotifications && notification.type === 'follow') {
+  if (
+    hideFollowNotifications &&
+    (notification.type === 'follow' || notification.type === 'followBack')
+  ) {
     return undefined
   }
   switch (notification.type) {

@@ -20,6 +20,7 @@ import {
   useUpdateModerationInboxSeenMutation,
 } from '#/state/queries/moderation-inbox'
 import {useSession} from '#/state/session'
+import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import {NotFoundScreen} from '#/view/screens/NotFound'
 import {atoms as a, useTheme} from '#/alf'
@@ -71,7 +72,9 @@ export function ModerationInboxReportDetailsScreen({
           moderateProfile(labeler.creator, moderationOpts).ui('displayName'),
         )
       : moderationService && isAppLabeler(moderationService)
-        ? l`Bluesky Moderation Service`
+        ? moderationService === BLACKSKY_LABELER
+          ? l`Blacksky Moderation Service`
+          : l`Bluesky Moderation Service`
         : moderationService
   const isLoading = !reportQuery.isError && !reportQuery.data
 

@@ -52,7 +52,7 @@ export class HomeFeedAPI implements FeedAPI {
     this.following = new FollowingFeedAPI({client})
     this.discover = new CustomFeedAPI({
       client,
-      feedParams: {feed: PROD_DEFAULT_FEED('whats-hot') as AtUriString},
+      feedParams: {feed: PROD_DEFAULT_FEED('blacksky-trend') as AtUriString},
       userInterests,
     })
   }
