@@ -146,6 +146,9 @@ jobs:
         run: |
           git reset "$BASE_COMMIT"
           git restore .
+          # Files the PR added are left behind untracked by the reset, and a
+          # platform-specific one (`*.web.ts`) would shadow the base's module.
+          git clean -fd
           # Measure both builds with the PR's script, even when the base
           # predates support for gzip measurements.
           cp "$RUNNER_TEMP/measure-web-bundle.js" scripts/measure-web-bundle.js
