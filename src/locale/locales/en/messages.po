@@ -381,7 +381,7 @@ msgid "{0} of {1}"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:190
+#: src/view/com/auth/SplashScreen.web.tsx:192
 msgid "{0} on GitHub"
 msgstr "{0} on GitHub"
 
@@ -397,7 +397,7 @@ msgid "{0} out of 50"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:185
+#: src/view/com/auth/SplashScreen.web.tsx:187
 msgid "{0} Privacy Policy"
 msgstr "{0} Privacy Policy"
 
@@ -415,7 +415,7 @@ msgstr "{0} tab, selected"
 #. placeholder {0}: brand.metadata.displayName
 #. placeholder {0}: brand.web.title
 #: src/screens/Takendown.tsx:216
-#: src/view/com/auth/SplashScreen.web.tsx:180
+#: src/view/com/auth/SplashScreen.web.tsx:182
 msgid "{0} Terms of Service"
 msgstr "{0} Terms of Service"
 
@@ -1507,7 +1507,7 @@ msgstr "A wide illustration"
 #: src/screens/Settings/AboutSettings.tsx:83
 #: src/screens/Settings/Settings.tsx:290
 #: src/screens/Settings/Settings.tsx:293
-#: src/view/com/auth/SplashScreen.web.tsx:177
+#: src/view/com/auth/SplashScreen.web.tsx:179
 msgid "About"
 msgstr ""
 
@@ -3741,7 +3741,7 @@ msgstr "Choose your hosting provider"
 msgid "Choose your own timeline! Feeds built by the community help you find content you love."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:259
+#: src/screens/Signup/StepInfo/index.tsx:265
 msgid "Choose your password"
 msgstr ""
 
@@ -4208,7 +4208,7 @@ msgstr ""
 #: src/screens/Settings/AppPasswords.tsx:127
 #: src/screens/Signup/StepCommunity/index.tsx:130
 #: src/screens/Signup/StepHandle/index.tsx:381
-#: src/screens/Signup/StepInfo/index.tsx:342
+#: src/screens/Signup/StepInfo/index.tsx:367
 #: src/view/com/composer/event/EventEditor.tsx:228
 #: src/view/com/composer/event/EventEditor.tsx:244
 msgid "Continue"
@@ -4624,7 +4624,7 @@ msgstr "Create a Starter Pack for me"
 #: src/screens/Messages/JoinRequest.tsx:314
 #: src/view/com/auth/NativeSplashScreen.tsx:158
 #: src/view/com/auth/SplashScreen.tsx:116
-#: src/view/com/auth/SplashScreen.web.tsx:112
+#: src/view/com/auth/SplashScreen.web.tsx:113
 #: src/view/shell/bottom-bar/BottomBar.tsx:350
 #: src/view/shell/bottom-bar/BottomBar.tsx:354
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:240
@@ -4685,7 +4685,7 @@ msgstr ""
 #: src/screens/Messages/JoinRequest.tsx:308
 #: src/view/com/auth/NativeSplashScreen.tsx:139
 #: src/view/com/auth/SplashScreen.tsx:100
-#: src/view/com/auth/SplashScreen.web.tsx:104
+#: src/view/com/auth/SplashScreen.web.tsx:105
 msgid "Create new account"
 msgstr ""
 
@@ -4798,8 +4798,8 @@ msgstr ""
 msgid "Dark theme"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:278
-#: src/screens/Signup/StepInfo/index.tsx:298
+#: src/screens/Signup/StepInfo/index.tsx:284
+#: src/screens/Signup/StepInfo/index.tsx:323
 msgid "Date of birth"
 msgstr ""
 
@@ -5593,7 +5593,7 @@ msgid "Election 2026 on Blacksky"
 msgstr "Election 2026 on Blacksky"
 
 #: src/screens/Settings/AccountSettings.tsx:82
-#: src/screens/Signup/StepInfo/index.tsx:225
+#: src/screens/Signup/StepInfo/index.tsx:231
 msgid "Email"
 msgstr ""
 
@@ -5805,12 +5805,12 @@ msgstr ""
 msgid "Enter your birthdate"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:181
+#: src/screens/Signup/StepInfo/index.tsx:187
 msgid "Enter your details to create an account."
 msgstr "Enter your details to create an account."
 
 #: src/screens/Login/ForgotPasswordForm.tsx:100
-#: src/screens/Signup/StepInfo/index.tsx:228
+#: src/screens/Signup/StepInfo/index.tsx:234
 msgid "Enter your email address"
 msgstr ""
 
@@ -7165,7 +7165,7 @@ msgstr "Get notified when a label is added to your account and posts."
 #: src/screens/Messages/components/InviteLinkDialog.tsx:225
 #: src/screens/Midterms/index.tsx:157
 #: src/screens/Midterms/index.tsx:163
-#: src/screens/Signup/StepInfo/index.tsx:172
+#: src/screens/Signup/StepInfo/index.tsx:178
 msgid "Get started"
 msgstr ""
 
@@ -7178,7 +7178,7 @@ msgstr ""
 msgid "GIF uploaded"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:192
+#: src/view/com/auth/SplashScreen.web.tsx:194
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -7770,7 +7770,7 @@ msgstr ""
 msgid "If none are selected, all languages will be shown in your feeds."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:323
+#: src/screens/Signup/StepInfo/index.tsx:348
 msgid "If you are not yet an adult according to the laws of your country, your parent or legal guardian must read these Terms on your behalf."
 msgstr ""
 
@@ -8100,11 +8100,11 @@ msgstr ""
 msgid "Invite {name} to join Bluesky"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:198
+#: src/screens/Signup/StepInfo/index.tsx:204
 msgid "Invite code"
 msgstr ""
 
-#: src/screens/Signup/state.ts:416
+#: src/screens/Signup/state.ts:423
 msgid "Invite code not accepted. Check that you input it correctly and try again."
 msgstr ""
 
@@ -8187,7 +8187,7 @@ msgstr "Is this your account?"
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:341
+#: src/screens/Signup/StepInfo/index.tsx:366
 msgid "It's correct"
 msgstr ""
 
@@ -8217,7 +8217,7 @@ msgid "Join · {0}"
 msgstr "Join · {0}"
 
 #: src/screens/Signup/StepCommunity/index.tsx:64
-#: src/screens/Signup/StepInfo/index.tsx:357
+#: src/screens/Signup/StepInfo/index.tsx:382
 msgid "Join another community"
 msgstr "Join another community"
 
@@ -8365,7 +8365,7 @@ msgid "Learn More"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:175
+#: src/view/com/auth/SplashScreen.web.tsx:177
 msgid "Learn more about {0}"
 msgstr "Learn more about {0}"
 
@@ -9318,6 +9318,10 @@ msgstr ""
 msgid "Moderator has chosen to set a general warning on the content."
 msgstr ""
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:146
+msgid "Month"
+msgstr "Month"
+
 #: src/view/screens/SupportStripeCheckout.web.tsx:173
 #: src/view/screens/SupportStripeCheckout.web.tsx:175
 msgid "Monthly"
@@ -9761,6 +9765,10 @@ msgstr ""
 #: src/components/Lightbox/Lightbox.web.tsx:224
 msgid "Next image"
 msgstr ""
+
+#: src/components/onboarding-chrome/CalendarPanel.tsx:166
+msgid "Next month"
+msgstr "Next month"
 
 #: src/features/inviteFriends/components/ThemePicker.tsx:33
 msgid "Night"
@@ -10679,7 +10687,7 @@ msgid "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {
 msgstr "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {# images}}, or a single video or GIF."
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:106
+#: src/view/com/auth/SplashScreen.web.tsx:107
 msgid "Opens flow to create a new {0} account"
 msgstr "Opens flow to create a new {0} account"
 
@@ -10690,7 +10698,7 @@ msgid "Opens flow to create a new Blacksky account"
 msgstr "Opens flow to create a new Blacksky account"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:120
+#: src/view/com/auth/SplashScreen.web.tsx:121
 msgid "Opens flow to sign in to your existing {0} account"
 msgstr "Opens flow to sign in to your existing {0} account"
 
@@ -10944,7 +10952,7 @@ msgstr "Pass/Unsure"
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:146
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:255
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:394
-#: src/screens/Signup/StepInfo/index.tsx:256
+#: src/screens/Signup/StepInfo/index.tsx:262
 msgid "Password"
 msgstr ""
 
@@ -11198,12 +11206,12 @@ msgstr ""
 msgid "Please add any content warning labels that apply to what you are posting."
 msgstr "Please add any content warning labels that apply to what you are posting."
 
-#: src/screens/Signup/state.ts:352
+#: src/screens/Signup/state.ts:359
 msgid "Please choose your handle."
 msgstr ""
 
-#: src/screens/Signup/state.ts:344
-#: src/screens/Signup/StepInfo/index.tsx:137
+#: src/screens/Signup/state.ts:351
+#: src/screens/Signup/StepInfo/index.tsx:143
 msgid "Please choose your password."
 msgstr ""
 
@@ -11211,7 +11219,7 @@ msgstr ""
 msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 msgstr "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 
-#: src/screens/Signup/state.ts:374
+#: src/screens/Signup/state.ts:381
 msgid "Please complete the verification captcha."
 msgstr ""
 
@@ -11219,7 +11227,7 @@ msgstr ""
 msgid "Please confirm your email address to upload videos."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:127
+#: src/screens/Signup/StepInfo/index.tsx:133
 msgid "Please double-check that you have entered your email address correctly."
 msgstr ""
 
@@ -11270,16 +11278,16 @@ msgstr ""
 msgid "Please enter your account password to manage app passwords."
 msgstr "Please enter your account password to manage app passwords."
 
-#: src/screens/Signup/state.ts:362
+#: src/screens/Signup/state.ts:369
 msgid "Please enter your date of birth."
 msgstr "Please enter your date of birth."
 
-#: src/screens/Signup/state.ts:328
-#: src/screens/Signup/StepInfo/index.tsx:110
+#: src/screens/Signup/state.ts:335
+#: src/screens/Signup/StepInfo/index.tsx:116
 msgid "Please enter your email."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:103
+#: src/screens/Signup/StepInfo/index.tsx:109
 msgid "Please enter your invite code."
 msgstr ""
 
@@ -11618,12 +11626,16 @@ msgstr "Previous appeal resolved"
 msgid "Previous image"
 msgstr ""
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:138
+msgid "Previous month"
+msgstr "Previous month"
+
 #: src/screens/Settings/LanguageSettings.tsx:141
 #: src/screens/Settings/LanguageSettings.tsx:157
 msgid "Primary language"
 msgstr ""
 
-#: src/view/com/auth/SplashScreen.web.tsx:187
+#: src/view/com/auth/SplashScreen.web.tsx:189
 #: src/view/shell/desktop/RightNav.tsx:125
 #: src/view/shell/desktop/RightNav.tsx:126
 msgid "Privacy"
@@ -12715,7 +12727,7 @@ msgstr ""
 msgid "Require an email code to sign in to your account."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:201
+#: src/screens/Signup/StepInfo/index.tsx:207
 msgid "Required for this provider"
 msgstr ""
 
@@ -12833,7 +12845,7 @@ msgstr ""
 #: src/screens/PostThread/components/ThreadError.tsx:81
 #: src/screens/PostThread/components/ThreadError.tsx:87
 #: src/screens/Signup/BackNextButtons.tsx:54
-#: src/screens/Signup/StepInfo/index.tsx:339
+#: src/screens/Signup/StepInfo/index.tsx:364
 #: src/view/com/util/error/ErrorMessage.tsx:55
 #: src/view/com/util/error/ErrorScreen.tsx:91
 #: src/view/screens/Storybook/Admonitions.tsx:64
@@ -13437,7 +13449,7 @@ msgstr ""
 msgid "Select which languages you want your subscribed feeds to include. If none are selected, all languages will be shown."
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:299
+#: src/screens/Signup/StepInfo/index.tsx:324
 msgid "Select your date of birth"
 msgstr ""
 
@@ -13975,8 +13987,8 @@ msgstr ""
 #: src/view/com/auth/NativeSplashScreen.tsx:194
 #: src/view/com/auth/SplashScreen.tsx:127
 #: src/view/com/auth/SplashScreen.tsx:137
-#: src/view/com/auth/SplashScreen.web.tsx:118
-#: src/view/com/auth/SplashScreen.web.tsx:126
+#: src/view/com/auth/SplashScreen.web.tsx:119
+#: src/view/com/auth/SplashScreen.web.tsx:127
 #: src/view/shell/bottom-bar/BottomBar.tsx:359
 #: src/view/shell/bottom-bar/BottomBar.tsx:363
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:250
@@ -14881,7 +14893,7 @@ msgstr "Tell us why you believe this decision was a mistake. We will review your
 msgid "Temporarily deactivate your account"
 msgstr "Temporarily deactivate your account"
 
-#: src/view/com/auth/SplashScreen.web.tsx:182
+#: src/view/com/auth/SplashScreen.web.tsx:184
 #: src/view/shell/desktop/RightNav.tsx:132
 #: src/view/shell/desktop/RightNav.tsx:133
 msgid "Terms"
@@ -17594,6 +17606,10 @@ msgstr "Wrong kind of conversation"
 msgid "www.mylivestream.tv"
 msgstr ""
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:155
+msgid "Year"
+msgstr "Year"
+
 #: src/components/moderation/ReportDialog/index.tsx:1000
 #: src/components/moderation/ReportDialog/index.tsx:1009
 msgctxt "Answer to a yes/no question"
@@ -17962,7 +17978,7 @@ msgstr "You may only add up to {0, plural, other {{1} profiles}}"
 msgid "You may only add up to 3 feeds"
 msgstr ""
 
-#: src/screens/Signup/StepInfo/index.tsx:313
+#: src/screens/Signup/StepInfo/index.tsx:338
 msgid "You must be 13 years of age or older to create an account."
 msgstr "You must be 13 years of age or older to create an account."
 
@@ -18356,8 +18372,8 @@ msgstr "Your device clock appears to be incorrect. Please check your system time
 
 #: src/screens/Login/ForgotPasswordForm.tsx:51
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:82
-#: src/screens/Signup/state.ts:336
-#: src/screens/Signup/StepInfo/index.tsx:117
+#: src/screens/Signup/state.ts:343
+#: src/screens/Signup/StepInfo/index.tsx:123
 msgid "Your email appears to be invalid."
 msgstr ""
 
@@ -18429,7 +18445,7 @@ msgstr "Your name, avatar, the name of the group chat, and the number of members
 msgid "Your note:"
 msgstr "Your note:"
 
-#: src/screens/Signup/StepInfo/index.tsx:144
+#: src/screens/Signup/StepInfo/index.tsx:150
 msgid "Your password must be at least 8 characters long."
 msgstr ""
 

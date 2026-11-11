@@ -386,7 +386,7 @@ msgid "{0} of {1}"
 msgstr "{0} z {1}"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:190
+#: src/view/com/auth/SplashScreen.web.tsx:192
 msgid "{0} on GitHub"
 msgstr ""
 
@@ -402,7 +402,7 @@ msgid "{0} out of 50"
 msgstr "{0} z 50"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:185
+#: src/view/com/auth/SplashScreen.web.tsx:187
 msgid "{0} Privacy Policy"
 msgstr ""
 
@@ -420,7 +420,7 @@ msgstr "Karta {0}, vybráno"
 #. placeholder {0}: brand.metadata.displayName
 #. placeholder {0}: brand.web.title
 #: src/screens/Takendown.tsx:216
-#: src/view/com/auth/SplashScreen.web.tsx:180
+#: src/view/com/auth/SplashScreen.web.tsx:182
 msgid "{0} Terms of Service"
 msgstr ""
 
@@ -1512,7 +1512,7 @@ msgstr ""
 #: src/screens/Settings/AboutSettings.tsx:83
 #: src/screens/Settings/Settings.tsx:290
 #: src/screens/Settings/Settings.tsx:293
-#: src/view/com/auth/SplashScreen.web.tsx:177
+#: src/view/com/auth/SplashScreen.web.tsx:179
 msgid "About"
 msgstr "Informace"
 
@@ -3746,7 +3746,7 @@ msgstr "Vyberte poskytovatele hostingu"
 msgid "Choose your own timeline! Feeds built by the community help you find content you love."
 msgstr "Vyberte si svoji vlastní časovou osu! Kanály vytvořené komunitou vám pomohou najít obsah, který milujete."
 
-#: src/screens/Signup/StepInfo/index.tsx:259
+#: src/screens/Signup/StepInfo/index.tsx:265
 msgid "Choose your password"
 msgstr "Zvolte své heslo"
 
@@ -4213,7 +4213,7 @@ msgstr "Pozadí kontextové nabídky, kliknutím nabídku zavřete."
 #: src/screens/Settings/AppPasswords.tsx:127
 #: src/screens/Signup/StepCommunity/index.tsx:130
 #: src/screens/Signup/StepHandle/index.tsx:381
-#: src/screens/Signup/StepInfo/index.tsx:342
+#: src/screens/Signup/StepInfo/index.tsx:367
 #: src/view/com/composer/event/EventEditor.tsx:228
 #: src/view/com/composer/event/EventEditor.tsx:244
 msgid "Continue"
@@ -4629,7 +4629,7 @@ msgstr "Vytvořit pro mě Startovací balíček"
 #: src/screens/Messages/JoinRequest.tsx:314
 #: src/view/com/auth/NativeSplashScreen.tsx:158
 #: src/view/com/auth/SplashScreen.tsx:116
-#: src/view/com/auth/SplashScreen.web.tsx:112
+#: src/view/com/auth/SplashScreen.web.tsx:113
 #: src/view/shell/bottom-bar/BottomBar.tsx:350
 #: src/view/shell/bottom-bar/BottomBar.tsx:354
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:240
@@ -4690,7 +4690,7 @@ msgstr "Vytvořit seznam moderování"
 #: src/screens/Messages/JoinRequest.tsx:308
 #: src/view/com/auth/NativeSplashScreen.tsx:139
 #: src/view/com/auth/SplashScreen.tsx:100
-#: src/view/com/auth/SplashScreen.web.tsx:104
+#: src/view/com/auth/SplashScreen.web.tsx:105
 msgid "Create new account"
 msgstr "Vytvořit nový účet"
 
@@ -4803,8 +4803,8 @@ msgstr "Tmavý"
 msgid "Dark theme"
 msgstr "Tmavý motiv"
 
-#: src/screens/Signup/StepInfo/index.tsx:278
-#: src/screens/Signup/StepInfo/index.tsx:298
+#: src/screens/Signup/StepInfo/index.tsx:284
+#: src/screens/Signup/StepInfo/index.tsx:323
 msgid "Date of birth"
 msgstr "Datum narození"
 
@@ -5598,7 +5598,7 @@ msgid "Election 2026 on Blacksky"
 msgstr ""
 
 #: src/screens/Settings/AccountSettings.tsx:82
-#: src/screens/Signup/StepInfo/index.tsx:225
+#: src/screens/Signup/StepInfo/index.tsx:231
 msgid "Email"
 msgstr "E-mail"
 
@@ -5810,12 +5810,12 @@ msgstr "Zadejte e-mail, který jste použili při vytváření účtu. Pošleme 
 msgid "Enter your birthdate"
 msgstr "Zadejte své datum narození"
 
-#: src/screens/Signup/StepInfo/index.tsx:181
+#: src/screens/Signup/StepInfo/index.tsx:187
 msgid "Enter your details to create an account."
 msgstr ""
 
 #: src/screens/Login/ForgotPasswordForm.tsx:100
-#: src/screens/Signup/StepInfo/index.tsx:228
+#: src/screens/Signup/StepInfo/index.tsx:234
 msgid "Enter your email address"
 msgstr "Zadejte svou e-mailovou adresu"
 
@@ -7170,7 +7170,7 @@ msgstr "Dostávejte upozornění, když je k vašemu účtu a příspěvkům př
 #: src/screens/Messages/components/InviteLinkDialog.tsx:225
 #: src/screens/Midterms/index.tsx:157
 #: src/screens/Midterms/index.tsx:163
-#: src/screens/Signup/StepInfo/index.tsx:172
+#: src/screens/Signup/StepInfo/index.tsx:178
 msgid "Get started"
 msgstr "Začínáme"
 
@@ -7183,7 +7183,7 @@ msgstr "GIF"
 msgid "GIF uploaded"
 msgstr "GIF nahrán"
 
-#: src/view/com/auth/SplashScreen.web.tsx:192
+#: src/view/com/auth/SplashScreen.web.tsx:194
 msgid "GitHub"
 msgstr ""
 
@@ -7775,7 +7775,7 @@ msgstr "Pokud je alternativní text dlouhý, přepíná stav rozbalení alternat
 msgid "If none are selected, all languages will be shown in your feeds."
 msgstr "Pokud nevyberete žádný, ve vašich kanálech se zobrazí všechny jazyky."
 
-#: src/screens/Signup/StepInfo/index.tsx:323
+#: src/screens/Signup/StepInfo/index.tsx:348
 msgid "If you are not yet an adult according to the laws of your country, your parent or legal guardian must read these Terms on your behalf."
 msgstr "Pokud podle zákonů vaší země ještě nejste dospělí, musí si tyto Podmínky přečíst váš rodič nebo zákonný zástupce za vás."
 
@@ -8105,11 +8105,11 @@ msgstr "Pozvat"
 msgid "Invite {name} to join Bluesky"
 msgstr "Pozvat uživatele {name} na Bluesky"
 
-#: src/screens/Signup/StepInfo/index.tsx:198
+#: src/screens/Signup/StepInfo/index.tsx:204
 msgid "Invite code"
 msgstr "Zvací kód"
 
-#: src/screens/Signup/state.ts:416
+#: src/screens/Signup/state.ts:423
 msgid "Invite code not accepted. Check that you input it correctly and try again."
 msgstr "Zvací kód nebyl přijat. Zkontrolujte, zda jste ho zadali správně, a zkuste to znovu."
 
@@ -8192,7 +8192,7 @@ msgstr ""
 msgid "It looks like some of your contacts have not tried to find you here yet. You can personally invite them by customizing a draft message we will provide."
 msgstr "Vypadá to, že se vás zde některé z vašich kontaktů ještě nepokusily najít. Můžete je osobně pozvat úpravou návrhu zprávy, který vám poskytneme."
 
-#: src/screens/Signup/StepInfo/index.tsx:341
+#: src/screens/Signup/StepInfo/index.tsx:366
 msgid "It's correct"
 msgstr "Je to správné"
 
@@ -8222,7 +8222,7 @@ msgid "Join · {0}"
 msgstr ""
 
 #: src/screens/Signup/StepCommunity/index.tsx:64
-#: src/screens/Signup/StepInfo/index.tsx:357
+#: src/screens/Signup/StepInfo/index.tsx:382
 msgid "Join another community"
 msgstr ""
 
@@ -8370,7 +8370,7 @@ msgid "Learn More"
 msgstr "Zjistit více"
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:175
+#: src/view/com/auth/SplashScreen.web.tsx:177
 msgid "Learn more about {0}"
 msgstr ""
 
@@ -9323,6 +9323,10 @@ msgstr "Moderační nástroje"
 msgid "Moderator has chosen to set a general warning on the content."
 msgstr "Moderátor se rozhodl nastavit obecné varování pro tento obsah."
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:146
+msgid "Month"
+msgstr ""
+
 #: src/view/screens/SupportStripeCheckout.web.tsx:173
 #: src/view/screens/SupportStripeCheckout.web.tsx:175
 msgid "Monthly"
@@ -9766,6 +9770,10 @@ msgstr "Další"
 #: src/components/Lightbox/Lightbox.web.tsx:224
 msgid "Next image"
 msgstr "Další obrázek"
+
+#: src/components/onboarding-chrome/CalendarPanel.tsx:166
+msgid "Next month"
+msgstr ""
 
 #: src/features/inviteFriends/components/ThemePicker.tsx:33
 msgid "Night"
@@ -10684,7 +10692,7 @@ msgid "Opens device gallery to select up to {MAX_GALLERY_IMAGES, plural, other {
 msgstr "Otevře galerii zařízení pro výběr až {MAX_GALLERY_IMAGES, plural, one {# obrázku} other {# obrázků}}, nebo jednoho videa či GIFu."
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:106
+#: src/view/com/auth/SplashScreen.web.tsx:107
 msgid "Opens flow to create a new {0} account"
 msgstr ""
 
@@ -10695,7 +10703,7 @@ msgid "Opens flow to create a new Blacksky account"
 msgstr ""
 
 #. placeholder {0}: brand.web.title
-#: src/view/com/auth/SplashScreen.web.tsx:120
+#: src/view/com/auth/SplashScreen.web.tsx:121
 msgid "Opens flow to sign in to your existing {0} account"
 msgstr ""
 
@@ -10949,7 +10957,7 @@ msgstr ""
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:146
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:255
 #: src/screens/Settings/components/DeleteAccountDialog.tsx:394
-#: src/screens/Signup/StepInfo/index.tsx:256
+#: src/screens/Signup/StepInfo/index.tsx:262
 msgid "Password"
 msgstr "Heslo"
 
@@ -11203,12 +11211,12 @@ msgstr "Přehraje video"
 msgid "Please add any content warning labels that apply to what you are posting."
 msgstr ""
 
-#: src/screens/Signup/state.ts:352
+#: src/screens/Signup/state.ts:359
 msgid "Please choose your handle."
 msgstr "Vyberte si prosím své uživatelské jméno."
 
-#: src/screens/Signup/state.ts:344
-#: src/screens/Signup/StepInfo/index.tsx:137
+#: src/screens/Signup/state.ts:351
+#: src/screens/Signup/StepInfo/index.tsx:143
 msgid "Please choose your password."
 msgstr "Zvolte si prosím heslo."
 
@@ -11216,7 +11224,7 @@ msgstr "Zvolte si prosím heslo."
 msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Blacksky."
 msgstr ""
 
-#: src/screens/Signup/state.ts:374
+#: src/screens/Signup/state.ts:381
 msgid "Please complete the verification captcha."
 msgstr "Dokončete prosím ověřovací captcha."
 
@@ -11224,7 +11232,7 @@ msgstr "Dokončete prosím ověřovací captcha."
 msgid "Please confirm your email address to upload videos."
 msgstr "Pro nahrávání videí prosím potvrďte svou e-mailovou adresu."
 
-#: src/screens/Signup/StepInfo/index.tsx:127
+#: src/screens/Signup/StepInfo/index.tsx:133
 msgid "Please double-check that you have entered your email address correctly."
 msgstr "Zkontrolujte prosím, zda jste správně zadali svou e-mailovou adresu."
 
@@ -11275,16 +11283,16 @@ msgstr "Zadejte prosím bezpečnostní kód, který jsme zaslali na vaši předc
 msgid "Please enter your account password to manage app passwords."
 msgstr ""
 
-#: src/screens/Signup/state.ts:362
+#: src/screens/Signup/state.ts:369
 msgid "Please enter your date of birth."
 msgstr "Zadejte prosím své datum narození."
 
-#: src/screens/Signup/state.ts:328
-#: src/screens/Signup/StepInfo/index.tsx:110
+#: src/screens/Signup/state.ts:335
+#: src/screens/Signup/StepInfo/index.tsx:116
 msgid "Please enter your email."
 msgstr "Zadejte prosím svůj e-mail."
 
-#: src/screens/Signup/StepInfo/index.tsx:103
+#: src/screens/Signup/StepInfo/index.tsx:109
 msgid "Please enter your invite code."
 msgstr "Zadejte prosím svůj zvací kód."
 
@@ -11623,12 +11631,16 @@ msgstr ""
 msgid "Previous image"
 msgstr "Předchozí obrázek"
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:138
+msgid "Previous month"
+msgstr ""
+
 #: src/screens/Settings/LanguageSettings.tsx:141
 #: src/screens/Settings/LanguageSettings.tsx:157
 msgid "Primary language"
 msgstr "Primární jazyk"
 
-#: src/view/com/auth/SplashScreen.web.tsx:187
+#: src/view/com/auth/SplashScreen.web.tsx:189
 #: src/view/shell/desktop/RightNav.tsx:125
 #: src/view/shell/desktop/RightNav.tsx:126
 msgid "Privacy"
@@ -12720,7 +12732,7 @@ msgstr "Před odesláním vyžadovat alternativní text"
 msgid "Require an email code to sign in to your account."
 msgstr "Vyžadovat e-mailový kód pro přihlášení k vašemu účtu."
 
-#: src/screens/Signup/StepInfo/index.tsx:201
+#: src/screens/Signup/StepInfo/index.tsx:207
 msgid "Required for this provider"
 msgstr "Vyžadováno pro tohoto poskytovatele"
 
@@ -12838,7 +12850,7 @@ msgstr "Zopakuje poslední akci, která skončila chybou"
 #: src/screens/PostThread/components/ThreadError.tsx:81
 #: src/screens/PostThread/components/ThreadError.tsx:87
 #: src/screens/Signup/BackNextButtons.tsx:54
-#: src/screens/Signup/StepInfo/index.tsx:339
+#: src/screens/Signup/StepInfo/index.tsx:364
 #: src/view/com/util/error/ErrorMessage.tsx:55
 #: src/view/com/util/error/ErrorScreen.tsx:91
 #: src/view/screens/Storybook/Admonitions.tsx:64
@@ -13442,7 +13454,7 @@ msgstr "Vyberte jazyk, který se má používat pro uživatelské rozhraní apli
 msgid "Select which languages you want your subscribed feeds to include. If none are selected, all languages will be shown."
 msgstr "Vyberte, které jazyky mají být zahrnuty ve vašich odebíraných kanálech. Pokud nevyberete žádný, budou zobrazeny všechny jazyky."
 
-#: src/screens/Signup/StepInfo/index.tsx:299
+#: src/screens/Signup/StepInfo/index.tsx:324
 msgid "Select your date of birth"
 msgstr "Vyberte své datum narození"
 
@@ -13980,8 +13992,8 @@ msgstr "Zobrazí obsah"
 #: src/view/com/auth/NativeSplashScreen.tsx:194
 #: src/view/com/auth/SplashScreen.tsx:127
 #: src/view/com/auth/SplashScreen.tsx:137
-#: src/view/com/auth/SplashScreen.web.tsx:118
-#: src/view/com/auth/SplashScreen.web.tsx:126
+#: src/view/com/auth/SplashScreen.web.tsx:119
+#: src/view/com/auth/SplashScreen.web.tsx:127
 #: src/view/shell/bottom-bar/BottomBar.tsx:359
 #: src/view/shell/bottom-bar/BottomBar.tsx:363
 #: src/view/shell/bottom-bar/BottomBarWeb.tsx:250
@@ -14886,7 +14898,7 @@ msgstr "Řekněte nám, proč si myslíte, že toto rozhodnutí bylo chybou. Va�
 msgid "Temporarily deactivate your account"
 msgstr "Dočasně deaktivovat váš účet"
 
-#: src/view/com/auth/SplashScreen.web.tsx:182
+#: src/view/com/auth/SplashScreen.web.tsx:184
 #: src/view/shell/desktop/RightNav.tsx:132
 #: src/view/shell/desktop/RightNav.tsx:133
 msgid "Terms"
@@ -17599,6 +17611,10 @@ msgstr "Nesprávný typ konverzace"
 msgid "www.mylivestream.tv"
 msgstr "www.mylivestream.tv"
 
+#: src/components/onboarding-chrome/CalendarPanel.tsx:155
+msgid "Year"
+msgstr ""
+
 #: src/components/moderation/ReportDialog/index.tsx:1000
 #: src/components/moderation/ReportDialog/index.tsx:1009
 msgctxt "Answer to a yes/no question"
@@ -17967,7 +17983,7 @@ msgstr "Můžete přidat maximálně {0, plural, one {{1} profil} few {{1} profi
 msgid "You may only add up to 3 feeds"
 msgstr "Můžete přidat maximálně 3 kanály"
 
-#: src/screens/Signup/StepInfo/index.tsx:313
+#: src/screens/Signup/StepInfo/index.tsx:338
 msgid "You must be 13 years of age or older to create an account."
 msgstr ""
 
@@ -18361,8 +18377,8 @@ msgstr ""
 
 #: src/screens/Login/ForgotPasswordForm.tsx:51
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:82
-#: src/screens/Signup/state.ts:336
-#: src/screens/Signup/StepInfo/index.tsx:117
+#: src/screens/Signup/state.ts:343
+#: src/screens/Signup/StepInfo/index.tsx:123
 msgid "Your email appears to be invalid."
 msgstr "Váš e-mail se zdá být neplatný."
 
@@ -18434,7 +18450,7 @@ msgstr "Vaše jméno, avatar, název skupinového chatu a počet členů budou v
 msgid "Your note:"
 msgstr "Vaše poznámka:"
 
-#: src/screens/Signup/StepInfo/index.tsx:144
+#: src/screens/Signup/StepInfo/index.tsx:150
 msgid "Your password must be at least 8 characters long."
 msgstr "Vaše heslo musí mít alespoň 8 znaků."
 

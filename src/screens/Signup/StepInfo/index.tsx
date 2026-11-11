@@ -29,9 +29,10 @@ import {
   InputGroup,
   PrimaryButton,
 } from '#/components/onboarding-chrome'
+import {CalendarPanel} from '#/components/onboarding-chrome/CalendarPanel'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-import {IS_NATIVE} from '#/env'
+import {IS_NATIVE, IS_WEB} from '#/env'
 
 function sanitizeDate(date: Date): Date {
   if (!date || date.toString() === 'Invalid Date') {
@@ -69,6 +70,11 @@ export function StepInfo({
   const emailInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
   const passwordInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
   const birthdateInputRef = useRef<DateFieldRef>(null)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const today = DateField.utils.toSimpleDateString(new Date())
+  const birthDate = state.dateOfBirth
+    ? DateField.utils.toSimpleDateString(state.dateOfBirth)
+    : today
 
   const isOverAppMinAccessAge = state.dateOfBirth
     ? getAge(state.dateOfBirth) >= 13
@@ -279,9 +285,28 @@ export function StepInfo({
               icon={CalendarDays}
               value={i18n.date(state.dateOfBirth, {timeZone: 'UTC'})}
               editable={false}
-              onPress={() => birthdateInputRef.current?.focus()}
+              onPress={() => {
+                // Native opens its own picker on focus; web keeps typing here.
+                birthdateInputRef.current?.focus()
+                if (IS_WEB) setIsCalendarOpen(open => !open)
+              }}
               onChangeText={() => {}}
             />
+            {IS_WEB && isCalendarOpen ? (
+              <CalendarPanel
+                key={birthDate}
+                testID="dateCalendar"
+                value={birthDate}
+                maximumDate={today}
+                onChange={date => {
+                  dispatch({
+                    type: 'setDateOfBirth',
+                    value: sanitizeDate(new Date(date)),
+                  })
+                  setIsCalendarOpen(false)
+                }}
+              />
+            ) : null}
           </FieldGroupCard>
 
           <View style={{height: 0, overflow: 'hidden'}}>

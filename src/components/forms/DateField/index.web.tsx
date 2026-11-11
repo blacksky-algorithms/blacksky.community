@@ -1,4 +1,4 @@
-import {forwardRef, useCallback, useImperativeHandle, useRef} from 'react'
+import {forwardRef, useCallback} from 'react'
 import {StyleSheet, type TextInput, type TextInputProps} from 'react-native'
 // @ts-expect-error untyped
 import {unstable_createElement} from 'react-native-web'
@@ -44,27 +44,6 @@ export function DateField({
   maximumDate,
   minimumDate,
 }: DateFieldProps) {
-  const input = useRef<HTMLInputElement>(null)
-
-  /*
-   * On native, focusing the field opens its picker. The browser only opens one
-   * from a user gesture and not on focus alone, so ask for it; where that is
-   * refused or unsupported the field is still focused and can be typed into.
-   */
-  useImperativeHandle(
-    inputRef,
-    () => ({
-      focus: () => {
-        input.current?.focus()
-        try {
-          input.current?.showPicker()
-        } catch {}
-      },
-      blur: () => input.current?.blur(),
-    }),
-    [],
-  )
-
   const handleOnChange = useCallback(
     (e: any) => {
       const date = e.target.valueAsDate || e.target.value
@@ -83,9 +62,7 @@ export function DateField({
       <TextField.Icon icon={CalendarDays} />
       <Input
         value={value === '' ? '' : toSimpleDateString(value)}
-        inputRef={
-          input as unknown as React.Ref<React.ComponentRef<typeof TextInput>>
-        }
+        inputRef={inputRef as React.Ref<React.ComponentRef<typeof TextInput>>}
         label={label}
         onChange={handleOnChange}
         testID={testID}
