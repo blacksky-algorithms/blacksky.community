@@ -19,6 +19,7 @@ import {Button, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as TimesIcon} from '#/components/icons/Times'
 import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
+import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
 
 export const SplashScreen = ({
@@ -127,15 +128,16 @@ export const SplashScreen = ({
                 </ButtonText>
               </Button>
               {brand.messages.migrationMessage && (
-                <Text
+                <RichText
+                  value={brand.messages.migrationMessage}
                   style={[
                     a.text_sm,
                     a.leading_snug,
                     t.atoms.text_contrast_medium,
                     a.pt_md,
-                  ]}>
-                  {brand.messages.migrationMessage}
-                </Text>
+                  ]}
+                  interactiveStyle={{color: t.palette.primary_500}}
+                />
               )}
             </View>
           </ErrorBoundary>
