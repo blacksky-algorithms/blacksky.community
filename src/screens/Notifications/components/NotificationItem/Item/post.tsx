@@ -4,6 +4,7 @@ import {moderatePost, type ModerationDecision} from '@bsky/sdk/moderation'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {Trans, useLingui} from '@lingui/react/macro'
 
+import {getCommunitySpaceUri} from '#/lib/api/community-post'
 import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {makeProfileLink} from '#/lib/routes/links'
@@ -509,6 +510,7 @@ function PostActionsInner({
           ? moderatePost(post, moderationOpts)
           : undefined,
         langs: record.langs,
+        communitySpace: getCommunitySpaceUri(post),
       },
       logContext: 'PostReply',
     })

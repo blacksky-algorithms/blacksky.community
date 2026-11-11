@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import {getGroupedNotifications} from '#/lib/api/community-notifications'
+import {useHideFollowNotifications} from '#/state/preferences/hide-follow-notifications'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {getNextCursor} from '#/state/queries/notifications/grouped/cursor'
@@ -157,6 +158,7 @@ export function useGroupedNotificationsQuery({
   const {currentAccount} = useSession()
   const moderationOpts = useModerationOpts()
   const {uris: hiddenReplyUris} = useThreadgateHiddenReplyUris()
+  const hideFollowNotifications = useHideFollowNotifications()
   const viewerDid = currentAccount?.did
   /*
    * Compare by time rather than identity, so a caller passing a fresh `Date`
@@ -184,6 +186,7 @@ export function useGroupedNotificationsQuery({
       return selectNotifications(data, {
         moderationOpts,
         hiddenReplyUris,
+        hideFollowNotifications,
         seenAtMs,
       })
     },
@@ -226,6 +229,7 @@ function selectNotifications(
         !cached ||
         cached.args.moderationOpts !== args.moderationOpts ||
         cached.args.hiddenReplyUris !== args.hiddenReplyUris ||
+        cached.args.hideFollowNotifications !== args.hideFollowNotifications ||
         cached.args.seenAtMs !== args.seenAtMs
       ) {
         cached = {

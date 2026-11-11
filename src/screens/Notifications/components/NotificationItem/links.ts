@@ -1,6 +1,7 @@
 import {AtUri} from '@atproto/syntax'
 
 import {makeProfileLink} from '#/lib/routes/links'
+import {postUriToRelativePath} from '#/lib/strings/url-helpers'
 
 /**
  * `getPosts`, which backs the activity list screen, takes at most 25 URIs.
@@ -15,12 +16,21 @@ export function makePostLink(
   post: {uri: string; author: {did: string; handle: string}},
   ...segments: string[]
 ) {
-  return makeProfileLink(
-    post.author,
-    'post',
-    new AtUri(post.uri).rkey,
-    ...segments,
-  )
+  /*
+   * A post in a permissioned space or a community collection needs the query
+   * that names it, and a space record URI does not parse as an at-uri at all.
+   */
+  const path = postUriToRelativePath(post.uri)
+  if (path === undefined) {
+    return makeProfileLink(
+      post.author,
+      'post',
+      new AtUri(post.uri).rkey,
+      ...segments,
+    )
+  }
+  const [pathname, query] = path.split('?')
+  return [pathname, ...segments].join('/') + (query ? `?${query}` : '')
 }
 
 /**

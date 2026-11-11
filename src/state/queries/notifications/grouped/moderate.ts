@@ -34,6 +34,10 @@ export type NotificationModerationArgs = {
    * Replies the viewer has hidden with a threadgate.
    */
   hiddenReplyUris: ReadonlySet<string>
+  /**
+   * The viewer's "hide follow notifications" setting.
+   */
+  hideFollowNotifications?: boolean
 }
 
 /**
@@ -48,8 +52,15 @@ export type NotificationModerationArgs = {
  */
 export function moderateNotification(
   notification: NotificationView,
-  {moderationOpts, hiddenReplyUris}: NotificationModerationArgs,
+  {
+    moderationOpts,
+    hiddenReplyUris,
+    hideFollowNotifications,
+  }: NotificationModerationArgs,
 ): NotificationView | undefined {
+  if (hideFollowNotifications && notification.type === 'follow') {
+    return undefined
+  }
   switch (notification.type) {
     case 'like':
     case 'repost':

@@ -271,4 +271,24 @@ describe('moderateNotification', () => {
       expect(result).toEqual({...subscribed, items: [hidden[1], hidden[2]]})
     })
   })
+
+  describe('hide follow notifications', () => {
+    const args = {...ARGS, hideFollowNotifications: true}
+
+    it('drops a follow notification when the setting is on', () => {
+      expect(
+        moderateNotification(get('follow-many', 'follow'), args),
+      ).toBeUndefined()
+    })
+
+    it('keeps follow-backs and everything else', () => {
+      const followBack = get('follow-back', 'followBack')
+      expect(moderateNotification(followBack, args)).toBe(followBack)
+    })
+
+    it('keeps follows when the setting is off', () => {
+      const follow = get('follow-many', 'follow')
+      expect(moderateNotification(follow, ARGS)).toBe(follow)
+    })
+  })
 })
