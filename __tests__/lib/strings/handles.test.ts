@@ -1,8 +1,10 @@
 import {
   buildHandleCandidates,
+  getLoginTypeaheadQuery,
   isCorrectedLoginIdentifier,
   type IsValidHandle,
   normalizeLoginIdentifier,
+  sortByUserDomains,
   validateServiceHandle,
 } from '#/lib/strings/handles'
 
@@ -124,5 +126,58 @@ describe('buildHandleCandidates', () => {
       'maria.bsky.social',
     ])
     expect(buildHandleCandidates('maria', [])).toEqual(['maria.bsky.social'])
+  })
+})
+
+describe('getLoginTypeaheadQuery', () => {
+  it('returns the normalized identifier for partial handles', () => {
+    expect(getLoginTypeaheadQuery('  @Maria ')).toBe('maria')
+    expect(getLoginTypeaheadQuery('maria.blacksky.')).toBe('maria.blacksky')
+  })
+
+  it('needs at least two characters', () => {
+    expect(getLoginTypeaheadQuery('')).toBe('')
+    expect(getLoginTypeaheadQuery('@m')).toBe('')
+    expect(getLoginTypeaheadQuery('ma')).toBe('ma')
+  })
+
+  it('skips email-shaped and DID input', () => {
+    expect(getLoginTypeaheadQuery('maria@example.com')).toBe('')
+    expect(getLoginTypeaheadQuery('maria@')).toBe('')
+    expect(getLoginTypeaheadQuery('did:plc:abc123')).toBe('')
+    expect(getLoginTypeaheadQuery('DID:plc:abc123')).toBe('')
+  })
+})
+
+describe('sortByUserDomains', () => {
+  const profiles = [
+    {handle: 'maria.bsky.social'},
+    {handle: 'maria.example.com'},
+    {handle: 'maria.blacksky.app'},
+    {handle: 'mariab.blacksky.app'},
+  ]
+
+  it('puts handles on the service domains first, keeping order otherwise', () => {
+    expect(
+      sortByUserDomains(profiles, ['.blacksky.app']).map(p => p.handle),
+    ).toEqual([
+      'maria.blacksky.app',
+      'mariab.blacksky.app',
+      'maria.bsky.social',
+      'maria.example.com',
+    ])
+  })
+
+  it('does not match a domain that only shares a suffix', () => {
+    expect(
+      sortByUserDomains(
+        [{handle: 'maria.notblacksky.app'}, {handle: 'maria.blacksky.app'}],
+        ['blacksky.app'],
+      ).map(p => p.handle),
+    ).toEqual(['maria.blacksky.app', 'maria.notblacksky.app'])
+  })
+
+  it('leaves order unchanged without service domains', () => {
+    expect(sortByUserDomains(profiles)).toEqual(profiles)
   })
 })

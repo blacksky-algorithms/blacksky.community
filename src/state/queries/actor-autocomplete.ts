@@ -1,6 +1,7 @@
 import {useCallback} from 'react'
 import {
   type AppBskyActorDefs,
+  AtpAgent,
   moderateProfile,
   type ModerationOpts,
 } from '@atproto/api'
@@ -26,9 +27,10 @@ export function useActorAutocompleteQuery(
   prefix: string,
   maintainData?: boolean,
   limit?: number,
+  service?: string,
 ) {
   const moderationOpts = useModerationOpts()
-  const agent = useAgent()
+  const sessionAgent = useAgent()
 
   prefix = prefix.toLowerCase().trim()
   if (prefix.endsWith('.')) {
@@ -38,15 +40,18 @@ export function useActorAutocompleteQuery(
 
   return useQuery<AppBskyActorDefs.ProfileViewBasic[]>({
     staleTime: STALE.MINUTES.ONE,
-    queryKey: RQKEY(prefix || ''),
+    queryKey: service
+      ? [...RQKEY(prefix || ''), service]
+      : RQKEY(prefix || ''),
     async queryFn() {
+      const agent = service ? new AtpAgent({service}) : sessionAgent
       const res = prefix
         ? await agent.searchActorsTypeahead(
             {
               q: prefix,
               limit: limit || 8,
             },
-            searchAppviewOpts(),
+            service ? undefined : searchAppviewOpts(),
           )
         : undefined
       return res?.data.actors || []
