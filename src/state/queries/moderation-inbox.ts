@@ -1,3 +1,4 @@
+import {type Service} from '@atproto/lex'
 import {type DidString} from '@atproto/syntax'
 import {useLingui} from '@lingui/react/macro'
 import {
@@ -8,17 +9,25 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
-import {MOD_PROXY_SERVICE} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {matchXrpcError} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
 import {useAppviewClient, useSession} from '#/state/session'
+import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
 import * as Toast from '#/components/Toast'
+import {MOD_PROXY_DID} from '#/env'
 import {tools} from '#/lexicons'
 
 const QUERY_KEY_ROOT = 'moderation-inbox'
+
+/*
+ * The inbox belongs to this app's own moderation service. The shared
+ * `MOD_PROXY_SERVICE` defaults to Bluesky's, which is right for the appeals
+ * that use it (chat and live access) and wrong here.
+ */
+const INBOX_SERVICE: Service = `${MOD_PROXY_DID || BLACKSKY_LABELER}#atproto_labeler`
 
 type ReportsFilter = NonNullable<
   tools.ozone.inbox.listReports.$Params['filter']
@@ -42,7 +51,7 @@ export function useModerationInboxReportsQuery(filter: ReportsFilter) {
       await client.call(
         tools.ozone.inbox.listReports,
         {filter, limit: 100, cursor: pageParam},
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -104,7 +113,7 @@ export function useModerationInboxActionedSubjectsQuery(
       await client.call(
         tools.ozone.inbox.listActionedSubjects,
         {filter, limit: 30, cursor: pageParam},
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -124,7 +133,7 @@ export function useModerationInboxAccountStatusQuery() {
       await client.call(
         tools.ozone.inbox.getAccountStatus,
         {},
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     staleTime: STALE.MINUTES.ONE,
     enabled: hasSession && !!did,
@@ -253,7 +262,7 @@ export function useModerationInboxUnreadCountQuery(isEnabled = true) {
       await client.call(
         tools.ozone.inbox.getUnreadCount,
         {},
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     staleTime: STALE.SECONDS.THIRTY,
     enabled: isEnabled && hasSession && !!did,
@@ -276,7 +285,7 @@ export function useModerationInboxNotificationPreferencesQuery(
       await client.call(
         tools.ozone.inbox.getNotificationPreferences,
         {},
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     staleTime: STALE.MINUTES.ONE,
     enabled: isEnabled && hasSession && !!did,
@@ -300,7 +309,7 @@ export function useUpdateModerationInboxNotificationPreferencesMutation() {
       await client.call(
         tools.ozone.inbox.putNotificationPreferences,
         preferences,
-        {service: MOD_PROXY_SERVICE},
+        {service: INBOX_SERVICE},
       ),
     onMutate: async () => {
       await queryClient.cancelQueries({queryKey})
@@ -344,7 +353,7 @@ export function useUpdateModerationInboxSeenMutation({
       await client.call(tools.ozone.inbox.updateSeen, input, {
         service: moderationService
           ? `${moderationService}#atproto_labeler`
-          : MOD_PROXY_SERVICE,
+          : INBOX_SERVICE,
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey})
