@@ -1,6 +1,7 @@
-import {Client} from '@atproto/lex'
+import {Client, type Service} from '@atproto/lex'
 
 import {logger} from '#/logger'
+import {MOD_PROXY_DID} from '#/env'
 
 export const BR_LABELER = 'did:plc:ekitcvx7uwnauoqy5oest3hm' // Brazil
 export const DE_LABELER = 'did:plc:r55ow3tocux5kafs5dq445fy' // Germany
@@ -19,6 +20,13 @@ export const IN_LABELER = 'did:plc:srr4rdvgzkbx6t7fxqtt6j5t' // India
 export const EU_LABELER = 'did:plc:z57lz5dhgz2dkjogoysm3vut'
 
 export const BLACKSKY_LABELER = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
+
+/**
+ * This app's own moderation service: where its moderation inbox is read and
+ * where appeals against its own takedowns go. The shared `MOD_PROXY_SERVICE`
+ * defaults to Bluesky's, which stays right for chat and live access appeals.
+ */
+export const BLACKSKY_MOD_SERVICE: Service = `${MOD_PROXY_DID || BLACKSKY_LABELER}#atproto_labeler`
 
 const MODERATION_AUTHORITIES: {
   [countryCode: string]: string[]

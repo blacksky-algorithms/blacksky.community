@@ -5,7 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {act, renderHook, waitFor} from '@testing-library/react-native'
 
 import {useAppviewClient, useSession} from '#/state/session'
-import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
+import {BLACKSKY_MOD_SERVICE} from '#/state/session/additional-moderation-authorities'
 import {tools} from '#/lexicons'
 import {
   useModerationInboxAccountStatusQuery,
@@ -16,15 +16,12 @@ jest.mock('#/state/session', () => ({
   useAppviewClient: jest.fn(),
   useSession: jest.fn(),
 }))
-jest.mock('#/state/session/additional-moderation-authorities', () => ({
-  BLACKSKY_LABELER: 'did:plc:d2mkddsbmnrgr3domzg5qexf',
-}))
 jest.mock('#/components/Toast', () => ({show: jest.fn()}))
 jest.mock('#/logger', () => ({logger: {error: jest.fn(), debug: jest.fn()}}))
 
 i18n.activate('en')
 
-const OWN_SERVICE = `${BLACKSKY_LABELER}#atproto_labeler`
+const OWN_SERVICE = BLACKSKY_MOD_SERVICE
 
 function setup() {
   const call = jest.fn().mockResolvedValue({})
@@ -48,6 +45,10 @@ function setup() {
 }
 
 describe('moderation inbox service', () => {
+  it('is the Blacksky moderation service', () => {
+    expect(OWN_SERVICE).toBe('did:plc:d2mkddsbmnrgr3domzg5qexf#atproto_labeler')
+  })
+
   it('reads the inbox from the app’s own moderation service', async () => {
     const {call, wrapper} = setup()
 
