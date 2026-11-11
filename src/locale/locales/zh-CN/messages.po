@@ -5139,11 +5139,6 @@ msgstr "要放弃发布吗？"
 msgid "Disconnect Germ DM"
 msgstr "已断开与 Germ DM 的连接"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "Discover"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

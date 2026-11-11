@@ -5139,11 +5139,6 @@ msgstr "Zahodit příspěvek?"
 msgid "Disconnect Germ DM"
 msgstr "Odpojit Germ DM"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "Objevovat"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

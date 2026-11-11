@@ -5139,11 +5139,6 @@ msgstr "Ĉu forĵeti afiŝon?"
 msgid "Disconnect Germ DM"
 msgstr "Malkonekti Germ DM"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "Malkovri"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

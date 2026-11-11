@@ -5139,11 +5139,6 @@ msgstr "Renunțați la postare?"
 msgid "Disconnect Germ DM"
 msgstr "Deconectare conversație Germ"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "Descoperiți"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

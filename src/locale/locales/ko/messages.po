@@ -5139,11 +5139,6 @@ msgstr "게시물 삭제"
 msgid "Disconnect Germ DM"
 msgstr "Germ DM 연결 해제"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "둘러보기"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

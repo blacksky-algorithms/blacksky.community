@@ -5139,11 +5139,6 @@ msgstr "Kasser opslag?"
 msgid "Disconnect Germ DM"
 msgstr "Frakobl Germ DM"
 
-#: src/lib/strings/feed-names.ts:16
-msgctxt "feed-name"
-msgid "Discover"
-msgstr "Opdag"
-
 #: src/view/com/posts/FollowingEmptyState.tsx:65
 #: src/view/com/posts/FollowingEmptyState.tsx:70
 #: src/view/com/posts/FollowingEndOfFeed.tsx:66

@@ -237,7 +237,7 @@ function HomeScreenReady({
                 displayName: 'Following',
                 uri: TIMELINE_SAVED_FEED.value,
               },
-              {displayName: 'Discover', uri: DISCOVER_FEED_URI},
+              {displayName: 'Blacksky: Trending', uri: DISCOVER_FEED_URI},
             ]}
           />
         )
