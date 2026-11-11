@@ -1,4 +1,11 @@
-import {getCommunitySpaceUri, isPeerModLabelableUri} from '../community-post'
+// The repo-wide stub of this module rejects the CID in a legacy blob reference.
+jest.unmock('multiformats/cid')
+
+import {
+  getCommunitySpaceUri,
+  isPeerModLabelableUri,
+  isRenderablePostRecord,
+} from '../community-post'
 
 const post = (communitySpace?: unknown) =>
   ({
@@ -42,5 +49,42 @@ describe(isPeerModLabelableUri, () => {
     'at://did:plc:c/space/community.blacksky.feed/main/did:plc:a/app.bsky.feed.post/3k',
   ])('rejects %s', uri => {
     expect(isPeerModLabelableUri(uri)).toBe(false)
+  })
+})
+
+describe(isRenderablePostRecord, () => {
+  const view = (record: unknown) =>
+    ({uri: 'at://did:plc:author/app.bsky.feed.post/3m2post', record}) as never
+
+  it('accepts a public post that still holds a legacy image reference', () => {
+    expect(
+      isRenderablePostRecord(
+        view({
+          $type: 'app.bsky.feed.post',
+          text: 'hello',
+          createdAt: '2023-01-01T00:00:00.000Z',
+          embed: {
+            $type: 'app.bsky.embed.images',
+            images: [
+              {
+                image: {
+                  cid: 'bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku',
+                  mimeType: 'image/jpeg',
+                },
+                alt: '',
+              },
+            ],
+          },
+        }),
+      ),
+    ).toBe(true)
+  })
+
+  it('rejects a public post record that is missing required fields', () => {
+    expect(
+      isRenderablePostRecord(
+        view({$type: 'app.bsky.feed.post', text: 'hello'}),
+      ),
+    ).toBe(false)
   })
 })

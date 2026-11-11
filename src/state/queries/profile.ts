@@ -7,13 +7,7 @@ import {
   type DidString,
   toDatetimeString,
 } from '@atproto/syntax'
-import {
-  deleteFollow,
-  follow,
-  muteActor,
-  unmuteActor,
-  upsertProfile,
-} from '@bsky/sdk'
+import {deleteFollow, follow, muteActor, unmuteActor} from '@bsky/sdk'
 import {
   type InfiniteData,
   keepPreviousData,
@@ -24,6 +18,7 @@ import {
 } from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
+import {upsertProfile} from '#/lib/api/upsert-profile'
 import {until} from '#/lib/async/until'
 import {PUBLIC_BSKY_API} from '#/lib/constants'
 import {BLUESKY_APPVIEW_PINNED_OPTS} from '#/lib/constants'

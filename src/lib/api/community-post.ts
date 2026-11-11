@@ -35,7 +35,7 @@ export function isCommunityPostUri(uri: string | undefined): boolean {
  * reply and quote refs are permissioned-space URIs rather than AT-URIs. The
  * public lexicon validator therefore cannot validate those otherwise valid
  * records. Space responses are already validated by the AppView endpoint;
- * retain the fields the renderer requires here while keeping strict lexicon
+ * retain the fields the renderer requires here while keeping lexicon
  * validation for public posts.
  */
 export function isRenderablePostRecord(
@@ -43,7 +43,8 @@ export function isRenderablePostRecord(
 ): post is app.bsky.feed.defs.PostView & {record: app.bsky.feed.post.Main} {
   if (!bsky.isType(app.bsky.feed.post, post.record)) return false
   if (!isSpaceRecordUri(post.uri)) {
-    return bsky.matches(app.bsky.feed.post, post.record)
+    // Lenient so a record that still holds a legacy blob reference renders.
+    return bsky.matches(app.bsky.feed.post, post.record, {strict: false})
   }
   return (
     typeof post.record.text === 'string' &&

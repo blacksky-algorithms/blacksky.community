@@ -6,7 +6,11 @@ import {msg} from '@lingui/core/macro'
 import {AbortError} from '#/lib/async/cancelable'
 import {VIDEO_MAX_SIZE_MB} from '#/lib/constants'
 import {compressVideo} from '#/lib/media/video/compress'
-import {UploadLimitError, VideoTooLargeError} from '#/lib/media/video/errors'
+import {
+  ServerError,
+  UploadLimitError,
+  VideoTooLargeError,
+} from '#/lib/media/video/errors'
 import {MultipartUploadError} from '#/lib/media/video/multipart/api'
 import {type VideoTelemetry} from '#/lib/media/video/telemetry'
 import {type CompressedVideo} from '#/lib/media/video/types'
@@ -510,7 +514,11 @@ function getUploadErrorMessage(e: unknown, i18n: I18n): string | null {
   if (e instanceof AbortError) {
     return null
   }
-  if (e instanceof MultipartUploadError || e instanceof UploadLimitError) {
+  if (
+    e instanceof ServerError ||
+    e instanceof MultipartUploadError ||
+    e instanceof UploadLimitError
+  ) {
     // https://github.com/bluesky-social/tango/blob/lumi/lumi/worker/permissions.go#L77
     switch (e.message) {
       case 'User is not allowed to upload videos':
