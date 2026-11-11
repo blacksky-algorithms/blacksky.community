@@ -32,7 +32,7 @@ msgstr ""
 msgid "\"{interestsDisplayName}\" category (active)"
 msgstr "「{interestsDisplayName}」類別（已揀選）"
 
-#: src/screens/ModerationInbox/Report.tsx:214
+#: src/screens/ModerationInbox/Report.tsx:215
 msgid "“{note}”"
 msgstr ""
 
@@ -251,7 +251,7 @@ msgid "{0, plural, one {Load # new post} other {Load # new posts}}"
 msgstr ""
 
 #. placeholder {0}: policies.length
-#: src/screens/ModerationInbox/Notice.tsx:276
+#: src/screens/ModerationInbox/Notice.tsx:277
 msgid "{0, plural, one {Rule violated:} other {Rules violated:}}"
 msgstr ""
 
@@ -636,7 +636,7 @@ msgstr "{count, plural, other {#+ 個加入申請}}"
 msgid "{date} at {time}"
 msgstr "{date} {time}"
 
-#: src/screens/ModerationInbox/Notice.tsx:427
+#: src/screens/ModerationInbox/Notice.tsx:428
 msgid "{detailsLength} of {MAX_REPORT_REASON_GRAPHEME_LENGTH} characters used"
 msgstr ""
 
@@ -1145,7 +1145,7 @@ msgstr "{requestCount, plural, other {# 個邀請}}"
 msgid "{requestCount}+ requests"
 msgstr "{requestCount}+ 個邀請"
 
-#: src/screens/ModerationInbox/Notice.tsx:248
+#: src/screens/ModerationInbox/Notice.tsx:249
 msgid "{serviceName} removed your content for violating our <0>Community Guidelines</0>."
 msgstr ""
 
@@ -1332,7 +1332,7 @@ msgstr "<0>{0}</0> {1, plural, other {次收藏}}"
 
 #. Like count display, the <0> tags enclose the number of likes in bold (will never be 0)
 #. placeholder {0}: formatPostStatCount(likeCount)
-#: src/screens/PostThread/components/LikesStat.tsx:44
+#: src/screens/PostThread/components/LikesStat.tsx:41
 msgid "<0>{0}</0> {likeCount, plural, one {like} other {likes}}"
 msgstr "<0>{0}</0> {likeCount, plural, other {個讚好}}"
 
@@ -1975,7 +1975,7 @@ msgid "Add to lists"
 msgstr "加到清單"
 
 #: src/components/PostControls/BookmarkButton.tsx:43
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:170
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:168
 msgid "Add to saved posts"
 msgstr "加入帖文收藏"
 
@@ -2003,7 +2003,7 @@ msgstr "透過邀請連結加入"
 msgid "Added to list"
 msgstr "已加到清單"
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:159
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:157
 msgid "Added to saved posts"
 msgstr ""
 
@@ -2488,9 +2488,9 @@ msgstr ""
 #: src/components/moderation/LabelsOnMeDialog.tsx:169
 #: src/components/moderation/LabelsOnMeDialog.tsx:172
 #: src/components/moderation/ModerationDetailsDialog.tsx:223
-#: src/screens/ModerationInbox/Notice.tsx:480
-#: src/screens/ModerationInbox/Report.tsx:183
+#: src/screens/ModerationInbox/Notice.tsx:481
 #: src/screens/ModerationInbox/Report.tsx:184
+#: src/screens/ModerationInbox/Report.tsx:185
 msgid "Appeal"
 msgstr "申訴"
 
@@ -2522,7 +2522,7 @@ msgstr "申請解除直播停權"
 msgid "Appeal resolved"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:420
+#: src/screens/ModerationInbox/Notice.tsx:421
 msgid "Appeal submitted"
 msgstr "已提交申訴"
 
@@ -2546,9 +2546,9 @@ msgstr "申請解除停權"
 #: src/screens/Messages/components/ChatDisabled.tsx:79
 #: src/screens/Messages/components/ChatDisabled.tsx:130
 #: src/screens/Messages/components/ChatDisabled.tsx:132
-#: src/screens/ModerationInbox/Notice.tsx:325
-#: src/screens/ModerationInbox/Notice.tsx:336
-#: src/screens/ModerationInbox/Notice.tsx:475
+#: src/screens/ModerationInbox/Notice.tsx:326
+#: src/screens/ModerationInbox/Notice.tsx:337
+#: src/screens/ModerationInbox/Notice.tsx:476
 msgid "Appeal this decision"
 msgstr "對此決定提出申訴"
 
@@ -2953,8 +2953,8 @@ msgstr ""
 msgid "Blacksky is partnering with Graze to provide up-to-date, community-curated information about the US midterm elections in 2026."
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:98
-#: src/screens/ModerationInbox/Report.tsx:76
+#: src/screens/ModerationInbox/Notice.tsx:99
+#: src/screens/ModerationInbox/Report.tsx:77
 msgid "Blacksky Moderation Service"
 msgstr ""
 
@@ -3135,8 +3135,8 @@ msgstr "Bluesky 係一個開放嘅網絡，你可以去揀其他託管服務提�
 msgid "Bluesky is more fun with friends. Do you want to invite some of yours? <0/>"
 msgstr "同你班 Friend 一齊玩 Bluesky 先過癮。你想邀請啲朋友加入嗎？<0/>"
 
-#: src/screens/ModerationInbox/Notice.tsx:99
-#: src/screens/ModerationInbox/Report.tsx:77
+#: src/screens/ModerationInbox/Notice.tsx:100
+#: src/screens/ModerationInbox/Report.tsx:78
 msgid "Bluesky Moderation Service"
 msgstr ""
 
@@ -3316,7 +3316,7 @@ msgstr "需要取用相機權限"
 #: src/screens/Messages/ConversationSettings/prompts.tsx:124
 #: src/screens/Messages/ConversationSettings/prompts.tsx:148
 #: src/screens/Messages/ConversationSettings/prompts.tsx:172
-#: src/screens/ModerationInbox/Notice.tsx:439
+#: src/screens/ModerationInbox/Notice.tsx:440
 #: src/screens/Profile/Header/EditProfileDialog.tsx:333
 #: src/screens/Profile/Header/EditProfileDialog.tsx:341
 #: src/screens/Search/components/AdvancedSearchDialog/index.tsx:202
@@ -3341,7 +3341,7 @@ msgstr "需要取用相機權限"
 msgid "Cancel"
 msgstr "咪喇"
 
-#: src/screens/ModerationInbox/Notice.tsx:432
+#: src/screens/ModerationInbox/Notice.tsx:433
 msgid "Cancel appeal"
 msgstr ""
 
@@ -3379,7 +3379,7 @@ msgstr ""
 #: src/components/PostControls/index.tsx:111
 #: src/components/PostControls/index.tsx:142
 #: src/components/PostControls/index.tsx:171
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:67
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:66
 #: src/state/shell/composer/index.tsx:99
 msgid "Cannot interact with a blocked user"
 msgstr "唔得同被封鎖嘅用戶互動"
@@ -4365,7 +4365,7 @@ msgstr "複製連結"
 msgid "Copy link to list"
 msgstr "複製清單連結"
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:167
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:165
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:144
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:147
 #: src/components/PostControls/ShareMenu/ShareMenuItems.web.tsx:82
@@ -6294,7 +6294,7 @@ msgstr "標記唔到所有傾偈做已讀"
 msgid "Failed to mark all requests as read"
 msgstr "標記唔到所有邀請做已讀"
 
-#: src/state/queries/moderation-inbox.ts:346
+#: src/state/queries/moderation-inbox.ts:354
 msgid "Failed to mark as read. Please try again."
 msgstr ""
 
@@ -6390,7 +6390,7 @@ msgstr "提交唔到擧報"
 msgid "Failed to submit appeal, please try again."
 msgstr "未能提交申訴，唔該試多次。"
 
-#: src/screens/ModerationInbox/Notice.tsx:393
+#: src/screens/ModerationInbox/Notice.tsx:394
 msgid "Failed to submit appeal. Please try again."
 msgstr ""
 
@@ -6956,7 +6956,7 @@ msgstr "字型大細"
 msgid "Food"
 msgstr "食物"
 
-#: src/screens/ModerationInbox/Notice.tsx:310
+#: src/screens/ModerationInbox/Notice.tsx:311
 msgid "For more information about our appeals and redress process, please see our <0>Terms of Service</0>."
 msgstr ""
 
@@ -7260,7 +7260,7 @@ msgid "Go live for"
 msgstr "直播持續時長"
 
 #. placeholder {0}: name.displayName
-#: src/components/Post/KnownLikers.tsx:75
+#: src/components/Post/KnownLikers.tsx:73
 msgid "Go to {0}'s profile"
 msgstr "去到 {0} 嘅個人檔案"
 
@@ -8544,8 +8544,8 @@ msgstr "有 {0, plural, one {# 人} other {# 人}}讚佢"
 #. Social proof below a post; the bolded name is a person the viewer follows who liked the post
 #. placeholder {0}: nameLink(names[0])
 #. placeholder {0}: names[0].displayName
-#: src/components/Post/KnownLikers.tsx:67
-#: src/components/Post/KnownLikers.tsx:111
+#: src/components/Post/KnownLikers.tsx:65
+#: src/components/Post/KnownLikers.tsx:109
 msgid "Liked by {0}"
 msgstr "{0} 讚咗"
 
@@ -8554,8 +8554,8 @@ msgstr "{0} 讚咗"
 #. placeholder {0}: names[0].displayName
 #. placeholder {1}: nameLink(names[1])
 #. placeholder {1}: names[1].displayName
-#: src/components/Post/KnownLikers.tsx:66
-#: src/components/Post/KnownLikers.tsx:107
+#: src/components/Post/KnownLikers.tsx:64
+#: src/components/Post/KnownLikers.tsx:105
 msgid "Liked by {0} and {1}"
 msgstr "{0} 同 {1} 讚咗"
 
@@ -8579,7 +8579,7 @@ msgstr "讚好"
 msgid "Likes of your reposts"
 msgstr "讚好你轉發嘅帖文"
 
-#: src/screens/PostThread/components/LikesStat.tsx:39
+#: src/screens/PostThread/components/LikesStat.tsx:36
 msgid "Likes on this post"
 msgstr "呢條帖文嘅讚數"
 
@@ -8845,8 +8845,8 @@ msgstr "撈吓新嘅帖文"
 msgid "Load new posts from the people you follow"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:184
-#: src/screens/ModerationInbox/Notice.tsx:193
+#: src/screens/ModerationInbox/Notice.tsx:185
+#: src/screens/ModerationInbox/Notice.tsx:194
 msgid "Load older actions"
 msgstr ""
 
@@ -10171,7 +10171,7 @@ msgid "Nothing saved yet"
 msgstr "而家仲未有收藏內容"
 
 #: src/Navigation.tsx:248
-#: src/screens/ModerationInbox/Notice.tsx:146
+#: src/screens/ModerationInbox/Notice.tsx:147
 msgid "Notice"
 msgstr ""
 
@@ -10568,8 +10568,8 @@ msgstr ""
 msgid "Open pack"
 msgstr "打開新手包"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:139
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:143
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:145
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:149
 #: src/screens/ModerationInbox/components/SubjectPreview.tsx:51
 msgid "Open post"
 msgstr ""
@@ -11515,7 +11515,7 @@ msgstr ""
 msgid "Post type"
 msgstr "帖文類型"
 
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:152
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:158
 msgid "Post unavailable"
 msgstr ""
 
@@ -11532,7 +11532,7 @@ msgstr ""
 #. placeholder {0}: i18n.date(POSTED_AT, { month: 'short', day: 'numeric', year: 'numeric', })
 #. placeholder {0}: i18n.date(new Date(record.createdAt), {dateStyle: 'medium'})
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:126
-#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:156
+#: src/screens/ModerationInbox/components/ReportSubjectPreview/PostSubjectPreview.tsx:162
 #: src/screens/ModerationInbox/components/SubjectPreview.tsx:35
 msgid "Posted {0}"
 msgstr ""
@@ -11792,7 +11792,7 @@ msgstr "QR code 下載咗喇！"
 msgid "QR code saved to your camera roll!"
 msgstr "QR code 存咗去你嘅相簿度喇！"
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:166
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:164
 #: src/components/PostControls/RepostButton.tsx:198
 #: src/components/PostControls/RepostButton.tsx:221
 #: src/components/PostControls/RepostButtonMenu.tsx:101
@@ -11809,7 +11809,7 @@ msgstr "已重新連結引用帖文"
 msgid "Quote post was successfully detached"
 msgstr "已成功分離引用帖文"
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:166
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:164
 #: src/components/PostControls/RepostButton.tsx:197
 #: src/components/PostControls/RepostButton.tsx:219
 #: src/components/PostControls/RepostButtonMenu.tsx:101
@@ -11899,11 +11899,11 @@ msgstr "閱讀更多回覆"
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:121
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:135
 #: src/screens/ModerationInbox/components/ReportActionSummary.tsx:148
-#: src/screens/ModerationInbox/Notice.tsx:252
+#: src/screens/ModerationInbox/Notice.tsx:253
 msgid "Read our Community Guidelines"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:315
+#: src/screens/ModerationInbox/Notice.tsx:316
 msgid "Read our Terms of Service"
 msgstr ""
 
@@ -11929,14 +11929,14 @@ msgstr "眞實對話。"
 msgid "Real people."
 msgstr "眞實用戶。"
 
-#: src/screens/ModerationInbox/Notice.tsx:513
-#: src/screens/ModerationInbox/Notice.tsx:531
+#: src/screens/ModerationInbox/Notice.tsx:514
+#: src/screens/ModerationInbox/Notice.tsx:532
 #: src/screens/Takendown.tsx:160
 #: src/screens/Takendown.tsx:168
 msgid "Reason for appeal"
 msgstr "申訴理由"
 
-#: src/screens/ModerationInbox/Report.tsx:201
+#: src/screens/ModerationInbox/Report.tsx:202
 msgid "Reason:"
 msgstr ""
 
@@ -11999,8 +11999,8 @@ msgstr "拒絕加入申請"
 msgid "Reload conversations"
 msgstr "撈多次對話"
 
-#: src/screens/ModerationInbox/Notice.tsx:497
-#: src/screens/ModerationInbox/Notice.tsx:506
+#: src/screens/ModerationInbox/Notice.tsx:498
+#: src/screens/ModerationInbox/Notice.tsx:507
 msgid "Reload notice"
 msgstr ""
 
@@ -12138,7 +12138,7 @@ msgid "Remove from saved feeds"
 msgstr "喺儲存咗嘅動態源度刪除"
 
 #: src/components/PostControls/BookmarkButton.tsx:43
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:169
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:167
 #: src/screens/Bookmarks.tsx:254
 msgid "Remove from saved posts"
 msgstr "從帖文收藏度刪除"
@@ -12597,7 +12597,7 @@ msgstr "擧報呢個用戶"
 msgid "Reporting restricted"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:165
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:163
 #: src/components/PostControls/RepostButton.tsx:162
 #: src/components/PostControls/RepostButton.tsx:187
 #: src/components/PostControls/RepostButtonMenu.tsx:85
@@ -12619,12 +12619,12 @@ msgstr "轉發（{0, plural, one {# 次轉發} other {# 次轉發}}）"
 msgid "Repost or quote post"
 msgstr "轉發或引用帖文"
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:83
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:82
 msgctxt "Toast after undoing a repost"
 msgid "Repost removed"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:97
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:96
 msgctxt "Toast after reposting"
 msgid "Reposted"
 msgstr ""
@@ -13669,7 +13669,7 @@ msgstr "性暗示"
 #: src/components/Link.tsx:450
 #: src/components/MediaPreview.tsx:243
 #: src/components/Post/Embed/ImageContextMenu.tsx:74
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:167
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:165
 #: src/components/StarterPack/QrCodeDialog.tsx:196
 #: src/screens/Hashtag.tsx:132
 #: src/screens/Messages/components/InviteLinkDialog.tsx:415
@@ -14526,7 +14526,7 @@ msgstr ""
 #: src/features/liveNow/components/GoLiveDisabledDialog.tsx:138
 #: src/screens/Messages/components/ChatDisabled.tsx:174
 #: src/screens/Messages/components/ChatDisabled.tsx:176
-#: src/screens/ModerationInbox/Notice.tsx:454
+#: src/screens/ModerationInbox/Notice.tsx:455
 #: src/screens/Settings/components/BetaFeaturesFeedbackDialog.tsx:164
 msgid "Submit"
 msgstr "提交"
@@ -14539,7 +14539,7 @@ msgstr ""
 msgid "Submit a statement →"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:447
+#: src/screens/ModerationInbox/Notice.tsx:448
 #: src/screens/Takendown.tsx:78
 msgid "Submit appeal"
 msgstr "提交申訴"
@@ -14883,7 +14883,7 @@ msgstr "係噉以同我哋講吓你自己啦"
 msgid "Tell us a little more"
 msgstr "講多少少嘢畀我哋聽"
 
-#: src/screens/ModerationInbox/Notice.tsx:486
+#: src/screens/ModerationInbox/Notice.tsx:487
 msgid "Tell us why you believe this decision was a mistake. We will review your appeal along with the original content."
 msgstr ""
 
@@ -15005,8 +15005,8 @@ msgstr ""
 msgid "The app will be restarted"
 msgstr "應用程式將會重啓"
 
-#: src/screens/ModerationInbox/Notice.tsx:343
-#: src/screens/ModerationInbox/Notice.tsx:384
+#: src/screens/ModerationInbox/Notice.tsx:344
+#: src/screens/ModerationInbox/Notice.tsx:385
 msgid "The appeal window has closed."
 msgstr ""
 
@@ -15451,7 +15451,7 @@ msgstr "呢個代碼無效，重新傳送去取得新嘅代碼。"
 msgid "This confirmation code is not valid. Please try again."
 msgstr "呢個驗證碼無效，唔該試多次。"
 
-#: src/screens/ModerationInbox/Notice.tsx:390
+#: src/screens/ModerationInbox/Notice.tsx:391
 msgid "This content could not be appealed. Please reload the notice and try again."
 msgstr ""
 
@@ -15758,11 +15758,11 @@ msgstr ""
 msgid "This stream is offline"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:387
+#: src/screens/ModerationInbox/Notice.tsx:388
 msgid "This subject can no longer be appealed."
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:381
+#: src/screens/ModerationInbox/Notice.tsx:382
 msgid "This subject has already been appealed."
 msgstr ""
 
@@ -16240,7 +16240,7 @@ msgstr ""
 msgid "Undo opt-out?"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:164
+#: src/components/PostControls/PostMenu/PostMenuControlItems.tsx:162
 #: src/components/PostControls/RepostButtonMenu.tsx:84
 #: src/components/PostControls/RepostButtonMenu.tsx:93
 msgid "Undo repost"
@@ -16270,7 +16270,7 @@ msgstr "唔再跟呢位用戶"
 msgid "Unfortunately, none of your subscribed labelers supports this report type."
 msgstr "唔好意思，你訂閱嘅標記服務冇一個係支援呢個擧報類型。"
 
-#: src/screens/ModerationInbox/Report.tsx:189
+#: src/screens/ModerationInbox/Report.tsx:190
 msgid "Unknown report reason"
 msgstr ""
 
@@ -16965,8 +16965,8 @@ msgstr ""
 msgid "View followers of this account that you also follow"
 msgstr ""
 
-#: src/view/com/posts/ViewFullThread.tsx:37
-#: src/view/com/posts/ViewFullThread.tsx:71
+#: src/view/com/posts/ViewFullThread.tsx:30
+#: src/view/com/posts/ViewFullThread.tsx:64
 msgid "View full thread"
 msgstr "睇吓完整嘅討論串"
 
@@ -17432,7 +17432,7 @@ msgstr ""
 msgid "What feeds do you want to see?"
 msgstr ""
 
-#: src/screens/ModerationInbox/Report.tsx:196
+#: src/screens/ModerationInbox/Report.tsx:197
 msgid "What you reported"
 msgstr ""
 
@@ -17727,7 +17727,7 @@ msgstr "你亦都可以匯出你嘅傾偈資料做「JSONL」檔案。呢份檔�
 msgid "You can always opt out and delete your data"
 msgstr "你可以隨時選擇退出兼且刪除你嘅資料"
 
-#: src/screens/ModerationInbox/Notice.tsx:305
+#: src/screens/ModerationInbox/Notice.tsx:306
 msgid "You can appeal once per decision. A different moderator will review the appeal."
 msgstr ""
 
@@ -17775,7 +17775,7 @@ msgstr "你仍然可以睇到傾偈記錄，但係傳送唔到新訊息。"
 msgid "You can select up to {MAX_GALLERY_IMAGES, plural, other {# images}} in total."
 msgstr "你最多可以揀 {MAX_GALLERY_IMAGES, plural, other {# 張圖片}}。"
 
-#: src/screens/ModerationInbox/Notice.tsx:300
+#: src/screens/ModerationInbox/Notice.tsx:301
 msgid "You can submit one account appeal at a time. A different moderator will review the appeal."
 msgstr ""
 
@@ -18302,7 +18302,7 @@ msgstr ""
 msgid "Your account was temporarily suspended for {hours, plural, one {# hour} other {# hours}}"
 msgstr ""
 
-#: src/screens/ModerationInbox/Notice.tsx:243
+#: src/screens/ModerationInbox/Notice.tsx:244
 msgid "Your appeal has been submitted and is awaiting review."
 msgstr ""
 
@@ -18435,7 +18435,7 @@ msgstr "你設定咗嘅靜音字"
 msgid "Your name, avatar, the name of the group chat, and the number of members will be visible to everyone."
 msgstr "你嘅名稱、頭像、羣組傾偈嘅名稱同埋成員數目所有人都可以睇到。"
 
-#: src/screens/ModerationInbox/Report.tsx:211
+#: src/screens/ModerationInbox/Report.tsx:212
 msgid "Your note:"
 msgstr ""
 
@@ -18499,7 +18499,7 @@ msgid "Your reply was sent"
 msgstr "已發布你嘅回覆"
 
 #: src/Navigation.tsx:243
-#: src/screens/ModerationInbox/Report.tsx:118
+#: src/screens/ModerationInbox/Report.tsx:119
 msgid "Your report"
 msgstr ""
 
