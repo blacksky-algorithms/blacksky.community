@@ -16,6 +16,13 @@ import {com} from '#/lexicons'
 
 export type ServiceDescription = com.atproto.server.describeServer.$OutputBody
 
+/*
+ * The signup form shows the birth date in a read-only row over a hidden date
+ * input, so it needs a starting value to display and to edit from.
+ */
+const DEFAULT_DATE = new Date()
+DEFAULT_DATE.setFullYear(DEFAULT_DATE.getFullYear() - 20)
+
 export enum SignupStep {
   COMMUNITY,
   INFO,
@@ -98,7 +105,7 @@ export const initialState: SignupState = {
   serviceUrl: DEFAULT_SERVICE,
   serviceDescription: undefined,
   userDomain: '',
-  dateOfBirth: undefined,
+  dateOfBirth: DEFAULT_DATE,
   email: '',
   password: '',
   handle: '',

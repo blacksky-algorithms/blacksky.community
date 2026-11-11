@@ -143,3 +143,9 @@ it('preserves a submission error when routing back to the field that needs corre
   expect(next.error).toBe('Handle unavailable')
   expect(next.errorField).toBe('handle')
 })
+
+it('starts the birth date twenty years back, so the read-only row has a date to show and edit', () => {
+  const birth = initialState.dateOfBirth
+  expect(birth).toBeInstanceOf(Date)
+  expect(new Date().getFullYear() - (birth as Date).getFullYear()).toBe(20)
+})
