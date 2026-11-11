@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query'
 
 import {communityXrpc} from '#/lib/api/community'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 
 const GET_MY_PERMISSIONS_METHOD =
   'community.blacksky.moderation.getMyPermissions'
@@ -23,7 +23,7 @@ export type PeerModPermissions = {
  * every applyLabel/removeLabel call.
  */
 export function useMyPeerModPermissions() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const {currentAccount} = useSession()
   return useQuery<PeerModPermissions>({
     queryKey: peerModPermissionsRQKey(currentAccount?.did),
@@ -31,7 +31,7 @@ export function useMyPeerModPermissions() {
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       try {
-        const res = await communityXrpc(agent, GET_MY_PERMISSIONS_METHOD)
+        const res = await communityXrpc(client, GET_MY_PERMISSIONS_METHOD)
         if (!res.ok) return {isPeerMod: false}
         const data = (await res.json()) as PeerModPermissions
         return {isPeerMod: !!data.isPeerMod}

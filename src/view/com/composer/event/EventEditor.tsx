@@ -1,11 +1,12 @@
 import {View} from 'react-native'
 import {getLocales} from 'expo-localization'
+import {type HandleString} from '@atproto/syntax'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {getLinkMeta} from '#/lib/link-meta/link-meta'
-import {useAgent, useSession} from '#/state/session'
+import {useSession} from '#/state/session'
 import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
 import {FieldLabelText, INPUT_TEXT} from '#/view/com/composer/event/EventFields'
@@ -375,10 +376,9 @@ function Counter({count, max}: {count: number; max: number}) {
 }
 
 function useLinkImage(url: string | undefined) {
-  const agent = useAgent()
   const {data} = useQuery({
     queryKey: ['event-cover-link-image', url],
-    queryFn: async () => (await getLinkMeta(agent, url!)).image ?? null,
+    queryFn: async () => (await getLinkMeta(url!)).image ?? null,
     enabled: !!url,
     staleTime: Infinity,
   })
@@ -406,7 +406,10 @@ function EventPreview({event}: {event: EventDraft}) {
         event={{
           uri: eventAtUri(currentAccount.did, 'preview'),
           cid: '',
-          creator: {did: currentAccount.did, handle: currentAccount.handle},
+          creator: {
+            did: currentAccount.did,
+            handle: currentAccount.handle as HandleString,
+          },
           record,
           thumb: coverUri(event.cover),
           goingCount: 0,

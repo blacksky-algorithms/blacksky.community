@@ -1,8 +1,5 @@
-import {
-  type AppBskyActorDefs,
-  type AppBskyFeedGetRepostedBy,
-  type BskyAgent,
-} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type AtUriString} from '@atproto/syntax'
 import {
   type InfiniteData,
   type QueryClient,
@@ -11,7 +8,8 @@ import {
 } from '@tanstack/react-query'
 
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
 
 const PAGE_SIZE = 30
 type RQPageParam = string | undefined
@@ -21,33 +19,32 @@ const RQKEY_ROOT = 'post-reposted-by'
 export const RQKEY = (resolvedUri: string) => [RQKEY_ROOT, resolvedUri]
 
 export async function fetchRepostedByPage(
-  agent: BskyAgent,
+  client: Client,
   resolvedUri: string,
   cursor?: string,
-): Promise<AppBskyFeedGetRepostedBy.OutputSchema> {
+): Promise<app.bsky.feed.getRepostedBy.$OutputBody> {
   if (isSpaceRecordUri(resolvedUri)) {
     throw new Error('Reposts are not supported for private space posts')
   }
-  const res = await agent.getRepostedBy({
-    uri: resolvedUri,
+  return await client.call(app.bsky.feed.getRepostedBy, {
+    uri: resolvedUri as AtUriString,
     limit: PAGE_SIZE,
     cursor,
   })
-  return res.data
 }
 
 export function usePostRepostedByQuery(resolvedUri: string | undefined) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useInfiniteQuery<
-    AppBskyFeedGetRepostedBy.OutputSchema,
+    app.bsky.feed.getRepostedBy.$OutputBody,
     Error,
-    InfiniteData<AppBskyFeedGetRepostedBy.OutputSchema>,
+    InfiniteData<app.bsky.feed.getRepostedBy.$OutputBody>,
     QueryKey,
     RQPageParam
   >({
     queryKey: RQKEY(resolvedUri || ''),
     async queryFn({pageParam}: {pageParam: RQPageParam}) {
-      return fetchRepostedByPage(agent, resolvedUri || '', pageParam)
+      return fetchRepostedByPage(client, resolvedUri || '', pageParam)
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,
@@ -58,9 +55,9 @@ export function usePostRepostedByQuery(resolvedUri: string | undefined) {
 export function* findAllProfilesInQueryData(
   queryClient: QueryClient,
   did: string,
-): Generator<AppBskyActorDefs.ProfileView, void> {
+): Generator<app.bsky.actor.defs.ProfileView, void> {
   const queryDatas = queryClient.getQueriesData<
-    InfiniteData<AppBskyFeedGetRepostedBy.OutputSchema>
+    InfiniteData<app.bsky.feed.getRepostedBy.$OutputBody>
   >({
     queryKey: [RQKEY_ROOT],
   })

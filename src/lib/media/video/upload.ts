@@ -1,24 +1,28 @@
 import {createUploadTask, FileSystemUploadType} from 'expo-file-system/legacy'
-import {type AppBskyVideoDefs, type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 import {nanoid} from 'nanoid/non-secure'
 
-import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {AbortError} from '#/lib/async/cancelable'
 import {ServerError} from '#/lib/media/video/errors'
 import {
   type CompressedVideo,
   type VideoUploadTransport,
 } from '#/lib/media/video/types'
-import {Features, features} from '#/analytics/features'
-import {MultipartFallbackError, uploadVideoMultipart} from './multipart/upload'
-import {getVideoUploadLimits} from './upload.shared'
+import {type app} from '#/lexicons'
+import {getServiceAuthToken, getVideoUploadLimits} from './upload.shared'
 import {createVideoEndpointUrl, mimeToExt} from './util'
 
+/*
+ * The video service here accepts one request per upload and has no multipart
+ * endpoints, so this does not use upstream's multipart uploader. It is also the
+ * only path that can mark an upload private.
+ */
 export async function uploadVideo({
   video,
-  agent,
+  client,
+  dispatchUrl,
   did,
   setProgress,
   signal,
@@ -27,7 +31,9 @@ export async function uploadVideo({
   onTransport,
 }: {
   video: CompressedVideo
-  agent: AtpAgent
+  client: Client
+  /** The account's PDS/dispatch URL, for the uploadBlob service-auth token. */
+  dispatchUrl: string | URL
   did: string
   setProgress: (progress: number) => void
   signal: AbortSignal
@@ -38,27 +44,8 @@ export async function uploadVideo({
   if (signal.aborted) {
     throw new AbortError()
   }
-  await getVideoUploadLimits(agent, i18n)
-
-  // The multipart endpoints have no private flag, so a private upload always
-  // takes the single-request path.
-  if (!isPrivate && features.isOn(Features.VideoMultipartUploadEnable)) {
-    try {
-      return await uploadVideoMultipart({
-        video,
-        agent,
-        setProgress,
-        signal,
-        onStarted: () => onTransport?.('multipart'),
-      })
-    } catch (err) {
-      if (!(err instanceof MultipartFallbackError)) throw err
-      onTransport?.('legacy-fallback')
-      setProgress(0)
-    }
-  } else {
-    onTransport?.('legacy')
-  }
+  await getVideoUploadLimits(client, i18n)
+  onTransport?.('legacy')
 
   const uri = createVideoEndpointUrl('/xrpc/app.bsky.video.uploadVideo', {
     did,
@@ -70,7 +57,8 @@ export async function uploadVideo({
     throw new AbortError()
   }
   const token = await getServiceAuthToken({
-    agent,
+    client,
+    dispatchUrl,
     lxm: 'com.atproto.repo.uploadBlob',
     exp: Date.now() / 1000 + 60 * 30, // 30 minutes
   })
@@ -97,7 +85,7 @@ export async function uploadVideo({
     throw new Error('No response')
   }
 
-  const responseBody = JSON.parse(res.body) as AppBskyVideoDefs.JobStatus
+  const responseBody = JSON.parse(res.body) as app.bsky.video.defs.JobStatus
 
   if (!responseBody.jobId) {
     throw new ServerError(

@@ -17,12 +17,15 @@ export const gradients = {
     ],
     hover_value: '#6060E9',
   },
+  // Upstream's `sky` is Bluesky's blue. Its uses take the brand gradient here.
   sky: {
     values: [
-      [0, '#0A7AFF'],
-      [1, '#59B9FF'],
+      [0, '#464985'],
+      [0.4, '#6060E9'],
+      [0.6, '#6060E9'],
+      [1, '#8686FF'],
     ],
-    hover_value: '#0A7AFF',
+    hover_value: '#6060E9',
   },
   midnight: {
     values: [

@@ -1,9 +1,5 @@
 import {FlatList, Pressable, View} from 'react-native'
-import {
-  type AppBskyActorDefs,
-  moderateProfile,
-  type ModerationOpts,
-} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -11,12 +7,13 @@ import {Trans} from '@lingui/react/macro'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
+import {type app} from '#/lexicons'
 import {type ChatMessage} from './live-state'
 import {type PendingMessage} from './pending'
 
 type VisibleMessage = {
   message: ChatMessage
-  profile: AppBskyActorDefs.ProfileViewDetailed
+  profile: app.bsky.actor.defs.ProfileViewDetailed
 }
 
 type ChatItem =

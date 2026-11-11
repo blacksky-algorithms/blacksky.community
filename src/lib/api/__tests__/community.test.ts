@@ -1,15 +1,14 @@
-import {type BskyAgent} from '@atproto/api'
+// The repo-wide stub of this module cannot encode a blob reference.
+jest.unmock('multiformats/cid')
 
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
-  jsonToLex: (value: unknown) => value,
-}))
+import {Client, jsonToLex} from '@atproto/lex'
 
 import {
   BLUESKY_FALLBACK_PROXY_HEADER,
   BLUESKY_PROXY_HEADER,
   HOME_PROXY_HEADER,
 } from '#/lib/constants'
+import {createLexClient} from '#/lib/lexClient'
 import {
   communityXrpc,
   getSpacePostLikes,
@@ -26,17 +25,77 @@ describe('communityXrpc', () => {
     BLUESKY_PROXY_HEADER.set(originalHeader)
   })
 
-  function mockAgent() {
+  function mockClient(options?: Parameters<typeof createLexClient>[1]) {
     const fetchHandler = jest.fn<Promise<Response>, [string, RequestInit]>()
     fetchHandler.mockResolvedValue(new Response('{}'))
-    return {agent: {fetchHandler} as unknown as BskyAgent, fetchHandler}
+    return {client: createLexClient({fetchHandler}, options), fetchHandler}
   }
+
+  function headersOf(
+    fetchHandler: jest.Mock<Promise<Response>, [string, RequestInit]>,
+  ) {
+    return new Headers(fetchHandler.mock.calls[0][1].headers)
+  }
+
+  it('sends the moderation authorities the client is configured with', async () => {
+    const {client, fetchHandler} = mockClient()
+    client.setLabelers(['did:plc:subscribed'])
+
+    await communityXrpc(client, 'community.blacksky.feed.getCommunityTimeline')
+
+    expect(headersOf(fetchHandler).get('atproto-accept-labelers')).toBe(
+      [
+        ...Client.appLabelers.map(did => `${did};redact`),
+        'did:plc:subscribed',
+      ].join(', '),
+    )
+  })
+
+  it('sends no moderation authorities for a client that takes none', async () => {
+    const {client, fetchHandler} = mockClient({appLabelers: null})
+
+    await communityXrpc(client, 'community.blacksky.feed.getCommunityTimeline')
+
+    expect(headersOf(fetchHandler).has('atproto-accept-labelers')).toBe(false)
+  })
+
+  it('encodes a blob reference in a body as a link', async () => {
+    const {client, fetchHandler} = mockClient()
+    const link = 'bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku'
+    const image = jsonToLex({
+      $type: 'blob',
+      ref: {$link: link},
+      mimeType: 'image/png',
+      size: 10,
+    })
+
+    await communityXrpc(client, 'community.blacksky.feed.submitPost', {
+      body: {embed: {images: [{image, alt: ''}]}},
+    })
+
+    const init = fetchHandler.mock.calls[0][1]
+    expect(JSON.parse(init.body as string)).toEqual({
+      embed: {
+        images: [
+          {
+            image: {
+              $type: 'blob',
+              ref: {$link: link},
+              mimeType: 'image/png',
+              size: 10,
+            },
+            alt: '',
+          },
+        ],
+      },
+    })
+  })
 
   it('always targets the home appview, even when the global proxy header is flipped', async () => {
     BLUESKY_PROXY_HEADER.set(BLUESKY_FALLBACK_PROXY_HEADER)
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
-    await communityXrpc(agent, 'community.blacksky.feed.getCommunityTimeline')
+    await communityXrpc(client, 'community.blacksky.feed.getCommunityTimeline')
 
     const init = fetchHandler.mock.calls[0][1] as {
       headers: Record<string, string>
@@ -48,9 +107,9 @@ describe('communityXrpc', () => {
   })
 
   it('can target a configured content store', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
-    await communityXrpc(agent, 'community.blacksky.feed.submitPost', {
+    await communityXrpc(client, 'community.blacksky.feed.submitPost', {
       body: {text: 'hello'},
       serviceDid: 'did:web:content.example.com',
     })
@@ -64,10 +123,10 @@ describe('communityXrpc', () => {
   })
 
   it('serializes repeated primitive parameters and omits empty values', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
 
     await communityXrpc(
-      agent,
+      client,
       'community.blacksky.notification.listNotifications',
       {
         params: {
@@ -91,7 +150,7 @@ describe('communityXrpc', () => {
   })
 
   it('fetches space likes through the permission-aware endpoint', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -108,7 +167,7 @@ describe('communityXrpc', () => {
       ),
     )
 
-    const page = await getSpacePostLikes(agent, {
+    const page = await getSpacePostLikes(client, {
       uri: SPACE_POST,
       limit: 30,
       cursor: 'before',
@@ -131,7 +190,7 @@ describe('communityXrpc', () => {
   })
 
   it('converts custom space quote views into standard renderer views', async () => {
-    const {agent, fetchHandler} = mockAgent()
+    const {client, fetchHandler} = mockClient()
     fetchHandler.mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -150,7 +209,7 @@ describe('communityXrpc', () => {
       ),
     )
 
-    const page = await getSpacePostQuotes(agent, {
+    const page = await getSpacePostQuotes(client, {
       uri: SPACE_POST,
       limit: 30,
     })

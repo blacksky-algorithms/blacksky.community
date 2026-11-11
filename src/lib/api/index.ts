@@ -1,29 +1,21 @@
 import {getLocales} from 'expo-localization'
+import {TID} from '@atproto/common-web'
 import {
   type $Typed,
-  type AppBskyEmbedExternal,
-  type AppBskyEmbedGallery,
-  type AppBskyEmbedImages,
-  type AppBskyEmbedRecord,
-  type AppBskyEmbedRecordWithMedia,
-  type AppBskyEmbedVideo,
-  AppBskyFeedPost,
-  type AtpAgent,
-  AtUri,
-  BlobRef,
-  ChatBskyGroupDefs,
-  type ComAtprotoLabelDefs,
-  type ComAtprotoRepoApplyWrites,
-  type ComAtprotoRepoStrongRef,
+  type BlobRef,
+  type Client,
   jsonToLex,
-  RichText,
-} from '@atproto/api'
-import {TID} from '@atproto/common-web'
+  type LexMap,
+} from '@atproto/lex'
+import {
+  AtUri,
+  type AtUriString,
+  toDatetimeString,
+  type UriString,
+} from '@atproto/syntax'
+import {RichText} from '@bsky/sdk/richtext'
 import {t} from '@lingui/core/macro'
 import {type QueryClient} from '@tanstack/react-query'
-import {sha256} from 'js-sha256'
-import {CID} from 'multiformats/cid'
-import * as Hasher from 'multiformats/hashes/hasher'
 
 import {
   assemblyThumbUrl,
@@ -44,9 +36,11 @@ import {
   pollTopicFromText,
 } from '#/lib/api/poll'
 import {imageToThumb} from '#/lib/api/resolve'
+import {type LinkResolvers} from '#/lib/api/resolve'
 import {spaceOfPostUrl} from '#/lib/api/space-permalink'
 import {postToSpace} from '#/lib/api/space-post'
 import {isSpaceRecordUri, spaceOfRecordUri} from '#/lib/api/space-uri'
+import {withCreator} from '#/lib/at-card'
 import {IMAGE_SIZE_CONFIG_POSTS} from '#/lib/constants'
 import {isNetworkError} from '#/lib/strings/errors'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
@@ -73,8 +67,10 @@ import {
 } from '#/features/events/draft'
 import {EVENT_COLLECTION} from '#/features/events/types'
 import {eventAtUri} from '#/features/events/url'
+import {app, chat, com} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {createGIFDescription} from '../gif-alt-text'
+import {computeCid} from './computeCid'
 import {uploadBlob} from './upload-blob'
 
 export {uploadBlob}
@@ -142,6 +138,23 @@ export interface PostOpts {
   onStateChange?: (state: string) => void
   onAssembly?: (postId: string, ref: AssemblyRef) => void
   langs?: string[]
+  /*
+   * Facet/mention resolution and reply-root lookup are appview jobs - they
+   * resolve handles and read posts through the appview, and the public
+   * fallback keeps facet detection working when logged out.
+   */
+  appviewClient: Client
+  /*
+   * A quoted chat invite link resolves its preview through the chat service, so
+   * the embed resolver needs the chat client alongside the appview one.
+   */
+  chatClient: Client
+  /*
+   * The repo write itself (applyWrites) plus every record blob (images,
+   * gallery items, link thumbnails, video captions) goes to the account's own
+   * PDS, never the appview.
+   */
+  pdsClient: Client
 }
 
 export type PostResult = {
@@ -155,7 +168,6 @@ export type PostResult = {
 }
 
 export async function post(
-  agent: AtpAgent,
   queryClient: QueryClient,
   opts: PostOpts,
 ): Promise<PostResult> {
@@ -176,12 +188,12 @@ export async function post(
     }
     refusePoll(thread)
     refuseEvent(thread)
-    return postToSpace(agent, queryClient, space, opts)
+    return postToSpace(queryClient, space, opts)
   }
 
   if (!thread.communityFeed && thread.communityFeedUri) {
     const target = await fetchCommunityFeedTarget(
-      agent,
+      opts.appviewClient,
       thread.communityFeedUri,
     )
     if (!target) {
@@ -201,7 +213,7 @@ export async function post(
   if (isSpaceBackedFeed(config)) {
     refusePoll(thread)
     refuseEvent(thread)
-    return postToSpace(agent, queryClient, config.space, opts)
+    return postToSpace(queryClient, config.space, opts)
   }
 
   // Past this point the post is going to a public or community repo, not into
@@ -235,7 +247,7 @@ export async function post(
   ) {
     refusePoll(thread)
     refuseEvent(thread)
-    return postCommunity(agent, queryClient, opts)
+    return postCommunity(queryClient, opts)
   }
 
   // A public post must never carry a community post in its embed; the
@@ -259,12 +271,12 @@ export async function post(
   const locale = getLocales()[0]
 
   let replyPromise:
-    | Promise<AppBskyFeedPost.Record['reply']>
-    | AppBskyFeedPost.Record['reply']
+    | Promise<app.bsky.feed.post.Main['reply']>
+    | app.bsky.feed.post.Main['reply']
     | undefined
   if (opts.replyTo) {
     // Not awaited to avoid waterfalls.
-    replyPromise = resolveReply(agent, opts.replyTo)
+    replyPromise = resolveReply(opts.appviewClient, opts.replyTo)
   }
 
   let assembly: PostResult['assembly']
@@ -275,7 +287,7 @@ export async function post(
     await replyPromise
     opts.onStateChange?.(t`Starting discussion...`)
     const statements = pollStatementsForPublish(poll)
-    const {ref, isReplay} = await ensureAssembly(agent, {
+    const {ref, isReplay} = await ensureAssembly(opts.pdsClient, {
       topic: pollTopicFromText(pollPost.richtext.text),
       statements,
       ref: poll.assembly,
@@ -304,14 +316,14 @@ export async function post(
 
   const eventCover = eventPost?.embed.event?.cover
     ? await uploadEventCover(
-        agent,
+        opts.pdsClient,
         eventPost.embed.event.cover,
         opts.onStateChange,
       )
     : undefined
 
-  const did = agent.assertDid
-  const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
+  const did = opts.pdsClient.assertDid
+  const writes: com.atproto.repo.applyWrites.$InputBody['writes'] = []
   const uris: string[] = []
   const admissions: Array<{post: string; cid: string}> = []
 
@@ -322,8 +334,8 @@ export async function post(
     const draft = thread.posts[i]
 
     // Not awaited to avoid waterfalls.
-    const rtPromise = resolveRT(agent, draft.richtext)
-    const embedPromise =
+    const rtPromise = resolveRT(opts.appviewClient, draft.richtext)
+    const embedPromise: Promise<app.bsky.feed.post.Main['embed']> =
       draft === eventPost && eventRkey
         ? Promise.resolve({
             $type: 'app.bsky.embed.external' as const,
@@ -336,8 +348,15 @@ export async function post(
               ...(eventCover && {thumb: eventCover.blob}),
             },
           })
-        : resolveEmbed(agent, queryClient, draft, opts.onStateChange)
-    let labels: $Typed<ComAtprotoLabelDefs.SelfLabels> | undefined
+        : resolveEmbed(
+            opts.appviewClient,
+            opts.chatClient,
+            opts.pdsClient,
+            queryClient,
+            draft,
+            opts.onStateChange,
+          )
+    let labels: $Typed<com.atproto.label.defs.SelfLabels> | undefined
     if (draft.labels.length) {
       labels = {
         $type: 'com.atproto.label.defs#selfLabels',
@@ -350,17 +369,17 @@ export async function post(
     now.setMilliseconds(now.getMilliseconds() + 1)
     tid = TID.next(tid)
     const rkey = tid.toString()
-    const uri = `at://${did}/app.bsky.feed.post/${rkey}`
+    const uri = `at://${did}/app.bsky.feed.post/${rkey}` as AtUriString
     uris.push(uri)
 
     const rt = await rtPromise
     const embed = await embedPromise
     const reply = await replyPromise
-    const record: AppBskyFeedPost.Record = {
+    const record: app.bsky.feed.post.Main = {
       // IMPORTANT: $type has to exist, CID is calculated with the `$type` field
       // present and will produce the wrong CID if you omit it.
       $type: 'app.bsky.feed.post',
-      createdAt: now.toISOString(),
+      createdAt: toDatetimeString(now),
       text: rt.text,
       facets: rt.facets,
       reply,
@@ -381,7 +400,7 @@ export async function post(
         collection: 'app.bsky.feed.threadgate',
         rkey: rkey,
         value: createThreadgateRecord({
-          createdAt: now.toISOString(),
+          createdAt: toDatetimeString(now),
           post: uri,
           allow: threadgateAllowUISettingToAllowRecordValue(thread.threadgate),
         }),
@@ -399,7 +418,7 @@ export async function post(
         value: {
           ...thread.postgate,
           $type: 'app.bsky.feed.postgate',
-          createdAt: now.toISOString(),
+          createdAt: toDatetimeString(now),
           post: uri,
         },
       })
@@ -434,8 +453,8 @@ export async function post(
   }
 
   try {
-    await agent.com.atproto.repo.applyWrites({
-      repo: agent.assertDid,
+    await opts.pdsClient.call(com.atproto.repo.applyWrites, {
+      repo: did,
       writes: writes,
       // A PDS refuses lexicons it does not know when asked to validate, and
       // most do not know the event lexicon. Left unset, known ones such as
@@ -459,7 +478,7 @@ export async function post(
   if (thread.communityFeed?.config.contentType === 'publicRecord') {
     await Promise.all(
       admissions.map(({post, cid}) =>
-        admitFeedPost(agent, thread.communityFeed!, post, cid),
+        admitFeedPost(opts.appviewClient, thread.communityFeed!, post, cid),
       ),
     )
   }
@@ -471,19 +490,15 @@ export async function post(
   }
 }
 
-async function postCommunity(
-  agent: AtpAgent,
-  queryClient: QueryClient,
-  opts: PostOpts,
-) {
+async function postCommunity(queryClient: QueryClient, opts: PostOpts) {
   const thread = opts.thread
 
   let replyPromise:
-    | Promise<AppBskyFeedPost.Record['reply']>
-    | AppBskyFeedPost.Record['reply']
+    | Promise<app.bsky.feed.post.Main['reply']>
+    | app.bsky.feed.post.Main['reply']
     | undefined
   if (opts.replyTo) {
-    replyPromise = resolveReply(agent, opts.replyTo)
+    replyPromise = resolveReply(opts.appviewClient, opts.replyTo)
   }
 
   let langs = opts.langs
@@ -491,8 +506,8 @@ async function postCommunity(
     langs = opts.langs.slice(0, 3)
   }
 
-  const did = agent.assertDid
-  const writes: $Typed<ComAtprotoRepoApplyWrites.Create>[] = []
+  const did = opts.pdsClient.assertDid
+  const writes: com.atproto.repo.applyWrites.$InputBody['writes'] = []
   const uris: string[] = []
   const admissions: Array<{post: string; cid: string}> = []
 
@@ -502,14 +517,16 @@ async function postCommunity(
   for (let i = 0; i < thread.posts.length; i++) {
     const draft = thread.posts[i]
 
-    const rtPromise = resolveRT(agent, draft.richtext)
+    const rtPromise = resolveRT(opts.appviewClient, draft.richtext)
     const embedPromise = resolveEmbed(
-      agent,
+      opts.appviewClient,
+      opts.chatClient,
+      opts.pdsClient,
       queryClient,
       draft,
       opts.onStateChange,
     )
-    let labels: $Typed<ComAtprotoLabelDefs.SelfLabels> | undefined
+    let labels: $Typed<com.atproto.label.defs.SelfLabels> | undefined
     if (draft.labels.length) {
       labels = {
         $type: 'com.atproto.label.defs#selfLabels',
@@ -557,7 +574,7 @@ async function postCommunity(
 
     // Step 2: Compute CID locally - this is the SOURCE OF TRUTH for integrity
     const cid = await computeCid(
-      canonicalRecord as unknown as AppBskyFeedPost.Record,
+      canonicalRecord as unknown as app.bsky.feed.post.Main,
     )
 
     // Step 3: Submit to appview with expectedCid for verification
@@ -607,7 +624,7 @@ async function postCommunity(
 
     try {
       const submitRes = await communityXrpc(
-        agent,
+        opts.appviewClient,
         'community.blacksky.feed.submitPost',
         // No serviceDid: submitPost serves the Blacksky community feed, whose
         // content lives on the home appview. `contentStore` named a per-feed
@@ -670,12 +687,12 @@ async function postCommunity(
       $type: 'com.atproto.repo.applyWrites#create',
       collection: COMMUNITY_POST_COLLECTION,
       rkey,
-      value: stubRecord,
+      value: stubRecord as LexMap,
     })
 
     // Prepare ref for next post in thread
     const ref = {
-      cid: await computeCid(stubRecord as unknown as AppBskyFeedPost.Record),
+      cid: await computeCid(stubRecord as unknown as app.bsky.feed.post.Main),
       uri,
     }
     if (thread.communityFeed) {
@@ -684,13 +701,13 @@ async function postCommunity(
     replyPromise = {
       root: reply?.root ?? ref,
       parent: ref,
-    }
+    } as ReplyRefs
   }
 
   // Write stubs to PDS
   try {
-    await agent.com.atproto.repo.applyWrites({
-      repo: agent.assertDid,
+    await opts.pdsClient.call(com.atproto.repo.applyWrites, {
+      repo: did,
       writes,
       validate: false,
     })
@@ -710,7 +727,7 @@ async function postCommunity(
   if (thread.communityFeed) {
     await Promise.all(
       admissions.map(({post, cid}) =>
-        admitFeedPost(agent, thread.communityFeed!, post, cid),
+        admitFeedPost(opts.appviewClient, thread.communityFeed!, post, cid),
       ),
     )
   }
@@ -721,14 +738,14 @@ async function postCommunity(
   return {uris}
 }
 
-export async function resolveRT(agent: AtpAgent, richtext: RichText) {
+export async function resolveRT(appviewClient: Client, richtext: RichText) {
   const trimmedText = richtext.text
     // Trim leading whitespace-only lines (but don't break ASCII art).
     .replace(/^(\s*\n)+/, '')
     // Trim any trailing whitespace.
     .trimEnd()
   let rt = new RichText({text: trimmedText}, {cleanNewlines: true})
-  await rt.detectFacets(agent)
+  await rt.detectFacets(appviewClient)
 
   rt = shortenLinks(rt)
   rt = stripInvalidMentions(rt)
@@ -758,12 +775,27 @@ function refusePublicSpaceRefs<
   return refs
 }
 
-export async function resolveReply(agent: AtpAgent, replyTo: string) {
+type ReplyRefs = NonNullable<app.bsky.feed.post.Main['reply']>
+
+/*
+ * Typed as post reply refs even though a ref into a permissioned space is not
+ * an at-uri: the space write path sends these as plain JSON, and the public
+ * branches refuse a space ref before returning one.
+ */
+export async function resolveReply(
+  appviewClient: Client,
+  replyTo: string,
+): Promise<ReplyRefs | undefined> {
+  return (await resolveReplyRefs(appviewClient, replyTo)) as
+    ReplyRefs | undefined
+}
+
+async function resolveReplyRefs(appviewClient: Client, replyTo: string) {
   // Space records first: they are not at-uris, so AtUri would misparse one.
   // The parent is read back through the appview, which is the only read path
   // the client has into a space, and carries the root of its own thread.
   if (isSpaceRecordUri(replyTo)) {
-    const post = await fetchCommunityPostView(agent, replyTo)
+    const post = await fetchCommunityPostView(appviewClient, replyTo)
     const parent = {uri: post.uri, cid: post.cid}
     const root = (
       post.record as {reply?: {root?: {uri?: string; cid?: string}}}
@@ -779,7 +811,7 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
   // Community posts are fetched from the appview, not the standard feed API.
   if (replyToUrip.collection === COMMUNITY_POST_COLLECTION) {
     const res = await communityXrpc(
-      agent,
+      appviewClient,
       'community.blacksky.feed.getCommunityPost',
       {params: {uri: replyTo}},
     )
@@ -793,7 +825,7 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
       post?: {
         uri: string
         cid: string
-        record?: AppBskyFeedPost.Record
+        record?: app.bsky.feed.post.Main
       }
     }
     if (data.post) {
@@ -811,8 +843,8 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
   }
 
   // Standard Bluesky post
-  const {data} = await agent.app.bsky.feed.getPosts({
-    uris: [replyTo],
+  const data = await appviewClient.call(app.bsky.feed.getPosts, {
+    uris: [replyTo as AtUriString],
   })
   const parentPost = data.posts[0]
   if (!parentPost) {
@@ -823,14 +855,9 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
     uri: parentPost.uri,
     cid: parentPost.cid,
   }
-  let rootRef = parentRef
+  let rootRef: com.atproto.repo.strongRef.Main = parentRef
 
-  if (
-    bsky.dangerousIsType<AppBskyFeedPost.Record>(
-      parentPost.record,
-      AppBskyFeedPost.isRecord,
-    )
-  ) {
+  if (bsky.isType(app.bsky.feed.post, parentPost.record)) {
     if (parentPost.record.reply) {
       rootRef = parentPost.record.reply.root
     }
@@ -843,26 +870,31 @@ export async function resolveReply(agent: AtpAgent, replyTo: string) {
 }
 
 export async function resolveEmbed(
-  agent: AtpAgent,
+  appviewClient: Client,
+  chatClient: Client,
+  pdsClient: Client,
   queryClient: QueryClient,
   draft: PostDraft,
   onStateChange: ((state: string) => void) | undefined,
-): Promise<
-  | $Typed<AppBskyEmbedImages.Main>
-  | $Typed<AppBskyEmbedGallery.Main>
-  | $Typed<AppBskyEmbedVideo.Main>
-  | $Typed<AppBskyEmbedExternal.Main>
-  | $Typed<AppBskyEmbedRecord.Main>
-  | $Typed<AppBskyEmbedRecordWithMedia.Main>
-  | undefined
-> {
+): Promise<app.bsky.feed.post.Main['embed']> {
   if (draft.embed.poll) {
-    return resolveAssembly(agent, draft, draft.embed.poll, onStateChange)
+    return resolveAssembly(pdsClient, draft, draft.embed.poll, onStateChange)
   }
   if (draft.embed.quote) {
     const [resolvedMedia, resolvedQuote] = await Promise.all([
-      resolveMedia(agent, queryClient, draft.embed, onStateChange),
-      resolveRecord(agent, queryClient, draft.embed.quote.uri),
+      resolveMedia(
+        appviewClient,
+        chatClient,
+        pdsClient,
+        queryClient,
+        draft.embed,
+        onStateChange,
+      ),
+      resolveRecord(
+        {appviewClient, chatClient},
+        queryClient,
+        draft.embed.quote.uri,
+      ),
     ])
     if (resolvedMedia) {
       return {
@@ -880,7 +912,9 @@ export async function resolveEmbed(
     }
   }
   const resolvedMedia = await resolveMedia(
-    agent,
+    appviewClient,
+    chatClient,
+    pdsClient,
     queryClient,
     draft.embed,
     onStateChange,
@@ -891,7 +925,7 @@ export async function resolveEmbed(
   if (draft.embed.link) {
     const resolvedLink = await fetchResolveLinkQuery(
       queryClient,
-      agent,
+      {appviewClient, chatClient},
       draft.embed.link.uri,
     )
     if (resolvedLink.type === 'record') {
@@ -905,11 +939,11 @@ export async function resolveEmbed(
 }
 
 async function resolveAssembly(
-  agent: AtpAgent,
+  pdsClient: Client,
   draft: PostDraft,
   poll: PollDraft,
   onStateChange: ((state: string) => void) | undefined,
-): Promise<$Typed<AppBskyEmbedExternal.Main>> {
+): Promise<$Typed<app.bsky.embed.external.Main>> {
   refusePollWithAttachments(draft)
   const conversationId = poll.assembly?.conversationId
   if (!conversationId) {
@@ -923,13 +957,17 @@ async function resolveAssembly(
         topic: pollTopicFromText(draft.richtext.text),
         statements: pollStatementsForPublish(poll),
       }),
-      thumb: await uploadAssemblyThumb(agent, conversationId, onStateChange),
+      thumb: await uploadAssemblyThumb(
+        pdsClient,
+        conversationId,
+        onStateChange,
+      ),
     },
   }
 }
 
 async function uploadEventCover(
-  agent: AtpAgent,
+  pdsClient: Client,
   cover: EventCover,
   onStateChange: ((state: string) => void) | undefined,
 ): Promise<{blob: BlobRef; width: number; height: number}> {
@@ -938,8 +976,8 @@ async function uploadEventCover(
       'url' in cover ? (await imageToThumb(cover.url))?.source : cover
     if (!image) throw new Error('The image could not be read')
     onStateChange?.(t`Uploading event image...`)
-    const response = await uploadBlob(agent, image.path, image.mime)
-    return {blob: response.data.blob, width: image.width, height: image.height}
+    const response = await uploadBlob(pdsClient, image.path, image.mime)
+    return {blob: response.blob, width: image.width, height: image.height}
   } catch (e) {
     logger.warn(`Failed to upload the event image`, {
       safeMessage: e instanceof Error ? e.message : String(e),
@@ -951,7 +989,7 @@ async function uploadEventCover(
 }
 
 async function uploadAssemblyThumb(
-  agent: AtpAgent,
+  pdsClient: Client,
   conversationId: string,
   onStateChange: ((state: string) => void) | undefined,
 ): Promise<BlobRef | undefined> {
@@ -966,8 +1004,8 @@ async function uploadAssemblyThumb(
     if (!thumb) throw new Error('The image could not be read in time')
     onStateChange?.(t`Uploading link thumbnail...`)
     const {path, mime} = thumb.source
-    const response = await uploadBlob(agent, path, mime)
-    return response.data.blob
+    const response = await uploadBlob(pdsClient, path, mime)
+    return response.blob
   } catch (e) {
     logger.warn(`Failed to attach the poll thumbnail`, {
       safeMessage: e instanceof Error ? e.message : String(e),
@@ -979,15 +1017,17 @@ async function uploadAssemblyThumb(
 }
 
 async function resolveMedia(
-  agent: AtpAgent,
+  appviewClient: Client,
+  chatClient: Client,
+  pdsClient: Client,
   queryClient: QueryClient,
   embedDraft: EmbedDraft,
   onStateChange: ((state: string) => void) | undefined,
 ): Promise<
-  | $Typed<AppBskyEmbedExternal.Main>
-  | $Typed<AppBskyEmbedImages.Main>
-  | $Typed<AppBskyEmbedGallery.Main>
-  | $Typed<AppBskyEmbedVideo.Main>
+  | $Typed<app.bsky.embed.external.Main>
+  | $Typed<app.bsky.embed.images.Main>
+  | $Typed<app.bsky.embed.gallery.Main>
+  | $Typed<app.bsky.embed.video.Main>
   | undefined
 > {
   if (embedDraft.media?.type === 'images') {
@@ -996,7 +1036,7 @@ async function resolveMedia(
       count: imagesDraft.length,
     })
     onStateChange?.(t`Uploading images...`)
-    const images: AppBskyEmbedImages.Image[] = await Promise.all(
+    const images: app.bsky.embed.images.Image[] = await Promise.all(
       imagesDraft.map(async (image, i) => {
         logger.debug(`Compressing image #${i}`)
         const {path, width, height, mime} = await compressImage(
@@ -1004,9 +1044,9 @@ async function resolveMedia(
           IMAGE_SIZE_CONFIG_POSTS,
         )
         logger.debug(`Uploading image #${i}`)
-        const res = await uploadBlob(agent, path, mime)
+        const res = await uploadBlob(pdsClient, path, mime)
         return {
-          image: res.data.blob,
+          image: res.blob,
           alt: image.alt,
           aspectRatio: {width, height},
         }
@@ -1023,7 +1063,7 @@ async function resolveMedia(
       count: imagesDraft.length,
     })
     onStateChange?.(t`Uploading images...`)
-    const items: $Typed<AppBskyEmbedGallery.Image>[] = await Promise.all(
+    const items: $Typed<app.bsky.embed.gallery.Image>[] = await Promise.all(
       imagesDraft.map(async (image, i) => {
         logger.debug(`Compressing image #${i}`)
         const {path, width, height, mime} = await compressImage(
@@ -1031,10 +1071,10 @@ async function resolveMedia(
           IMAGE_SIZE_CONFIG_POSTS,
         )
         logger.debug(`Uploading image #${i}`)
-        const res = await uploadBlob(agent, path, mime)
+        const res = await uploadBlob(pdsClient, path, mime)
         return {
           $type: 'app.bsky.embed.gallery#image' as const,
-          image: res.data.blob,
+          image: res.blob,
           alt: image.alt,
           aspectRatio: {width, height},
         }
@@ -1054,10 +1094,10 @@ async function resolveMedia(
       videoDraft.captions
         .filter(caption => caption.lang !== '')
         .map(async caption => {
-          const {data} = await agent.uploadBlob(caption.file, {
+          const res = await pdsClient.uploadBlob(caption.file, {
             encoding: 'text/vtt',
           })
-          return {lang: caption.lang, file: data.blob}
+          return {lang: caption.lang, file: res.body.blob}
         }),
     )
 
@@ -1077,6 +1117,11 @@ async function resolveMedia(
 
     return {
       $type: 'app.bsky.embed.video',
+      /*
+       * The video blob is a plain lex blob from the video pipeline
+       * (getJobStatus, in composer state/video). Its structural shape matches
+       * the lexicon blob field and the CID hasher (see computeCid).
+       */
       video: videoDraft.pendingPublish.blobRef,
       alt: videoDraft.altText || undefined,
       captions: captions.length === 0 ? undefined : captions,
@@ -1087,22 +1132,18 @@ async function resolveMedia(
   }
   if (embedDraft.media?.type === 'gif') {
     const gifDraft = embedDraft.media
-    const resolvedGif = await fetchResolveGifQuery(
-      queryClient,
-      agent,
-      gifDraft.gif,
-    )
-    let blob: BlobRef | undefined
+    const resolvedGif = await fetchResolveGifQuery(queryClient, gifDraft.gif)
+    let blob: app.bsky.embed.external.External['thumb']
     if (resolvedGif.thumb) {
       onStateChange?.(t`Uploading link thumbnail...`)
       const {path, mime} = resolvedGif.thumb.source
-      const response = await uploadBlob(agent, path, mime)
-      blob = response.data.blob
+      const response = await uploadBlob(pdsClient, path, mime)
+      blob = response.blob
     }
     return {
       $type: 'app.bsky.embed.external',
       external: {
-        uri: resolvedGif.uri,
+        uri: resolvedGif.uri as UriString,
         title: resolvedGif.title,
         description: createGIFDescription(resolvedGif.title, gifDraft.alt),
         thumb: blob,
@@ -1112,36 +1153,39 @@ async function resolveMedia(
   if (embedDraft.link) {
     const resolvedLink = await fetchResolveLinkQuery(
       queryClient,
-      agent,
+      {appviewClient, chatClient},
       embedDraft.link.uri,
     )
     if (resolvedLink.type === 'external') {
-      let blob: BlobRef | undefined
+      let blob: app.bsky.embed.external.External['thumb']
       if (resolvedLink.thumb) {
         onStateChange?.(t`Uploading link thumbnail...`)
         const {path, mime} = resolvedLink.thumb.source
-        const response = await uploadBlob(agent, path, mime)
-        blob = response.data.blob
+        const response = await uploadBlob(pdsClient, path, mime)
+        blob = response.blob
       }
       return {
         $type: 'app.bsky.embed.external',
-        external: {
-          uri: resolvedLink.uri,
-          title: resolvedLink.title,
-          description: resolvedLink.description,
-          thumb: blob,
-          associatedRefs: resolvedLink.associatedRefs,
-        },
+        external: withCreator(
+          {
+            uri: resolvedLink.uri as UriString,
+            title: resolvedLink.title,
+            description: resolvedLink.description,
+            thumb: blob,
+            associatedRefs: resolvedLink.associatedRefs,
+          },
+          resolvedLink.authorDid,
+        ),
       }
     }
     if (
       resolvedLink.type === 'chat-invite' &&
-      ChatBskyGroupDefs.isJoinLinkPreviewView(resolvedLink.view)
+      bsky.isType(chat.bsky.group.defs.joinLinkPreviewView, resolvedLink.view)
     ) {
       return {
         $type: 'app.bsky.embed.external',
         external: {
-          uri: resolvedLink.uri,
+          uri: resolvedLink.uri as UriString,
           title: resolvedLink.view.name,
           description: `${resolvedLink.view.memberCount}/${resolvedLink.view.memberLimit}`,
         },
@@ -1152,100 +1196,13 @@ async function resolveMedia(
 }
 
 async function resolveRecord(
-  agent: AtpAgent,
+  clients: LinkResolvers,
   queryClient: QueryClient,
   uri: string,
-): Promise<ComAtprotoRepoStrongRef.Main> {
-  const resolvedLink = await fetchResolveLinkQuery(queryClient, agent, uri)
+): Promise<com.atproto.repo.strongRef.Main> {
+  const resolvedLink = await fetchResolveLinkQuery(queryClient, clients, uri)
   if (resolvedLink.type !== 'record') {
     throw Error(t`Expected uri to resolve to a record`)
   }
   return resolvedLink.record
-}
-
-// The built-in hashing functions from multiformats (`multiformats/hashes/sha2`)
-// are meant for Node.js, this is the cross-platform equivalent.
-const mf_sha256 = Hasher.from({
-  name: 'sha2-256',
-  code: 0x12,
-  encode: input => {
-    const digest = sha256.arrayBuffer(input)
-    return new Uint8Array(digest)
-  },
-})
-
-async function computeCid(record: AppBskyFeedPost.Record): Promise<string> {
-  /*
-   * Lazily loaded since it's only needed when posting a thread, and its
-   * `cborg` dependency is ~190KB that would otherwise be in the initial
-   * web bundle.
-   */
-  const dcbor = await import('@ipld/dag-cbor')
-  // IMPORTANT: `prepareObject` prepares the record to be hashed by removing
-  // fields with undefined value, and converting BlobRef instances to the
-  // right IPLD representation.
-  const prepared = prepareForHashing(record)
-  // 1. Encode the record into DAG-CBOR format
-  const encoded = dcbor.encode(prepared)
-  // 2. Hash the record in SHA-256 (code 0x12)
-  const digest = await mf_sha256.digest(encoded)
-  // 3. Create a CIDv1, specifying DAG-CBOR as content (code 0x71)
-  const cid = CID.createV1(0x71, digest)
-  // 4. Get the Base32 representation of the CID (`b` prefix)
-  return cid.toString()
-}
-
-// Returns a transformed version of the object for use in DAG-CBOR.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function prepareForHashing(v: any): any {
-  // IMPORTANT: BlobRef#ipld() returns the correct object we need for hashing,
-  // the API client will convert this for you but we're hashing in the client,
-  // so we need it *now*.
-  if (v instanceof BlobRef) {
-    return v.ipld()
-  }
-
-  // Walk through arrays
-  if (Array.isArray(v)) {
-    let pure = true
-    const mapped = v.map(value => {
-      if (value !== (value = prepareForHashing(value))) {
-        pure = false
-      }
-      return value
-    })
-    return pure ? v : mapped
-  }
-
-  // Walk through plain objects
-  if (isPlainObject(v)) {
-    const obj: Record<string, unknown> = {}
-    let pure = true
-    for (const key in v) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      let value = v[key]
-      // `value` is undefined
-      if (value === undefined) {
-        pure = false
-        continue
-      }
-      // `prepareObject` returned a value that's different from what we had before
-      if (value !== (value = prepareForHashing(value))) {
-        pure = false
-      }
-      obj[key] = value
-    }
-    // Return as is if we haven't needed to tamper with anything
-    return pure ? v : obj
-  }
-  return v
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isPlainObject(v: any): boolean {
-  if (typeof v !== 'object' || v === null) {
-    return false
-  }
-  const proto = Object.getPrototypeOf(v)
-  return proto === Object.prototype || proto === null
 }

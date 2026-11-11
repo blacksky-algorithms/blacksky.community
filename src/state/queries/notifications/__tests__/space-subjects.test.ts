@@ -1,16 +1,13 @@
-import {type AtpAgent} from '@atproto/api'
-
 const mockCommunityXrpc = jest.fn()
 
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
-  jsonToLex: (value: unknown) => value,
-}))
 jest.mock('#/lib/api/community', () => ({
   communityXrpc: (...args: unknown[]) => mockCommunityXrpc(...args),
 }))
 jest.mock('#/state/queries/profile', () => ({precacheProfile: jest.fn()}))
 
+import {type Client} from '@atproto/lex'
+
+import {app} from '#/lexicons'
 import {type FeedNotification} from '../types'
 import {fetchSubjects} from '../util'
 
@@ -28,7 +25,7 @@ describe('space notification subject hydration', () => {
   it('routes like, reply, and quote subjects through getCommunityPost', async () => {
     const notifications = [subject('like'), subject('reply'), subject('quote')]
     mockCommunityXrpc.mockImplementation(
-      (_agent: AtpAgent, _method: string, opts: {params: {uri: string}}) =>
+      (client: Client, _method: string, opts: {params: {uri: string}}) =>
         Promise.resolve(
           new Response(
             JSON.stringify({
@@ -44,19 +41,15 @@ describe('space notification subject hydration', () => {
         ),
     )
     const getPosts = jest.fn()
-    const getStarterPacks = jest.fn().mockResolvedValue({
-      data: {starterPacks: []},
-    })
-    const agent = {
-      app: {
-        bsky: {
-          feed: {getPosts},
-          graph: {getStarterPacks},
-        },
-      },
-    } as unknown as AtpAgent
+    const getStarterPacks = jest.fn().mockResolvedValue({starterPacks: []})
+    const client = {
+      call: (method: unknown, params: unknown) =>
+        method === app.bsky.feed.getPosts
+          ? getPosts(params)
+          : getStarterPacks(params),
+    } as unknown as Client
 
-    const result = await fetchSubjects(agent, notifications)
+    const result = await fetchSubjects(client, notifications)
 
     expect(mockCommunityXrpc).toHaveBeenCalledTimes(3)
     expect(mockCommunityXrpc.mock.calls.map(([, method]) => method)).toEqual([

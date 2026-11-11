@@ -1,10 +1,12 @@
-import {type AppBskyDraftDefs, RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 
+import {type LinkResolvers} from '#/lib/api/resolve'
 import {
   type ComposerState,
   type PostDraft,
 } from '#/view/com/composer/state/composer'
 import {type EventDraft} from '#/features/events/draft'
+import {type app} from '#/lexicons'
 import {
   composerStateToDraft,
   draftToComposerPosts,
@@ -28,7 +30,6 @@ jest.mock('#/lib/media/manip', () => ({getImageDim: jest.fn()}))
 jest.mock('#/lib/media/video/util', () => ({mimeToExt: jest.fn(() => 'mp4')}))
 jest.mock('#/lib/deviceName', () => ({getDeviceName: () => 'Test device'}))
 jest.mock('#/analytics/identifiers', () => ({getDeviceId: () => 'device-1'}))
-jest.mock('#/state/session/agent', () => ({createPublicAgent: jest.fn()}))
 jest.mock('#/lib/api/resolve', () => ({resolveLink: jest.fn()}))
 jest.mock('#/state/queries/threadgate/util', () => ({
   threadgateAllowUISettingToAllowRecordValue: jest.fn(() => undefined),
@@ -37,6 +38,8 @@ jest.mock('#/state/gallery', () => ({}))
 jest.mock('#/view/com/composer/state/composer', () => ({
   LEGACY_IMAGES_EMBED_MAX: 4,
 }))
+
+const clients = {} as LinkResolvers
 
 const EVENT_KEY = 'communityBlackskyEvent'
 
@@ -49,12 +52,12 @@ const event: EventDraft = {
   endsAt: '2027-01-15T03:00:00.000Z',
 }
 
-function savedEvent(draft: AppBskyDraftDefs.Draft, index = 0): unknown {
+function savedEvent(draft: app.bsky.draft.defs.Draft, index = 0): unknown {
   return (draft.posts[index] as unknown as Record<string, unknown>)[EVENT_KEY]
 }
 
-function asStored(draft: AppBskyDraftDefs.Draft): AppBskyDraftDefs.Draft {
-  return JSON.parse(JSON.stringify(draft)) as AppBskyDraftDefs.Draft
+function asStored(draft: app.bsky.draft.defs.Draft): app.bsky.draft.defs.Draft {
+  return JSON.parse(JSON.stringify(draft)) as app.bsky.draft.defs.Draft
 }
 
 function post(embed: Partial<PostDraft['embed']>, text = ''): PostDraft {
@@ -81,7 +84,9 @@ function state(posts: PostDraft[]): ComposerState {
   }
 }
 
-function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
+function draftPost(
+  extra: Record<string, unknown>,
+): app.bsky.draft.defs.DraftPost {
   return {
     $type: 'app.bsky.draft.defs#draftPost',
     text: 'hello',
@@ -89,23 +94,29 @@ function draftPost(extra: Record<string, unknown>): AppBskyDraftDefs.DraftPost {
   }
 }
 
-function draftOf(posts: AppBskyDraftDefs.DraftPost[]): AppBskyDraftDefs.Draft {
+function draftOf(
+  posts: app.bsky.draft.defs.DraftPost[],
+): app.bsky.draft.defs.Draft {
   return {$type: 'app.bsky.draft.defs#draft', posts}
 }
 
 describe('draft events', () => {
   it('saves the event as an extra property on the draft post', async () => {
-    const {draft} = await composerStateToDraft(state([post({event})]))
+    const {draft} = await composerStateToDraft(clients, state([post({event})]))
     expect(savedEvent(draft)).toStrictEqual(event)
   })
 
   it('omits the property when there is no event', async () => {
-    const {draft} = await composerStateToDraft(state([post({}, 'text')]))
+    const {draft} = await composerStateToDraft(
+      clients,
+      state([post({}, 'text')]),
+    )
     expect(EVENT_KEY in draft.posts[0]).toBe(false)
   })
 
   it("keeps a link's image but drops a picked photo, which lives only on this device", async () => {
     const withLink = await composerStateToDraft(
+      clients,
       state([post({event: {...event, cover: {url: 'https://x.test/og.jpg'}}})]),
     )
     expect(savedEvent(withLink.draft)).toMatchObject({
@@ -113,6 +124,7 @@ describe('draft events', () => {
     })
 
     const withPhoto = await composerStateToDraft(
+      clients,
       state([
         post({
           event: {
@@ -132,6 +144,7 @@ describe('draft events', () => {
 
   it('round-trips an event through save and restore', async () => {
     const {draft} = await composerStateToDraft(
+      clients,
       state([post({event: {...event, coverRemoved: true}}, 'come')]),
     )
     const {posts} = await draftToComposerPosts(asStored(draft), new Map())

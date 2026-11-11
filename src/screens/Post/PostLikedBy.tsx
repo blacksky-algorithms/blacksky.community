@@ -1,6 +1,7 @@
 import {Plural, Trans} from '@lingui/react/macro'
 
 import {spacePostUriFromRoute} from '#/lib/api/space-permalink'
+import {useSetPostTitle} from '#/lib/hooks/useSetPostTitle'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -38,6 +39,7 @@ function PostLikedByRoute({
           )) ||
         makeRecordUri(name, collection || 'app.bsky.feed.post', rkey)
   const {data: post} = usePostQuery(uri)
+  useSetPostTitle(post?.author)
   if (!uri) return null
 
   let likeCount

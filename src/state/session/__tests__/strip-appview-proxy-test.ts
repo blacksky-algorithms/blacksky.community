@@ -1,6 +1,6 @@
 import {describe, expect, it} from '@jest/globals'
 
-import {stripAppviewProxyForPdsLocalMethods} from '../agent'
+import {stripAppviewProxyForPdsLocalMethods} from '../oauth-agent'
 
 const PROXY = 'atproto-proxy'
 const PROXY_VALUE = 'did:web:api.blacksky.community#bsky_appview'

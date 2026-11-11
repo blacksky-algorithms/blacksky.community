@@ -7,7 +7,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {useAppState} from '#/lib/appState'
 import {
-  type AllNavigatorParams,
+  type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {
@@ -44,7 +44,10 @@ import {SettingPreview} from './components/SettingPreview'
 
 const RQKEY = ['notification-permissions']
 
-type Props = NativeStackScreenProps<AllNavigatorParams, 'NotificationSettings'>
+type Props = NativeStackScreenProps<
+  CommonNavigatorParams,
+  'NotificationSettings'
+>
 export function NotificationSettingsScreen({}: Props) {
   const {t: l} = useLingui()
   const queryClient = useQueryClient()
@@ -123,7 +126,7 @@ export function NotificationSettingsScreen({}: Props) {
         <Layout.Header.BackButton />
         <Layout.Header.Content>
           <Layout.Header.TitleText>
-            <Trans>Notifications</Trans>
+            <Trans>Notification Settings</Trans>
           </Layout.Header.TitleText>
         </Layout.Header.Content>
         <Layout.Header.Slot />
@@ -388,7 +391,7 @@ export function NotificationSettingsScreen({}: Props) {
         titleText={<Trans>Everything else</Trans>}
         subtitleText={
           <Trans>
-            Get notifications for starter pack joins, verification, and other
+            Get notifications for Starter Pack joins, verification, and other
             activity.
           </Trans>
         }

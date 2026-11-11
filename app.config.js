@@ -1,5 +1,6 @@
 // @ts-check
 const pkg = require('./package.json')
+const {getNativeQueries} = require('./src/components/ShareDialog/catalog.ts')
 
 /**
  * @param {import('@expo/config-types').ExpoConfig} _config
@@ -20,6 +21,7 @@ module.exports = function (_config) {
 
   const IS_TESTFLIGHT = process.env.EXPO_PUBLIC_ENV === 'testflight'
   const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === 'production'
+  const IS_E2E = process.env.EXPO_PUBLIC_ENV === 'e2e'
   const IS_DEV = !IS_TESTFLIGHT && !IS_PRODUCTION
   // True only when building on EAS (EAS sets EAS_BUILD=true / EAS_BUILD_PLATFORM).
   // Used to scope OTA update code signing to EAS builds so local dev doesn't
@@ -36,7 +38,21 @@ module.exports = function (_config) {
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
+  /*
+   * EXPO_PUBLIC_ENV is also an EAS environment secret, which wins over a build
+   * profile's env, so profiles opt out of OTA updates with their own flag. A
+   * dev client with updates on rejects unsigned manifests from a local Metro.
+   */
+  const UPDATES_ENABLED =
+    (IS_TESTFLIGHT || IS_PRODUCTION) && !process.env.DISABLE_UPDATES
+
   const USE_SENTRY = Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+  /**
+   * Apps the share sheet can detect, generated from the share platform
+   * catalog. Changing these needs a native build.
+   */
+  const SHARE_PLATFORM_QUERIES = getNativeQueries()
 
   const IOS_ICON_FILE =
     PLATFORM === 'web' // web build doesn't like .icon files
@@ -68,13 +84,19 @@ module.exports = function (_config) {
         },
         icon: IOS_ICON_FILE,
         infoPlist: {
+          UISupportedInterfaceOrientations: ['UIInterfaceOrientationPortrait'],
+          'UISupportedInterfaceOrientations~ipad': [
+            'UIInterfaceOrientationPortrait',
+            'UIInterfaceOrientationPortraitUpsideDown',
+            'UIInterfaceOrientationLandscapeLeft',
+            'UIInterfaceOrientationLandscapeRight',
+          ],
           CADisableMinimumFrameDurationOnPhone: true,
           UIBackgroundModes: ['remote-notification'],
           NSUserActivityTypes: ['INSendMessageIntent'],
+          LSApplicationQueriesSchemes: SHARE_PLATFORM_QUERIES.iosSchemes,
           NSCameraUsageDescription:
             'Used for profile pictures, posts, and other kinds of content.',
-          NSMicrophoneUsageDescription:
-            'Used for posts and other kinds of content.',
           NSPhotoLibraryAddUsageDescription:
             'Used to save images to your library.',
           NSPhotoLibraryUsageDescription:
@@ -128,8 +150,9 @@ module.exports = function (_config) {
         entitlements: {
           'com.apple.developer.kernel.increased-memory-limit': true,
           'com.apple.developer.kernel.extended-virtual-addressing': true,
-          'com.apple.security.application-groups':
+          'com.apple.security.application-groups': [
             'group.community.blacksky.app',
+          ],
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
           'com.apple.developer.declared-age-range': true,
@@ -186,13 +209,6 @@ module.exports = function (_config) {
           ],
         },
       },
-      androidStatusBar: {
-        barStyle: 'light-content',
-      },
-      // Dark nav bar in light mode is better than light nav bar in dark mode
-      androidNavigationBar: {
-        barStyle: 'light-content',
-      },
       android: {
         icon: './assets/app-icons/android_icon_default_next.png',
         adaptiveIcon: {
@@ -202,6 +218,7 @@ module.exports = function (_config) {
         },
         googleServicesFile: './google-services.json',
         package: 'community.blacksky.app',
+        blockedPermissions: ['android.permission.ACCESS_FINE_LOCATION'],
         intentFilters: [
           {
             action: 'VIEW',
@@ -225,6 +242,7 @@ module.exports = function (_config) {
         ],
       },
       web: {
+        bundler: 'metro',
         favicon: './assets/favicon.png',
       },
       updates: {
@@ -256,12 +274,71 @@ module.exports = function (_config) {
         },
       },
       plugins: [
-        'expo-video',
-        'expo-localization',
-        'expo-web-browser',
         [
-          'react-native-edge-to-edge',
-          {android: {enforceNavigationBarContrast: false}},
+          'expo-dev-client',
+          {
+            toolsButton: false,
+            ...(IS_E2E
+              ? {
+                  launchMode: 'most-recent',
+                  skipOnboarding: true,
+                  showMenuAtLaunch: false,
+                  ios: {
+                    defaultLaunchURL: 'http://localhost:8081',
+                  },
+                  android: {
+                    defaultLaunchURL: 'http://10.0.2.2:8081',
+                  },
+                }
+              : {}),
+          },
+        ],
+        'expo-asset',
+        'expo-sharing',
+        'expo-video',
+        [
+          'expo-camera',
+          {
+            microphonePermission: false,
+            recordAudioAndroid: false,
+          },
+        ],
+        [
+          'expo-image-picker',
+          {
+            microphonePermission: false,
+          },
+        ],
+        [
+          'expo-localization',
+          {
+            /*
+             * React Native 0.88 fixed Android RTL detection, which until then
+             * always reported LTR. Opt out so Android keeps rendering LTR like
+             * iOS, until RTL layouts get a proper QA pass.
+             */
+            supportsRTL: false,
+          },
+        ],
+        'expo-web-browser',
+        'expo-background-task',
+        /*
+         * Mods run in reverse registration order. Register the system bars
+         * plugin before expo-navigation-bar, which removes
+         * `android:windowLightNavigationBar` when no `style` is set.
+         */
+        './plugins/withAndroidStylesSystemBarsPlugin.js',
+        ['expo-navigation-bar', {enforceContrast: false}],
+        /*
+         * Expo runs Gradle mods in reverse registration order. Keep Bitdrift
+         * before Sentry so its plugins block is prepended after Sentry's apply
+         * statement and remains at the top, as required by Gradle.
+         */
+        [
+          '@bitdrift/react-native',
+          {
+            networkInstrumentation: true,
+          },
         ],
         ...(USE_SENTRY
           ? [
@@ -271,6 +348,9 @@ module.exports = function (_config) {
                   organization: 'blacksky-algorithms',
                   project: 'social-app',
                   url: 'https://sentry.io',
+                  experimental_android: {
+                    enableAndroidGradlePlugin: true,
+                  },
                 },
               ]),
             ]
@@ -279,7 +359,7 @@ module.exports = function (_config) {
           'expo-build-properties',
           {
             ios: {
-              deploymentTarget: '15.1',
+              deploymentTarget: '16.4',
               buildReactNativeFromSource: true,
               ccacheEnabled: IS_DEV,
               cxxLanguageStandard: 'c++23',
@@ -292,10 +372,11 @@ module.exports = function (_config) {
               ],
             },
             android: {
-              compileSdkVersion: 36,
+              compileSdkVersion: 37,
               targetSdkVersion: 36,
-              buildToolsVersion: '36.0.0',
-              buildReactNativeFromSource: IS_PRODUCTION,
+              buildToolsVersion: '37.0.0',
+              buildReactNativeFromSource: true,
+              enableMinifyInReleaseBuilds: true,
             },
           },
         ],
@@ -307,40 +388,57 @@ module.exports = function (_config) {
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
-        'react-native-compressor',
-        [
-          '@bitdrift/react-native',
-          {
-            networkInstrumentation: true,
-          },
-        ],
         './plugins/withIosEmbeddedBuildVersions.js',
         './plugins/starterPackAppClipExtension/withStarterPackAppClip.js',
         './plugins/withGradleJVMHeapSizeIncrease.js',
         './plugins/withAndroidManifestLargeHeapPlugin.js',
         './plugins/withAndroidManifestFCMIconPlugin.js',
         './plugins/withAndroidManifestIntentQueriesPlugin.js',
+        [
+          './plugins/withAndroidManifestSharePlatformQueriesPlugin.js',
+          {
+            packages: SHARE_PLATFORM_QUERIES.androidPackages,
+            schemes: SHARE_PLATFORM_QUERIES.androidSchemes,
+          },
+        ],
+        './plugins/withAndroidManifestOptionalCameraPlugin.js',
         './plugins/withAndroidStylesAccentColorPlugin.js',
         './plugins/withAndroidNoJitpackPlugin.js',
         './plugins/withIosCppLanguageStandard.js',
+        './plugins/withAndroidPreparedTextLayoutPlugin.js',
+        './plugins/withAndroidComposeVersion.js',
+        './plugins/withIOSWindowingControlStyle.js',
         './plugins/shareExtension/withShareExtensions.js',
         './plugins/notificationsExtension/withNotificationsExtension.js',
         [
           'expo-font',
           {
-            fonts: [
-              './assets/fonts/inter/InterVariable.woff2',
-              './assets/fonts/inter/InterVariable-Italic.woff2',
-              // Android only
-              './assets/fonts/inter/Inter-Regular.otf',
-              './assets/fonts/inter/Inter-Italic.otf',
-              './assets/fonts/inter/Inter-Medium.otf',
-              './assets/fonts/inter/Inter-MediumItalic.otf',
-              './assets/fonts/inter/Inter-SemiBold.otf',
-              './assets/fonts/inter/Inter-SemiBoldItalic.otf',
-              './assets/fonts/inter/Inter-Bold.otf',
-              './assets/fonts/inter/Inter-BoldItalic.otf',
-            ],
+            ios: {
+              /*
+               * Uncompressed TTF rather than WOFF2: iOS decompresses WOFF2
+               * fonts on every launch, which took ~200 ms of the startup
+               * critical path. These are the same Inter 4.001 fonts as the
+               * WOFF2 files used on web.
+               */
+              fonts: [
+                './assets/fonts/inter/InterVariable.ttf',
+                './assets/fonts/inter/InterVariable-Italic.ttf',
+              ],
+            },
+            android: {
+              fonts: [
+                './assets/fonts/inter/InterVariable.woff2',
+                './assets/fonts/inter/InterVariable-Italic.woff2',
+                './assets/fonts/inter/Inter-Regular.otf',
+                './assets/fonts/inter/Inter-Italic.otf',
+                './assets/fonts/inter/Inter-Medium.otf',
+                './assets/fonts/inter/Inter-MediumItalic.otf',
+                './assets/fonts/inter/Inter-SemiBold.otf',
+                './assets/fonts/inter/Inter-SemiBoldItalic.otf',
+                './assets/fonts/inter/Inter-Bold.otf',
+                './assets/fonts/inter/Inter-BoldItalic.otf',
+              ],
+            },
           },
         ],
         [
@@ -388,8 +486,19 @@ module.exports = function (_config) {
             },
           },
         ],
-        ['expo-screen-orientation', {initialOrientation: 'PORTRAIT_UP'}],
-        ['expo-location'],
+        ['expo-screen-orientation'],
+        [
+          'expo-location',
+          {
+            locationWhenInUsePermission:
+              'Blacksky uses your approximate location via GPS to determine the content and features available in your region.',
+            locationAlwaysAndWhenInUsePermission: false,
+            locationAlwaysPermission: false,
+            motionUsagePermission: false,
+            locationFullAccuracyPermission: false,
+            isIosReducedAccuracyByDefault: true,
+          },
+        ],
         [
           'expo-contacts',
           {
@@ -426,6 +535,17 @@ module.exports = function (_config) {
                   {
                     targetName: 'BlackskyClip',
                     bundleIdentifier: 'community.blacksky.app.AppClip',
+                    parentBundleIdentifier: 'community.blacksky.app',
+                    entitlements: {
+                      'com.apple.security.application-groups': [
+                        'group.community.blacksky.app',
+                      ],
+                      'com.apple.developer.parent-application-identifiers': [
+                        '$(AppIdentifierPrefix)community.blacksky.app',
+                      ],
+                      'com.apple.developer.associated-domains':
+                        ASSOCIATED_DOMAINS,
+                    },
                   },
                 ],
               },
@@ -433,6 +553,10 @@ module.exports = function (_config) {
           },
           projectId: '680dd4a3-7b77-4a43-8f10-f14617b73b9b',
         },
+      },
+      experiments: {
+        baseUrl: '/static',
+        buildCacheProvider: 'eas',
       },
     },
   }

@@ -1,7 +1,8 @@
 import {type OAuthSession, TokenRefreshError} from '@atproto/oauth-client'
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 
-import {oauthResumeSessionWithRetry, withTimeout} from '../oauth-agent'
+import {com} from '#/lexicons'
+import {resumeOAuthSessionBundleWithRetry, withTimeout} from '../oauth-agent'
 import {emitOauthTelemetry} from '../oauth-telemetry'
 import {type SessionAccount} from '../types'
 
@@ -17,11 +18,6 @@ jest.mock('@atproto/oauth-client-expo', () => {
     },
   }
 })
-
-jest.mock('@atproto/lexicon', () => ({
-  ...jest.requireActual<object>('@atproto/lexicon'),
-  jsonStringToLex: (str: string): unknown => JSON.parse(str),
-}))
 
 jest.mock('../moderation', () => ({
   configureModerationForAccount: () => Promise.resolve(),
@@ -82,7 +78,7 @@ const degradedEvents = () =>
     .mock.calls.map(([event]) => event)
     .filter(event => event.type === 'oauth:sessionResumeDegraded')
 
-describe('oauthResumeSessionWithRetry', () => {
+describe('resumeOAuthSessionBundleWithRetry', () => {
   beforeEach(() => {
     mockRestore.mockReset()
     jest.mocked(emitOauthTelemetry).mockClear()
@@ -99,7 +95,10 @@ describe('oauthResumeSessionWithRetry', () => {
       .mockResolvedValueOnce(okSession())
     mockRestore.mockResolvedValue(fakeSession(fetchHandler))
 
-    const {account} = await oauthResumeSessionWithRetry(storedAccount, true)
+    const {account} = await resumeOAuthSessionBundleWithRetry(
+      storedAccount,
+      true,
+    )
 
     expect(account.handle).toBe('alice.fresh')
     expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -114,7 +113,7 @@ describe('oauthResumeSessionWithRetry', () => {
       .mockResolvedValueOnce(okSession())
     mockRestore.mockResolvedValue(fakeSession(fetchHandler))
 
-    const {account, agent} = await oauthResumeSessionWithRetry(
+    const {account, bundle} = await resumeOAuthSessionBundleWithRetry(
       storedAccount,
       true,
     )
@@ -128,7 +127,7 @@ describe('oauthResumeSessionWithRetry', () => {
       },
     ])
 
-    const {data} = await agent.com.atproto.server.getSession()
+    const data = await bundle.pdsClient.call(com.atproto.server.getSession, {})
     expect(data.handle).toBe('alice.fresh')
     expect(mockRestore).toHaveBeenCalledTimes(3)
   })
@@ -137,7 +136,7 @@ describe('oauthResumeSessionWithRetry', () => {
     jest.useFakeTimers()
     mockRestore.mockReturnValue(new Promise<OAuthSession>(() => {}))
 
-    const resumed = oauthResumeSessionWithRetry(storedAccount, true)
+    const resumed = resumeOAuthSessionBundleWithRetry(storedAccount, true)
     await jest.advanceTimersByTimeAsync(10_000)
     const {account} = await resumed
 
@@ -157,7 +156,10 @@ describe('oauthResumeSessionWithRetry', () => {
     async (error, message, errorCategory) => {
       mockRestore.mockResolvedValue(fakeSession(dpopError(error, message)))
 
-      const {account} = await oauthResumeSessionWithRetry(storedAccount, true)
+      const {account} = await resumeOAuthSessionBundleWithRetry(
+        storedAccount,
+        true,
+      )
 
       expect(account).toEqual(storedAccount)
       expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -177,7 +179,7 @@ describe('oauthResumeSessionWithRetry', () => {
     )
 
     await expect(
-      oauthResumeSessionWithRetry(storedAccount, true),
+      resumeOAuthSessionBundleWithRetry(storedAccount, true),
     ).rejects.toThrow(message)
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])
@@ -186,7 +188,10 @@ describe('oauthResumeSessionWithRetry', () => {
   it('keeps the stored account when the token refresh request fails', async () => {
     mockRestore.mockRejectedValue(new TypeError('Network request failed'))
 
-    const {account} = await oauthResumeSessionWithRetry(storedAccount, true)
+    const {account} = await resumeOAuthSessionBundleWithRetry(
+      storedAccount,
+      true,
+    )
 
     expect(account).toEqual(storedAccount)
     expect(mockRestore).toHaveBeenCalledTimes(2)
@@ -202,9 +207,9 @@ describe('oauthResumeSessionWithRetry', () => {
       ),
     )
 
-    await expect(oauthResumeSessionWithRetry(storedAccount)).rejects.toThrow(
-      'NotEnoughResources',
-    )
+    await expect(
+      resumeOAuthSessionBundleWithRetry(storedAccount),
+    ).rejects.toThrow('NotEnoughResources')
     expect(mockRestore).toHaveBeenCalledTimes(2)
     expect(degradedEvents()).toEqual([])
   })
@@ -215,7 +220,7 @@ describe('oauthResumeSessionWithRetry', () => {
     )
 
     await expect(
-      oauthResumeSessionWithRetry(storedAccount, true),
+      resumeOAuthSessionBundleWithRetry(storedAccount, true),
     ).rejects.toThrow('Refresh token replayed')
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])
@@ -234,7 +239,7 @@ describe('oauthResumeSessionWithRetry', () => {
     )
 
     await expect(
-      oauthResumeSessionWithRetry(storedAccount, true),
+      resumeOAuthSessionBundleWithRetry(storedAccount, true),
     ).rejects.toThrow('Account has been taken down')
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])
@@ -249,7 +254,7 @@ describe('oauthResumeSessionWithRetry', () => {
     )
 
     await expect(
-      oauthResumeSessionWithRetry(storedAccount, true),
+      resumeOAuthSessionBundleWithRetry(storedAccount, true),
     ).rejects.toThrow()
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])
@@ -268,7 +273,7 @@ describe('oauthResumeSessionWithRetry', () => {
     )
 
     await expect(
-      oauthResumeSessionWithRetry(storedAccount, true),
+      resumeOAuthSessionBundleWithRetry(storedAccount, true),
     ).rejects.toThrow('The session was deleted by another process')
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])

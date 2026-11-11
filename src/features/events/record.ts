@@ -1,4 +1,4 @@
-import {type ComAtprotoLabelDefs} from '@atproto/api'
+import {type com} from '#/lexicons'
 
 export type EventMode = 'inperson' | 'virtual' | 'hybrid'
 
@@ -147,7 +147,7 @@ const HIDE_COVER_LABELS = new Set([
 
 export function coverUrl(event: {
   thumb?: string
-  labels?: ComAtprotoLabelDefs.Label[]
+  labels?: com.atproto.label.defs.Label[]
 }): string | undefined {
   if (event.labels?.some(label => HIDE_COVER_LABELS.has(label.val))) return
   return event.thumb

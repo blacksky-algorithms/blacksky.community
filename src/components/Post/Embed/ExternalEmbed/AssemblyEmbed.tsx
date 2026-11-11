@@ -1,10 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {Image, Pressable, StyleSheet, View} from 'react-native'
-import {
-  type AppBskyEmbedExternal,
-  type AppBskyRichtextFacet,
-  RichText,
-} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {assemblyReportUrl, assemblyUrl} from '#/lib/api/assembly'
@@ -12,12 +8,13 @@ import {pollTopicFromText, type PollVoteValue} from '#/lib/api/poll'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
 import {expandLinks} from '#/lib/strings/rich-text-manip'
-import {useAgent, useSession} from '#/state/session'
+import {usePdsClient, useSession} from '#/state/session'
 import {Logo as BlackskyLogo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {ASSEMBLY_URL} from '#/env'
+import {type app, com} from '#/lexicons'
 import {VoteButtons} from './VoteButtons'
 
 const ASSEMBLY_API = `${ASSEMBLY_URL.replace(/\/+$/, '')}/api/v3`
@@ -74,7 +71,7 @@ interface VoteResponse {
 function repeatsTopic(
   topic: string,
   text: string | undefined,
-  facets: AppBskyRichtextFacet.Main[] | undefined,
+  facets: app.bsky.richtext.facet.Main[] | undefined,
 ): boolean {
   if (!text) return false
   if (pollTopicFromText(text) === topic) return true
@@ -99,16 +96,16 @@ export function AssemblyEmbed({
   postFacets,
   postUri,
 }: {
-  link: AppBskyEmbedExternal.ViewExternal
+  link: app.bsky.embed.external.ViewExternal
   params: EmbedPlayerParams
   postText?: string
-  postFacets?: AppBskyRichtextFacet.Main[]
+  postFacets?: app.bsky.richtext.facet.Main[]
   postUri?: string
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
   const ax = useAnalytics()
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
   const openLink = useOpenLink()
   const {currentAccount} = useSession()
   const conversationId = extractConversationId(link.uri)
@@ -213,21 +210,24 @@ export function AssemblyEmbed({
         const vote = VOTE_NUMBERS[value]
         let voteAtUri: string | undefined
 
-        if (agent.session && statement.at_uri && statement.at_cid) {
-          const createResult = await agent.com.atproto.repo.createRecord({
-            repo: agent.assertDid,
-            collection: 'community.blacksky.assembly.vote',
-            record: {
-              $type: 'community.blacksky.assembly.vote',
-              subject: {
-                uri: statement.at_uri,
-                cid: statement.at_cid,
+        if (pdsClient.did && statement.at_uri && statement.at_cid) {
+          const createResult = await pdsClient.call(
+            com.atproto.repo.createRecord,
+            {
+              repo: pdsClient.assertDid,
+              collection: 'community.blacksky.assembly.vote',
+              record: {
+                $type: 'community.blacksky.assembly.vote',
+                subject: {
+                  uri: statement.at_uri,
+                  cid: statement.at_cid,
+                },
+                value: vote,
+                createdAt: new Date().toISOString(),
               },
-              value: vote,
-              createdAt: new Date().toISOString(),
             },
-          })
-          voteAtUri = createResult.data.uri
+          )
+          voteAtUri = createResult.uri
         }
 
         const voteHeaders: Record<string, string> = {
@@ -285,7 +285,15 @@ export function AssemblyEmbed({
         setVoting(false)
       }
     },
-    [agent, ax, statement, conversationId, voting, participationToken, postUri],
+    [
+      pdsClient,
+      ax,
+      statement,
+      conversationId,
+      voting,
+      participationToken,
+      postUri,
+    ],
   )
 
   const onVote = useCallback(

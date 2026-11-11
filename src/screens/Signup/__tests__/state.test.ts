@@ -84,7 +84,7 @@ it('keeps provider metadata when reselecting the current community', () => {
     serviceUrl: 'https://example.com',
     userDomain: '.example.com',
     serviceDescription: {
-      did: 'did:web:example.com',
+      did: 'did:web:example.com' as const,
       availableUserDomains: ['.example.com'],
     },
   }
@@ -142,4 +142,10 @@ it('preserves a submission error when routing back to the field that needs corre
   const next = reducer(error, {type: 'setStep', value: SignupStep.HANDLE})
   expect(next.error).toBe('Handle unavailable')
   expect(next.errorField).toBe('handle')
+})
+
+it('starts the birth date twenty years back, so the read-only row has a date to show and edit', () => {
+  const birth = initialState.dateOfBirth
+  expect(birth).toBeInstanceOf(Date)
+  expect(new Date().getFullYear() - (birth as Date).getFullYear()).toBe(20)
 })

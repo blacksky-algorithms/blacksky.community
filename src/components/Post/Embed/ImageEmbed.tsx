@@ -1,8 +1,7 @@
 import {useRef} from 'react'
-import {InteractionManager, View} from 'react-native'
+import {View} from 'react-native'
 import {type AnimatedRef} from 'react-native-reanimated'
 import {Image} from 'expo-image'
-import {AppBskyEmbedGallery, type AppBskyEmbedImages} from '@atproto/api'
 
 import {atoms as a, tokens} from '#/alf'
 import {AutoSizedImage} from '#/components/images/AutoSizedImage'
@@ -16,6 +15,8 @@ import {type Dimensions} from '#/components/Lightbox/types'
 import {ImageContextMenu} from '#/components/Post/Embed/ImageContextMenu'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {useAnalytics} from '#/analytics'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {type EmbedType} from '#/types/bsky/post'
 import {type CommonProps} from './types'
 
@@ -29,10 +30,10 @@ export function ImageEmbed({
 }) {
   const ax = useAnalytics()
   const {openLightbox} = useLightboxControls()
-  const images: AppBskyEmbedImages.ViewImage[] =
+  const images: app.bsky.embed.images.ViewImage[] =
     embed.type === 'gallery'
       ? (Array.isArray(embed.view.items) ? embed.view.items : [])
-          .filter(AppBskyEmbedGallery.isViewImage)
+          .filter(item => bsky.isType(app.bsky.embed.gallery.viewImage, item))
           .map(item => ({
             thumb: item.thumbnail,
             fullsize: item.fullsize,
@@ -77,6 +78,7 @@ export function ImageEmbed({
       index: number,
       refs: AnimatedRef[],
       fetchedDims: (Dimensions | null)[],
+      onIndexChange?: (index: number) => void,
     ) => {
       if (postContext) {
         ax.metric('post:photoEmbed:open', {
@@ -97,10 +99,11 @@ export function ImageEmbed({
         })),
         index,
         metricsContext,
+        onIndexChange,
       })
     }
     const onPressIn = (_: number) => {
-      InteractionManager.runAfterInteractions(() => {
+      setImmediate(() => {
         void Image.prefetch(
           items.map(i => i.uri),
           'memory',

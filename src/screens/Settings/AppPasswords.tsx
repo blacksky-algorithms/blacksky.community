@@ -6,7 +6,6 @@ import Animated, {
   LayoutAnimationConfig,
   LinearTransition,
 } from 'react-native-reanimated'
-import {type ComAtprotoServerListAppPasswords} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -16,6 +15,7 @@ import {useBrand} from '#/lib/community/BrandContext'
 import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
+import {formatDateTime} from '#/lib/strings/time'
 import {
   type GatekeeperConfig,
   useAppPasswordDeleteMutation,
@@ -39,6 +39,7 @@ import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {type com} from '#/lexicons'
 import {AddAppPasswordDialog} from './components/AddAppPasswordDialog'
 import * as SettingsList from './components/SettingsList'
 
@@ -233,7 +234,7 @@ function AppPasswordCard({
   appPassword,
   gatekeeper,
 }: {
-  appPassword: ComAtprotoServerListAppPasswords.AppPassword
+  appPassword: com.atproto.server.listAppPasswords.AppPassword
   gatekeeper?: GatekeeperConfig
 }) {
   const t = useTheme()
@@ -272,7 +273,7 @@ function AppPasswordCard({
           <Text style={[t.atoms.text_contrast_medium]}>
             <Trans>
               Created{' '}
-              {i18n.date(appPassword.createdAt, {
+              {formatDateTime(i18n, appPassword.createdAt, {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',

@@ -25,6 +25,7 @@ import {
   GroupInviteClientError,
   GroupInviteError,
 } from '#/lib/api/group-invites'
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {logger} from '#/logger'
 import {
@@ -127,7 +128,9 @@ export function GroupInviteDialogContent({code}: {code?: string}) {
     maybeFailGroupInviteE2E('navigation')
     setSelectedFeed(`feedgen|${feed.uri}`)
     groupInviteDialogControl.close()
-    navigation.navigate('HomeTab')
+    navigation.dispatch(
+      getHomeNavigationAction(navigation.getState(), 'navigate'),
+    )
   }, [
     acceptance,
     groupInviteDialogControl,

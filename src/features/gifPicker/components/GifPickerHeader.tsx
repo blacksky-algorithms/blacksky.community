@@ -11,16 +11,16 @@ import {PoweredByGiphy} from '#/features/gifPicker/components/PoweredByGiphy'
 
 export function GifPickerHeader({
   inputRef,
+  value,
   onChangeText,
   onClear,
   onEscape,
-  canClear,
 }: {
-  inputRef: Ref<TextInput>
+  inputRef: Ref<React.ComponentRef<typeof TextInput>>
+  value: string
   onChangeText: (text: string) => void
   onClear: () => void
   onEscape: () => void
-  canClear: boolean
 }) {
   const {t: l} = useLingui()
   const t = useTheme()
@@ -40,6 +40,7 @@ export function GifPickerHeader({
               message: 'Search GIFs',
               comment: 'Placeholder text inside the GIF search input.',
             })}
+            value={value}
             onChangeText={onChangeText}
             returnKeyType="search"
             inputRef={inputRef}
@@ -50,7 +51,7 @@ export function GifPickerHeader({
               }
             }}
           />
-          {canClear && (
+          {value.length > 0 && (
             <Button
               size="tiny"
               color="secondary"

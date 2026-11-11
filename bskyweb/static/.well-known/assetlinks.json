@@ -10,5 +10,19 @@
         "24:1A:0B:2D:D4:CF:EA:21:CC:BD:11:A9:34:19:62:42:51:6A:51:E2:5A:F1:A6:46:98:28:2E:4D:4D:20:CF:EB"
         ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "https://bsky.app"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "https://bsky.social"
+    }
   }
 ]

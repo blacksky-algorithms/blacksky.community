@@ -1,8 +1,11 @@
-import {AtpAgent, XRPCError} from '@atproto/api'
+import {type DidString, type HandleString} from '@atproto/syntax'
 
 import {BSKY_SERVICE, PUBLIC_BSKY_SERVICE} from '#/lib/constants'
+import {createServiceClient} from '#/lib/lexClient'
 import {isNetworkError} from '#/lib/strings/errors'
 import {buildHandleCandidates} from '#/lib/strings/handles'
+import {getErrorStatus} from '#/lib/xrpc-error'
+import {com} from '#/lexicons'
 
 export function isHandleResolutionError(e: unknown): boolean {
   if (e && typeof e === 'object' && 'name' in e) {
@@ -24,10 +27,12 @@ export async function resolveBareNameToHandles(
   availableUserDomains?: string[],
 ): Promise<string[]> {
   const candidates = buildHandleCandidates(name, availableUserDomains)
-  const appview = new AtpAgent({service: PUBLIC_BSKY_SERVICE})
+  const appview = createServiceClient(PUBLIC_BSKY_SERVICE)
   const results = await Promise.allSettled(
     candidates.map(handle =>
-      appview.com.atproto.identity.resolveHandle({handle}),
+      appview.call(com.atproto.identity.resolveHandle, {
+        handle: handle as HandleString,
+      }),
     ),
   )
   const matches = candidates.filter((_, i) => results[i].status === 'fulfilled')
@@ -48,27 +53,29 @@ export async function resolveDeactivatedHandle(
   if (identifier.startsWith('did:')) {
     return identifier
   }
-  const appview = new AtpAgent({service: PUBLIC_BSKY_SERVICE})
+  const appview = createServiceClient(PUBLIC_BSKY_SERVICE)
   let did: string
   try {
-    const res = await appview.com.atproto.identity.resolveHandle({
-      handle: identifier,
+    const res = await appview.call(com.atproto.identity.resolveHandle, {
+      handle: identifier as HandleString,
     })
-    did = res.data.did
+    did = res.did
   } catch (e) {
     if (isNetworkError(e)) throw e
     throw new Error('Unable to resolve handle')
   }
 
-  const pds = new AtpAgent({service: BSKY_SERVICE})
+  const pds = createServiceClient(BSKY_SERVICE)
   let active: boolean | undefined
   let status: string | undefined
   try {
-    const res = await pds.com.atproto.sync.getRepoStatus({did})
-    active = res.data.active
-    status = res.data.status
+    const res = await pds.call(com.atproto.sync.getRepoStatus, {
+      did: did as DidString,
+    })
+    active = res.active
+    status = res.status
   } catch (e) {
-    if (e instanceof XRPCError && e.status === 404) {
+    if (getErrorStatus(e) === 404) {
       return did
     }
     if (isNetworkError(e)) throw e

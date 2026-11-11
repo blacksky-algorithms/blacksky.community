@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react'
-import {Pressable, StyleSheet, useWindowDimensions, View} from 'react-native'
+import {Pressable, useWindowDimensions, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import Svg, {Path} from 'react-native-svg'
 import {
@@ -10,7 +10,10 @@ import {
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
-import {type NavigationProp} from '#/lib/routes/types'
+import {
+  type CommonNavigatorParams,
+  type NavigationProp,
+} from '#/lib/routes/types'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeftIcon} from '#/components/icons/Arrow'
@@ -27,7 +30,8 @@ export function InviteScannerScreen() {
   const t = useTheme()
   const ax = useAnalytics()
   const insets = useSafeAreaInsets()
-  const navigation = useNavigation<NavigationProp>()
+  const navigation =
+    useNavigation<NavigationProp<CommonNavigatorParams, 'InviteScanner'>>()
   const [permission, requestPermission] = useCameraPermissions()
   const [showError, setShowError] = useState(false)
   const [scannerEnabled, setScannerEnabled] = useState(true)
@@ -126,7 +130,7 @@ export function InviteScannerScreen() {
       noInsetTop
       style={{backgroundColor: t.palette.black}}>
       <CameraView
-        style={StyleSheet.absoluteFill}
+        style={[a.absolute, a.inset_0]}
         facing="back"
         barcodeScannerSettings={{barcodeTypes: ['qr']}}
         onBarcodeScanned={scannerEnabled ? onBarcodeScanned : undefined}
@@ -255,7 +259,7 @@ function ScannerScrim() {
     `V${y + r} A${r} ${r} 0 0 1 ${x + r} ${y} Z`
   return (
     <Svg
-      style={StyleSheet.absoluteFill}
+      style={[a.absolute, a.inset_0]}
       width={width}
       height={height}
       pointerEvents="none">

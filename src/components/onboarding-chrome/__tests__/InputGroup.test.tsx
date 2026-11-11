@@ -205,7 +205,7 @@ describe('InputGroup', () => {
   })
 
   it('forwards a ref to the underlying TextInput', () => {
-    const ref = createRef<TextInput>()
+    const ref = createRef<React.ComponentRef<typeof TextInput>>()
     renderWithI18n(
       <InputGroup label="Email" value="" onChangeText={jest.fn()} ref={ref} />,
     )

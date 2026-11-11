@@ -8,17 +8,24 @@ import {linkWarningContents} from '../html/linkWarningContents.js'
 import {linkWarningLayout} from '../html/linkWarningLayout.js'
 import {trackLinkEvent} from '../linkEvents.js'
 import {redirectLogger} from '../logger.js'
-import {handler} from './util.js'
+import {observedHandler} from './util.js'
 
 const INTERNAL_IP_REGEX = new RegExp(
   '(^127.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$)|(^10.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$)|(^172.1[6-9]{1}[0-9]{0,1}.[0-9]{1,3}.[0-9]{1,3}$)|(^172.2[0-9]{1}[0-9]{0,1}.[0-9]{1,3}.[0-9]{1,3}$)|(^172.3[0-1]{1}[0-9]{0,1}.[0-9]{1,3}.[0-9]{1,3}$)|(^192.168.[0-9]{1,3}.[0-9]{1,3}$)|^localhost',
   'i',
 )
 
+/**
+ * Only plain string query params are tracked, since repeated or nested params
+ * parse to arrays or objects.
+ */
+const queryString = (value: unknown) =>
+  typeof value === 'string' ? value : undefined
+
 export default function (ctx: AppContext, app: Express) {
   return app.get(
     '/redirect',
-    handler(async (req, res) => {
+    observedHandler('redirect', async (req, res) => {
       let link = req.query.u
       assert(
         typeof link === 'string',
@@ -100,11 +107,11 @@ export default function (ctx: AppContext, app: Express) {
         whitelisted,
         blocked,
         warned,
-        utm_source: req.query.utm_source?.toString(),
-        utm_medium: req.query.utm_medium?.toString(),
-        utm_campaign: req.query.utm_campaign?.toString(),
-        utm_content: req.query.utm_content?.toString(),
-        utm_term: req.query.utm_term?.toString(),
+        utm_source: queryString(req.query.utm_source),
+        utm_medium: queryString(req.query.utm_medium),
+        utm_campaign: queryString(req.query.utm_campaign),
+        utm_content: queryString(req.query.utm_content),
+        utm_term: queryString(req.query.utm_term),
       })
 
       await trackLinkEvent(ctx, {

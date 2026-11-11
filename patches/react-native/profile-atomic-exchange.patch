@@ -1,0 +1,22 @@
+diff --git a/React/Profiler/RCTProfile.m b/React/Profiler/RCTProfile.m
+index 47e2c86..0fa82e1 100644
+--- a/React/Profiler/RCTProfile.m
++++ b/React/Profiler/RCTProfile.m
+@@ -448,7 +448,7 @@ BOOL RCTProfileIsProfiling(void)
+ void RCTProfileInit(RCTBridge *bridge)
+ {
+   // TODO: enable assert JS thread from any file (and assert here)
+-  BOOL wasProfiling = atomic_fetch_or(&RCTProfileProfiling, 1);
++  BOOL wasProfiling = atomic_exchange(&RCTProfileProfiling, 1);
+   if (wasProfiling) {
+     return;
+   }
+@@ -493,7 +493,7 @@ void RCTProfileInit(RCTBridge *bridge)
+ void RCTProfileEnd(RCTBridge *bridge, void (^callback)(NSString *))
+ {
+   // assert JavaScript thread here again
+-  BOOL wasProfiling = atomic_fetch_and(&RCTProfileProfiling, 0);
++  BOOL wasProfiling = atomic_exchange(&RCTProfileProfiling, 0);
+   if (!wasProfiling) {
+     return;
+   }

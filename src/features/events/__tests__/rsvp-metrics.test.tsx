@@ -10,15 +10,18 @@ jest.mock('#/analytics', () => ({
   useAnalytics: () => ({metric: mockMetric}),
 }))
 jest.mock('#/state/session', () => ({
-  useAgent: () => ({
-    com: {
-      atproto: {
-        repo: {
-          createRecord: mockCreateRecord,
-          putRecord: mockPutRecord,
-          deleteRecord: mockDeleteRecord,
-        },
-      },
+  usePdsClient: () => ({
+    call: (method: unknown, input: unknown) => {
+      const {com} =
+        jest.requireActual<typeof import('#/lexicons')>('#/lexicons')
+      if (method === com.atproto.repo.createRecord) {
+        return mockCreateRecord(input)
+      }
+      if (method === com.atproto.repo.putRecord) return mockPutRecord(input)
+      if (method === com.atproto.repo.deleteRecord) {
+        return mockDeleteRecord(input)
+      }
+      throw new Error('unexpected call')
     },
   }),
   useSession: () => ({currentAccount: {did: 'did:plc:me'}}),
@@ -67,8 +70,8 @@ async function rsvp(
 describe('RSVP metrics', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockCreateRecord.mockResolvedValue({data: {uri: RSVP_URI}})
-    mockPutRecord.mockResolvedValue({data: {uri: RSVP_URI}})
+    mockCreateRecord.mockResolvedValue({uri: RSVP_URI})
+    mockPutRecord.mockResolvedValue({uri: RSVP_URI})
     mockDeleteRecord.mockResolvedValue({})
   })
 

@@ -1,5 +1,6 @@
 import {useMemo} from 'react'
-import {AtpAgent, interpretLabelValueDefinitions} from '@atproto/api'
+import {Client} from '@atproto/lex'
+import {interpretLabelValueDefinitions} from '@bsky/sdk/moderation'
 
 import {withAdultContentBehavior} from '#/lib/moderation/adult-content-labels'
 import {isNonConfigurableModerationAuthority} from '#/state/session/additional-moderation-authorities'
@@ -14,7 +15,7 @@ export function useMyLabelersQuery({
   const prefs = usePreferencesQuery()
   let dids = Array.from(
     new Set(
-      AtpAgent.appLabelers.concat(
+      (Client.appLabelers as readonly string[]).concat(
         prefs.data?.moderationPrefs.labelers.map(l => l.did) || [],
       ),
     ),

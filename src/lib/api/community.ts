@@ -1,17 +1,30 @@
-import {
-  type AppBskyFeedGetLikes,
-  type AppBskyFeedGetQuotes,
-  type BskyAgent,
-  jsonToLex,
-} from '@atproto/api'
+import {Client, jsonToLex, lexStringify} from '@atproto/lex'
+import {type AtUriString} from '@atproto/syntax'
 
 import {HOME_PROXY_HEADER} from '#/lib/constants'
+import {type app} from '#/lexicons'
 import {toPostView} from './space-views'
 
 export type CommunityXrpcParam = string | number | boolean
 
+/*
+ * A raw request skips the client's own header construction, so the moderation
+ * authorities it would have sent are added here in the same form.
+ */
+function acceptLabelers(client: Client): string | undefined {
+  const appLabelers =
+    client.xrpcDefaults.appLabelers === undefined
+      ? Client.appLabelers
+      : client.xrpcDefaults.appLabelers
+  const labelers = [
+    ...Array.from(appLabelers ?? [], did => `${did};redact`),
+    ...client.labelers,
+  ]
+  return labelers.length > 0 ? labelers.join(', ') : undefined
+}
+
 export async function communityXrpc(
-  agent: BskyAgent,
+  client: Client,
   method: string,
   opts?: {
     params?: Record<
@@ -33,12 +46,16 @@ export async function communityXrpc(
   }
   const encodedParams = searchParams.toString()
   const qs = encodedParams ? `?${encodedParams}` : ''
-  const path = `/xrpc/${method}${qs}`
+  const path = `/xrpc/${method}${qs}` as const
 
   const headers: Record<string, string> = {
     'atproto-proxy': opts?.serviceDid
       ? `${opts.serviceDid}#bsky_appview`
       : HOME_PROXY_HEADER,
+  }
+  const labelers = acceptLabelers(client)
+  if (labelers) {
+    headers['atproto-accept-labelers'] = labelers
   }
   const init: RequestInit = {
     method: opts?.body ? 'POST' : 'GET',
@@ -46,17 +63,18 @@ export async function communityXrpc(
   }
   if (opts?.body) {
     headers['Content-Type'] = 'application/json'
-    init.body = JSON.stringify(opts.body)
+    // Blob references are CID objects, which plain JSON does not encode as links.
+    init.body = lexStringify(opts.body)
   }
-  return agent.fetchHandler(path, init)
+  return client.agent.fetchHandler(path, init)
 }
 
 export async function getSpacePostLikes(
-  agent: BskyAgent,
+  client: Client,
   params: {uri: string; limit: number; cursor?: string},
-): Promise<AppBskyFeedGetLikes.OutputSchema> {
+): Promise<app.bsky.feed.getLikes.$OutputBody> {
   const response = await communityXrpc(
-    agent,
+    client,
     'community.blacksky.feed.getSpacePostLikes',
     {
       params: {
@@ -69,15 +87,15 @@ export async function getSpacePostLikes(
   if (!response.ok) {
     throw new Error(`getSpacePostLikes ${response.status}`)
   }
-  return jsonToLex(await response.json()) as AppBskyFeedGetLikes.OutputSchema
+  return jsonToLex(await response.json()) as app.bsky.feed.getLikes.$OutputBody
 }
 
 export async function getSpacePostQuotes(
-  agent: BskyAgent,
+  client: Client,
   params: {uri: string; limit: number; cursor?: string},
-): Promise<AppBskyFeedGetQuotes.OutputSchema> {
+): Promise<app.bsky.feed.getQuotes.$OutputBody> {
   const response = await communityXrpc(
-    agent,
+    client,
     'community.blacksky.feed.getSpacePostQuotes',
     {
       params: {
@@ -95,12 +113,12 @@ export async function getSpacePostQuotes(
     posts?: unknown[]
   }
   return {
-    uri: params.uri,
+    uri: params.uri as AtUriString,
     cursor: data.cursor,
     posts: (data.posts ?? [])
       .map(toPostView)
       .filter(
-        (post): post is AppBskyFeedGetQuotes.OutputSchema['posts'][number] =>
+        (post): post is app.bsky.feed.getQuotes.$OutputBody['posts'][number] =>
           Boolean(post),
       ),
   }

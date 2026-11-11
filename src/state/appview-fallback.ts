@@ -1,5 +1,4 @@
 import {useSyncExternalStore} from 'react'
-import {type AtpAgent} from '@atproto/api'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {
@@ -28,23 +27,18 @@ export function subscribe(fn: () => void): () => void {
 
 // Pagination cursors are appview-specific: a cached page from one appview
 // must never be continued against the other, hence the cache reset on flip.
+// Appview clients read the target as each request goes out, so setting it here
+// is enough to move every live client.
 export function setFallbackActive(
   next: boolean,
-  agent: AtpAgent,
   queryClient: QueryClient,
   trigger: FallbackMode = 'auto',
 ): void {
-  const header = next ? BLUESKY_FALLBACK_PROXY_HEADER : HOME_PROXY_HEADER
-  if (next === active) {
-    // The agent instance may be newer than the last transition (session
-    // restore and account switches swap agents); keep it coherent even
-    // when the state itself is unchanged.
-    agent.configureProxy(header)
-    return
-  }
+  if (next === active) return
   active = next
-  BLUESKY_PROXY_HEADER.set(header)
-  agent.configureProxy(header)
+  BLUESKY_PROXY_HEADER.set(
+    next ? BLUESKY_FALLBACK_PROXY_HEADER : HOME_PROXY_HEADER,
+  )
   void queryClient.resetQueries()
   logger.info('appview fallback changed', {active: next, trigger})
   metrics.track('appviewFallback:changed', {active: next, trigger})

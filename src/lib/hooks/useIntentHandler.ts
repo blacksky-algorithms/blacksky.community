@@ -2,6 +2,7 @@ import {useCallback, useEffect} from 'react'
 import {Alert} from 'react-native'
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
+import {Referrer} from '@bsky.app/expo-bluesky-swiss-army'
 
 import {setPendingAppEntry} from '#/lib/appEntry'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
@@ -19,9 +20,13 @@ import {useSetActiveLanding} from '#/state/shell/landing'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useIntentDialogs} from '#/components/intents/IntentDialogs'
+import {getTrendingTopicFeedUri} from '#/components/TrendingTopics'
 import {useAnalytics} from '#/analytics'
 import {IS_IOS, IS_NATIVE} from '#/env'
-import {Referrer} from '../../../modules/expo-bluesky-swiss-army'
+import {
+  parseWidgetExploreClick,
+  parseWidgetTopicClick,
+} from '#/features/trendingWidget/links'
 import {useApplyPullRequestOTAUpdate} from './useOTAUpdates'
 
 type IntentType = 'compose' | 'verify-email' | 'age-assurance' | 'apply-ota'
@@ -49,6 +54,19 @@ export function useIntentHandler() {
       }
 
       const urlp = parseLinkingUrl(url)
+      const widgetTopicClick = parseWidgetTopicClick(urlp)
+      if (widgetTopicClick) {
+        ax.metric('trendingTopic:click', {
+          context: 'widget',
+          feedUri: getTrendingTopicFeedUri({link: widgetTopicClick.path}),
+          rank: widgetTopicClick.rank,
+          recId: widgetTopicClick.recId,
+        })
+      }
+      const widgetExploreClick = parseWidgetExploreClick(urlp)
+      if (widgetExploreClick) {
+        ax.metric('trendingWidget:explore:click', widgetExploreClick)
+      }
       const chatInviteMatch = urlp.pathname.match(CHAT_INVITE_CODE_REGEX)
       if (chatInviteMatch) {
         groupChatJoinIntent(chatInviteMatch[1], url)
@@ -131,7 +149,17 @@ export function useIntentHandler() {
         return
       }
       previousIntentUrl = url
-      void handleIncomingURL(url)
+      void handleIncomingURL(url).finally(() => {
+        /*
+         * expo-linking caches the URL that launched the app and replays it to
+         * every new `useLinkingURL`/`getLinkingURL` caller, so an account
+         * switch (which remounts the tree) or a runtime reload would hand us
+         * the same link again. Drop it now that it's been handled - this hook
+         * is the last consumer of the launch URL, everything else reads it
+         * while rendering, before this effect runs. No-op on web.
+         */
+        Linking.clearInitialURL()
+      })
     }
 
     const subscription = Linking.addEventListener('url', event => {

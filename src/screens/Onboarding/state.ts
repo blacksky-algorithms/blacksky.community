@@ -7,12 +7,7 @@ import {
 } from '#/screens/Onboarding/StepProfile/types'
 
 export type OnboardingScreen =
-  | 'profile'
-  | 'pin-feeds'
-  | 'belong'
-  | 'blacksky-only'
-  | 'assembly'
-  | 'finished'
+  'profile' | 'pin-feeds' | 'belong' | 'blacksky-only' | 'assembly' | 'finished'
 
 export type OnboardingState = {
   guidelinesAccepted: boolean

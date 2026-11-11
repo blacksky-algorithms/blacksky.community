@@ -1,8 +1,7 @@
-import {type AppBskyEmbedExternal} from '@atproto/api'
-
 import {Leaflet} from '#/components/icons/community/Leaflet'
 import {Offprint} from '#/components/icons/community/Offprint'
 import {Pckt} from '#/components/icons/community/Pckt'
+import {type app} from '#/lexicons'
 
 export type StandardSitePublisher = {
   host: string
@@ -25,7 +24,7 @@ function hostFromUri(uri: string | undefined): string | null {
 }
 
 export function getStandardSitePublisherHost(
-  view: AppBskyEmbedExternal.ViewExternal,
+  view: app.bsky.embed.external.ViewExternal,
 ): string | null {
   return hostFromUri(view.source?.uri)
 }
@@ -34,19 +33,20 @@ export function hostMatches(host: string, target: string): boolean {
   return host === target || host.endsWith('.' + target)
 }
 
-function matchByHost(host: string | null): StandardSitePublisher | null {
+function matchHostByDomain(url: string): StandardSitePublisher | null {
+  const host = hostFromUri(url)
   if (!host) return null
   return STANDARD_SITE_PUBLISHERS.find(p => hostMatches(host, p.host)) ?? null
 }
 
-export function matchStandardSitePublisher(
-  view: AppBskyEmbedExternal.ViewExternal,
+export function matchStandardSiteHostByPublication(
+  view: app.bsky.embed.external.ViewExternal,
 ): StandardSitePublisher | null {
-  return matchByHost(getStandardSitePublisherHost(view))
+  return matchHostByDomain(view.uri)
 }
 
-export function matchStandardSitePublisherByUri(
-  uri: string | undefined,
+export function matchStandardSiteHostByUrl(
+  url: string | undefined,
 ): StandardSitePublisher | null {
-  return matchByHost(hostFromUri(uri))
+  return matchHostByDomain(url || '')
 }

@@ -4,8 +4,9 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useFocusEffect, usePreventRemove} from '@react-navigation/native'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
-  type AllNavigatorParams,
+  type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {useEnableMinimalShellMode} from '#/state/shell'
@@ -17,7 +18,7 @@ import * as Layout from '#/components/Layout'
 import {ScreenTransition} from '#/components/ScreenTransition'
 import {IS_NATIVE} from '#/env'
 
-type Props = NativeStackScreenProps<AllNavigatorParams, 'FindContactsFlow'>
+type Props = NativeStackScreenProps<CommonNavigatorParams, 'FindContactsFlow'>
 export function FindContactsFlowScreen({navigation}: Props) {
   const {_} = useLingui()
 
@@ -28,7 +29,9 @@ export function FindContactsFlowScreen({navigation}: Props) {
   useFocusEffect(
     useCallback(() => {
       if (!findContactsEnabled) {
-        navigation.navigate('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'navigate'),
+        )
       }
     }, [findContactsEnabled, navigation]),
   )

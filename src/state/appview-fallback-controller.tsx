@@ -15,7 +15,7 @@ import {
   getThresholds,
   INITIAL_DECIDER_STATE,
 } from '#/state/appview-status'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 import {Features, features, init as featuresInit} from '#/analytics/features'
 
 const RECHECK_INTERVAL = 3 * 60e3
@@ -27,7 +27,7 @@ function getMode(): FallbackMode {
 }
 
 export function AppviewFallbackController() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const queryClient = useQueryClient()
   const {hasSession} = useSession()
   const deciderRef = useRef<DeciderState>(INITIAL_DECIDER_STATE)
@@ -41,7 +41,7 @@ export function AppviewFallbackController() {
     const epoch = ++epochRef.current
     const apply = (next: boolean, trigger?: FallbackMode) => {
       if (epoch !== epochRef.current) return
-      setFallbackActive(next, agent, queryClient, trigger)
+      setFallbackActive(next, queryClient, trigger)
     }
 
     // The flag defaults to 'auto' until GrowthBook has loaded; acting on that
@@ -75,9 +75,9 @@ export function AppviewFallbackController() {
       return
     }
 
-    const eligibility = await probeFallbackEligibility(agent)
+    const eligibility = await probeFallbackEligibility(client)
     apply(eligibility === 'eligible', mode)
-  }, [agent, queryClient, hasSession])
+  }, [client, queryClient, hasSession])
 
   useEffect(() => {
     void evaluate()

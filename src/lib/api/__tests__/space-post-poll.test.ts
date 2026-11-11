@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {resolveEmbed, resolveRT} from '../index'
@@ -28,7 +28,10 @@ const draft = (embed: Record<string, unknown>) => ({
 describe('posting a thread into a space', () => {
   it('refuses the whole thread before the first write when any post has a poll', async () => {
     await expect(
-      postToSpace({} as AtpAgent, {} as QueryClient, SPACE, {
+      postToSpace({} as QueryClient, SPACE, {
+        appviewClient: {} as Client,
+        chatClient: {} as Client,
+        pdsClient: {} as Client,
         thread: {
           posts: [draft({}), draft({poll: {statements: ['A']}})],
           postgate: {},

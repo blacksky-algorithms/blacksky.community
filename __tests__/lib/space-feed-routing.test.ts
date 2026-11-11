@@ -1,14 +1,7 @@
-// `jsonToLex` walks the body looking for CID links, and the multiformats CID
-// helper it uses does not load under jest's module resolution. Nothing here is
-// about CID inflation, so it is stubbed to a passthrough.
-jest.mock('@atproto/api', () => ({
-  ...jest.requireActual('@atproto/api'),
-  jsonToLex: (value: unknown) => value,
-}))
-
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
+import {com} from '#/lexicons'
 import {toPostView, toSpaceFeedPage} from '#/lib/api/space-views'
 
 const FEED = 'at://did:plc:community/app.bsky.feed.generator/private'
@@ -24,14 +17,17 @@ const config = {
   space: SPACE,
 }
 
-type FakeAgent = {
+type FakeClient = {
   did?: string
   fetchHandler: jest.Mock
-  app: {bsky: {feed: {getFeed: jest.Mock}}}
-  com: {atproto: {repo: {getRecord: jest.Mock}}}
+  getFeed: jest.Mock
+  agent: {fetchHandler: jest.Mock}
+  call: jest.Mock
+  labelers: Set<string>
+  xrpcDefaults: {appLabelers: null}
 }
 
-function agent({did}: {did?: string}): FakeAgent {
+function client({did}: {did?: string}): FakeClient {
   const getFeed = jest.fn()
   const fetchHandler = jest.fn((path: string) => {
     if (path.includes('community.blacksky.feed.getSpaceFeed')) {
@@ -62,29 +58,33 @@ function agent({did}: {did?: string}): FakeAgent {
   return {
     did,
     fetchHandler,
-    app: {bsky: {feed: {getFeed}}},
-    com: {
-      atproto: {
-        repo: {
-          getRecord: jest.fn(() => Promise.resolve({data: {value: config}})),
-        },
-      },
-    },
+    getFeed,
+    agent: {fetchHandler},
+    labelers: new Set(),
+    xrpcDefaults: {appLabelers: null},
+    call: jest.fn((method: unknown, params: unknown) =>
+      method === com.atproto.repo.getRecord
+        ? Promise.resolve({value: config})
+        : getFeed(params),
+    ),
   }
 }
 
-// The feed APIs take a real `AtpAgent`; only the four members above are
-// reachable on this path, so the fake is narrowed rather than filled in.
-const asAgent = (a: FakeAgent) => a as unknown as AtpAgent
+// The feed APIs take a real `Client`; only the members above are reachable on
+// this path, so the fake is narrowed rather than filled in.
+const asClient = (a: FakeClient) => a as unknown as Client
 
 describe('space-backed feed routing', () => {
   it('reads a space feed through the private endpoint and never the standard one', async () => {
-    const a = agent({did: 'did:plc:alice'})
-    const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
+    const a = client({did: 'did:plc:alice'})
+    const api = new CustomFeedAPI({
+      client: asClient(a),
+      feedParams: {feed: FEED},
+    })
 
     const page = await api.fetch({cursor: undefined, limit: 30})
 
-    expect(a.app.bsky.feed.getFeed).not.toHaveBeenCalled()
+    expect(a.getFeed).not.toHaveBeenCalled()
     expect(page.feed).toHaveLength(1)
     // The real space record URI survives: every later interaction (like,
     // delete, permalink, thread) targets it.
@@ -93,18 +93,24 @@ describe('space-backed feed routing', () => {
   })
 
   it('peekLatest uses the same endpoint, so polling agrees with pagination', async () => {
-    const a = agent({did: 'did:plc:alice'})
-    const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
+    const a = client({did: 'did:plc:alice'})
+    const api = new CustomFeedAPI({
+      client: asClient(a),
+      feedParams: {feed: FEED},
+    })
 
     await api.peekLatest()
 
-    expect(a.app.bsky.feed.getFeed).not.toHaveBeenCalled()
+    expect(a.getFeed).not.toHaveBeenCalled()
     expect(a.fetchHandler).toHaveBeenCalled()
   })
 
   it('refuses logged out rather than falling back to the public appview', async () => {
-    const a = agent({})
-    const api = new CustomFeedAPI({agent: asAgent(a), feedParams: {feed: FEED}})
+    const a = client({})
+    const api = new CustomFeedAPI({
+      client: asClient(a),
+      feedParams: {feed: FEED},
+    })
 
     await expect(api.fetch({cursor: undefined, limit: 30})).rejects.toThrow(
       'FeedSignedInOnly',
