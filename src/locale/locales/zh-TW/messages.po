@@ -2390,7 +2390,7 @@ msgstr "動物"
 msgid "Animated GIF"
 msgstr "GIF 動畫"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:59
+#: src/screens/Onboarding/StepBelong/index.tsx:61
 msgid "Anti-Black Harassment"
 msgstr ""
 
@@ -2882,7 +2882,7 @@ msgstr "在向其他人傳送訊息之前，您必須先驗證您的電子信箱
 msgid "Begin Discussion"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:40
+#: src/screens/Onboarding/StepBelong/index.tsx:42
 msgid "Belong, safely"
 msgstr ""
 
@@ -4017,7 +4017,7 @@ msgstr ""
 msgid "Community Guidelines"
 msgstr "社群準則"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:36
+#: src/screens/Onboarding/StepBelong/index.tsx:38
 msgid "Community moderation"
 msgstr ""
 
@@ -4201,7 +4201,7 @@ msgstr "內容選單背景，點一下以關閉選單。"
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:149
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:152
 #: src/screens/Onboarding/StepAssembly/index.tsx:59
-#: src/screens/Onboarding/StepBelong/index.tsx:109
+#: src/screens/Onboarding/StepBelong/index.tsx:111
 #: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
 #: src/screens/Onboarding/StepFinished/index.tsx:320
 #: src/screens/Onboarding/StepInterests/index.tsx:87
@@ -6575,7 +6575,7 @@ msgctxt "toast"
 msgid "Feeds updated!"
 msgstr "成功更新動態源！"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:49
+#: src/screens/Onboarding/StepBelong/index.tsx:51
 msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 msgstr ""
 
@@ -7736,11 +7736,11 @@ msgstr "我們會如何利用您的電話號碼："
 msgid "Human trafficking"
 msgstr "人口販賣"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:96
+#: src/screens/Onboarding/StepBelong/index.tsx:98
 msgid "I agree to the <0>Community Guidelines</0>."
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:75
+#: src/screens/Onboarding/StepBelong/index.tsx:77
 msgid "I agree to the Community Guidelines"
 msgstr ""
 
@@ -9222,7 +9222,7 @@ msgstr "輕度騷擾或霸凌"
 msgid "Misleading"
 msgstr "不實資訊"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:57
+#: src/screens/Onboarding/StepBelong/index.tsx:59
 msgid "Misogynoir"
 msgstr ""
 
@@ -9243,7 +9243,7 @@ msgstr "審核收件匣設定"
 msgid "Moderation"
 msgstr "內容管理"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:63
+#: src/screens/Onboarding/StepBelong/index.tsx:65
 msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr ""
 
@@ -9323,7 +9323,7 @@ msgstr "內容管理工具"
 msgid "Moderator has chosen to set a general warning on the content."
 msgstr "內容管理服務已對該內容標記普通警告。"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:146
+#: src/components/onboarding-chrome/CalendarPanel.tsx:144
 msgid "Month"
 msgstr ""
 
@@ -9771,7 +9771,7 @@ msgstr "下一步"
 msgid "Next image"
 msgstr "下一張圖片"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:166
+#: src/components/onboarding-chrome/CalendarPanel.tsx:164
 msgid "Next month"
 msgstr ""
 
@@ -11631,7 +11631,7 @@ msgstr ""
 msgid "Previous image"
 msgstr "上一張圖片"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:138
+#: src/components/onboarding-chrome/CalendarPanel.tsx:136
 msgid "Previous month"
 msgstr ""
 
@@ -11882,7 +11882,7 @@ msgstr ""
 msgid "Read {0, plural, one {# more reply} other {# more replies}}"
 msgstr "繼續閱讀 {0, plural, other {# 則回覆}}"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:100
+#: src/screens/Onboarding/StepBelong/index.tsx:102
 msgid "Read Community Guidelines"
 msgstr ""
 
@@ -14754,7 +14754,7 @@ msgstr "切換到 {0}"
 msgid "Synthetic content"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:58
+#: src/screens/Onboarding/StepBelong/index.tsx:60
 msgid "Synthetic Media"
 msgstr ""
 
@@ -17611,7 +17611,7 @@ msgstr "對話類型錯誤"
 msgid "www.mylivestream.tv"
 msgstr "live.example.com"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:155
+#: src/components/onboarding-chrome/CalendarPanel.tsx:153
 msgid "Year"
 msgstr ""
 

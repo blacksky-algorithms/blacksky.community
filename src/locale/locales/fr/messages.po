@@ -2390,7 +2390,7 @@ msgstr "Animaux"
 msgid "Animated GIF"
 msgstr "GIF animé"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:59
+#: src/screens/Onboarding/StepBelong/index.tsx:61
 msgid "Anti-Black Harassment"
 msgstr ""
 
@@ -2882,7 +2882,7 @@ msgstr "Veuillez vérifier votre e-mail avant d’envoyer des messages à d’au
 msgid "Begin Discussion"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:40
+#: src/screens/Onboarding/StepBelong/index.tsx:42
 msgid "Belong, safely"
 msgstr ""
 
@@ -4017,7 +4017,7 @@ msgstr ""
 msgid "Community Guidelines"
 msgstr "Règles de bonne conduite"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:36
+#: src/screens/Onboarding/StepBelong/index.tsx:38
 msgid "Community moderation"
 msgstr ""
 
@@ -4201,7 +4201,7 @@ msgstr "Menu contextuel en arrière-plan, cliquez pour fermer le menu."
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:149
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:152
 #: src/screens/Onboarding/StepAssembly/index.tsx:59
-#: src/screens/Onboarding/StepBelong/index.tsx:109
+#: src/screens/Onboarding/StepBelong/index.tsx:111
 #: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
 #: src/screens/Onboarding/StepFinished/index.tsx:320
 #: src/screens/Onboarding/StepInterests/index.tsx:87
@@ -6575,7 +6575,7 @@ msgctxt "toast"
 msgid "Feeds updated!"
 msgstr "Fils d’actu mis à jour !"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:49
+#: src/screens/Onboarding/StepBelong/index.tsx:51
 msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 msgstr ""
 
@@ -7736,11 +7736,11 @@ msgstr "Comment nous utilisons votre numéro :"
 msgid "Human trafficking"
 msgstr "Trafic d’êtres humains"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:96
+#: src/screens/Onboarding/StepBelong/index.tsx:98
 msgid "I agree to the <0>Community Guidelines</0>."
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:75
+#: src/screens/Onboarding/StepBelong/index.tsx:77
 msgid "I agree to the Community Guidelines"
 msgstr ""
 
@@ -9222,7 +9222,7 @@ msgstr "Harcèlement (ou intimidation) d’un mineur"
 msgid "Misleading"
 msgstr "Trompeur"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:57
+#: src/screens/Onboarding/StepBelong/index.tsx:59
 msgid "Misogynoir"
 msgstr ""
 
@@ -9243,7 +9243,7 @@ msgstr "Paramètres de la boîte de modération"
 msgid "Moderation"
 msgstr "Modération"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:63
+#: src/screens/Onboarding/StepBelong/index.tsx:65
 msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr ""
 
@@ -9323,7 +9323,7 @@ msgstr "Outils de modération"
 msgid "Moderator has chosen to set a general warning on the content."
 msgstr "La modération a choisi d’ajouter un avertissement général sur le contenu."
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:146
+#: src/components/onboarding-chrome/CalendarPanel.tsx:144
 msgid "Month"
 msgstr ""
 
@@ -9771,7 +9771,7 @@ msgstr "Suivant"
 msgid "Next image"
 msgstr "Image suivante"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:166
+#: src/components/onboarding-chrome/CalendarPanel.tsx:164
 msgid "Next month"
 msgstr ""
 
@@ -11631,7 +11631,7 @@ msgstr ""
 msgid "Previous image"
 msgstr "Image précédente"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:138
+#: src/components/onboarding-chrome/CalendarPanel.tsx:136
 msgid "Previous month"
 msgstr ""
 
@@ -11882,7 +11882,7 @@ msgstr ""
 msgid "Read {0, plural, one {# more reply} other {# more replies}}"
 msgstr "Lire {0, plural, one {une autre réponse} other {# autres réponses}}"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:100
+#: src/screens/Onboarding/StepBelong/index.tsx:102
 msgid "Read Community Guidelines"
 msgstr ""
 
@@ -14754,7 +14754,7 @@ msgstr "Basculer vers {0}"
 msgid "Synthetic content"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:58
+#: src/screens/Onboarding/StepBelong/index.tsx:60
 msgid "Synthetic Media"
 msgstr ""
 
@@ -17611,7 +17611,7 @@ msgstr "Mauvais type de discussion"
 msgid "www.mylivestream.tv"
 msgstr "www.monfluxendirect.tv"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:155
+#: src/components/onboarding-chrome/CalendarPanel.tsx:153
 msgid "Year"
 msgstr ""
 

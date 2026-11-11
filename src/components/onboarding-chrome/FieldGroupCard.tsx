@@ -1,7 +1,7 @@
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 
 import {atoms as a} from '#/alf'
-import {FIELD_BORDER} from '#/components/onboarding-chrome/InputGroup'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 
 export function FieldGroupCard({
   children,
@@ -10,6 +10,7 @@ export function FieldGroupCard({
   children: React.ReactNode
   style?: StyleProp<ViewStyle>
 }) {
+  const c = useChromeColors()
   return (
     <View
       style={[
@@ -17,7 +18,7 @@ export function FieldGroupCard({
         a.rounded_sm,
         {
           borderWidth: 1,
-          borderColor: FIELD_BORDER,
+          borderColor: c.fieldBorder,
           paddingHorizontal: 16,
           paddingVertical: 16,
         },

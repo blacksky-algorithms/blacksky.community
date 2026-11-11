@@ -2390,7 +2390,7 @@ msgstr "Animale"
 msgid "Animated GIF"
 msgstr "GIF animat"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:59
+#: src/screens/Onboarding/StepBelong/index.tsx:61
 msgid "Anti-Black Harassment"
 msgstr ""
 
@@ -2882,7 +2882,7 @@ msgstr "Înainte de a putea trimite mesaje unui alt utilizator, trebuie mai înt
 msgid "Begin Discussion"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:40
+#: src/screens/Onboarding/StepBelong/index.tsx:42
 msgid "Belong, safely"
 msgstr ""
 
@@ -4017,7 +4017,7 @@ msgstr ""
 msgid "Community Guidelines"
 msgstr "Regulile Comunității"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:36
+#: src/screens/Onboarding/StepBelong/index.tsx:38
 msgid "Community moderation"
 msgstr ""
 
@@ -4201,7 +4201,7 @@ msgstr "Fundal meniu contextual, faceți clic pentru a închide meniul."
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:149
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:152
 #: src/screens/Onboarding/StepAssembly/index.tsx:59
-#: src/screens/Onboarding/StepBelong/index.tsx:109
+#: src/screens/Onboarding/StepBelong/index.tsx:111
 #: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
 #: src/screens/Onboarding/StepFinished/index.tsx:320
 #: src/screens/Onboarding/StepInterests/index.tsx:87
@@ -6575,7 +6575,7 @@ msgctxt "toast"
 msgid "Feeds updated!"
 msgstr "Fluxuri actualizate!"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:49
+#: src/screens/Onboarding/StepBelong/index.tsx:51
 msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 msgstr ""
 
@@ -7736,11 +7736,11 @@ msgstr "Cum vă folosim numărul:"
 msgid "Human trafficking"
 msgstr "Trafic de persoane"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:96
+#: src/screens/Onboarding/StepBelong/index.tsx:98
 msgid "I agree to the <0>Community Guidelines</0>."
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:75
+#: src/screens/Onboarding/StepBelong/index.tsx:77
 msgid "I agree to the Community Guidelines"
 msgstr ""
 
@@ -9222,7 +9222,7 @@ msgstr "Hărțuire minoră sau bullying"
 msgid "Misleading"
 msgstr "Conținut înșelător"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:57
+#: src/screens/Onboarding/StepBelong/index.tsx:59
 msgid "Misogynoir"
 msgstr ""
 
@@ -9243,7 +9243,7 @@ msgstr "Setări inbox moderare"
 msgid "Moderation"
 msgstr "Moderare"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:63
+#: src/screens/Onboarding/StepBelong/index.tsx:65
 msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr ""
 
@@ -9323,7 +9323,7 @@ msgstr "Instrumente de moderare"
 msgid "Moderator has chosen to set a general warning on the content."
 msgstr "Moderatorul a decis să seteze un avertisment general asupra acestui conținutului."
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:146
+#: src/components/onboarding-chrome/CalendarPanel.tsx:144
 msgid "Month"
 msgstr ""
 
@@ -9771,7 +9771,7 @@ msgstr "Următorul"
 msgid "Next image"
 msgstr "Imaginea următoare"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:166
+#: src/components/onboarding-chrome/CalendarPanel.tsx:164
 msgid "Next month"
 msgstr ""
 
@@ -11631,7 +11631,7 @@ msgstr ""
 msgid "Previous image"
 msgstr "Imaginea anterioară"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:138
+#: src/components/onboarding-chrome/CalendarPanel.tsx:136
 msgid "Previous month"
 msgstr ""
 
@@ -11882,7 +11882,7 @@ msgstr ""
 msgid "Read {0, plural, one {# more reply} other {# more replies}}"
 msgstr "Citiți încă {0, plural, one {un răspuns} few {# răspunsuri} other {# de răspunsuri}}"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:100
+#: src/screens/Onboarding/StepBelong/index.tsx:102
 msgid "Read Community Guidelines"
 msgstr ""
 
@@ -14754,7 +14754,7 @@ msgstr "Comutați la {0}"
 msgid "Synthetic content"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:58
+#: src/screens/Onboarding/StepBelong/index.tsx:60
 msgid "Synthetic Media"
 msgstr ""
 
@@ -17611,7 +17611,7 @@ msgstr "Tipul greșit de conversație"
 msgid "www.mylivestream.tv"
 msgstr "www.transmisiuneameaîndirect.tv"
 
-#: src/components/onboarding-chrome/CalendarPanel.tsx:155
+#: src/components/onboarding-chrome/CalendarPanel.tsx:153
 msgid "Year"
 msgstr ""
 

@@ -2,18 +2,16 @@ import {useMemo, useState} from 'react'
 import {Pressable, View} from 'react-native'
 import {useLingui} from '@lingui/react/macro'
 
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, web} from '#/alf'
 import {
   ChevronLeft_Stroke2_Corner0_Rounded as ChevronLeft,
   ChevronRight_Stroke2_Corner0_Rounded as ChevronRight,
 } from '#/components/icons/Chevron'
 import {type Props as SVGIconProps} from '#/components/icons/common'
-import {FIELD_BG, FIELD_BORDER} from '#/components/onboarding-chrome/InputGroup'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import * as Select from '#/components/Select'
 import {Text} from '#/components/Typography'
 
-const TEXT = '#F8FAF9'
-const MUTED = '#7878A5'
 const DAY_SIZE = 36
 const CONTROL_SIZE = 32
 const OLDEST_AGE = 120
@@ -64,7 +62,7 @@ export function CalendarPanel({
   onChange: (date: string) => void
   testID?: string
 }) {
-  const t = useTheme()
+  const c = useChromeColors()
   const {i18n, t: l} = useLingui()
   const selected = parse(value)
   const max = parse(maximumDate)
@@ -127,8 +125,8 @@ export function CalendarPanel({
         a.p_md,
         a.gap_sm,
         {
-          backgroundColor: FIELD_BG,
-          borderColor: FIELD_BORDER,
+          backgroundColor: c.fieldBg,
+          borderColor: c.fieldBorder,
           borderWidth: 1,
           borderRadius: 8,
         },
@@ -180,7 +178,11 @@ export function CalendarPanel({
               accessibilityHint=""
               style={[
                 a.font_mono,
-                {fontSize: 12, color: MUTED, textTransform: 'uppercase'},
+                {
+                  fontSize: 12,
+                  color: c.placeholder,
+                  textTransform: 'uppercase',
+                },
               ]}>
               {initial}
             </Text>
@@ -225,18 +227,21 @@ export function CalendarPanel({
                   {width: DAY_SIZE, height: DAY_SIZE, borderWidth: 1},
                   {
                     borderColor:
-                      isToday && !isSelected ? FIELD_BORDER : 'transparent',
+                      isToday && !isSelected ? c.fieldBorder : 'transparent',
                     backgroundColor: isSelected
-                      ? t.palette.primary_500
+                      ? c.accent
                       : (state as {hovered?: boolean}).hovered && !disabled
-                        ? FIELD_BORDER
+                        ? c.fieldBorder
                         : 'transparent',
                     opacity: disabled ? 0.3 : 1,
                   },
                 ]}>
                 <Text
                   style={[
-                    {fontSize: 14, color: TEXT},
+                    {
+                      fontSize: 14,
+                      color: isSelected ? c.onAccent : c.inputText,
+                    },
                     isSelected && a.font_bold,
                   ]}>
                   {day}
@@ -250,13 +255,13 @@ export function CalendarPanel({
   )
 }
 
-function controlStyle(active: boolean) {
+function controlStyle(c: ReturnType<typeof useChromeColors>, active: boolean) {
   return {
     height: CONTROL_SIZE,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: FIELD_BORDER,
-    backgroundColor: active ? FIELD_BORDER : 'transparent',
+    borderColor: c.fieldBorder,
+    backgroundColor: active ? c.fieldBorder : 'transparent',
   }
 }
 
@@ -271,6 +276,7 @@ function ArrowButton({
   disabled: boolean
   onPress: () => void
 }) {
+  const c = useChromeColors()
   return (
     <Pressable
       accessibilityRole="button"
@@ -284,11 +290,12 @@ function ArrowButton({
         a.justify_center,
         web(a.pointer),
         controlStyle(
+          c,
           !disabled && Boolean((state as {hovered?: boolean}).hovered),
         ),
         {width: CONTROL_SIZE, opacity: disabled ? 0.3 : 1},
       ]}>
-      <Icon width={16} style={{color: TEXT}} />
+      <Icon width={16} style={{color: c.inputText}} />
     </Pressable>
   )
 }
@@ -304,6 +311,7 @@ function Dropdown({
   onValueChange: (value: string) => void
   items: {label: string; value: string}[]
 }) {
+  const c = useChromeColors()
   return (
     <Select.Root value={value} onValueChange={onValueChange}>
       <Select.Trigger label={label}>
@@ -318,15 +326,15 @@ function Dropdown({
               a.gap_xs,
               a.px_sm,
               web(a.pointer),
-              controlStyle(state.hovered || state.focused),
+              controlStyle(c, state.hovered || state.focused),
             ]}>
             {/* The default value text takes the menu item's own colour. */}
             <Select.ValueText
               webOverrideValue={items.find(item => item.value === value)}
-              style={[a.font_semi_bold, {color: TEXT}]}>
+              style={[a.font_semi_bold, {color: c.inputText}]}>
               {(item: {label: string}) => item.label}
             </Select.ValueText>
-            <Select.Icon style={{color: MUTED}} />
+            <Select.Icon style={{color: c.placeholder}} />
           </Pressable>
         )}
       </Select.Trigger>

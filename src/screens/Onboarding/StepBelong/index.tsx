@@ -16,12 +16,14 @@ import {
   Footer,
   PrimaryButton,
 } from '#/components/onboarding-chrome'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import {Text} from '#/components/Typography'
 
 export function StepBelong() {
   const {_} = useLingui()
   const openLink = useOpenLink()
   const t = useTheme()
+  const {accent} = useChromeColors()
   const {state, dispatch} = useOnboardingInternalState()
   const agreed = state.guidelinesAccepted
 
@@ -82,9 +84,9 @@ export function StepBelong() {
               a.border,
               a.align_center,
               a.justify_center,
-              {width: 18, height: 18, borderColor: '#D2FC51'},
+              {width: 18, height: 18, borderColor: accent},
             ]}>
-            {agreed && <Text style={{color: '#D2FC51'}}>✓</Text>}
+            {agreed && <Text style={{color: accent}}>✓</Text>}
           </View>
           <Text
             style={[
