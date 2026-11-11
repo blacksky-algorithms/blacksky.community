@@ -1,7 +1,6 @@
-import {AtUri} from '@atproto/syntax'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {atoms as a, useTheme} from '#/alf'
 import {Link} from '#/components/Link'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
@@ -29,9 +28,7 @@ export function LikesStat({
   const likeCount = post.likeCount ?? 0
   if (likeCount === 0) return null
 
-  const likesHref =
-    href ??
-    makeProfileLink(post.author, 'post', new AtUri(post.uri).rkey, 'liked-by')
+  const likesHref = href ?? postPermalink(post.author, post.uri, 'liked-by')
 
   return (
     <Link

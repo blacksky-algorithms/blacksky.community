@@ -1,9 +1,8 @@
-import {AtUri} from '@atproto/syntax'
 import {useLingui} from '@lingui/react/macro'
 
 import {useHaptics} from '#/lib/haptics'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {makeProfileLink} from '#/lib/routes/links'
+import {postPermalink} from '#/lib/routes/links'
 import {shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
 import {type Shadow} from '#/state/cache/post-shadow'
@@ -144,8 +143,7 @@ export function PostMenuControlItems({
     } else {
       ax.metric('share:press:nativeShare', {})
     }
-    const {rkey} = new AtUri(post.uri)
-    void shareUrl(toShareUrl(makeProfileLink(post.author, 'post', rkey)))
+    void shareUrl(toShareUrl(postPermalink(post.author, post.uri)))
     sendInteraction({
       item: post.uri,
       event: 'app.bsky.feed.defs#interactionShare',
