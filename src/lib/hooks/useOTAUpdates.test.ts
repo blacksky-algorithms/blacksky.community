@@ -324,9 +324,14 @@ describe('useApplyPullRequestOTAUpdate', () => {
 
       await act(() => result.current.checkForUpdates())
 
-      // The channel rides on the request-header override, which a check of
-      // the running channel must leave as it is.
-      expect(setUpdateURLAndRequestHeadersOverride).not.toHaveBeenCalled()
+      // The channel rides on the request-header override. An abandoned switch
+      // clears it, so the check names the running channel and no other.
+      expect(setUpdateURLAndRequestHeadersOverride).toHaveBeenCalledTimes(1)
+      expect(setUpdateURLAndRequestHeadersOverride).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestHeaders: {'expo-channel-name': 'pull-request-123'},
+        }),
+      )
       expect(setExtraParamAsync).not.toHaveBeenCalledWith(
         'channel',
         expect.anything(),
@@ -355,6 +360,7 @@ describe('useApplyPullRequestOTAUpdate', () => {
 
       await act(() => result.current.checkForUpdates())
 
+      expect(setUpdateURLAndRequestHeadersOverride).not.toHaveBeenCalled()
       expect(Alert.alert).toHaveBeenCalledWith(
         'Up to Date',
         expect.stringContaining('testflight'),
