@@ -155,7 +155,6 @@ module.exports = function (_config) {
           ],
           'com.apple.developer.usernotifications.communication': true,
           // 'com.apple.developer.device-information.user-assigned-device-name': true,
-          'com.apple.developer.declared-age-range': true,
         },
         privacyManifests: {
           NSPrivacyCollectedDataTypes: [
