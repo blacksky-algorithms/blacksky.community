@@ -330,7 +330,7 @@ msgid "{0} is an open network where you can choose your own provider. If you're 
 msgstr "{0} is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default {1} option."
 
 #. placeholder {0}: brand.metadata.displayName
-#: src/components/ProgressGuide/List.tsx:149
+#: src/components/ProgressGuide/List.tsx:156
 msgid "{0} is better with friends!"
 msgstr "{0} is better with friends!"
 
@@ -414,7 +414,7 @@ msgstr "{0} tab, selected"
 
 #. placeholder {0}: brand.metadata.displayName
 #. placeholder {0}: brand.web.title
-#: src/screens/Takendown.tsx:216
+#: src/screens/Takendown.tsx:214
 #: src/view/com/auth/SplashScreen.web.tsx:182
 msgid "{0} Terms of Service"
 msgstr "{0} Terms of Service"
@@ -2528,12 +2528,12 @@ msgctxt "toast"
 msgid "Appeal submitted"
 msgstr ""
 
-#: src/screens/Takendown.tsx:116
-#: src/screens/Takendown.tsx:142
+#: src/screens/Takendown.tsx:114
+#: src/screens/Takendown.tsx:140
 msgid "Appeal suspension"
 msgstr ""
 
-#: src/screens/Takendown.tsx:119
+#: src/screens/Takendown.tsx:117
 msgid "Appeal Suspension"
 msgstr ""
 
@@ -3326,8 +3326,8 @@ msgstr "Camera access needed"
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:242
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:248
 #: src/screens/Settings/Settings.tsx:335
-#: src/screens/Takendown.tsx:104
-#: src/screens/Takendown.tsx:107
+#: src/screens/Takendown.tsx:102
+#: src/screens/Takendown.tsx:105
 #: src/view/com/composer/Composer.tsx:2047
 #: src/view/com/composer/Composer.tsx:2057
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:49
@@ -5202,7 +5202,7 @@ msgstr "Dismiss Discover the Atmosphere banner"
 msgid "Dismiss error"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:115
+#: src/components/ProgressGuide/List.tsx:122
 msgid "Dismiss getting started guide"
 msgstr ""
 
@@ -5223,7 +5223,7 @@ msgstr ""
 msgid "Dismiss this suggestion"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:76
+#: src/components/ProgressGuide/List.tsx:78
 msgid "Dismiss welcome message"
 msgstr "Dismiss welcome message"
 
@@ -6767,11 +6767,11 @@ msgstr ""
 msgid "Follow 10 accounts"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:108
+#: src/components/ProgressGuide/List.tsx:115
 msgid "Follow 10 people to get started"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:148
+#: src/components/ProgressGuide/List.tsx:155
 msgid "Follow 7 accounts"
 msgstr ""
 
@@ -8496,7 +8496,7 @@ msgstr ""
 msgid "Like ({0, plural, one {# like} other {# likes}})"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:142
+#: src/components/ProgressGuide/List.tsx:149
 msgid "Like 10 posts"
 msgstr ""
 
@@ -8983,7 +8983,7 @@ msgstr "Make the panel wide"
 msgid "Make wide"
 msgstr "Make wide"
 
-#: src/components/ProgressGuide/List.tsx:82
+#: src/components/ProgressGuide/List.tsx:89
 msgid "Make your first post to announce your arrival."
 msgstr "Make your first post to announce your arrival."
 
@@ -11933,8 +11933,8 @@ msgstr ""
 
 #: src/screens/ModerationInbox/Notice.tsx:514
 #: src/screens/ModerationInbox/Notice.tsx:532
-#: src/screens/Takendown.tsx:160
-#: src/screens/Takendown.tsx:168
+#: src/screens/Takendown.tsx:158
+#: src/screens/Takendown.tsx:166
 msgid "Reason for appeal"
 msgstr ""
 
@@ -14072,14 +14072,14 @@ msgstr "Sign in to vote"
 #: src/screens/Settings/Settings.tsx:334
 #: src/screens/SignupQueued.tsx:99
 #: src/screens/SignupQueued.tsx:102
-#: src/screens/Takendown.tsx:90
+#: src/screens/Takendown.tsx:88
 #: src/view/shell/desktop/LeftNav.tsx:273
 #: src/view/shell/desktop/LeftNav.tsx:401
 #: src/view/shell/desktop/LeftNav.tsx:404
 msgid "Sign out"
 msgstr ""
 
-#: src/screens/Takendown.tsx:93
+#: src/screens/Takendown.tsx:91
 msgid "Sign Out"
 msgstr ""
 
@@ -14542,11 +14542,11 @@ msgid "Submit a statement →"
 msgstr "Submit a statement →"
 
 #: src/screens/ModerationInbox/Notice.tsx:448
-#: src/screens/Takendown.tsx:78
+#: src/screens/Takendown.tsx:76
 msgid "Submit appeal"
 msgstr ""
 
-#: src/screens/Takendown.tsx:82
+#: src/screens/Takendown.tsx:80
 msgid "Submit Appeal"
 msgstr ""
 
@@ -14865,7 +14865,7 @@ msgstr ""
 msgid "Task complete - 10 likes!"
 msgstr ""
 
-#: src/components/ProgressGuide/List.tsx:143
+#: src/components/ProgressGuide/List.tsx:150
 msgid "Teach our algorithm what you like"
 msgstr ""
 
@@ -17414,7 +17414,7 @@ msgid "Welcome back!"
 msgstr ""
 
 #. placeholder {0}: brand.metadata.displayName
-#: src/components/ProgressGuide/List.tsx:69
+#: src/components/ProgressGuide/List.tsx:71
 msgid "Welcome to {0}"
 msgstr "Welcome to {0}"
 
@@ -17475,7 +17475,7 @@ msgstr ""
 msgid "Whoops! Trending videos failed to load."
 msgstr ""
 
-#: src/screens/Takendown.tsx:171
+#: src/screens/Takendown.tsx:169
 msgid "Why are you appealing?"
 msgstr ""
 
@@ -18213,7 +18213,7 @@ msgid "Your account has been deleted, see ya! ✌️"
 msgstr ""
 
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:39
-#: src/screens/Takendown.tsx:144
+#: src/screens/Takendown.tsx:142
 msgid "Your account has been suspended"
 msgstr ""
 
@@ -18290,7 +18290,7 @@ msgid "Your account repository, containing all public data records, can be downl
 msgstr ""
 
 #. placeholder {0}: brand.metadata.displayName
-#: src/screens/Takendown.tsx:212
+#: src/screens/Takendown.tsx:210
 msgid "Your account was found to be in violation of the <0>{0} Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
 msgstr "Your account was found to be in violation of the <0>{0} Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
 
@@ -18312,7 +18312,7 @@ msgstr "Your account was temporarily suspended for {hours, plural, one {# hour} 
 msgid "Your appeal has been submitted and is awaiting review."
 msgstr "Your appeal has been submitted and is awaiting review."
 
-#: src/screens/Takendown.tsx:152
+#: src/screens/Takendown.tsx:150
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
 msgstr ""
 
