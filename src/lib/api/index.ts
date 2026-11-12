@@ -966,7 +966,7 @@ async function resolveAssembly(
   }
 }
 
-async function uploadEventCover(
+export async function uploadEventCover(
   pdsClient: Client,
   cover: EventCover,
   onStateChange: ((state: string) => void) | undefined,

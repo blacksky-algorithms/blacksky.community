@@ -1,4 +1,5 @@
-import {type Client} from '@atproto/lex'
+import {retry} from '@atproto/common-web'
+import {type Client, type LexMap} from '@atproto/lex'
 import {AtUri} from '@atproto/syntax'
 import {
   type InfiniteData,
@@ -10,6 +11,7 @@ import {
 } from '@tanstack/react-query'
 
 import {communityXrpc} from '#/lib/api/community'
+import {isRecordNotFoundError, matchXrpcError} from '#/lib/xrpc-error'
 import {STALE} from '#/state/queries'
 import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import {useAnalytics} from '#/analytics'
@@ -17,6 +19,7 @@ import {com} from '#/lexicons'
 import {applyRsvp, type RsvpLogContext, rsvpMetricStatus} from './rsvp-state'
 import {mergeEventTimeline} from './timeline'
 import {
+  EVENT_COLLECTION,
   type EventView,
   RSVP_COLLECTION,
   type RsvpStatus,
@@ -269,6 +272,66 @@ export function useRsvpMutation(event: EventView, logContext: RsvpLogContext) {
         viewer: {...base.viewer, rsvp: result},
       })
       markListsStale(queryClient, event.uri)
+    },
+  })
+}
+
+export class EventGoneError extends Error {}
+
+/**
+ * Changes the host's own event record. An update runs against the record as
+ * the PDS has it now and is swapped in only if that is still current, since
+ * the AppView's copy lags and other apps can write it too. `null` deletes.
+ * The result is written through to the cache for the same lag.
+ */
+export function useEventWriteMutation(uri: string) {
+  const client = usePdsClient()
+  const queryClient = useQueryClient()
+  const queryKey = EVENT_RQKEY(uri)
+  return useMutation<
+    Record<string, unknown> | null,
+    Error,
+    ((current: Record<string, unknown>) => Record<string, unknown>) | null
+  >({
+    mutationFn: async update => {
+      const {host: repo, rkey} = new AtUri(uri)
+      const collection = EVENT_COLLECTION
+      if (!update) {
+        await client.call(com.atproto.repo.deleteRecord, {
+          repo,
+          collection,
+          rkey,
+        })
+        return null
+      }
+      const swap = async () => {
+        const data = await client
+          .call(com.atproto.repo.getRecord, {repo, collection, rkey})
+          .catch((e: unknown) => {
+            throw isRecordNotFoundError(e) ? new EventGoneError() : e
+          })
+        const record = update(data.value)
+        await client.call(com.atproto.repo.putRecord, {
+          repo,
+          collection,
+          rkey,
+          record: record as LexMap,
+          swapRecord: data.cid ?? null,
+        })
+        return record
+      }
+      return retry(swap, {
+        maxRetries: 5,
+        retryable: e =>
+          matchXrpcError(e, com.atproto.repo.putRecord) === 'InvalidSwap',
+      })
+    },
+    onMutate: () => queryClient.cancelQueries({queryKey}),
+    onSuccess: record => {
+      queryClient.setQueryData<EventView | null>(queryKey, prev =>
+        record ? prev && {...prev, record} : null,
+      )
+      void queryClient.invalidateQueries({queryKey: [MY_EVENTS_RQKEY_ROOT]})
     },
   })
 }

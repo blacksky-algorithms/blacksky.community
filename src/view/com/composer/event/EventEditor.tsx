@@ -9,7 +9,11 @@ import {getLinkMeta} from '#/lib/link-meta/link-meta'
 import {useSession} from '#/state/session'
 import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
-import {FieldLabelText, INPUT_TEXT} from '#/view/com/composer/event/EventFields'
+import {
+  Counter,
+  FieldLabelText,
+  INPUT_TEXT,
+} from '#/view/com/composer/event/EventFields'
 import {type PostAction} from '#/view/com/composer/state/composer'
 import {atoms as a, useTheme} from '#/alf'
 import {DEFAULT_BRAND} from '#/alf/themes'
@@ -188,8 +192,8 @@ export function EventEditor({
       {event.step === 'done' && <EventPreview event={event} />}
 
       {stepIndex >= 0 && (
-        <View style={[a.flex_row, a.align_center, a.justify_between]}>
-          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+        <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.align_center, a.gap_sm]}>
             <View style={{width: 12, height: 12, backgroundColor: stepColor}} />
             <Text
               testID="eventStepLabel"
@@ -208,7 +212,7 @@ export function EventEditor({
               </Trans>
             </Text>
           </View>
-          <View style={[a.flex_row, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.justify_end, a.gap_sm]}>
             {stepIndex > 0 && (
               <Button
                 testID="eventBackBtn"
@@ -216,7 +220,7 @@ export function EventEditor({
                 size="small"
                 variant="solid"
                 color="secondary"
-                style={[t.atoms.bg, a.px_2xl]}
+                style={[a.flex_1, t.atoms.bg, a.px_md]}
                 onPress={() => setStep(STEPS[stepIndex - 1])}>
                 <ButtonText style={{color: t.palette.primary_600}}>
                   <Trans>Back</Trans>
@@ -229,7 +233,7 @@ export function EventEditor({
               size="small"
               variant="solid"
               color="primary"
-              style={[a.px_2xl]}
+              style={[a.flex_1, a.px_md]}
               disabled={!canContinue}
               onPress={() => {
                 if (isLastStep && !event.cover && cover) {
@@ -355,23 +359,6 @@ function WhenStep({
         </Text>
       ) : null}
     </View>
-  )
-}
-
-function Counter({count, max}: {count: number; max: number}) {
-  const t = useTheme()
-  return (
-    <Text
-      style={[
-        a.text_xs,
-        a.text_right,
-        a.mt_2xs,
-        count > max
-          ? {color: t.palette.negative_500}
-          : t.atoms.text_contrast_medium,
-      ]}>
-      {`${count} / ${max}`}
-    </Text>
   )
 }
 

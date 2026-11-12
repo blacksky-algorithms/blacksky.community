@@ -3,6 +3,7 @@ import {type UriString} from '@atproto/syntax'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
+import {type ParsedEvent} from './record'
 import {EVENT_COLLECTION} from './types'
 
 export const EVENT_NAME_MAX_GRAPHEMES = 180
@@ -182,6 +183,80 @@ export function buildEventRecord(
           }
         : {}),
   }
+}
+
+export function eventDraftFromRecord(
+  parsed: ParsedEvent,
+  thumb: string | undefined,
+  now = new Date(),
+): EventDraft {
+  const startsAt = (parsed.startsAt ?? now).toISOString()
+  return {
+    step: 'details',
+    name: parsed.name,
+    description: parsed.description ?? '',
+    location: parsed.location ?? parsed.joinUrl ?? '',
+    startsAt,
+    endsAt: parsed.endsAt?.toISOString() ?? startsAt,
+    ...(thumb && {cover: {url: thumb}}),
+  }
+}
+
+/**
+ * Applies only what the host changed, so fields the composer cannot edit
+ * (structured addresses, extra links, other media) survive an edit.
+ */
+export function applyEventEdits(
+  original: Record<string, unknown>,
+  initial: EventDraft,
+  edited: EventDraft,
+  {
+    country,
+    cover,
+  }: {
+    country?: string
+    cover?: {blob: BlobRef; width: number; height: number} | null
+  },
+) {
+  const built: Record<string, unknown> = buildEventRecord(edited, {
+    now: new Date(),
+    country,
+    cover: cover ?? undefined,
+  })
+  const record = {...original}
+  const take = (key: string) => {
+    if (built[key]) record[key] = built[key]
+    else delete record[key]
+  }
+  if (edited.name.trim() !== initial.name.trim()) take('name')
+  if (edited.description.trim() !== initial.description.trim()) {
+    take('description')
+  }
+  if (edited.startsAt !== initial.startsAt) take('startsAt')
+  if (edited.endsAt !== initial.endsAt) take('endsAt')
+  if (edited.location.trim() !== initial.location.trim()) {
+    const links =
+      original.mode === `${EVENT_COLLECTION}#hybrid` &&
+      built.mode === `${EVENT_COLLECTION}#inperson` &&
+      Array.isArray(original.locations)
+        ? original.locations.filter(l => (l as {uri?: unknown})?.uri)
+        : []
+    take('locations')
+    take('mode')
+    if (links.length) {
+      record.locations = [...(built.locations as unknown[]), ...links]
+      record.mode = original.mode
+    }
+  }
+  if (cover !== undefined) {
+    const others = (Array.isArray(original.media) ? original.media : []).filter(
+      m => (m as {role?: unknown})?.role !== 'thumbnail',
+    )
+    const media = [...others, ...((built.media as unknown[] | undefined) ?? [])]
+    if (media.length) record.media = media
+    else delete record.media
+  }
+  return record
 }
 
 export function eventPageUrl(did: string, rkey: string) {

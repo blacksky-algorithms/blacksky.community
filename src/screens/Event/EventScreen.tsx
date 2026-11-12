@@ -16,6 +16,7 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
 import {Text} from '#/components/Typography'
+import {EventHostMenu} from '#/features/events/components/EventHostMenu'
 import {useEventQuery, useEventRsvpsQuery} from '#/features/events/queries'
 import {type ParsedEvent, parseEventRecord} from '#/features/events/record'
 import {
@@ -108,6 +109,15 @@ function EventBody({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
       ListHeaderComponent={
         <View>
           <EventHeader event={event} parsed={parsed} guests={going} />
+          <View
+            style={[
+              a.absolute,
+              a.top_0,
+              a.right_0,
+              {paddingHorizontal: 15, paddingVertical: 10},
+            ]}>
+            <EventHostMenu event={event} parsed={parsed} />
+          </View>
           {!isLoading &&
             !error &&
             event.goingCount + event.interestedCount === 0 && (
