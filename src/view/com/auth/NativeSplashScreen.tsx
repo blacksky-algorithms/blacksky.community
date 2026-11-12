@@ -14,17 +14,13 @@ import {Logotype} from '#/view/icons/Logotype'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 // @ts-expect-error
-import phoneArt from '../../../../assets/illustrations/illustration-mobile.png'
+import art from '../../../../assets/illustrations/illustration-mobile.png'
 // @ts-expect-error
-import darkPhoneArt from '../../../../assets/illustrations/illustration-mobile-dark.png'
-// @ts-expect-error
-import darkSafeArt from '../../../../assets/illustrations/illustration-mobile-dark.png'
-// @ts-expect-error
-import safeArt from '../../../../assets/illustrations/illustration-mobile.png'
+import darkArt from '../../../../assets/illustrations/illustration-mobile-dark.png'
 
 const ART = {
-  phone: {light: phoneArt, dark: darkPhoneArt},
-  safe: {light: safeArt, dark: darkSafeArt},
+  phone: {light: art, dark: darkArt},
+  safe: {light: art, dark: darkArt},
 }
 
 /**
