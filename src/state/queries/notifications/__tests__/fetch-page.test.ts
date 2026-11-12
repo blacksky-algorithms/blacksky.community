@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {QueryClient} from '@tanstack/react-query'
 
 const mockListNotifications = jest.fn()
@@ -14,7 +14,7 @@ const SPACE = 'at://did:plc:tenant/space/community.blacksky.feed/private'
 const PRIVATE_URI = `${SPACE}/did:plc:alice/app.bsky.feed.post/3kprivate`
 
 describe(fetchPage, () => {
-  const agent = {} as AtpAgent
+  const client = {} as Client
   const queryClient = new QueryClient()
 
   beforeEach(() => {
@@ -41,7 +41,7 @@ describe(fetchPage, () => {
     })
 
     const result = await fetchPage({
-      agent,
+      client,
       cursor: undefined,
       limit: 30,
       queryClient,
@@ -51,7 +51,7 @@ describe(fetchPage, () => {
       reasons: [],
     })
 
-    expect(mockListNotifications).toHaveBeenCalledWith(agent, {
+    expect(mockListNotifications).toHaveBeenCalledWith(client, {
       limit: 30,
       cursor: undefined,
       reasons: [],
@@ -68,7 +68,7 @@ describe(fetchPage, () => {
     })
 
     const result = await fetchPage({
-      agent,
+      client,
       cursor: 'before',
       limit: 30,
       queryClient,
@@ -80,7 +80,7 @@ describe(fetchPage, () => {
 
     expect(result.page).toMatchObject({cursor: 'continue', items: []})
     expect(mockListNotifications).toHaveBeenCalledWith(
-      agent,
+      client,
       expect.objectContaining({
         cursor: 'before',
         reasons: ['mention', 'reply', 'quote'],

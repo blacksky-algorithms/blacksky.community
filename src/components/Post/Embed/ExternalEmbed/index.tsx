@@ -1,10 +1,6 @@
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 import {Image} from 'expo-image'
-import {
-  type AppBskyEmbedExternal,
-  type AppBskyRichtextFacet,
-} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -26,6 +22,7 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
 import {parseStreamplaceActor} from '#/features/streamplace/url'
+import {type app} from '#/lexicons'
 import {AssemblyEmbed} from './AssemblyEmbed'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
@@ -34,23 +31,25 @@ import {GifEmbed} from './Gif'
 export const ExternalEmbed = ({
   link,
   onOpen,
+  post,
   style,
   hideAlt,
   postText,
   postFacets,
   postUri,
 }: {
-  link: AppBskyEmbedExternal.ViewExternal
+  link: app.bsky.embed.external.ViewExternal
   onOpen?: () => void
+  post?: app.bsky.feed.defs.PostView
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
   postText?: string
-  postFacets?: AppBskyRichtextFacet.Main[]
+  postFacets?: app.bsky.richtext.facet.Main[]
   postUri?: string
 }) => {
   const {_} = useLingui()
   const t = useTheme()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
   const ax = useAnalytics()
   const externalEmbedPrefs = useExternalEmbedsPrefs()
   const {hasSession} = useSession()
@@ -77,14 +76,14 @@ export const ExternalEmbed = ({
   const hasMedia = Boolean(imageUri || (embedPlayerParams && !streamplaceActor))
 
   const onPress = () => {
-    playHaptic('Light')
+    haptics.tap()
     onOpen?.()
   }
 
   const onShareExternal = IS_NATIVE
     ? () => {
         if (link.uri) {
-          playHaptic('Heavy')
+          haptics.longPress()
           void shareUrl(link.uri)
         }
       }
@@ -159,7 +158,11 @@ export const ExternalEmbed = ({
           {embedPlayerParams?.isGif ? (
             <ExternalGif link={link} params={embedPlayerParams} />
           ) : embedPlayerParams && !streamplaceActor ? (
-            <ExternalPlayer link={link} params={embedPlayerParams} />
+            <ExternalPlayer
+              link={link}
+              params={embedPlayerParams}
+              post={post}
+            />
           ) : undefined}
 
           <View

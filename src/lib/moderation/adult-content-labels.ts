@@ -1,4 +1,7 @@
-import {type InterpretedLabelValueDefinition, LABELS} from '@atproto/api'
+import {
+  type InterpretedLabelValueDefinition,
+  LABELS,
+} from '@bsky/sdk/moderation'
 
 import {SELF_LABELS} from '../moderation'
 

@@ -1,4 +1,3 @@
-import {type ComAtprotoServerCreateAppPassword} from '@atproto/api'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {
@@ -7,7 +6,8 @@ import {
   gateRevokeAppPassword,
 } from '#/lib/api/gatekeeper'
 import {STALE} from '#/state/queries'
-import {useAgent} from '../session'
+import {com} from '#/lexicons'
+import {usePdsClient} from '../session'
 
 const RQKEY_ROOT = 'app-passwords'
 export const RQKEY = () => [RQKEY_ROOT]
@@ -19,7 +19,7 @@ export type GatekeeperConfig = {
 }
 
 export function useAppPasswordsQuery(gatekeeper?: GatekeeperConfig) {
-  const agent = useAgent()
+  const client = usePdsClient()
   return useQuery({
     staleTime: STALE.MINUTES.FIVE,
     queryKey: [...RQKEY(), gatekeeper ? 'gate' : 'direct'],
@@ -30,10 +30,10 @@ export function useAppPasswordsQuery(gatekeeper?: GatekeeperConfig) {
           did: gatekeeper.did,
           password: gatekeeper.password,
         })
-        return res.passwords
+        return res.passwords as com.atproto.server.listAppPasswords.AppPassword[]
       }
-      const res = await agent.com.atproto.server.listAppPasswords({})
-      return res.data.passwords
+      const data = await client.call(com.atproto.server.listAppPasswords)
+      return data.passwords
     },
     enabled: gatekeeper ? !!gatekeeper.password : true,
   })
@@ -41,28 +41,26 @@ export function useAppPasswordsQuery(gatekeeper?: GatekeeperConfig) {
 
 export function useAppPasswordCreateMutation(gatekeeper?: GatekeeperConfig) {
   const queryClient = useQueryClient()
-  const agent = useAgent()
+  const client = usePdsClient()
   return useMutation<
-    ComAtprotoServerCreateAppPassword.OutputSchema,
+    com.atproto.server.createAppPassword.$OutputBody,
     Error,
     {name: string; privileged: boolean}
   >({
     mutationFn: async ({name, privileged}) => {
       if (gatekeeper) {
-        return await gateCreateAppPassword({
+        return (await gateCreateAppPassword({
           serviceUrl: gatekeeper.serviceUrl,
           did: gatekeeper.did,
           password: gatekeeper.password,
           name,
           privileged,
-        })
+        })) as com.atproto.server.createAppPassword.$OutputBody
       }
-      return (
-        await agent.com.atproto.server.createAppPassword({
-          name,
-          privileged,
-        })
-      ).data
+      return await client.call(com.atproto.server.createAppPassword, {
+        name,
+        privileged,
+      })
     },
     onSuccess() {
       void queryClient.invalidateQueries({
@@ -74,7 +72,7 @@ export function useAppPasswordCreateMutation(gatekeeper?: GatekeeperConfig) {
 
 export function useAppPasswordDeleteMutation(gatekeeper?: GatekeeperConfig) {
   const queryClient = useQueryClient()
-  const agent = useAgent()
+  const client = usePdsClient()
   return useMutation<void, Error, {name: string}>({
     mutationFn: async ({name}) => {
       if (gatekeeper) {
@@ -86,7 +84,7 @@ export function useAppPasswordDeleteMutation(gatekeeper?: GatekeeperConfig) {
         })
         return
       }
-      await agent.com.atproto.server.revokeAppPassword({
+      await client.call(com.atproto.server.revokeAppPassword, {
         name,
       })
     },

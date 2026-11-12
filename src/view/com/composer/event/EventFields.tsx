@@ -40,3 +40,20 @@ export function DateBox({iso, isInvalid}: {iso: string; isInvalid?: boolean}) {
     </View>
   )
 }
+
+export function Counter({count, max}: {count: number; max: number}) {
+  const t = useTheme()
+  return (
+    <Text
+      style={[
+        a.text_xs,
+        a.text_right,
+        a.mt_2xs,
+        count > max
+          ? {color: t.palette.negative_500}
+          : t.atoms.text_contrast_medium,
+      ]}>
+      {`${count} / ${max}`}
+    </Text>
+  )
+}

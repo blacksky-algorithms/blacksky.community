@@ -1,19 +1,15 @@
-import {
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AtUri,
-  type BskyAgent,
-  jsonToLex,
-} from '@atproto/api'
+import {type Client, jsonToLex} from '@atproto/lex'
+import {AtUri} from '@atproto/syntax'
 
 import {communityXrpc} from '#/lib/api/community'
 import {isSpaceRecordUri, parseSpaceUri} from '#/lib/api/space-uri'
 import {toPostView} from '#/lib/api/space-views'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 export const GET_COMMUNITY_POST = 'community.blacksky.feed.getCommunityPost'
 
-const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
+export const COMMUNITY_POST_COLLECTION = 'community.blacksky.feed.post'
 const PEER_MOD_LABELABLE_COLLECTIONS = [
   'app.bsky.feed.post',
   COMMUNITY_POST_COLLECTION,
@@ -39,15 +35,16 @@ export function isCommunityPostUri(uri: string | undefined): boolean {
  * reply and quote refs are permissioned-space URIs rather than AT-URIs. The
  * public lexicon validator therefore cannot validate those otherwise valid
  * records. Space responses are already validated by the AppView endpoint;
- * retain the fields the renderer requires here while keeping strict lexicon
+ * retain the fields the renderer requires here while keeping lexicon
  * validation for public posts.
  */
 export function isRenderablePostRecord(
-  post: AppBskyFeedDefs.PostView,
-): post is AppBskyFeedDefs.PostView & {record: AppBskyFeedPost.Record} {
-  if (!AppBskyFeedPost.isRecord(post.record)) return false
+  post: app.bsky.feed.defs.PostView,
+): post is app.bsky.feed.defs.PostView & {record: app.bsky.feed.post.Main} {
+  if (!bsky.isType(app.bsky.feed.post, post.record)) return false
   if (!isSpaceRecordUri(post.uri)) {
-    return bsky.validate(post.record, AppBskyFeedPost.validateRecord)
+    // Lenient so a record that still holds a legacy blob reference renders.
+    return bsky.matches(app.bsky.feed.post, post.record, {strict: false})
   }
   return (
     typeof post.record.text === 'string' &&
@@ -55,7 +52,7 @@ export function isRenderablePostRecord(
   )
 }
 
-export type CommunityPostView = AppBskyFeedDefs.PostView & {
+export type CommunityPostView = app.bsky.feed.defs.PostView & {
   communitySpace?: string
 }
 
@@ -65,7 +62,7 @@ export type CommunityPostView = AppBskyFeedDefs.PostView & {
  * space; never fed to `AtUri`, which misparses a space URI.
  */
 export function getCommunitySpaceUri(
-  post: AppBskyFeedDefs.PostView | undefined,
+  post: app.bsky.feed.defs.PostView | undefined,
 ): string | undefined {
   const space = (post as unknown as {communitySpace?: unknown} | undefined)
     ?.communitySpace
@@ -73,6 +70,22 @@ export function getCommunitySpaceUri(
   return typeof space === 'string' && parseSpaceUri(space) !== null
     ? space
     : undefined
+}
+
+/** A community post read the server answered with an error status. */
+export class CommunityPostError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message)
+    this.name = 'CommunityPostError'
+  }
+
+  /** The post is gone or the viewer may not read it; retrying will not help. */
+  get isUnavailable() {
+    return this.status >= 400 && this.status < 500
+  }
 }
 
 /**
@@ -83,19 +96,22 @@ export function getCommunitySpaceUri(
  * on membership before returning anything.
  */
 export async function fetchCommunityPostView(
-  agent: BskyAgent,
+  client: Client,
   uri: string,
-): Promise<AppBskyFeedDefs.PostView> {
-  const res = await communityXrpc(agent, GET_COMMUNITY_POST, {params: {uri}})
+): Promise<app.bsky.feed.defs.PostView> {
+  const res = await communityXrpc(client, GET_COMMUNITY_POST, {params: {uri}})
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as {
       message?: string
       error?: string
     }
-    throw new Error(body.message || body.error || `HTTP ${res.status}`)
+    throw new CommunityPostError(
+      body.message || body.error || `HTTP ${res.status}`,
+      res.status,
+    )
   }
   const data = jsonToLex(await res.json()) as {post?: unknown}
   const post = toPostView(data.post)
-  if (!post) throw new Error('Community post not found')
+  if (!post) throw new CommunityPostError('Community post not found', 404)
   return post
 }

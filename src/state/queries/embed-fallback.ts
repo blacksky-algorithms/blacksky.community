@@ -1,4 +1,4 @@
-import {AtpAgent} from '@atproto/api'
+import {Client} from '@atproto/lex'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
@@ -12,7 +12,7 @@ export function useEmbedFallback({uri}: {uri: string}) {
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
   const labelerDids =
-    moderationOpts?.prefs.labelers.map(l => l.did) ?? AtpAgent.appLabelers
+    moderationOpts?.prefs.labelers.map(l => l.did) ?? Client.appLabelers
 
   return useQuery({
     staleTime: STALE.HOURS.ONE,

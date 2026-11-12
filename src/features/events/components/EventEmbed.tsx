@@ -1,7 +1,6 @@
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 import {Image} from 'expo-image'
-import {type AppBskyEmbedExternal} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -15,6 +14,7 @@ import {LinearGradientBackground} from '#/components/LinearGradientBackground'
 import {Link} from '#/components/Link'
 import {ExternalEmbed} from '#/components/Post/Embed/ExternalEmbed'
 import {Text} from '#/components/Typography'
+import {type app} from '#/lexicons'
 import {eventLinkLabel, eventPhase} from '../format'
 import {eventPoster} from '../poster'
 import {useEventQuery} from '../queries'
@@ -31,7 +31,7 @@ export function EventEmbed({
   style,
 }: {
   eventRef: EventRef
-  link: AppBskyEmbedExternal.ViewExternal
+  link: app.bsky.embed.external.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
 }) {

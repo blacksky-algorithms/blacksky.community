@@ -2,7 +2,8 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
-import {useAgent, useSession} from '#/state/session'
+import {usePdsClient, useSession} from '#/state/session'
+import {com} from '#/lexicons'
 import {buildGlobalRecord, type Patch} from './serde'
 import {AI_PREFERENCE_NSID, type AIPreferenceRecord} from './types'
 
@@ -22,7 +23,7 @@ function isRecordNotFoundError(e: unknown): boolean {
 
 export function useAIPreferencesQuery() {
   const {currentAccount} = useSession()
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
 
   return useQuery<AIPreferenceRecord | null>({
     queryKey: RQKEY(currentAccount?.did),
@@ -31,7 +32,7 @@ export function useAIPreferencesQuery() {
     queryFn: async () => {
       if (!currentAccount) throw new Error('Not signed in')
       try {
-        const {data} = await agent.com.atproto.repo.getRecord({
+        const data = await pdsClient.call(com.atproto.repo.getRecord, {
           repo: currentAccount.did,
           collection: AI_PREFERENCE_NSID,
           rkey: 'self',
@@ -54,7 +55,7 @@ export function useUpdateAIPreferencesMutation({
 } = {}) {
   const queryClient = useQueryClient()
   const {currentAccount} = useSession()
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
 
   type Ctx = {prev: AIPreferenceRecord | null}
 
@@ -65,7 +66,7 @@ export function useUpdateAIPreferencesMutation({
       const prev =
         queryClient.getQueryData<AIPreferenceRecord | null>(queryKey) ?? null
       const next = buildGlobalRecord(prev, patch)
-      await agent.com.atproto.repo.putRecord({
+      await pdsClient.call(com.atproto.repo.putRecord, {
         repo: currentAccount.did,
         collection: AI_PREFERENCE_NSID,
         rkey: 'self',

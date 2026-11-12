@@ -22,7 +22,6 @@ function propsOf(node: {props: unknown}) {
 }
 
 const NEAR_WHITE = /#F8FAF9/i
-const DIVIDER_COLOR = '#464985'
 
 function collectColors(style: unknown, out: string[]) {
   if (Array.isArray(style)) {
@@ -52,7 +51,7 @@ type JsonNode = {
 function hasDivider(node: JsonNode | null): boolean {
   if (!node || typeof node !== 'object') return false
   const style = flattenStyle(node.props?.style)
-  if (style.height === 1 && style.backgroundColor === DIVIDER_COLOR) {
+  if (style.height === 1 && style.marginHorizontal === -16) {
     return true
   }
   return (node.children ?? []).some(child => hasDivider(child))
@@ -206,7 +205,7 @@ describe('InputGroup', () => {
   })
 
   it('forwards a ref to the underlying TextInput', () => {
-    const ref = createRef<TextInput>()
+    const ref = createRef<React.ComponentRef<typeof TextInput>>()
     renderWithI18n(
       <InputGroup label="Email" value="" onChangeText={jest.fn()} ref={ref} />,
     )

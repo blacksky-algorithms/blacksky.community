@@ -1,4 +1,4 @@
-import {type BskyAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {
   type QueryClient,
   useMutation,
@@ -18,8 +18,9 @@ import {
 import {RQKEY as postRQKey} from '#/state/queries/post'
 import {RQKEY_ROOT as POST_FEED_RQKEY_ROOT} from '#/state/queries/post-feed'
 import {postThreadQueryKeyRoot} from '#/state/queries/usePostThread/types'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
+import {com} from '#/lexicons'
 
 const APPLY_METHOD = 'community.blacksky.moderation.applyLabel'
 const REMOVE_METHOD = 'community.blacksky.moderation.removeLabel'
@@ -64,14 +65,14 @@ async function readError(res: Response): Promise<string> {
  * remove labels they applied themselves.
  */
 export function useMyAppliedLabelsQuery(subjectUri: string | undefined) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery<string[]>({
     queryKey: myLabelsRQKey(subjectUri || ''),
     enabled: !!subjectUri,
     queryFn: async () => {
       if (!subjectUri) return []
       try {
-        const res = await communityXrpc(agent, GET_MY_LABELS_METHOD, {
+        const res = await communityXrpc(client, GET_MY_LABELS_METHOD, {
           params: {subjectUri},
         })
         if (!res.ok) return []
@@ -90,27 +91,28 @@ export function useMyAppliedLabelsQuery(subjectUri: string | undefined) {
  * already-applied state and prevent double-application.
  */
 export function usePostBlackskyLabelsQuery(subjectUri: string | undefined) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery<string[]>({
     queryKey: postLabelsRQKey(subjectUri || ''),
     enabled: !!subjectUri,
     queryFn: async () => {
       if (!subjectUri) return []
-      return fetchBlackskyLabelVals(agent, subjectUri)
+      return fetchBlackskyLabelVals(client, subjectUri)
     },
   })
 }
 
 async function fetchBlackskyLabelVals(
-  agent: BskyAgent,
+  client: Client,
   subjectUri: string,
   signal?: AbortSignal,
 ): Promise<string[]> {
-  const res = await agent.com.atproto.label.queryLabels(
+  const res = await client.call(
+    com.atproto.label.queryLabels,
     {uriPatterns: [subjectUri], sources: [BLACKSKY_LABELER]},
     {...HOME_APPVIEW_PINNED_OPTS, signal},
   )
-  return res.data.labels.filter(l => !l.neg).map(l => l.val)
+  return res.labels.filter(l => !l.neg).map(l => l.val)
 }
 
 function withDeadline<T>(
@@ -136,13 +138,13 @@ function withDeadline<T>(
  * reports the expected state, or after a bounded wait.
  */
 export async function reconcileLabelState({
-  agent,
+  client,
   queryClient,
   subjectUri,
   val,
   expectPresent,
 }: {
-  agent: BskyAgent
+  client: Client
   queryClient: QueryClient
   subjectUri: string
   val: string
@@ -153,7 +155,7 @@ export async function reconcileLabelState({
     for (let attempt = 1; attempt <= RECONCILE_ATTEMPTS; attempt++) {
       try {
         const vals = await withDeadline(
-          signal => fetchBlackskyLabelVals(agent, subjectUri, signal),
+          signal => fetchBlackskyLabelVals(client, subjectUri, signal),
           RECONCILE_REQUEST_TIMEOUT_MS,
         )
         if (vals.includes(val) === expectPresent) {
@@ -185,18 +187,18 @@ export async function reconcileLabelState({
 }
 
 export function useApplyLabelMutation() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const queryClient = useQueryClient()
   return useMutation<void, Error, ApplyLabelInput>({
     mutationFn: async input => {
-      const res = await communityXrpc(agent, APPLY_METHOD, {body: input})
+      const res = await communityXrpc(client, APPLY_METHOD, {body: input})
       if (!res.ok) {
         throw new Error(await readError(res))
       }
     },
     onSuccess: (_data, input) => {
       void reconcileLabelState({
-        agent,
+        client,
         queryClient,
         subjectUri: input.subjectUri,
         val: input.val,
@@ -207,18 +209,18 @@ export function useApplyLabelMutation() {
 }
 
 export function useRemoveLabelMutation() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const queryClient = useQueryClient()
   return useMutation<void, Error, RemoveLabelInput>({
     mutationFn: async input => {
-      const res = await communityXrpc(agent, REMOVE_METHOD, {body: input})
+      const res = await communityXrpc(client, REMOVE_METHOD, {body: input})
       if (!res.ok) {
         throw new Error(await readError(res))
       }
     },
     onSuccess: (_data, input) => {
       void reconcileLabelState({
-        agent,
+        client,
         queryClient,
         subjectUri: input.subjectUri,
         val: input.val,

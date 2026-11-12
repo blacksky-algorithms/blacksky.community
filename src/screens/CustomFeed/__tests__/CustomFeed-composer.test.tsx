@@ -49,6 +49,9 @@ jest.mock('#/state/session', () => ({
 }))
 jest.mock('#/view/com/posts/PostFeed', () => ({PostFeed: () => null}))
 jest.mock('#/view/com/util/EmptyState', () => ({EmptyState: () => null}))
+jest.mock('#/components/PostFeedSkeleton', () => ({
+  PostFeedSkeleton: () => null,
+}))
 jest.mock('#/view/com/util/error/ErrorScreen', () => ({
   ErrorScreen: () => null,
 }))

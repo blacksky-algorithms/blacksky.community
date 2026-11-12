@@ -71,9 +71,8 @@ export const ChooseAccountForm = ({
         Toast.show(errMsg || l`Sign in failed. Please try again.`)
         // Move to login form.
         onSelectAccount(account)
-      } finally {
-        setPendingDid(null)
       }
+      setPendingDid(null)
     },
     [
       currentAccount,

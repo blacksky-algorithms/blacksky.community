@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {AtUri, type ComAtprotoLabelDefs} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {PUBLIC_APPVIEW, VIDEO_SERVICE} from '#/lib/constants'
+import {type com} from '#/lexicons'
 import {isDidBlocked} from './my-blocked-accounts'
 import {isDidMuted} from './my-muted-accounts'
 
@@ -191,7 +192,7 @@ export async function buildSyntheticProfileView(
   queryClient: QueryClient,
   did: string,
   handle: string,
-  labels: ComAtprotoLabelDefs.Label[] = [],
+  labels: com.atproto.label.defs.Label[] = [],
 ): Promise<any> {
   // Check viewer state before fetching profile data
   const viewer = buildViewerState(queryClient, did)
@@ -295,7 +296,7 @@ export async function fetchAppviewLabels(
   atUri: string,
   authorDid: string,
   labelerDids: readonly string[],
-): Promise<ComAtprotoLabelDefs.Label[]> {
+): Promise<com.atproto.label.defs.Label[]> {
   try {
     const params = new URLSearchParams()
     params.append('uriPatterns', atUri)
@@ -312,7 +313,7 @@ export async function fetchAppviewLabels(
     )
     if (!res.ok) return []
 
-    const data = (await res.json()) as {labels?: ComAtprotoLabelDefs.Label[]}
+    const data = (await res.json()) as {labels?: com.atproto.label.defs.Label[]}
     return (data.labels || []).filter(l => !l.neg)
   } catch {
     // If the label query fails, don't block fallback -- the author-level
@@ -330,9 +331,9 @@ function selfLabels(
   cid: string,
   authorDid: string,
   recordValue:
-    | {labels?: ComAtprotoLabelDefs.SelfLabels; createdAt?: string}
+    | {labels?: com.atproto.label.defs.SelfLabels; createdAt?: string}
     | undefined,
-): ComAtprotoLabelDefs.Label[] {
+): com.atproto.label.defs.Label[] {
   const values = recordValue?.labels?.values
   if (!Array.isArray(values)) return []
   return values.flatMap(v =>
@@ -344,7 +345,7 @@ function selfLabels(
             cid,
             val: v.val,
             cts: recordValue?.createdAt || new Date(0).toISOString(),
-          },
+          } as com.atproto.label.defs.Label,
         ]
       : [],
   )
@@ -460,7 +461,7 @@ function resolveSingleEmbed(authorDid: string, embed: any): any | null {
 /**
  * Build synthetic embed ViewRecord from Slingshot + Constellation data
  *
- * Returns an AppBskyEmbedRecord.ViewRecord-shaped object for use in
+ * Returns an app.bsky.embed.record.ViewRecord-shaped object for use in
  * embedded/quoted post fallback rendering when the appview returns ViewNotFound.
  *
  * SECURITY: Checks both author-level and post-level moderation before

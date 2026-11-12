@@ -1,5 +1,6 @@
-import {type AppBskyFeedDefs} from '@atproto/api'
 import {QueryClient} from '@tanstack/react-query'
+
+import {type app} from '#/lexicons'
 
 jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
 jest.mock('#/state/queries/notifications/feed', () => ({
@@ -12,6 +13,8 @@ jest.mock('#/state/queries/usePostThread', () => ({
   usePostThreadContext: jest.fn(),
 }))
 
+import {type AtUriString} from '@atproto/syntax'
+
 import {
   dangerousGetPostShadow,
   updatePostShadow,
@@ -23,9 +26,9 @@ const LEGACY_POST = 'at://did:plc:alice/community.blacksky.feed.post/3klegacy'
 const SPACE_POST =
   'at://did:plc:space/space/community.blacksky.feed/test/did:plc:alice/app.bsky.feed.post/3kspace'
 
-function post(uri: string): AppBskyFeedDefs.PostView {
+function post(uri: string): app.bsky.feed.defs.PostView {
   return {
-    uri,
+    uri: uri as AtUriString,
     cid: 'bafyrei post',
     author: {did: 'did:plc:alice', handle: 'alice.test'},
     record: {$type: 'app.bsky.feed.post', text: 'hello'},
@@ -35,7 +38,7 @@ function post(uri: string): AppBskyFeedDefs.PostView {
 
 function cachePost(
   queryClient: QueryClient,
-  cachedPost: AppBskyFeedDefs.PostView,
+  cachedPost: app.bsky.feed.defs.PostView,
 ) {
   queryClient.setQueryData([POST_FEED_QUERY_KEY_ROOT, 'following'], {
     pages: [{feed: [{post: cachedPost}]}],
@@ -52,7 +55,9 @@ describe('post shadow URI matching', () => {
       cachePost(queryClient, cachedPost)
 
       expect(() =>
-        updatePostShadow(queryClient, uri, {likeUri: `${uri}/like`}),
+        updatePostShadow(queryClient, uri, {
+          likeUri: `${uri}/like` as AtUriString,
+        }),
       ).not.toThrow()
       expect(dangerousGetPostShadow(cachedPost)?.likeUri).toBe(`${uri}/like`)
     },

@@ -1,5 +1,12 @@
-import {useEffect, useRef} from 'react'
-import {ScrollView, View} from 'react-native'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
+import {ScrollView, useWindowDimensions, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -25,6 +32,46 @@ const ONBOARDING_COL_WIDTH = 420
 export const OnboardingControls = createPortalGroup()
 export const OnboardingHeaderSlot = createPortalGroup()
 
+const ScrollVisibilityContext = createContext<{
+  subscribe: (listener: () => void) => () => void
+  viewportTop: number
+  viewportBottom: number
+} | null>(null)
+
+export function useOnboardingScrollViewVisibility(
+  ref: React.RefObject<React.ComponentRef<typeof View> | null>,
+  onVisible: () => void,
+) {
+  const context = useContext(ScrollVisibilityContext)
+
+  if (!context) {
+    throw new Error(
+      'useOnboardingScrollViewVisibility must be used within Onboarding Layout',
+    )
+  }
+
+  const {subscribe, viewportTop, viewportBottom} = context
+  const checkVisibility = useCallback(() => {
+    ref.current?.measureInWindow((_x, y, _width, height) => {
+      if (height <= 0) return
+      const visibleHeight = Math.max(
+        0,
+        Math.min(y + height, viewportBottom) - Math.max(y, viewportTop),
+      )
+      if (visibleHeight / height >= 0.5) {
+        onVisible()
+      }
+    })
+  }, [onVisible, ref, viewportBottom, viewportTop])
+
+  useEffect(() => {
+    checkVisibility()
+    return subscribe(checkVisibility)
+  }, [checkVisibility, subscribe])
+
+  return checkVisibility
+}
+
 export function Layout({children}: React.PropsWithChildren<{}>) {
   const {_} = useLingui()
   const t = useTheme()
@@ -32,7 +79,7 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
   const {gtMobile} = useBreakpoints()
   const onboardDispatch = useOnboardingDispatch()
   const {state} = useOnboardingInternalState()
-  const scrollview = useRef<ScrollView>(null)
+  const scrollview = useRef<React.ComponentRef<typeof ScrollView>>(null)
   const prevActiveStep = useRef<string>(state.activeStep)
 
   useEffect(() => {
@@ -43,6 +90,28 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
   }, [state])
 
   const dialogLabel = _(msg`Set up your account`)
+
+  const {height: windowHeight} = useWindowDimensions()
+  const visibilityListenersRef = useRef(new Set<() => void>())
+  const subscribeToScroll = useCallback((listener: () => void) => {
+    visibilityListenersRef.current.add(listener)
+    return () => {
+      visibilityListenersRef.current.delete(listener)
+    }
+  }, [])
+  const scrollVisibilityContext = useMemo(
+    () => ({
+      subscribe: subscribeToScroll,
+      viewportTop: 0,
+      viewportBottom: windowHeight,
+    }),
+    [subscribeToScroll, windowHeight],
+  )
+  const onScroll = () => {
+    for (const listener of visibilityListenersRef.current) {
+      listener()
+    }
+  }
 
   return (
     <View
@@ -75,6 +144,8 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
 
       <ScrollView
         ref={scrollview}
+        onScroll={onScroll}
+        scrollEventThrottle={100}
         style={[a.h_full, a.w_full]}
         contentContainerStyle={{
           borderWidth: 0,
@@ -95,7 +166,11 @@ export function Layout({children}: React.PropsWithChildren<{}>) {
             gtMobile ? a.px_5xl : {paddingHorizontal: 24},
           ]}>
           <View style={[a.flex_1, web({maxWidth: ONBOARDING_COL_WIDTH})]}>
-            <View style={[a.flex_1, a.w_full, a.py_md]}>{children}</View>
+            <View style={[a.flex_1, a.w_full, a.py_md]}>
+              <ScrollVisibilityContext.Provider value={scrollVisibilityContext}>
+                {children}
+              </ScrollVisibilityContext.Provider>
+            </View>
           </View>
         </View>
       </ScrollView>

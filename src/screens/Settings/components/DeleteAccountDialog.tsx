@@ -5,12 +5,17 @@ import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
 import {gateRequestAccountDelete} from '#/lib/api/gatekeeper'
-import {DM_SERVICE_HEADERS} from '#/lib/constants'
 import {useCleanError} from '#/lib/hooks/useCleanError'
 import {useIsBlackskyPds} from '#/lib/hooks/useIsBlackskyPds'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {checkAndFormatResetCode} from '#/lib/strings/password'
 import {logger} from '#/logger'
-import {useAgent, useSession, useSessionApi} from '#/state/session'
+import {
+  useChatClient,
+  usePdsClient,
+  useSession,
+  useSessionApi,
+} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {type DialogOuterProps} from '#/components/Dialog'
@@ -18,6 +23,7 @@ import {
   isValidCode,
   TokenField,
 } from '#/components/dialogs/EmailDialog/components/TokenField'
+import {PasswordField} from '#/components/forms/PasswordField'
 import * as TextField from '#/components/forms/TextField'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
 import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
@@ -26,6 +32,7 @@ import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import * as toast from '#/components/Toast'
 import {Span, Text} from '#/components/Typography'
+import {chat, com} from '#/lexicons'
 import {resetToTab} from '#/Navigation'
 
 const WHITESPACE_RE = /\s/gu
@@ -70,11 +77,12 @@ function DeleteAccountDialogInner({
   control: DialogOuterProps['control']
   deactivateDialogControl: DialogOuterProps['control']
 }) {
-  const passwordRef = useRef<TextInput | null>(null)
+  const passwordRef = useRef<React.ComponentRef<typeof TextInput> | null>(null)
   const t = useTheme()
   const {_} = useLingui()
   const cleanError = useCleanError()
-  const agent = useAgent()
+  const client = usePdsClient()
+  const chatClient = useChatClient()
   const {currentAccount} = useSession()
   const {removeAccount} = useSessionApi()
 
@@ -120,7 +128,7 @@ function DeleteAccountDialogInner({
           return
         }
       } else {
-        await agent.com.atproto.server.requestAccountDelete()
+        await client.call(com.atproto.server.requestAccountDelete)
       }
       setError('')
       setEmailSentCount(prevCount => prevCount + 1)
@@ -140,7 +148,7 @@ function DeleteAccountDialogInner({
     }
   }, [
     _,
-    agent,
+    client,
     authFactorToken,
     cleanError,
     currentAccount,
@@ -155,27 +163,26 @@ function DeleteAccountDialogInner({
       if (!currentAccount?.did) {
         throw new Error('Invalid did')
       }
-      const token = confirmCode.replace(WHITESPACE_RE, '')
+      const strippedCode = confirmCode.replace(WHITESPACE_RE, '')
+      const token = checkAndFormatResetCode(strippedCode) || strippedCode
       // Inform chat service of intent to delete account. Best-effort: a
       // failure here (chat service down, account never used chat) must not
       // block the actual account deletion.
       try {
-        await agent.chat.bsky.actor.deleteAccount(undefined, {
-          headers: DM_SERVICE_HEADERS,
-        })
+        await chatClient.call(chat.bsky.actor.deleteAccount)
       } catch (e: unknown) {
         logger.error('Failed to inform chat service of account deletion', {
           error: e,
         })
       }
-      await agent.com.atproto.server.deleteAccount({
+      await client.call(com.atproto.server.deleteAccount, {
         did: currentAccount.did,
         password,
         token,
       })
       control.close(() => {
         toast.show(_(msg`Your account has been deleted, see ya! ✌️`))
-        resetToTab('HomeTab')
+        resetToTab('Home')
         removeAccount(currentAccount)
       })
     } catch (e: unknown) {
@@ -190,8 +197,9 @@ function DeleteAccountDialogInner({
     }
   }, [
     _,
-    agent,
+    chatClient,
     cleanError,
+    client,
     confirmCode,
     control,
     currentAccount,
@@ -385,24 +393,18 @@ function DeleteAccountDialogInner({
             <TextField.LabelText>
               <Trans>Password</Trans>
             </TextField.LabelText>
-            <TextField.Root>
-              <TextField.Icon icon={Lock} />
-              <TextField.Input
-                inputRef={passwordRef}
-                testID="newPasswordInput"
-                label={_(msg`Enter your password`)}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-                secureTextEntry={true}
-                autoComplete="off"
-                clearButtonMode="while-editing"
-                passwordRules={`minlength: ${PASSWORD_MIN_LENGTH}};`}
-                value={password}
-                onChangeText={setPassword}
-                onSubmitEditing={handleDeleteAccount}
-              />
-            </TextField.Root>
+            <PasswordField
+              inputRef={passwordRef}
+              testID="newPasswordInput"
+              label={_(msg`Enter your password`)}
+              returnKeyType="done"
+              autoComplete="off"
+              clearButtonMode="while-editing"
+              passwordRules={`minlength: ${PASSWORD_MIN_LENGTH}};`}
+              value={password}
+              onChangeText={setPassword}
+              onSubmitEditing={handleDeleteAccount}
+            />
           </View>
           <Prompt.Actions>
             <Prompt.Action

@@ -1,4 +1,4 @@
-import {View} from 'react-native'
+import {useWindowDimensions, View} from 'react-native'
 import {Image} from 'expo-image'
 import {msg, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -31,7 +31,6 @@ import {
   type EventView,
   RSVP_GOING,
   RSVP_INTERESTED,
-  RSVP_NOTGOING,
   type RsvpStatus,
   type RsvpView,
 } from '#/features/events/types'
@@ -50,6 +49,7 @@ export function EventHeader({
   guests: RsvpView[]
 }) {
   const t = useTheme()
+  const {width} = useWindowDimensions()
   const {_, i18n} = useLingui()
   const openLink = useOpenLink()
   const watch = useWatchStreamplace()
@@ -70,9 +70,16 @@ export function EventHeader({
     <View style={[a.pb_xl]}>
       <LinearGradientBackground
         gradient="primary"
-        style={[a.absolute, a.inset_0, {height: 220, opacity: 0.35}]}
+        style={[a.absolute, a.inset_0, {height: 237, opacity: 0.35}]}
       />
-      <View style={[a.align_center, a.px_lg, a.pt_2xl, a.gap_lg]}>
+      <View
+        style={[
+          a.align_center,
+          a.px_lg,
+          a.pt_3xl,
+          a.gap_lg,
+          width < 396 && !parsed.cancelled && {paddingTop: 53},
+        ]}>
         {parsed.cancelled && (
           <View
             style={[
@@ -89,26 +96,25 @@ export function EventHeader({
         <Poster event={event} parsed={parsed} />
         <Text
           style={[
-            a.text_4xl,
-            a.font_bold,
             a.text_center,
-            a.leading_tight,
-            {letterSpacing: -0.5},
+            {fontSize: 32, lineHeight: 38, letterSpacing: -0.5},
           ]}>
           {parsed.name}
         </Text>
         {date && (
           <View style={[a.align_center, a.gap_2xs]}>
-            <Text style={[a.text_lg, a.font_semi_bold, a.text_center]}>
-              {date.longDate}
-            </Text>
+            <Text style={[a.text_lg, a.text_center]}>{date.longDate}</Text>
             <Text
               style={[a.text_md, a.text_center, t.atoms.text_contrast_medium]}>
               {date.timeRange}
             </Text>
             {localTime && (
               <Text
-                style={[a.text_sm, a.text_center, t.atoms.text_contrast_low]}>
+                style={[
+                  a.text_sm,
+                  a.text_center,
+                  {color: t.palette.primary_500},
+                ]}>
                 <Trans>{localTime} your time</Trans>
               </Text>
             )}
@@ -147,14 +153,14 @@ export function EventHeader({
           </Button>
         )}
         <View style={[a.flex_row, a.align_center, a.gap_sm]}>
-          <UserAvatar avatar={event.creator.avatar} size={28} type="user" />
+          <UserAvatar avatar={event.creator.avatar} size={32} type="user" />
           <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
             <Trans>
               Hosted by{' '}
               <InlineLinkText
                 label={_(msg`View host's profile`)}
                 to={`/profile/${event.creator.handle || event.creator.did}`}
-                style={[a.text_md, a.font_semi_bold]}>
+                style={[a.text_md, {color: t.palette.primary_500}]}>
                 {event.creator.displayName || `@${event.creator.handle}`}
               </InlineLinkText>
             </Trans>
@@ -180,11 +186,11 @@ export function EventHeader({
             a.mx_lg,
             a.mt_xl,
             a.p_lg,
-            a.rounded_lg,
+            a.rounded_xl,
             a.gap_sm,
             t.atoms.bg_contrast_25,
           ]}>
-          <Text style={[a.text_md, a.font_bold]}>
+          <Text style={[a.text_md]}>
             <Trans>About</Trans>
           </Text>
           <Text style={[a.text_md, a.leading_snug]}>{parsed.description}</Text>
@@ -196,11 +202,11 @@ export function EventHeader({
             a.mx_lg,
             a.mt_md,
             a.p_lg,
-            a.rounded_lg,
+            a.rounded_xl,
             a.gap_sm,
             t.atoms.bg_contrast_25,
           ]}>
-          <Text style={[a.text_md, a.font_bold]}>
+          <Text style={[a.text_md]}>
             <Trans>Links</Trans>
           </Text>
           {otherLinks.map(link => (
@@ -221,9 +227,15 @@ export function EventHeader({
   )
 }
 
-function Poster({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
+export function Poster({
+  event,
+  parsed,
+}: {
+  event: EventView
+  parsed: ParsedEvent
+}) {
   const {_} = useLingui()
-  const size = 280
+  const size = 300
   const cover = coverUrl(event)
   if (cover) {
     return (
@@ -277,12 +289,6 @@ function RsvpChoices({event}: {event: EventView}) {
       label: _(msg`Interested`),
       removeLabel: _(msg`Interested, tap to remove`),
     },
-    {
-      status: RSVP_NOTGOING,
-      emoji: '😢',
-      label: _(msg`Not going`),
-      removeLabel: _(msg`Not going, tap to remove`),
-    },
   ]
   const onPress = (status: RsvpStatus) =>
     requireAuth(() =>
@@ -334,10 +340,10 @@ function Guests({event, guests}: {event: EventView; guests: RsvpView[]}) {
       {guests.length > 0 && (
         <AvatarStack
           profiles={guests.slice(0, 5).map(guest => guest.actor)}
-          size={28}
+          size={32}
         />
       )}
-      <Text style={[a.text_md, a.font_semi_bold, t.atoms.text_contrast_high]}>
+      <Text style={[a.text_md, t.atoms.text_contrast_high]}>
         {plural(event.goingCount, {one: '# going', other: '# going'})}
         {event.interestedCount > 0
           ? ` · ${plural(event.interestedCount, {
@@ -379,6 +385,7 @@ export function GuestRow({
         <ProfileCard.Outer>
           <ProfileCard.Header>
             <ProfileCard.Avatar
+              size={42}
               profile={rsvp.actor}
               moderationOpts={moderationOpts}
             />
@@ -394,16 +401,13 @@ export function GuestRow({
                 a.rounded_full,
                 a.px_md,
                 a.py_xs,
-                rsvp.status === RSVP_GOING
-                  ? {backgroundColor: t.palette.primary_100}
-                  : t.atoms.bg_contrast_50,
+                {height: 28},
+                t.atoms.bg_contrast_100,
               ]}>
               <Text aria-hidden style={[a.text_sm]}>
                 {response.emoji}
               </Text>
-              <Text style={[a.text_sm, a.font_semi_bold]}>
-                {response.label}
-              </Text>
+              <Text style={[a.text_sm, a.font_medium]}>{response.label}</Text>
             </View>
           </ProfileCard.Header>
         </ProfileCard.Outer>

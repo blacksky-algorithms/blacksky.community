@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import {LayoutAnimation, type TextInput, View} from 'react-native'
-import {moderateProfile, type ModerationOpts} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {MAX_GROUP_NAME_GRAPHEME_LENGTH} from '#/lib/constants'
@@ -247,7 +247,7 @@ export function InitiateChatFlow({
   const [footerHeight, setFooterHeight] = useState(0)
   const listRef = useRef<ListMethods>(null)
   const {currentAccount} = useSession()
-  const inputRef = useRef<TextInput>(null)
+  const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
   const accountTooNewPromptControl = Dialog.useDialogControl()
 
   const {data: convos} = useListConvosQuery({
@@ -1128,8 +1128,15 @@ function GroupChatMemberProfileCard({
   moderationOpts: ModerationOpts
 }) {
   const t = useTheme()
+  const {t: l} = useLingui()
   const enabled = canBeAddedToGroup(profile)
   const handle = sanitizeHandle(profile.handle, '@')
+  const disabledReason =
+    profile.viewer?.blocking || profile.viewer?.blockingByList
+      ? l`You have blocked this account and can’t add them.`
+      : profile.viewer?.blockedBy
+        ? l`This account has blocked you and can’t be added.`
+        : l`${handle} can’t be added`
 
   return (
     <View style={[a.flex_1, a.py_sm, a.px_lg, t.atoms.bg]}>
@@ -1148,7 +1155,7 @@ function GroupChatMemberProfileCard({
             <Text
               style={[a.leading_snug, t.atoms.text_contrast_high]}
               numberOfLines={2}>
-              <Trans>{handle} can’t be added</Trans>
+              {disabledReason}
             </Text>
           )}
         </View>

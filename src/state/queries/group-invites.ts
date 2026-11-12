@@ -2,7 +2,7 @@ import {useCallback} from 'react'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {acceptGroupInvite, previewGroupInvite} from '#/lib/api/group-invites'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {createQueryKey} from './util'
 
 export const groupInvitePreviewQueryKey = (code: string) =>
@@ -34,9 +34,9 @@ export function usePrefetchGroupInvitePreview() {
 }
 
 export function useAcceptGroupInviteMutation() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useMutation({
     mutationFn: ({code, communityDid}: {code: string; communityDid: string}) =>
-      acceptGroupInvite({code, communityDid, agent}),
+      acceptGroupInvite({code, communityDid, client}),
   })
 }

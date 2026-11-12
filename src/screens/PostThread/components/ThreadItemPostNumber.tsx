@@ -1,25 +1,54 @@
 import {Text, View} from 'react-native'
-import {type AppBskyUnspeccedDefs} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, ios, platform, useTheme} from '#/alf'
-import {useAnalytics} from '#/analytics'
+import {useNativeFontScale} from '#/alf/util/dimensions'
+import {type app} from '#/lexicons'
 
 /**
- * How far the inline badge is nudged below the text baseline. Android's
+ * Map of Android font scale values to inline offsets.
+ */
+const ANDROID_INLINE_OFFSETS = [
+  [0.85, 2],
+  [1, 4],
+  [1.15, 6],
+  [1.3, 8],
+  [1.5, 10],
+  [1.8, 12],
+  [2, 14],
+] as const
+
+/**
+ * Max amount the inline badge is nudged below the text baseline. Android's
  * containing `RichText` reserves matching room via `suffixOffset`.
  */
-export const POST_NUMBER_INLINE_OFFSET = 6
+export const POST_NUMBER_INLINE_OFFSET = 14
+
+/**
+ * Descent of the iOS system font (SF Pro), as a fraction of the font size.
+ */
+const IOS_SYSTEM_FONT_DESCENT = 0.2412
+
+function getAndroidInlineOffset(fontScale: number) {
+  return ANDROID_INLINE_OFFSETS.reduce((nearest, candidate) =>
+    Math.abs(candidate[0] - fontScale) < Math.abs(nearest[0] - fontScale)
+      ? candidate
+      : nearest,
+  )[1]
+}
+
+export type ThreadItemPostNumbering = Pick<
+  app.bsky.unspecced.defs.ThreadItemPost,
+  'opThreadPostIndex' | 'opThreadPostCount'
+>
 
 export function useHasThreadItemPostNumber(
-  value: AppBskyUnspeccedDefs.ThreadItemPost,
+  value: ThreadItemPostNumbering | undefined,
 ) {
-  const ax = useAnalytics()
-  const index = value.opThreadPostIndex
-  const count = value.opThreadPostCount
+  const index = value?.opThreadPostIndex
+  const count = value?.opThreadPostCount
 
   return (
-    ax.features.enabled(ax.features.CanonicalPostNumberingEnable) &&
     index !== undefined &&
     count !== undefined &&
     index >= 1 &&
@@ -32,14 +61,15 @@ export function ThreadItemPostNumber({
   value,
   inline = true,
 }: {
-  value: AppBskyUnspeccedDefs.ThreadItemPost
+  value: ThreadItemPostNumbering | undefined
   inline?: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
+  const nativeFontScale = useNativeFontScale()
   const shouldRender = useHasThreadItemPostNumber(value)
-  const index = value.opThreadPostIndex
-  const count = value.opThreadPostCount
+  const index = value?.opThreadPostIndex
+  const count = value?.opThreadPostCount
 
   if (!shouldRender) {
     return null
@@ -59,8 +89,40 @@ export function ThreadItemPostNumber({
         },
         inline
           ? platform({
-              native: {transform: [{translateY: POST_NUMBER_INLINE_OFFSET}]},
-              web: {top: -2, marginBottom: -2},
+              android: {
+                /*
+                 * Android aligns the inline view's bottom to the surrounding
+                 * text baseline.
+                 * We want it to align the inline view's child/text baseline.
+                 */
+                transform: [
+                  {translateY: getAndroidInlineOffset(nativeFontScale)},
+                ],
+              },
+              ios: {
+                /*
+                 * Like Android, iOS puts the inline view's bottom on the
+                 * text baseline (with our inline-view-baseline RN patch).
+                 * Move it down by the padding plus the descent of the badge
+                 * text so the two baselines line up.
+                 */
+                transform: [
+                  {
+                    translateY:
+                      a.py_2xs.paddingBottom +
+                      a.text_xs.fontSize *
+                        nativeFontScale *
+                        IOS_SYSTEM_FONT_DESCENT,
+                  },
+                ],
+              },
+              web: {
+                /*
+                 * Inline views inherit the surrounding line height on web. Keep
+                 * the badge at its usual size when emoji-only text enlarges it.
+                 */
+                lineHeight: a.text_xs.fontSize * a.leading_normal.lineHeight,
+              },
             })
           : {top: -2, marginBottom: -2},
       ]}>

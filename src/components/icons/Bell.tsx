@@ -15,3 +15,5 @@ export const Bell_Stroke2_Corner0_Rounded = createMultiPathSVG({
   ],
   viewBox: '0 0 256 256',
 })
+
+export {BellPlus_Stroke2_Corner0_Rounded} from './BellPlus'

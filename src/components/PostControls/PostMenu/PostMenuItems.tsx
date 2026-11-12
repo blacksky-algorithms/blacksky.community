@@ -6,13 +6,8 @@ import {
   type ViewStyle,
 } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
-import {
-  type AppBskyFeedDefs,
-  type AppBskyFeedPost,
-  type AppBskyFeedThreadgate,
-  AtUri,
-  type RichText as RichTextAPI,
-} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
+import {type RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
@@ -22,6 +17,7 @@ import {
   isPeerModLabelableUri,
 } from '#/lib/api/community-post'
 import {isSpaceRecordUri} from '#/lib/api/space-uri'
+import {useBrand} from '#/lib/community'
 import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink, postPermalink} from '#/lib/routes/links'
 import {
@@ -99,6 +95,11 @@ import {
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {useAnalytics} from '#/analytics'
+import {ownEventUriOf} from '#/features/events/url'
+import {type app} from '#/lexicons'
+import {PostMenuControlItems} from './PostMenuControlItems'
+
+const PUBLIC_POST_URI = /^at:\/\/[^/]+\/app\.bsky\.feed\.post\/[^/]+$/
 
 let PostMenuItems = ({
   post,
@@ -109,20 +110,26 @@ let PostMenuItems = ({
   threadgateRecord,
   onShowLess,
   logContext,
+  includeControls = false,
 }: {
   testID: string
-  post: Shadow<AppBskyFeedDefs.PostView>
+  post: Shadow<app.bsky.feed.defs.PostView>
   postFeedContext: string | undefined
   postReqId: string | undefined
-  record: AppBskyFeedPost.Record
+  record: app.bsky.feed.post.Main
   richText: RichTextAPI
   style?: StyleProp<ViewStyle>
   hitSlop?: PressableProps['hitSlop']
   size?: 'lg' | 'md' | 'sm'
   timestamp: string
-  threadgateRecord?: AppBskyFeedThreadgate.Record
-  onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
+  threadgateRecord?: app.bsky.feed.threadgate.Main
+  onShowLess?: (interaction: app.bsky.feed.defs.Interaction) => void
   logContext: 'FeedItem' | 'PostThreadItem' | 'Post' | 'ImmersiveVideo'
+  /**
+   * Adds repost, quote, share and save to the top of the menu, for surfaces
+   * that don't render the full `PostControls`.
+   */
+  includeControls?: boolean
 }): React.ReactNode => {
   const {hasSession, currentAccount} = useSession()
   const {t: l} = useLingui()
@@ -143,6 +150,16 @@ let PostMenuItems = ({
   const reportDialogControl = useReportDialogControl()
   const labelDialogControl = useLabelDialogControl()
   const deletePromptControl = useDialogControl()
+  const brand = useBrand()
+  const ownEventUri = useMemo(
+    () =>
+      currentAccount &&
+      ax.features.enabled(ax.features.EventsEnable) &&
+      PUBLIC_POST_URI.test(post.uri)
+        ? ownEventUriOf(post.embed, currentAccount, [brand.web.domains.main])
+        : undefined,
+    [currentAccount, ax, post.uri, post.embed, brand],
+  )
   const postInteractionSettingsDialogControl = useDialogControl()
   const quotePostDetachConfirmControl = useDialogControl()
   const hideReplyConfirmControl = useDialogControl()
@@ -199,10 +216,14 @@ let PostMenuItems = ({
     return postPermalink(postAuthor, postUri)
   }, [postUri, postAuthor])
 
-  const onDeletePost = () => {
-    deletePostMutate({uri: postUri}).then(
+  const onDeletePost = (eventUri?: string) => {
+    deletePostMutate({uri: postUri, eventUri}).then(
       () => {
-        Toast.show(l({message: 'Post deleted', context: 'toast'}))
+        Toast.show(
+          eventUri
+            ? l({message: 'Post and event deleted', context: 'toast'})
+            : l({message: 'Post deleted', context: 'toast'}),
+        )
 
         const route = getCurrentRoute(navigation.getState())
         if (route.name === 'PostThread') {
@@ -225,9 +246,14 @@ let PostMenuItems = ({
       },
       e => {
         logger.error('Failed to delete post', {message: e})
-        Toast.show(l`Failed to delete post, please try again`, {
-          type: 'error',
-        })
+        Toast.show(
+          eventUri
+            ? l`Failed to delete the post and event, please try again`
+            : l`Failed to delete post, please try again`,
+          {
+            type: 'error',
+          },
+        )
       },
     )
   }
@@ -435,14 +461,13 @@ let PostMenuItems = ({
           type: 'error',
         })
       }
-    } finally {
-      ax.metric('postMenu:blockAccount', {
-        uri: postUri,
-        authorDid: postAuthor.did,
-        logContext,
-        feedDescriptor: feedFeedback.feedDescriptor,
-      })
     }
+    ax.metric('postMenu:blockAccount', {
+      uri: postUri,
+      authorDid: postAuthor.did,
+      logContext,
+      feedDescriptor: feedFeedback.feedDescriptor,
+    })
   }
 
   const onMuteAuthor = async () => {
@@ -458,14 +483,13 @@ let PostMenuItems = ({
             type: 'error',
           })
         }
-      } finally {
-        ax.metric('postMenu:unmuteAccount', {
-          uri: postUri,
-          authorDid: postAuthor.did,
-          logContext,
-          feedDescriptor: feedFeedback.feedDescriptor,
-        })
       }
+      ax.metric('postMenu:unmuteAccount', {
+        uri: postUri,
+        authorDid: postAuthor.did,
+        logContext,
+        feedDescriptor: feedFeedback.feedDescriptor,
+      })
     } else {
       try {
         await queueMute()
@@ -478,14 +502,13 @@ let PostMenuItems = ({
             type: 'error',
           })
         }
-      } finally {
-        ax.metric('postMenu:muteAccount', {
-          uri: postUri,
-          authorDid: postAuthor.did,
-          logContext,
-          feedDescriptor: feedFeedback.feedDescriptor,
-        })
       }
+      ax.metric('postMenu:muteAccount', {
+        uri: postUri,
+        authorDid: postAuthor.did,
+        logContext,
+        feedDescriptor: feedFeedback.feedDescriptor,
+      })
     }
   }
 
@@ -496,6 +519,15 @@ let PostMenuItems = ({
   return (
     <>
       <Menu.Outer>
+        {includeControls && (
+          <PostMenuControlItems
+            post={post}
+            postFeedContext={postFeedContext}
+            postReqId={postReqId}
+            logContext={logContext}
+          />
+        )}
+
         {isAuthor && canPin && (
           <>
             <Menu.Group>
@@ -780,14 +812,40 @@ let PostMenuItems = ({
           </>
         )}
       </Menu.Outer>
-      <Prompt.Basic
-        control={deletePromptControl}
-        title={l`Delete this post?`}
-        description={l`If you remove this post, you won't be able to recover it.`}
-        onConfirm={onDeletePost}
-        confirmButtonCta={l`Delete`}
-        confirmButtonColor="negative"
-      />
+      {ownEventUri ? (
+        <Prompt.Outer control={deletePromptControl} testID="confirmModal">
+          <Prompt.Content>
+            <Prompt.TitleText>{l`Delete this post?`}</Prompt.TitleText>
+            <Prompt.DescriptionText>
+              {l`This post links to your event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted.`}
+            </Prompt.DescriptionText>
+          </Prompt.Content>
+          <Prompt.Actions>
+            <Prompt.Action
+              testID="deletePostAndEventBtn"
+              cta={l`Delete post and event`}
+              color="negative"
+              onPress={() => onDeletePost(ownEventUri)}
+            />
+            <Prompt.Action
+              testID="deletePostOnlyBtn"
+              cta={l`Delete post only`}
+              color="secondary"
+              onPress={() => onDeletePost()}
+            />
+            <Prompt.Cancel />
+          </Prompt.Actions>
+        </Prompt.Outer>
+      ) : (
+        <Prompt.Basic
+          control={deletePromptControl}
+          title={l`Delete this post?`}
+          description={l`If you remove this post, you won't be able to recover it.`}
+          onConfirm={() => onDeletePost()}
+          confirmButtonCta={l`Delete`}
+          confirmButtonColor="negative"
+        />
+      )}
       <ReportDialog
         control={reportDialogControl}
         subject={{

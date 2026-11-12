@@ -30,6 +30,14 @@ export function buildAllowedHosts(serviceUrl?: string): string[] {
   }
 }
 
+function safeHost(url: string): string {
+  try {
+    return new URL(url).host
+  } catch {
+    return 'unparseable'
+  }
+}
+
 /** True if the two URLs point at the same host + path (query ignored). */
 function isSameEndpoint(a: string, b: string): boolean {
   try {
@@ -116,7 +124,7 @@ export function CaptchaWebView({
 
     const code = urlp.searchParams.get('code')
     if (urlp.searchParams.get('state') !== stateParam || !code) {
-      onError({error: 'Invalid state or code'})
+      onError({reason: 'state-mismatch', host: urlp.host})
       return true
     }
 
@@ -157,11 +165,20 @@ export function CaptchaWebView({
       scrollEnabled={false}
       onError={e => {
         if (tryFallback(e.nativeEvent.url)) return
-        onError(e.nativeEvent)
+        onError({
+          reason: 'webview-error',
+          host: safeHost(e.nativeEvent.url),
+          cause: e.nativeEvent,
+        })
       }}
       onHttpError={e => {
         if (tryFallback(e.nativeEvent.url, e.nativeEvent.statusCode)) return
-        onError(e.nativeEvent)
+        onError({
+          reason: 'http-error',
+          host: safeHost(e.nativeEvent.url),
+          statusCode: e.nativeEvent.statusCode,
+          cause: e.nativeEvent,
+        })
       }}
     />
   )

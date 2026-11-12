@@ -18,8 +18,8 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
 import {Fragment, useEffect, useState} from 'react'
 import {KeyboardProvider as KeyboardControllerProvider} from 'react-native-keyboard-controller'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
+import {BackgroundNotificationPreferencesProvider} from '@bsky.app/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 import {useLingui} from '@lingui/react/macro'
-import * as Sentry from '@sentry/react-native'
 
 import {BrandProvider, useBrand} from '#/lib/community/BrandContext'
 import {Provider as HotkeysProvider} from '#/lib/hotkeys'
@@ -28,6 +28,8 @@ import {ThemeProvider} from '#/lib/ThemeContext'
 import {Provider as TranslateOnDeviceProvider} from '#/lib/translation'
 import I18nProvider from '#/locale/i18nProvider'
 import {logger} from '#/logger'
+import {Sentry} from '#/logger/sentry/lib'
+import {identifyDevice} from '#/logger/sentry/user'
 import {Provider as A11yProvider} from '#/state/a11y'
 import {
   prefetchAppConfig,
@@ -80,10 +82,12 @@ import {
   features,
   setupDeviceId,
 } from '#/analytics'
+import {getDeviceId} from '#/analytics/identifiers'
+import {useSessionActivity} from '#/analytics/useSessionActivity'
 import {Splash} from '#/Splash'
-import {BackgroundNotificationPreferencesProvider} from '../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 import {Provider as HideBottomBarBorderProvider} from './lib/hooks/useHideBottomBarBorder'
 
+void identifyDevice(getDeviceId(), setupDeviceId)
 void prefetchAppConfig()
 
 function hasOAuthCallbackParams(): boolean {
@@ -192,7 +196,6 @@ function InnerApp() {
                                                         <TranslateOnDeviceProvider>
                                                           <HotkeysProvider>
                                                             <Shell />
-                                                            <ToastOutlet />
                                                           </HotkeysProvider>
                                                         </TranslateOnDeviceProvider>
                                                       </IntentDialogProvider>
@@ -215,6 +218,7 @@ function InnerApp() {
                     </QueryProvider>
                   </AnalyticsFeaturesContext>
                 </Fragment>
+                <ToastOutlet />
               </ActiveVideoProvider>
             </VideoVolumeProvider>
           </Splash>
@@ -225,6 +229,7 @@ function InnerApp() {
 }
 
 function App() {
+  useSessionActivity()
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {

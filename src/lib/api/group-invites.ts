@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 
 import {ACORN_SERVICE_URL} from '#/env'
 import {getServiceAuthToken} from './service-auth'
@@ -248,16 +248,16 @@ export function previewGroupInvite(code: string) {
 export async function acceptGroupInvite({
   code,
   communityDid,
-  agent,
+  client,
 }: {
   code: string
   communityDid: string
-  agent: AtpAgent
+  client: Client
 }) {
   let token: string
   try {
     token = await getServiceAuthToken({
-      agent,
+      client,
       aud: communityDid,
       lxm: GROUP_INVITE_LXM,
       exp: Math.floor(Date.now() / 1000) + 60,

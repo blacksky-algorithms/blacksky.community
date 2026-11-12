@@ -1,15 +1,16 @@
 import {useEffect, useRef, useState} from 'react'
-import {type AppBskyActorDefs} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
 
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
 
 const BATCH = 25
 
 export function useChatProfiles(dids: string[]) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const requested = useRef(new Set<string>())
   const [profiles, setProfiles] = useState<
-    ReadonlyMap<string, AppBskyActorDefs.ProfileViewDetailed>
+    ReadonlyMap<string, app.bsky.actor.defs.ProfileViewDetailed>
   >(new Map())
 
   useEffect(() => {
@@ -18,12 +19,12 @@ export function useChatProfiles(dids: string[]) {
     missing.forEach(d => requested.current.add(d))
     for (let i = 0; i < missing.length; i += BATCH) {
       const chunk = missing.slice(i, i + BATCH)
-      agent
-        .getProfiles({actors: chunk})
+      client
+        .call(app.bsky.actor.getProfiles, {actors: chunk as DidString[]})
         .then(res => {
           setProfiles(prev => {
             const next = new Map(prev)
-            for (const p of res.data.profiles) next.set(p.did, p)
+            for (const p of res.profiles) next.set(p.did, p)
             return next
           })
         })
@@ -31,7 +32,7 @@ export function useChatProfiles(dids: string[]) {
           chunk.forEach(d => requested.current.delete(d))
         })
     }
-  }, [dids, agent])
+  }, [dids, client])
 
   return profiles
 }

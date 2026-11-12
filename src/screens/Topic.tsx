@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from 'react'
 import {type ListRenderItemInfo, View} from 'react-native'
-import {type AppBskyFeedDefs} from '@atproto/api'
+import {type AtUriString} from '@atproto/syntax'
 import {useLingui} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useInfiniteQuery} from '@tanstack/react-query'
@@ -14,7 +14,7 @@ import {cleanError} from '#/lib/strings/errors'
 import {enforceLen} from '#/lib/strings/helpers'
 import {useSearchPostsV2Query} from '#/state/queries/search-posts-v2'
 import {TOPIC_FEED_QUERY_KEY_ROOT} from '#/state/queries/topic-feed'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {Pager} from '#/view/com/pager/Pager'
 import {TabBar} from '#/view/com/pager/TabBar'
 import {Post} from '#/view/com/post/Post'
@@ -24,15 +24,18 @@ import {Button, ButtonIcon} from '#/components/Button'
 import {ArrowOutOfBoxModified_Stroke2_Corner2_Rounded as Share} from '#/components/icons/ArrowOutOfBox'
 import * as Layout from '#/components/Layout'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
+import {app} from '#/lexicons'
 
 const TOPICS_API = 'https://api.blacksky.community'
 const PAGE_SIZE = 25
 
-const renderItem = ({item}: ListRenderItemInfo<AppBskyFeedDefs.PostView>) => {
+const renderItem = ({
+  item,
+}: ListRenderItemInfo<app.bsky.feed.defs.PostView>) => {
   return <Post post={item} />
 }
 
-const keyExtractor = (item: AppBskyFeedDefs.PostView, index: number) => {
+const keyExtractor = (item: app.bsky.feed.defs.PostView, index: number) => {
   return `${item.uri}-${index}`
 }
 
@@ -108,7 +111,7 @@ function CuratedTopicFeed({
   const initialNumToRender = useInitialNumToRender()
   const [isPTR, setIsPTR] = useState(false)
   const trackPostView = usePostViewTracking('Topic')
-  const agent = useAgent()
+  const client = useAppviewClient()
 
   const {
     data,
@@ -142,13 +145,15 @@ function CuratedTopicFeed({
       }
 
       if (!json.posts?.length) {
-        return {posts: [] as AppBskyFeedDefs.PostView[], cursor: null}
+        return {posts: [] as app.bsky.feed.defs.PostView[], cursor: null}
       }
 
       // Hydrate post URIs through the appview (max 25 per call)
-      const hydrated = await agent.getPosts({uris: json.posts.slice(0, 25)})
+      const hydrated = await client.call(app.bsky.feed.getPosts, {
+        uris: json.posts.slice(0, 25) as AtUriString[],
+      })
       return {
-        posts: hydrated.data.posts,
+        posts: hydrated.posts,
         cursor: json.cursor,
       }
     },
@@ -351,7 +356,6 @@ function TopicScreenTab({
           onEndReached={onEndReached}
           onEndReachedThreshold={4}
           onItemSeen={trackPostView}
-          // @ts-ignore web only -prf
           desktopFixedHeight
           ListFooterComponent={
             <ListFooter

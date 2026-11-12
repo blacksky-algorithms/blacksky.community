@@ -1,8 +1,9 @@
-import {Pressable, StyleSheet, View} from 'react-native'
+import {StyleSheet, View} from 'react-native'
 import {useLingui} from '@lingui/react/macro'
 
 import {type PollVoteValue} from '#/lib/api/poll'
 import {atoms as a, useTheme} from '#/alf'
+import {Pressable} from '#/components/Pressable'
 import {Text} from '#/components/Typography'
 
 const AGREE = '#61C554'

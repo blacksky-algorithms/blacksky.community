@@ -34,3 +34,7 @@ export const ArrowTop_Stroke2_Corner0_Rounded = createStrokeSVG({
   viewBox: '0 0 24 24',
   strokeWidth: 2,
 })
+
+export {ArrowBoxLeft_Stroke2_Corner0_Rounded} from './ArrowBoxLeft'
+export {ArrowCornerDownRight_Stroke2_Corner2_Rounded} from './ArrowCornerDownRight'
+export {ArrowShareRight_Stroke2_Corner2_Rounded} from './ArrowShareRight'

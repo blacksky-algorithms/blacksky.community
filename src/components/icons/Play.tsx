@@ -15,3 +15,5 @@ export const Play_Stroke2_Corner2_Rounded = createMultiPathSVG({
   ],
   viewBox: '0 0 256 256',
 })
+
+export const Play_Filled_Corner2_Rounded = Play_Filled_Corner0_Rounded

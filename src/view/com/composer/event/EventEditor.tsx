@@ -1,14 +1,19 @@
 import {View} from 'react-native'
 import {getLocales} from 'expo-localization'
+import {type HandleString} from '@atproto/syntax'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {getLinkMeta} from '#/lib/link-meta/link-meta'
-import {useAgent, useSession} from '#/state/session'
+import {useSession} from '#/state/session'
 import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
-import {FieldLabelText, INPUT_TEXT} from '#/view/com/composer/event/EventFields'
+import {
+  Counter,
+  FieldLabelText,
+  INPUT_TEXT,
+} from '#/view/com/composer/event/EventFields'
 import {type PostAction} from '#/view/com/composer/state/composer'
 import {atoms as a, useTheme} from '#/alf'
 import {DEFAULT_BRAND} from '#/alf/themes'
@@ -187,8 +192,8 @@ export function EventEditor({
       {event.step === 'done' && <EventPreview event={event} />}
 
       {stepIndex >= 0 && (
-        <View style={[a.flex_row, a.align_center, a.justify_between]}>
-          <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+        <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.align_center, a.gap_sm]}>
             <View style={{width: 12, height: 12, backgroundColor: stepColor}} />
             <Text
               testID="eventStepLabel"
@@ -207,7 +212,7 @@ export function EventEditor({
               </Trans>
             </Text>
           </View>
-          <View style={[a.flex_row, a.gap_sm]}>
+          <View style={[a.flex_1, a.flex_row, a.justify_end, a.gap_sm]}>
             {stepIndex > 0 && (
               <Button
                 testID="eventBackBtn"
@@ -215,7 +220,7 @@ export function EventEditor({
                 size="small"
                 variant="solid"
                 color="secondary"
-                style={[t.atoms.bg, a.px_2xl]}
+                style={[a.flex_1, t.atoms.bg, a.px_md]}
                 onPress={() => setStep(STEPS[stepIndex - 1])}>
                 <ButtonText style={{color: t.palette.primary_600}}>
                   <Trans>Back</Trans>
@@ -228,7 +233,7 @@ export function EventEditor({
               size="small"
               variant="solid"
               color="primary"
-              style={[a.px_2xl]}
+              style={[a.flex_1, a.px_md]}
               disabled={!canContinue}
               onPress={() => {
                 if (isLastStep && !event.cover && cover) {
@@ -357,28 +362,10 @@ function WhenStep({
   )
 }
 
-function Counter({count, max}: {count: number; max: number}) {
-  const t = useTheme()
-  return (
-    <Text
-      style={[
-        a.text_xs,
-        a.text_right,
-        a.mt_2xs,
-        count > max
-          ? {color: t.palette.negative_500}
-          : t.atoms.text_contrast_medium,
-      ]}>
-      {`${count} / ${max}`}
-    </Text>
-  )
-}
-
 function useLinkImage(url: string | undefined) {
-  const agent = useAgent()
   const {data} = useQuery({
     queryKey: ['event-cover-link-image', url],
-    queryFn: async () => (await getLinkMeta(agent, url!)).image ?? null,
+    queryFn: async () => (await getLinkMeta(url!)).image ?? null,
     enabled: !!url,
     staleTime: Infinity,
   })
@@ -406,7 +393,10 @@ function EventPreview({event}: {event: EventDraft}) {
         event={{
           uri: eventAtUri(currentAccount.did, 'preview'),
           cid: '',
-          creator: {did: currentAccount.did, handle: currentAccount.handle},
+          creator: {
+            did: currentAccount.did,
+            handle: currentAccount.handle as HandleString,
+          },
           record,
           thumb: coverUri(event.cover),
           goingCount: 0,

@@ -10,7 +10,6 @@ import Animated, {
   SlideOutLeft,
   SlideOutRight,
 } from 'react-native-reanimated'
-import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -27,7 +26,7 @@ import {useFetchDid, useUpdateHandleMutation} from '#/state/queries/handle'
 import {RQKEY as RQKEY_PROFILE} from '#/state/queries/profile'
 import {useServiceQuery} from '#/state/queries/service'
 import {useCurrentAccountProfile} from '#/state/queries/useCurrentAccountProfile'
-import {useAgent, useSession} from '#/state/session'
+import {useSession, useSessionApi} from '#/state/session'
 import {ErrorScreen} from '#/view/com/util/error/ErrorScreen'
 import {atoms as a, native, useBreakpoints, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
@@ -46,6 +45,7 @@ import {Loader} from '#/components/Loader'
 import * as Menu from '#/components/Menu'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
+import {type com} from '#/lexicons'
 import {CopyButton} from './CopyButton'
 
 export function ChangeHandleDialog({
@@ -68,7 +68,7 @@ function ChangeHandleDialogInner() {
     data: serviceInfo,
     error: serviceInfoError,
     refetch,
-  } = useServiceQuery(currentAccount!.service)
+  } = useServiceQuery(currentAccount?.service ?? '')
 
   const [page, setPage] = useState<'provided-handle' | 'own-handle'>(
     'provided-handle',
@@ -147,13 +147,13 @@ function ProvidedHandlePage({
   serviceInfo,
   goToOwnHandle,
 }: {
-  serviceInfo: ComAtprotoServerDescribeServer.OutputSchema
+  serviceInfo: com.atproto.server.describeServer.$OutputBody
   goToOwnHandle: () => void
 }) {
   const {_} = useLingui()
   const t = useTheme()
   const [subdomain, setSubdomain] = useState('')
-  const agent = useAgent()
+  const {refreshSession} = useSessionApi()
   const control = Dialog.useDialogContext()
   const {currentAccount} = useSession()
   const queryClient = useQueryClient()
@@ -174,11 +174,7 @@ function ProvidedHandlePage({
           queryKey: RQKEY_PROFILE(currentAccount.did),
         })
       }
-      if ('resumeSession' in agent && agent.session) {
-        agent.resumeSession(agent.session).then(() => control.close())
-      } else {
-        control.close()
-      }
+      refreshSession().then(() => control.close())
     },
   })
 
@@ -231,7 +227,7 @@ function ProvidedHandlePage({
               <TextField.Icon icon={AtIcon} />
               <Dialog.Input
                 editable={!isPending}
-                defaultValue={subdomain}
+                value={subdomain}
                 onChangeText={text => setSubdomain(text)}
                 label={_(msg`New handle`)}
                 placeholder={_(msg`e.g. alice`)}
@@ -367,7 +363,7 @@ function OwnHandlePage({goToServiceHandle}: {goToServiceHandle: () => void}) {
   const {currentAccount} = useSession()
   const [dnsPanel, setDNSPanel] = useState(true)
   const [domain, setDomain] = useState('')
-  const agent = useAgent()
+  const {refreshSession} = useSessionApi()
   const control = Dialog.useDialogContext()
   const fetchDid = useFetchDid()
   const queryClient = useQueryClient()
@@ -384,11 +380,7 @@ function OwnHandlePage({goToServiceHandle}: {goToServiceHandle: () => void}) {
           queryKey: RQKEY_PROFILE(currentAccount.did),
         })
       }
-      if ('resumeSession' in agent && agent.session) {
-        agent.resumeSession(agent.session).then(() => control.close())
-      } else {
-        control.close()
-      }
+      refreshSession().then(() => control.close())
     },
   })
 
@@ -447,7 +439,7 @@ function OwnHandlePage({goToServiceHandle}: {goToServiceHandle: () => void}) {
               label={_(msg`New handle`)}
               placeholder={_(msg`e.g. alice.com`)}
               editable={!isPending}
-              defaultValue={domain}
+              value={domain}
               onChangeText={text => {
                 setDomain(text)
                 resetVerification()

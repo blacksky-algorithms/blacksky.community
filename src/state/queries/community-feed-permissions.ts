@@ -4,7 +4,7 @@ import {
   type CommunityFeedPermission,
   fetchFeedPermissions,
 } from '#/lib/api/community-feed'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 
 export const feedPermissionsQueryKey = (
   did: string | undefined,
@@ -12,12 +12,12 @@ export const feedPermissionsQueryKey = (
 ) => ['community-feed-permissions', did ?? '', feed]
 
 export function useFeedPermissionsQuery(feed: string) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const {currentAccount} = useSession()
   return useQuery<CommunityFeedPermission[]>({
     queryKey: feedPermissionsQueryKey(currentAccount?.did, feed),
     enabled: !!currentAccount?.did && !!feed,
     staleTime: 60 * 1000,
-    queryFn: () => fetchFeedPermissions(agent, feed),
+    queryFn: () => fetchFeedPermissions(client, feed),
   })
 }

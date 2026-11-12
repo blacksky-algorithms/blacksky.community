@@ -1,13 +1,7 @@
 import {useMemo} from 'react'
-import {
-  AppBskyFeedDefs,
-  type AppBskyFeedPost,
-  AtUri,
-  type BskyAgent,
-  jsonToLex,
-  moderatePost,
-  type ModerationDecision,
-} from '@atproto/api'
+import {type Client, jsonToLex} from '@atproto/lex'
+import {AtUri} from '@atproto/syntax'
+import {moderatePost, type ModerationDecision} from '@bsky/sdk/moderation'
 import {
   type InfiniteData,
   type QueryClient,
@@ -28,7 +22,9 @@ import {
   getEmbeddedPost,
   makeUriMatcher,
 } from '#/state/queries/util'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 
 const PAGE_SIZE = 30
 type RQPageParam = string | undefined
@@ -43,7 +39,7 @@ export const TIMELINE_RQKEY = () => [TIMELINE_RQKEY_ROOT]
 // Support both old 'posts' format (raw) and new 'feed' format (hydrated)
 interface CommunityFeedPage {
   cursor?: string
-  feed?: AppBskyFeedDefs.FeedViewPost[]
+  feed?: app.bsky.feed.defs.FeedViewPost[]
   // Legacy format for backward compatibility during deployment
   posts?: Array<{
     uri: string
@@ -56,7 +52,7 @@ interface CommunityFeedPage {
 }
 
 export function useCommunityFeedQuery(actor: string | undefined) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useInfiniteQuery<
     CommunityFeedPage,
     Error,
@@ -74,7 +70,7 @@ export function useCommunityFeedQuery(actor: string | undefined) {
         params.cursor = pageParam
       }
       const res = await communityXrpc(
-        agent,
+        client,
         'community.blacksky.feed.getCommunityFeed',
         {params},
       )
@@ -94,7 +90,7 @@ export function useCommunityFeedQuery(actor: string | undefined) {
  * Used on the Home screen Community tab.
  */
 export function useCommunityTimelineQuery(enabled: boolean) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useInfiniteQuery<
     CommunityFeedPage,
     Error,
@@ -111,7 +107,7 @@ export function useCommunityTimelineQuery(enabled: boolean) {
         params.cursor = pageParam
       }
       const res = await communityXrpc(
-        agent,
+        client,
         'community.blacksky.feed.getCommunityTimeline',
         {params},
       )
@@ -136,10 +132,10 @@ export function useCommunityTimelineQuery(enabled: boolean) {
  * head is often a non-surfacing reply that would hide newer posts behind it.
  */
 export async function fetchCommunityTimelineHead(
-  agent: BskyAgent,
-): Promise<AppBskyFeedDefs.FeedViewPost | undefined> {
+  client: Client,
+): Promise<app.bsky.feed.defs.FeedViewPost | undefined> {
   const res = await communityXrpc(
-    agent,
+    client,
     'community.blacksky.feed.getCommunityTimeline',
     {params: {limit: '10'}},
   )
@@ -155,7 +151,7 @@ export async function fetchCommunityTimelineHead(
 // thread view. Stands in for followedRepliesOnly, which would pass
 // everything here since the whole community is "followed".
 export function surfacesInCommunityFeed(
-  item: AppBskyFeedDefs.FeedViewPost,
+  item: app.bsky.feed.defs.FeedViewPost,
 ): boolean {
   // Blocked/muted authors never surface, same as the Following feed.
   const authorViewer = item.post.author.viewer
@@ -166,11 +162,14 @@ export function surfacesInCommunityFeed(
   ) {
     return false
   }
-  const reply = (item.post.record as AppBskyFeedPost.Record)?.reply
+  const reply = (item.post.record as app.bsky.feed.post.Main)?.reply
   if (!reply?.root?.uri) return true
   // Replies whose parent the appview didn't hydrate are orphans; the
   // tuner drops them (removeOrphans), so they must not count as new.
-  if (!item.reason && !AppBskyFeedDefs.isPostView(item.reply?.parent)) {
+  if (
+    !item.reason &&
+    !bsky.isType(app.bsky.feed.defs.postView, item.reply?.parent)
+  ) {
     return false
   }
   // A space record URI names its author in its own segment; `AtUri` would
@@ -187,12 +186,12 @@ export const COMMUNITY_POST_RQKEY = (uri: string) => [
 ]
 
 export function useCommunityPostQuery(uri: string | undefined) {
-  const agent = useAgent()
-  return useQuery<AppBskyFeedDefs.PostView>({
+  const client = useAppviewClient()
+  return useQuery<app.bsky.feed.defs.PostView>({
     queryKey: COMMUNITY_POST_RQKEY(uri || ''),
     async queryFn() {
       const res = await communityXrpc(
-        agent,
+        client,
         'community.blacksky.feed.getCommunityPost',
         {params: {uri: uri || ''}},
       )
@@ -209,15 +208,15 @@ export function useCommunityPostQuery(uri: string | undefined) {
 }
 
 export interface HydratedCommunityPost {
-  post: AppBskyFeedDefs.PostView
-  record: AppBskyFeedPost.Record
+  post: app.bsky.feed.defs.PostView
+  record: app.bsky.feed.post.Main
   moderation: ModerationDecision
 }
 
 export interface CommunityFeedSliceItem extends HydratedCommunityPost {
   _reactKey: string
   uri: string
-  parentAuthor?: AppBskyFeedDefs.PostView['author']
+  parentAuthor?: app.bsky.feed.defs.PostView['author']
 }
 
 export interface CommunityFeedSlice {
@@ -231,7 +230,7 @@ export interface CommunityFeedSlice {
  * The server now returns properly hydrated PostViews with author info and counts.
  */
 export function useCommunityFeedHydrated(
-  feedItems: AppBskyFeedDefs.FeedViewPost[],
+  feedItems: app.bsky.feed.defs.FeedViewPost[],
 ): HydratedCommunityPost[] {
   const moderationOpts = useModerationOpts()
 
@@ -242,7 +241,7 @@ export function useCommunityFeedHydrated(
       .filter(item => item?.post) // Filter out any undefined items
       .map(item => {
         const postView = item.post
-        const record = postView.record as AppBskyFeedPost.Record
+        const record = postView.record as app.bsky.feed.post.Main
         const moderation = moderatePost(postView, moderationOpts)
         return {post: postView, record, moderation}
       })
@@ -252,7 +251,7 @@ export function useCommunityFeedHydrated(
 // Group feed items into slices so a self-reply (parent + reply by same author)
 // renders as one visually-connected card instead of two flat ones.
 export function useCommunityFeedSlices(
-  feedItems: AppBskyFeedDefs.FeedViewPost[],
+  feedItems: app.bsky.feed.defs.FeedViewPost[],
 ): CommunityFeedSlice[] {
   const moderationOpts = useModerationOpts()
   const {data: preferences} = usePreferencesQuery()
@@ -279,7 +278,7 @@ export function useCommunityFeedSlices(
     return raw
       .map((slice, sliceIdx) => {
         const items: CommunityFeedSliceItem[] = slice.items.map((item, i) => {
-          const record = item.post.record as AppBskyFeedPost.Record
+          const record = item.post.record as app.bsky.feed.post.Main
           return {
             _reactKey: `${slice._reactKey}-${i}-${item.post.uri}`,
             uri: item.post.uri,
@@ -326,7 +325,7 @@ export function useCommunityFeedSlices(
 export function* findAllPostsInQueryData(
   queryClient: QueryClient,
   uri: string,
-): Generator<AppBskyFeedDefs.PostView, void> {
+): Generator<app.bsky.feed.defs.PostView, void> {
   const matches = makeUriMatcher(uri)
 
   // Search both actor feeds and timeline
@@ -363,12 +362,12 @@ export function* findAllPostsInQueryData(
 
         // Reply-context rows render in slices too; without these, likes on
         // a parent/root row never reach the shadow cache.
-        if (AppBskyFeedDefs.isPostView(item.reply?.parent)) {
+        if (bsky.isType(app.bsky.feed.defs.postView, item.reply?.parent)) {
           if (matches(item.reply.parent)) {
             yield item.reply.parent
           }
         }
-        if (AppBskyFeedDefs.isPostView(item.reply?.root)) {
+        if (bsky.isType(app.bsky.feed.defs.postView, item.reply?.root)) {
           if (matches(item.reply.root)) {
             yield item.reply.root
           }

@@ -6,6 +6,7 @@ import {
   Image as RNImage,
 } from 'react-native'
 import {nativeBuildVersion} from 'expo-application'
+import {getLinkingURL} from 'expo-linking'
 import {
   checkForUpdateAsync,
   type CurrentlyRunningInfo,
@@ -19,6 +20,7 @@ import {
   useUpdates,
 } from 'expo-updates'
 
+import {parseLinkingUrl} from '#/lib/parseLinkingUrl'
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
 import {useTheme} from '#/alf'
@@ -77,8 +79,7 @@ function getRunningChannel(
    * entirely from embedded manifests, so narrow it ourselves.
    */
   const manifest = currentlyRunning?.manifest as
-    | {metadata?: {channel?: unknown}}
-    | undefined
+    {metadata?: {channel?: unknown}} | undefined
   const channel = manifest?.metadata?.channel
   if (typeof channel === 'string' && channel) {
     return channel
@@ -86,6 +87,22 @@ function getRunningChannel(
   // The build constant is an empty string rather than null when unconfigured.
   return currentlyRunning?.channel || undefined
 }
+
+function isApplyOTAIntent(url: string | null) {
+  if (!url) return false
+  try {
+    const [, intent, intentType] = parseLinkingUrl(url).pathname.split('/')
+    return intent === 'intent' && intentType === 'apply-ota'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Read at module load, because the intent handler clears the launch URL once it
+ * has handled it.
+ */
+let hasRequestedDeployment = isApplyOTAIntent(getLinkingURL())
 
 async function setExtraParams() {
   // Channel is now carried by the baked-in `expo-channel-name` request header
@@ -169,6 +186,7 @@ export function useApplyPullRequestOTAUpdate() {
       return
     }
 
+    hasRequestedDeployment = true
     const deploymentName = getDeploymentName(channel)
 
     const clearChannelOverride = () => {
@@ -214,12 +232,6 @@ export function useApplyPullRequestOTAUpdate() {
             updateId: fetchedUpdate.manifest.id,
           })
           try {
-            /*
-             * TODO: once expo-linking is upgraded to >= 57, enable this so the
-             * re-delivered initial URL doesn't trigger a redundant silent check
-             * after the reload.
-             */
-            // Linking.clearInitialURL()
             await reloadAsync({
               reloadScreenOptions: splash(t.scheme),
             })
@@ -301,6 +313,64 @@ export function useApplyPullRequestOTAUpdate() {
   }
 
   /**
+   * Checks the channel that is currently running for a newer update, and offers
+   * to relaunch into it if one is found. Unlike `tryApplyUpdate` this never
+   * switches channels, so it's safe to run from a non-standard deployment.
+   */
+  const checkForUpdates = async () => {
+    const deploymentName = getDeploymentName(currentChannel ?? DEFAULT_CHANNEL)
+
+    setPending(true)
+    try {
+      // An abandoned switch clears the override, so name the running channel again.
+      if (currentChannel && isCurrentlyRunningNonStandardChannel) {
+        await setExtraParamsPullRequest(currentChannel)
+      } else {
+        await setExtraParams()
+      }
+
+      const res = await checkForUpdateAsync()
+      if (!res.isAvailable) {
+        Alert.alert(
+          'Up to Date',
+          `You're already running the newest available update of ${deploymentName}.`,
+        )
+        return
+      }
+
+      await fetchUpdateAsync()
+      Alert.alert(
+        'Update Available',
+        `A newer update of ${deploymentName} has been downloaded. Relaunch now?`,
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Relaunch',
+            style: 'default',
+            onPress: () => {
+              void reloadAsync({
+                reloadScreenOptions: splash(t.scheme),
+              })
+            },
+          },
+        ],
+      )
+    } catch (e: unknown) {
+      const error = String(e)
+      logger.error('Internal OTA Update Error', {error})
+      Alert.alert(
+        'Update Check Failed',
+        `Could not check the ${deploymentName} deployment: ${error}`,
+      )
+    } finally {
+      setPending(false)
+    }
+  }
+
+  /**
    * Pulls the newest update from the channel this build ships with and relaunches
    * into it, undoing a manually applied deployment.
    */
@@ -333,6 +403,7 @@ export function useApplyPullRequestOTAUpdate() {
 
   return {
     tryApplyUpdate,
+    checkForUpdates,
     restoreDefaultChannel,
     isCurrentlyRunningPullRequestDeployment,
     isCurrentlyRunningNonStandardChannel,
@@ -399,6 +470,7 @@ export function useOTAUpdates() {
 
   const setCheckTimeout = useCallback(() => {
     timeout.current = setTimeout(async () => {
+      if (hasRequestedDeployment) return
       try {
         await setExtraParams()
 
@@ -431,7 +503,7 @@ export function useOTAUpdates() {
 
   useEffect(() => {
     // We don't need to check anything if the current update is a PR update
-    if (currentChannel?.startsWith('pull-request')) {
+    if (currentChannel?.startsWith('pull-request') || hasRequestedDeployment) {
       return
     }
 
@@ -501,7 +573,7 @@ export const splash = (scheme: 'light' | 'dark') => {
       : require('../../../assets/splash/splash-dark.png')
 
   return {
-    image: RNImage.resolveAssetSource(source).uri,
+    image: RNImage.resolveAssetSource(source)!.uri,
     imageFullScreen: true,
     imageResizeMode: 'cover',
     backgroundColor: scheme === 'light' ? '#006AFF' : '#002861',

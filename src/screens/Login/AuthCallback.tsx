@@ -3,6 +3,7 @@ import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
@@ -30,13 +31,17 @@ export function AuthCallback() {
             'LoginForm',
           )
         }
-        navigation.replace('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'replace'),
+        )
       } catch (e) {
         logger.error('OAuth callback failed', {
           error: e instanceof Error ? e.message : String(e),
         })
         Toast.show(_(msg`Sign-in failed. Please try again.`), {type: 'error'})
-        navigation.replace('Home')
+        navigation.dispatch(
+          getHomeNavigationAction(navigation.getState(), 'replace'),
+        )
       }
     })()
   }, [_, login, navigation])

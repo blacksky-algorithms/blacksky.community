@@ -4,10 +4,11 @@
 
 {% block html_head_extra -%}
   <meta property="og:title" content="{{ brandTitle }}" />
+  <meta property="og:type" content="website" />
   <meta name="twitter:title" content="{{ brandTitle }}" />
 
   <meta name="description" content="{{ brandDescription }}" />
-  <meta name="og:description" content="{{ brandDescription }}" />
+  <meta property="og:description" content="{{ brandDescription }}" />
   <meta name="twitter:description" content="{{ brandDescription }}" />
 
   <meta property="og:url" content="{{ brandDomain }}" />
@@ -21,5 +22,6 @@
 {%- endblock %}
 
 {% block noscript_extra %}
-<p>This is the home page.
+<h1 lang="en">{{ brandName }}</h1>
+<p lang="en">{{ brandDescription }}</p>
 {% endblock %}

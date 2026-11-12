@@ -1,6 +1,6 @@
-import {type AppBskyActorDefs, AppBskyEmbedExternal} from '@atproto/api'
-
 import {parseStreamplaceActor} from '#/features/streamplace/url'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {eventPhase} from './format'
 import {type ParsedEvent} from './record'
 
@@ -20,10 +20,13 @@ export function inLiveWindow(event: ParsedEvent, now: Date): boolean {
 // A live status can point at any allowed live host, so only count it when it
 // points at the same Streamplace channel the event links to.
 export function isLiveOnStreamplace(
-  status: AppBskyActorDefs.StatusView,
+  status: app.bsky.actor.defs.StatusView,
   streamer: {did: string; handle: string},
 ): boolean {
-  if (!status.isActive || !AppBskyEmbedExternal.isView(status.embed)) {
+  if (
+    !status.isActive ||
+    !bsky.isType(app.bsky.embed.external.view, status.embed)
+  ) {
     return false
   }
   const actor = parseStreamplaceActor(status.embed.external.uri)

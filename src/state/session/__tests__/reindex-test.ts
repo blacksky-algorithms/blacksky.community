@@ -1,11 +1,10 @@
-import {type BskyAgent} from '@atproto/api'
 import {describe, expect, it, jest} from '@jest/globals'
 
-import {verifyAndRepairAccountIndexing} from '../agent'
+import {verifyAndRepairAccountIndexing} from '../account-indexing'
 
 const NO_DELAYS = {pollDelaysMs: [0, 0, 0], confirmDelaysMs: [0]}
 
-function makeAgent({
+function makeOps({
   getProfile,
   handle = 'alice.test',
   hasSession = true,
@@ -14,68 +13,68 @@ function makeAgent({
   handle?: string
   hasSession?: boolean
 }) {
-  const updateHandle = jest.fn(() => Promise.resolve())
-  const agent = {
-    session: hasSession ? {did: 'did:plc:alice', handle} : undefined,
+  const updateHandle = jest.fn((_handle: string) => Promise.resolve())
+  const ops = {
     getProfile: jest.fn(getProfile),
+    getHandle: () => (hasSession ? handle : undefined),
     updateHandle,
-  } as unknown as BskyAgent
-  return {agent, updateHandle}
+  }
+  return {ops, updateHandle}
 }
 
 describe('verifyAndRepairAccountIndexing', () => {
   it('does not repair when the profile is already indexed', async () => {
-    const {agent, updateHandle} = makeAgent({
-      getProfile: () => Promise.resolve({data: {}}),
+    const {ops, updateHandle} = makeOps({
+      getProfile: () => Promise.resolve({}),
     })
 
-    await verifyAndRepairAccountIndexing(agent, 'did:plc:alice', NO_DELAYS)
+    await verifyAndRepairAccountIndexing(ops, NO_DELAYS)
 
     expect(updateHandle).not.toHaveBeenCalled()
   })
 
   it('re-emits the identity event via updateHandle when the profile never indexes', async () => {
-    const {agent, updateHandle} = makeAgent({
+    const {ops, updateHandle} = makeOps({
       getProfile: () => Promise.reject(new Error('Profile not found')),
     })
 
-    await verifyAndRepairAccountIndexing(agent, 'did:plc:alice', NO_DELAYS)
+    await verifyAndRepairAccountIndexing(ops, NO_DELAYS)
 
     expect(updateHandle).toHaveBeenCalledTimes(1)
-    expect(updateHandle).toHaveBeenCalledWith({handle: 'alice.test'})
+    expect(updateHandle).toHaveBeenCalledWith('alice.test')
   })
 
   it('repairs with the current session handle, not a captured one', async () => {
-    const {agent, updateHandle} = makeAgent({
+    const {ops, updateHandle} = makeOps({
       getProfile: () => Promise.reject(new Error('Profile not found')),
       handle: 'alice-renamed.test',
     })
 
-    await verifyAndRepairAccountIndexing(agent, 'did:plc:alice', NO_DELAYS)
+    await verifyAndRepairAccountIndexing(ops, NO_DELAYS)
 
-    expect(updateHandle).toHaveBeenCalledWith({handle: 'alice-renamed.test'})
+    expect(updateHandle).toHaveBeenCalledWith('alice-renamed.test')
   })
 
   it('never throws when updateHandle fails', async () => {
-    const {agent} = makeAgent({
+    const {ops, updateHandle} = makeOps({
       getProfile: () => Promise.reject(new Error('Profile not found')),
     })
-    ;(agent.updateHandle as jest.Mock).mockImplementation(() =>
+    updateHandle.mockImplementation(() =>
       Promise.reject(new Error('handle taken')),
     )
 
     await expect(
-      verifyAndRepairAccountIndexing(agent, 'did:plc:alice', NO_DELAYS),
+      verifyAndRepairAccountIndexing(ops, NO_DELAYS),
     ).resolves.toBeUndefined()
   })
 
   it('does not repair when there is no active session handle', async () => {
-    const {agent, updateHandle} = makeAgent({
+    const {ops, updateHandle} = makeOps({
       getProfile: () => Promise.reject(new Error('Profile not found')),
       hasSession: false,
     })
 
-    await verifyAndRepairAccountIndexing(agent, 'did:plc:alice', NO_DELAYS)
+    await verifyAndRepairAccountIndexing(ops, NO_DELAYS)
 
     expect(updateHandle).not.toHaveBeenCalled()
   })

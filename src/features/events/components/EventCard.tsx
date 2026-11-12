@@ -1,7 +1,7 @@
 import {useMemo} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {AtUri} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -33,9 +33,12 @@ export function EventCard({
   const t = useTheme()
   const {_, i18n} = useLingui()
   const {data} = useEventQuery(initial.uri, initial)
-  const event = data ?? initial
-  const parsed = useMemo(() => parseEventRecord(event.record), [event.record])
-  if (!parsed) return null
+  const event = data === undefined ? initial : data
+  const parsed = useMemo(
+    () => (event ? parseEventRecord(event.record) : undefined),
+    [event],
+  )
+  if (!event || !parsed) return null
   const phase = eventPhase(parsed, new Date())
   const cover = coverUrl(event)
   const poster = eventPoster(event.uri, parsed)

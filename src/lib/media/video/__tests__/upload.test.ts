@@ -6,10 +6,8 @@ jest.mock('expo-file-system/legacy', () => ({
   FileSystemUploadType: {BINARY_CONTENT: 0},
   createUploadTask: mockCreateUploadTask,
 }))
-jest.mock('#/lib/api/service-auth', () => ({
-  getServiceAuthToken: jest.fn().mockResolvedValue('token'),
-}))
 jest.mock('../upload.shared', () => ({
+  getServiceAuthToken: jest.fn().mockResolvedValue('token'),
   getVideoUploadLimits: jest.fn().mockResolvedValue(undefined),
 }))
 
@@ -29,7 +27,8 @@ describe('uploadVideo', () => {
     async (isPrivate, expected) => {
       await uploadVideo({
         video: {uri: 'file:///video.mp4', mimeType: 'video/mp4'} as never,
-        agent: {} as never,
+        client: {} as never,
+        dispatchUrl: 'https://pds.test',
         did: 'did:plc:test',
         setProgress: jest.fn(),
         signal: new AbortController().signal,

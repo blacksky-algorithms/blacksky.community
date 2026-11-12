@@ -1,4 +1,6 @@
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {EVENT_COLLECTION} from './types'
 
 export type EventRef = {actor: string; rkey: string}
@@ -74,4 +76,26 @@ export function makeEventLink(
       ? creator.handle
       : creator.did
   return `/event/${actor}/${rkey}`
+}
+
+/**
+ * The event a post links to on our own event pages, when it belongs to
+ * `account`. Links to other event apps don't count: we didn't write those.
+ */
+export function ownEventUriOf(
+  embed: app.bsky.feed.defs.PostView['embed'],
+  account: {did: string; handle: string},
+  brandDomains: string[] = [],
+): string | undefined {
+  if (!bsky.isType(app.bsky.embed.external.view, embed)) return
+  const {uri} = embed.external
+  const ref = parseEventUrl(uri, brandDomains)
+  if (
+    !ref ||
+    !new URL(uri).pathname.startsWith('/event/') ||
+    (ref.actor !== account.did && ref.actor !== account.handle)
+  ) {
+    return
+  }
+  return eventAtUri(account.did, ref.rkey)
 }

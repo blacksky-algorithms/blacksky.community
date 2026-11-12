@@ -1,8 +1,9 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {type QueryClient} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
 import {fetchResolveLinkQuery} from '#/state/queries/resolve-link'
+import {app, com} from '#/lexicons'
 import {AssemblyError, ensureAssembly} from '../assembly'
 import {admitFeedPost, fetchCommunityFeedTarget} from '../community-feed'
 import {post, ReplyDeletedError, resolveEmbed} from '../index'
@@ -111,39 +112,54 @@ let warn: jest.SpyInstance
 
 function setup() {
   const fetchHandler = jest.fn()
-  const applyWrites = jest.fn(() => {
+  const applyWrites = jest.fn((_input: unknown) => {
     events.push('applyWrites')
     return Promise.resolve({})
   })
-  const getPosts = jest.fn(() => {
+  const getPosts = jest.fn((_input: unknown) => {
     events.push('getPosts')
     return Promise.resolve({
-      data: {
-        posts: [
-          {
-            uri: PUBLIC_PARENT,
-            cid: 'bafyreiparent',
-            record: {
-              $type: 'app.bsky.feed.post',
-              text: 'hi',
-              createdAt: '2026-09-27T11:00:00.000Z',
-            },
+      posts: [
+        {
+          uri: PUBLIC_PARENT,
+          cid: 'bafyreiparent',
+          record: {
+            $type: 'app.bsky.feed.post',
+            text: 'hi',
+            createdAt: '2026-09-27T11:00:00.000Z',
           },
-        ],
-      },
+        },
+      ],
     })
   })
   const onStateChange = jest.fn((state: string) => {
     events.push(`stage:${state}`)
   })
   const onAssembly = jest.fn()
-  const agent = {
+  const client = {
+    did: 'did:plc:alice',
     assertDid: 'did:plc:alice',
+    agent: {fetchHandler},
+    call: (method: unknown, input: never) => {
+      if (method === com.atproto.repo.applyWrites) return applyWrites(input)
+      if (method === app.bsky.feed.getPosts) return getPosts(input)
+      throw new Error('unexpected call')
+    },
+  } as unknown as Client
+  const clients = {
+    appviewClient: client,
+    chatClient: client,
+    pdsClient: client,
+  }
+  return {
+    client,
+    clients,
     fetchHandler,
-    com: {atproto: {repo: {applyWrites}}},
-    app: {bsky: {feed: {getPosts}}},
-  } as unknown as AtpAgent
-  return {agent, fetchHandler, applyWrites, getPosts, onStateChange, onAssembly}
+    applyWrites,
+    getPosts,
+    onStateChange,
+    onAssembly,
+  }
 }
 
 function draft(embed: Record<string, unknown>, text = TOPIC, id = 'post-1') {
@@ -209,7 +225,7 @@ beforeEach(() => {
   jest.resetAllMocks()
   events = []
   warn = jest.spyOn(logger, 'warn').mockImplementation(() => {})
-  mockEnsureAssembly.mockImplementation((agent, input) => {
+  mockEnsureAssembly.mockImplementation((client, input) => {
     events.push('ensureAssembly')
     input.onRef(REF)
     input.onRef(CREATED_REF)
@@ -221,7 +237,7 @@ beforeEach(() => {
   })
   mockUploadBlob.mockImplementation(() => {
     events.push('uploadBlob')
-    return Promise.resolve({data: {blob: THUMB_BLOB}} as never)
+    return Promise.resolve({blob: THUMB_BLOB} as never)
   })
   mockPostToSpace.mockResolvedValue({uris: ['at://space/post']})
 })
@@ -235,7 +251,8 @@ describe('publishing a post with a poll', () => {
   it('writes the post with a link card to the assembly', async () => {
     const ctx = setup()
 
-    const result = await post(ctx.agent, queryClient, {
+    const result = await post(queryClient, {
+      ...ctx.clients,
       thread: thread([
         draft(
           {poll: {statements: ['  Yes, until sunset ', 'Only on weekends']}},
@@ -264,7 +281,8 @@ describe('publishing a post with a poll', () => {
   it('starts the assembly with the topic, statements and stored reference', async () => {
     const ctx = setup()
 
-    await post(ctx.agent, queryClient, {
+    await post(queryClient, {
+      ...ctx.clients,
       thread: thread([
         draft(
           {
@@ -279,7 +297,7 @@ describe('publishing a post with a poll', () => {
     })
 
     expect(mockEnsureAssembly).toHaveBeenCalledTimes(1)
-    expect(mockEnsureAssembly).toHaveBeenCalledWith(ctx.agent, {
+    expect(mockEnsureAssembly).toHaveBeenCalledWith(ctx.client, {
       topic: TOPIC,
       statements: STATEMENTS,
       ref: REF,
@@ -290,7 +308,8 @@ describe('publishing a post with a poll', () => {
   it('creates the assembly and its thumbnail before writing the post', async () => {
     const ctx = setup()
 
-    await post(ctx.agent, queryClient, {
+    await post(queryClient, {
+      ...ctx.clients,
       thread: pollThread(),
       onStateChange: ctx.onStateChange,
     })
@@ -306,7 +325,7 @@ describe('publishing a post with a poll', () => {
     ])
     expect(mockImageToThumb).toHaveBeenCalledWith(THUMB_URL)
     expect(mockUploadBlob).toHaveBeenCalledWith(
-      ctx.agent,
+      ctx.client,
       'file:///cache/thumb.png',
       'image/png',
     )
@@ -317,7 +336,8 @@ describe('publishing a post with a poll', () => {
   it('reports every change of the reference with the id of the poll post', async () => {
     const ctx = setup()
 
-    await post(ctx.agent, queryClient, {
+    await post(queryClient, {
+      ...ctx.clients,
       thread: pollThread(),
       onAssembly: ctx.onAssembly,
     })
@@ -333,7 +353,8 @@ describe('publishing a post with a poll', () => {
     const stored = {...REF, conversationId: '1stale'}
     mockEnsureAssembly.mockResolvedValue({ref: CREATED_REF, isReplay: true})
 
-    const result = await post(ctx.agent, queryClient, {
+    const result = await post(queryClient, {
+      ...ctx.clients,
       thread: thread([
         draft({poll: {statements: STATEMENTS, assembly: stored}}),
       ]),
@@ -341,7 +362,7 @@ describe('publishing a post with a poll', () => {
     })
 
     expect(mockEnsureAssembly).toHaveBeenCalledWith(
-      ctx.agent,
+      ctx.client,
       expect.objectContaining({ref: stored}),
     )
     expect(writesOf(ctx.applyWrites)[0].value.embed?.external.uri).toBe(
@@ -358,13 +379,14 @@ describe('publishing a post with a poll', () => {
   it('rethrows a failed assembly unchanged and writes nothing', async () => {
     const ctx = setup()
     const error = new AssemblyError('quota', 'create')
-    mockEnsureAssembly.mockImplementation((agent, input) => {
+    mockEnsureAssembly.mockImplementation((client, input) => {
       input.onRef(REF)
       return Promise.reject(error)
     })
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: pollThread(),
         onAssembly: ctx.onAssembly,
       }),
@@ -379,7 +401,8 @@ describe('publishing a post with a poll', () => {
   it('leaves a post without a poll alone', async () => {
     const ctx = setup()
 
-    const result = await post(ctx.agent, queryClient, {
+    const result = await post(queryClient, {
+      ...ctx.clients,
       thread: thread([draft({})]),
       onStateChange: ctx.onStateChange,
       onAssembly: ctx.onAssembly,
@@ -399,7 +422,8 @@ describe('publishing a post with a poll', () => {
   it('uses the text of the post that carries the poll as the topic', async () => {
     const ctx = setup()
 
-    const result = await post(ctx.agent, queryClient, {
+    const result = await post(queryClient, {
+      ...ctx.clients,
       thread: thread([
         draft({}, 'Some context first', 'post-1'),
         draft({poll: {statements: STATEMENTS}}, TOPIC, 'post-2'),
@@ -408,7 +432,7 @@ describe('publishing a post with a poll', () => {
     })
 
     expect(mockEnsureAssembly).toHaveBeenCalledWith(
-      ctx.agent,
+      ctx.client,
       expect.objectContaining({topic: TOPIC, statements: STATEMENTS}),
     )
     expect(ctx.onAssembly.mock.calls).toEqual([
@@ -430,7 +454,8 @@ describe('publishing a post with a poll', () => {
     const ctx = setup()
     const target = feedTarget('publicRecord')
 
-    const result = await post(ctx.agent, queryClient, {
+    const result = await post(queryClient, {
+      ...ctx.clients,
       thread: pollThread({communityFeed: target}),
     })
 
@@ -439,7 +464,7 @@ describe('publishing a post with a poll', () => {
     )
     expect(mockAdmitFeedPost).toHaveBeenCalledTimes(1)
     expect(mockAdmitFeedPost).toHaveBeenCalledWith(
-      ctx.agent,
+      ctx.client,
       target,
       result.uris[0],
       'bafyreifake',
@@ -458,7 +483,8 @@ describe('replying with a poll', () => {
       }) as never
     })
 
-    const pending = post(ctx.agent, queryClient, {
+    const pending = post(queryClient, {
+      ...ctx.clients,
       thread: pollThread(),
       replyTo: PUBLIC_PARENT,
       onStateChange: ctx.onStateChange,
@@ -467,7 +493,7 @@ describe('replying with a poll', () => {
 
     expect(events).toEqual(['stage:Processing...', 'getPosts'])
 
-    release({data: {posts: [{uri: PUBLIC_PARENT, cid: 'bafyreiparent'}]}})
+    release({posts: [{uri: PUBLIC_PARENT, cid: 'bafyreiparent'}]})
     await pending
 
     expect(events).toEqual([
@@ -489,12 +515,11 @@ describe('replying with a poll', () => {
 
   it('starts no assembly when the parent is gone', async () => {
     const ctx = setup()
-    ctx.getPosts.mockImplementation(() =>
-      Promise.resolve({data: {posts: []}} as never),
-    )
+    ctx.getPosts.mockImplementation(() => Promise.resolve({posts: []} as never))
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: pollThread(),
         replyTo: PUBLIC_PARENT,
         onStateChange: ctx.onStateChange,
@@ -533,7 +558,10 @@ describe('the poll thumbnail', () => {
     const ctx = setup()
     arrange()
 
-    const result = await post(ctx.agent, queryClient, {thread: pollThread()})
+    const result = await post(queryClient, {
+      ...ctx.clients,
+      thread: pollThread(),
+    })
 
     expect(mockUploadBlob).toHaveBeenCalledTimes(uploads)
     expect(ctx.applyWrites).toHaveBeenCalledTimes(1)
@@ -554,7 +582,7 @@ describe('the poll thumbnail', () => {
     const ctx = setup()
     mockImageToThumb.mockImplementation(() => new Promise(() => {}))
 
-    const pending = post(ctx.agent, queryClient, {thread: pollThread()})
+    const pending = post(queryClient, {...ctx.clients, thread: pollThread()})
 
     await jest.advanceTimersByTimeAsync(4999)
     expect(mockImageToThumb).toHaveBeenCalledWith(THUMB_URL)
@@ -575,7 +603,7 @@ describe('the poll thumbnail', () => {
     jest.useFakeTimers()
     const ctx = setup()
 
-    await post(ctx.agent, queryClient, {thread: pollThread()})
+    await post(queryClient, {...ctx.clients, thread: pollThread()})
 
     expect(mockUploadBlob).toHaveBeenCalledTimes(1)
     expect(jest.getTimerCount()).toBe(0)
@@ -600,7 +628,8 @@ describe('a poll outside the public path', () => {
     const ctx = setup()
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: pollThread(input.extra),
         replyTo: input.replyTo,
         onAssembly: ctx.onAssembly,
@@ -615,7 +644,8 @@ describe('a poll outside the public path', () => {
     const ctx = setup()
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: thread(
           [
             draft({}, 'Some context first', 'post-1'),
@@ -633,7 +663,8 @@ describe('a poll outside the public path', () => {
     const ctx = setup()
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: thread([
           draft({
             poll: {statements: STATEMENTS},
@@ -653,12 +684,13 @@ describe('a poll outside the public path', () => {
     )
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: pollThread({communityFeedUri: FEED}),
       }),
     ).rejects.toThrow(new Error(POLLS_ARE_PUBLIC))
 
-    expect(mockFetchFeedTarget).toHaveBeenCalledWith(ctx.agent, FEED)
+    expect(mockFetchFeedTarget).toHaveBeenCalledWith(ctx.client, FEED)
     expectNothingStarted(ctx)
   })
 })
@@ -686,7 +718,8 @@ describe('a poll with another attachment', () => {
       const ctx = setup()
 
       await expect(
-        post(ctx.agent, queryClient, {
+        post(queryClient, {
+          ...ctx.clients,
           thread: thread([draft({poll: {statements: STATEMENTS}, ...extra})]),
         }),
       ).rejects.toThrow(new Error(COMBINED))
@@ -702,7 +735,9 @@ describe('a poll with another attachment', () => {
 
       await expect(
         resolveEmbed(
-          ctx.agent,
+          ctx.client,
+          ctx.client,
+          ctx.client,
           queryClient,
           draft({
             poll: {statements: STATEMENTS, assembly: CREATED_REF},
@@ -723,7 +758,8 @@ describe('poll invariants', () => {
     const ctx = setup()
 
     await expect(
-      post(ctx.agent, queryClient, {
+      post(queryClient, {
+        ...ctx.clients,
         thread: thread([
           draft({poll: {statements: STATEMENTS}}, TOPIC, 'post-1'),
           draft({poll: {statements: ['Another']}}, 'Second', 'post-2'),
@@ -742,7 +778,9 @@ describe('poll invariants', () => {
 
     await expect(
       resolveEmbed(
-        ctx.agent,
+        ctx.client,
+        ctx.client,
+        ctx.client,
         queryClient,
         draft({poll: {statements: STATEMENTS, assembly}}) as never,
         undefined,

@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import {View} from 'react-native'
-import {type AppBskyGraphDefs, AppBskyGraphStarterpack} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -14,7 +13,7 @@ import {updateProfileShadow} from '#/state/cache/profile-shadow'
 import {getAllListMembers} from '#/state/queries/list-members'
 import {useOnboardingCommunityStarterPacksQuery} from '#/state/queries/useOnboardingCommunityStarterPacksQuery'
 import {useOnboardingSuggestedStarterPacksQuery} from '#/state/queries/useOnboardingSuggestedStarterPacksQuery'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {useOnboardingInternalState} from '#/screens/Onboarding/state'
 import {bulkWriteFollows} from '#/screens/Onboarding/util'
@@ -26,6 +25,7 @@ import {AppBar, Eyebrow, PrimaryButton} from '#/components/onboarding-chrome'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 const AVATAR_SAMPLE = 5
@@ -108,22 +108,18 @@ export function StepPinFeeds() {
   )
 }
 
-function StarterPackRow({pack}: {pack: AppBskyGraphDefs.StarterPackView}) {
+function StarterPackRow({pack}: {pack: app.bsky.graph.defs.StarterPackView}) {
   const {_} = useLingui()
   const ax = useAnalytics()
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
+  const appviewClient = useAppviewClient()
   const {currentAccount} = useSession()
   const queryClient = useQueryClient()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
 
   const record = pack.record
-  if (
-    !bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
-      record,
-      AppBskyGraphStarterpack.isRecord,
-    )
-  ) {
+  if (!bsky.isType(app.bsky.graph.starterpack, record)) {
     return null
   }
 
@@ -136,9 +132,9 @@ function StarterPackRow({pack}: {pack: AppBskyGraphDefs.StarterPackView}) {
 
     setIsProcessing(true)
 
-    let listItems: AppBskyGraphDefs.ListItemView[] = []
+    let listItems: app.bsky.graph.defs.ListItemView[] = []
     try {
-      listItems = await getAllListMembers(agent, pack.list.uri)
+      listItems = await getAllListMembers(appviewClient, pack.list.uri)
     } catch (e) {
       setIsProcessing(false)
       Toast.show(_(msg`An error occurred while trying to follow all`), {
@@ -162,7 +158,7 @@ function StarterPackRow({pack}: {pack: AppBskyGraphDefs.StarterPackView}) {
 
     let followUris: Map<string, string>
     try {
-      followUris = await bulkWriteFollows(agent, dids, {
+      followUris = await bulkWriteFollows(pdsClient, appviewClient, dids, {
         uri: pack.uri,
         cid: pack.cid,
       })

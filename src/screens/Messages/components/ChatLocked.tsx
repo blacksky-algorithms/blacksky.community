@@ -1,10 +1,11 @@
 import {Pressable} from 'react-native'
-import {ChatBskyConvoUnlockConvo} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
 import {HITSLOP_10} from '#/lib/constants'
+import {getMessagesNavigationAction} from '#/lib/routes/navigation'
 import {type NavigationProp} from '#/lib/routes/types'
+import {matchXrpcError} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
 import {useLeaveConvo} from '#/state/queries/messages/leave-conversation'
 import {useLockConvo} from '#/state/queries/messages/lock-conversation'
@@ -15,6 +16,7 @@ import {Lock_Stroke2_Corner0_Rounded as LockIcon} from '#/components/icons/Lock'
 import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {chat} from '#/lexicons'
 import {LeaveChatPrompt} from '../ConversationSettings/prompts'
 import {ChatFooter} from './ChatFooter'
 
@@ -41,7 +43,10 @@ export function ChatLocked({
       Toast.show(l({message: 'Group chat unlocked', context: 'toast'}))
     },
     onError: e => {
-      if (e instanceof ChatBskyConvoUnlockConvo.ConvoLockedByModerationError) {
+      if (
+        matchXrpcError(e, chat.bsky.convo.unlockConvo) ===
+        'ConvoLockedByModeration'
+      ) {
         Toast.show(l`This chat is locked by a moderation action`, {
           type: 'error',
         })
@@ -54,7 +59,13 @@ export function ChatLocked({
 
   const {mutate: leaveConvo} = useLeaveConvo(convo.view.id, {
     onSuccess: () => {
-      navigation.replace('Messages', {animation: 'pop'})
+      navigation.dispatch(
+        getMessagesNavigationAction(
+          {animation: 'pop'},
+          navigation.getState(),
+          'replace',
+        ),
+      )
     },
     onError: e => {
       logger.error('Failed to leave group chat', {message: e})

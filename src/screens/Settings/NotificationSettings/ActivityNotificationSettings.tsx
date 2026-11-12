@@ -1,11 +1,11 @@
 import {useCallback, useMemo} from 'react'
 import {type ListRenderItemInfo, Text as RNText, View} from 'react-native'
-import {type ModerationOpts} from '@atproto/api'
+import {type ModerationOpts} from '@bsky/sdk/moderation'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {createSanitizedDisplayName} from '#/lib/moderation/create-sanitized-display-name'
 import {
-  type AllNavigatorParams,
+  type CommonNavigatorParams,
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
@@ -36,7 +36,7 @@ import {ItemTextWithSubtitle} from './components/ItemTextWithSubtitle'
 import {PreferenceControls} from './components/PreferenceControls'
 
 type Props = NativeStackScreenProps<
-  AllNavigatorParams,
+  CommonNavigatorParams,
   'ActivityNotificationSettings'
 >
 
@@ -128,7 +128,7 @@ export function ActivityNotificationSettingsScreen({}: Props) {
         onEndReached={onEndReached}
         onEndReachedThreshold={4}
         ListEmptyComponent={
-          error ? null : (
+          error ? undefined : (
             <View style={[a.px_xl, a.py_md]}>
               {!isPending ? (
                 <Admonition.Outer type="tip">

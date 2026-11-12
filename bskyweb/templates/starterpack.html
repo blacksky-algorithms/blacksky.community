@@ -23,4 +23,7 @@
   <meta name="description" content="{{ brandPrimaryCTA }}" />
   <meta name="og:description" content="{{ brandPrimaryCTA }}" />
   <meta name="twitter:description" content="{{ brandPrimaryCTA }}" />
+  {%- if starterPackURI %}
+  <meta name="at:canonical" content="{{ starterPackURI }}" />
+  {% endif -%}
 {%- endblock %}

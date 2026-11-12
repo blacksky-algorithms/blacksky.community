@@ -1,6 +1,5 @@
 import {useRef, useState} from 'react'
 import {Keyboard, LayoutAnimation, Platform, View} from 'react-native'
-import {type ComAtprotoServerDescribeServer} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -27,6 +26,7 @@ import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {IS_E2E} from '#/env'
+import {type com} from '#/lexicons'
 import {FormContainer} from './FormContainer'
 
 export const LoginForm = ({
@@ -39,7 +39,7 @@ export const LoginForm = ({
 }: {
   error: string
   serviceUrl: string
-  serviceDescription: ComAtprotoServerDescribeServer.OutputSchema | undefined
+  serviceDescription: com.atproto.server.describeServer.$OutputBody | undefined
   initialHandle: string
   setError: (v: string) => void
   onPressBack: () => void
@@ -157,7 +157,6 @@ export const LoginForm = ({
       try {
         await login({service: serviceUrl, identifier, password}, 'LoginForm')
       } catch (e) {
-        const errMsg = String(e)
         if (isNetworkError(e)) {
           setError(
             _(
@@ -165,7 +164,7 @@ export const LoginForm = ({
             ),
           )
         } else {
-          setError(cleanError(errMsg))
+          setError(cleanError(e))
         }
       } finally {
         setIsProcessing(false)
@@ -231,7 +230,7 @@ export const LoginForm = ({
         )
       } else {
         logger.warn('Failed to start OAuth sign-in', {error: errMsg})
-        setError(cleanError(errMsg))
+        setError(cleanError(e))
       }
     } finally {
       setIsProcessing(false)

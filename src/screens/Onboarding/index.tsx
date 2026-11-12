@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useReducer} from 'react'
 import {View} from 'react-native'
 
-import {useAgent} from '#/state/session'
+import {useSession} from '#/state/session'
 import {
   Layout,
   OnboardingControls,
@@ -27,11 +27,11 @@ const BLACKSKY_HANDLE_DOMAIN = 'blacksky.app'
 
 export function Onboarding() {
   const t = useTheme()
-  const agent = useAgent()
+  const {currentAccount} = useSession()
 
   // The Blacksky-only posts step is only relevant to accounts on a blacksky.app
   // handle (the community that has the feature).
-  const isBlackskyMember = !!agent.session?.handle?.endsWith(
+  const isBlackskyMember = !!currentAccount?.handle?.endsWith(
     `.${BLACKSKY_HANDLE_DOMAIN}`,
   )
 

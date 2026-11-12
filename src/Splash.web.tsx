@@ -9,7 +9,7 @@ import {Image} from 'react-native'
 import Svg, {ClipPath, Defs, G, Path, Rect} from 'react-native-svg'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
-import {atoms as a, flatten} from '#/alf'
+import {atoms as a, flattenToCSS} from '#/alf'
 
 const size = 100
 const ratio = 243 / 285
@@ -80,7 +80,7 @@ export function Splash({
       {!isAnimationComplete && (
         <div
           ref={splashRef}
-          style={flatten([
+          style={flattenToCSS([
             a.fixed,
             a.inset_0,
             a.flex,

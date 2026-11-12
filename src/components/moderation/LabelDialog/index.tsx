@@ -57,7 +57,7 @@ function Inner({
 }: LabelDialogProps & {subject: LabelDialogSubject}) {
   const t = useTheme()
   const {_, i18n} = useLingui()
-  const ref = useRef<ScrollView>(null)
+  const ref = useRef<React.ComponentRef<typeof ScrollView>>(null)
 
   const {defs, isLoading: defsLoading} = useBlackskyLabelDefs()
   const isLoading = useDelayedLoading(500, defsLoading)
@@ -338,10 +338,7 @@ function StepTitle({
 }
 
 type LabelCardState =
-  | 'selectable'
-  | 'selected'
-  | 'appliedByMe'
-  | 'appliedByOther'
+  'selectable' | 'selected' | 'appliedByMe' | 'appliedByOther'
 
 function LabelCard({
   strings,

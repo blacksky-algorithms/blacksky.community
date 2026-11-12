@@ -15,13 +15,10 @@ jest.mock('#/components/Tooltip', () => ({
 }))
 jest.mock('#/alf', () => ({
   atoms: {absolute: {}, inset_0: {}},
+  BreakpointWidthContext: jest
+    .requireActual<typeof import('react')>('react')
+    .createContext<number | undefined>(undefined),
   useTheme: () => ({name: 'light', atoms: {bg: {}}}),
-}))
-jest.mock('react-native-edge-to-edge', () => ({
-  SystemBars: {
-    pushStackEntry: jest.fn(() => ({})),
-    popStackEntry: jest.fn(),
-  },
 }))
 jest.mock('react-native-reanimated', () => {
   const {View} = require('react-native')
