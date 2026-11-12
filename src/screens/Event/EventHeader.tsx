@@ -1,4 +1,4 @@
-import {View} from 'react-native'
+import {useWindowDimensions, View} from 'react-native'
 import {Image} from 'expo-image'
 import {msg, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -50,6 +50,7 @@ export function EventHeader({
   guests: RsvpView[]
 }) {
   const t = useTheme()
+  const {width} = useWindowDimensions()
   const {_, i18n} = useLingui()
   const openLink = useOpenLink()
   const watch = useWatchStreamplace()
@@ -72,7 +73,14 @@ export function EventHeader({
         gradient="primary"
         style={[a.absolute, a.inset_0, {height: 237, opacity: 0.35}]}
       />
-      <View style={[a.align_center, a.px_lg, a.pt_3xl, a.gap_lg]}>
+      <View
+        style={[
+          a.align_center,
+          a.px_lg,
+          a.pt_3xl,
+          a.gap_lg,
+          width < 396 && !parsed.cancelled && {paddingTop: 53},
+        ]}>
         {parsed.cancelled && (
           <View
             style={[
