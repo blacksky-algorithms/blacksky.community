@@ -415,49 +415,4 @@ describe('EventEditor', () => {
     expect(mockLinkImage).not.toHaveBeenCalled()
     expect(getByTestId('coverShown')).toHaveTextContent('none')
   })
-
-  it('offers Save changes and Discard when editing a published event', () => {
-    const dispatch = jest.fn()
-    const {getByTestId, queryByTestId} = render(
-      <EventEditor
-        event={{
-          step: 'cover',
-          name: 'Party',
-          description: '',
-          location: '',
-          startsAt: '2027-01-15T00:00:00.000Z',
-          endsAt: '2027-01-15T00:00:00.000Z',
-        }}
-        dispatch={dispatch}
-        isEditing
-      />,
-    )
-    expect(queryByTestId('removeEventBtn')).toBeNull()
-    fireEvent.press(getByTestId('discardEventEditsBtn'))
-    expect(dispatch).toHaveBeenCalledWith({type: 'embed_remove_event'})
-    expect(mockMetric).not.toHaveBeenCalled()
-    expect(getByTestId('eventContinueBtn')).toHaveProp(
-      'accessibilityLabel',
-      'Save changes',
-    )
-  })
-
-  it('titles the first step for editing', () => {
-    const {getByText, queryByText} = render(
-      <EventEditor
-        event={{
-          step: 'details',
-          name: 'Party',
-          description: '',
-          location: '',
-          startsAt: '2027-01-15T00:00:00.000Z',
-          endsAt: '2027-01-15T00:00:00.000Z',
-        }}
-        dispatch={jest.fn()}
-        isEditing
-      />,
-    )
-    expect(getByText('Edit your event')).toBeTruthy()
-    expect(queryByText('Create your event')).toBeNull()
-  })
 })

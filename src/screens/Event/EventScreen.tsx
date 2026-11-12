@@ -49,9 +49,7 @@ export function EventScreen({route}: Props) {
             <Trans>Event</Trans>
           </Layout.Header.TitleText>
         </Layout.Header.Content>
-        <Layout.Header.Slot>
-          {event && parsed && <EventHostMenu event={event} parsed={parsed} />}
-        </Layout.Header.Slot>
+        <Layout.Header.Slot />
       </Layout.Header.Outer>
       {event && parsed ? (
         <EventBody event={event} parsed={parsed} />
@@ -111,6 +109,15 @@ function EventBody({event, parsed}: {event: EventView; parsed: ParsedEvent}) {
       ListHeaderComponent={
         <View>
           <EventHeader event={event} parsed={parsed} guests={going} />
+          <View
+            style={[
+              a.absolute,
+              a.top_0,
+              a.right_0,
+              {paddingHorizontal: 15, paddingVertical: 10},
+            ]}>
+            <EventHostMenu event={event} parsed={parsed} />
+          </View>
           {!isLoading &&
             !error &&
             event.goingCount + event.interestedCount === 0 && (

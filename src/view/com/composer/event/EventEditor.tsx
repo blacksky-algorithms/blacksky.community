@@ -8,7 +8,11 @@ import {getLinkMeta} from '#/lib/link-meta/link-meta'
 import {useAgent, useSession} from '#/state/session'
 import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
-import {FieldLabelText, INPUT_TEXT} from '#/view/com/composer/event/EventFields'
+import {
+  Counter,
+  FieldLabelText,
+  INPUT_TEXT,
+} from '#/view/com/composer/event/EventFields'
 import {type PostAction} from '#/view/com/composer/state/composer'
 import {atoms as a, useTheme} from '#/alf'
 import {DEFAULT_BRAND} from '#/alf/themes'
@@ -44,11 +48,9 @@ const STEPS: EventDraftStep[] = ['details', 'when', 'cover']
 export function EventEditor({
   event,
   dispatch,
-  isEditing,
 }: {
   event: EventDraft
   dispatch: (action: PostAction) => void
-  isEditing?: boolean
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -65,7 +67,6 @@ export function EventEditor({
         ? !eventEndsBeforeStart(event)
         : true
   const isLastStep = stepIndex === STEPS.length - 1
-  const pillBg = isEditing ? t.atoms.bg_contrast_50 : t.atoms.bg
   const stepColor =
     t.name === 'light' ? t.palette.primary_500 : DEFAULT_BRAND.secondary
   const remove = () => {
@@ -73,7 +74,7 @@ export function EventEditor({
     dispatch({type: 'embed_remove_event'})
   }
   const linkImage = useLinkImage(
-    !isEditing && event.step === 'cover' && !event.cover && !event.coverRemoved
+    event.step === 'cover' && !event.cover && !event.coverRemoved
       ? eventLocationUrl(event)
       : undefined,
   )
@@ -84,15 +85,13 @@ export function EventEditor({
     <View
       testID="eventEditor"
       style={[
+        a.mt_lg,
         a.gap_xl,
-        !isEditing && [
-          a.mt_lg,
-          a.rounded_md,
-          {padding: 13},
-          a.border,
-          t.atoms.border_contrast_low,
-          t.atoms.bg_contrast_25,
-        ],
+        a.rounded_md,
+        {padding: 13},
+        a.border,
+        t.atoms.border_contrast_low,
+        t.atoms.bg_contrast_25,
       ]}>
       <View style={[a.flex_row, a.align_center, a.justify_between]}>
         <View style={[a.flex_row, a.align_center, a.gap_xs]}>
@@ -144,24 +143,22 @@ export function EventEditor({
           </Menu.Root>
         ) : (
           <Button
-            testID={isEditing ? 'discardEventEditsBtn' : 'removeEventBtn'}
-            label={isEditing ? l`Discard changes` : l`Remove event`}
+            testID="removeEventBtn"
+            label={l`Remove event`}
             size="tiny"
             variant="solid"
             color="secondary"
-            style={[pillBg, a.px_lg, {height: 28}]}
-            onPress={
-              isEditing ? () => dispatch({type: 'embed_remove_event'}) : remove
-            }>
+            style={[t.atoms.bg, a.px_lg, {height: 28}]}
+            onPress={remove}>
             <ButtonText style={[a.text_xs, t.atoms.text_contrast_medium]}>
-              {isEditing ? <Trans>Discard</Trans> : <Trans>Remove</Trans>}
+              <Trans>Remove</Trans>
             </ButtonText>
           </Button>
         )}
       </View>
 
       {event.step === 'details' && (
-        <DetailsStep event={event} update={update} isEditing={isEditing} />
+        <DetailsStep event={event} update={update} />
       )}
       {event.step === 'when' && <WhenStep event={event} update={update} />}
       {event.step === 'cover' && (
@@ -222,7 +219,7 @@ export function EventEditor({
                 size="small"
                 variant="solid"
                 color="secondary"
-                style={[a.flex_1, pillBg, a.px_md]}
+                style={[a.flex_1, t.atoms.bg, a.px_md]}
                 onPress={() => setStep(STEPS[stepIndex - 1])}>
                 <ButtonText style={{color: t.palette.primary_600}}>
                   <Trans>Back</Trans>
@@ -231,13 +228,7 @@ export function EventEditor({
             )}
             <Button
               testID="eventContinueBtn"
-              label={
-                isLastStep
-                  ? isEditing
-                    ? l`Save changes`
-                    : l`Create event`
-                  : l`Continue`
-              }
+              label={isLastStep ? l`Create event` : l`Continue`}
               size="small"
               variant="solid"
               color="primary"
@@ -251,11 +242,7 @@ export function EventEditor({
               }}>
               <ButtonText>
                 {isLastStep ? (
-                  isEditing ? (
-                    <Trans>Save changes</Trans>
-                  ) : (
-                    <Trans>Create event</Trans>
-                  )
+                  <Trans>Create event</Trans>
                 ) : (
                   <Trans>Continue</Trans>
                 )}
@@ -271,11 +258,9 @@ export function EventEditor({
 function DetailsStep({
   event,
   update,
-  isEditing,
 }: {
   event: EventDraft
   update: (fields: Partial<EventDraftFields>) => void
-  isEditing?: boolean
 }) {
   const {t: l} = useLingui()
   const nameCount = countGraphemes(event.name.trim())
@@ -285,11 +270,7 @@ function DetailsStep({
     <View style={[a.gap_sm]}>
       <View>
         <FieldLabelText>
-          {isEditing ? (
-            <Trans>Edit your event</Trans>
-          ) : (
-            <Trans>Create your event</Trans>
-          )}
+          <Trans>Create your event</Trans>
         </FieldLabelText>
         <TextField.Root isInvalid={nameCount > EVENT_NAME_MAX_GRAPHEMES}>
           <TextField.Input
@@ -377,23 +358,6 @@ function WhenStep({
         </Text>
       ) : null}
     </View>
-  )
-}
-
-function Counter({count, max}: {count: number; max: number}) {
-  const t = useTheme()
-  return (
-    <Text
-      style={[
-        a.text_xs,
-        a.text_right,
-        a.mt_2xs,
-        count > max
-          ? {color: t.palette.negative_500}
-          : t.atoms.text_contrast_medium,
-      ]}>
-      {`${count} / ${max}`}
-    </Text>
   )
 }
 

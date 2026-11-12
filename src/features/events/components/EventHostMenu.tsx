@@ -1,14 +1,18 @@
+import {AtUri} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 
 import {type NavigationProp} from '#/lib/routes/types'
+import {shareUrl} from '#/lib/sharing'
+import {toShareUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
 import {useSession} from '#/state/session'
 import {Button, ButtonIcon} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
-import {CircleX_Stroke2_Corner0_Rounded as CancelIcon} from '#/components/icons/CircleX'
+import {ArrowOutOfBoxModified_Stroke2_Corner2_Rounded as ShareIcon} from '#/components/icons/ArrowOutOfBox'
 import {DotGrid3x1_Stroke2_Corner0_Rounded as DotsIcon} from '#/components/icons/DotGrid'
-import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
+import {EditBig_Stroke2_Corner2_Rounded as EditIcon} from '#/components/icons/EditBig'
+import {TimesLarge_Stroke2_Corner0_Rounded as CancelIcon} from '#/components/icons/Times'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -17,6 +21,7 @@ import {useAnalytics} from '#/analytics'
 import {useEventWriteMutation} from '../queries'
 import {type ParsedEvent} from '../record'
 import {EVENT_COLLECTION, type EventView} from '../types'
+import {makeEventLink} from '../url'
 import {EventEditDialog} from './EventEditDialog'
 
 export function EventHostMenu({
@@ -34,13 +39,9 @@ export function EventHostMenu({
   const cancelControl = useDialogControl()
   const deleteControl = useDialogControl()
   const {mutateAsync: write} = useEventWriteMutation(event.uri)
-
-  if (
-    currentAccount?.did !== event.creator.did ||
-    !ax.features.enabled(ax.features.EventsEnable)
-  ) {
-    return null
-  }
+  const isHost =
+    currentAccount?.did === event.creator.did &&
+    ax.features.enabled(ax.features.EventsEnable)
 
   const onCancel = async () => {
     try {
@@ -77,47 +78,74 @@ export function EventHostMenu({
               label={props.accessibilityLabel}
               size="small"
               shape="round"
-              variant="ghost"
-              color="secondary">
-              <ButtonIcon icon={DotsIcon} size="lg" />
+              variant="solid"
+              color="primary">
+              <ButtonIcon icon={DotsIcon} />
             </Button>
           )}
         </Menu.Trigger>
-        <Menu.Outer>
+        <Menu.Outer showCancel>
           <Menu.Group>
             <Menu.Item
-              testID="editEventBtn"
-              label={l`Edit event`}
-              onPress={() => editControl.open()}>
+              testID="shareEventBtn"
+              label={l`Share via...`}
+              onPress={() =>
+                void shareUrl(
+                  toShareUrl(
+                    makeEventLink(event.creator, new AtUri(event.uri).rkey),
+                  ),
+                )
+              }>
               <Menu.ItemText>
-                <Trans>Edit event</Trans>
+                <Trans>Share via...</Trans>
               </Menu.ItemText>
-              <Menu.ItemIcon icon={PencilIcon} />
-            </Menu.Item>
-            {!parsed.cancelled && (
-              <Menu.Item
-                testID="cancelEventBtn"
-                label={l`Cancel event`}
-                onPress={() => cancelControl.open()}>
-                <Menu.ItemText>
-                  <Trans>Cancel event</Trans>
-                </Menu.ItemText>
-                <Menu.ItemIcon icon={CancelIcon} />
-              </Menu.Item>
-            )}
-            <Menu.Item
-              testID="deleteEventBtn"
-              label={l`Delete event`}
-              onPress={() => deleteControl.open()}>
-              <Menu.ItemText>
-                <Trans>Delete event</Trans>
-              </Menu.ItemText>
-              <Menu.ItemIcon icon={TrashIcon} />
+              <Menu.ItemIcon icon={ShareIcon} />
             </Menu.Item>
           </Menu.Group>
+          {isHost && (
+            <>
+              <Menu.Divider />
+              <Menu.Group>
+                <Menu.Item
+                  testID="editEventBtn"
+                  label={l`Edit event`}
+                  onPress={() => editControl.open()}>
+                  <Menu.ItemText>
+                    <Trans>Edit event</Trans>
+                  </Menu.ItemText>
+                  <Menu.ItemIcon icon={EditIcon} />
+                </Menu.Item>
+                {!parsed.cancelled && (
+                  <Menu.Item
+                    testID="cancelEventBtn"
+                    label={l`Cancel event`}
+                    onPress={() => cancelControl.open()}>
+                    <Menu.ItemText>
+                      <Trans>Cancel event</Trans>
+                    </Menu.ItemText>
+                    <Menu.ItemIcon icon={CancelIcon} />
+                  </Menu.Item>
+                )}
+              </Menu.Group>
+              <Menu.Divider />
+              <Menu.Group>
+                <Menu.Item
+                  testID="deleteEventBtn"
+                  label={l`Delete event`}
+                  onPress={() => deleteControl.open()}>
+                  <Menu.ItemText>
+                    <Trans>Delete event</Trans>
+                  </Menu.ItemText>
+                  <Menu.ItemIcon icon={TrashIcon} />
+                </Menu.Item>
+              </Menu.Group>
+            </>
+          )}
         </Menu.Outer>
       </Menu.Root>
-      <EventEditDialog control={editControl} event={event} parsed={parsed} />
+      {isHost && (
+        <EventEditDialog control={editControl} event={event} parsed={parsed} />
+      )}
       <Prompt.Basic
         control={cancelControl}
         title={l`Cancel this event?`}

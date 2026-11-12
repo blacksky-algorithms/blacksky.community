@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {type ReactNode, useState} from 'react'
 import {Pressable, View} from 'react-native'
 import {Image} from 'expo-image'
 import {Trans, useLingui} from '@lingui/react/macro'
@@ -34,9 +34,11 @@ const ASPECT = 2
 export function EventCoverPicker({
   cover,
   onChange,
+  children,
 }: {
   cover?: string
   onChange: (image: PickerImage | null) => void
+  children?: ReactNode
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
@@ -82,7 +84,7 @@ export function EventCoverPicker({
     }
   }
 
-  const field = (
+  const field = children ?? (
     <View
       testID="eventCoverField"
       style={[
