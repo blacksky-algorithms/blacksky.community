@@ -1,6 +1,6 @@
-import {AppBskyEmbedExternal, type AppBskyFeedDefs} from '@atproto/api'
-
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {EVENT_COLLECTION} from './types'
 
 export type EventRef = {actor: string; rkey: string}
@@ -83,11 +83,11 @@ export function makeEventLink(
  * `account`. Links to other event apps don't count: we didn't write those.
  */
 export function ownEventUriOf(
-  embed: AppBskyFeedDefs.PostView['embed'],
+  embed: app.bsky.feed.defs.PostView['embed'],
   account: {did: string; handle: string},
   brandDomains: string[] = [],
 ): string | undefined {
-  if (!AppBskyEmbedExternal.isView(embed)) return
+  if (!bsky.isType(app.bsky.embed.external.view, embed)) return
   const {uri} = embed.external
   const ref = parseEventUrl(uri, brandDomains)
   if (

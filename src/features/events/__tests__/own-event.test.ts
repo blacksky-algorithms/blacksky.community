@@ -5,7 +5,11 @@ const me = {did: 'did:plc:me', handle: 'me.test'}
 function external(uri: string) {
   return {
     $type: 'app.bsky.embed.external#view' as const,
-    external: {uri, title: 'Party', description: ''},
+    external: {
+      uri: uri as `${string}:${string}`,
+      title: 'Party',
+      description: '',
+    },
   }
 }
 

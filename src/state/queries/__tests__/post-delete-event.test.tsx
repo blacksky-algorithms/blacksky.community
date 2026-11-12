@@ -5,10 +5,20 @@ const mockApplyWrites = jest.fn()
 const mockDeletePost = jest.fn()
 
 jest.mock('#/state/session', () => ({
-  useAgent: () => ({
-    deletePost: mockDeletePost,
-    com: {atproto: {repo: {applyWrites: mockApplyWrites}}},
+  usePdsClient: () => ({
+    call: (method: unknown, input: unknown) => {
+      const {com} =
+        jest.requireActual<typeof import('#/lexicons')>('#/lexicons')
+      const {deletePost} =
+        jest.requireActual<typeof import('@bsky/sdk')>('@bsky/sdk')
+      if (method === com.atproto.repo.applyWrites) {
+        return mockApplyWrites(input)
+      }
+      if (method === deletePost) return mockDeletePost(input)
+      throw new Error('unexpected call')
+    },
   }),
+  useAppviewClient: () => ({}),
   useSession: () => ({currentAccount: {did: 'did:plc:me'}}),
 }))
 

@@ -7,7 +7,7 @@ import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {uploadEventCover} from '#/lib/api'
 import {logger} from '#/logger'
-import {useAgent} from '#/state/session'
+import {usePdsClient} from '#/state/session'
 import {EventCoverPicker} from '#/view/com/composer/event/EventCoverPicker'
 import {EventDateRange} from '#/view/com/composer/event/EventDateRange'
 import {Counter} from '#/view/com/composer/event/EventFields'
@@ -86,7 +86,7 @@ function EditForm({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
   const queryClient = useQueryClient()
   const control = Dialog.useDialogContext()
   const {mutateAsync: write} = useEventWriteMutation(event.uri)
@@ -116,7 +116,7 @@ function EditForm({
       const cover = !coverChanged
         ? undefined
         : draft.cover
-          ? await uploadEventCover(agent, draft.cover, undefined)
+          ? await uploadEventCover(pdsClient, draft.cover, undefined)
           : null
       await write(current =>
         applyEventEdits(current, initial, draft, {

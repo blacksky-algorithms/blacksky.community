@@ -1,4 +1,4 @@
-import {ComAtprotoRepoPutRecord} from '@atproto/api'
+import {getMain, XrpcResponseError} from '@atproto/lex'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {act, renderHook} from '@testing-library/react-native'
 
@@ -8,15 +8,16 @@ const mockDeleteRecord = jest.fn()
 
 jest.mock('#/analytics', () => ({useAnalytics: () => ({metric: jest.fn()})}))
 jest.mock('#/state/session', () => ({
-  useAgent: () => ({
-    com: {
-      atproto: {
-        repo: {
-          getRecord: mockGetRecord,
-          putRecord: mockPutRecord,
-          deleteRecord: mockDeleteRecord,
-        },
-      },
+  usePdsClient: () => ({
+    call: (method: unknown, input: unknown) => {
+      const {com} =
+        jest.requireActual<typeof import('#/lexicons')>('#/lexicons')
+      if (method === com.atproto.repo.getRecord) return mockGetRecord(input)
+      if (method === com.atproto.repo.putRecord) return mockPutRecord(input)
+      if (method === com.atproto.repo.deleteRecord) {
+        return mockDeleteRecord(input)
+      }
+      throw new Error('unexpected call')
     },
   }),
   useSession: () => ({currentAccount: {did: 'did:plc:host'}}),
@@ -24,6 +25,7 @@ jest.mock('#/state/session', () => ({
 jest.mock('#/lib/api/community', () => ({communityXrpc: jest.fn()}))
 jest.mock('#/state/queries', () => ({STALE: {MINUTES: {ONE: 60e3}}}))
 
+import {com} from '#/lexicons'
 import {EVENT_RQKEY, EventGoneError, useEventWriteMutation} from '../queries'
 import {type EventView} from '../types'
 
@@ -64,7 +66,8 @@ describe('useEventWriteMutation', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     mockGetRecord.mockResolvedValue({
-      data: {cid: 'fresh-cid', value: {name: 'Fresh copy'}},
+      cid: 'fresh-cid',
+      value: {name: 'Fresh copy'},
     })
     mockPutRecord.mockResolvedValue({})
     mockDeleteRecord.mockResolvedValue({})
@@ -91,8 +94,13 @@ describe('useEventWriteMutation', () => {
   it('re-reads and retries when another write got there first', async () => {
     mockPutRecord
       .mockRejectedValueOnce(
-        new ComAtprotoRepoPutRecord.InvalidSwapError(
-          new Error('swap') as never,
+        new XrpcResponseError(
+          getMain(com.atproto.repo.putRecord),
+          new Response(JSON.stringify({error: 'InvalidSwap'}), {
+            status: 400,
+            headers: {'content-type': 'application/json'},
+          }),
+          {encoding: 'application/json', body: {error: 'InvalidSwap'}},
         ),
       )
       .mockResolvedValue({})

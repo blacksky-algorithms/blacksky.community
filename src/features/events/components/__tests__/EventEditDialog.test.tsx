@@ -3,8 +3,7 @@ import {act, fireEvent, render} from '@testing-library/react-native'
 jest.mock('@lingui/react', () => {
   const format = (
     message:
-      | {message?: string; values?: Record<string, string | number>}
-      | string,
+      {message?: string; values?: Record<string, string | number>} | string,
   ) => {
     if (typeof message === 'string') return message
     return (message.message ?? '').replace(/{(\w+)}/g, (_, key: string) =>
@@ -140,7 +139,7 @@ jest.mock('#/components/Toast', () => ({
 }))
 jest.mock('#/logger', () => ({logger: {error: jest.fn()}}))
 jest.mock('expo-localization', () => ({getLocales: () => [{regionCode: 'US'}]}))
-jest.mock('#/state/session', () => ({useAgent: () => ({})}))
+jest.mock('#/state/session', () => ({usePdsClient: () => ({})}))
 jest.mock('#/lib/api', () => ({uploadEventCover: jest.fn()}))
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({setQueryData: jest.fn()}),
@@ -213,9 +212,10 @@ describe('EventEditDialog', () => {
     fireEvent.changeText(getByTestId('eventNameInput'), 'Party 2')
     await act(async () => {
       fireEvent.press(getByTestId('eventEditSaveBtn'))
+      await Promise.resolve()
     })
     expect(mockWrite).toHaveBeenCalledTimes(1)
-    const updater = mockWrite.mock.calls[0][0] as (
+    const updater = (mockWrite.mock.calls as unknown[][])[0][0] as (
       current: Record<string, unknown>,
     ) => Record<string, unknown>
     expect(updater({name: 'Party', description: 'Bring snacks'})).toEqual({
@@ -233,7 +233,10 @@ describe('EventEditDialog', () => {
     fireEvent.changeText(getByTestId('eventNameInput'), 'Party 2')
     fireEvent.press(getByTestId('eventEditSaveBtn'))
     fireEvent.press(getByTestId('eventEditSaveBtn'))
-    await act(async () => resolve())
+    await act(async () => {
+      resolve()
+      await Promise.resolve()
+    })
     expect(mockWrite).toHaveBeenCalledTimes(1)
   })
 
