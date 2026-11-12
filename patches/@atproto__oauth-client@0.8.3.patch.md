@@ -15,7 +15,7 @@ This patch adds `ownsStoredSession()`, which compares the instance's key with th
 the store. When they differ, `fetchHandler` returns the 401 without refreshing or deleting. When
 nothing is stored, or the keys match, behavior is unchanged.
 
-Applies to 0.6.1, which both `@atproto/oauth-client-browser@0.3.42` (web) and
-`@atproto/oauth-client-expo` (native) resolve to. The bug only shows on web; native runs one
+Applies to 0.8.3, which both `@atproto/oauth-client-browser@0.5.3` (web) and
+`@atproto/oauth-client-expo@0.1.12` (native) resolve to. The bug only shows on web; native runs one
 instance per app process, so the guard is a no-op there. Drop the patch once upstream ships an
 equivalent guard.
