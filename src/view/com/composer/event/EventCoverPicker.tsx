@@ -119,7 +119,7 @@ export function EventCoverPicker({
   return (
     <>
       {IS_WEB ? (
-        <View>
+        <View style={children ? a.self_center : undefined}>
           <Pressable
             testID="eventCoverPickBtn"
             accessibilityRole="button"
