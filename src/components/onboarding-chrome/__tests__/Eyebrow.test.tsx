@@ -14,7 +14,7 @@ function renderWithI18n(ui: ReactElement) {
 
 function textTransformOf(node: {props: unknown}) {
   const {style} = node.props as {style?: StyleProp<TextStyle>}
-  return StyleSheet.flatten(style).textTransform
+  return StyleSheet.flatten(style)?.textTransform
 }
 
 describe('Eyebrow', () => {

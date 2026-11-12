@@ -1,10 +1,11 @@
-import {type AppBskyVideoDefs, type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {nanoid} from 'nanoid/non-secure'
 
-import {getServiceAuthToken} from '#/lib/api/service-auth'
 import {AbortError} from '#/lib/async/cancelable'
 import {type CompressedVideo} from '#/lib/media/video/types'
 import {shouldRetryError} from '#/lib/strings/errors'
+import {type app} from '#/lexicons'
+import {getServiceAuthToken, serviceAuthExp} from '../upload.shared'
 import {mimeToExt} from '../util'
 import {
   abortUpload,
@@ -25,38 +26,25 @@ import {createUploadPart} from './uploadPart'
 import {uploadParts} from './uploadParts'
 import {delay, isRetryableMultipartError, retryDelayMs} from './utils'
 
-export class MultipartFallbackError extends Error {}
-
 export async function uploadVideoMultipart({
   video,
-  agent,
+  client,
+  dispatchUrl,
   setProgress,
   signal,
-  onStarted,
 }: {
   video: CompressedVideo
-  agent: AtpAgent
+  client: Client
+  /** The account's PDS/dispatch URL, for the uploadBlob service-auth token. */
+  dispatchUrl: string | URL
   setProgress: (progress: number) => void
   signal: AbortSignal
-  onStarted?: () => void
-}): Promise<AppBskyVideoDefs.JobStatus> {
+}): Promise<app.bsky.video.defs.JobStatus> {
   throwIfAborted(signal)
-  const tokenProvider = createTokenProvider(agent, signal)
+  const tokenProvider = createTokenProvider(client, dispatchUrl, signal)
   const token = await tokenProvider.get()
   const name = `${nanoid(12)}.${mimeToExt(video.mimeType)}`
-  let session
-  try {
-    session = await startUpload({token, video, name, signal})
-  } catch (err) {
-    if (signal.aborted) throw new AbortError()
-    // A server without multipart support, or one with the kill switch active,
-    // leaves no reservation behind. The legacy path remains authoritative.
-    throw new MultipartFallbackError(
-      err instanceof Error ? err.message : 'Multipart upload unavailable',
-    )
-  }
-  onStarted?.()
-
+  const session = await startUpload({token, video, name, signal})
   const {jobId} = session
   const abortOnCancel = () => {
     void tokenProvider
@@ -85,7 +73,7 @@ export async function uploadVideoMultipart({
       })
     } catch (err) {
       if (signal.aborted) throw new AbortError()
-      return await abortThenFallbackOrResolve(
+      return await abortThenRethrowOrResolve(
         jobId,
         await tokenProvider.get(),
         err,
@@ -134,7 +122,7 @@ async function finishAndRecover({
   getToken: (forceRefresh?: boolean) => Promise<string>
   signal: AbortSignal
   resendMissingParts: (receivedPartNumbers: number[]) => Promise<boolean>
-}): Promise<AppBskyVideoDefs.JobStatus> {
+}): Promise<app.bsky.video.defs.JobStatus> {
   let createdFailures = 0
   let forceTokenRefresh = true
   while (true) {
@@ -162,14 +150,14 @@ async function finishAndRecover({
             }
           } catch (err) {
             throwIfAborted(signal)
-            return await abortThenFallbackOrResolve(jobId, token, err)
+            return await abortThenRethrowOrResolve(jobId, token, err)
           }
           createdFailures++
           if (createdFailures < MULTIPART_FINISH_ATTEMPTS) {
             await delay(500 * 2 ** (createdFailures - 1), signal)
             continue
           }
-          return await abortThenFallbackOrResolve(jobId, token, finishError)
+          return await abortThenRethrowOrResolve(jobId, token, finishError)
         case 'finishing':
           // The service may have assembled the upload even though the finish
           // request failed. Poll and retry instead of starting a second upload.
@@ -220,16 +208,21 @@ async function getUploadStatusWithRetry(
   throw lastError
 }
 
-async function abortThenFallbackOrResolve(
+/**
+ * Releases the reservation for an upload we can no longer finish, then surfaces
+ * the failure that got us here. The abort can race a service-side completion,
+ * so a `completed` result is resolved as a success instead.
+ */
+async function abortThenRethrowOrResolve(
   jobId: string,
   token: string,
   cause: unknown,
-): Promise<AppBskyVideoDefs.JobStatus> {
+): Promise<app.bsky.video.defs.JobStatus> {
   const result = await abortUploadWithRetry(jobId, token)
   if (result.state === 'aborted') {
-    throw new MultipartFallbackError(
-      cause instanceof Error ? cause.message : 'Multipart upload failed',
-    )
+    throw cause instanceof Error
+      ? cause
+      : new MultipartUploadError('Multipart upload failed')
   }
   if (result.state === 'completed' && result.completedJobId) {
     const status = await getUploadStatus(jobId, token)
@@ -264,7 +257,11 @@ async function abortUploadWithRetry(jobId: string, token: string) {
   throw lastError
 }
 
-function createTokenProvider(agent: AtpAgent, signal: AbortSignal) {
+function createTokenProvider(
+  client: Client,
+  dispatchUrl: string | URL,
+  signal: AbortSignal,
+) {
   let token: string | undefined
   let expiresAt = 0
   let refresh: Promise<string> | undefined
@@ -272,8 +269,8 @@ function createTokenProvider(agent: AtpAgent, signal: AbortSignal) {
   async function get(forceRefresh = false) {
     if (!forceRefresh && token && Date.now() < expiresAt - 60_000) return token
     if (!refresh) {
-      const exp = Math.floor(Date.now() / 1000) + 60 * 30
-      refresh = getServiceAuthTokenWithRetry(agent, exp, signal)
+      const exp = serviceAuthExp()
+      refresh = getServiceAuthTokenWithRetry(client, dispatchUrl, exp, signal)
         .then(nextToken => {
           token = nextToken
           expiresAt = exp * 1000
@@ -290,7 +287,8 @@ function createTokenProvider(agent: AtpAgent, signal: AbortSignal) {
 }
 
 async function getServiceAuthTokenWithRetry(
-  agent: AtpAgent,
+  client: Client,
+  dispatchUrl: string | URL,
   exp: number,
   signal: AbortSignal,
 ) {
@@ -299,7 +297,8 @@ async function getServiceAuthTokenWithRetry(
     throwIfAborted(signal)
     try {
       return await getServiceAuthToken({
-        agent,
+        client,
+        dispatchUrl,
         lxm: 'com.atproto.repo.uploadBlob',
         exp,
       })

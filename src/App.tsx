@@ -10,8 +10,9 @@ import {
 import * as ScreenOrientation from 'expo-screen-orientation'
 import * as SplashScreen from 'expo-splash-screen'
 import * as SystemUI from 'expo-system-ui'
+import {BottomSheetProvider} from '@bsky.app/bottom-sheet'
+import {BackgroundNotificationPreferencesProvider} from '@bsky.app/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
 import {useLingui} from '@lingui/react/macro'
-import * as Sentry from '@sentry/react-native'
 
 import {BrandProvider, useBrand} from '#/lib/community/BrandContext'
 import {CommunityBrandSync} from '#/lib/community/useCommunityBrandSync'
@@ -21,6 +22,8 @@ import {ThemeProvider} from '#/lib/ThemeContext'
 import {Provider as TranslateOnDeviceProvider} from '#/lib/translation'
 import I18nProvider from '#/locale/i18nProvider'
 import {logger} from '#/logger'
+import {Sentry} from '#/logger/sentry/lib'
+import {identifyDevice} from '#/logger/sentry/user'
 import {Provider as A11yProvider} from '#/state/a11y'
 import {
   prefetchAppConfig,
@@ -73,21 +76,19 @@ import {
   features,
   setupDeviceId,
 } from '#/analytics'
+import {getDeviceId} from '#/analytics/identifiers'
 import {IS_ANDROID, IS_IOS} from '#/env'
 import {Splash} from '#/Splash'
-import {BottomSheetProvider} from '../modules/bottom-sheet'
-import {BackgroundNotificationPreferencesProvider} from '../modules/expo-background-notification-handler/src/BackgroundNotificationHandlerProvider'
+
+void identifyDevice(getDeviceId(), setupDeviceId)
 
 void SplashScreen.preventAutoHideAsync()
 if (IS_IOS) {
   void SystemUI.setBackgroundColorAsync('black')
 }
 if (IS_ANDROID) {
-  // iOS is handled by the config plugin -sfn
-  ScreenOrientation.lockAsync(
-    ScreenOrientation.OrientationLock.PORTRAIT_UP,
-  ).catch(error =>
-    logger.debug('Could not lock orientation', {safeMessage: error}),
+  void ScreenOrientation.unlockAsync().catch(error =>
+    logger.debug('Could not unlock orientation', {safeMessage: error}),
   )
 }
 
@@ -113,9 +114,8 @@ function InnerApp() {
         }
       } catch (e) {
         logger.warn(`session: resume failed`, {message: e})
-      } finally {
-        setIsReady(true)
       }
+      setIsReady(true)
     }
     const account = readLastActiveAccount()
     void onLaunch(account)
@@ -140,59 +140,58 @@ function InnerApp() {
         <ContextMenuProvider>
           <Splash isReady={isReady && hasCheckedLanding}>
             <VideoVolumeProvider>
-              <Fragment
-                // Resets the entire tree below when it changes:
-                key={currentAccount?.did}>
-                <AnalyticsFeaturesContext>
-                  <QueryProvider currentDid={currentAccount?.did}>
-                    <BetaUserStorageSync />
-                    <ComposerProvider>
-                      <MessagesProvider>
-                        {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
-                        <LabelDefsProvider>
-                          <ModerationOptsProvider>
-                            <LoggedOutViewProvider>
-                              <CommunityBrandSync />
-                              <SelectedFeedProvider>
-                                <HiddenRepliesProvider>
-                                  <HomeBadgeProvider>
-                                    <UnreadNotifsProvider>
-                                      <BackgroundNotificationPreferencesProvider>
-                                        <MutedThreadsProvider>
-                                          <ProgressGuideProvider>
-                                            <ServiceAccountManager>
-                                              <EmailVerificationProvider>
-                                                <HideBottomBarBorderProvider>
-                                                  <GestureHandlerRootView
-                                                    style={a.h_full}>
+              <GestureHandlerRootView style={a.h_full}>
+                <Fragment
+                  // Resets the entire tree below when it changes:
+                  key={currentAccount?.did}>
+                  <AnalyticsFeaturesContext>
+                    <QueryProvider currentDid={currentAccount?.did}>
+                      <BetaUserStorageSync />
+                      <ComposerProvider>
+                        <MessagesProvider>
+                          {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
+                          <LabelDefsProvider>
+                            <ModerationOptsProvider>
+                              <LoggedOutViewProvider>
+                                <CommunityBrandSync />
+                                <SelectedFeedProvider>
+                                  <HiddenRepliesProvider>
+                                    <HomeBadgeProvider>
+                                      <UnreadNotifsProvider>
+                                        <BackgroundNotificationPreferencesProvider>
+                                          <MutedThreadsProvider>
+                                            <ProgressGuideProvider>
+                                              <ServiceAccountManager>
+                                                <EmailVerificationProvider>
+                                                  <HideBottomBarBorderProvider>
                                                     <GlobalGestureEventsProvider>
                                                       <IntentDialogProvider>
                                                         <TranslateOnDeviceProvider>
                                                           <TestCtrls />
                                                           <Shell />
-                                                          <ToastOutlet />
                                                         </TranslateOnDeviceProvider>
                                                       </IntentDialogProvider>
                                                     </GlobalGestureEventsProvider>
-                                                  </GestureHandlerRootView>
-                                                </HideBottomBarBorderProvider>
-                                              </EmailVerificationProvider>
-                                            </ServiceAccountManager>
-                                          </ProgressGuideProvider>
-                                        </MutedThreadsProvider>
-                                      </BackgroundNotificationPreferencesProvider>
-                                    </UnreadNotifsProvider>
-                                  </HomeBadgeProvider>
-                                </HiddenRepliesProvider>
-                              </SelectedFeedProvider>
-                            </LoggedOutViewProvider>
-                          </ModerationOptsProvider>
-                        </LabelDefsProvider>
-                      </MessagesProvider>
-                    </ComposerProvider>
-                  </QueryProvider>
-                </AnalyticsFeaturesContext>
-              </Fragment>
+                                                  </HideBottomBarBorderProvider>
+                                                </EmailVerificationProvider>
+                                              </ServiceAccountManager>
+                                            </ProgressGuideProvider>
+                                          </MutedThreadsProvider>
+                                        </BackgroundNotificationPreferencesProvider>
+                                      </UnreadNotifsProvider>
+                                    </HomeBadgeProvider>
+                                  </HiddenRepliesProvider>
+                                </SelectedFeedProvider>
+                              </LoggedOutViewProvider>
+                            </ModerationOptsProvider>
+                          </LabelDefsProvider>
+                        </MessagesProvider>
+                      </ComposerProvider>
+                    </QueryProvider>
+                  </AnalyticsFeaturesContext>
+                </Fragment>
+                <ToastOutlet />
+              </GestureHandlerRootView>
             </VideoVolumeProvider>
           </Splash>
         </ContextMenuProvider>

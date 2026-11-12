@@ -1,18 +1,16 @@
 import {Pressable, View} from 'react-native'
 
-import {colors} from '#/lib/styles'
 import {atoms as a, useTheme} from '#/alf'
 import {CheckThick_Stroke2_Corner0_Rounded as Checkmark} from '#/components/icons/Check'
 import {
   ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown,
   ChevronTop_Stroke2_Corner0_Rounded as ChevronUp,
 } from '#/components/icons/Chevron'
+import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import {Text} from '#/components/Typography'
 
-const LIME = colors.green2
 const CONTROL_SIZE = 24
 const ICON_SLOT = 40
-const SELECTED_ROW_BG = 'rgba(210, 252, 81, 0.08)'
 
 export function SelectionRow({
   mode,
@@ -38,6 +36,7 @@ export function SelectionRow({
   emphasize?: boolean
 }) {
   const t = useTheme()
+  const {accent, onAccent, accentSubtle} = useChromeColors()
 
   return (
     <Pressable
@@ -56,7 +55,7 @@ export function SelectionRow({
         a.gap_md,
         a.rounded_sm,
         {paddingHorizontal: 12, paddingVertical: 10},
-        selected && {backgroundColor: SELECTED_ROW_BG},
+        selected && {backgroundColor: accentSubtle},
       ]}>
       {icon != null ? (
         <View
@@ -76,13 +75,13 @@ export function SelectionRow({
             a.font_semi_bold,
             a.leading_tight,
             t.atoms.text,
-            emphasize && {color: LIME, fontWeight: '300', fontSize: 12},
+            emphasize && {color: accent, fontWeight: '300', fontSize: 12},
           ]}>
           {title}
         </Text>
         {description != null ? (
           <Text
-            style={[a.text_xs, a.leading_tight, {color: LIME, marginTop: 2}]}>
+            style={[a.text_xs, a.leading_tight, {color: accent, marginTop: 2}]}>
             {description}
           </Text>
         ) : null}
@@ -123,7 +122,7 @@ export function SelectionRow({
               width: CONTROL_SIZE,
               height: CONTROL_SIZE,
               borderWidth: 2,
-              borderColor: selected ? LIME : t.palette.contrast_400,
+              borderColor: selected ? accent : t.palette.contrast_400,
               flexShrink: 0,
             },
           ]}>
@@ -131,7 +130,7 @@ export function SelectionRow({
             <View
               style={[
                 a.rounded_full,
-                {width: 12, height: 12, backgroundColor: LIME},
+                {width: 12, height: 12, backgroundColor: accent},
               ]}
             />
           ) : null}
@@ -146,12 +145,12 @@ export function SelectionRow({
               height: CONTROL_SIZE,
               borderRadius: 6,
               borderWidth: 2,
-              borderColor: selected ? LIME : t.palette.contrast_400,
-              backgroundColor: selected ? LIME : 'transparent',
+              borderColor: selected ? accent : t.palette.contrast_400,
+              backgroundColor: selected ? accent : 'transparent',
               flexShrink: 0,
             },
           ]}>
-          {selected ? <Checkmark width={14} fill={colors.black} /> : null}
+          {selected ? <Checkmark width={14} fill={onAccent} /> : null}
         </View>
       )}
     </Pressable>

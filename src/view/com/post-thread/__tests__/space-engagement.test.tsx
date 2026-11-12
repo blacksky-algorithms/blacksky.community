@@ -4,16 +4,13 @@ import {render, waitFor} from '@testing-library/react-native'
 
 const mockGetSpacePostLikes = jest.fn()
 const mockGetSpacePostQuotes = jest.fn()
-const mockAgent = {
-  getLikes: jest.fn(),
-  api: {app: {bsky: {feed: {getQuotes: jest.fn()}}}},
-}
+const mockClient = {call: jest.fn()}
 
 jest.mock('#/lib/api/community', () => ({
   getSpacePostLikes: (...args: unknown[]) => mockGetSpacePostLikes(...args),
   getSpacePostQuotes: (...args: unknown[]) => mockGetSpacePostQuotes(...args),
 }))
-jest.mock('#/state/session', () => ({useAgent: () => mockAgent}))
+jest.mock('#/state/session', () => ({useAppviewClient: () => mockClient}))
 jest.mock('#/state/queries/profile', () => ({
   useUnstableProfileViewCache: () => ({getUnstableProfile: jest.fn()}),
 }))
@@ -71,7 +68,7 @@ describe('permissioned-space post engagement components', () => {
     ).not.toThrow()
 
     await waitFor(() => {
-      expect(mockGetSpacePostLikes).toHaveBeenCalledWith(mockAgent, {
+      expect(mockGetSpacePostLikes).toHaveBeenCalledWith(mockClient, {
         uri: SPACE_POST,
         limit: 30,
         cursor: undefined,
@@ -81,11 +78,13 @@ describe('permissioned-space post engagement components', () => {
 
   it('mounts quotes and requests the space quotes endpoint', async () => {
     expect(() =>
-      render(<PostQuotes uri={SPACE_POST} />, {wrapper}),
+      render(<PostQuotes uri={SPACE_POST} quoteSort="latest" active />, {
+        wrapper,
+      }),
     ).not.toThrow()
 
     await waitFor(() => {
-      expect(mockGetSpacePostQuotes).toHaveBeenCalledWith(mockAgent, {
+      expect(mockGetSpacePostQuotes).toHaveBeenCalledWith(mockClient, {
         uri: SPACE_POST,
         limit: 30,
         cursor: undefined,

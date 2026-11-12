@@ -9,7 +9,7 @@ import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
-import {atoms as a, useBreakpoints, useTheme} from '#/alf'
+import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
@@ -47,7 +47,7 @@ function SigninDialogInner({}: {control: Dialog.DialogOuterProps['control']}) {
   return (
     <Dialog.ScrollableInner
       label={_(msg`Sign in to ${brand.web.title} or create a new account`)}
-      style={[gtMobile ? {width: 'auto', maxWidth: 420} : a.w_full]}>
+      style={[a.w_full, gtMobile && web({width: 'auto', maxWidth: 420})]}>
       <View style={[!IS_NATIVE && a.p_2xl]}>
         <View
           style={[

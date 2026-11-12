@@ -1,5 +1,4 @@
-import {type AppBskyActorDefs} from '@atproto/api'
-
+import {type app} from '#/lexicons'
 import {
   GroupInviteClientError,
   GroupInviteError,
@@ -100,7 +99,7 @@ export function groupInviteFailureName(error: unknown) {
 
 export function getGroupInviteFeedMutations(
   feeds: GroupInviteFeed[],
-  savedFeeds: AppBskyActorDefs.SavedFeed[] = [],
+  savedFeeds: app.bsky.actor.defs.SavedFeed[] = [],
   selectedUris?: ReadonlySet<string>,
 ) {
   const savedByValue = new Map(savedFeeds.map(feed => [feed.value, feed]))
@@ -116,7 +115,7 @@ export function getGroupInviteFeedMutations(
       .map(feed => ({type: 'feed' as const, value: feed.uri, pinned: true})),
     toUpdate: readable
       .map(feed => savedByValue.get(feed.uri))
-      .filter((feed): feed is AppBskyActorDefs.SavedFeed =>
+      .filter((feed): feed is app.bsky.actor.defs.SavedFeed =>
         Boolean(feed && !feed.pinned),
       )
       .map(feed => ({...feed, pinned: true})),

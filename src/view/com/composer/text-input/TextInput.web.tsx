@@ -8,7 +8,7 @@ import {
 } from 'react'
 import {StyleSheet, View} from 'react-native'
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated'
-import {AppBskyRichtextFacet, RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {Trans} from '@lingui/react/macro'
 import {getSchema} from '@tiptap/core'
 import {Document} from '@tiptap/extension-document'
@@ -40,6 +40,8 @@ import {normalizeTextStyles} from '#/alf/typography'
 import {type Emoji} from '#/components/EmojiPicker'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {type TextInputProps} from './TextInput.types'
 import {type AutocompleteRef, createSuggestion} from './web/Autocomplete'
 import {LinkDecorator} from './web/LinkDecorator'
@@ -232,7 +234,17 @@ export function TextInput({
                 // treats them as separate 'blocks' and we're using \n
                 // as a stand-in. bail out if the last grapheme is a newline
                 // to let the default behavior handle it -sfn
-                if (lastGrapheme !== '\n') {
+                //
+                // We also bail out for any grapheme that is a single UTF-16
+                // code unit. The deleteRange below is only needed when one
+                // visible character spans several code units (emoji, ZWJ
+                // sequences, combining marks), because the browser would
+                // otherwise delete them one code unit at a time.
+                //
+                // Overriding the browser's default behaviour can interfere
+                // with autocorrect unnecessarily, particularly on iOS
+                // Safari.
+                if (lastGrapheme !== '\n' && lastGrapheme.length > 1) {
                   // otherwise, delete the last grapheme using deleteRange,
                   // so that emojis are deleted as a whole
                   const deleteFrom = cursorPosition - lastGrapheme.length
@@ -265,7 +277,7 @@ export function TextInput({
         if (newRt.facets) {
           for (const facet of newRt.facets) {
             for (const feature of facet.features) {
-              if (AppBskyRichtextFacet.isLink(feature)) {
+              if (bsky.isType(app.bsky.richtext.facet.link, feature)) {
                 nextDetectedUris.set(feature.uri, {facet, rt: newRt})
               }
             }
@@ -342,7 +354,7 @@ export function TextInput({
   return (
     <>
       <View style={[styles.container, hasRightPadding && styles.rightPadding]}>
-        {/* @ts-ignore inputStyle is fine */}
+        {/* @ts-expect-error inputStyle is fine */}
         <EditorContent editor={editor} style={inputStyle} />
       </View>
 
@@ -477,7 +489,7 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
     alignItems: 'center',
     justifyContent: 'center',
-    // @ts-ignore web only -prf
+    // @ts-expect-error web only -prf
     position: 'fixed',
     padding: 16,
     top: 0,
@@ -486,7 +498,6 @@ const styles = StyleSheet.create({
     right: 0,
   },
   dropModal: {
-    // @ts-ignore web only
     boxShadow: 'rgba(0, 0, 0, 0.3) 0px 5px 20px',
     padding: 8,
     borderWidth: 1,

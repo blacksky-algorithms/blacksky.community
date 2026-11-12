@@ -1,5 +1,5 @@
 import {type ReactNode} from 'react'
-import {type AppBskyFeedDefs, RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
 import {
@@ -9,6 +9,8 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native'
+
+import {type app} from '#/lexicons'
 
 jest.mock('#/env', () => ({
   ...jest.requireActual<Record<string, unknown>>('#/env'),
@@ -27,17 +29,17 @@ jest.mock('#/view/icons/Logo', () => ({Logo: () => null}))
 type Viewer = {did: string} | undefined
 let mockViewer: Viewer
 const mockCreateRecord = jest.fn()
-const mockAgent = {
-  get session() {
-    return mockViewer
+const mockPdsClient = {
+  get did() {
+    return mockViewer?.did
   },
   get assertDid() {
     return mockViewer?.did
   },
-  com: {atproto: {repo: {createRecord: mockCreateRecord}}},
+  call: (_method: unknown, input: unknown) => mockCreateRecord(input),
 }
 jest.mock('#/state/session', () => ({
-  useAgent: () => mockAgent,
+  usePdsClient: () => mockPdsClient,
   useSession: () => ({currentAccount: mockViewer}),
 }))
 
@@ -91,6 +93,7 @@ jest.mock('#/components/StarterPack/StarterPackCard', () => ({
   Embed: () => null,
 }))
 jest.mock('#/components/SubtleHover', () => ({SubtleHover: () => null}))
+jest.mock('#/components/Post/Embed/AtCard', () => ({AtCard: () => null}))
 jest.mock('#/components/Post/Embed/StandardSiteEmbed', () => ({
   StandardSiteEmbed: () => null,
 }))
@@ -132,7 +135,11 @@ const PAGE_URL = `${ORIGIN}/${CONVERSATION_ID}`
 const TOPIC = 'Should the garden stay open late?'
 const VIEWER = 'did:plc:viewer'
 
-const LINK = {uri: PAGE_URL, title: TOPIC, description: '1. Yes, until sunset'}
+const LINK = {
+  uri: PAGE_URL,
+  title: TOPIC,
+  description: '1. Yes, until sunset',
+} as app.bsky.embed.external.ViewExternal
 const PARAMS: EmbedPlayerParams = {
   type: 'assembly_conversation',
   source: 'assembly',
@@ -559,7 +566,7 @@ describe('AssemblyEmbed', () => {
         at_cid: 'bafyreistatement',
       }
       const voteUri = `at://${VIEWER}/community.blacksky.assembly.vote/3kvote`
-      mockCreateRecord.mockResolvedValue({data: {uri: voteUri}})
+      mockCreateRecord.mockResolvedValue({uri: voteUri})
       serve({
         participation: reply({
           auth: {token: 'participant-token'},
@@ -839,7 +846,7 @@ describe('post text reaching the card', () => {
     expect(screen.getByText(TOPIC)).toBeTruthy()
   })
 
-  function post(text: string): AppBskyFeedDefs.PostView {
+  function post(text: string): app.bsky.feed.defs.PostView {
     return {
       $type: 'app.bsky.feed.defs#postView',
       uri: 'at://did:plc:author/app.bsky.feed.post/3kpost',
@@ -850,7 +857,7 @@ describe('post text reaching the card', () => {
     }
   }
 
-  const embed = {$type: 'app.bsky.embed.external#view', external: LINK}
+  const embed = {$type: 'app.bsky.embed.external#view' as const, external: LINK}
 
   it('hides the topic of an embed in a post that asks the same', async () => {
     serve({})
@@ -873,7 +880,7 @@ describe('post text reaching the card', () => {
     const published = shortenLinks(typed)
     const topic = pollTopicFromText(typed.text)
     serve({conversation: reply(conversation({}, {topic}))})
-    const view: AppBskyFeedDefs.PostView = {
+    const view: app.bsky.feed.defs.PostView = {
       ...post(published.text),
       record: {
         $type: 'app.bsky.feed.post',
@@ -901,7 +908,7 @@ describe('post text reaching the card', () => {
     typed.detectFacetsWithoutResolution()
     const published = shortenLinks(typed)
     serve({})
-    const view: AppBskyFeedDefs.PostView = {
+    const view: app.bsky.feed.defs.PostView = {
       ...post(published.text),
       record: {
         $type: 'app.bsky.feed.post',

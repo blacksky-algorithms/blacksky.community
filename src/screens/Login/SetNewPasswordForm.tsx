@@ -2,20 +2,21 @@ import {useState} from 'react'
 import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 
+import {createServiceClient} from '#/lib/lexClient'
 import {cleanError, isNetworkError} from '#/lib/strings/errors'
 import {checkAndFormatResetCode} from '#/lib/strings/password'
 import {logger} from '#/logger'
-import {Agent} from '#/state/session/agent'
 import {atoms as a, web} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {TokenField} from '#/components/dialogs/EmailDialog/components/TokenField'
+import {PasswordField} from '#/components/forms/PasswordField'
 import * as TextField from '#/components/forms/TextField'
-import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
-import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
+import {com} from '#/lexicons'
 import {FormContainer} from './FormContainer'
 
 export const SetNewPasswordForm = ({
@@ -61,8 +62,12 @@ export const SetNewPasswordForm = ({
     setIsProcessing(true)
 
     try {
-      const agent = new Agent(null, {service: serviceUrl})
-      await agent.com.atproto.server.resetPassword({
+      /*
+       * Pre-auth request against a user-chosen host, so it goes through a
+       * one-off service client rather than a session-scoped one.
+       */
+      const client = createServiceClient(serviceUrl)
+      await client.call(com.atproto.server.resetPassword, {
         token: formattedCode,
         password,
       })
@@ -82,17 +87,6 @@ export const SetNewPasswordForm = ({
     }
   }
 
-  const onBlur = () => {
-    const formattedCode = checkAndFormatResetCode(resetCode)
-    if (!formattedCode) {
-      setError(
-        l`You have entered an invalid code. It should look like XXXXX-XXXXX.`,
-      )
-      return
-    }
-    setResetCode(formattedCode)
-  }
-
   return (
     <FormContainer
       testID="setNewPasswordForm"
@@ -107,47 +101,32 @@ export const SetNewPasswordForm = ({
         <TextField.LabelText>
           <Trans>Reset code</Trans>
         </TextField.LabelText>
-        <TextField.Root>
-          <TextField.Icon icon={Ticket} />
-          <TextField.Input
-            testID="resetCodeInput"
-            label={l`Looks like XXXXX-XXXXX`}
-            autoCapitalize="none"
-            autoFocus={true}
-            autoCorrect={false}
-            autoComplete="off"
-            value={resetCode}
-            onChangeText={setResetCode}
-            onFocus={() => setError('')}
-            onBlur={onBlur}
-            editable={!isProcessing}
-            accessibilityHint={l`Input code sent to your email for password reset`}
-          />
-        </TextField.Root>
+        <TokenField
+          testID="resetCodeInput"
+          autoFocus={true}
+          editable={!isProcessing}
+          value={resetCode}
+          onChangeText={setResetCode}
+          onFocus={() => setError('')}
+        />
       </View>
       <View>
         <TextField.LabelText>
           <Trans>New password</Trans>
         </TextField.LabelText>
-        <TextField.Root>
-          <TextField.Icon icon={Lock} />
-          <TextField.Input
-            testID="newPasswordInput"
-            label={l`Enter a password`}
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-            secureTextEntry={true}
-            autoComplete="new-password"
-            passwordRules="minlength: 8;"
-            clearButtonMode="while-editing"
-            value={password}
-            onChangeText={setPassword}
-            onSubmitEditing={() => void onPressNext()}
-            editable={!isProcessing}
-            accessibilityHint={l`Input new password`}
-          />
-        </TextField.Root>
+        <PasswordField
+          testID="newPasswordInput"
+          label={l`Enter a password`}
+          returnKeyType="done"
+          autoComplete="new-password"
+          passwordRules="minlength: 8;"
+          clearButtonMode="while-editing"
+          value={password}
+          onChangeText={setPassword}
+          onSubmitEditing={() => void onPressNext()}
+          editable={!isProcessing}
+          accessibilityHint={l`Input new password`}
+        />
       </View>
       {error && <Admonition type="error">{error}</Admonition>}
       <View style={[web([a.flex_row, a.align_center]), a.pt_lg]}>

@@ -1,9 +1,11 @@
-import {XRPCError} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
 import {useQuery} from '@tanstack/react-query'
 
+import {isXrpcError} from '#/lib/xrpc-error'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {BLACKSKY_LABELER} from '#/state/session/additional-moderation-authorities'
+import {app, com} from '#/lexicons'
 
 export const BLUESKY_MOD_DID = 'did:plc:ar7c4by46qjdydhdevvrndac'
 export const BLUESKY_MOD_EMAIL = 'moderation@blueskyweb.xyz'
@@ -13,10 +15,7 @@ export const BLACKSKY_MOD_APPEAL_URL =
   'https://blackskyweb.xyz/about/support/moderation-appeal/'
 
 export type ProfileErrorKind =
-  | 'deactivated'
-  | 'suspendedOrTakedown'
-  | 'notFound'
-  | 'unknown'
+  'deactivated' | 'suspendedOrTakedown' | 'notFound' | 'unknown'
 
 const SUSPEND_LABEL_VALUES = new Set(['!takedown', '!suspend'])
 const KNOWN_MOD_DIDS = [BLUESKY_MOD_DID, BLACKSKY_MOD_DID]
@@ -26,7 +25,7 @@ export function classifyProfileError(error: unknown): ProfileErrorKind {
 
   let code: string | undefined
   let msg = ''
-  if (error instanceof XRPCError) {
+  if (isXrpcError(error)) {
     code = error.error
     msg = (error.message || '').toLowerCase()
   } else if (error instanceof Error) {
@@ -74,7 +73,7 @@ export function useProfileStatusSource(
   did: string | undefined,
   {enabled = true}: {enabled?: boolean} = {},
 ) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery<ProfileStatusSource | null>({
     queryKey: RQKEY_STATUS_SOURCE(did ?? ''),
     staleTime: STALE.MINUTES.FIVE,
@@ -83,12 +82,12 @@ export function useProfileStatusSource(
     queryFn: async () => {
       if (!did) return null
 
-      const labelsRes = await agent.com.atproto.label.queryLabels({
+      const labelsRes = await client.call(com.atproto.label.queryLabels, {
         uriPatterns: [did],
-        sources: KNOWN_MOD_DIDS,
+        sources: KNOWN_MOD_DIDS as DidString[],
       })
 
-      const label = labelsRes.data.labels.find(
+      const label = labelsRes.labels.find(
         l => !l.neg && SUSPEND_LABEL_VALUES.has(l.val),
       )
       if (!label) return null
@@ -102,10 +101,12 @@ export function useProfileStatusSource(
         email = BLUESKY_MOD_EMAIL
       }
 
-      let handle = src
+      let handle: string = src
       try {
-        const profileRes = await agent.app.bsky.actor.getProfile({actor: src})
-        handle = profileRes.data.handle || src
+        const profileRes = await client.call(app.bsky.actor.getProfile, {
+          actor: src,
+        })
+        handle = profileRes.handle || src
       } catch {
         // Best-effort: fall back to the DID if the labeler profile can't be
         // resolved on our AppView.

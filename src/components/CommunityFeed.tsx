@@ -1,10 +1,6 @@
 import {useMemo} from 'react'
 import {ActivityIndicator, View} from 'react-native'
-import {
-  type AppBskyFeedDefs,
-  type AppBskyFeedPost,
-  RichText as RichTextAPI,
-} from '@atproto/api'
+import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {Trans} from '@lingui/react/macro'
 
 import {useCommunityFeedQuery} from '#/state/queries/community-feed'
@@ -12,6 +8,7 @@ import {TimeElapsed} from '#/view/com/util/TimeElapsed'
 import {atoms as a, useTheme} from '#/alf'
 import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
+import {type app} from '#/lexicons'
 
 export function CommunityFeed({actor}: {actor: string}) {
   const t = useTheme()
@@ -84,10 +81,10 @@ export function CommunityFeed({actor}: {actor: string}) {
 export function CommunityPostItem({
   postView,
 }: {
-  postView: AppBskyFeedDefs.PostView
+  postView: app.bsky.feed.defs.PostView
 }) {
   const t = useTheme()
-  const record = postView.record as AppBskyFeedPost.Record
+  const record = postView.record as app.bsky.feed.post.Main
   const rt = useMemo(() => {
     const richText = new RichTextAPI({
       text: record.text,

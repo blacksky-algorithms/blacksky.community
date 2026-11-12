@@ -1,6 +1,6 @@
 import {Linking} from 'react-native'
 import {useCameraPermissions as useExpoCameraPermissions} from 'expo-camera'
-import * as MediaLibrary from 'expo-media-library'
+import * as MediaLibrary from 'expo-media-library/legacy'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
 import {Alert} from '#/view/com/util/Alert'

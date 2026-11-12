@@ -1,4 +1,5 @@
-import {type BlobRef} from '@atproto/api'
+import {type BlobRef} from '@atproto/lex'
+import {type UriString} from '@atproto/syntax'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {DEFAULT_BRAND_CONFIG} from '#/lib/community/BrandContext'
@@ -14,8 +15,7 @@ const PAST_START_GRACE_MS = 15 * 60e3
 export type EventDraftStep = 'details' | 'when' | 'cover' | 'done'
 
 export type EventCover =
-  | {path: string; mime: string; width: number; height: number}
-  | {url: string}
+  {path: string; mime: string; width: number; height: number} | {url: string}
 
 export type EventDraft = {
   step: EventDraftStep
@@ -277,7 +277,7 @@ export function buildEventExternal(
     timeZoneName: 'short',
   }).format(new Date(draft.startsAt))
   return {
-    uri: eventPageUrl(did, rkey),
+    uri: eventPageUrl(did, rkey) as UriString,
     title: draft.name.trim(),
     description: location ? `${when} · ${location}` : when,
   }

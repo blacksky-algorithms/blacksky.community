@@ -61,7 +61,9 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
           a.p_lg,
           a.gap_sm,
           a.rounded_md,
-          {backgroundColor: '#211f36'},
+          t.name === 'light'
+            ? t.atoms.bg_contrast_25
+            : {backgroundColor: '#211f36'},
           style,
         ]}>
         <View style={[a.flex_row, a.justify_between, a.align_center]}>
@@ -78,7 +80,12 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
             <ButtonIcon icon={Times} />
           </Button>
         </View>
-        <Text style={[a.text_sm, a.leading_snug, {color: '#F8FAF9'}]}>
+        <Text
+          style={[
+            a.text_sm,
+            a.leading_snug,
+            t.name === 'light' ? t.atoms.text : {color: '#F8FAF9'},
+          ]}>
           <Trans>Make your first post to announce your arrival.</Trans>
         </Text>
       </View>

@@ -8,25 +8,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import {TID} from '@atproto/common-web'
+import {AtUri} from '@atproto/syntax'
 import {
-  type AppBskyActorDefs,
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-  type AppBskyGraphDefs,
-  AppBskyGraphFollow,
-  AppBskyGraphStarterpack,
-  AtUri,
   moderateProfile,
   type ModerationDecision,
   type ModerationOpts,
-} from '@atproto/api'
-import {TID} from '@atproto/common-web'
+} from '@bsky/sdk/moderation'
 import {plural} from '@lingui/core/macro'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {DM_SERVICE_HEADERS, MAX_POST_LINES} from '#/lib/constants'
+import {MAX_POST_LINES} from '#/lib/constants'
 import {useAnimatedValue} from '#/lib/hooks/useAnimatedValue'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
@@ -39,7 +33,7 @@ import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {type FeedNotification} from '#/state/queries/notifications/feed'
 import {useProfileFollowMutationQueue} from '#/state/queries/profile'
 import {unstableCacheProfileView} from '#/state/queries/unstable-profile-cache'
-import {useAgent, useSession} from '#/state/session'
+import {useChatClient, useSession} from '#/state/session'
 import {FeedSourceCard} from '#/view/com/feeds/FeedSourceCard'
 import {Post} from '#/view/com/post/Post'
 import {formatCount} from '#/view/com/util/numeric/format'
@@ -74,12 +68,13 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
+import {app, chat} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 const MAX_AUTHORS = 5
 
 interface Author {
-  profile: AppBskyActorDefs.ProfileView
+  profile: app.bsky.actor.defs.ProfileView
   href: string
   moderation: ModerationDecision
 }
@@ -190,10 +185,7 @@ let NotificationFeedItem = ({
     if (item.type !== 'follow') return false
     if (
       item.notification.author.viewer?.following &&
-      bsky.dangerousIsType<AppBskyGraphFollow.Record>(
-        item.notification.record,
-        AppBskyGraphFollow.isRecord,
-      )
+      bsky.isType(app.bsky.graph.follow, item.notification.record)
     ) {
       let followingTimestamp
       try {
@@ -256,11 +248,7 @@ let NotificationFeedItem = ({
         emoji
         label={l`Go to ${firstAuthorName}'s profile`}>
         {forceLTR(firstAuthorName)}
-        <ProfileBadges
-          profile={firstAuthor.profile}
-          size="sm"
-          style={[a.px_2xs, {transform: [{translateY: 1}]}]}
-        />
+        <ProfileBadges profile={firstAuthor.profile} size="sm" inline />
       </InlineLinkText>
     </ProfileHoverCard>
   )
@@ -345,7 +333,7 @@ let NotificationFeedItem = ({
        * see `src/state/queries/notifications/util.ts`
        */
       a11yLabel = starterPackName
-        ? l`${firstAuthorName} followed you back via starter pack ${starterPackName}`
+        ? l`${firstAuthorName} followed you back via Starter Pack ${starterPackName}`
         : l`${firstAuthorName} followed you back`
       notificationContent = <Trans>{firstAuthorLink} followed you back</Trans>
     } else {
@@ -354,8 +342,8 @@ let NotificationFeedItem = ({
           ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
               one: `${formattedAuthorsCount} other`,
               other: `${formattedAuthorsCount} others`,
-            })} followed you via starter pack ${starterPackName}`
-          : l`${firstAuthorName} followed you via starter pack ${starterPackName}`
+            })} followed you via Starter Pack ${starterPackName}`
+          : l`${firstAuthorName} followed you via Starter Pack ${starterPackName}`
         : hasMultipleAuthors
           ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
               one: `${formattedAuthorsCount} other`,
@@ -414,8 +402,8 @@ let NotificationFeedItem = ({
       ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
           one: `${formattedAuthorsCount} other`,
           other: `${formattedAuthorsCount} others`,
-        })} signed up with your starter pack`
-      : l`${firstAuthorName} signed up with your starter pack`
+        })} signed up with your Starter Pack`
+      : l`${firstAuthorName} signed up with your Starter Pack`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
@@ -426,10 +414,10 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        signed up with your starter pack
+        signed up with your Starter Pack
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} signed up with your starter pack</Trans>
+      <Trans>{firstAuthorLink} signed up with your Starter Pack</Trans>
     )
     icon = (
       <View style={{height: 30, width: 30}}>
@@ -729,7 +717,7 @@ export {NotificationFeedItem}
 function FollowedViaStarterPack({
   starterPack,
 }: {
-  starterPack: AppBskyGraphDefs.StarterPackViewBasic
+  starterPack: app.bsky.graph.defs.StarterPackViewBasic
 }) {
   const t = useTheme()
   const link = useStarterPackLink({view: starterPack})
@@ -742,8 +730,8 @@ function FollowedViaStarterPack({
 
   return (
     <Text style={[native(a.pt_xs), t.atoms.text_contrast_medium]}>
-      <Trans comment="When the source of a follow is a starter pack, i.e., 'via starter pack {starterPackName}'.">
-        via starter pack{' '}
+      <Trans comment="When the source of a follow is a Starter Pack, i.e., 'via Starter Pack {starterPackName}'.">
+        via Starter Pack{' '}
         <StarterPackIcon
           size="sm"
           gradient="sky"
@@ -763,12 +751,9 @@ function FollowedViaStarterPack({
 }
 
 function getStarterPackName(
-  starterPack: AppBskyGraphDefs.StarterPackViewBasic,
+  starterPack: app.bsky.graph.defs.StarterPackViewBasic,
 ) {
-  return bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
-    starterPack.record,
-    AppBskyGraphStarterpack.isRecord,
-  )
+  return bsky.isType(app.bsky.graph.starterpack, starterPack.record)
     ? starterPack.record.name
     : undefined
 }
@@ -802,7 +787,11 @@ function ExpandListPressable({
   }
 }
 
-function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
+function FollowBackButton({
+  profile,
+}: {
+  profile: app.bsky.actor.defs.ProfileView
+}) {
   const {t: l} = useLingui()
   const {currentAccount, hasSession} = useSession()
   const profileShadow = useProfileShadow(profile)
@@ -908,29 +897,26 @@ function FollowBackButton({profile}: {profile: AppBskyActorDefs.ProfileView}) {
   )
 }
 
-function SayHelloBtn({profile}: {profile: AppBskyActorDefs.ProfileView}) {
+function SayHelloBtn({profile}: {profile: app.bsky.actor.defs.ProfileView}) {
   const {t: l} = useLingui()
-  const agent = useAgent()
+  const client = useChatClient()
+  const {currentAccount} = useSession()
   const navigation = useNavigation<NavigationProp>()
   const [isLoading, setIsLoading] = useState(false)
 
   const onPress = async () => {
     try {
       setIsLoading(true)
-      const res = await agent.api.chat.bsky.convo.getConvoForMembers(
-        {
-          members: [profile.did, agent.session!.did],
-        },
-        {headers: DM_SERVICE_HEADERS},
-      )
+      const data = await client.call(chat.bsky.convo.getConvoForMembers, {
+        members: [profile.did, currentAccount!.did],
+      })
       navigation.navigate('MessagesConversation', {
-        conversation: res.data.convo.id,
+        conversation: data.convo.id,
       })
     } catch (e) {
       logger.error('Failed to get conversation', {safeMessage: e})
-    } finally {
-      setIsLoading(false)
     }
+    setIsLoading(false)
   }
 
   if (
@@ -1142,15 +1128,9 @@ function ExpandedAuthorProfileCard({
   )
 }
 
-function AdditionalPostText({post}: {post?: AppBskyFeedDefs.PostView}) {
+function AdditionalPostText({post}: {post?: app.bsky.feed.defs.PostView}) {
   const t = useTheme()
-  if (
-    post &&
-    bsky.dangerousIsType<AppBskyFeedPost.Record>(
-      post?.record,
-      AppBskyFeedPost.isRecord,
-    )
-  ) {
+  if (post && bsky.isType(app.bsky.feed.post, post?.record)) {
     const text = post.record.text
 
     return (

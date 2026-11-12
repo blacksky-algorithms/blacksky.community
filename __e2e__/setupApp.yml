@@ -1,32 +1,30 @@
 appId: community.blacksky.app
 ---
-- launchApp:
-    appId: 'community.blacksky.app'
-    clearState: true
-    arguments:
-      '-EXDevMenuIsOnboardingFinished': true
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - openLink: 'exp+blacksky://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8082'
-      - runFlow:
-          when:
-            visible: 'Open in "Blacksky"'
-          commands:
-            - tapOn: Open
+# On Android, name the permissions to grant rather than taking launchApp's
+# default (all: allow). To grant "all", Maestro pulls the whole debug APK over
+# adb on every launch to read its manifest, and that transfer has no timeout,
+# so it occasionally hangs a flow for 25-45 minutes.
 - runFlow:
     when:
       platform: Android
     commands:
-      - tapOn: 'http://10.0.2.2:8082'
-      - runFlow:
-          label: 'Dismiss Expo dev menu'
-          when:
-            visible: 'Continue'
-          commands:
-            - back
-- tapOn:
-    id: e2eProxyHeaderInput
-- inputText: ${output.result}
-- pressKey: Enter
+      - launchApp:
+          appId: "community.blacksky.app"
+          clearState: true
+          permissions:
+            notifications: allow
+            camera: allow
+            microphone: allow
+            medialibrary: allow
+            contacts: allow
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - launchApp:
+          appId: "community.blacksky.app"
+          clearState: true
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 180000
+- waitForAnimationToEnd

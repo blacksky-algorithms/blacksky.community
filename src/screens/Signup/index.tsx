@@ -2,12 +2,12 @@ import {useEffect, useReducer, useState} from 'react'
 import {AppState, type AppStateStatus, View} from 'react-native'
 import ReactNativeDeviceAttest from 'react-native-device-attest'
 import Animated, {FadeIn, LayoutAnimationConfig} from 'react-native-reanimated'
-import {AppBskyGraphStarterpack, XRPCError} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useQuery} from '@tanstack/react-query'
 
 import {DEFAULT_BRAND_CONFIG, useBrand} from '#/lib/community/BrandContext'
 import {fetchBrandBySlug} from '#/lib/community/resolveBrand'
+import {getErrorName} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
 import {useServiceQuery} from '#/state/queries/service'
 import {useStarterPackQuery} from '#/state/queries/starter-packs'
@@ -30,6 +30,7 @@ import {ScreenTransition} from '#/components/ScreenTransition'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {GCP_PROJECT_ID, IS_ANDROID} from '#/env'
+import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
 export function Signup({
@@ -132,8 +133,7 @@ export function Signup({
       dispatch({
         type: 'setError',
         value:
-          serviceError instanceof XRPCError &&
-          serviceError.error === 'RateLimitExceeded'
+          getErrorName(serviceError) === 'RateLimitExceeded'
             ? l`Your service is receiving too many requests. Please wait a few minutes and try again.`
             : l`Unable to contact your service. Please try again shortly.`,
       })
@@ -186,10 +186,7 @@ export function Signup({
         <Screen>
           <View testID="createAccount" style={a.flex_1}>
             {showStarterPackCard &&
-            bsky.dangerousIsType<AppBskyGraphStarterpack.Record>(
-              starterPack.record,
-              AppBskyGraphStarterpack.isRecord,
-            ) ? (
+            bsky.isType(app.bsky.graph.starterpack, starterPack.record) ? (
               <Animated.View entering={!isFetchedAtMount ? FadeIn : undefined}>
                 <LinearGradientBackground
                   style={[a.mx_lg, a.p_lg, a.gap_sm, a.rounded_sm]}>

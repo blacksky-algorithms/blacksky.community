@@ -1,10 +1,9 @@
 import {useMemo} from 'react'
 import {View} from 'react-native'
 import Svg, {Circle, Line} from 'react-native-svg'
-import {AtUri} from '@atproto/api'
 import {useLingui} from '@lingui/react/macro'
 
-import {makeProfileLink} from '#/lib/routes/links'
+import {postUriToRelativePath} from '#/lib/strings/url-helpers'
 import {atoms as a, select, useTheme} from '#/alf'
 import {Link} from '#/components/Link'
 import {SubtleHover} from '#/components/SubtleHover'
@@ -13,14 +12,8 @@ import {Text} from '#/components/Typography'
 export function ViewFullThread({uri}: {uri: string}) {
   const t = useTheme()
   const itemHref = useMemo(() => {
-    const urip = new AtUri(uri)
-    const link = makeProfileLink(
-      {did: urip.hostname, handle: ''},
-      'post',
-      urip.rkey,
-    )
-    const isCommunity = urip.collection === 'community.blacksky.feed.post'
-    return isCommunity ? `${link}?collection=${urip.collection}` : link
+    // Covers community collections and permissioned-space record URIs.
+    return postUriToRelativePath(uri) ?? ''
   }, [uri])
   const {t: l} = useLingui()
 

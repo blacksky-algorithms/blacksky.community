@@ -12,6 +12,7 @@ import {createFullHandle} from '#/lib/strings/handles'
 import {logger} from '#/logger'
 import {useSignupContext} from '#/screens/Signup/state'
 import {CaptchaWebView} from '#/screens/Signup/StepCaptcha/CaptchaWebView'
+import {type CaptchaError} from '#/screens/Signup/StepCaptcha/CaptchaWebView.shared'
 import {atoms as a, useTheme} from '#/alf'
 import {FormError} from '#/components/forms/FormError'
 import {AppBar, Eyebrow} from '#/components/onboarding-chrome'
@@ -174,14 +175,21 @@ function StepCaptchaInner({
   )
 
   const onError = useCallback(
-    (error?: unknown) => {
+    (error: CaptchaError) => {
       dispatch({
         type: 'setError',
         value: _(msg`Error receiving captcha response.`),
       })
-      ax.metric('signup:captchaFailure', {})
+      ax.metric('signup:captchaFailure', {
+        reason: error.reason,
+        host: error.host,
+        statusCode: error.statusCode,
+      })
       logger.error('Signup: captcha response error', {
-        safeMessage: error,
+        reason: error.reason,
+        host: error.host,
+        statusCode: error.statusCode,
+        safeMessage: error.cause,
       })
     },
     [_, ax, dispatch],

@@ -1,0 +1,12 @@
+diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
+index aac492a..b70faf2 100644
+--- a/React/DevSupport/RCTPackagerConnection.mm
++++ b/React/DevSupport/RCTPackagerConnection.mm
+@@ -9,6 +9,7 @@
+ 
+ #import <objc/runtime.h>
+ #import <algorithm>
++#import <mutex>
+ #import <vector>
+ 
+ #import <React/RCTAssert.h>

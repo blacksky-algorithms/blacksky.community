@@ -1,0 +1,63 @@
+diff --git a/Common/cpp/worklets/Registries/WorkletRuntimeRegistry.h b/Common/cpp/worklets/Registries/WorkletRuntimeRegistry.h
+index b7a5e2a214baeb5f27162aca9b0d7b840811c3a9..98cc9c7248598e5d1a7af31013a8b17526357413 100644
+--- a/Common/cpp/worklets/Registries/WorkletRuntimeRegistry.h
++++ b/Common/cpp/worklets/Registries/WorkletRuntimeRegistry.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <mutex>
+ #include <jsi/jsi.h>
+ #include <react/debug/react_native_assert.h>
+ 
+diff --git a/Common/cpp/worklets/RunLoop/EventLoop.cpp b/Common/cpp/worklets/RunLoop/EventLoop.cpp
+index 746d60f5f1944182eb4a3de05cdf59ed51614281..40971ad0bc72c297b5b08043e33c8025e2cc1e96 100644
+--- a/Common/cpp/worklets/RunLoop/EventLoop.cpp
++++ b/Common/cpp/worklets/RunLoop/EventLoop.cpp
+@@ -1,3 +1,6 @@
++#include <algorithm>
++#include <chrono>
++#include <mutex>
+ #include <worklets/RunLoop/EventLoop.h>
+ 
+ #include <memory>
+diff --git a/Common/cpp/worklets/SharedItems/Serializable.h b/Common/cpp/worklets/SharedItems/Serializable.h
+index 61d4670b290cd8b7e62e50f102a2e971db46274a..25c99049bc6ce4c7d8fde897af95524aac53860d 100644
+--- a/Common/cpp/worklets/SharedItems/Serializable.h
++++ b/Common/cpp/worklets/SharedItems/Serializable.h
+@@ -2,6 +2,7 @@
+ 
+ #warning Do not include this file directly, it will be removed in the future. Prefer including specific Serializable headers.
+ 
++#include <optional>
+ #include <worklets/SharedItems/Serializable/CustomSerializable.h>
+ #include <worklets/SharedItems/Serializable/RetainingSerializable.h>
+ #include <worklets/SharedItems/Serializable/Serializable.h>
+diff --git a/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp b/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
+index 1e4a73bbd4344cf4e1c9f3b8f3e805d96f871ed2..4552d543034be1fcffffb1a04fbcfcb97b44c931 100644
+--- a/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
++++ b/Common/cpp/worklets/Tools/WorkletsJSIUtils.cpp
+@@ -1,3 +1,4 @@
++#include <iterator>
+ #include <worklets/Tools/WorkletsJSIUtils.h>
+ 
+ #include <react/debug/react_native_assert.h>
+diff --git a/Common/cpp/worklets/Tools/WorkletsJSIUtils.h b/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
+index 131d7a271fb8f14b240f0711f2cf654de86c2cd9..075468cac3c8c80a6a9af1059ae37beb820aba88 100644
+--- a/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
++++ b/Common/cpp/worklets/Tools/WorkletsJSIUtils.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <iterator>
+ #include <jsi/jsi.h>
+ #include <react/debug/react_native_assert.h>
+ #include <string>
+diff --git a/apple/worklets/apple/AnimationFrameQueue.mm b/apple/worklets/apple/AnimationFrameQueue.mm
+index c0640301c9adc6484798267b790a02a5a1a78042..72e0c1fc0fbdbcb4463312456b0f0bb0fa2721dc 100644
+--- a/apple/worklets/apple/AnimationFrameQueue.mm
++++ b/apple/worklets/apple/AnimationFrameQueue.mm
+@@ -1,3 +1,4 @@
++#include <mutex>
+ #import <worklets/Tools/FeatureFlags.h>
+ #import <worklets/apple/AnimationFrameQueue.h>
+ #import <worklets/apple/AssertJavaScriptQueue.h>

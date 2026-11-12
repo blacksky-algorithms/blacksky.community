@@ -1,40 +1,38 @@
-import {
-  type $Typed,
-  type AppBskyGraphFollow,
-  type AppBskyGraphGetFollows,
-  type AtpAgent,
-  type ComAtprotoRepoApplyWrites,
-  type ComAtprotoRepoStrongRef,
-} from '@atproto/api'
 import {TID} from '@atproto/common-web'
+import {type $Typed, type Client} from '@atproto/lex'
+import {
+  type AtIdentifierString,
+  type DidString,
+  toDatetimeString,
+} from '@atproto/syntax'
+import {addLabeler} from '@bsky/sdk'
 import chunk from 'lodash.chunk'
 
 import {until} from '#/lib/async/until'
 import {type ComputedBrandConfig} from '#/lib/community/types'
 import {logger} from '#/logger'
-import {saveLabelers} from '#/state/session/agent-config'
+import {readLabelers, saveLabelers} from '#/state/session/moderation'
+import {app, com} from '#/lexicons'
 
 export async function bulkWriteFollows(
-  agent: AtpAgent,
+  pdsClient: Client,
+  appviewClient: Client,
   dids: string[],
-  via?: ComAtprotoRepoStrongRef.Main,
+  via?: com.atproto.repo.strongRef.Main,
 ) {
-  const session = agent.session
+  const did = pdsClient.assertDid
 
-  if (!session) {
-    throw new Error(`bulkWriteFollows failed: no session`)
-  }
-
-  const followRecords: $Typed<AppBskyGraphFollow.Record>[] = dids.map(did => {
+  const followRecords: $Typed<app.bsky.graph.follow.Main>[] = dids.map(did => {
     return {
       $type: 'app.bsky.graph.follow',
-      subject: did,
-      createdAt: new Date().toISOString(),
+      // the helper takes the dids as plain strings
+      subject: did as DidString,
+      createdAt: toDatetimeString(new Date()),
       via,
     }
   })
 
-  const followWrites: $Typed<ComAtprotoRepoApplyWrites.Create>[] =
+  const followWrites: $Typed<com.atproto.repo.applyWrites.Create>[] =
     followRecords.map(r => ({
       $type: 'com.atproto.repo.applyWrites#create',
       collection: 'app.bsky.graph.follow',
@@ -44,18 +42,18 @@ export async function bulkWriteFollows(
 
   const chunks = chunk(followWrites, 50)
   for (const chunk of chunks) {
-    await agent.com.atproto.repo.applyWrites({
-      repo: session.did,
+    await pdsClient.call(com.atproto.repo.applyWrites, {
+      repo: did,
       writes: chunk,
     })
   }
-  await whenFollowsIndexed(agent, session.did, res => !!res.data.follows.length)
+  await whenFollowsIndexed(appviewClient, did, res => !!res?.follows.length)
 
   const followUris = new Map<string, string>()
   for (const r of followWrites) {
     followUris.set(
       r.value.subject as string,
-      `at://${session.did}/app.bsky.graph.follow/${r.rkey}`,
+      `at://${did}/app.bsky.graph.follow/${r.rkey}`,
     )
   }
   return followUris
@@ -98,16 +96,16 @@ export function resolveModerationServiceDids(
 }
 
 export async function subscribeToBrandModerationServices(
-  agent: AtpAgent,
-  accountDid: string | undefined,
+  pdsClient: Client,
   brandConfig: ComputedBrandConfig,
 ) {
+  const accountDid = pdsClient.did
   const dids = resolveModerationServiceDids(brandConfig)
   if (!dids.length) return
 
   const results = await Promise.allSettled(
     dids.map(async did => {
-      await agent.addLabeler(did)
+      await pdsClient.call(addLabeler, did as DidString)
       return did
     }),
   )
@@ -127,27 +125,29 @@ export async function subscribeToBrandModerationServices(
   if (!accountDid || !subscribedDids.length) return
 
   try {
-    await saveLabelers(
-      accountDid,
-      agent.labelers.length ? [...agent.labelers] : subscribedDids,
-    )
+    saveLabelers(accountDid, [
+      ...new Set([...(readLabelers(accountDid) ?? []), ...subscribedDids]),
+    ])
   } catch (e) {
     logger.error('Failed to cache brand moderation services', {safeMessage: e})
   }
 }
 
 async function whenFollowsIndexed(
-  agent: AtpAgent,
+  appviewClient: Client,
   actor: string,
-  fn: (res: AppBskyGraphGetFollows.Response) => boolean,
+  fn: (
+    res: app.bsky.graph.getFollows.$OutputBody | undefined,
+    err: unknown,
+  ) => boolean,
 ) {
   await until(
     5, // 5 tries
     1e3, // 1s delay between tries
     fn,
     () =>
-      agent.app.bsky.graph.getFollows({
-        actor,
+      appviewClient.call(app.bsky.graph.getFollows, {
+        actor: actor as AtIdentifierString,
         limit: 1,
       }),
   )

@@ -1,10 +1,5 @@
 import {useCallback, useMemo, useState} from 'react'
 import {View} from 'react-native'
-import {
-  ChatBskyConvoDefs,
-  type ChatBskyConvoListConvoRequests,
-  ChatBskyGroupDefs,
-} from '@atproto/api'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useFocusEffect, useNavigation} from '@react-navigation/native'
 import {
@@ -14,6 +9,7 @@ import {
 
 import {useAppState} from '#/lib/appState'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
+import {getMessagesNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -28,7 +24,7 @@ import {useListConvoRequests} from '#/state/queries/messages/list-conversation-r
 import {useUpdateAllRead} from '#/state/queries/messages/update-all-read'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {List} from '#/view/com/util/List'
-import {ChatListLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
+import {ChatListSkeleton} from '#/screens/Messages/components/ChatListSkeleton'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {useRefreshOnFocus} from '#/components/hooks/useRefreshOnFocus'
@@ -42,6 +38,8 @@ import {ListFooter} from '#/components/Lists'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+import {chat} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {IncomingRequestListItem} from './components/IncomingRequestListItem'
 import {OutgoingRequestListItem} from './components/OutgoingRequestListItem'
 import {useIsWithinSplitView} from './components/splitView/context'
@@ -49,8 +47,8 @@ import {useIsWithinSplitView} from './components/splitView/context'
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'MessagesInbox'>
 
 type RequestItem =
-  | {type: 'incoming'; view: ChatBskyConvoDefs.ConvoView}
-  | {type: 'outgoing'; view: ChatBskyGroupDefs.JoinRequestConvoView}
+  | {type: 'incoming'; view: chat.bsky.convo.defs.ConvoView}
+  | {type: 'outgoing'; view: chat.bsky.group.defs.JoinRequestConvoView}
 
 export function MessagesInboxScreen(props: Props) {
   return <MessagesInboxScreenInner {...props} />
@@ -65,9 +63,11 @@ export function MessagesInboxScreenInner({}: Props) {
     const items: RequestItem[] = []
     for (const page of data.pages) {
       for (const item of page.requests) {
-        if (ChatBskyConvoDefs.isConvoView(item)) {
+        if (bsky.isType(chat.bsky.convo.defs.convoView, item)) {
           items.push({type: 'incoming', view: item})
-        } else if (ChatBskyGroupDefs.isJoinRequestConvoView(item)) {
+        } else if (
+          bsky.isType(chat.bsky.group.defs.joinRequestConvoView, item)
+        ) {
           items.push({type: 'outgoing', view: item})
         }
       }
@@ -102,7 +102,7 @@ function RequestList({
   conversations,
 }: {
   listConvosQuery: UseInfiniteQueryResult<
-    InfiniteData<ChatBskyConvoListConvoRequests.OutputSchema>,
+    InfiniteData<chat.bsky.convo.listConvoRequests.$OutputBody>,
     Error
   >
   conversations: RequestItem[]
@@ -166,7 +166,7 @@ function RequestList({
     return (
       <Layout.Center style={web([a.h_full])}>
         {isLoading ? (
-          <ChatListLoadingPlaceholder />
+          <ChatListSkeleton />
         ) : (
           <>
             {isError ? (
@@ -225,7 +225,13 @@ function RequestList({
                           if (navigation.canGoBack()) {
                             navigation.goBack()
                           } else {
-                            navigation.navigate('Messages', {animation: 'pop'})
+                            navigation.dispatch(
+                              getMessagesNavigationAction(
+                                {animation: 'pop'},
+                                navigation.getState(),
+                                'navigate',
+                              ),
+                            )
                           }
                         },
                         size: 'small',

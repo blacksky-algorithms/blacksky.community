@@ -1,7 +1,7 @@
 import {useRef, useState} from 'react'
 import {ScrollView, View} from 'react-native'
 import {Image} from 'expo-image'
-import {type AppBskyFeedDefs} from '@atproto/api'
+import {type AtUriString} from '@atproto/syntax'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useMutation, useQuery} from '@tanstack/react-query'
 
+import {getHomeNavigationAction} from '#/lib/routes/navigation'
 import {
   type CommonNavigatorParams,
   type NavigationProp,
@@ -20,7 +21,7 @@ import {
   usePreferencesQuery,
   useUpdateSavedFeedsMutation,
 } from '#/state/queries/preferences'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
@@ -38,6 +39,7 @@ import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {app} from '#/lexicons'
 import {
   ALL_MIDTERMS_FEED_URIS,
   ELECTION_DESK_FEED_URI,
@@ -190,7 +192,11 @@ function MidtermsFlow() {
             size="large"
             color="primary"
             style={[a.flex_1]}
-            onPress={() => navigation.navigate('Home')}>
+            onPress={() =>
+              navigation.dispatch(
+                getHomeNavigationAction(navigation.getState(), 'navigate'),
+              )
+            }>
             <ButtonText>
               <Trans>Go to Home</Trans>
             </ButtonText>
@@ -426,7 +432,7 @@ function FeedsStep({
   pins,
   onChangePins,
 }: {
-  views: AppBskyFeedDefs.GeneratorView[]
+  views: app.bsky.feed.defs.GeneratorView[]
   isLoading: boolean
   isError: boolean
   pins: string[]
@@ -564,15 +570,15 @@ function CtaCard({cta}: {cta: MidtermsCta}) {
 }
 
 function useFeedViews() {
-  const agent = useAgent()
+  const client = useAppviewClient()
   return useQuery({
     queryKey: ['midterms-feed-views'],
     staleTime: Infinity,
     queryFn: async () => {
-      const res = await agent.app.bsky.feed.getFeedGenerators({
-        feeds: ALL_MIDTERMS_FEED_URIS,
+      const res = await client.call(app.bsky.feed.getFeedGenerators, {
+        feeds: ALL_MIDTERMS_FEED_URIS as AtUriString[],
       })
-      return res.data.feeds
+      return res.feeds
     },
   })
 }

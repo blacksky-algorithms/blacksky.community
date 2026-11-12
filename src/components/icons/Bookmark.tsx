@@ -25,3 +25,7 @@ export const BookmarkFilled = createMultiPathSVG({
   ],
   viewBox: '0 0 24 24',
 })
+
+export const Bookmark_Stroke2_Corner0_Rounded = Bookmark
+export const Bookmark_Filled_Corner0_Rounded = BookmarkFilled
+export const BookmarkDelete_Stroke2_Corner0_Rounded_Large = BookmarkDeleteLarge

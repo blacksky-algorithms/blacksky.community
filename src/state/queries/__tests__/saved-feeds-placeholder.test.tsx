@@ -2,7 +2,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {renderHook} from '@testing-library/react-native'
 
 jest.mock('#/state/session', () => ({
-  useAgent: () => ({}),
+  useAppviewClient: () => ({}),
   useSession: () => ({currentAccount: undefined}),
 }))
 jest.mock('#/state/queries/preferences', () => ({

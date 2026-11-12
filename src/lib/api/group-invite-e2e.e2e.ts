@@ -1,7 +1,5 @@
 type GroupInviteE2EFailureStage =
-  | 'saved-feed-update'
-  | 'saved-feed-add'
-  | 'navigation'
+  'saved-feed-update' | 'saved-feed-add' | 'navigation'
 
 let pendingFailure: GroupInviteE2EFailureStage | undefined
 

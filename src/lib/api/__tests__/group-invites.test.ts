@@ -83,14 +83,14 @@ describe('group invite client API', () => {
         },
       }),
     )
-    const agent = {} as Parameters<typeof getServiceAuthToken>[0]['agent']
+    const client = {} as Parameters<typeof getServiceAuthToken>[0]['client']
 
     await expect(
-      acceptGroupInvite({code: CODE, communityDid: COMMUNITY_DID, agent}),
+      acceptGroupInvite({code: CODE, communityDid: COMMUNITY_DID, client}),
     ).resolves.toMatchObject({membership: 'joined'})
     expect(mockGetServiceAuthToken).toHaveBeenCalledWith(
       expect.objectContaining({
-        agent,
+        client,
         aud: COMMUNITY_DID,
         lxm: 'community.blacksky.group.acceptInvite',
       }),
@@ -112,7 +112,7 @@ describe('group invite client API', () => {
       acceptGroupInvite({
         code: CODE,
         communityDid: COMMUNITY_DID,
-        agent: {} as Parameters<typeof getServiceAuthToken>[0]['agent'],
+        client: {} as Parameters<typeof getServiceAuthToken>[0]['client'],
       }),
     ).rejects.toMatchObject({code: GroupInviteError.AuthenticationRequired})
     expect(fetchMock).not.toHaveBeenCalled()
@@ -176,7 +176,7 @@ describe('group invite client API', () => {
       acceptGroupInvite({
         code: CODE,
         communityDid: COMMUNITY_DID,
-        agent: {} as Parameters<typeof getServiceAuthToken>[0]['agent'],
+        client: {} as Parameters<typeof getServiceAuthToken>[0]['client'],
       }),
     ).rejects.toMatchObject({code: GroupInviteError.AuthorizationUnavailable})
   })
