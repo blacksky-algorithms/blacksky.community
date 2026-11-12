@@ -95,7 +95,7 @@ jobs:
         if: ${{ !steps.fingerprint.outputs.includes-changes }}
         with:
           eas-version: '25.3.0'
-          packager: 'pnpm --allow-build=dtrace-provider'
+          packager: 'pnpm --allow-build=dtrace-provider --allow-build=protobufjs'
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 🪛 Setup jq
@@ -196,7 +196,7 @@ jobs:
         uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385 # 9.0.0
         with:
           eas-version: '25.3.0'
-          packager: 'pnpm --allow-build=dtrace-provider'
+          packager: 'pnpm --allow-build=dtrace-provider --allow-build=protobufjs'
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: ⚙️ Install dependencies
@@ -365,7 +365,7 @@ jobs:
         uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385 # 9.0.0
         with:
           eas-version: '25.3.0'
-          packager: 'pnpm --allow-build=dtrace-provider'
+          packager: 'pnpm --allow-build=dtrace-provider --allow-build=protobufjs'
           token: ${{ secrets.EXPO_TOKEN }}
 
       - uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0

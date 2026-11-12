@@ -86,7 +86,7 @@ jobs:
         uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385 # 9.0.0
         with:
           eas-version: '25.3.0'
-          packager: 'pnpm --allow-build=dtrace-provider'
+          packager: 'pnpm --allow-build=dtrace-provider --allow-build=protobufjs'
           token: ${{ secrets.EXPO_TOKEN }}
 
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
