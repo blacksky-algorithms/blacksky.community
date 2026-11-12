@@ -57,7 +57,7 @@ function isLoopback() {
 }
 
 const sessionHooks = {
-  onDelete(sub: string, cause: unknown) {
+  onSessionDeleted(sub: string, cause: unknown) {
     const category = categorizeOauthError(cause)
     const message =
       cause instanceof Error
@@ -72,7 +72,7 @@ const sessionHooks = {
       payload: {cause: category, message: message?.slice(0, 200)},
     })
   },
-  onUpdate(_sub: string) {
+  onSessionUpdated(_sub: string) {
     emitOauthTelemetry({type: 'oauth:sessionRefreshed', payload: {}})
   },
 }
