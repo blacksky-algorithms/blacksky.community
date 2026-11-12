@@ -65,10 +65,10 @@ const debugFetch: typeof fetch = async (input, init) => {
 
 // Session lifecycle hooks. Mirrors the web client at parity so production
 // debugging surfaces the same telemetry events on both platforms. The OAuth
-// client base class invokes onUpdate after each refresh and onDelete when a
+// client base class invokes onSessionUpdated after each refresh and onSessionDeleted when a
 // session is invalidated (refresh/revocation/expiry).
 const sessionHooks = {
-  onDelete(sub: string, cause: unknown) {
+  onSessionDeleted(sub: string, cause: unknown) {
     const category = categorizeOauthError(cause)
     const message =
       cause instanceof Error
@@ -83,7 +83,7 @@ const sessionHooks = {
       payload: {cause: category, message: message?.slice(0, 200)},
     })
   },
-  onUpdate(_sub: string) {
+  onSessionUpdated(_sub: string) {
     emitOauthTelemetry({type: 'oauth:sessionRefreshed', payload: {}})
   },
 }
