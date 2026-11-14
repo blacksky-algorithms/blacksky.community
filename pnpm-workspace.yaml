@@ -38,6 +38,7 @@ allowBuilds:
   'protobufjs': false
   'unrs-resolver': true
 patchedDependencies:
+  '@atproto/oauth-client@0.8.3': patches/@atproto__oauth-client@0.8.3.patch
   '@expo/cli@58.1.19': patches/@expo__cli@58.1.19.patch
   '@expo/ui@58.0.27': patches/@expo__ui@58.0.27.patch
   '@formatjs/bigdecimal@0.2.5': patches/@formatjs__bigdecimal@0.2.5.patch
