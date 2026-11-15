@@ -27,6 +27,9 @@ overrides:
   # @atproto/oauth-client-expo asks for the SDK 54 release; a second copy of a
   # native module must not ship.
   'expo-web-browser': '58.0.7'
+  # 0.3.x builds a Response around the body stream in peekJson, which throws
+  # under React Native's Response polyfill and drops the DPoP nonce retry.
+  '@atproto-labs/fetch': '0.4.2'
 allowBuilds:
   '@sentry/cli': true
   '@swc/core': false
