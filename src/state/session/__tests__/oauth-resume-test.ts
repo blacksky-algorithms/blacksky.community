@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 
 import {com} from '#/lexicons'
 import {resumeOAuthSessionBundleWithRetry, withTimeout} from '../oauth-agent'
-import {emitOauthTelemetry} from '../oauth-telemetry'
+import {categorizeOauthError, emitOauthTelemetry} from '../oauth-telemetry'
 import {type SessionAccount} from '../types'
 
 const mockRestore = jest.fn<(did: string) => Promise<OAuthSession>>()
@@ -277,6 +277,38 @@ describe('resumeOAuthSessionBundleWithRetry', () => {
     ).rejects.toThrow('The session was deleted by another process')
     expect(mockRestore).toHaveBeenCalledTimes(1)
     expect(degradedEvents()).toEqual([])
+  })
+})
+
+describe('categorizeOauthError', () => {
+  it.each([
+    'Unexpected fetchHandler() error: fetch failed: java.net.UnknownHostException: Unable to resolve host "blacksky.app": No address associated with hostname',
+    'Unexpected fetchHandler() error: fetch failed: The Internet connection appears to be offline.',
+    'fetch failed: A server with the specified hostname could not be found.',
+    'Failed to fetch',
+    'Network request failed',
+    'Load failed',
+    'NetworkError when attempting to fetch resource.',
+  ])('treats %s as a network failure', message => {
+    expect(categorizeOauthError(new Error(message))).toBe('network')
+    expect(categorizeOauthError({message})).toBe('network')
+  })
+
+  it('finds a network failure wrapped as the cause', () => {
+    const error = new Error('Failed to perform upstream request', {
+      cause: new TypeError('fetch failed: The network connection was lost.'),
+    })
+
+    expect(categorizeOauthError(error)).toBe('network')
+  })
+
+  it.each([
+    ['The session was revoked', 'sessionDeleted'],
+    ['invalid_grant: Session expired', 'sessionExpired'],
+    ['invalid_grant: Invalid refresh token', 'invalidGrant'],
+    ['Account has been taken down', 'unknown'],
+  ])('keeps %s out of the network category', (message, category) => {
+    expect(categorizeOauthError(new Error(message))).toBe(category)
   })
 })
 

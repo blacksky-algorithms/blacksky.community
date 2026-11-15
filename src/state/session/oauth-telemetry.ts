@@ -1,3 +1,4 @@
+import {isNetworkError} from '#/lib/network-error'
 import {type Metrics} from '#/analytics/metrics'
 
 type OauthTelemetryEvent =
@@ -125,13 +126,7 @@ export function categorizeOauthError(
   if (str.includes('timed out') || str.includes('Session resume timed out')) {
     return 'timeout'
   }
-  if (
-    str.includes('Failed to fetch') ||
-    str.includes('Network request failed') ||
-    str.includes('Load failed') ||
-    // Firefox raw fetch failure when network is offline / URL is blocked
-    str.includes('NetworkError when attempting to fetch')
-  ) {
+  if (isNetworkError(str) || isNetworkError(err)) {
     return 'network'
   }
   // Generic invalid_grant catch-all that isn't a known sub-case above.
