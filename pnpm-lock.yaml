@@ -205,6 +205,7 @@ overrides:
   '@types/psl': 1.1.1
   react-native-screens: 4.30.1
   expo-web-browser: 58.0.7
+  '@atproto-labs/fetch': 0.4.2
 
 packageExtensionsChecksum: sha256-KbeCj471Qk3TA758q8nLPkiGCPDA0TX18iO/Coy89lo=
 
@@ -981,10 +982,6 @@ packages:
 
   '@atproto-labs/did-resolver@0.3.7':
     resolution: {integrity: sha512-F3M3U5cU1QSAXX3J5auGEc5N2pgDgpirAjvyDFsytXuyWfrjWfTPd/H+DZrrED7gK+noW0cAWtxxjdX7/cTSVQ==}
-    engines: {node: '>=22'}
-
-  '@atproto-labs/fetch@0.3.5':
-    resolution: {integrity: sha512-iDFZEoNqfL17EVKE+uNzdUD7YF8LWhEhxeBtP6x+PNuAxoXv3ip9vLmB8nNzNxFwVn++FipfDtSiPqmziv1bdA==}
     engines: {node: '>=22'}
 
   '@atproto-labs/fetch@0.4.2':
@@ -10446,16 +10443,12 @@ snapshots:
 
   '@atproto-labs/did-resolver@0.3.7':
     dependencies:
-      '@atproto-labs/fetch': 0.3.5
+      '@atproto-labs/fetch': 0.4.2
       '@atproto-labs/pipe': 0.2.4
       '@atproto-labs/simple-store': 0.5.1
       '@atproto-labs/simple-store-memory': 0.2.6
       '@atproto/did': 0.5.4
       zod: 3.25.76
-
-  '@atproto-labs/fetch@0.3.5':
-    dependencies:
-      '@atproto-labs/pipe': 0.2.4
 
   '@atproto-labs/fetch@0.4.2':
     dependencies:
@@ -10686,7 +10679,7 @@ snapshots:
   '@atproto/oauth-client@0.8.3':
     dependencies:
       '@atproto-labs/did-resolver': 0.3.7
-      '@atproto-labs/fetch': 0.3.5
+      '@atproto-labs/fetch': 0.4.2
       '@atproto-labs/handle-resolver': 0.4.8
       '@atproto-labs/identity-resolver': 0.4.13
       '@atproto-labs/simple-store': 0.5.1
