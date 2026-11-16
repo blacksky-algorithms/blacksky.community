@@ -98,9 +98,19 @@ jobs:
           # Must match the COCOAPODS stamp in ios/Podfile.lock; the runner image's
           # preinstalled version drifts (https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md)
           EXPECTED=1.16.2
+          # Fall back to rbenv's default Ruby when the one named in .ruby-version
+          # is not installed; rbenv refuses to run any gem executable otherwise.
+          SUDO=sudo
+          if command -v rbenv >/dev/null; then
+            SUDO=
+            if ! rbenv version-name >/dev/null 2>&1; then
+              export RBENV_VERSION="$(rbenv global)"
+              echo "RBENV_VERSION=$RBENV_VERSION" >> "$GITHUB_ENV"
+            fi
+          fi
           if [ "$(pod --version)" != "$EXPECTED" ]; then
-            sudo gem uninstall cocoapods --all --executables --ignore-dependencies
-            sudo gem install cocoapods -v "$EXPECTED" --no-document
+            $SUDO gem uninstall cocoapods --all --executables --ignore-dependencies
+            $SUDO gem install cocoapods -v "$EXPECTED" --no-document
           fi
           ACTUAL=$(pod --version)
           if [ "$ACTUAL" != "$EXPECTED" ]; then
