@@ -208,6 +208,8 @@ jobs:
 
       - name: Run Anarres
         if: steps.context.outputs.run == 'true'
+        continue-on-error: true
+        timeout-minutes: 20
         env:
           EVENT: ${{ github.event_name }}
           REFERENCES: ${{ steps.references.outputs.list }}
@@ -284,6 +286,7 @@ jobs:
           set -euo pipefail
           job_deadline=$(( STARTED + JOB_MINUTES * 60 ))
           if [ $(( job_deadline - $(date +%s) )) -lt 300 ]; then exit 0; fi
+          touch "$RUNNER_TEMP/response.md"
           request=""
           if [ -f .anarres/request.md ]; then request="$(cat .anarres/request.md)"; fi
           jq -n \
@@ -346,6 +349,10 @@ jobs:
           COMMENT_ID: ${{ github.event.comment.id }}
         run: |
           set -euo pipefail
+          if [ ! -s "$RUNNER_TEMP/response.md" ]; then
+            echo "::notice::No response to post"
+            exit 0
+          fi
           if [ "$EVENT" = "pull_request_review_comment" ]; then
             gh api "repos/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
               -F body=@"$RUNNER_TEMP/response.md" --silent
