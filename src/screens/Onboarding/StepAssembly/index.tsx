@@ -15,12 +15,14 @@ import {
   PrimaryButton,
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 
 export function StepAssembly() {
   const {_} = useLingui()
   const openLink = useOpenLink()
   const t = useTheme()
   const {dispatch} = useOnboardingInternalState()
+  const ax = useAnalytics()
 
   return (
     <View style={[a.flex_1, a.gap_lg]}>
@@ -57,7 +59,10 @@ export function StepAssembly() {
       <Footer>
         <PrimaryButton
           label={_(msg`Continue`)}
-          onPress={() => dispatch({type: 'next'})}
+          onPress={() => {
+            ax.metric('onboarding:assembly:nextPressed', {})
+            dispatch({type: 'next'})
+          }}
         />
       </Footer>
     </View>
