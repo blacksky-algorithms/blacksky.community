@@ -18,6 +18,7 @@ import {
 } from '#/components/onboarding-chrome'
 import {useChromeColors} from '#/components/onboarding-chrome/useChromeColors'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 
 export function StepBelong() {
   const {_} = useLingui()
@@ -25,6 +26,7 @@ export function StepBelong() {
   const t = useTheme()
   const {accent} = useChromeColors()
   const {state, dispatch} = useOnboardingInternalState()
+  const ax = useAnalytics()
   const agreed = state.guidelinesAccepted
 
   return (
@@ -109,7 +111,10 @@ export function StepBelong() {
         <PrimaryButton
           disabled={!agreed}
           label={_(msg`Continue`)}
-          onPress={() => dispatch({type: 'next'})}
+          onPress={() => {
+            ax.metric('onboarding:belong:nextPressed', {})
+            dispatch({type: 'next'})
+          }}
         />
       </Footer>
     </View>

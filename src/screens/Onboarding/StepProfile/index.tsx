@@ -335,6 +335,7 @@ export function StepProfile() {
             testID="onboardingSkipAvatar"
             label={l`Skip`}
             onPress={() => {
+              ax.metric('onboarding:profile:skipPressed', {})
               dispatch({
                 type: 'setProfileStepResults',
                 image: undefined,

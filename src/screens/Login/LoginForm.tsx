@@ -25,6 +25,7 @@ import * as TextField from '#/components/forms/TextField'
 import {At_Stroke2_Corner0_Rounded as At} from '#/components/icons/At'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 import {IS_E2E} from '#/env'
 import {type com} from '#/lexicons'
 import {FormContainer} from './FormContainer'
@@ -57,6 +58,7 @@ export const LoginForm = ({
   const t = useTheme()
   const {_} = useLingui()
   const {login} = useSessionApi()
+  const ax = useAnalytics()
 
   const onPressNext = async () => {
     if (isProcessing || processingRef.current) return
@@ -83,6 +85,7 @@ export const LoginForm = ({
 
       if (!identifier.startsWith('did:') && !identifier.includes('.')) {
         if (!serviceDescription) {
+          ax.metric('signin:failure', {reason: 'serviceUnavailable'})
           setError(
             _(
               msg`Unable to contact your service. Please check your Internet connection.`,
@@ -103,6 +106,7 @@ export const LoginForm = ({
             )
               .slice(0, 2)
               .join(' or ')
+            ax.metric('signin:failure', {reason: 'handleNotFound'})
             setError(
               _(
                 msg`We couldn't find an account for "${identifier}". Enter your full handle including its domain (like ${examples})`,
@@ -121,6 +125,7 @@ export const LoginForm = ({
           logger.warn('Failed to resolve bare name during sign-in', {
             error: String(e),
           })
+          ax.metric('signin:failure', {reason: 'network'})
           setError(
             _(
               msg`Unable to contact your service. Please check your Internet connection.`,
@@ -154,9 +159,13 @@ export const LoginForm = ({
         return
       }
       setIsProcessing(true)
+      ax.metric('signin:submitted', {method: 'password'})
       try {
         await login({service: serviceUrl, identifier, password}, 'LoginForm')
       } catch (e) {
+        ax.metric('signin:failure', {
+          reason: isNetworkError(e) ? 'network' : 'unknown',
+        })
         if (isNetworkError(e)) {
           setError(
             _(
@@ -172,6 +181,7 @@ export const LoginForm = ({
       return
     }
 
+    ax.metric('signin:submitted', {method: 'oauth'})
     const client = getOAuthClient()
     const controller = Platform.OS === 'android' ? new AbortController() : null
     if (controller) {
@@ -210,10 +220,12 @@ export const LoginForm = ({
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       if (errMsg.includes('OAUTH_CANCELLED')) {
         // User-initiated cancel (Android): silent reset, no error banner.
+        ax.metric('signin:failure', {reason: 'cancelled'})
       } else if (isNetworkError(e)) {
         logger.warn('Failed to start OAuth sign-in due to network error', {
           error: errMsg,
         })
+        ax.metric('signin:failure', {reason: 'network'})
         setError(
           _(
             msg`Unable to contact your service. Please check your Internet connection.`,
@@ -223,6 +235,7 @@ export const LoginForm = ({
         logger.warn('Failed to resolve handle during sign-in', {
           error: errMsg,
         })
+        ax.metric('signin:failure', {reason: 'handleNotFound'})
         setError(
           _(
             msg`We couldn't find an account with the handle "${identifier}". Check the spelling, or create a new account if you don't have one yet.`,
@@ -230,6 +243,7 @@ export const LoginForm = ({
         )
       } else {
         logger.warn('Failed to start OAuth sign-in', {error: errMsg})
+        ax.metric('signin:failure', {reason: 'unknown'})
         setError(cleanError(e))
       }
     } finally {

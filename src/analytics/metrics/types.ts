@@ -297,6 +297,13 @@ export type Events = {
   'welcomeModal:dismissed': {}
   'welcomeModal:presented': {}
   'signup:opened': {}
+  'signup:step:viewed': {
+    step: 'community' | 'info' | 'handle' | 'captcha'
+    activeStep: number
+  }
+  'signup:communitySelected': {
+    communitySlug: string
+  }
   'signup:nextPressed': {
     activeStep: number
     phoneVerificationRequired?: boolean
@@ -351,10 +358,24 @@ export type Events = {
     hostingProviderDidChange: boolean
   }
   'signin:hostingProviderFailedResolution': {}
-  'signin:success': {
-    failedAttemptsCount: number
-    isUsingCustomProvider: boolean
-    timeTakenSeconds: number
+  'signin:screen:viewed': {
+    form:
+      | 'login'
+      | 'chooseAccount'
+      | 'forgotPassword'
+      | 'setNewPassword'
+      | 'passwordUpdated'
+  }
+  'signin:submitted': {
+    method: 'oauth' | 'password'
+  }
+  'signin:failure': {
+    reason:
+      | 'network'
+      | 'handleNotFound'
+      | 'serviceUnavailable'
+      | 'cancelled'
+      | 'unknown'
   }
   'signin:backPressed': {
     failedAttemptsCount: number
@@ -365,6 +386,7 @@ export type Events = {
   'signin:passwordResetFailure': {}
   'onboarding:step:viewed': {
     step: OnboardingScreen
+    steps: OnboardingScreen[]
   }
   'onboarding:interests:nextPressed': {
     selectedInterests: string[]
@@ -395,6 +417,10 @@ export type Events = {
   }
   'onboarding:moderation:nextPressed': {}
   'onboarding:profile:nextPressed': {}
+  'onboarding:profile:skipPressed': {}
+  'onboarding:belong:nextPressed': {}
+  'onboarding:blackskyOnly:nextPressed': {}
+  'onboarding:assembly:nextPressed': {}
   'onboarding:finished:nextPressed': {
     usedStarterPack: boolean
     starterPackName?: string
@@ -597,6 +623,7 @@ export type Events = {
     signupDuration: number
     fieldErrorsTotal: number
     backgroundCount: number
+    communitySlug?: string
   }
   'post:create': {
     imageCount: number
@@ -606,6 +633,7 @@ export type Events = {
     hasQuote: boolean
     hasPoll: boolean
     pollStatementCount: number
+    audience: 'public' | 'blackskyOnly' | 'communityFeed'
     langs: string
     logContext: 'Composer'
   }

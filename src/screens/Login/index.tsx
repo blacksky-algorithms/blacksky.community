@@ -29,6 +29,14 @@ enum Forms {
   PasswordUpdated,
 }
 
+const FORM_NAMES = {
+  [Forms.Login]: 'login',
+  [Forms.ChooseAccount]: 'chooseAccount',
+  [Forms.ForgotPassword]: 'forgotPassword',
+  [Forms.SetNewPassword]: 'setNewPassword',
+  [Forms.PasswordUpdated]: 'passwordUpdated',
+} as const
+
 const OrderedForms = [
   Forms.ChooseAccount,
   Forms.Login,
@@ -75,6 +83,10 @@ export const Login = ({
   const ax = useAnalytics()
   const {data: serviceDescription, error: serviceError} =
     useServiceQuery(serviceUrl)
+
+  useEffect(() => {
+    ax.metric('signin:screen:viewed', {form: FORM_NAMES[currentForm]})
+  }, [ax, currentForm])
 
   const onSelectAccount = (account?: SessionAccount) => {
     if (account?.service) {
