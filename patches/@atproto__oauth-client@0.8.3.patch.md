@@ -1,0 +1,41 @@
+# @atproto/oauth-client: stale-instance DPoP guard and refresh dedupe
+
+`OAuthSession` keeps its DPoP key in memory but re-reads the token set from the shared session
+store (IndexedDB on web, keyed by DID) on every request. Logging in again for the same DID
+replaces the stored token set and key. Any session object that is still alive from before that
+login (a second tab or window, or a leftover agent in the same tab) then signs the new token with
+its old key. The PDS answers 401 `invalid_token` ("DPoP key does not match the token binding").
+
+Upstream `fetchHandler` treats that 401 as an expired token: it forces a refresh (which succeeds,
+because the refresh token in the store is valid), retries with the old key, gets 401 again, and
+calls `delStored`, deleting the shared session. The tab the user is actually using is then logged
+out with "The session was deleted by another process". Each re-login repeats the loop.
+
+This patch adds `ownsStoredSession()`, which compares the instance's key with the key currently in
+the store. When they differ, `fetchHandler` returns the 401 without refreshing or deleting. When
+nothing is stored, or the keys match, behavior is unchanged.
+
+Applies to 0.8.3, which both `@atproto/oauth-client-browser@0.5.3` (web) and
+`@atproto/oauth-client-expo@0.1.12` (native) resolve to. The bug only shows on web; native runs one
+instance per app process, so the guard is a no-op there. Drop the patch once upstream ships an
+equivalent guard.
+
+## Recovering a superseded instance
+
+A stale instance returns the 401 and calls `SessionGetter.notifySuperseded(sub)`, which invokes
+an optional `onSessionSuperseded(sub)` client option. The app uses it to rebuild that tab's
+session from the store, so the tab picks up the new key instead of staying signed in with
+requests that all fail.
+
+## Concurrent refresh stampede
+
+Upstream `fetchHandler` forces a refresh on every 401 `invalid_token`. Concurrent requests that
+fail together each run their own refresh, and each refresh rotates the token. A retry carrying a
+token that a later refresh already replaced gets 401 again, and upstream then deletes the session.
+
+`fetchHandler` now passes the rejected access token to `SessionGetter.getSession()`. Inside the
+per-sub lock that `get()` already holds (Web Locks across tabs on web, an in-process lock on
+native), the getter returns the stored token set instead of refreshing when the stored access
+token differs from the rejected one. Requests and tabs that fail with the same token therefore
+share one refresh. After a failed retry, the session is deleted only when this instance owns the
+stored session and the retry used the current stored token.

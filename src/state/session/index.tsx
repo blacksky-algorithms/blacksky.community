@@ -622,8 +622,25 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     [store, cancelPendingTask],
   )
   useEffect(() => {
+    let resuming: string | undefined
     setOauthLifecycleSink(event => {
-      if (store.getState().currentBundleState.did !== event.did) return
+      const state = store.getState()
+      if (state.currentBundleState.did !== event.did) return
+      if (event.type === 'superseded') {
+        /*
+         * Another tab signed in again as this account with a new DPoP key.
+         * Rebuild this tab's session from the shared store.
+         */
+        const account = state.accounts.find(a => a.did === event.did)
+        if (!account || resuming === event.did) return
+        resuming = event.did
+        resumeSession(account)
+          .catch(() => {})
+          .finally(() => {
+            resuming = undefined
+          })
+        return
+      }
       store.dispatch({
         type: 'oauth-session-terminated',
         accountDid: event.did,
@@ -632,7 +649,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       void clearPersistedQueryStorage(event.did)
     })
     return () => setOauthLifecycleSink(null)
-  }, [store])
+  }, [store, resumeSession])
 
   useEffect(() => {
     setOauthTelemetrySink(event => {

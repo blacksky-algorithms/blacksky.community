@@ -114,11 +114,18 @@ jest.mock('../session-core', () => ({
     mockRebuild(...args),
   disposeBundle: (bundle: unknown) => mockDisposeBundle(bundle),
 }))
+const mockOauthResume = jest.fn<(...args: unknown[]) => Promise<unknown>>()
+jest.mock('../oauth-agent', () => ({
+  ...jest.requireActual<object>('../oauth-agent'),
+  resumeOAuthSessionBundleWithRetry: (...args: unknown[]) =>
+    mockOauthResume(...args),
+}))
 jest.mock('../create-account', () => ({
   createSessionBundleAndCreateAccount: () => new Promise(() => {}),
 }))
 
 import {Provider, useSession, useSessionApi} from '#/state/session'
+import {emitOauthLifecycleEvent} from '#/state/session/oauth-lifecycle'
 import {
   type OnSessionChange,
   type PasswordSessionBundle as SessionBundle,
@@ -275,6 +282,7 @@ beforeEach(() => {
   mockRebuilds.length = 0
   mockLogin.mockReset()
   mockResume.mockReset()
+  mockOauthResume.mockReset()
   mockRebuild.mockClear()
   mockDisposeBundle.mockReset()
   mockEmitSessionDropped.mockReset()
@@ -584,5 +592,47 @@ describe('cross-tab sync', () => {
     })
 
     expect(mockDisposeBundle).not.toHaveBeenCalledWith(resumedBundle)
+  })
+})
+
+describe('oauth superseded', () => {
+  it('rebuilds the session once when another tab signs in again as this account', async () => {
+    const account = makeAccount({
+      accessJwt: undefined,
+      refreshJwt: undefined,
+      isOauthSession: true,
+    })
+    await renderLoggedIn(account, makeBundle(account))
+    const rebuilt = makeBundle(account)
+    let finishResume!: (value: unknown) => void
+    mockOauthResume.mockReturnValueOnce(
+      new Promise(resolve => {
+        finishResume = resolve
+      }),
+    )
+
+    act(() => {
+      emitOauthLifecycleEvent({type: 'superseded', did: DID})
+      emitOauthLifecycleEvent({type: 'superseded', did: DID})
+    })
+    await act(async () => {
+      finishResume({bundle: rebuilt, account})
+      await Promise.resolve()
+    })
+
+    expect(mockOauthResume).toHaveBeenCalledTimes(1)
+    expect(mockOauthResume.mock.calls[0][0]).toMatchObject({did: DID})
+    expect(mockEmitSessionDropped).not.toHaveBeenCalled()
+  })
+
+  it('ignores a superseded event for an account that is not current', async () => {
+    const account = makeAccount({isOauthSession: true})
+    await renderLoggedIn(account, makeBundle(account))
+
+    act(() => {
+      emitOauthLifecycleEvent({type: 'superseded', did: 'did:plc:other'})
+    })
+
+    expect(mockOauthResume).not.toHaveBeenCalled()
   })
 })

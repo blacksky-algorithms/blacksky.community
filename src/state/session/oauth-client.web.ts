@@ -75,6 +75,9 @@ const sessionHooks = {
   onSessionUpdated(_sub: string) {
     emitOauthTelemetry({type: 'oauth:sessionRefreshed', payload: {}})
   },
+  onSessionSuperseded(sub: string) {
+    emitOauthLifecycleEvent({type: 'superseded', did: sub})
+  },
 }
 
 // Lets the debug button mark the next refresh attempt as user-initiated so

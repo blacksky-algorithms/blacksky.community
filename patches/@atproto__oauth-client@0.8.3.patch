@@ -1,0 +1,133 @@
+diff --git a/dist/oauth-session.js b/dist/oauth-session.js
+index c629df53c529bb70b7ad70ba1a412e8ea662f63d..9f1e070039f18bbd231584bc7221ded7e4f23ab4 100644
+--- a/dist/oauth-session.js
++++ b/dist/oauth-session.js
+@@ -3,6 +3,18 @@ import { TokenInvalidError } from './errors/token-invalid-error.js';
+ import { TokenRevokedError } from './errors/token-revoked-error.js';
+ import { dpopFetchWrapper } from './fetch-dpop.js';
+ const ReadableStream = globalThis.ReadableStream;
++function isSameDpopKey(a, b) {
++    const x = a?.bareJwk;
++    const y = b?.bareJwk;
++    if (!x || !y)
++        return false;
++    return (x.kty === y.kty &&
++        x.crv === y.crv &&
++        x.x === y.x &&
++        x.y === y.y &&
++        x.n === y.n &&
++        x.e === y.e);
++}
+ export class OAuthSession {
+     constructor(server, sub, sessionGetter, fetch = globalThis.fetch) {
+         this.server = server;
+@@ -23,6 +35,17 @@ export class OAuthSession {
+     get serverMetadata() {
+         return this.server.serverMetadata;
+     }
++    /**
++     * The DPoP key lives on this instance while the token set is re-read from
++     * the shared store on every call. When the store holds a different key,
++     * another instance re-authenticated this sub and now owns the session.
++     */
++    async ownsStoredSession() {
++        const stored = await this.sessionGetter.getStored(this.sub);
++        if (stored?.dpopKey == null)
++            return true;
++        return isSameDpopKey(stored.dpopKey, this.server.dpopKey);
++    }
+     /**
+      * @param refresh When `true`, the credentials will be refreshed even if they
+      * are not expired. When `false`, the credentials will not be refreshed even
+@@ -73,10 +96,15 @@ export class OAuthSession {
+         if (!isInvalidTokenResponse(initialResponse)) {
+             return initialResponse;
+         }
++        // A stale instance must neither refresh nor delete a session it no
++        // longer owns; doing so logs out the instance that does own it.
++        if (!(await this.ownsStoredSession())) {
++            this.sessionGetter.notifySuperseded(this.sub);
++            return initialResponse;
++        }
+         let tokenSetFresh;
+         try {
+-            // Force a refresh
+-            tokenSetFresh = await this.getTokenSet(true);
++            ({ tokenSet: tokenSetFresh } = await this.sessionGetter.getSession(this.sub, true, tokenSet.access_token));
+         }
+         catch (err) {
+             return initialResponse;
+@@ -96,7 +124,9 @@ export class OAuthSession {
+         // resource server. This might be due to the resource server not accepting
+         // credentials from the authorization server (e.g. because some migration
+         // occurred). Any ways, there is no point in keeping the session.
+-        if (isInvalidTokenResponse(finalResponse)) {
++        if (isInvalidTokenResponse(finalResponse) &&
++            (await this.ownsStoredSession()) &&
++            (await this.isCurrentAccessToken(tokenSetFresh.access_token))) {
+             // @TODO Is there a "softer" way to handle this, e.g. by marking the
+             // session as "expired" in the session store, allowing the user to trigger
+             // a new login (using login_hint)?
+@@ -104,6 +134,15 @@ export class OAuthSession {
+         }
+         return finalResponse;
+     }
++    async isCurrentAccessToken(accessToken) {
++        try {
++            const current = await this.getTokenSet(false);
++            return current.access_token === accessToken;
++        }
++        catch {
++            return true;
++        }
++    }
+ }
+ /**
+  * @see {@link https://datatracker.ietf.org/doc/html/rfc6750#section-3}
+diff --git a/dist/session-getter.js b/dist/session-getter.js
+index 7745382a9a4aee6dd3e44a65d5ad96fb83260ce3..fd9b2ed4fc1ca8a39cc529959213e319eeb3ffee 100644
+--- a/dist/session-getter.js
++++ b/dist/session-getter.js
+@@ -218,12 +218,29 @@ export class SessionGetter extends CachedGetter {
+         }
+         await this.#options.onSessionUpdated?.call(null, sub, session);
+     }
++    notifySuperseded(sub) {
++        try {
++            this.#options.onSessionSuperseded?.call(null, sub);
++        }
++        catch {
++            // A failing hook must not change the response returned to the caller.
++        }
++    }
+     async delStored(sub, cause) {
+         await super.delStored(sub, cause);
+         await this.#options.onSessionDeleted?.call(null, sub, cause);
+     }
+     async get(sub, options) {
+         const session = await this.#runtime.usingLock(`@atproto-oauth-client-${sub}`, async () => {
++            // Another request or tab already replaced the rejected token: use
++            // it rather than rotating again.
++            if (options?.rejectedAccessToken) {
++                const stored = await this.getStored(sub, { signal: options.signal });
++                if (stored &&
++                    stored.tokenSet.access_token !== options.rejectedAccessToken) {
++                    return stored;
++                }
++            }
+             const env_1 = { stack: [], error: void 0, hasError: false };
+             try {
+                 // Make sure, even if there is no signal in the options, that the
+@@ -255,10 +272,11 @@ export class SessionGetter extends CachedGetter {
+      * if they are expired. When `undefined`, the credentials will be refreshed
+      * if, and only if, they are (about to be) expired. Defaults to `undefined`.
+      */
+-    async getSession(sub, refresh = 'auto') {
++    async getSession(sub, refresh = 'auto', rejectedAccessToken) {
+         return this.get(sub, {
+             noCache: refresh === true,
+             allowStale: refresh === false,
++            rejectedAccessToken,
+         });
+     }
+ }
