@@ -20,13 +20,22 @@ Applies to 0.8.3, which both `@atproto/oauth-client-browser@0.5.3` (web) and
 instance per app process, so the guard is a no-op there. Drop the patch once upstream ships an
 equivalent guard.
 
+## Recovering a superseded instance
+
+A stale instance returns the 401 and calls `SessionGetter.notifySuperseded(sub)`, which invokes
+an optional `onSessionSuperseded(sub)` client option. The app uses it to rebuild that tab's
+session from the store, so the tab picks up the new key instead of staying signed in with
+requests that all fail.
+
 ## Concurrent refresh stampede
 
 Upstream `fetchHandler` forces a refresh on every 401 `invalid_token`. Concurrent requests that
 fail together each run their own refresh, and each refresh rotates the token. A retry carrying a
 token that a later refresh already replaced gets 401 again, and upstream then deletes the session.
 
-The patch ties each forced refresh to the rejected access token. Requests that fail with the same
-token share one refresh, and a request whose token was already replaced retries with the stored
-one. After a failed retry the session is deleted only when this instance owns the stored session
-and the retry used the current stored token.
+`fetchHandler` now passes the rejected access token to `SessionGetter.getSession()`. Inside the
+per-sub lock that `get()` already holds (Web Locks across tabs on web, an in-process lock on
+native), the getter returns the stored token set instead of refreshing when the stored access
+token differs from the rejected one. Requests and tabs that fail with the same token therefore
+share one refresh. After a failed retry, the session is deleted only when this instance owns the
+stored session and the retry used the current stored token.

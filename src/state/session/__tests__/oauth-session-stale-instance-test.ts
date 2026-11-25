@@ -61,6 +61,7 @@ function makeSession({
       ),
     ),
     delStored: jest.fn(() => Promise.resolve()),
+    notifySuperseded: jest.fn(),
   }
   const session = Object.create(OAuthSession.prototype) as OAuthSession
   Object.assign(session, {
@@ -85,6 +86,7 @@ describe('OAuthSession stale-instance guard', () => {
     expect(res.status).toBe(401)
     expect(refresh).not.toHaveBeenCalled()
     expect(sessionGetter.delStored).not.toHaveBeenCalled()
+    expect(sessionGetter.notifySuperseded).toHaveBeenCalledWith(SUB)
   })
 
   it('still deletes the session when the owning instance is rejected twice', async () => {

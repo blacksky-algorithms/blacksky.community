@@ -1,5 +1,5 @@
 export type OauthLifecycleEvent = {
-  type: 'deleted'
+  type: 'deleted' | 'superseded'
   did: string
 }
 
