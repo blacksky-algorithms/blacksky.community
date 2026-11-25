@@ -1,11 +1,12 @@
 diff --git a/dist/oauth-session.js b/dist/oauth-session.js
-index c629df53c529bb70b7ad70ba1a412e8ea662f63d..c6e4a0ee20a8154669bdc87cce977cd0fa357deb 100644
+index c629df53c529bb70b7ad70ba1a412e8ea662f63d..78216a14651deb8e4c3fd4aa1c9153f3cda11359 100644
 --- a/dist/oauth-session.js
 +++ b/dist/oauth-session.js
-@@ -3,6 +3,18 @@ import { TokenInvalidError } from './errors/token-invalid-error.js';
+@@ -3,6 +3,19 @@ import { TokenInvalidError } from './errors/token-invalid-error.js';
  import { TokenRevokedError } from './errors/token-revoked-error.js';
  import { dpopFetchWrapper } from './fetch-dpop.js';
  const ReadableStream = globalThis.ReadableStream;
++const refreshesInFlight = new Map();
 +function isSameDpopKey(a, b) {
 +    const x = a?.bareJwk;
 +    const y = b?.bareJwk;
@@ -21,7 +22,7 @@ index c629df53c529bb70b7ad70ba1a412e8ea662f63d..c6e4a0ee20a8154669bdc87cce977cd0
  export class OAuthSession {
      constructor(server, sub, sessionGetter, fetch = globalThis.fetch) {
          this.server = server;
-@@ -23,6 +35,17 @@ export class OAuthSession {
+@@ -23,6 +36,17 @@ export class OAuthSession {
      get serverMetadata() {
          return this.server.serverMetadata;
      }
@@ -39,7 +40,7 @@ index c629df53c529bb70b7ad70ba1a412e8ea662f63d..c6e4a0ee20a8154669bdc87cce977cd0
      /**
       * @param refresh When `true`, the credentials will be refreshed even if they
       * are not expired. When `false`, the credentials will not be refreshed even
-@@ -73,6 +96,11 @@ export class OAuthSession {
+@@ -73,10 +97,14 @@ export class OAuthSession {
          if (!isInvalidTokenResponse(initialResponse)) {
              return initialResponse;
          }
@@ -50,14 +51,53 @@ index c629df53c529bb70b7ad70ba1a412e8ea662f63d..c6e4a0ee20a8154669bdc87cce977cd0
 +        }
          let tokenSetFresh;
          try {
-             // Force a refresh
-@@ -96,7 +124,8 @@ export class OAuthSession {
+-            // Force a refresh
+-            tokenSetFresh = await this.getTokenSet(true);
++            tokenSetFresh = await this.refreshRejected(tokenSet.access_token);
+         }
+         catch (err) {
+             return initialResponse;
+@@ -96,7 +124,9 @@ export class OAuthSession {
          // resource server. This might be due to the resource server not accepting
          // credentials from the authorization server (e.g. because some migration
          // occurred). Any ways, there is no point in keeping the session.
 -        if (isInvalidTokenResponse(finalResponse)) {
 +        if (isInvalidTokenResponse(finalResponse) &&
-+            (await this.ownsStoredSession())) {
++            (await this.ownsStoredSession()) &&
++            (await this.isCurrentAccessToken(tokenSetFresh.access_token))) {
              // @TODO Is there a "softer" way to handle this, e.g. by marking the
              // session as "expired" in the session store, allowing the user to trigger
              // a new login (using login_hint)?
+@@ -104,6 +134,32 @@ export class OAuthSession {
+         }
+         return finalResponse;
+     }
++    async refreshRejected(rejectedAccessToken) {
++        const current = await this.getTokenSet(false);
++        const pending = refreshesInFlight.get(this.sub);
++        if (pending?.rejectedAccessToken === rejectedAccessToken) {
++            return pending.promise;
++        }
++        if (current.access_token !== rejectedAccessToken) {
++            return current;
++        }
++        const promise = this.getTokenSet(true).finally(() => {
++            if (refreshesInFlight.get(this.sub)?.promise === promise) {
++                refreshesInFlight.delete(this.sub);
++            }
++        });
++        refreshesInFlight.set(this.sub, { rejectedAccessToken, promise });
++        return promise;
++    }
++    async isCurrentAccessToken(accessToken) {
++        try {
++            const current = await this.getTokenSet(false);
++            return current.access_token === accessToken;
++        }
++        catch {
++            return true;
++        }
++    }
+ }
+ /**
+  * @see {@link https://datatracker.ietf.org/doc/html/rfc6750#section-3}

@@ -42,12 +42,16 @@ function makeSession({
   storedKey: ReturnType<typeof fakeKey> | undefined
   responses: Response[]
 }) {
-  const refresh = jest.fn(() => Promise.resolve({tokenSet: tokenSet('fresh')}))
+  let current = 'current'
+  const refresh = jest.fn(() => {
+    current = 'fresh'
+    return Promise.resolve({tokenSet: tokenSet(current)})
+  })
   const sessionGetter = {
     getSession: jest.fn((_sub: string, force?: boolean | 'auto') =>
       force === true
         ? refresh()
-        : Promise.resolve({tokenSet: tokenSet('current')}),
+        : Promise.resolve({tokenSet: tokenSet(current)}),
     ),
     getStored: jest.fn(() =>
       Promise.resolve(

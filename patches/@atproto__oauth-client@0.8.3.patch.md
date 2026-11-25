@@ -1,4 +1,4 @@
-# @atproto/oauth-client stale-instance DPoP guard
+# @atproto/oauth-client: stale-instance DPoP guard and refresh dedupe
 
 `OAuthSession` keeps its DPoP key in memory but re-reads the token set from the shared session
 store (IndexedDB on web, keyed by DID) on every request. Logging in again for the same DID
@@ -19,3 +19,14 @@ Applies to 0.8.3, which both `@atproto/oauth-client-browser@0.5.3` (web) and
 `@atproto/oauth-client-expo@0.1.12` (native) resolve to. The bug only shows on web; native runs one
 instance per app process, so the guard is a no-op there. Drop the patch once upstream ships an
 equivalent guard.
+
+## Concurrent refresh stampede
+
+Upstream `fetchHandler` forces a refresh on every 401 `invalid_token`. Concurrent requests that
+fail together each run their own refresh, and each refresh rotates the token. A retry carrying a
+token that a later refresh already replaced gets 401 again, and upstream then deletes the session.
+
+The patch ties each forced refresh to the rejected access token. Requests that fail with the same
+token share one refresh, and a request whose token was already replaced retries with the stored
+one. After a failed retry the session is deleted only when this instance owns the stored session
+and the retry used the current stored token.
