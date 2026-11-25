@@ -10,6 +10,8 @@ import {
 import {
   Context,
   createInitialOnboardingState,
+  getStepOrder,
+  type OnboardingScreen,
   reducer,
 } from '#/screens/Onboarding/state'
 import {StepAssembly} from '#/screens/Onboarding/StepAssembly'
@@ -42,9 +44,13 @@ export function Onboarding() {
   )
 
   const ax = useAnalytics()
+  const stepOrder = getStepOrder(state).join(',')
   useEffect(() => {
-    ax.metric('onboarding:step:viewed', {step: state.activeStep})
-  }, [ax, state.activeStep])
+    ax.metric('onboarding:step:viewed', {
+      step: state.activeStep,
+      steps: stepOrder.split(',') as OnboardingScreen[],
+    })
+  }, [ax, state.activeStep, stepOrder])
 
   return (
     <Portal>

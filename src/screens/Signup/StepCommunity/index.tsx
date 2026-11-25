@@ -23,6 +23,7 @@ import {
   SelectionRow,
 } from '#/components/onboarding-chrome'
 import {Text} from '#/components/Typography'
+import {useAnalytics} from '#/analytics'
 
 export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
   const {_} = useLingui()
@@ -30,6 +31,7 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
   const brand = useBrand()
   const openLink = useOpenLink()
   const {state, dispatch} = useSignupContext()
+  const ax = useAnalytics()
   const {
     data: brands,
     isPending,
@@ -86,13 +88,16 @@ export function StepCommunity({onPressBack}: {onPressBack: () => void}) {
               testID={`communityOption-${option.slug}`}
               selected={state.selectedBrandSlug === option.slug}
               title={option.displayName}
-              onPress={() =>
+              onPress={() => {
+                ax.metric('signup:communitySelected', {
+                  communitySlug: option.slug,
+                })
                 dispatch({
                   type: 'setCommunity',
                   slug: option.slug,
                   serviceUrl: option.pds,
                 })
-              }
+              }}
               icon={
                 option.logo ? (
                   <Image

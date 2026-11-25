@@ -404,6 +404,7 @@ export function useSubmitSignup() {
               0,
             ),
             backgroundCount: state.backgroundCount,
+            communitySlug: state.selectedBrandSlug,
           },
         )
 
@@ -448,6 +449,7 @@ export function useSubmitSignup() {
         if (expected) {
           ax.metric('signup:createAccountFailure', {reason: expected})
         } else {
+          ax.metric('signup:createAccountFailure', {reason: 'unexpected'})
           ax.logger.error('Signup: unexpected createAccount failure', {
             safeMessage: e,
             registrationHandle: state.handle,

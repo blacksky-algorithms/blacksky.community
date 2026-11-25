@@ -612,8 +612,7 @@ func (srv *Server) NewTemplateContext(r *http.Request) pongo2.Context {
 		"featureGateBootstrap": srv.featureGates.snapshot(),
 		"favicon":              srv.resolveAssetURL(b.Favicon, "favicon.png"),
 		"appleTouchIcon":       srv.resolveAssetURL(b.Logo, "apple-touch-icon.png"),
-		"brandLogoDark":        srv.resolveAssetURL(b.LogoDark, "logo-dark.png"),
-		"brandLogoLight":       srv.resolveAssetURL(b.LogoLight, "logo-light.png"),
+		"brandSplashLogo":      remoteSplashLogo(b.Logo),
 		"brandSocialCard":      srv.resolveAssetURL(b.SocialCard, "social-card-default-gradient.png"),
 		"brandName":            b.Name,
 		"brandTitle":           b.Title,
@@ -653,6 +652,13 @@ func (srv *Server) errorHandler(err error, c echo.Context) {
 		c.Logger().Error(err)
 		c.String(code, http.StatusText(code))
 	}
+}
+
+func remoteSplashLogo(logo string) string {
+	if strings.HasPrefix(logo, "http://") || strings.HasPrefix(logo, "https://") {
+		return logo
+	}
+	return ""
 }
 
 // resolveAssetURL returns brandValue if non-empty, otherwise the static CDN

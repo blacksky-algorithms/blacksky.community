@@ -33,6 +33,13 @@ import {GCP_PROJECT_ID, IS_ANDROID} from '#/env'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
+const SIGNUP_STEP_NAMES = {
+  [SignupStep.COMMUNITY]: 'community',
+  [SignupStep.INFO]: 'info',
+  [SignupStep.HANDLE]: 'handle',
+  [SignupStep.CAPTCHA]: 'captcha',
+} as const
+
 export function Signup({
   onPressBack,
   onPressSignIn,
@@ -59,6 +66,13 @@ export function Signup({
   useEffect(() => {
     ax.metric('signup:opened', {})
   }, [ax])
+
+  useEffect(() => {
+    ax.metric('signup:step:viewed', {
+      step: SIGNUP_STEP_NAMES[state.activeStep],
+      activeStep: state.activeStep,
+    })
+  }, [ax, state.activeStep])
 
   useEffect(() => {
     if (brand.services.pds.url) {

@@ -86,21 +86,31 @@ jobs:
         uses: expo/expo-github-action@eab7a230208c952974db8c3245cfd78402c7b385 # 9.0.0
         with:
           eas-version: '25.3.0'
-          packager: 'pnpm --allow-build=dtrace-provider'
+          packager: 'pnpm --allow-build=dtrace-provider --allow-build=protobufjs'
           token: ${{ secrets.EXPO_TOKEN }}
 
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
-          xcode-version: "26.4"
+          xcode-version: "27.1"
 
       - name: ☕️ Pin Cocoapods version
         run: |
           # Must match the COCOAPODS stamp in ios/Podfile.lock; the runner image's
           # preinstalled version drifts (https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md)
           EXPECTED=1.16.2
+          # Fall back to rbenv's default Ruby when the one named in .ruby-version
+          # is not installed; rbenv refuses to run any gem executable otherwise.
+          SUDO=sudo
+          if command -v rbenv >/dev/null; then
+            SUDO=
+            if ! rbenv version-name >/dev/null 2>&1; then
+              export RBENV_VERSION="$(rbenv global)"
+              echo "RBENV_VERSION=$RBENV_VERSION" >> "$GITHUB_ENV"
+            fi
+          fi
           if [ "$(pod --version)" != "$EXPECTED" ]; then
-            sudo gem uninstall cocoapods --all --executables --ignore-dependencies
-            sudo gem install cocoapods -v "$EXPECTED" --no-document
+            $SUDO gem uninstall cocoapods --all --executables --ignore-dependencies
+            $SUDO gem install cocoapods -v "$EXPECTED" --no-document
           fi
           ACTUAL=$(pod --version)
           if [ "$ACTUAL" != "$EXPECTED" ]; then

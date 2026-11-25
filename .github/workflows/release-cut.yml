@@ -31,5 +31,7 @@ jobs:
           fi
           branch="release/$(TZ=America/New_York date +%Y-%m-%d)"
           gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/heads/$branch" -f sha="$INPUT_SHA"
-          gh workflow run bundle-deploy-eas-update.yml --ref "$branch"
+          version="$(gh api "repos/$GITHUB_REPOSITORY/contents/package.json?ref=$INPUT_SHA" --jq .content | base64 -d | jq -r .version)"
+          gh workflow run bundle-deploy-eas-update.yml --repo "$GITHUB_REPOSITORY" --ref "$branch" \
+            -f channel=testflight -f runtimeVersion="$version"
           echo "Cut \`$branch\` at \`$INPUT_SHA\` and started the QA OTA publish." >> "$GITHUB_STEP_SUMMARY"

@@ -126,7 +126,7 @@ msgstr ""
 #: src/features/events/components/EventMeta.tsx:65
 #: src/features/events/components/EventMeta.tsx:72
 #: src/features/events/format.ts:120
-#: src/screens/Event/EventHeader.tsx:341
+#: src/screens/Event/EventHeader.tsx:347
 msgid "{0, plural, one {# going} other {# going}}"
 msgstr "{0, plural, one {# going} other {# going}}"
 
@@ -138,7 +138,7 @@ msgstr ""
 #. placeholder {0}: event.interestedCount
 #: src/features/events/components/EventMeta.tsx:66
 #: src/features/events/format.ts:122
-#: src/screens/Event/EventHeader.tsx:343
+#: src/screens/Event/EventHeader.tsx:349
 msgid "{0, plural, one {# interested} other {# interested}}"
 msgstr "{0, plural, one {# interested} other {# interested}}"
 
@@ -297,7 +297,7 @@ msgid "{0} added to chat"
 msgstr "{0} added to chat"
 
 #. placeholder {0}: brand.messages.postButtonLabel
-#: src/view/com/composer/Composer.tsx:2119
+#: src/view/com/composer/Composer.tsx:2126
 msgctxt "action"
 msgid "{0} All"
 msgstr "{0} All"
@@ -588,7 +588,7 @@ msgstr "{count, plural, one {# account} other {# accounts}}"
 msgid "{count, plural, one {# chat update} other {# chat updates}}"
 msgstr "{count, plural, one {# chat update} other {# chat updates}}"
 
-#: src/screens/Event/EventScreen.tsx:171
+#: src/screens/Event/EventScreen.tsx:181
 msgid "{count, plural, one {# muted or blocked account} other {# muted or blocked accounts}}"
 msgstr "{count, plural, one {# muted or blocked account} other {# muted or blocked accounts}}"
 
@@ -920,7 +920,7 @@ msgstr "{label}. {description}"
 msgid "{length} out of {MAX_PRONOUNS} characters"
 msgstr "{length} out of {MAX_PRONOUNS} characters"
 
-#: src/screens/Event/EventHeader.tsx:112
+#: src/screens/Event/EventHeader.tsx:118
 msgid "{localTime} your time"
 msgstr "{localTime} your time"
 
@@ -936,7 +936,7 @@ msgstr "{MAX_DESCRIPTION, plural, other {Bio is too long. The maximum number of 
 msgid "{MAX_DISPLAY_NAME, plural, other {Name is too long. The maximum number of characters is #.}}"
 msgstr "{MAX_DISPLAY_NAME, plural, other {Name is too long. The maximum number of characters is #.}}"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:400
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:423
 msgid "{MAX_HIDDEN_REPLIES, plural, other {You can hide a maximum of # replies.}}"
 msgstr ""
 
@@ -1372,7 +1372,7 @@ msgstr "<0>You</0> and<1> </1><2>{0} </2>are included in your Starter Pack"
 msgid "⚠Invalid Handle"
 msgstr ""
 
-#: src/screens/Event/EventHeader.tsx:170
+#: src/screens/Event/EventHeader.tsx:176
 msgid "📺 Watch on Streamplace"
 msgstr "📺 Watch on Streamplace"
 
@@ -1503,7 +1503,7 @@ msgid "A wide illustration"
 msgstr "A wide illustration"
 
 #: src/Navigation.tsx:578
-#: src/screens/Event/EventHeader.tsx:188
+#: src/screens/Event/EventHeader.tsx:194
 #: src/screens/Settings/AboutSettings.tsx:83
 #: src/screens/Settings/Settings.tsx:290
 #: src/screens/Settings/Settings.tsx:293
@@ -1511,7 +1511,7 @@ msgstr "A wide illustration"
 msgid "About"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:293
+#: src/view/com/composer/event/EventEditor.tsx:297
 msgid "About this event"
 msgstr "About this event"
 
@@ -1566,7 +1566,7 @@ msgid "Accessibility Settings"
 msgstr ""
 
 #: src/Navigation.tsx:493
-#: src/screens/Login/LoginForm.tsx:246
+#: src/screens/Login/LoginForm.tsx:260
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:22
 #: src/screens/ModerationInbox/components/hooks/useSubjectPreviewProfile.ts:23
 #: src/screens/ModerationInbox/components/ReportSubjectPreview/AccountSubjectPreview.tsx:74
@@ -1580,7 +1580,7 @@ msgstr ""
 msgid "Account {authorName}"
 msgstr "Account {authorName}"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:432
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:455
 #: src/screens/Messages/components/RequestButtons.tsx:104
 #: src/screens/Messages/ConversationSettings/MemberMenu.tsx:122
 #: src/view/com/profile/ProfileMenu.tsx:217
@@ -1639,7 +1639,7 @@ msgctxt "moderation-inbox-setting"
 msgid "Account labeling notifications"
 msgstr "Account labeling notifications"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:473
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:496
 #: src/view/com/profile/ProfileMenu.tsx:153
 msgctxt "toast"
 msgid "Account muted"
@@ -1700,7 +1700,7 @@ msgstr ""
 msgid "Account unknown"
 msgstr "Account unknown"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:454
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:477
 #: src/view/com/profile/ProfileMenu.tsx:140
 msgctxt "toast"
 msgid "Account unmuted"
@@ -1814,11 +1814,11 @@ msgstr ""
 msgid "Add another account"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1823
+#: src/view/com/composer/Composer.tsx:1830
 msgid "Add another post"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2556
+#: src/view/com/composer/Composer.tsx:2563
 msgid "Add another post to thread"
 msgstr ""
 
@@ -1881,7 +1881,7 @@ msgstr ""
 msgid "Add link"
 msgstr "Add link"
 
-#: src/view/com/composer/event/EventEditor.tsx:325
+#: src/view/com/composer/event/EventEditor.tsx:329
 msgid "Add location"
 msgstr "Add location"
 
@@ -2058,7 +2058,7 @@ msgid "Advanced"
 msgstr ""
 
 #: src/components/Post/Embed/ExternalEmbed/VoteButtons.tsx:38
-#: src/screens/Onboarding/StepAssembly/index.tsx:113
+#: src/screens/Onboarding/StepAssembly/index.tsx:118
 msgid "Agree"
 msgstr "Agree"
 
@@ -2385,7 +2385,7 @@ msgstr ""
 msgid "Animated GIF"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:61
+#: src/screens/Onboarding/StepBelong/index.tsx:63
 msgid "Anti-Black Harassment"
 msgstr "Anti-Black Harassment"
 
@@ -2670,7 +2670,7 @@ msgstr ""
 msgid "Are you sure you want to rescind your request to join {0}?"
 msgstr "Are you sure you want to rescind your request to join {0}?"
 
-#: src/view/com/composer/Composer.tsx:1969
+#: src/view/com/composer/Composer.tsx:1976
 msgid "Are you sure you'd like to discard this post?"
 msgstr ""
 
@@ -2777,7 +2777,7 @@ msgstr ""
 msgid "Available"
 msgstr ""
 
-#: src/screens/Onboarding/StepProfile/index.tsx:361
+#: src/screens/Onboarding/StepProfile/index.tsx:362
 msgid "Avatar creator"
 msgstr "Avatar creator"
 
@@ -2797,8 +2797,8 @@ msgstr "Awaiting review"
 #: src/screens/Login/ChooseAccountForm.tsx:112
 #: src/screens/Login/ForgotPasswordForm.tsx:123
 #: src/screens/Login/ForgotPasswordForm.tsx:128
-#: src/screens/Login/LoginForm.tsx:339
-#: src/screens/Login/LoginForm.tsx:345
+#: src/screens/Login/LoginForm.tsx:353
+#: src/screens/Login/LoginForm.tsx:359
 #: src/screens/Login/SetNewPasswordForm.tsx:136
 #: src/screens/Login/SetNewPasswordForm.tsx:142
 #: src/screens/Messages/components/ChatDisabled.tsx:163
@@ -2815,8 +2815,8 @@ msgstr "Awaiting review"
 #: src/screens/StarterPack/Wizard/index.tsx:314
 #: src/view/com/composer/drafts/DraftsListDialog.tsx:87
 #: src/view/com/composer/drafts/DraftsListDialog.tsx:93
-#: src/view/com/composer/event/EventEditor.tsx:215
-#: src/view/com/composer/event/EventEditor.tsx:222
+#: src/view/com/composer/event/EventEditor.tsx:219
+#: src/view/com/composer/event/EventEditor.tsx:226
 msgid "Back"
 msgstr ""
 
@@ -2877,7 +2877,7 @@ msgstr ""
 msgid "Begin Discussion"
 msgstr "Begin Discussion"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:42
+#: src/screens/Onboarding/StepBelong/index.tsx:44
 msgid "Belong, safely"
 msgstr "Belong, safely"
 
@@ -2979,7 +2979,7 @@ msgstr "Blacksky will follow the preferences you set here. We will share your pr
 msgid "Blacksky will not show your account to logged-out users and will ask other apps to do the same. Other apps may not honor this request. It doesn't make your account private."
 msgstr "Blacksky will not show your account to logged-out users and will ask other apps to do the same. Other apps may not honor this request. It doesn't make your account private."
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:120
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:125
 msgid "Blacksky-Only"
 msgstr "Blacksky-Only"
 
@@ -2987,7 +2987,7 @@ msgstr "Blacksky-Only"
 msgid "Blacksky-only post"
 msgstr "Blacksky-only post"
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:33
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:35
 msgid "Blacksky-only posts"
 msgstr "Blacksky-only posts"
 
@@ -3009,8 +3009,8 @@ msgstr "Block {displayName}"
 
 #: src/components/dms/ConvoMenu.tsx:284
 #: src/components/dms/ConvoMenu.tsx:288
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:722
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:724
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:745
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:747
 #: src/screens/Messages/components/RequestButtons.tsx:154
 #: src/screens/Messages/components/RequestButtons.tsx:156
 #: src/view/com/profile/ProfileMenu.tsx:501
@@ -3298,13 +3298,15 @@ msgstr "Camera access needed"
 #: src/components/Prompt.tsx:154
 #: src/components/SendErrorReportDialog.tsx:98
 #: src/components/SendErrorReportDialog.tsx:102
+#: src/features/events/components/EventEditDialog.tsx:159
+#: src/features/events/components/EventEditDialog.tsx:167
 #: src/features/liveNow/components/GoLiveDialog.tsx:258
 #: src/features/liveNow/components/GoLiveDialog.tsx:264
 #: src/features/profileLinks/components/LinkFormDialog.tsx:267
 #: src/lib/media/picker.tsx:38
 #: src/screens/Deactivated.tsx:292
-#: src/screens/Login/LoginForm.tsx:352
-#: src/screens/Login/LoginForm.tsx:359
+#: src/screens/Login/LoginForm.tsx:366
+#: src/screens/Login/LoginForm.tsx:373
 #: src/screens/Messages/components/InviteLinkDialog.tsx:500
 #: src/screens/Messages/components/InviteLinkDialog.tsx:504
 #: src/screens/Messages/ConversationSettings/prompts.tsx:100
@@ -3328,8 +3330,8 @@ msgstr "Camera access needed"
 #: src/screens/Settings/Settings.tsx:335
 #: src/screens/Takendown.tsx:102
 #: src/screens/Takendown.tsx:105
-#: src/view/com/composer/Composer.tsx:2047
-#: src/view/com/composer/Composer.tsx:2057
+#: src/view/com/composer/Composer.tsx:2054
+#: src/view/com/composer/Composer.tsx:2064
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:49
 #: src/view/com/composer/photos/EditImageDialog.web.tsx:58
 #: src/view/shell/desktop/LeftNav.tsx:274
@@ -3339,6 +3341,12 @@ msgstr ""
 #: src/screens/ModerationInbox/Notice.tsx:433
 msgid "Cancel appeal"
 msgstr "Cancel appeal"
+
+#: src/features/events/components/EventHostMenu.tsx:121
+#: src/features/events/components/EventHostMenu.tsx:124
+#: src/features/events/components/EventHostMenu.tsx:154
+msgid "Cancel event"
+msgstr "Cancel event"
 
 #: src/components/PostControls/RepostButton.tsx:227
 msgid "Cancel quote post"
@@ -3356,10 +3364,14 @@ msgstr "Cancel reply"
 msgid "Cancel search"
 msgstr ""
 
-#: src/features/events/components/EventCard.tsx:88
+#: src/features/events/components/EventHostMenu.tsx:151
+msgid "Cancel this event?"
+msgstr "Cancel this event?"
+
+#: src/features/events/components/EventCard.tsx:91
 #: src/features/events/components/EventEmbed.tsx:118
 #: src/features/events/format.ts:109
-#: src/screens/Event/EventHeader.tsx:85
+#: src/screens/Event/EventHeader.tsx:92
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -3367,7 +3379,7 @@ msgstr "Cancelled"
 msgid "Cancels signing in so you can check your username"
 msgstr "Cancels signing in so you can check your username"
 
-#: src/screens/Login/LoginForm.tsx:353
+#: src/screens/Login/LoginForm.tsx:367
 msgid "Cancels the sign-in process"
 msgstr "Cancels the sign-in process"
 
@@ -3690,8 +3702,8 @@ msgstr "Choose at least one. We'll use this to customize your experience. You ca
 msgid "Choose domain verification method"
 msgstr ""
 
-#: src/view/com/composer/event/EventCoverPicker.tsx:124
-#: src/view/com/composer/event/EventCoverPicker.tsx:146
+#: src/view/com/composer/event/EventCoverPicker.tsx:126
+#: src/view/com/composer/event/EventCoverPicker.tsx:148
 msgid "Choose event image"
 msgstr "Choose event image"
 
@@ -3716,7 +3728,7 @@ msgstr ""
 msgid "Choose post languages"
 msgstr ""
 
-#: src/screens/Signup/StepCommunity/index.tsx:73
+#: src/screens/Signup/StepCommunity/index.tsx:75
 msgid "Choose the community your account will live in. You can use it across the network."
 msgstr "Choose the community your account will live in. You can use it across the network."
 
@@ -3947,7 +3959,7 @@ msgstr ""
 msgid "Closes password update alert"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2055
+#: src/view/com/composer/Composer.tsx:2062
 msgid "Closes post composer and discards post draft"
 msgstr ""
 
@@ -3990,7 +4002,7 @@ msgstr ""
 msgid "Communication sent"
 msgstr "Communication sent"
 
-#: src/screens/Signup/StepCommunity/index.tsx:61
+#: src/screens/Signup/StepCommunity/index.tsx:63
 msgid "Communities"
 msgstr "Communities"
 
@@ -4012,7 +4024,7 @@ msgstr "Community features are temporarily unavailable. We're working on it — 
 msgid "Community Guidelines"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:38
+#: src/screens/Onboarding/StepBelong/index.tsx:40
 msgid "Community moderation"
 msgstr "Community moderation"
 
@@ -4035,7 +4047,7 @@ msgid "Compose new post"
 msgstr ""
 
 #. placeholder {0}: MAX_GRAPHEME_LENGTH || 0
-#: src/view/com/composer/Composer.tsx:1936
+#: src/view/com/composer/Composer.tsx:1943
 msgid "Compose posts up to {0, plural, other {# characters}} in length"
 msgstr ""
 
@@ -4043,11 +4055,11 @@ msgstr ""
 msgid "Compose reply"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2951
+#: src/view/com/composer/Composer.tsx:2958
 msgid "Compressing GIF..."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2953
+#: src/view/com/composer/Composer.tsx:2960
 msgid "Compressing video..."
 msgstr ""
 
@@ -4195,22 +4207,22 @@ msgstr ""
 
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:149
 #: src/screens/Login/components/ConfirmHostingProviderDialog.tsx:152
-#: src/screens/Onboarding/StepAssembly/index.tsx:59
-#: src/screens/Onboarding/StepBelong/index.tsx:111
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:59
+#: src/screens/Onboarding/StepAssembly/index.tsx:61
+#: src/screens/Onboarding/StepBelong/index.tsx:113
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:61
 #: src/screens/Onboarding/StepFinished/index.tsx:320
 #: src/screens/Onboarding/StepInterests/index.tsx:87
 #: src/screens/Onboarding/StepPinFeeds/index.tsx:105
-#: src/screens/Onboarding/StepProfile/index.tsx:351
+#: src/screens/Onboarding/StepProfile/index.tsx:352
 #: src/screens/Onboarding/StepSuggestedAccounts/index.tsx:309
 #: src/screens/Onboarding/StepSuggestedStarterpacks/index.tsx:135
 #: src/screens/Settings/AppPasswords.tsx:120
 #: src/screens/Settings/AppPasswords.tsx:127
-#: src/screens/Signup/StepCommunity/index.tsx:130
+#: src/screens/Signup/StepCommunity/index.tsx:135
 #: src/screens/Signup/StepHandle/index.tsx:381
 #: src/screens/Signup/StepInfo/index.tsx:367
-#: src/view/com/composer/event/EventEditor.tsx:228
-#: src/view/com/composer/event/EventEditor.tsx:244
+#: src/view/com/composer/event/EventEditor.tsx:232
+#: src/view/com/composer/event/EventEditor.tsx:248
 msgid "Continue"
 msgstr ""
 
@@ -4284,7 +4296,7 @@ msgstr "Copied link to clipboard"
 #: src/components/dms/ChatInvite/Root.tsx:103
 #: src/components/dms/MessageContextMenu.tsx:96
 #: src/components/PostControls/DiscoverDebug.tsx:36
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:284
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:307
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:79
 #: src/lib/sharing.ts:42
 #: src/lib/sharing.ts:74
@@ -4387,8 +4399,8 @@ msgstr ""
 msgid "Copy post at:// URI"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:562
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:564
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:585
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:587
 msgid "Copy post text"
 msgstr ""
 
@@ -4508,6 +4520,14 @@ msgstr ""
 msgid "Could not upload contacts. You need to re-verify your phone number to proceed"
 msgstr ""
 
+#: src/features/events/components/EventHostMenu.tsx:55
+msgid "Couldn't cancel the event. Try again."
+msgstr "Couldn't cancel the event. Try again."
+
+#: src/features/events/components/EventHostMenu.tsx:66
+msgid "Couldn't delete the event. Try again."
+msgstr "Couldn't delete the event. Try again."
+
 #. Title of the error screen shown when the GIF provider request fails.
 #: src/features/gifPicker/components/GifPickerPlaceholder.tsx:51
 msgid "Couldn’t load GIFs"
@@ -4530,11 +4550,11 @@ msgstr "Couldn’t load more posts. Try again"
 msgid "Couldn't load the election feeds. Try again later."
 msgstr "Couldn't load the election feeds. Try again later."
 
-#: src/screens/Event/EventScreen.tsx:128
+#: src/screens/Event/EventScreen.tsx:138
 msgid "Couldn't load the guest list."
 msgstr "Couldn't load the guest list."
 
-#: src/screens/Event/EventScreen.tsx:66
+#: src/screens/Event/EventScreen.tsx:67
 msgid "Couldn't load this event. Try again in a moment."
 msgstr "Couldn't load this event. Try again in a moment."
 
@@ -4550,8 +4570,12 @@ msgstr "Couldn't pin your feeds. Check your connection and try again."
 msgid "Couldn't reactivate the account. Please try again."
 msgstr "Couldn't reactivate the account. Please try again."
 
-#: src/features/events/components/RsvpButtons.tsx:44
-#: src/screens/Event/EventHeader.tsx:294
+#: src/features/events/components/EventEditDialog.tsx:141
+msgid "Couldn't save the event. Try again."
+msgstr "Couldn't save the event. Try again."
+
+#: src/features/events/components/RsvpButtons.tsx:43
+#: src/screens/Event/EventHeader.tsx:300
 msgid "Couldn't update your RSVP"
 msgstr "Couldn't update your RSVP"
 
@@ -4572,9 +4596,9 @@ msgid "Counts how many times it was focused and pressed"
 msgstr "Counts how many times it was focused and pressed"
 
 #. placeholder {0}: parsed.name
-#: src/features/events/components/EventCard.tsx:57
+#: src/features/events/components/EventCard.tsx:60
 #: src/features/events/components/EventEmbed.tsx:88
-#: src/screens/Event/EventHeader.tsx:232
+#: src/screens/Event/EventHeader.tsx:244
 msgid "Cover image for {0}"
 msgstr "Cover image for {0}"
 
@@ -4622,7 +4646,7 @@ msgstr "Create a Starter Pack for me"
 #: src/screens/GroupInviteLanding.tsx:94
 #: src/screens/GroupInviteLanding.tsx:101
 #: src/screens/Messages/JoinRequest.tsx:314
-#: src/view/com/auth/NativeSplashScreen.tsx:158
+#: src/view/com/auth/NativeSplashScreen.tsx:154
 #: src/view/com/auth/SplashScreen.tsx:116
 #: src/view/com/auth/SplashScreen.web.tsx:113
 #: src/view/shell/bottom-bar/BottomBar.tsx:350
@@ -4655,8 +4679,8 @@ msgstr "Create an avatar"
 msgid "Create another"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:228
-#: src/view/com/composer/event/EventEditor.tsx:242
+#: src/view/com/composer/event/EventEditor.tsx:232
+#: src/view/com/composer/event/EventEditor.tsx:246
 msgid "Create event"
 msgstr "Create event"
 
@@ -4683,7 +4707,7 @@ msgid "Create moderation list"
 msgstr ""
 
 #: src/screens/Messages/JoinRequest.tsx:308
-#: src/view/com/auth/NativeSplashScreen.tsx:139
+#: src/view/com/auth/NativeSplashScreen.tsx:135
 #: src/view/com/auth/SplashScreen.tsx:100
 #: src/view/com/auth/SplashScreen.web.tsx:105
 msgid "Create new account"
@@ -4709,7 +4733,7 @@ msgstr "Create Starter Pack"
 msgid "Create user list"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:270
+#: src/view/com/composer/event/EventEditor.tsx:274
 msgid "Create your event"
 msgstr "Create your event"
 
@@ -4840,7 +4864,8 @@ msgid "Default icons"
 msgstr ""
 
 #: src/components/dms/MessageOverlays.tsx:184
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:797
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:845
+#: src/features/events/components/EventHostMenu.tsx:163
 #: src/screens/ProfileList/components/MoreOptionsMenu.tsx:323
 #: src/screens/Settings/AppPasswords.tsx:313
 #: src/screens/StarterPack/StarterPackScreen.tsx:632
@@ -4889,8 +4914,10 @@ msgstr ""
 msgid "Delete conversation"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:131
-#: src/view/com/composer/event/EventEditor.tsx:134
+#: src/features/events/components/EventHostMenu.tsx:134
+#: src/features/events/components/EventHostMenu.tsx:137
+#: src/view/com/composer/event/EventEditor.tsx:135
+#: src/view/com/composer/event/EventEditor.tsx:138
 msgid "Delete event"
 msgstr "Delete event"
 
@@ -4915,11 +4942,19 @@ msgstr ""
 msgid "Delete my account"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:781
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:783
-#: src/view/com/composer/Composer.tsx:1948
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:804
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:806
+#: src/view/com/composer/Composer.tsx:1955
 msgid "Delete post"
 msgstr ""
+
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:826
+msgid "Delete post and event"
+msgstr "Delete post and event"
+
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:832
+msgid "Delete post only"
+msgstr "Delete post only"
 
 #: src/screens/StarterPack/StarterPackScreen.tsx:626
 #: src/screens/StarterPack/StarterPackScreen.tsx:868
@@ -4930,11 +4965,16 @@ msgstr "Delete Starter Pack"
 msgid "Delete Starter Pack?"
 msgstr "Delete Starter Pack?"
 
+#: src/features/events/components/EventHostMenu.tsx:160
+msgid "Delete this event?"
+msgstr "Delete this event?"
+
 #: src/screens/ProfileList/components/MoreOptionsMenu.tsx:320
 msgid "Delete this list?"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:794
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:818
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:842
 msgid "Delete this post?"
 msgstr ""
 
@@ -4963,12 +5003,14 @@ msgstr ""
 msgid "Deny"
 msgstr "Deny"
 
-#: src/view/com/composer/event/EventEditor.tsx:286
+#: src/view/com/composer/event/EventEditor.tsx:290
 msgid "Describe your event (optional)"
 msgstr "Describe your event (optional)"
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:463
 #: src/components/SendErrorReportDialog.tsx:78
+#: src/features/events/components/EventEditDialog.tsx:258
+#: src/features/events/components/EventEditDialog.tsx:264
 msgid "Description"
 msgstr ""
 
@@ -4991,12 +5033,12 @@ msgstr "Description: “{description}”"
 msgid "Descriptive alt text"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:666
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:676
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:689
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:699
 msgid "Detach quote"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:829
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:878
 msgid "Detach quote post?"
 msgstr ""
 
@@ -5099,15 +5141,15 @@ msgid "Disabled"
 msgstr ""
 
 #: src/components/Post/Embed/ExternalEmbed/VoteButtons.tsx:46
-#: src/screens/Onboarding/StepAssembly/index.tsx:117
+#: src/screens/Onboarding/StepAssembly/index.tsx:122
 msgid "Disagree"
 msgstr "Disagree"
 
 #: src/components/dialogs/lists/CreateOrEditListDialog.tsx:102
 #: src/screens/Profile/Header/EditProfileDialog.tsx:106
-#: src/view/com/composer/Composer.tsx:1712
-#: src/view/com/composer/Composer.tsx:1757
-#: src/view/com/composer/Composer.tsx:1976
+#: src/view/com/composer/Composer.tsx:1719
+#: src/view/com/composer/Composer.tsx:1764
+#: src/view/com/composer/Composer.tsx:1983
 #: src/view/com/composer/drafts/DraftItem.tsx:250
 #: src/view/com/composer/drafts/DraftsButton.tsx:128
 msgid "Discard"
@@ -5118,14 +5160,14 @@ msgstr ""
 msgid "Discard changes?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1710
+#: src/view/com/composer/Composer.tsx:1717
 #: src/view/com/composer/drafts/DraftItem.tsx:247
 #: src/view/com/composer/drafts/DraftsButton.tsx:94
 msgid "Discard draft?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1727
-#: src/view/com/composer/Composer.tsx:1968
+#: src/view/com/composer/Composer.tsx:1734
+#: src/view/com/composer/Composer.tsx:1975
 msgid "Discard post?"
 msgstr ""
 
@@ -5151,7 +5193,7 @@ msgstr "Discover the Atmosphere"
 
 #. Heading of the discussion editor card in the post composer
 #. Label on a draft preview showing the draft has a discussion
-#: src/screens/Onboarding/StepAssembly/index.tsx:84
+#: src/screens/Onboarding/StepAssembly/index.tsx:89
 #: src/view/com/composer/drafts/DraftItem.tsx:305
 #: src/view/com/composer/poll/PollEditor.tsx:68
 #: src/view/shell/desktop/RightNav.tsx:116
@@ -5160,7 +5202,7 @@ msgstr "Discover the Atmosphere"
 msgid "Discussion"
 msgstr "Discussion"
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:33
+#: src/screens/Onboarding/StepAssembly/index.tsx:35
 msgid "Discussions"
 msgstr "Discussions"
 
@@ -5198,7 +5240,7 @@ msgstr ""
 msgid "Dismiss Discover the Atmosphere banner"
 msgstr "Dismiss Discover the Atmosphere banner"
 
-#: src/view/com/composer/Composer.tsx:2884
+#: src/view/com/composer/Composer.tsx:2891
 msgid "Dismiss error"
 msgstr ""
 
@@ -5295,8 +5337,8 @@ msgstr ""
 #: src/screens/Login/components/HostingProviderDialog.tsx:253
 #: src/screens/Login/components/HostingProviderDialog.tsx:255
 #: src/screens/ModerationInbox/components/AccountStatus.tsx:152
-#: src/screens/Onboarding/StepProfile/index.tsx:389
-#: src/screens/Onboarding/StepProfile/index.tsx:392
+#: src/screens/Onboarding/StepProfile/index.tsx:390
+#: src/screens/Onboarding/StepProfile/index.tsx:393
 #: src/screens/Profile/Header/PronounsDialog.tsx:216
 #: src/screens/Profile/Header/PronounsDialog.tsx:223
 #: src/screens/Settings/components/AddAppPasswordDialog.tsx:226
@@ -5453,8 +5495,12 @@ msgstr "Edit {0}"
 msgid "Edit avatar"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:122
-#: src/view/com/composer/event/EventEditor.tsx:125
+#: src/features/events/components/EventEditDialog.tsx:151
+#: src/features/events/components/EventEditDialog.tsx:188
+#: src/features/events/components/EventHostMenu.tsx:111
+#: src/features/events/components/EventHostMenu.tsx:114
+#: src/view/com/composer/event/EventEditor.tsx:126
+#: src/view/com/composer/event/EventEditor.tsx:129
 msgid "Edit event"
 msgstr "Edit event"
 
@@ -5473,8 +5519,8 @@ msgstr "Edit group name"
 msgid "Edit image"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:762
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:775
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:785
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:798
 msgid "Edit interaction settings"
 msgstr ""
 
@@ -5818,11 +5864,11 @@ msgstr ""
 msgid "Enter your handle"
 msgstr "Enter your handle"
 
-#: src/screens/Login/LoginForm.tsx:273
+#: src/screens/Login/LoginForm.tsx:287
 msgid "Enter your handle (e.g. alice.bsky.social)"
 msgstr "Enter your handle (e.g. alice.bsky.social)"
 
-#: src/screens/Login/index.tsx:125
+#: src/screens/Login/index.tsx:137
 msgid "Enter your handle to sign in"
 msgstr "Enter your handle to sign in"
 
@@ -5844,7 +5890,7 @@ msgstr ""
 msgid "Equal-height cards"
 msgstr "Equal-height cards"
 
-#: src/view/com/composer/Composer.tsx:2971
+#: src/view/com/composer/Composer.tsx:2978
 #: src/view/com/util/error/ErrorScreen.tsx:40
 msgid "Error"
 msgstr ""
@@ -5878,44 +5924,67 @@ msgstr ""
 msgid "Error: {error}"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:740
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:742
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:763
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:765
 msgid "Escalate post"
 msgstr "Escalate post"
 
 #. Heading of the event editor card in the post composer
 #. Label on a draft preview showing the draft has an event
 #: src/Navigation.tsx:223
-#: src/screens/Event/EventScreen.tsx:48
+#: src/screens/Event/EventScreen.tsx:49
 #: src/view/com/composer/drafts/DraftItem.tsx:415
-#: src/view/com/composer/event/EventEditor.tsx:97
+#: src/view/com/composer/event/EventEditor.tsx:101
 msgid "Event"
 msgstr "Event"
+
+#: src/features/events/components/EventHostMenu.tsx:52
+msgctxt "toast"
+msgid "Event cancelled"
+msgstr "Event cancelled"
 
 #: src/view/com/composer/event/EventDateRange.tsx:78
 msgid "Event dates"
 msgstr "Event dates"
 
-#: src/view/com/composer/event/EventEditor.tsx:292
+#: src/features/events/components/EventHostMenu.tsx:62
+msgctxt "toast"
+msgid "Event deleted"
+msgstr "Event deleted"
+
+#: src/view/com/composer/event/EventEditor.tsx:296
 msgid "Event description"
 msgstr "Event description"
 
-#: src/view/com/composer/event/EventEditor.tsx:330
+#: src/features/events/components/EventEditDialog.tsx:245
+#: src/features/events/components/EventEditDialog.tsx:250
+#: src/view/com/composer/event/EventEditor.tsx:334
 msgid "Event location"
 msgstr "Event location"
 
-#: src/view/com/composer/event/EventEditor.tsx:275
-#: src/view/com/composer/event/EventEditor.tsx:276
+#: src/view/com/composer/event/EventEditor.tsx:279
+#: src/view/com/composer/event/EventEditor.tsx:280
 msgid "Event name"
 msgstr "Event name"
 
-#: src/screens/Event/EventScreen.tsx:61
+#: src/screens/Event/EventScreen.tsx:62
 msgid "Event not found"
 msgstr "Event not found"
 
-#: src/view/com/composer/event/EventEditor.tsx:104
+#: src/features/events/components/EventHostMenu.tsx:73
+#: src/view/com/composer/event/EventEditor.tsx:108
 msgid "Event options"
 msgstr "Event options"
+
+#: src/features/events/components/EventEditDialog.tsx:231
+#: src/features/events/components/EventEditDialog.tsx:236
+msgid "Event title"
+msgstr "Event title"
+
+#: src/features/events/components/EventEditDialog.tsx:135
+msgctxt "toast"
+msgid "Event updated"
+msgstr "Event updated"
 
 #: src/screens/Atmosphere/components/appCategories.ts:17
 #: src/view/screens/Profile.tsx:306
@@ -6087,7 +6156,7 @@ msgstr ""
 msgid "Export my profile data"
 msgstr "Export my profile data"
 
-#: src/view/com/composer/event/EventEditor.tsx:331
+#: src/view/com/composer/event/EventEditor.tsx:335
 msgid "External link or in-person location"
 msgstr "External link or in-person location"
 
@@ -6180,13 +6249,17 @@ msgstr ""
 msgid "Failed to delete message"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:231
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:252
 msgid "Failed to delete post, please try again"
 msgstr ""
 
 #: src/screens/StarterPack/StarterPackScreen.tsx:837
 msgid "Failed to delete Starter Pack"
 msgstr "Failed to delete Starter Pack"
+
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:251
+msgid "Failed to delete the post and event, please try again"
+msgstr "Failed to delete the post and event, please try again"
 
 #: src/screens/Messages/components/InviteLinkDialog.tsx:131
 msgid "Failed to disable invite link"
@@ -6388,7 +6461,7 @@ msgstr "Failed to submit appeal. Please try again."
 msgid "Failed to submit community post. Please try again."
 msgstr "Failed to submit community post. Please try again."
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:263
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:286
 msgid "Failed to toggle thread mute, please try again"
 msgstr ""
 
@@ -6530,8 +6603,8 @@ msgstr ""
 msgid "Feedback"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:314
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:337
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:360
 msgctxt "toast"
 msgid "Feedback sent to feed operator"
 msgstr ""
@@ -6570,7 +6643,7 @@ msgctxt "toast"
 msgid "Feeds updated!"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:51
+#: src/screens/Onboarding/StepBelong/index.tsx:53
 msgid "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 msgstr "Feel protected by the first social app to moderate for fatphobia, ableism, misogynoir, and anti-Black harassment."
 
@@ -6712,7 +6785,7 @@ msgstr ""
 msgid "Finish"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:332
+#: src/screens/Login/LoginForm.tsx:346
 msgid "Finishing sign-in… complete it in your browser, or cancel."
 msgstr "Finishing sign-in… complete it in your browser, or cancel."
 
@@ -6978,8 +7051,8 @@ msgstr ""
 msgid "Forget the noise"
 msgstr ""
 
-#: src/screens/Login/index.tsx:151
-#: src/screens/Login/index.tsx:167
+#: src/screens/Login/index.tsx:163
+#: src/screens/Login/index.tsx:179
 msgid "Forgot Password"
 msgstr ""
 
@@ -7174,7 +7247,7 @@ msgstr ""
 msgid "GIF"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2976
+#: src/view/com/composer/Composer.tsx:2983
 msgid "GIF uploaded"
 msgstr ""
 
@@ -7303,9 +7376,9 @@ msgid "Go to user’s profile"
 msgstr "Go to user’s profile"
 
 #: src/features/events/components/ProfileEvents.tsx:99
-#: src/features/events/components/RsvpButtons.tsx:53
-#: src/screens/Event/EventHeader.tsx:271
-#: src/screens/Event/EventHeader.tsx:366
+#: src/features/events/components/RsvpButtons.tsx:52
+#: src/screens/Event/EventHeader.tsx:283
+#: src/screens/Event/EventHeader.tsx:372
 msgid "Going"
 msgstr "Going"
 
@@ -7313,8 +7386,8 @@ msgstr "Going"
 msgid "Going live is currently disabled for your account"
 msgstr ""
 
-#: src/features/events/components/RsvpButtons.tsx:54
-#: src/screens/Event/EventHeader.tsx:272
+#: src/features/events/components/RsvpButtons.tsx:53
+#: src/screens/Event/EventHeader.tsx:284
 msgid "Going, tap to remove"
 msgstr "Going, tap to remove"
 
@@ -7418,9 +7491,13 @@ msgstr "Group name is too long. {MAX_GROUP_NAME_GRAPHEME_LENGTH, plural, other {
 msgid "GrowthBook"
 msgstr "GrowthBook"
 
-#: src/screens/Event/EventHeader.tsx:218
+#: src/screens/Event/EventHeader.tsx:224
 msgid "Guest list"
 msgstr "Guest list"
+
+#: src/features/events/components/EventHostMenu.tsx:152
+msgid "Guests will see that it's cancelled. Their responses stay."
+msgstr "Guests will see that it's cancelled. Their responses stay."
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:218
 msgid "Hacking or system attacks"
@@ -7451,7 +7528,7 @@ msgid "Handle too long. Please try a shorter one."
 msgstr ""
 
 #: src/components/FeedCard.tsx:160
-#: src/features/events/components/EventCard.tsx:133
+#: src/features/events/components/EventCard.tsx:136
 #: src/features/events/components/EventEmbed.tsx:120
 #: src/features/events/format.ts:111
 #: src/features/liveEvents/components/LiveEventFeedCardWide.tsx:123
@@ -7496,7 +7573,7 @@ msgstr ""
 msgid "Have a code? <0>Click here.</0>"
 msgstr ""
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:37
+#: src/screens/Onboarding/StepAssembly/index.tsx:39
 msgid "Have a say"
 msgstr "Have a say"
 
@@ -7576,7 +7653,7 @@ msgstr "Hide group chat updates"
 msgid "Hide lists"
 msgstr ""
 
-#: src/screens/Event/EventScreen.tsx:162
+#: src/screens/Event/EventScreen.tsx:172
 msgid "Hide muted or blocked accounts"
 msgstr "Hide muted or blocked accounts"
 
@@ -7588,8 +7665,8 @@ msgstr "Hide password"
 msgid "Hide post"
 msgstr "Hide post"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:642
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:652
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:665
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:675
 msgid "Hide reply for everyone"
 msgstr ""
 
@@ -7606,14 +7683,14 @@ msgstr ""
 msgid "Hide this post?"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:836
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:885
 msgid "Hide this reply?"
 msgstr ""
 
 #: src/components/Post/Translated/index.tsx:213
 #: src/components/Post/Translated/index.tsx:347
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:545
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:547
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:568
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:570
 msgid "Hide translation"
 msgstr "Hide translation"
 
@@ -7700,7 +7777,7 @@ msgid "Host:"
 msgstr ""
 
 #. placeholder {0}: event.creator.displayName || `@${event.creator.handle}`
-#: src/screens/Event/EventHeader.tsx:152
+#: src/screens/Event/EventHeader.tsx:158
 msgid "Hosted by <0>{0}</0>"
 msgstr "Hosted by <0>{0}</0>"
 
@@ -7731,11 +7808,11 @@ msgstr ""
 msgid "Human trafficking"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:98
+#: src/screens/Onboarding/StepBelong/index.tsx:100
 msgid "I agree to the <0>Community Guidelines</0>."
 msgstr "I agree to the <0>Community Guidelines</0>."
 
-#: src/screens/Onboarding/StepBelong/index.tsx:77
+#: src/screens/Onboarding/StepBelong/index.tsx:79
 msgid "I agree to the Community Guidelines"
 msgstr "I agree to the Community Guidelines"
 
@@ -7786,7 +7863,7 @@ msgstr "If you have your own domain, you can use that as your handle. This lets 
 msgid "If you need to update your email, <0>click here</0>."
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:795
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:843
 msgid "If you remove this post, you won't be able to recover it."
 msgstr ""
 
@@ -8029,14 +8106,14 @@ msgid "Interactive items"
 msgstr "Interactive items"
 
 #: src/features/events/components/ProfileEvents.tsx:101
-#: src/features/events/components/RsvpButtons.tsx:58
-#: src/screens/Event/EventHeader.tsx:277
-#: src/screens/Event/EventHeader.tsx:368
+#: src/features/events/components/RsvpButtons.tsx:57
+#: src/screens/Event/EventHeader.tsx:289
+#: src/screens/Event/EventHeader.tsx:374
 msgid "Interested"
 msgstr "Interested"
 
-#: src/features/events/components/RsvpButtons.tsx:59
-#: src/screens/Event/EventHeader.tsx:278
+#: src/features/events/components/RsvpButtons.tsx:58
+#: src/screens/Event/EventHeader.tsx:290
 msgid "Interested, tap to remove"
 msgstr "Interested, tap to remove"
 
@@ -8064,7 +8141,7 @@ msgstr "Invalid group chat code."
 msgid "Invalid handle. Please try a different one."
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:406
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:429
 msgctxt "toast"
 msgid "Invalid interaction settings."
 msgstr ""
@@ -8104,7 +8181,7 @@ msgstr ""
 msgid "Invite code"
 msgstr ""
 
-#: src/screens/Signup/state.ts:423
+#: src/screens/Signup/state.ts:424
 msgid "Invite code not accepted. Check that you input it correctly and try again."
 msgstr ""
 
@@ -8201,7 +8278,7 @@ msgid "It's just you right now! Add more people to your starter pack by searchin
 msgstr ""
 
 #. placeholder {0}: videoState.jobId
-#: src/view/com/composer/Composer.tsx:2912
+#: src/view/com/composer/Composer.tsx:2919
 msgid "Job ID: {0}"
 msgstr ""
 
@@ -8212,11 +8289,11 @@ msgstr "Join"
 
 #. placeholder {0}: toNiceDomain(parsed.joinUrl)
 #: src/features/events/components/EventEmbed.tsx:162
-#: src/screens/Event/EventHeader.tsx:145
+#: src/screens/Event/EventHeader.tsx:151
 msgid "Join · {0}"
 msgstr "Join · {0}"
 
-#: src/screens/Signup/StepCommunity/index.tsx:64
+#: src/screens/Signup/StepCommunity/index.tsx:66
 #: src/screens/Signup/StepInfo/index.tsx:382
 msgid "Join another community"
 msgstr "Join another community"
@@ -8240,7 +8317,7 @@ msgstr "Join group chat"
 
 #. placeholder {0}: toNiceDomain(parsed.joinUrl)
 #: src/features/events/components/EventEmbed.tsx:156
-#: src/screens/Event/EventHeader.tsx:140
+#: src/screens/Event/EventHeader.tsx:146
 msgid "Join online at {0}"
 msgstr "Join online at {0}"
 
@@ -8257,13 +8334,17 @@ msgstr "Joined {createdAt}"
 msgid "Journalism"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1755
-#: src/view/com/composer/Composer.tsx:1770
+#: src/view/com/composer/Composer.tsx:1762
+#: src/view/com/composer/Composer.tsx:1777
 #: src/view/com/composer/drafts/DraftsButton.tsx:126
 msgid "Keep editing"
 msgstr ""
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:37
+#: src/features/events/components/EventHostMenu.tsx:155
+msgid "Keep event"
+msgstr "Keep event"
+
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:39
 msgid "Keep it in the community"
 msgstr "Keep it in the community"
 
@@ -8283,8 +8364,8 @@ msgstr "Label applied"
 #: src/components/moderation/LabelDialog/index.tsx:119
 #: src/components/moderation/LabelDialog/index.tsx:237
 #: src/components/moderation/LabelDialog/index.tsx:244
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:733
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:735
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:756
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:758
 msgid "Label post"
 msgstr "Label post"
 
@@ -8470,8 +8551,8 @@ msgstr ""
 msgid "Let me choose"
 msgstr ""
 
-#: src/screens/Login/index.tsx:152
-#: src/screens/Login/index.tsx:168
+#: src/screens/Login/index.tsx:164
+#: src/screens/Login/index.tsx:180
 msgid "Let's get your password reset!"
 msgstr ""
 
@@ -8604,7 +8685,7 @@ msgid "Link to {domain}"
 msgstr "Link to {domain}"
 
 #: src/features/profileLinks/components/ProfileLinksEditor.tsx:97
-#: src/screens/Event/EventHeader.tsx:204
+#: src/screens/Event/EventHeader.tsx:210
 msgid "Links"
 msgstr "Links"
 
@@ -8912,8 +8993,8 @@ msgstr ""
 msgid "Logged out"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:365
-#: src/screens/Login/LoginForm.tsx:372
+#: src/screens/Login/LoginForm.tsx:379
+#: src/screens/Login/LoginForm.tsx:386
 msgid "Login"
 msgstr "Login"
 
@@ -9217,7 +9298,7 @@ msgstr ""
 msgid "Misleading"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:59
+#: src/screens/Onboarding/StepBelong/index.tsx:61
 msgid "Misogynoir"
 msgstr "Misogynoir"
 
@@ -9238,7 +9319,7 @@ msgstr "Mod inbox settings"
 msgid "Moderation"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:65
+#: src/screens/Onboarding/StepBelong/index.tsx:67
 msgid "Moderation and labels have been shaped by democratic, human community member input."
 msgstr "Moderation and labels have been shaped by democratic, human community member input."
 
@@ -9360,8 +9441,8 @@ msgstr ""
 msgid "Move later"
 msgstr "Move later"
 
-#: src/view/com/composer/Composer.tsx:2897
-#: src/view/com/composer/Composer.tsx:2899
+#: src/view/com/composer/Composer.tsx:2904
+#: src/view/com/composer/Composer.tsx:2906
 msgid "Move your account to Blacksky"
 msgstr "Move your account to Blacksky"
 
@@ -9390,8 +9471,8 @@ msgstr ""
 msgid "Mute {0}"
 msgstr "Mute {0}"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:705
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:711
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:728
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:734
 #: src/view/com/profile/ProfileMenu.tsx:477
 #: src/view/com/profile/ProfileMenu.tsx:484
 msgid "Mute account"
@@ -9447,13 +9528,13 @@ msgstr ""
 msgid "Mute this word until you unmute it"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:608
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:611
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:631
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:634
 msgid "Mute thread"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:621
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:623
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:644
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:646
 msgid "Mute words & tags"
 msgstr ""
 
@@ -9955,7 +10036,7 @@ msgstr ""
 msgid "No one can send messages"
 msgstr "No one can send messages"
 
-#: src/screens/Event/EventScreen.tsx:115
+#: src/screens/Event/EventScreen.tsx:125
 msgid "No one has RSVP'd yet."
 msgstr "No one has RSVP'd yet."
 
@@ -10136,16 +10217,9 @@ msgstr "Not found"
 msgid "Not Found"
 msgstr ""
 
-#: src/features/events/components/RsvpButtons.tsx:63
-#: src/screens/Event/EventHeader.tsx:283
-#: src/screens/Event/EventHeader.tsx:369
+#: src/screens/Event/EventHeader.tsx:375
 msgid "Not going"
 msgstr "Not going"
-
-#: src/features/events/components/RsvpButtons.tsx:64
-#: src/screens/Event/EventHeader.tsx:284
-msgid "Not going, tap to remove"
-msgstr "Not going, tap to remove"
 
 #: src/components/moderation/LabelDialog/index.tsx:216
 msgid "Note (limit 300 characters)"
@@ -10484,7 +10558,7 @@ msgid "Open drawer menu"
 msgstr ""
 
 #: src/screens/Messages/components/MessageComposer.tsx:230
-#: src/view/com/composer/Composer.tsx:2533
+#: src/view/com/composer/Composer.tsx:2540
 msgid "Open emoji picker"
 msgstr ""
 
@@ -10692,7 +10766,7 @@ msgid "Opens flow to create a new {0} account"
 msgstr "Opens flow to create a new {0} account"
 
 #: src/screens/Messages/JoinRequest.tsx:309
-#: src/view/com/auth/NativeSplashScreen.tsx:141
+#: src/view/com/auth/NativeSplashScreen.tsx:137
 #: src/view/com/auth/SplashScreen.tsx:102
 msgid "Opens flow to create a new Blacksky account"
 msgstr "Opens flow to create a new Blacksky account"
@@ -10703,7 +10777,7 @@ msgid "Opens flow to sign in to your existing {0} account"
 msgstr "Opens flow to sign in to your existing {0} account"
 
 #: src/screens/Messages/JoinRequest.tsx:295
-#: src/view/com/auth/NativeSplashScreen.tsx:170
+#: src/view/com/auth/NativeSplashScreen.tsx:166
 #: src/view/com/auth/SplashScreen.tsx:129
 msgid "Opens flow to sign in to your existing Blacksky account"
 msgstr "Opens flow to sign in to your existing Blacksky account"
@@ -10784,7 +10858,7 @@ msgstr ""
 msgid "Opens your beta features settings"
 msgstr "Opens your beta features settings"
 
-#: src/view/com/composer/event/EventCoverPicker.tsx:125
+#: src/view/com/composer/event/EventCoverPicker.tsx:127
 msgid "Opens your files"
 msgstr "Opens your files"
 
@@ -10937,13 +11011,13 @@ msgstr "Pass / Unsure"
 msgid "Pass on this statement"
 msgstr "Pass on this statement"
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:121
+#: src/screens/Onboarding/StepAssembly/index.tsx:126
 msgid "Pass/Unsure"
 msgstr "Pass/Unsure"
 
 #: src/screens/Deactivated.tsx:223
-#: src/screens/Login/LoginForm.tsx:283
-#: src/screens/Login/LoginForm.tsx:288
+#: src/screens/Login/LoginForm.tsx:297
+#: src/screens/Login/LoginForm.tsx:302
 #: src/screens/Settings/AccountSettings.tsx:139
 #: src/screens/Settings/AccountSettings.tsx:143
 #: src/screens/Settings/AppPasswords.tsx:107
@@ -10964,7 +11038,7 @@ msgstr ""
 msgid "Password successfully reset. Please sign in with your new password."
 msgstr "Password successfully reset. Please sign in with your new password."
 
-#: src/screens/Login/index.tsx:181
+#: src/screens/Login/index.tsx:193
 msgid "Password updated"
 msgstr ""
 
@@ -10972,7 +11046,7 @@ msgstr ""
 msgid "Password updated!"
 msgstr ""
 
-#: src/features/events/components/EventCard.tsx:135
+#: src/features/events/components/EventCard.tsx:138
 #: src/features/events/format.ts:113
 msgid "Past"
 msgstr "Past"
@@ -11135,8 +11209,8 @@ msgstr ""
 msgid "Pin to Home"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:514
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:519
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:537
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:542
 msgid "Pin to your profile"
 msgstr ""
 
@@ -11295,7 +11369,7 @@ msgstr ""
 msgid "Please enter your new email address."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:153
+#: src/screens/Login/LoginForm.tsx:158
 msgid "Please enter your password"
 msgstr ""
 
@@ -11308,7 +11382,7 @@ msgstr "Please enter your password to continue."
 msgid "Please enter your password."
 msgstr "Please enter your password."
 
-#: src/screens/Login/LoginForm.tsx:74
+#: src/screens/Login/LoginForm.tsx:76
 msgid "Please enter your username or handle"
 msgstr "Please enter your username or handle"
 
@@ -11421,7 +11495,12 @@ msgctxt "notifications tab"
 msgid "Post alerts"
 msgstr "Post alerts"
 
-#: src/view/com/composer/Composer.tsx:1769
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:224
+msgctxt "toast"
+msgid "Post and event deleted"
+msgstr "Post and event deleted"
+
+#: src/view/com/composer/Composer.tsx:1776
 msgid "Post anyway"
 msgstr "Post anyway"
 
@@ -11443,7 +11522,7 @@ msgstr "Post by {authorName}"
 msgid "Post by @{0}"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:208
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:225
 msgctxt "toast"
 msgid "Post deleted"
 msgstr ""
@@ -11606,7 +11685,7 @@ msgid "Preview"
 msgstr ""
 
 #. placeholder {0}: parsed.name
-#: src/view/com/composer/event/EventEditor.tsx:403
+#: src/view/com/composer/event/EventEditor.tsx:390
 msgid "Preview of {0}"
 msgstr "Preview of {0}"
 
@@ -11671,11 +11750,11 @@ msgstr ""
 msgid "Privacy violation of a minor"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2965
+#: src/view/com/composer/Composer.tsx:2972
 msgid "Processing GIF..."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2967
+#: src/view/com/composer/Composer.tsx:2974
 msgid "Processing video..."
 msgstr ""
 
@@ -11742,22 +11821,22 @@ msgid "Publication options"
 msgstr "Publication options"
 
 #. Accessibility label for button to publish a single post
-#: src/view/com/composer/Composer.tsx:2105
+#: src/view/com/composer/Composer.tsx:2112
 msgid "Publish post"
 msgstr ""
 
 #. Accessibility label for button to publish multiple posts in a thread
-#: src/view/com/composer/Composer.tsx:2100
+#: src/view/com/composer/Composer.tsx:2107
 msgid "Publish posts"
 msgstr ""
 
 #. Accessibility label for button to publish multiple replies in a thread
-#: src/view/com/composer/Composer.tsx:2089
+#: src/view/com/composer/Composer.tsx:2096
 msgid "Publish replies"
 msgstr ""
 
 #. Accessibility label for button to publish a single reply
-#: src/view/com/composer/Composer.tsx:2094
+#: src/view/com/composer/Composer.tsx:2101
 msgid "Publish reply"
 msgstr ""
 
@@ -11803,11 +11882,11 @@ msgstr ""
 msgid "Quote post"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:357
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:380
 msgid "Quote post was re-attached"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:356
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:379
 msgid "Quote post was successfully detached"
 msgstr ""
 
@@ -11838,8 +11917,8 @@ msgstr ""
 msgid "Rate limit exceeded. Please try again later."
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:666
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:675
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:689
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:698
 msgid "Re-attach quote"
 msgstr ""
 
@@ -11877,7 +11956,7 @@ msgstr "Reactivating will restore visibility of your profile and posts to other 
 msgid "Read {0, plural, one {# more reply} other {# more replies}}"
 msgstr ""
 
-#: src/screens/Onboarding/StepBelong/index.tsx:102
+#: src/screens/Onboarding/StepBelong/index.tsx:104
 msgid "Read Community Guidelines"
 msgstr "Read Community Guidelines"
 
@@ -12021,8 +12100,8 @@ msgstr "Reload notice"
 #: src/screens/Messages/ConversationSettings/prompts.tsx:170
 #: src/screens/Moderation/index.tsx:547
 #: src/screens/Settings/Settings.tsx:691
-#: src/view/com/composer/event/EventCoverPicker.tsx:139
-#: src/view/com/composer/event/EventEditor.tsx:151
+#: src/view/com/composer/event/EventCoverPicker.tsx:141
+#: src/view/com/composer/event/EventEditor.tsx:155
 #: src/view/com/composer/poll/PollEditor.tsx:84
 #: src/view/com/posts/PostFeedErrorMessage.tsx:219
 msgid "Remove"
@@ -12091,7 +12170,7 @@ msgstr "Remove discussion"
 msgid "Remove embed"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:144
+#: src/view/com/composer/event/EventEditor.tsx:148
 msgid "Remove event"
 msgstr "Remove event"
 
@@ -12149,9 +12228,9 @@ msgstr ""
 msgid "Remove from your feeds?"
 msgstr ""
 
-#: src/view/com/composer/event/EventCoverPicker.tsx:132
-#: src/view/com/composer/event/EventCoverPicker.tsx:177
-#: src/view/com/composer/event/EventCoverPicker.tsx:180
+#: src/view/com/composer/event/EventCoverPicker.tsx:134
+#: src/view/com/composer/event/EventCoverPicker.tsx:179
+#: src/view/com/composer/event/EventCoverPicker.tsx:182
 #: src/view/com/composer/photos/Gallery.tsx:227
 msgid "Remove image"
 msgstr ""
@@ -12211,11 +12290,11 @@ msgstr "Remove statement"
 msgid "Remove suggestion"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1859
+#: src/view/com/composer/Composer.tsx:1866
 msgid "Remove the discussion to add media"
 msgstr "Remove the discussion to add media"
 
-#: src/view/com/composer/Composer.tsx:1860
+#: src/view/com/composer/Composer.tsx:1867
 msgid "Remove the event to add media"
 msgstr "Remove the event to add media"
 
@@ -12393,7 +12472,7 @@ msgstr ""
 msgid "Reply"
 msgstr "Reply"
 
-#: src/view/com/composer/Composer.tsx:2117
+#: src/view/com/composer/Composer.tsx:2124
 msgctxt "action"
 msgid "Reply"
 msgstr ""
@@ -12430,12 +12509,12 @@ msgstr "Reply to {handle}"
 msgid "Reply to {parentName}"
 msgstr "Reply to {parentName}"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:394
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:417
 msgctxt "toast"
 msgid "Reply visibility updated"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:393
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:416
 msgid "Reply was successfully hidden"
 msgstr ""
 
@@ -12504,8 +12583,8 @@ msgstr ""
 msgid "Report photo"
 msgstr "Report photo"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:749
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:751
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:772
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:774
 msgid "Report post"
 msgstr ""
 
@@ -12852,7 +12931,7 @@ msgstr ""
 msgid "Retry"
 msgstr ""
 
-#: src/screens/Signup/StepCommunity/index.tsx:115
+#: src/screens/Signup/StepCommunity/index.tsx:120
 msgid "Retry loading communities"
 msgstr "Retry loading communities"
 
@@ -12921,6 +13000,8 @@ msgstr "Safety tools like spam and bot detection aren't affected. They stay on f
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:670
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:675
 #: src/components/StarterPack/QrCodeDialog.tsx:208
+#: src/features/events/components/EventEditDialog.tsx:174
+#: src/features/events/components/EventEditDialog.tsx:183
 #: src/features/liveNow/components/EditLiveDialog.tsx:199
 #: src/features/liveNow/components/EditLiveDialog.tsx:206
 #: src/screens/Messages/ConversationSettings/prompts.tsx:74
@@ -12957,22 +13038,22 @@ msgstr ""
 #: src/screens/SavedFeeds.tsx:126
 #: src/screens/SavedFeeds.tsx:314
 #: src/screens/SavedFeeds.tsx:318
-#: src/view/com/composer/Composer.tsx:1750
+#: src/view/com/composer/Composer.tsx:1757
 #: src/view/com/composer/drafts/DraftsButton.tsx:121
 msgid "Save changes"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1722
+#: src/view/com/composer/Composer.tsx:1729
 #: src/view/com/composer/drafts/DraftsButton.tsx:89
 msgid "Save changes?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1750
+#: src/view/com/composer/Composer.tsx:1757
 #: src/view/com/composer/drafts/DraftsButton.tsx:121
 msgid "Save draft"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1724
+#: src/view/com/composer/Composer.tsx:1731
 #: src/view/com/composer/drafts/DraftsButton.tsx:91
 msgid "Save draft?"
 msgstr ""
@@ -13359,7 +13440,7 @@ msgstr ""
 msgid "Select filter type (currently: {0})"
 msgstr "Select filter type (currently: {0})"
 
-#: src/screens/Login/index.tsx:141
+#: src/screens/Login/index.tsx:153
 msgid "Select from an existing account"
 msgstr ""
 
@@ -13424,7 +13505,7 @@ msgstr ""
 msgid "Select the {emojiName} emoji as your avatar"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:164
+#: src/view/com/composer/event/EventEditor.tsx:168
 msgid "Select the event image"
 msgstr "Select the event image"
 
@@ -13730,7 +13811,7 @@ msgstr "Share my profile"
 msgid "Share post at:// URI"
 msgstr ""
 
-#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:46
+#: src/screens/Onboarding/StepBlackskyOnly/index.tsx:48
 msgid "Share posts that only other members of the Blacksky community can see."
 msgstr "Share posts that only other members of the Blacksky community can see."
 
@@ -13763,6 +13844,8 @@ msgstr "Share this Starter Pack and help people join your community on Blacksky.
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:134
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:137
+#: src/features/events/components/EventHostMenu.tsx:91
+#: src/features/events/components/EventHostMenu.tsx:100
 #: src/screens/ProfileList/components/MoreOptionsMenu.tsx:187
 #: src/screens/ProfileList/components/MoreOptionsMenu.tsx:193
 #: src/screens/StarterPack/StarterPackScreen.tsx:653
@@ -13853,8 +13936,8 @@ msgstr "Show fewer states"
 msgid "Show group chat updates"
 msgstr "Show group chat updates"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:593
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:595
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:616
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:618
 msgid "Show less like this"
 msgstr ""
 
@@ -13876,8 +13959,8 @@ msgstr ""
 msgid "Show more"
 msgstr "Show more"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:585
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:587
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:608
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:610
 msgid "Show more like this"
 msgstr ""
 
@@ -13890,7 +13973,7 @@ msgstr "Show more posts"
 msgid "Show more replies"
 msgstr ""
 
-#: src/screens/Event/EventScreen.tsx:163
+#: src/screens/Event/EventScreen.tsx:173
 msgid "Show muted or blocked accounts"
 msgstr "Show muted or blocked accounts"
 
@@ -13916,8 +13999,8 @@ msgstr ""
 msgid "Show replies as"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:641
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:651
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:664
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:674
 msgid "Show reply for everyone"
 msgstr ""
 
@@ -13954,7 +14037,7 @@ msgstr "Shows {0} apps"
 msgid "Shows {0} notifications"
 msgstr "Shows {0} notifications"
 
-#: src/view/com/composer/event/EventEditor.tsx:404
+#: src/view/com/composer/event/EventEditor.tsx:391
 msgid "Shows how the event will look in the feed"
 msgstr "Shows how the event will look in the feed"
 
@@ -13977,14 +14060,14 @@ msgstr ""
 #: src/components/WelcomeModal.tsx:208
 #: src/screens/GroupInviteLanding.tsx:81
 #: src/screens/Hashtag.tsx:233
-#: src/screens/Login/index.tsx:124
-#: src/screens/Login/index.tsx:140
-#: src/screens/Login/LoginForm.tsx:243
+#: src/screens/Login/index.tsx:136
+#: src/screens/Login/index.tsx:152
+#: src/screens/Login/LoginForm.tsx:257
 #: src/screens/Messages/JoinRequest.tsx:294
 #: src/screens/Messages/JoinRequest.tsx:300
 #: src/screens/Search/SearchResults.tsx:376
-#: src/view/com/auth/NativeSplashScreen.tsx:168
-#: src/view/com/auth/NativeSplashScreen.tsx:194
+#: src/view/com/auth/NativeSplashScreen.tsx:164
+#: src/view/com/auth/NativeSplashScreen.tsx:190
 #: src/view/com/auth/SplashScreen.tsx:127
 #: src/view/com/auth/SplashScreen.tsx:137
 #: src/view/com/auth/SplashScreen.web.tsx:119
@@ -14007,7 +14090,7 @@ msgstr ""
 msgid "Sign in as {fullDraftHandle}"
 msgstr "Sign in as {fullDraftHandle}"
 
-#: src/screens/Login/LoginForm.tsx:312
+#: src/screens/Login/LoginForm.tsx:326
 msgid "Sign in as {handle}"
 msgstr "Sign in as {handle}"
 
@@ -14057,8 +14140,8 @@ msgstr "Sign in to join"
 msgid "Sign in to request access to this group chat."
 msgstr "Sign in to request access to this group chat."
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:571
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:573
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:594
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:596
 msgid "Sign in to view post"
 msgstr ""
 
@@ -14135,7 +14218,7 @@ msgstr ""
 msgid "Skip contact sharing and continue to the app"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1767
+#: src/view/com/composer/Composer.tsx:1774
 msgid "Skip empty posts?"
 msgstr "Skip empty posts?"
 
@@ -14309,7 +14392,7 @@ msgid "Sorry, we're unable to load account suggestions at this time."
 msgstr ""
 
 #: src/App.tsx:126
-#: src/App.web.tsx:153
+#: src/App.web.tsx:154
 msgid "Sorry! Your session expired. Please sign in again."
 msgstr ""
 
@@ -14454,7 +14537,7 @@ msgstr ""
 msgid "Starting discussion..."
 msgstr "Starting discussion..."
 
-#: src/screens/Login/LoginForm.tsx:366
+#: src/screens/Login/LoginForm.tsx:380
 msgid "Starts the sign-in process"
 msgstr "Starts the sign-in process"
 
@@ -14482,7 +14565,7 @@ msgstr "Status unavailable"
 #. placeholder {1}: STEPS.length
 #. placeholder {1}: state.totalSteps
 #: src/screens/Onboarding/Layout.tsx:187
-#: src/view/com/composer/event/EventEditor.tsx:206
+#: src/view/com/composer/event/EventEditor.tsx:210
 msgid "Step {0} of {1}"
 msgstr ""
 
@@ -14749,7 +14832,7 @@ msgstr ""
 msgid "Synthetic content"
 msgstr "Synthetic content"
 
-#: src/screens/Onboarding/StepBelong/index.tsx:60
+#: src/screens/Onboarding/StepBelong/index.tsx:62
 msgid "Synthetic Media"
 msgstr "Synthetic Media"
 
@@ -15053,9 +15136,14 @@ msgstr ""
 msgid "The Discover feed now knows what you like"
 msgstr ""
 
-#: src/view/com/composer/event/EventEditor.tsx:348
+#: src/features/events/components/EventEditDialog.tsx:287
+#: src/view/com/composer/event/EventEditor.tsx:352
 msgid "The end date must be after the start date."
 msgstr "The end date must be after the start date."
+
+#: src/features/events/components/EventHostMenu.tsx:161
+msgid "The event and its guest list will be removed. You won't be able to recover it."
+msgstr "The event and its guest list will be removed. You won't be able to recover it."
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:324
 msgid "The experience is better in the app. Download Blacksky now and we'll pick back up where you left off."
@@ -15245,9 +15333,9 @@ msgid "There was an issue updating your feeds, please check your internet connec
 msgstr ""
 
 #. placeholder {0}: e.toString()
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:437
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:459
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:478
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:460
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:482
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:501
 #: src/screens/Messages/ConversationSettings/Member.tsx:71
 #: src/screens/Messages/ConversationSettings/MemberMenu.tsx:114
 #: src/screens/Messages/ConversationSettings/MemberMenu.tsx:127
@@ -15507,11 +15595,15 @@ msgstr ""
 msgid "This email is already associated with your account."
 msgstr ""
 
-#: src/screens/Event/EventScreen.tsx:67
+#: src/screens/Event/EventScreen.tsx:68
 msgid "This event may have been deleted or isn't available."
 msgstr "This event may have been deleted or isn't available."
 
-#: src/view/com/composer/event/EventEditor.tsx:354
+#: src/features/events/components/EventEditDialog.tsx:140
+msgid "This event no longer exists."
+msgstr "This event no longer exists."
+
+#: src/view/com/composer/event/EventEditor.tsx:358
 msgid "This event starts in the past."
 msgstr "This event starts in the past."
 
@@ -15703,6 +15795,10 @@ msgstr "This post is only visible to members of its community."
 msgid "This post is only visible to members of the Blacksky community."
 msgstr "This post is only visible to members of the Blacksky community."
 
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:820
+msgid "This post links to your event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted."
+msgstr "This post links to your event. You can keep the event and its guest list, or delete them too. Neither can be recovered once deleted."
+
 #: src/screens/Bookmarks.tsx:250
 msgid "This post was deleted by its author"
 msgstr ""
@@ -15723,7 +15819,7 @@ msgstr ""
 msgid "This reply targets a different private space than its parent."
 msgstr "This reply targets a different private space than its parent."
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:837
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:886
 msgid "This reply will be sorted into a hidden section at the bottom of your thread and will mute notifications for subsequent replies - both for yourself and others."
 msgstr ""
 
@@ -15839,7 +15935,7 @@ msgstr "This will irreversibly delete your Blacksky account <0>{currentHandle}</
 msgid "This will remove @{0} from the quick access list."
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:830
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:879
 msgid "This will remove your post from this quote post for all users, and replace it with a placeholder."
 msgstr ""
 
@@ -15982,8 +16078,8 @@ msgstr "Training"
 #: src/components/dms/MessageContextMenu.tsx:193
 #: src/components/Post/Translated/index.tsx:147
 #: src/components/Post/Translated/index.tsx:154
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:553
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:555
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:576
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:578
 msgid "Translate"
 msgstr ""
 
@@ -15995,8 +16091,8 @@ msgstr "Translated"
 msgid "Translating"
 msgstr "Translating"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:537
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:539
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:560
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:562
 msgid "Translating…"
 msgstr "Translating…"
 
@@ -16113,16 +16209,16 @@ msgstr ""
 
 #: src/screens/Deactivated.tsx:140
 #: src/screens/Login/ForgotPasswordForm.tsx:70
-#: src/screens/Login/index.tsx:98
-#: src/screens/Login/LoginForm.tsx:88
-#: src/screens/Login/LoginForm.tsx:126
-#: src/screens/Login/LoginForm.tsx:163
-#: src/screens/Login/LoginForm.tsx:219
+#: src/screens/Login/index.tsx:110
+#: src/screens/Login/LoginForm.tsx:91
+#: src/screens/Login/LoginForm.tsx:131
+#: src/screens/Login/LoginForm.tsx:172
+#: src/screens/Login/LoginForm.tsx:231
 #: src/screens/Login/SetNewPasswordForm.tsx:82
 msgid "Unable to contact your service. Please check your Internet connection."
 msgstr ""
 
-#: src/screens/Signup/index.tsx:138
+#: src/screens/Signup/index.tsx:152
 msgid "Unable to contact your service. Please try again shortly."
 msgstr "Unable to contact your service. Please try again shortly."
 
@@ -16323,8 +16419,8 @@ msgstr ""
 msgid "Unmute {0}"
 msgstr "Unmute {0}"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:704
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:710
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:727
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:733
 #: src/view/com/profile/ProfileMenu.tsx:476
 #: src/view/com/profile/ProfileMenu.tsx:482
 msgid "Unmute account"
@@ -16343,8 +16439,8 @@ msgstr ""
 msgid "Unmute this group chat"
 msgstr "Unmute this group chat"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:608
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:611
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:631
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:634
 msgid "Unmute thread"
 msgstr ""
 
@@ -16369,8 +16465,8 @@ msgstr ""
 msgid "Unpin from home"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:514
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:519
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:537
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:542
 msgid "Unpin from profile"
 msgstr ""
 
@@ -16423,7 +16519,7 @@ msgstr ""
 msgid "Unsupported clipboard content"
 msgstr "Unsupported clipboard content"
 
-#: src/view/com/composer/Composer.tsx:1873
+#: src/view/com/composer/Composer.tsx:1880
 msgid "Unsupported video type: {mimeType}"
 msgstr ""
 
@@ -16432,7 +16528,7 @@ msgstr ""
 msgid "Until"
 msgstr "Until"
 
-#: src/features/events/components/EventCard.tsx:131
+#: src/features/events/components/EventCard.tsx:134
 msgid "Upcoming"
 msgstr "Upcoming"
 
@@ -16480,12 +16576,12 @@ msgstr ""
 msgid "Updated"
 msgstr "Updated"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:362
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:385
 msgctxt "toast"
 msgid "Updating quote attachment failed"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:410
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:433
 msgctxt "toast"
 msgid "Updating reply visibility failed"
 msgstr ""
@@ -16503,8 +16599,8 @@ msgstr "Upload a photo to personalize your page."
 msgid "Upload a text file to:"
 msgstr ""
 
-#: src/view/com/composer/event/EventCoverPicker.tsx:156
-#: src/view/com/composer/event/EventCoverPicker.tsx:159
+#: src/view/com/composer/event/EventCoverPicker.tsx:158
+#: src/view/com/composer/event/EventCoverPicker.tsx:161
 #: src/view/com/util/UserAvatar.tsx:495
 #: src/view/com/util/UserAvatar.tsx:498
 #: src/view/com/util/UserBanner.tsx:171
@@ -16517,8 +16613,8 @@ msgstr ""
 msgid "Upload from Files"
 msgstr ""
 
-#: src/view/com/composer/event/EventCoverPicker.tsx:164
-#: src/view/com/composer/event/EventCoverPicker.tsx:167
+#: src/view/com/composer/event/EventCoverPicker.tsx:166
+#: src/view/com/composer/event/EventCoverPicker.tsx:169
 #: src/view/com/util/UserAvatar.tsx:506
 #: src/view/com/util/UserAvatar.tsx:510
 #: src/view/com/util/UserBanner.tsx:182
@@ -16530,7 +16626,7 @@ msgstr ""
 msgid "Uploading event image..."
 msgstr "Uploading event image..."
 
-#: src/view/com/composer/Composer.tsx:2958
+#: src/view/com/composer/Composer.tsx:2965
 msgid "Uploading GIF..."
 msgstr ""
 
@@ -16545,7 +16641,7 @@ msgstr ""
 msgid "Uploading link thumbnail..."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2960
+#: src/view/com/composer/Composer.tsx:2967
 msgid "Uploading video..."
 msgstr ""
 
@@ -16670,7 +16766,7 @@ msgstr "Username must be at least 3 characters"
 msgid "Username must only contain letters (a-z), numbers, and hyphens"
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:253
+#: src/screens/Login/LoginForm.tsx:267
 msgid "Username or handle"
 msgstr "Username or handle"
 
@@ -16827,7 +16923,7 @@ msgstr ""
 msgid "Video settings"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:2978
+#: src/view/com/composer/Composer.tsx:2985
 msgid "Video uploaded"
 msgstr ""
 
@@ -16849,7 +16945,7 @@ msgstr "Videos must be {VIDEO_MAX_MINUTES} minutes or less."
 msgid "Videos must be 10 minutes or less."
 msgstr "Videos must be 10 minutes or less."
 
-#: src/view/com/composer/Composer.tsx:1436
+#: src/view/com/composer/Composer.tsx:1443
 msgctxt "Action to view the post the user just created"
 msgid "View"
 msgstr ""
@@ -16976,7 +17072,7 @@ msgstr ""
 msgid "View GrowthBook information"
 msgstr "View GrowthBook information"
 
-#: src/screens/Event/EventHeader.tsx:155
+#: src/screens/Event/EventHeader.tsx:161
 msgid "View host's profile"
 msgstr "View host's profile"
 
@@ -17015,7 +17111,7 @@ msgstr ""
 msgid "View photo"
 msgstr "View photo"
 
-#: src/view/com/composer/Composer.tsx:1404
+#: src/view/com/composer/Composer.tsx:1411
 msgid "View post"
 msgstr ""
 
@@ -17166,7 +17262,7 @@ msgstr "Vote agree on this statement"
 msgid "Vote disagree on this statement"
 msgstr "Vote disagree on this statement"
 
-#: src/screens/Onboarding/StepAssembly/index.tsx:46
+#: src/screens/Onboarding/StepAssembly/index.tsx:48
 msgid "Vote on platform decisions, make proposals, and offer feedback through Discussions."
 msgstr "Vote on platform decisions, make proposals, and offer feedback through Discussions."
 
@@ -17194,7 +17290,7 @@ msgstr ""
 msgid "Watch on Blacksky"
 msgstr "Watch on Blacksky"
 
-#: src/screens/Event/EventHeader.tsx:165
+#: src/screens/Event/EventHeader.tsx:171
 msgid "Watch on Streamplace"
 msgstr "Watch on Streamplace"
 
@@ -17222,11 +17318,11 @@ msgstr ""
 msgid "We couldn't find an account at {didOrHandle}."
 msgstr "We couldn't find an account at {didOrHandle}."
 
-#: src/screens/Login/LoginForm.tsx:108
+#: src/screens/Login/LoginForm.tsx:112
 msgid "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 msgstr "We couldn't find an account for \"{identifier}\". Enter your full handle including its domain (like {examples})"
 
-#: src/screens/Login/LoginForm.tsx:228
+#: src/screens/Login/LoginForm.tsx:241
 msgid "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 msgstr "We couldn't find an account with the handle \"{identifier}\". Check the spelling, or create a new account if you don't have one yet."
 
@@ -17267,11 +17363,11 @@ msgstr ""
 msgid "We estimate {estimatedTime} until your account is ready."
 msgstr ""
 
-#: src/screens/Login/LoginForm.tsx:324
+#: src/screens/Login/LoginForm.tsx:338
 msgid "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 msgstr "We filled in our best guess at your full handle. If it looks right, press Login to continue"
 
-#: src/screens/Login/LoginForm.tsx:304
+#: src/screens/Login/LoginForm.tsx:318
 msgid "We found more than one account with that name. Which one is yours?"
 msgstr "We found more than one account with that name. Which one is yours?"
 
@@ -17560,7 +17656,7 @@ msgstr "Would you like to block this user and/or leave this conversation?"
 msgid "Would you like to save this as a draft before viewing your drafts?"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1738
+#: src/view/com/composer/Composer.tsx:1745
 msgid "Would you like to save this as a draft to edit later?"
 msgstr ""
 
@@ -17574,12 +17670,12 @@ msgstr ""
 msgid "Write a statement people can agree with"
 msgstr "Write a statement people can agree with"
 
-#: src/view/com/composer/Composer.tsx:1935
+#: src/view/com/composer/Composer.tsx:1942
 msgid "Write post"
 msgstr ""
 
 #: src/screens/PostThread/components/ThreadComposePrompt.tsx:98
-#: src/view/com/composer/Composer.tsx:1822
+#: src/view/com/composer/Composer.tsx:1829
 msgid "Write your reply"
 msgstr ""
 
@@ -17634,11 +17730,11 @@ msgstr ""
 msgid "Yes, delete this Starter Pack"
 msgstr "Yes, delete this Starter Pack"
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:832
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:881
 msgid "Yes, detach"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:839
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:888
 msgid "Yes, hide"
 msgstr ""
 
@@ -17746,7 +17842,7 @@ msgstr ""
 msgid "You can continue ongoing conversations regardless of which setting you choose."
 msgstr ""
 
-#: src/screens/Login/index.tsx:182
+#: src/screens/Login/index.tsx:194
 #: src/screens/Login/PasswordUpdatedForm.tsx:25
 msgid "You can now sign in with your new password."
 msgstr ""
@@ -17756,7 +17852,7 @@ msgstr ""
 msgid "You can only add up to {MAX_GALLERY_IMAGES, plural, other {# images}} per post"
 msgstr "You can only add up to {MAX_GALLERY_IMAGES, plural, other {# images}} per post"
 
-#: src/view/com/composer/Composer.tsx:1743
+#: src/view/com/composer/Composer.tsx:1750
 msgid "You can only save drafts up to 1000 characters."
 msgstr ""
 
@@ -17905,7 +18001,7 @@ msgstr ""
 msgid "You have temporarily reached the limit for video uploads. Please try again later."
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1733
+#: src/view/com/composer/Composer.tsx:1740
 msgid "You have unsaved changes to this draft, would you like to save them?"
 msgstr ""
 
@@ -18071,11 +18167,11 @@ msgstr "You will no longer appear in this Starter Pack. The creator will be able
 msgid "You will no longer receive notifications for {0}"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:257
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:280
 msgid "You will no longer receive notifications for this thread"
 msgstr ""
 
-#: src/components/PostControls/PostMenu/PostMenuItems.tsx:248
+#: src/components/PostControls/PostMenu/PostMenuItems.tsx:271
 msgid "You will now receive notifications for this thread"
 msgstr ""
 
@@ -18092,11 +18188,11 @@ msgstr "You won’t be able to rejoin unless you’re invited."
 msgid "You: {message}"
 msgstr "You: {message}"
 
-#: src/screens/Signup/index.tsx:198
+#: src/screens/Signup/index.tsx:212
 msgid "You'll follow the suggested users and feeds once you finish creating your account!"
 msgstr ""
 
-#: src/screens/Signup/index.tsx:203
+#: src/screens/Signup/index.tsx:217
 msgid "You'll follow the suggested users once you finish creating your account!"
 msgstr ""
 
@@ -18474,11 +18570,11 @@ msgstr "Your post was removed"
 msgid "Your post was restored"
 msgstr "Your post was restored"
 
-#: src/view/com/composer/Composer.tsx:1400
+#: src/view/com/composer/Composer.tsx:1407
 msgid "Your post was sent"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1397
+#: src/view/com/composer/Composer.tsx:1404
 msgid "Your posts were sent"
 msgstr ""
 
@@ -18500,7 +18596,7 @@ msgstr "Your profile, posts, feeds, and lists will no longer be visible to other
 msgid "Your pronouns show next to your handle on your profile."
 msgstr "Your pronouns show next to your handle on your profile."
 
-#: src/view/com/composer/Composer.tsx:1399
+#: src/view/com/composer/Composer.tsx:1406
 msgid "Your reply was sent"
 msgstr ""
 
@@ -18531,7 +18627,7 @@ msgstr "Your reports notifications"
 msgid "Your selected interests help us serve you content you care about."
 msgstr ""
 
-#: src/screens/Signup/index.tsx:137
+#: src/screens/Signup/index.tsx:151
 msgid "Your service is receiving too many requests. Please wait a few minutes and try again."
 msgstr "Your service is receiving too many requests. Please wait a few minutes and try again."
 
@@ -18547,7 +18643,7 @@ msgstr "Your states"
 msgid "Your support helps us maintain and improve the Blacksky community."
 msgstr "Your support helps us maintain and improve the Blacksky community."
 
-#: src/view/com/composer/Composer.tsx:1768
+#: src/view/com/composer/Composer.tsx:1775
 msgid "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 msgstr "Your thread has empty posts that will be skipped. The remaining posts will be published as a thread."
 

@@ -1318,6 +1318,13 @@ export const ComposePost = ({
             hasQuote: !!post.embed.quote,
             hasPoll: !!post.embed.poll,
             pollStatementCount: post.embed.poll?.statements.length ?? 0,
+            audience:
+              filteredThread.communitySpaceUri ||
+              filteredThread.communityFeedUri
+                ? 'communityFeed'
+                : filteredThread.blackskyOnly
+                  ? 'blackskyOnly'
+                  : 'public',
             langs: fromPostLanguages(currentLanguages),
             logContext: 'Composer',
           })

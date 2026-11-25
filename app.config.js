@@ -403,7 +403,6 @@ module.exports = function (_config) {
         './plugins/withAndroidManifestOptionalCameraPlugin.js',
         './plugins/withAndroidStylesAccentColorPlugin.js',
         './plugins/withAndroidNoJitpackPlugin.js',
-        './plugins/withIosCppLanguageStandard.js',
         './plugins/withAndroidPreparedTextLayoutPlugin.js',
         './plugins/withAndroidComposeVersion.js',
         './plugins/withIOSWindowingControlStyle.js',
