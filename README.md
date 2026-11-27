@@ -14,8 +14,8 @@ values of safety, autonomy, and collective ownership.
 | Platform | Link | Status |
 |----------|------|--------|
 | **Web**  | <https://blacksky.community> | ✅ Live |
-| **iOS**  | *(App Store link forthcoming)* | 🛠 WIP |
-| **Android** | *(Play Store link forthcoming)* | 🛠 WIP |
+| **iOS**  | <https://apps.apple.com/us/app/blacksky-community/id6776276281> | ✅ Live |
+| **Android** | <https://play.google.com/store/apps/details?id=community.blacksky.app> | ✅ Live |
 
 ---
 
